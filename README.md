@@ -4,7 +4,7 @@
 [comment]: <> (SPDX-FileCopyrightText: Copyright &#40;c&#41; 2015 Apiary Inc.)
 [comment]: <> (SPDX-License-Identifier: MIT)
 
-# ApiDOM
+# SpecLynx ApiDOM
 
 [![Build Status](https://github.com/speclynx/apidom/actions/workflows/build.yml/badge.svg)](https://github.com/speclynx/apidom/actions)
 [![Dependabot enabled](https://badgen.net/badge/icon/dependabot?icon=dependabot&label)](https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically)
