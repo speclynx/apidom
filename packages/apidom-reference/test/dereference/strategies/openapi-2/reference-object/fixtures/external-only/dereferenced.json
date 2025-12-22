@@ -1,0 +1,17 @@
+[
+  {
+    "swagger": "2.0",
+    "definitions": {
+      "externalSchema": {
+        "type": "object",
+        "properties": {
+          "sentAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time when the message was sent."
+          }
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "definitions": {
+    "externalSchema": {
+      "$ref": "./entry.json#/definitions/schema"
+    }
+  }
+
+}

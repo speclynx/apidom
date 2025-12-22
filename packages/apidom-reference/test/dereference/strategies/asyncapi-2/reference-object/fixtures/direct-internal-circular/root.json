@@ -1,0 +1,13 @@
+{
+  "asyncapi": "2.6.0",
+  "components": {
+    "parameters": {
+      "userId": {
+        "$ref": "#/components/parameters/userProfileId"
+      },
+      "userProfileId": {
+        "$ref": "#/components/parameters/userId"
+      }
+    }
+  }
+}

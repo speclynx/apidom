@@ -1,0 +1,15 @@
+[
+  {
+    "asyncapi": "2.6.0",
+    "components": {
+      "operationBindings": {
+        "operationBindings1": {
+          "kafka": {}
+        },
+        "operationBindings2": {
+          "kafka": {}
+        }
+      }
+    }
+  }
+]

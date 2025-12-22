@@ -1,0 +1,20 @@
+import { expect } from 'chai';
+import { sexprs } from '@speclynx/apidom-core';
+
+import { StandardIdentifierElement } from '../../../../src/index.ts';
+
+describe('refractor', function () {
+  context('elements', function () {
+    context('StandardIdentifierElement', function () {
+      specify('should refract to semantic ApiDOM tree', function () {
+        const standardIdentifierElement = StandardIdentifierElement.refract([
+          'http',
+          'request',
+          'method',
+        ]);
+
+        expect(sexprs(standardIdentifierElement)).toMatchSnapshot();
+      });
+    });
+  });
+});

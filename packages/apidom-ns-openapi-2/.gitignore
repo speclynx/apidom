@@ -1,0 +1,7 @@
+/src/**/*.mjs
+/src/**/*.cjs
+/test/**/*.mjs
+/dist
+/types
+/NOTICE
+/speclynx-apidom-ns-openapi-2-*.tgz

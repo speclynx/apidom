@@ -1,0 +1,57 @@
+import { Buffer } from 'node:buffer';
+import { ParseResultElement, StringElement } from '@speclynx/apidom-core';
+
+import ParserError from '../../../errors/ParserError.ts';
+import Parser, { ParserOptions } from '../Parser.ts';
+import File from '../../../File.ts';
+
+export type { default as Parser, ParserOptions } from '../Parser.ts';
+export type { default as File, FileOptions } from '../../../File.ts';
+
+/**
+ * Everything that is not recognized by other parsers will be considered by this parser
+ * as a binary data and will be encoded to Base64 format.
+ * @public
+ */
+
+export interface BinaryParserOptions extends Omit<ParserOptions, 'name'> {}
+
+/**
+ * @public
+ */
+class BinaryParser extends Parser {
+  constructor(options?: BinaryParserOptions) {
+    super({ ...(options ?? {}), name: 'binary' });
+  }
+
+  canParse(file: File): boolean {
+    return this.fileExtensions.length === 0 ? true : this.fileExtensions.includes(file.extension);
+  }
+
+  parse(file: File): ParseResultElement {
+    let base64String: string;
+
+    try {
+      type BufferData = Parameters<typeof Buffer.from>[0];
+      base64String = Buffer.from(file.data as BufferData).toString('base64');
+    } catch {
+      base64String = Buffer.from(file.toString()).toString('base64');
+    }
+
+    try {
+      const parseResultElement = new ParseResultElement();
+
+      if (base64String.length !== 0) {
+        const base64StringElement = new StringElement(base64String);
+        base64StringElement.classes.push('result');
+        parseResultElement.push(base64StringElement);
+      }
+
+      return parseResultElement;
+    } catch (error: unknown) {
+      throw new ParserError(`Error parsing "${file.uri}"`, { cause: error });
+    }
+  }
+}
+
+export default BinaryParser;

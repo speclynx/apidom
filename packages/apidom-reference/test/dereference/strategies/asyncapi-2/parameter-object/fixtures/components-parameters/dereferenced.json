@@ -1,0 +1,15 @@
+[
+  {
+    "asyncapi": "2.6.0",
+    "components": {
+      "parameters": {
+        "parameter1": {
+          "description": "description of parameter 1"
+        },
+        "parameter2": {
+          "description": "description of parameter 1"
+        }
+      }
+    }
+  }
+]

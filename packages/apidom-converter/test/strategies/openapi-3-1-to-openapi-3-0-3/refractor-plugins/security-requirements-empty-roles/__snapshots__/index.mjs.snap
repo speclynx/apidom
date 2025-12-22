@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`converter strategies openapi-3-1-to-openapi-3-0-3 security-requirements-empty-roles should set SecurityRequirement object to an empty array if it has SecurityScheme object type other than "oauth2" and "openIdConnect" 1`] = `
+{
+  "openapi": "3.0.3",
+  "paths": {
+    "/foo": {
+      "get": {
+        "summary": "foo",
+        "operationId": "foo",
+        "security": [
+          {
+            "oauth2-scheme": [
+              "read",
+              "write"
+            ]
+          },
+          {
+            "apiKey-scheme": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "foo"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "oauth2-scheme": {
+        "type": "oauth2",
+        "name": "oauth2-scheme",
+        "in": "header"
+      },
+      "apiKey-scheme": {
+        "type": "apiKey",
+        "name": "apiKey-scheme",
+        "in": "header"
+      }
+    }
+  }
+}
+`;

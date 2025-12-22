@@ -1,0 +1,8 @@
+/src/**/*.mjs
+/src/**/*.cjs
+/test/**/*.mjs
+/dist
+/types
+/LICENSES
+/NOTICE
+/speclynx-apidom-ast-*.tgz

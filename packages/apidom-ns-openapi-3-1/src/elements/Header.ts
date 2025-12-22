@@ -1,0 +1,18 @@
+import { HeaderElement } from '@speclynx/apidom-ns-openapi-3-0';
+
+import SchemaElement from './Schema.ts';
+
+/**
+ * @public
+ */
+class Header extends HeaderElement {
+  get schema(): SchemaElement | undefined {
+    return this.get('schema');
+  }
+
+  set schema(schema: SchemaElement | undefined) {
+    this.set('schema', schema);
+  }
+}
+
+export default Header;

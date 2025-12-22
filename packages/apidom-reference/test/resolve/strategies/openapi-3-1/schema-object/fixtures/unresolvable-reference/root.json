@@ -1,0 +1,14 @@
+{
+  "openapi": "3.1.2",
+  "components": {
+    "schemas": {
+      "User": {
+        "properties": {
+          "profile": {
+            "$ref": "./ex.json#/components/schemas/UserProfile"
+          }
+        }
+      }
+    }
+  }
+}

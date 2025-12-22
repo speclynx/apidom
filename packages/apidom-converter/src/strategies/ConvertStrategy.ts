@@ -1,0 +1,22 @@
+import { ParseResultElement } from '@speclynx/apidom-core';
+import { File } from '@speclynx/apidom-reference';
+
+import type { ConverterOptions } from '../options/index.ts';
+
+export interface ConvertStrategyOptions {
+  readonly name: string;
+}
+
+abstract class ConvertStrategy {
+  public readonly name: string;
+
+  protected constructor({ name }: ConvertStrategyOptions) {
+    this.name = name;
+  }
+
+  abstract canConvert(file: File, options: ConverterOptions): boolean;
+
+  abstract convert(file: File, options: ConverterOptions): Promise<ParseResultElement>;
+}
+
+export default ConvertStrategy;

@@ -1,0 +1,39 @@
+import { ApiDOMErrorOptions } from '@speclynx/apidom-error';
+
+import { RelativeJsonPointer } from '../types.ts';
+import RelativeJsonPointerError from './RelativeJsonPointerError.ts';
+
+/**
+ * @public
+ */
+export interface CompilationRelativeJsonPointerErrorOptions extends ApiDOMErrorOptions {
+  readonly relativePointer: RelativeJsonPointer;
+}
+
+/**
+ * @public
+ */
+class CompilationRelativeJsonPointerError extends RelativeJsonPointerError {
+  public readonly nonNegativeIntegerPrefix!: number;
+
+  public readonly indexManipulation?: number;
+
+  public readonly jsonPointerTokens?: string[];
+
+  public readonly hashCharacter?: boolean;
+
+  constructor(message?: string, structuredOptions?: CompilationRelativeJsonPointerErrorOptions) {
+    super(message, structuredOptions);
+
+    if (typeof structuredOptions !== 'undefined') {
+      this.nonNegativeIntegerPrefix = structuredOptions.relativePointer.nonNegativeIntegerPrefix;
+      this.indexManipulation = structuredOptions.relativePointer.indexManipulation;
+      this.hashCharacter = structuredOptions.relativePointer.hashCharacter;
+      if (Array.isArray(structuredOptions.relativePointer.jsonPointerTokens)) {
+        this.jsonPointerTokens = [...structuredOptions.relativePointer.jsonPointerTokens];
+      }
+    }
+  }
+}
+
+export default CompilationRelativeJsonPointerError;

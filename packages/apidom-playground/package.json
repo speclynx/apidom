@@ -1,0 +1,66 @@
+{
+  "name": "@speclynx/apidom-playground",
+  "description": "ApiDOM Playground demonstrates various features of ApiDOM visually.",
+  "private": true,
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org",
+    "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/speclynx/apidom.git"
+  },
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "test": "echo 'no tests defined for ApiDOM Playground'",
+    "lint": "eslint ./",
+    "lint:fix": "eslint ./ --fix",
+    "clean": "rimraf ./build"
+  },
+  "dependencies": {
+    "@emotion/react": "=11.14.0",
+    "@emotion/styled": "=11.14.0",
+    "@mui/icons-material": "^7.0.2",
+    "@mui/material": "^7.0.2",
+    "@speclynx/apidom-ast": "*",
+    "@speclynx/apidom-core": "*",
+    "@speclynx/apidom-ns-asyncapi-2": "*",
+    "@speclynx/apidom-ns-openapi-2": "*",
+    "@speclynx/apidom-ns-openapi-3-0": "*",
+    "@speclynx/apidom-ns-openapi-3-1": "*",
+    "@speclynx/apidom-ns-arazzo-1": "*",
+    "@speclynx/apidom-parser": "*",
+    "@speclynx/apidom-parser-adapter-asyncapi-json-2": "*",
+    "@speclynx/apidom-parser-adapter-asyncapi-yaml-2": "*",
+    "@speclynx/apidom-parser-adapter-json": "*",
+    "@speclynx/apidom-parser-adapter-openapi-json-2": "*",
+    "@speclynx/apidom-parser-adapter-openapi-json-3-0": "*",
+    "@speclynx/apidom-parser-adapter-openapi-json-3-1": "*",
+    "@speclynx/apidom-parser-adapter-openapi-yaml-2": "*",
+    "@speclynx/apidom-parser-adapter-openapi-yaml-3-0": "*",
+    "@speclynx/apidom-parser-adapter-openapi-yaml-3-1": "*",
+    "@speclynx/apidom-parser-adapter-arazzo-json-1": "*",
+    "@speclynx/apidom-parser-adapter-arazzo-yaml-1": "*",
+    "@speclynx/apidom-parser-adapter-yaml-1-2": "*",
+    "@speclynx/apidom-reference": "*",
+    "classnames": "^2.3.2",
+    "comlink": "^4.3.0",
+    "prop-types": "^15.7.2",
+    "ramda": "~0.32.0",
+    "ramda-adjunct": "^6.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^9.0.4",
+    "swagger-adjust": "^0.7.1",
+    "web-vitals": "^5.0.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.3",
+    "sass": "^1.55.0",
+    "vite": "^6.0.3"
+  }
+}

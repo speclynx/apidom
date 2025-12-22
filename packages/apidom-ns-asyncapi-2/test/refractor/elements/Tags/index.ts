@@ -1,0 +1,16 @@
+import { expect } from 'chai';
+import { sexprs } from '@speclynx/apidom-core';
+
+import { TagsElement } from '../../../../src/index.ts';
+
+describe('refractor', function () {
+  context('elements', function () {
+    context('TagsElement', function () {
+      specify('should refract to semantic ApiDOM tree', function () {
+        const tagsElement = TagsElement.refract([{}, {}]);
+
+        expect(sexprs(tagsElement)).toMatchSnapshot();
+      });
+    });
+  });
+});

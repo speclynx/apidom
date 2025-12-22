@@ -1,0 +1,36 @@
+[
+  {
+    "openapi": "3.0.4",
+    "components": {
+      "schemas": {
+        "externalSchema": {
+          "schema1": {
+            "type": "object",
+            "properties": {
+              "sentAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Date and time when the message was sent."
+              }
+            }
+          },
+          "somePayload": {
+            "type": "object",
+            "properties": {
+              "sentAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Date and time when the message was sent."
+              }
+            }
+          },
+          "sentAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time when the message was sent."
+          }
+        }
+      }
+    }
+  }
+]

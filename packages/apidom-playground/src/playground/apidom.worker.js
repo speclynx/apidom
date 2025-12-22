@@ -1,0 +1,82 @@
+/* eslint-disable camelcase */
+import * as Comlink from 'comlink';
+import { dehydrate, from, sexprs, toValue } from '@speclynx/apidom-core';
+import ApiDOMParser from '@speclynx/apidom-parser';
+import * as jsonAdapter from '@speclynx/apidom-parser-adapter-json';
+import * as yamlAdapter from '@speclynx/apidom-parser-adapter-yaml-1-2';
+import * as openapi2AdapterJson from '@speclynx/apidom-parser-adapter-openapi-json-2';
+import * as openapi2AdapterYaml from '@speclynx/apidom-parser-adapter-openapi-yaml-2';
+import * as openapi3_0AdapterJson from '@speclynx/apidom-parser-adapter-openapi-json-3-0';
+import * as openapi3_0AdapterYaml from '@speclynx/apidom-parser-adapter-openapi-yaml-3-0';
+import * as openapi3_1AdapterJson from '@speclynx/apidom-parser-adapter-openapi-json-3-1';
+import * as openapi3_1AdapterYaml from '@speclynx/apidom-parser-adapter-openapi-yaml-3-1';
+import * as asyncapi2AdapterJson from '@speclynx/apidom-parser-adapter-asyncapi-json-2';
+import * as asyncapi2AdapterYaml from '@speclynx/apidom-parser-adapter-asyncapi-yaml-2';
+import * as arazzo1AdapterJson from '@speclynx/apidom-parser-adapter-arazzo-json-1';
+import * as arazzo1AdapterYaml from '@speclynx/apidom-parser-adapter-arazzo-yaml-1';
+import {
+  readFile,
+  resolveApiDOM as resolveApiDOMReferences,
+  dereferenceApiDOM as derefereceApiDOMReferences,
+  File,
+} from '@speclynx/apidom-reference';
+
+const parser = new ApiDOMParser()
+  .use(jsonAdapter)
+  .use(yamlAdapter)
+  .use(openapi2AdapterJson)
+  .use(openapi2AdapterYaml)
+  .use(openapi3_0AdapterJson)
+  .use(openapi3_0AdapterYaml)
+  .use(openapi3_1AdapterJson)
+  .use(openapi3_1AdapterYaml)
+  .use(asyncapi2AdapterJson)
+  .use(asyncapi2AdapterYaml)
+  .use(arazzo1AdapterJson)
+  .use(arazzo1AdapterYaml);
+
+/* eslint-disable */
+const service = {
+  async parse(source, { mediaType }) {
+    const namespace = await parser.findNamespace(source, { sourceMap: true, mediaType });
+    const parseResult = await parser.parse(source, { sourceMap: true, mediaType });
+    const refract = dehydrate(parseResult, namespace);
+
+    return JSON.stringify(refract, undefined, 2);
+  },
+
+  async readFile(uri) {
+    const buffer = await readFile(uri, {});
+    return new File({ uri, data: buffer }).toString();
+  },
+
+  async resolveApiDOM(apiDOM, { source, mediaType, baseURI }) {
+    const namespace = await parser.findNamespace(source, { mediaType });
+    const parseResult = from(apiDOM, namespace);
+
+    return resolveApiDOMReferences(parseResult, { parse: { mediaType }, resolve: { baseURI } });
+  },
+
+  async dereferenceApiDOM(apiDOM, { source, mediaType, baseURI, interpreter }) {
+    const namespace = await parser.findNamespace(source, { mediaType });
+    const parseResult = from(apiDOM, namespace);
+    const dereferenced = await derefereceApiDOMReferences(parseResult.api, {
+      parse: { mediaType },
+      resolve: { baseURI },
+    });
+
+    if (interpreter === 's-expression') {
+      return { dereferenced: sexprs(dereferenced), interpreter };
+    }
+    if (interpreter === 'to-value') {
+      const value = toValue(dereferenced);
+      return { dereferenced: JSON.stringify(value, undefined, 2), interpreter };
+    }
+    // dehydrate
+    const refract = dehydrate(dereferenced, namespace);
+    return { dereferenced: JSON.stringify(refract, undefined, 2), interpreter };
+  },
+};
+
+Comlink.expose(service, globalThis); // eslint-disable-line no-undef
+/* eslint-enable */

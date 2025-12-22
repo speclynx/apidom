@@ -1,0 +1,69 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { assert } from 'chai';
+import { AnnotationElement, toValue } from '@speclynx/apidom-core';
+import { parse as parseJSON } from '@speclynx/apidom-parser-adapter-json';
+import { parse as parseYAML } from '@speclynx/apidom-parser-adapter-yaml-1-2';
+import { OpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
+
+import {
+  refractPluginOpenApi3_1StandardIdentifierSelectors,
+  refractPluginOpenApi3_1StandardIdentifierAccessors,
+  MainElement,
+  validateOpenAPI3_1,
+} from '../../../../src/index.ts';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const apiDesignSystemsDefinition = fs
+  .readFileSync(path.join(__dirname, 'fixtures', 'api-design-systems.yaml'))
+  .toString();
+const openAPIDefinition = fs
+  .readFileSync(path.join(__dirname, 'fixtures', 'openapi-3-1.json'))
+  .toString();
+
+describe('given API Design Systems and OpenAPI 3.1 definitions', function () {
+  let openapiElement: any;
+  let mainElement: any;
+
+  beforeEach(async function () {
+    const apiDesignSystemsParseResult = await parseYAML(apiDesignSystemsDefinition);
+    const openAPIParseResult = await parseJSON(openAPIDefinition, { sourceMap: true });
+
+    mainElement = MainElement.refract(apiDesignSystemsParseResult.result);
+    openapiElement = OpenApi3_1Element.refract(openAPIParseResult.result, {
+      plugins: [
+        refractPluginOpenApi3_1StandardIdentifierSelectors(),
+        refractPluginOpenApi3_1StandardIdentifierAccessors(),
+      ],
+    });
+  });
+
+  it('should not produce annotation for post requests', function () {
+    const annotations = validateOpenAPI3_1(mainElement, openapiElement);
+
+    assert.lengthOf(annotations, 2);
+  });
+
+  it('should produce annotation about 201 status code', function () {
+    const annotations = validateOpenAPI3_1(mainElement, openapiElement);
+    const statusCodeAnnotation = annotations.find((annotation: AnnotationElement) => {
+      return (
+        toValue(annotation) === '"201" not allowed for subject ["http","response","status_code"]'
+      );
+    });
+
+    assert.isTrue(statusCodeAnnotation instanceof AnnotationElement);
+  });
+
+  it('should produce annotation about 305 status code', function () {
+    const annotations = validateOpenAPI3_1(mainElement, openapiElement);
+    const statusCodeAnnotation = annotations.find((annotation: AnnotationElement) => {
+      return (
+        toValue(annotation) === '"305" not allowed for subject ["http","response","status_code"]'
+      );
+    });
+
+    assert.isTrue(statusCodeAnnotation instanceof AnnotationElement);
+  });
+});

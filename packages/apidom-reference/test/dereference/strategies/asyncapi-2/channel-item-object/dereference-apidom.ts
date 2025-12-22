@@ -1,0 +1,58 @@
+import path from 'node:path';
+import { assert } from 'chai';
+import {
+  mediaTypes,
+  isChannelItemElement,
+  ChannelItemElement,
+} from '@speclynx/apidom-ns-asyncapi-2';
+import { toValue } from '@speclynx/apidom-core';
+import { evaluate } from '@speclynx/apidom-json-pointer';
+import { fileURLToPath } from 'node:url';
+
+import { parse, dereferenceApiDOM } from '../../../../../src/index.ts';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+describe('dereference', function () {
+  context('strategies', function () {
+    context('asyncapi-2', function () {
+      context('Channel Item Object', function () {
+        context('given single ChannelItemElement passed to dereferenceApiDOM', function () {
+          const fixturePath = path.join(__dirname, 'fixtures', 'external-only', 'root.json');
+
+          specify('should dereference', async function () {
+            const parseResult = await parse(fixturePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const channelItemElement = evaluate<ChannelItemElement>(
+              parseResult.api,
+              '/channels/channelItem1',
+            );
+            const dereferenced = await dereferenceApiDOM(channelItemElement, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              resolve: { baseURI: fixturePath },
+            });
+
+            assert.isTrue(isChannelItemElement(dereferenced));
+          });
+
+          specify('should dereference and contain metadata about origin', async function () {
+            const parseResult = await parse(fixturePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const channelItemElement = evaluate<ChannelItemElement>(
+              parseResult.api,
+              '/channels/channelItem1',
+            );
+            const dereferenced = await dereferenceApiDOM(channelItemElement, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              resolve: { baseURI: fixturePath },
+            });
+
+            assert.match(toValue(dereferenced.meta.get('ref-origin')), /external-only\/ex\.json$/);
+          });
+        });
+      });
+    });
+  });
+});

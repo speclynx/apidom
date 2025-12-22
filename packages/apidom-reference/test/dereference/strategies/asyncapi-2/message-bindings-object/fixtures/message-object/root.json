@@ -1,0 +1,17 @@
+{
+  "asyncapi": "2.6.0",
+  "components": {
+    "messageBindings": {
+      "messageBinding1": {
+        "kafka": {}
+      }
+    },
+    "messages": {
+      "UserLoggedOut": {
+        "bindings": {
+          "$ref": "#/components/messageBindings/messageBinding1"
+        }
+      }
+    }
+  }
+}

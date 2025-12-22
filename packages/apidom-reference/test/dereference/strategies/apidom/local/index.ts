@@ -1,0 +1,296 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { assert } from 'chai';
+import {
+  ObjectElement,
+  ArrayElement,
+  StringElement,
+  RefElement,
+  isRefElement,
+  toValue,
+} from '@speclynx/apidom-core';
+
+import { dereference, dereferenceApiDOM, DereferenceError } from '../../../../../src/index.ts';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+describe('dereference', function () {
+  context('strategies', function () {
+    context('apidom', function () {
+      context('local', function () {
+        context('given JSON in a file', function () {
+          specify('should dereference', async function () {
+            // NOTE: there are no RefElements as a plain JSON file cannot represent them
+            const uri = path.join(__dirname, 'fixtures', 'object.json');
+            const dereferenced = await dereference(uri, {
+              parse: { mediaType: 'application/vnd.apidom' },
+            });
+
+            assert.deepEqual(toValue(dereferenced), [{ a: 'b' }]);
+          });
+        });
+
+        context('given dehydrated ApiDOM in a file', async function () {
+          specify('should dereference', async function () {
+            const uri = path.join(__dirname, 'fixtures', 'apidom.json');
+            const dereferenced = await dereference(uri, {
+              parse: { mediaType: 'application/vnd.apidom' },
+            });
+
+            assert.deepEqual(toValue(dereferenced), [{ element: 'b', ref: 'b' }]);
+          });
+        });
+
+        context(
+          'given the RefElement is held by an ArrayElement and references an ArrayElement',
+          function () {
+            specify('should insert content entries in place of the RefElement', async function () {
+              const element = new ObjectElement({
+                array1: new ArrayElement([1, 2, 3], { id: 'unique-id' }),
+                array2: new ArrayElement([new RefElement('unique-id'), 4, 5]),
+              });
+              const actual = await dereferenceApiDOM(element, {
+                parse: { mediaType: 'application/vnd.apidom' },
+              });
+              const expected = [1, 2, 3, 4, 5];
+
+              assert.deepEqual(toValue(actual.get('array2')), expected);
+            });
+          },
+        );
+
+        context(
+          'given the RefElement is held by an ObjectElement and references an ObjectElement',
+          function () {
+            specify('should insert content entries in place of the RefElement', async function () {
+              const element = new ObjectElement({
+                object1: new ObjectElement({ a: 'b', c: 'd' }, { id: 'unique-id' }),
+                object2: new ObjectElement({ e: 'f' }),
+              });
+              element.get('object2').content.push(new RefElement('unique-id'));
+              const actual = await dereferenceApiDOM(element, {
+                parse: { mediaType: 'application/vnd.apidom' },
+              });
+              const expected = { a: 'b', c: 'd', e: 'f' };
+
+              assert.deepEqual(toValue(actual.get('object2')), expected);
+            });
+          },
+        );
+
+        specify('should substitute Ref Element with the Element it references', async function () {
+          const element = new ObjectElement({
+            element: new StringElement('test', { id: 'unique-id' }),
+            ref: new RefElement('unique-id'),
+          });
+          const actual = await dereferenceApiDOM(element, {
+            parse: { mediaType: 'application/vnd.apidom' },
+          });
+          const expected = { element: 'test', ref: 'test' };
+
+          assert.deepEqual(toValue(actual), expected);
+        });
+
+        specify('should handle simple cycles', async function () {
+          const element = new ObjectElement(
+            {
+              parent: new RefElement('unique-id'),
+            },
+            { id: 'unique-id' },
+          );
+          const actual = await dereferenceApiDOM(element, {
+            parse: { mediaType: 'application/vnd.apidom' },
+          });
+          const expected = toValue(actual);
+
+          assert.strictEqual(expected, expected.parent);
+        });
+
+        specify('should handle complex cycles', async function () {
+          const element = new ObjectElement({
+            level1: new ObjectElement(
+              {
+                level2a: {
+                  level3: {
+                    ref2: new RefElement('level-1'),
+                  },
+                },
+                level2b: new ObjectElement(
+                  {
+                    level2b: true,
+                  },
+                  { id: 'level-2b' },
+                ),
+                ref1: new RefElement('level-2b'),
+              },
+              { id: 'level-1' },
+            ),
+          });
+          const actual = await dereferenceApiDOM(element, {
+            parse: { mediaType: 'application/vnd.apidom' },
+          });
+          const expected = toValue(actual);
+
+          assert.strictEqual(expected.level1.level2b, expected.level1.ref1);
+          assert.strictEqual(expected.level1, expected.level1.level2a.level3.ref2);
+        });
+
+        context('given immutable=true', function () {
+          specify('should not mutate original ApiDOM tree', async function () {
+            const element = new ObjectElement({
+              element: new StringElement('test', { id: 'unique-id' }),
+              ref: new RefElement('unique-id'),
+            });
+            element.freeze();
+            const actual = await dereferenceApiDOM(element, {
+              parse: { mediaType: 'application/vnd.apidom' },
+              dereference: { immutable: true },
+            });
+
+            assert.isTrue(isRefElement(element.get('ref')));
+            assert.isFalse(isRefElement(actual.get('ref')));
+          });
+        });
+
+        context('given immutable=false', function () {
+          specify('should mutate original ApiDOM tree', async function () {
+            const element = new ObjectElement({
+              element: new StringElement('test', { id: 'unique-id' }),
+              ref: new RefElement('unique-id'),
+            });
+            const actual = await dereferenceApiDOM(element, {
+              parse: { mediaType: 'application/vnd.apidom' },
+              dereference: { immutable: false },
+            });
+
+            assert.isFalse(isRefElement(element.get('ref')));
+            assert.isFalse(isRefElement(actual.get('ref')));
+          });
+        });
+
+        context('given RefElement path attribute', function () {
+          specify(
+            'should transclude the given property of the referenced element',
+            async function () {
+              class CustomElement extends ObjectElement {
+                get property() {
+                  return new StringElement('propValue');
+                }
+              }
+
+              const element = new ObjectElement({
+                element: new CustomElement(undefined, { id: 'unique-id' }),
+                ref: new RefElement('unique-id', undefined, { path: 'property' }),
+              });
+              const actual = await dereferenceApiDOM(element, {
+                parse: { mediaType: 'application/vnd.apidom' },
+              });
+              const expected = { element: {}, ref: 'propValue' };
+
+              assert.deepEqual(toValue(actual), expected);
+            },
+          );
+
+          context(
+            'and the RefElement is held by an ArrayElement and references an ArrayElement',
+            function () {
+              specify(
+                'should insert content entries in place of the RefElement',
+                async function () {
+                  const element = new ObjectElement({
+                    array1: new ArrayElement([1, 2, 3], { id: 'unique-id' }),
+                    array2: new ArrayElement([
+                      new RefElement('unique-id', undefined, { path: 'content' }),
+                      4,
+                      5,
+                    ]),
+                  });
+                  const actual = await dereferenceApiDOM(element, {
+                    parse: { mediaType: 'application/vnd.apidom' },
+                  });
+                  const expected = [1, 2, 3, 4, 5];
+
+                  assert.deepEqual(toValue(actual.get('array2')), expected);
+                },
+              );
+            },
+          );
+
+          context(
+            'and the RefElement is held by an ObjectElement and references an ObjectElement',
+            function () {
+              specify(
+                'should insert content entries in place of the RefElement',
+                async function () {
+                  const element = new ObjectElement({
+                    object1: new ObjectElement({ a: 'b', c: 'd' }, { id: 'unique-id' }),
+                    object2: new ObjectElement({ e: 'f' }),
+                  });
+                  element
+                    .get('object2')
+                    .content.push(new RefElement('unique-id', undefined, { path: 'content' }));
+                  const actual = await dereferenceApiDOM(element, {
+                    parse: { mediaType: 'application/vnd.apidom' },
+                  });
+                  const expected = { a: 'b', c: 'd', e: 'f' };
+
+                  assert.deepEqual(toValue(actual.get('object2')), expected);
+                },
+              );
+            },
+          );
+        });
+
+        context('given RefElement is referencing another RefElement', async function () {
+          specify('should throw error', async function () {
+            try {
+              const element = new ObjectElement({
+                element: new RefElement('', { id: 'unique-id' }),
+                ref: new RefElement('unique-id'),
+              });
+              await dereferenceApiDOM(element, {
+                parse: { mediaType: 'application/vnd.apidom' },
+              });
+              assert.fail('should throw DereferenceError');
+            } catch (e) {
+              assert.instanceOf(e, DereferenceError);
+            }
+          });
+        });
+
+        context('given RefElement is referencing itself', async function () {
+          specify('should throw error', async function () {
+            try {
+              const element = new ObjectElement({
+                ref: new RefElement('unique-id', { id: 'unique-id' }),
+              });
+              await dereferenceApiDOM(element, {
+                parse: { mediaType: 'application/vnd.apidom' },
+              });
+              assert.fail('should throw DereferenceError');
+            } catch (e) {
+              assert.instanceOf(e, DereferenceError);
+            }
+          });
+        });
+
+        specify('should consider remote looking references as local', async function () {
+          const element = new ObjectElement(
+            {
+              element: new StringElement('test', { id: 'unique-id' }),
+              ref: new RefElement('https://example.com/#unique-id'),
+            },
+            { classes: ['result'] },
+          );
+          const actual = await dereferenceApiDOM(element, {
+            parse: { mediaType: 'application/vnd.apidom' },
+            resolve: { baseURI: 'https://example.com/' },
+          });
+          const expected = { element: 'test', ref: 'test' };
+
+          assert.deepEqual(toValue(actual), expected);
+        });
+      });
+    });
+  });
+});

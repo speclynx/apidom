@@ -1,0 +1,5 @@
+{
+  "externalParameter": {
+    "$ref": "./entry.json#/components/parameters/userId"
+  }
+}

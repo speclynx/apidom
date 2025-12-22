@@ -1,0 +1,23 @@
+{
+  "openapi": "3.0.4",
+  "components": {
+    "schemas": {
+      "schema1": {
+        "$ref": "#/components/schemas/somePayload"
+      },
+      "somePayload": {
+        "type": "object",
+        "properties": {
+          "sentAt": {
+            "$ref": "#/components/schemas/sentAt"
+          }
+        }
+      },
+      "sentAt": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Date and time when the message was sent."
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+version: "2021-05-07"
+info:
+  title: SpecLynx API Guidelines
+  description: |
+    A machine and human readable version of the SpecLynx API Style Guide aimed at promoting living API Style Governance across various tools and teams, leading to improved API quality.
+scenarios:
+  - description: SB-API-010 - Only apply standard HTTP methods
+    when: [http, transaction]
+    then:
+      - subject: [http, request, method]
+        level: may
+        values:
+          - get
+          - post
+          - put
+          - patch
+          - delete

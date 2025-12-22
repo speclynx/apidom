@@ -1,0 +1,5 @@
+{
+  "*.ts": "eslint",
+  "packages/apidom-playground/src/**/*.js": "eslint",
+  "packages/apidom-playground/src/**/*.jsx": "eslint"
+}
