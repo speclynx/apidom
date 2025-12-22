@@ -18,6 +18,8 @@ jobs:
       github.event.workflow_run.conclusion == 'success' }}
     name: Deploy ApiDOM Playground
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
