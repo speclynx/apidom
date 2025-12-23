@@ -39,7 +39,6 @@ and allows tool builders to consume one structure for all formats.
   - [npm scripts](#npm-scripts)
   - [Build artifacts](#build-artifacts)
   - [Using this monorepo as a local dev dependency](#using-this-monorepo-as-a-local-dev-dependency)
-- [Contributing](#contributing)
 - [Documentation](#documentation)
   - [What is an Element ?](#what-is-an-element-)
   - [As a way to annotate JSON](#as-a-way-to-annotate-json)
@@ -331,12 +330,6 @@ If you want to just unlink particular monorepo packages, you have to enumerate t
 ```shell
  $ npm unlink --global @speclynx/apidom-ast @speclynx/apidom-core
 ```
-
-## Contributing
-
-You can obtain copy of this contributing guide at [https://github.com/speclynx/.github/blob/master/CONTRIBUTING.md](https://github.com/speclynx/.github/blob/master/CONTRIBUTING.md).
-Read our contributing guide to learn about our development process, how to propose bugfixes and improvements,
-and how to build and test your changes to ApiDOM.
 
 ## Documentation
 
