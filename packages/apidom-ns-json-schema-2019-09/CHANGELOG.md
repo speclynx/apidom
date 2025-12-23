@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 1.12.0 (2025-12-23)
+
+### Features
+
+- add initial code ([de9d14d](https://github.com/speclynx/apidom/commit/de9d14de172d884d5b6ad527c390e373ae621972))
+
 # [1.11.0](https://github.com/speclynx/apidom/compare/v1.10.0...v1.11.0) (2025-12-17)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-json-schema-2019-09
