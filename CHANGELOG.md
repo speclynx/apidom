@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.12.2](https://github.com/speclynx/apidom/compare/v1.12.1...v1.12.2) (2025-12-23)
+
+### Features
+
+- **release:** release via trusted publisher configuration ([a3d0dbb](https://github.com/speclynx/apidom/commit/a3d0dbb20f32c5529eae8be3b02023cfa73a66e9))
+
 ## [1.12.1](https://github.com/speclynx/apidom/compare/v1.12.0...v1.12.1) (2025-12-23)
 
 ### Features
