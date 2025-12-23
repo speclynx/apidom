@@ -12,7 +12,9 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    environment: npm-release
+    environment:
+      name: npm-release
+      url: https://www.npmjs.com/org/speclynx
     permissions:
       contents: write
       id-token: write
