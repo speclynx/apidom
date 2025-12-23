@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-parser-adapter-openapi-json-3-0",
-  "version": "1.12.0",
+  "version": "1.12.1",
   "description": "Parser adapter for parsing JSON documents into OpenAPI 3.0.x namespace.",
   "publishConfig": {
     "access": "public",
@@ -39,9 +39,9 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^7.28.4",
-    "@speclynx/apidom-core": "^1.12.0",
-    "@speclynx/apidom-ns-openapi-3-0": "^1.12.0",
-    "@speclynx/apidom-parser-adapter-json": "^1.12.0",
+    "@speclynx/apidom-core": "^1.12.1",
+    "@speclynx/apidom-ns-openapi-3-0": "^1.12.1",
+    "@speclynx/apidom-parser-adapter-json": "^1.12.1",
     "@types/ramda": "~0.30.0",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.0.0"

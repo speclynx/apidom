@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.12.1](https://github.com/speclynx/apidom/compare/v1.12.0...v1.12.1) (2025-12-23)
+
+### Features
+
+- publish npm package to nmpjs.com ([75cd3d9](https://github.com/speclynx/apidom/commit/75cd3d97b8bccfd42153d3b1de65b29eb8e963ef))
+
 # 1.12.0 (2025-12-23)
 
 ### Features
