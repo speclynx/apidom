@@ -5,11 +5,6 @@ This distribution includes modifications by SpecLynx.
 All such modifications are licensed under the Apache License, Version 2.0.
 A copy of the Apache 2.0 license can be found in `LICENSES/Apache-2.0.txt`.
 
-ApiDOM
-Copyright 2020 SmartBear Software Inc.
-ApiDOM is licensed under Apache 2.0 license.
-Copy of the Apache 2.0 license can be found in `LICENSES/Apache-2.0.txt` file.
-
 json-schema-ref-parser
 Copyright (c) 2015 James Messinger
 File packages/apidom-reference/src/util/url.ts (the file) was originally created under MIT license in https://github.com/APIDevTools/json-schema-ref-parser repository.
@@ -53,6 +48,20 @@ Copyright (c) 2012 James Halliday, Josh Duff, and other contributors
   These text fragments have been amended to describe merging of ApiDOM structures.
 Copy of the MIT license can be found in `LICENSES/MIT.txt` file.
 All modifications are licensed under Apache 2.0 License.
+
+ApiDOM
+Copyright 2020 SmartBear Software Inc.
+ApiDOM is licensed under Apache 2.0 license.
+Copy of the Apache 2.0 license can be found in `LICENSES/Apache-2.0.txt` file.
+
+minim
+Copyright (c) 2014 Stephen Mizell
+The apidom-datamodel package contains code originally created under the MIT
+License as part of the Minim project (https://github.com/refractproject/minim).
+This code has been copied into this project and modified.
+The original portions remain licensed under the MIT License. Our modifications
+to that code are licensed under the Apache License 2.0.
+Copy of the MIT license can be found in `LICENSES/MIT.txt` file.
 
 ---
 
