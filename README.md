@@ -60,6 +60,7 @@ You can install ApiDOM packages using [npm CLI](https://docs.npmjs.com/cli):
  $ npm install @speclynx/apidom-ast
  $ npm install @speclynx/apidom-converter
  $ npm install @speclynx/apidom-core
+ $ npm install @speclynx/apidom-datamodel
  $ npm install @speclynx/apidom-error
  $ npm install @speclynx/apidom-json-path
  $ npm install @speclynx/apidom-json-pointer
