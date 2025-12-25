@@ -160,7 +160,7 @@ class Element implements Cloneable<Element>, ToValue, Equatable, Freezable {
     }
 
     // Plain object - convert to MemberElements
-    if (typeof value === 'object' && value !== null) {
+    if (typeof value === 'object') {
       this._content = Object.entries(value as Record<string, unknown>).map(
         ([key, val]) => new this.MemberElement(key, val),
       );
