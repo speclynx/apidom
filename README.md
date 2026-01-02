@@ -65,7 +65,6 @@ You can install ApiDOM packages using [npm CLI](https://docs.npmjs.com/cli):
  $ npm install @speclynx/apidom-json-path
  $ npm install @speclynx/apidom-json-pointer
  $ npm install @speclynx/apidom-json-pointer-relative
- $ npm install @speclynx/apidom-ns-api-design-systems
  $ npm install @speclynx/apidom-ns-arazzo-1
  $ npm install @speclynx/apidom-ns-asyncapi-2
  $ npm install @speclynx/apidom-ns-json-schema-2019-09
@@ -77,8 +76,6 @@ You can install ApiDOM packages using [npm CLI](https://docs.npmjs.com/cli):
  $ npm install @speclynx/apidom-ns-openapi-3-0
  $ npm install @speclynx/apidom-ns-openapi-3-1
  $ npm install @speclynx/apidom-parser
- $ npm install @speclynx/apidom-parser-adapter-api-design-systems-json
- $ npm install @speclynx/apidom-parser-adapter-api-design-systems-yaml
  $ npm install @speclynx/apidom-parser-adapter-arazzo-json-1
  $ npm install @speclynx/apidom-parser-adapter-arazzo-yaml-1
  $ npm install @speclynx/apidom-parser-adapter-asyncapi-json-2

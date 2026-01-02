@@ -1,8 +1,8 @@
 import Benchmark from 'benchmark';
 import type { Event } from 'benchmark';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
-import { AsyncApi2Element } from '../../src/index.ts';
+import { refractAsyncApi2 } from '../../src/index.ts';
 
 const genericObjectElement = new ObjectElement({
   asyncapi: '2.6.0',
@@ -19,7 +19,7 @@ const options = {
   minSamples: 700,
   expected: '640 ops/sec ±0.82% (780 runs sampled)',
   fn() {
-    AsyncApi2Element.refract(genericObjectElement);
+    refractAsyncApi2(genericObjectElement);
   },
 };
 

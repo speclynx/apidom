@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import CorrelationIDElement from '../../../../elements/CorrelationID.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface CorrelationIDVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type CorrelationIDVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class CorrelationIDVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class CorrelationIDVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: CorrelationIDElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'CorrelationID']>;

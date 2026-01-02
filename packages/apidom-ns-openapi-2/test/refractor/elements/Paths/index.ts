@@ -1,13 +1,14 @@
 import { assert, expect } from 'chai';
-import { includesClasses, sexprs } from '@speclynx/apidom-core';
+import { includesClasses } from '@speclynx/apidom-datamodel';
+import { sexprs } from '@speclynx/apidom-core';
 
-import { PathsElement } from '../../../../src/index.ts';
+import { refractPaths, PathsElement } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('PathsElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const pathsElement = PathsElement.refract({
+        const pathsElement = refractPaths({
           '/path1': {},
           '/path2': {},
         });
@@ -16,16 +17,18 @@ describe('refractor', function () {
       });
 
       specify('should support specification extensions', function () {
-        const pathsElement = PathsElement.refract({
+        const pathsElement = refractPaths({
           '/path1': {},
           'x-extension': 'extension',
         }) as PathsElement;
 
         assert.isFalse(
-          includesClasses(['specification-extension'], pathsElement.getMember('/path1')),
+          includesClasses(pathsElement.getMember('/path1') as any, ['specification-extension']),
         );
         assert.isTrue(
-          includesClasses(['specification-extension'], pathsElement.getMember('x-extension')),
+          includesClasses(pathsElement.getMember('x-extension') as any, [
+            'specification-extension',
+          ]),
         );
       });
     });

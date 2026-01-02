@@ -1,11 +1,9 @@
-import { Mixin } from 'ts-mixer';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../generics/MapVisitor.ts';
-import ParentSchemaAwareVisitor, {
-  ParentSchemaAwareVisitorOptions,
-} from './ParentSchemaAwareVisitor.ts';
+import { FallbackVisitorOptions } from '../FallbackVisitor.ts';
+import { MapVisitorOptions, SpecPath } from '../generics/MapVisitor.ts';
+import { ParentSchemaAwareVisitorOptions } from './ParentSchemaAwareVisitor.ts';
+import { DefinitionsVisitorBase } from './bases.ts';
 import { isJSONReferenceLikeElement } from '../../predicates.ts';
 
 /**
@@ -17,7 +15,7 @@ export interface DefinitionsVisitorOptions
 /**
  * @public
  */
-class DefinitionsVisitor extends Mixin(MapVisitor, ParentSchemaAwareVisitor, FallbackVisitor) {
+class DefinitionsVisitor extends DefinitionsVisitorBase {
   declare public readonly element: ObjectElement;
 
   declare protected readonly specPath: SpecPath<

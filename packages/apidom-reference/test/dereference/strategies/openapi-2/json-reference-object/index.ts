@@ -2,7 +2,13 @@ import path from 'node:path';
 import sinon from 'sinon';
 import { assert } from 'chai';
 import { identity } from 'ramda';
-import { Element, isParseResultElement, isRefElement, toValue } from '@speclynx/apidom-core';
+import {
+  Element,
+  ObjectElement,
+  isParseResultElement,
+  isRefElement,
+} from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 import { isSchemaElement, mediaTypes } from '@speclynx/apidom-ns-openapi-2';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 import { fileURLToPath } from 'node:url';
@@ -53,7 +59,7 @@ describe('dereference', function () {
               const fragment = evaluate<Element>(dereferenced, '/0/definitions/schema1');
 
               assert.strictEqual(
-                toValue(fragment.meta.get('ref-fields').get('$ref')),
+                toValue((fragment.meta.get('ref-fields') as ObjectElement).get('$ref')),
                 '#/definitions/schema3',
               );
             },

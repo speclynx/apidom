@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { MediaElement } from '../../../../src/index.ts';
+import { refractMedia } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('Media', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const mediaElement = MediaElement.refract({
+        const mediaElement = refractMedia({
           binaryEncoding: 'base64',
           type: 'image/png',
         });

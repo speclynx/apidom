@@ -46,14 +46,6 @@ export type ArrayCallback<T, U> = (element: T, index: number, array: T[]) => U;
 export type ObjectCallback<V, K, M, U> = (value: V, key: K, member: M) => U;
 
 /**
- * Type for cloneable objects.
- * @public
- */
-export interface Cloneable<T> {
-  clone(): T;
-}
-
-/**
  * Type for objects that can convert to JavaScript values.
  * @public
  */

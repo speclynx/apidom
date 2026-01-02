@@ -3,7 +3,7 @@ import dedent from 'dedent';
 import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
-import { refractorPluginReplaceEmptyElement, AsyncApi2Element } from '../../../../src/index.ts';
+import { refractorPluginReplaceEmptyElement, refractAsyncApi2 } from '../../../../src/index.ts';
 
 describe('given empty value instead of SecurityRequirementElement', function () {
   it('should replace empty value with semantic element', async function () {
@@ -15,7 +15,7 @@ describe('given empty value instead of SecurityRequirementElement', function () 
                 -
         `;
     const apiDOM = await parse(yamlDefinition);
-    const asyncApiElement = AsyncApi2Element.refract(apiDOM.result, {
+    const asyncApiElement = refractAsyncApi2(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -34,7 +34,7 @@ describe('given empty value instead of OperationTraitElement', function () {
                   -
         `;
     const apiDOM = await parse(yamlDefinition);
-    const asyncApiElement = AsyncApi2Element.refract(apiDOM.result, {
+    const asyncApiElement = refractAsyncApi2(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -55,7 +55,7 @@ describe('given multiple empty value instead of MessageElement', function () {
                     -
         `;
     const apiDOM = await parse(yamlDefinition);
-    const asyncApiElement = AsyncApi2Element.refract(apiDOM.result, {
+    const asyncApiElement = refractAsyncApi2(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -77,7 +77,7 @@ describe('given multiple empty value instead of TagElement', function () {
 
         `;
     const apiDOM = await parse(yamlDefinition);
-    const asyncApiElement = AsyncApi2Element.refract(apiDOM.result, {
+    const asyncApiElement = refractAsyncApi2(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -96,7 +96,7 @@ describe('given empty values instead of SchemaElement for allOf keyword', functi
                  -
         `;
     const apiDOM = await parse(yamlDefinition);
-    const asyncApiElement = AsyncApi2Element.refract(apiDOM.result, {
+    const asyncApiElement = refractAsyncApi2(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 

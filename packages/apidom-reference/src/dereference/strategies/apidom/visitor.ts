@@ -3,16 +3,15 @@ import { ApiDOMError } from '@speclynx/apidom-error';
 import {
   Element,
   RefElement,
+  ParseResultElement,
   isElement,
   isMemberElement,
   isArrayElement,
   isObjectElement,
   isRefElement,
-  toValue,
   refract,
-  visit,
-  cloneDeep,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
+import { toValue, visit, cloneDeep } from '@speclynx/apidom-core';
 import { URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
 
 import MaximumResolveDepthError from '../../../errors/MaximumResolveDepthError.ts';
@@ -111,7 +110,7 @@ class ApiDOMDereferenceVisitor {
     path: (string | number)[],
     ancestors: [Element | Element[]],
   ) {
-    const refURI = toValue(refElement);
+    const refURI = toValue(refElement) as string;
     const refNormalizedURI = refURI.includes('#') ? refURI : `#${refURI}`;
     const retrievalURI = this.toBaseURI(refNormalizedURI);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
@@ -131,9 +130,9 @@ class ApiDOMDereferenceVisitor {
     const reference = await this.toReference(refNormalizedURI);
     const refBaseURI = url.resolve(retrievalURI, refNormalizedURI);
     const elementID = URIFragmentIdentifier.fromURIReference(refBaseURI);
-    let referencedElement: unknown | Element | undefined = evaluate(
+    let referencedElement = evaluate(
       elementID,
-      reference.value.result as Element,
+      (reference.value as ParseResultElement).result as Element,
     );
 
     if (!isElement(referencedElement)) {
@@ -155,9 +154,14 @@ class ApiDOMDereferenceVisitor {
     }
 
     /**
-     * When path is used, it references the given property of the referenced element
+     * When path is used, it references the given property of the referenced element.
+     * Valid paths are: 'element', 'content', 'meta', 'attributes'.
      */
-    const referencedElementPath: string = toValue(refElement.path);
+    const referencedElementPath = toValue(refElement.path) as
+      | 'element'
+      | 'content'
+      | 'meta'
+      | 'attributes';
     if (referencedElementPath !== 'element' && isElement(referencedElement)) {
       referencedElement = refract(referencedElement[referencedElementPath]);
     }
@@ -175,7 +179,7 @@ class ApiDOMDereferenceVisitor {
        * If the Ref Element is held by an Object Element and references an Object Element,
        * its content entries SHALL be inserted in place of the Ref Element.
        */
-      parent.splice(key, 1, ...referencedElement.content);
+      parent.splice(key, 1, ...(referencedElement.content as Element[]));
     } else if (
       isArrayElement(referencedElement) &&
       Array.isArray(parent) &&
@@ -185,7 +189,7 @@ class ApiDOMDereferenceVisitor {
        * If the Ref Element is held by an Array Element and references an Array Element,
        * its content entries SHALL be inserted in place of the Ref Element.
        */
-      parent.splice(key, 1, ...referencedElement.content);
+      parent.splice(key, 1, ...(referencedElement.content as Element[]));
     } else if (isMemberElement(parent)) {
       /**
        * The Ref Element is substituted by the Element it references.
@@ -195,7 +199,7 @@ class ApiDOMDereferenceVisitor {
       /**
        * The Ref Element is substituted by the Element it references.
        */
-      parent[key] = referencedElement;
+      (parent as Element[])[key as number] = referencedElement as Element;
     }
 
     return !parent ? referencedElement : false;

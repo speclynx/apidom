@@ -1,4 +1,4 @@
-import { ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import { ObjectElement, type Attributes, type Meta } from '@speclynx/apidom-datamodel';
 
 import HttpChannelBindingElement from './bindings/http/HttpChannelBinding.ts';
 import WebSocketChannelBindingElement from './bindings/ws/WebSocketChannelBinding.ts';
@@ -29,7 +29,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get http(): HttpChannelBindingElement | undefined {
-    return this.get('http');
+    return this.get('http') as HttpChannelBindingElement | undefined;
   }
 
   set http(http: HttpChannelBindingElement | undefined) {
@@ -37,7 +37,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get ws(): WebSocketChannelBindingElement | undefined {
-    return this.get('ws');
+    return this.get('ws') as WebSocketChannelBindingElement | undefined;
   }
 
   set ws(ws: WebSocketChannelBindingElement | undefined) {
@@ -45,7 +45,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get kafka(): KafkaChannelBindingElement | undefined {
-    return this.get('kafka');
+    return this.get('kafka') as KafkaChannelBindingElement | undefined;
   }
 
   set kafka(kafka: KafkaChannelBindingElement | undefined) {
@@ -53,7 +53,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get anypointmq(): AnypointmqChannelBindingElement | undefined {
-    return this.get('anypointmq');
+    return this.get('anypointmq') as AnypointmqChannelBindingElement | undefined;
   }
 
   set anypointmq(anypointmq: AnypointmqChannelBindingElement | undefined) {
@@ -61,7 +61,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get amqp(): AmqpChannelBindingElement | undefined {
-    return this.get('amqp');
+    return this.get('amqp') as AmqpChannelBindingElement | undefined;
   }
 
   set amqp(amqp: AmqpChannelBindingElement | undefined) {
@@ -69,7 +69,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get amqp1(): Amqp1ChannelBindingElement | undefined {
-    return this.get('amqp1');
+    return this.get('amqp1') as Amqp1ChannelBindingElement | undefined;
   }
 
   set amqp1(amqp1: Amqp1ChannelBindingElement | undefined) {
@@ -77,7 +77,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get mqtt(): MqttChannelBindingElement | undefined {
-    return this.get('mqtt');
+    return this.get('mqtt') as MqttChannelBindingElement | undefined;
   }
 
   set mqtt(mqtt: MqttChannelBindingElement | undefined) {
@@ -85,7 +85,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get mqtt5(): Mqtt5ChannelBindingElement | undefined {
-    return this.get('mqtt5');
+    return this.get('mqtt5') as Mqtt5ChannelBindingElement | undefined;
   }
 
   set mqtt5(mqtt5: Mqtt5ChannelBindingElement | undefined) {
@@ -93,7 +93,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get nats(): NatsChannelBindingElement | undefined {
-    return this.get('nats');
+    return this.get('nats') as NatsChannelBindingElement | undefined;
   }
 
   set nats(nats: NatsChannelBindingElement | undefined) {
@@ -101,7 +101,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get jms(): JmsChannelBindingElement | undefined {
-    return this.get('jms');
+    return this.get('jms') as JmsChannelBindingElement | undefined;
   }
 
   set jms(jms: JmsChannelBindingElement | undefined) {
@@ -109,7 +109,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get sns(): SnsChannelBindingElement | undefined {
-    return this.get('sns');
+    return this.get('sns') as SnsChannelBindingElement | undefined;
   }
 
   set sns(sns: SnsChannelBindingElement | undefined) {
@@ -117,7 +117,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get solace(): SolaceChannelBindingElement | undefined {
-    return this.get('solace');
+    return this.get('solace') as SolaceChannelBindingElement | undefined;
   }
 
   set solace(solace: SolaceChannelBindingElement | undefined) {
@@ -125,7 +125,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get sqs(): SqsChannelBindingElement | undefined {
-    return this.get('sqs');
+    return this.get('sqs') as SqsChannelBindingElement | undefined;
   }
 
   set sqs(sqs: SqsChannelBindingElement | undefined) {
@@ -133,7 +133,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get stomp(): StompChannelBindingElement | undefined {
-    return this.get('stomp');
+    return this.get('stomp') as StompChannelBindingElement | undefined;
   }
 
   set stomp(stomp: StompChannelBindingElement | undefined) {
@@ -141,7 +141,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get redis(): RedisChannelBindingElement | undefined {
-    return this.get('redis');
+    return this.get('redis') as RedisChannelBindingElement | undefined;
   }
 
   set redis(redis: RedisChannelBindingElement | undefined) {
@@ -149,7 +149,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get mercure(): MercureChannelBindingElement | undefined {
-    return this.get('mercure');
+    return this.get('mercure') as MercureChannelBindingElement | undefined;
   }
 
   set mercure(mercure: MercureChannelBindingElement | undefined) {
@@ -157,7 +157,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get googlepubsub(): GooglepubsubChannelBindingElement | undefined {
-    return this.get('googlepubsub');
+    return this.get('googlepubsub') as GooglepubsubChannelBindingElement | undefined;
   }
 
   set googlepubsub(googlepubsub: GooglepubsubChannelBindingElement | undefined) {
@@ -165,7 +165,7 @@ class ChannelBindings extends ObjectElement {
   }
 
   get ibmmq(): IbmmqChannelBindingElement | undefined {
-    return this.get('ibmmq');
+    return this.get('ibmmq') as IbmmqChannelBindingElement | undefined;
   }
 
   set ibmmq(ibmmq: IbmmqChannelBindingElement | undefined) {

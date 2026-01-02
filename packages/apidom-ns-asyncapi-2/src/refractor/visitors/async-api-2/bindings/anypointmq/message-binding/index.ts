@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import AnypointmqMessageBindingElement from '../../../../../../elements/bindings/anypointmq/AnypointmqMessageBinding.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../../../FallbackVisitor.ts';
+import { SpecPath } from '../../../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../../../bases.ts';
 
 /**
  * @public
  */
-export interface AnypointmqMessageBindingVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type AnypointmqMessageBindingVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class AnypointmqMessageBindingVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class AnypointmqMessageBindingVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: AnypointmqMessageBindingElement;
 
   declare protected readonly specPath: SpecPath<

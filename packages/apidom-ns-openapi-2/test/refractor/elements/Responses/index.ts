@@ -1,14 +1,15 @@
 import { assert, expect } from 'chai';
-import { includesClasses, sexprs } from '@speclynx/apidom-core';
+import { includesClasses } from '@speclynx/apidom-datamodel';
+import { sexprs } from '@speclynx/apidom-core';
 
-import { ResponsesElement } from '../../../../src/index.ts';
+import { refractResponses, ResponsesElement } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('ResponsesElement', function () {
       context('given all fields of type ResponseElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const responsesElement = ResponsesElement.refract({
+          const responsesElement = refractResponses({
             '200': {},
             default: {},
           });
@@ -19,7 +20,7 @@ describe('refractor', function () {
 
       context('given all fields of type ReferenceElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const responsesElement = ResponsesElement.refract({
+          const responsesElement = refractResponses({
             default: { $ref: '#/components/responses/Response1' },
             '200': { $ref: '#/components/responses/Response1' },
           });
@@ -31,7 +32,7 @@ describe('refractor', function () {
 
     context('given unrecognized fields', function () {
       specify('should refract values to generic ApiDOM tree', function () {
-        const responsesElement = ResponsesElement.refract({
+        const responsesElement = refractResponses({
           '600': {},
           XXX: {},
         });
@@ -41,16 +42,18 @@ describe('refractor', function () {
     });
 
     specify('should support specification extensions', function () {
-      const responsesElement = ResponsesElement.refract({
+      const responsesElement = refractResponses({
         default: {},
         'x-extension': 'extension',
       }) as ResponsesElement;
 
       assert.isFalse(
-        includesClasses(['specification-extension'], responsesElement.getMember('default')),
+        includesClasses(responsesElement.getMember('default') as any, ['specification-extension']),
       );
       assert.isTrue(
-        includesClasses(['specification-extension'], responsesElement.getMember('x-extension')),
+        includesClasses(responsesElement.getMember('x-extension') as any, [
+          'specification-extension',
+        ]),
       );
     });
   });

@@ -79,16 +79,6 @@
       "require": "./src/resolve/strategies/openapi-3-1/index.cjs",
       "types": "./types/resolve/strategies/openapi-3-1/index.d.ts"
     },
-    "./parse/parsers/api-design-systems-json": {
-      "import": "./src/parse/parsers/api-design-systems-json/index.mjs",
-      "require": "./src/parse/parsers/api-design-systems-json/index.cjs",
-      "types": "./types/parse/parsers/api-design-systems-json/index.d.ts"
-    },
-    "./parse/parsers/api-design-systems-yaml": {
-      "import": "./src/parse/parsers/api-design-systems-yaml/index.mjs",
-      "require": "./src/parse/parsers/api-design-systems-yaml/index.cjs",
-      "types": "./types/parse/parsers/api-design-systems-yaml/index.d.ts"
-    },
     "./parse/parsers/asyncapi-json-2": {
       "import": "./src/parse/parsers/asyncapi-json-2/index.mjs",
       "require": "./src/parse/parsers/asyncapi-json-2/index.cjs",
@@ -237,23 +227,14 @@
   "dependencies": {
     "@babel/runtime-corejs3": "^7.28.4",
     "@speclynx/apidom-core": "^1.12.2",
+    "@speclynx/apidom-datamodel": "^1.12.2",
     "@speclynx/apidom-error": "^1.12.2",
-    "@types/ramda": "~0.30.0",
-    "axios": "^1.13.0",
-    "minimatch": "^7.4.6",
-    "process": "^0.11.10",
-    "ramda": "~0.32.0",
-    "ramda-adjunct": "^6.0.0"
-  },
-  "optionalDependencies": {
     "@speclynx/apidom-json-pointer": "^1.12.2",
     "@speclynx/apidom-ns-arazzo-1": "^1.12.2",
     "@speclynx/apidom-ns-asyncapi-2": "^1.12.2",
     "@speclynx/apidom-ns-openapi-2": "^1.12.2",
     "@speclynx/apidom-ns-openapi-3-0": "^1.12.2",
     "@speclynx/apidom-ns-openapi-3-1": "^1.12.2",
-    "@speclynx/apidom-parser-adapter-api-design-systems-json": "^1.12.2",
-    "@speclynx/apidom-parser-adapter-api-design-systems-yaml": "^1.12.2",
     "@speclynx/apidom-parser-adapter-arazzo-json-1": "^1.12.2",
     "@speclynx/apidom-parser-adapter-arazzo-yaml-1": "^1.12.2",
     "@speclynx/apidom-parser-adapter-asyncapi-json-2": "^1.12.2",
@@ -265,29 +246,14 @@
     "@speclynx/apidom-parser-adapter-openapi-yaml-2": "^1.12.2",
     "@speclynx/apidom-parser-adapter-openapi-yaml-3-0": "^1.12.2",
     "@speclynx/apidom-parser-adapter-openapi-yaml-3-1": "^1.12.2",
-    "@speclynx/apidom-parser-adapter-yaml-1-2": "^1.12.2"
+    "@speclynx/apidom-parser-adapter-yaml-1-2": "^1.12.2",
+    "axios": "^1.13.0",
+    "minimatch": "^7.4.6",
+    "process": "^0.11.10",
+    "ramda": "~0.32.0",
+    "ramda-adjunct": "^6.0.0"
   },
   "devDependencies": {
-    "@speclynx/apidom-json-pointer": "*",
-    "@speclynx/apidom-ns-arazzo-1": "*",
-    "@speclynx/apidom-ns-asyncapi-2": "*",
-    "@speclynx/apidom-ns-openapi-2": "*",
-    "@speclynx/apidom-ns-openapi-3-0": "*",
-    "@speclynx/apidom-ns-openapi-3-1": "*",
-    "@speclynx/apidom-parser-adapter-api-design-systems-json": "*",
-    "@speclynx/apidom-parser-adapter-api-design-systems-yaml": "*",
-    "@speclynx/apidom-parser-adapter-arazzo-json-1": "*",
-    "@speclynx/apidom-parser-adapter-arazzo-yaml-1": "*",
-    "@speclynx/apidom-parser-adapter-asyncapi-json-2": "*",
-    "@speclynx/apidom-parser-adapter-asyncapi-yaml-2": "*",
-    "@speclynx/apidom-parser-adapter-json": "*",
-    "@speclynx/apidom-parser-adapter-openapi-json-2": "*",
-    "@speclynx/apidom-parser-adapter-openapi-json-3-0": "*",
-    "@speclynx/apidom-parser-adapter-openapi-json-3-1": "*",
-    "@speclynx/apidom-parser-adapter-openapi-yaml-2": "*",
-    "@speclynx/apidom-parser-adapter-openapi-yaml-3-0": "*",
-    "@speclynx/apidom-parser-adapter-openapi-yaml-3-1": "*",
-    "@speclynx/apidom-parser-adapter-yaml-1-2": "*",
     "axios-mock-adapter": "^2.0.0"
   },
   "files": [

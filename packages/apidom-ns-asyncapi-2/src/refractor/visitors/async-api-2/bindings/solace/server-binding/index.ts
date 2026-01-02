@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import SolaceServerBindingElement from '../../../../../../elements/bindings/solace/SolaceServerBinding.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../../../FallbackVisitor.ts';
+import { SpecPath } from '../../../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../../../bases.ts';
 
 /**
  * @public
  */
-export interface SolaceServerBindingVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type SolaceServerBindingVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class SolaceServerBindingVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class SolaceServerBindingVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: SolaceServerBindingElement;
 
   declare protected readonly specPath: SpecPath<

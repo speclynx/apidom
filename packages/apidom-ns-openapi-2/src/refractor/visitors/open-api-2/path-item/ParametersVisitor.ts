@@ -1,25 +1,20 @@
-import { Mixin } from 'ts-mixer';
-import { ArrayElement, Element, BREAK } from '@speclynx/apidom-core';
+import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
 import { isReferenceLikeElement } from '../../../predicates.ts';
 import { isReferenceElement } from '../../../../predicates.ts';
 import PathItemParametersElement from '../../../../elements/nces/PathItemParameters.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../../SpecificationVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from '../bases.ts';
+
+export type { BaseSpecificationVisitorOptions as ParametersVisitorOptions };
 
 /**
  * @public
  */
-export interface ParametersVisitorOptions
-  extends SpecificationVisitorOptions, FallbackVisitorOptions {}
-
-/**
- * @public
- */
-class ParametersVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class ParametersVisitor extends BaseSpecificationVisitor {
   declare public readonly element: PathItemParametersElement;
 
-  constructor(options: ParametersVisitorOptions) {
+  constructor(options: BaseSpecificationVisitorOptions) {
     super(options);
     this.element = new PathItemParametersElement();
   }
@@ -32,7 +27,7 @@ class ParametersVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
       const element = this.toRefractedElement(specPath, item);
 
       if (isReferenceElement(element)) {
-        element.setMetaProperty('referenced-element', 'parameter');
+        element.meta.set('referenced-element', 'parameter');
       }
 
       this.element.push(element);

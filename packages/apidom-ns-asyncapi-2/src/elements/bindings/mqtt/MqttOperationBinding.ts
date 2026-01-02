@@ -5,7 +5,7 @@ import {
   NumberElement,
   Attributes,
   Meta,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -18,7 +18,7 @@ class MqttOperationBinding extends ObjectElement {
   }
 
   get qos(): NumberElement | undefined {
-    return this.get('qos');
+    return this.get('qos') as NumberElement | undefined;
   }
 
   set qos(qos: NumberElement | undefined) {
@@ -26,7 +26,7 @@ class MqttOperationBinding extends ObjectElement {
   }
 
   get retain(): BooleanElement | undefined {
-    return this.get('retain');
+    return this.get('retain') as BooleanElement | undefined;
   }
 
   set retain(retain: BooleanElement | undefined) {
@@ -34,7 +34,7 @@ class MqttOperationBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

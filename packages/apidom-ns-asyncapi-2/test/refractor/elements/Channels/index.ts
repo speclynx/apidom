@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { ChannelsElement } from '../../../../src/index.ts';
+import { refractChannels } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('ChannelsElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const channelsElement = ChannelsElement.refract({
+        const channelsElement = refractChannels({
           'user/signedup': {},
           'user/loggedout': {},
         });

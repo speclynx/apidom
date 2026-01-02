@@ -1,13 +1,42 @@
 import { head } from 'ramda';
 import { isArray, isFunction, isString, isUndefined } from 'ramda-adjunct';
-import { MediaTypes, Namespace, ParseResultElement } from '@speclynx/apidom-core';
+import { Namespace, ParseResultElement } from '@speclynx/apidom-datamodel';
+import { MediaTypes } from '@speclynx/apidom-core';
 
 import ParserError from './errors/ParserError.ts';
-import type { ApiDOMParserOptions, ApiDOMParserAdapter } from './types.d.ts';
 
-export type { ApiDOMParserOptions, ApiDOMParserAdapter, Detect, Parse } from './types.d.ts';
 export type { ParserErrorOptions } from './errors/ParserError.ts';
 export { ParserError };
+
+/**
+ * @public
+ */
+export interface ApiDOMParserOptions {
+  readonly mediaType?: string;
+  readonly sourceMap?: boolean;
+  [key: string]: unknown;
+}
+
+/**
+ * @public
+ */
+export type Detect = (source: string) => boolean | Promise<boolean>;
+
+/**
+ * @public
+ */
+export type Parse = (source: string, options?: ApiDOMParserOptions) => Promise<ParseResultElement>;
+
+/**
+ * @public
+ */
+export interface ApiDOMParserAdapter {
+  detectionRegExp?: RegExp;
+  detect?: Detect;
+  mediaTypes?: MediaTypes<string>;
+  parse: Parse;
+  namespace: Namespace;
+}
 
 /**
  * @public

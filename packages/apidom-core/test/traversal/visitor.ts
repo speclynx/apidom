@@ -1,6 +1,5 @@
 import { assert } from 'chai';
 import sinon from 'sinon';
-
 import {
   ObjectElement,
   ArrayElement,
@@ -8,9 +7,9 @@ import {
   MemberElement,
   RefElement,
   LinkElement,
-  visit,
-  toValue,
-} from '../../src/index.ts';
+} from '@speclynx/apidom-datamodel';
+
+import { visit, toValue } from '../../src/index.ts';
 
 describe('traversal', function () {
   context('visitor', function () {

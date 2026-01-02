@@ -1,11 +1,10 @@
-import { Mixin } from 'ts-mixer';
-import { ArrayElement, Element, BREAK } from '@speclynx/apidom-core';
+import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
-import ParentSchemaAwareVisitor, {
-  ParentSchemaAwareVisitorOptions,
-} from './ParentSchemaAwareVisitor.ts';
+import { FallbackVisitorOptions } from '../FallbackVisitor.ts';
+import { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
+import { ParentSchemaAwareVisitorOptions } from './ParentSchemaAwareVisitor.ts';
+import { LinksVisitorBase } from './bases.ts';
 
 /**
  * @public
@@ -16,7 +15,7 @@ export interface LinksVisitorOptions
 /**
  * @public
  */
-class LinksVisitor extends Mixin(SpecificationVisitor, ParentSchemaAwareVisitor, FallbackVisitor) {
+class LinksVisitor extends LinksVisitorBase {
   declare public readonly element: ArrayElement;
 
   constructor(options: LinksVisitorOptions) {

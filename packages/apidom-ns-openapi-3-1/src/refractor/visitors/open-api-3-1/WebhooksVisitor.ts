@@ -1,28 +1,22 @@
-import { Mixin } from 'ts-mixer';
-import { ObjectElement, StringElement, toValue } from '@speclynx/apidom-core';
-import {
-  isReferenceLikeElement,
-  MapVisitor,
-  MapVisitorOptions,
-  FallbackVisitor,
-  FallbackVisitorOptions,
-  SpecPath,
-} from '@speclynx/apidom-ns-openapi-3-0';
+import { ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
+import { isReferenceLikeElement, MapVisitor, SpecPath } from '@speclynx/apidom-ns-openapi-3-0';
 
 import ReferenceElement from '../../../elements/Reference.ts';
 import PathItemElement from '../../../elements/PathItem.ts';
 import WebhooksElement from '../../../elements/nces/Webhooks.ts';
 import { isPathItemElement, isReferenceElement } from '../../../predicates.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from './bases.ts';
 
 /**
  * @public
  */
-export interface WebhooksVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+export interface WebhooksVisitorOptions extends BaseMapVisitorOptions {}
 
 /**
  * @public
  */
-class WebhooksVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class WebhooksVisitor extends BaseMapVisitor {
   declare public readonly element: WebhooksElement;
 
   declare protected readonly specPath: SpecPath<

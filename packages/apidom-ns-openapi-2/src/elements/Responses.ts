@@ -1,4 +1,4 @@
-import { ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import { ObjectElement, type Attributes, type Meta } from '@speclynx/apidom-datamodel';
 
 import ResponseElement from './Response.ts';
 import ReferenceElement from './Reference.ts';
@@ -13,7 +13,7 @@ class Responses extends ObjectElement {
   }
 
   get default(): ResponseElement | ReferenceElement | undefined {
-    return this.get('default');
+    return this.get('default') as ResponseElement | ReferenceElement | undefined;
   }
 
   set default(defaultValue: ResponseElement | ReferenceElement | undefined) {

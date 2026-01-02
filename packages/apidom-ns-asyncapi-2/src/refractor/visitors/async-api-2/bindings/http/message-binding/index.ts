@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import HttpMessageBindingElement from '../../../../../../elements/bindings/http/HttpMessageBinding.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../../../FallbackVisitor.ts';
+import { SpecPath } from '../../../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../../../bases.ts';
 
 /**
  * @public
  */
-export interface HttpMessageBindingVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type HttpMessageBindingVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class HttpMessageBindingVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class HttpMessageBindingVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: HttpMessageBindingElement;
 
   declare protected readonly specPath: SpecPath<

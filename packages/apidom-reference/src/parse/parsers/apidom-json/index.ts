@@ -1,9 +1,4 @@
-import {
-  Namespace,
-  ParseResultElement,
-  isParseResultElement,
-  namespace as baseNamespace,
-} from '@speclynx/apidom-core';
+import { Namespace, ParseResultElement, isParseResultElement } from '@speclynx/apidom-datamodel';
 
 import ParserError from '../../../errors/ParserError.ts';
 import Parser, { ParserOptions } from '../Parser.ts';
@@ -31,7 +26,7 @@ class ApiDOMJSONParser extends Parser {
     const {
       fileExtensions = [],
       mediaTypes = ['application/vnd.apidom', 'application/vnd.apidom+json'],
-      namespace = baseNamespace,
+      namespace = new Namespace(),
       ...rest
     } = options ?? {};
 

@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import OAuthFlowsElement from './OAuthFlows.ts';
 
@@ -12,7 +17,7 @@ class SecurityScheme extends ObjectElement {
   }
 
   get type(): StringElement | undefined {
-    return this.get('type');
+    return this.get('type') as StringElement | undefined;
   }
 
   set type(type: StringElement | undefined) {
@@ -20,7 +25,7 @@ class SecurityScheme extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -28,7 +33,7 @@ class SecurityScheme extends ObjectElement {
   }
 
   get name(): StringElement | undefined {
-    return this.get('name');
+    return this.get('name') as StringElement | undefined;
   }
 
   set name(name: StringElement | undefined) {
@@ -36,7 +41,7 @@ class SecurityScheme extends ObjectElement {
   }
 
   get in(): StringElement | undefined {
-    return this.get('in');
+    return this.get('in') as StringElement | undefined;
   }
 
   set in(inVal: StringElement | undefined) {
@@ -44,7 +49,7 @@ class SecurityScheme extends ObjectElement {
   }
 
   get scheme(): StringElement | undefined {
-    return this.get('scheme');
+    return this.get('scheme') as StringElement | undefined;
   }
 
   set scheme(scheme: StringElement | undefined) {
@@ -52,7 +57,7 @@ class SecurityScheme extends ObjectElement {
   }
 
   get bearerFormat(): StringElement | undefined {
-    return this.get('bearerFormat');
+    return this.get('bearerFormat') as StringElement | undefined;
   }
 
   set bearerFormat(bearerFormat: StringElement | undefined) {
@@ -60,7 +65,7 @@ class SecurityScheme extends ObjectElement {
   }
 
   get flows(): OAuthFlowsElement | undefined {
-    return this.get('flows');
+    return this.get('flows') as OAuthFlowsElement | undefined;
   }
 
   set flows(flows: OAuthFlowsElement | undefined) {
@@ -68,7 +73,7 @@ class SecurityScheme extends ObjectElement {
   }
 
   get openIdConnectUrl(): StringElement | undefined {
-    return this.get('openIdConnectUrl');
+    return this.get('openIdConnectUrl') as StringElement | undefined;
   }
 
   set openIdConnectUrl(openIdConnectUrl: StringElement | undefined) {

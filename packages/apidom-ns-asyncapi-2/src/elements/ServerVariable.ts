@@ -2,9 +2,9 @@ import {
   StringElement,
   ObjectElement,
   ArrayElement,
-  Attributes,
-  Meta,
-} from '@speclynx/apidom-core';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -16,7 +16,7 @@ class ServerVariable extends ObjectElement {
   }
 
   get enum(): ArrayElement | undefined {
-    return this.get('enum');
+    return this.get('enum') as ArrayElement | undefined;
   }
 
   set enum(value: ArrayElement | undefined) {
@@ -24,7 +24,7 @@ class ServerVariable extends ObjectElement {
   }
 
   get default(): StringElement | undefined {
-    return this.get('default');
+    return this.get('default') as StringElement | undefined;
   }
 
   set default(value: StringElement | undefined) {
@@ -32,7 +32,7 @@ class ServerVariable extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -40,7 +40,7 @@ class ServerVariable extends ObjectElement {
   }
 
   get examples(): ArrayElement | undefined {
-    return this.get('examples');
+    return this.get('examples') as ArrayElement | undefined;
   }
 
   set examples(examples: ArrayElement | undefined) {

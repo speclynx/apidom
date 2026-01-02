@@ -1,4 +1,4 @@
-import { Element } from 'minim';
+import { Element } from '@speclynx/apidom-datamodel';
 
 import { visit } from '../traversal/visitor.ts';
 

@@ -1,4 +1,4 @@
-import { Element, Attributes, Meta } from '@speclynx/apidom-core';
+import { Element, type Attributes, type Meta } from '@speclynx/apidom-datamodel';
 import { JSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2020-12';
 
 import XmlElement from './Xml.ts';
@@ -21,7 +21,7 @@ class Schema extends JSONSchemaElement {
    */
 
   get discriminator(): DiscriminatorElement | undefined {
-    return this.get('discriminator');
+    return this.get('discriminator') as DiscriminatorElement | undefined;
   }
 
   set discriminator(discriminator: DiscriminatorElement | undefined) {
@@ -29,7 +29,7 @@ class Schema extends JSONSchemaElement {
   }
 
   get xml(): XmlElement | undefined {
-    return this.get('xml');
+    return this.get('xml') as XmlElement | undefined;
   }
 
   set xml(xml: XmlElement | undefined) {
@@ -37,7 +37,7 @@ class Schema extends JSONSchemaElement {
   }
 
   get externalDocs(): ExternalDocumentationElement | undefined {
-    return this.get('externalDocs');
+    return this.get('externalDocs') as ExternalDocumentationElement | undefined;
   }
 
   set externalDocs(externalDocs: ExternalDocumentationElement | undefined) {
@@ -48,7 +48,7 @@ class Schema extends JSONSchemaElement {
    * @deprecated The example property has been deprecated in favor of the JSON Schema examples keyword. Use of example is discouraged, and later versions of this specification may remove it.
    */
   get example(): Element | undefined {
-    return this.get('example');
+    return this.get('example') as Element | undefined;
   }
 
   set example(example: Element | undefined) {

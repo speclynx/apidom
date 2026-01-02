@@ -268,13 +268,6 @@ describe('ArrayElement', function () {
       });
     });
 
-    describe('#add', function () {
-      specify('adds a new item to the array', function () {
-        arrayElement.add('foobar');
-        itAddsToArray(arrayElement);
-      });
-    });
-
     if (typeof Symbol !== 'undefined') {
       describe('#[Symbol.iterator]', function () {
         specify('can be used in a for ... of loop', function () {

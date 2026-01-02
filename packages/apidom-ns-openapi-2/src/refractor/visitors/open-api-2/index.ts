@@ -1,29 +1,22 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import SwaggerElement from '../../../elements/Swagger.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
+import { SpecPath } from '../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from './bases.ts';
+
+export type { BaseFixedFieldsVisitorOptions as SwaggerVisitorOptions };
 
 /**
  * @public
  */
-export interface SwaggerVisitorOptions extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
-
-/**
- * @public
- */
-class SwaggerVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class SwaggerVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: SwaggerElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'Swagger']>;
 
   declare protected readonly canSupportSpecificationExtensions: true;
 
-  constructor(options: SwaggerVisitorOptions) {
+  constructor(options: BaseFixedFieldsVisitorOptions) {
     super(options);
     this.element = new SwaggerElement();
     this.specPath = always(['document', 'objects', 'Swagger']);

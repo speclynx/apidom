@@ -1,5 +1,5 @@
 import { identity } from 'ramda';
-import { RefElement } from 'minim';
+import type { RefElement } from '@speclynx/apidom-datamodel';
 
 import type Parser from '../parse/parsers/Parser.ts';
 import type Resolver from '../resolve/resolvers/Resolver.ts';

@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { ParameterElement } from '../../../../src/index.ts';
+import { refractParameter } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('ParameterElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const parameterElement = ParameterElement.refract({
+        const parameterElement = refractParameter({
           description: 'parameter-description',
           location: 'parameter-location',
         });
@@ -17,7 +17,7 @@ describe('refractor', function () {
 
       context('given schema field of type SchemaElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const parameterElement = ParameterElement.refract({
+          const parameterElement = refractParameter({
             schema: {},
           });
 
@@ -27,7 +27,7 @@ describe('refractor', function () {
 
       context('given schema field of type ReferenceElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const parameterElement = ParameterElement.refract({
+          const parameterElement = refractParameter({
             schema: {
               $ref: '#/path/to/schema',
             },

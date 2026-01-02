@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { OperationTraitElement } from '../../../../src/index.ts';
+import { refractOperationTrait } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('OperationTraitElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const operationTraitElement = OperationTraitElement.refract({
+        const operationTraitElement = refractOperationTrait({
           operationId: 'operation-trait-operationId',
           summary: 'operation-trait-summary',
           description: 'operation-trait-description',
@@ -21,7 +21,7 @@ describe('refractor', function () {
 
       context('given bindings field of type OperationBindingsElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const operationTraitElement = OperationTraitElement.refract({
+          const operationTraitElement = refractOperationTrait({
             bindings: {},
           });
 
@@ -31,7 +31,7 @@ describe('refractor', function () {
 
       context('given bindings field of type ReferenceElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const operationTraitElement = OperationTraitElement.refract({
+          const operationTraitElement = refractOperationTrait({
             bindings: {
               $ref: '#/path/to/bindings',
             },

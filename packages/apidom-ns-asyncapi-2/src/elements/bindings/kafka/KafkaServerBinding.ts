@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -11,7 +16,7 @@ class KafkaServerBinding extends ObjectElement {
   }
 
   get schemaRegistryUrl(): StringElement | undefined {
-    return this.get('schemaRegistryUrl');
+    return this.get('schemaRegistryUrl') as StringElement | undefined;
   }
 
   set schemaRegistryUrl(schemaRegistryUrl: StringElement | undefined) {
@@ -19,7 +24,7 @@ class KafkaServerBinding extends ObjectElement {
   }
 
   get schemaRegistryVendor(): StringElement | undefined {
-    return this.get('schemaRegistryVendor');
+    return this.get('schemaRegistryVendor') as StringElement | undefined;
   }
 
   set schemaRegistryVendor(schemaRegistryVendor: StringElement | undefined) {
@@ -27,7 +32,7 @@ class KafkaServerBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

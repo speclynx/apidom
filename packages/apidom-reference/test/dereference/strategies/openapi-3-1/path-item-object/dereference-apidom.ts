@@ -44,7 +44,7 @@ describe('dereference', function () {
               });
 
               assert.match(
-                toValue(dereferenced.meta.get('ref-origin')),
+                toValue(dereferenced.meta.get('ref-origin')) as string,
                 /internal-only\/root\.json$/,
               );
             });
@@ -86,7 +86,7 @@ describe('dereference', function () {
               });
 
               assert.match(
-                toValue(dereferenced.meta.get('ref-origin')),
+                toValue(dereferenced.meta.get('ref-origin')) as string,
                 /external-only\/ex\.json$/,
               );
             });

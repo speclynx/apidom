@@ -198,6 +198,7 @@ import WebSocketServerBindingVisitor from './visitors/async-api-2/bindings/ws/se
  */
 
 const ReferenceSpecification = {
+  element: 'reference',
   $visitor: ReferenceVisitor,
   fixedFields: {
     $ref: Reference$RefVisitor,
@@ -205,6 +206,7 @@ const ReferenceSpecification = {
 };
 
 const SchemaSpecification = {
+  element: 'schema',
   $visitor: SchemaVisitor,
   fixedFields: {
     ...schemaInheritedFixedFields,
@@ -214,7 +216,10 @@ const SchemaSpecification = {
     anyOf: SchemaAnyOfVisitor,
     oneOf: SchemaOneOfVisitor,
     // validation Keywords for Arrays
-    items: SchemaItemsVisitor,
+    items: {
+      $visitor: SchemaItemsVisitor,
+      alias: 'itemsField',
+    },
     // validation Keywords for Objects
     properties: SchemaPropertiesVisitor,
     patternProperties: SchemaPatternPropertiesVisitor,
@@ -242,13 +247,15 @@ const specification = {
          * `AsyncApi >= 2.0.0 <=2.6.0` specification elements.
          */
         AsyncApi: {
+          element: 'asyncApi2',
           $visitor: AsyncApi2Visitor,
           fixedFields: {
             asyncapi: {
               $ref: '#/visitors/document/objects/AsyncApiVersion',
             },
             id: {
-              $ref: '#/visitors/document/objects/Identifier',
+              $visitor: IdentifierVisitor,
+              alias: 'idField',
             },
             info: {
               $ref: '#/visitors/document/objects/Info',
@@ -274,12 +281,15 @@ const specification = {
           },
         },
         AsyncApiVersion: {
+          element: 'asyncApiVersion',
           $visitor: AsyncApiVersionVisitor,
         },
         Identifier: {
+          element: 'identifier',
           $visitor: IdentifierVisitor,
         },
         Info: {
+          element: 'info',
           $visitor: InfoVisitor,
           fixedFields: {
             title: { $ref: '#/visitors/value' },
@@ -295,6 +305,7 @@ const specification = {
           },
         },
         Contact: {
+          element: 'contact',
           $visitor: ContactVisitor,
           fixedFields: {
             name: { $ref: '#/visitors/value' },
@@ -303,6 +314,7 @@ const specification = {
           },
         },
         License: {
+          element: 'license',
           $visitor: LicenseVisitor,
           fixedFields: {
             name: { $ref: '#/visitors/value' },
@@ -310,9 +322,11 @@ const specification = {
           },
         },
         Servers: {
+          element: 'servers',
           $visitor: ServersVisitor,
         },
         Server: {
+          element: 'server',
           $visitor: ServerVisitor,
           fixedFields: {
             url: ServerUrlVisitor,
@@ -328,6 +342,7 @@ const specification = {
           },
         },
         ServerVariable: {
+          element: 'serverVariable',
           $visitor: ServerVariableVisitor,
           fixedFields: {
             enum: { $ref: '#/visitors/value' },
@@ -337,12 +352,15 @@ const specification = {
           },
         },
         DefaultContentType: {
+          element: 'defaultContentType',
           $visitor: DefaultContentTypeVisitor,
         },
         Channels: {
+          element: 'channels',
           $visitor: ChannelsVisitor,
         },
         ChannelItem: {
+          element: 'channelItem',
           $visitor: ChannelItemVisitor,
           fixedFields: {
             $ref: ChannelItem$RefVisitor,
@@ -361,6 +379,7 @@ const specification = {
           },
         },
         Operation: {
+          element: 'operation',
           $visitor: OperationVisitor,
           fixedFields: {
             operationId: { $ref: '#/visitors/value' },
@@ -379,6 +398,7 @@ const specification = {
           },
         },
         OperationTrait: {
+          element: 'operationTrait',
           $visitor: OperationTraitVisitor,
           fixedFields: {
             operationId: { $ref: '#/visitors/value' },
@@ -395,6 +415,7 @@ const specification = {
           },
         },
         Message: {
+          element: 'message',
           $visitor: MessageVisitor,
           fixedFields: {
             messageId: { $ref: '#/visitors/value' },
@@ -419,6 +440,7 @@ const specification = {
           },
         },
         MessageTrait: {
+          element: 'messageTrait',
           $visitor: MessageTraitVisitor,
           fixedFields: {
             messageId: { $ref: '#/visitors/value' },
@@ -441,6 +463,7 @@ const specification = {
           },
         },
         MessageExample: {
+          element: 'messageExample',
           $visitor: MessageExampleVisitor,
           fixedFields: {
             headers: { $ref: '#/visitors/value' },
@@ -450,9 +473,11 @@ const specification = {
           },
         },
         Tags: {
+          element: 'tags',
           $visitor: TagsVisitor,
         },
         Tag: {
+          element: 'tag',
           $visitor: TagVisitor,
           fixedFields: {
             name: { $ref: '#/visitors/value' },
@@ -463,6 +488,7 @@ const specification = {
           },
         },
         ExternalDocumentation: {
+          element: 'externalDocumentation',
           $visitor: ExternalDocumentationVisitor,
           fixedFields: {
             description: { $ref: '#/visitors/value' },
@@ -470,6 +496,7 @@ const specification = {
           },
         },
         Components: {
+          element: 'components',
           $visitor: ComponentsVisitor,
           fixedFields: {
             schemas: ComponentsSchemasVisitor,
@@ -494,6 +521,7 @@ const specification = {
         Schema: SchemaSpecification,
         LinkDescription: JSONSchemaDraft7Specification.visitors.document.objects.LinkDescription,
         SecurityScheme: {
+          element: 'securityScheme',
           $visitor: SecuritySchemeVisitor,
           fixedFields: {
             type: { $ref: '#/visitors/value' },
@@ -509,9 +537,11 @@ const specification = {
           },
         },
         SecurityRequirement: {
+          element: 'securityRequirement',
           $visitor: SecurityRequirementVisitor,
         },
         OAuthFlows: {
+          element: 'oAuthFlows',
           $visitor: OAuthFlowsVisitor,
           fixedFields: {
             implicit: {
@@ -529,6 +559,7 @@ const specification = {
           },
         },
         OAuthFlow: {
+          element: 'oAuthFlow',
           $visitor: OAuthFlowVisitor,
           fixedFields: {
             authorizationUrl: { $ref: '#/visitors/value' },
@@ -538,6 +569,7 @@ const specification = {
           },
         },
         ServerBindings: {
+          element: 'serverBindings',
           $visitor: ServerBindingsVisitor,
           fixedFields: {
             http: {
@@ -600,9 +632,11 @@ const specification = {
           },
         },
         Parameters: {
+          element: 'parameters',
           $visitor: ParametersVisitor,
         },
         Parameter: {
+          element: 'parameter',
           $visitor: ParameterVisitor,
           fixedFields: {
             description: { $ref: '#/visitors/value' },
@@ -611,6 +645,7 @@ const specification = {
           },
         },
         ChannelBindings: {
+          element: 'channelBindings',
           $visitor: ChannelBindingsVisitor,
           fixedFields: {
             http: {
@@ -673,6 +708,7 @@ const specification = {
           },
         },
         OperationBindings: {
+          element: 'operationBindings',
           $visitor: OperationBindingsVisitor,
           fixedFields: {
             http: {
@@ -735,6 +771,7 @@ const specification = {
           },
         },
         MessageBindings: {
+          element: 'messageBindings',
           $visitor: MessageBindingsVisitor,
           fixedFields: {
             http: {
@@ -797,6 +834,7 @@ const specification = {
           },
         },
         CorrelationID: {
+          element: 'correlationID',
           $visitor: CorrelationIDVisitor,
           fixedFields: {
             description: { $ref: '#/visitors/value' },
@@ -806,12 +844,15 @@ const specification = {
         bindings: {
           http: {
             ServerBinding: {
+              element: 'httpServerBinding',
               $visitor: HttpServerBindingVisitor,
             },
             ChannelBinding: {
+              element: 'httpChannelBinding',
               $visitor: HttpChannelBindingVisitor,
             },
             OperationBinding: {
+              element: 'httpOperationBinding',
               $visitor: HttpOperationBindingVisitor,
               fixedFields: {
                 type: {
@@ -827,6 +868,7 @@ const specification = {
               },
             },
             MessageBinding: {
+              element: 'httpMessageBinding',
               $visitor: HttpMessageBindingVisitor,
               fixedFields: {
                 headers: SchemaOrReferenceVisitor,
@@ -838,9 +880,11 @@ const specification = {
           },
           ws: {
             ServerBinding: {
+              element: 'webSocketServerBinding',
               $visitor: WebSocketServerBindingVisitor,
             },
             ChannelBinding: {
+              element: 'webSocketChannelBinding',
               $visitor: WebSocketChannelBindingVisitor,
               fixedFields: {
                 method: {
@@ -854,14 +898,17 @@ const specification = {
               },
             },
             OperationBinding: {
+              element: 'webSocketOperationBinding',
               $visitor: WebSocketOperationBindingVisitor,
             },
             MessageBinding: {
+              element: 'webSocketMessageBinding',
               $visitor: WebSocketMessageBindingVisitor,
             },
           },
           kafka: {
             ServerBinding: {
+              element: 'kafkaServerBinding',
               $visitor: KafkaServerBindingVisitor,
               fixedFields: {
                 schemaRegistryUrl: {
@@ -876,6 +923,7 @@ const specification = {
               },
             },
             ChannelBinding: {
+              element: 'kafkaChannelBinding',
               $visitor: KafkaChannelBindingVisitor,
               fixedFields: {
                 topic: {
@@ -893,6 +941,7 @@ const specification = {
               },
             },
             OperationBinding: {
+              element: 'kafkaOperationBinding',
               $visitor: KafkaOperationBindingVisitor,
               fixedFields: {
                 groupId: SchemaOrReferenceVisitor,
@@ -903,6 +952,7 @@ const specification = {
               },
             },
             MessageBinding: {
+              element: 'kafkaMessageBinding',
               $visitor: KafkaMessageBindingVisitor,
               fixedFields: {
                 key: SchemaOrReferenceVisitor,
@@ -923,9 +973,11 @@ const specification = {
           },
           anypointmq: {
             ServerBinding: {
+              element: 'anypointmqServerBinding',
               $visitor: AnypointmqServerBindingVisitor,
             },
             ChannelBinding: {
+              element: 'anypointmqChannelBinding',
               $visitor: AnypointmqChannelBindingVisitor,
               fixedFields: {
                 destination: {
@@ -940,9 +992,11 @@ const specification = {
               },
             },
             OperationBinding: {
+              element: 'anypointmqOperationBinding',
               $visitor: AnypointmqOperationBindingVisitor,
             },
             MessageBinding: {
+              element: 'anypointmqMessageBinding',
               $visitor: AnypointmqMessageBindingVisitor,
               fixedFields: {
                 headers: SchemaOrReferenceVisitor,
@@ -954,9 +1008,11 @@ const specification = {
           },
           amqp: {
             ServerBinding: {
+              element: 'amqpServerBinding',
               $visitor: AmqpServerBindingVisitor,
             },
             ChannelBinding: {
+              element: 'amqpChannelBinding',
               $visitor: AmqpChannelBindingVisitor,
               fixedFields: {
                 is: {
@@ -974,6 +1030,7 @@ const specification = {
               },
             },
             OperationBinding: {
+              element: 'amqpOperationBinding',
               $visitor: AmqpOperationBindingVisitor,
               fixedFields: {
                 expiration: {
@@ -1012,6 +1069,7 @@ const specification = {
               },
             },
             MessageBinding: {
+              element: 'amqpMessageBinding',
               $visitor: AmqpMessageBindingVisitor,
               fixedFields: {
                 contentEncoding: {
@@ -1028,20 +1086,25 @@ const specification = {
           },
           amqp1: {
             ServerBinding: {
+              element: 'amqp1ServerBinding',
               $visitor: Amqp1ServerBindingVisitor,
             },
             ChannelBinding: {
+              element: 'amqp1ChannelBinding',
               $visitor: Amqp1ChannelBindingVisitor,
             },
             OperationBinding: {
+              element: 'amqp1OperationBinding',
               $visitor: Amqp1OperationBindingVisitor,
             },
             MessageBinding: {
+              element: 'amqp1MessageBinding',
               $visitor: Amqp1MessageBindingVisitor,
             },
           },
           mqtt: {
             ServerBinding: {
+              element: 'mqttServerBinding',
               $visitor: MqttServerBindingVisitor,
               fixedFields: {
                 clientId: {
@@ -1062,9 +1125,11 @@ const specification = {
               },
             },
             ChannelBinding: {
+              element: 'mqttChannelBinding',
               $visitor: MqttChannelBindingVisitor,
             },
             OperationBinding: {
+              element: 'mqttOperationBinding',
               $visitor: MqttOperationBindingVisitor,
               fixedFields: {
                 qos: {
@@ -1079,6 +1144,7 @@ const specification = {
               },
             },
             MessageBinding: {
+              element: 'mqttMessageBinding',
               $visitor: MqttMessageBindingVisitor,
               fixedFields: {
                 bindingVersion: {
@@ -1089,26 +1155,33 @@ const specification = {
           },
           mqtt5: {
             ServerBinding: {
+              element: 'mqtt5ServerBinding',
               $visitor: Mqtt5ServerBindingVisitor,
             },
             ChannelBinding: {
+              element: 'mqtt5ChannelBinding',
               $visitor: Mqtt5ChannelBindingVisitor,
             },
             OperationBinding: {
+              element: 'mqtt5OperationBinding',
               $visitor: Mqtt5OperationBindingVisitor,
             },
             MessageBinding: {
+              element: 'mqtt5MessageBinding',
               $visitor: Mqtt5MessageBindingVisitor,
             },
           },
           nats: {
             ServerBinding: {
+              element: 'natsServerBinding',
               $visitor: NatsServerBindingVisitor,
             },
             ChannelBinding: {
+              element: 'natsChannelBinding',
               $visitor: NatsChannelBindingVisitor,
             },
             OperationBinding: {
+              element: 'natsOperationBinding',
               $visitor: NatsOperationBindingVisitor,
               fixedFields: {
                 queue: {
@@ -1120,11 +1193,13 @@ const specification = {
               },
             },
             MessageBinding: {
+              element: 'natsMessageBinding',
               $visitor: NatsMessageBindingVisitor,
             },
           },
           pulsar: {
             ServerBinding: {
+              element: 'pulsarServerBinding',
               $visitor: PulsarServerBindingVisitor,
               fixedFields: {
                 tenant: {
@@ -1136,6 +1211,7 @@ const specification = {
               },
             },
             ChannelBinding: {
+              element: 'pulsarChannelBinding',
               $visitor: PulsarChannelBindingVisitor,
               fixedFields: {
                 namespace: {
@@ -1165,42 +1241,53 @@ const specification = {
               },
             },
             OperationBinding: {
+              element: 'pulsarOperationBinding',
               $visitor: PulsarOperationBindingVisitor,
             },
             MessageBinding: {
+              element: 'pulsarMessageBinding',
               $visitor: PulsarMessageBindingVisitor,
             },
           },
           jms: {
             ServerBinding: {
+              element: 'jmsServerBinding',
               $visitor: JmsServerBindingVisitor,
             },
             ChannelBinding: {
+              element: 'jmsChannelBinding',
               $visitor: JmsChannelBindingVisitor,
             },
             OperationBinding: {
+              element: 'jmsOperationBinding',
               $visitor: JmsOperationBindingVisitor,
             },
             MessageBinding: {
+              element: 'jmsMessageBinding',
               $visitor: JmsMessageBindingVisitor,
             },
           },
           sns: {
             ServerBinding: {
+              element: 'snsServerBinding',
               $visitor: SnsServerBindingVisitor,
             },
             ChannelBinding: {
+              element: 'snsChannelBinding',
               $visitor: SnsChannelBindingVisitor,
             },
             OperationBinding: {
+              element: 'snsOperationBinding',
               $visitor: SnsOperationBindingVisitor,
             },
             MessageBinding: {
+              element: 'snsMessageBinding',
               $visitor: SnsMessageBindingVisitor,
             },
           },
           solace: {
             ServerBinding: {
+              element: 'solaceServerBinding',
               $visitor: SolaceServerBindingVisitor,
               fixedFields: {
                 bindingVersion: {
@@ -1212,9 +1299,11 @@ const specification = {
               },
             },
             ChannelBinding: {
+              element: 'solaceChannelBinding',
               $visitor: SolaceChannelBindingVisitor,
             },
             OperationBinding: {
+              element: 'solaceOperationBinding',
               $visitor: SolaceOperationBindingVisitor,
               fixedFields: {
                 bindingVersion: {
@@ -1226,70 +1315,89 @@ const specification = {
               },
             },
             MessageBinding: {
+              element: 'solaceMessageBinding',
               $visitor: SolaceMessageBindingVisitor,
             },
           },
           sqs: {
             ServerBinding: {
+              element: 'sqsServerBinding',
               $visitor: SqsServerBindingVisitor,
             },
             ChannelBinding: {
+              element: 'sqsChannelBinding',
               $visitor: SqsChannelBindingVisitor,
             },
             OperationBinding: {
+              element: 'sqsOperationBinding',
               $visitor: SqsOperationBindingVisitor,
             },
             MessageBinding: {
+              element: 'sqsMessageBinding',
               $visitor: SqsMessageBindingVisitor,
             },
           },
           stomp: {
             ServerBinding: {
+              element: 'stompServerBinding',
               $visitor: StompServerBindingVisitor,
             },
             ChannelBinding: {
+              element: 'stompChannelBinding',
               $visitor: StompChannelBindingVisitor,
             },
             OperationBinding: {
+              element: 'stompOperationBinding',
               $visitor: StompOperationBindingVisitor,
             },
             MessageBinding: {
+              element: 'stompMessageBinding',
               $visitor: StompMessageBindingVisitor,
             },
           },
           redis: {
             ServerBinding: {
+              element: 'redisServerBinding',
               $visitor: RedisServerBindingVisitor,
             },
             ChannelBinding: {
+              element: 'redisChannelBinding',
               $visitor: RedisChannelBindingVisitor,
             },
             OperationBinding: {
+              element: 'redisOperationBinding',
               $visitor: RedisOperationBindingVisitor,
             },
             MessageBinding: {
+              element: 'redisMessageBinding',
               $visitor: RedisMessageBindingVisitor,
             },
           },
           mercure: {
             ServerBinding: {
+              element: 'mercureServerBinding',
               $visitor: MercureServerBindingVisitor,
             },
             ChannelBinding: {
+              element: 'mercureChannelBinding',
               $visitor: MercureChannelBindingVisitor,
             },
             OperationBinding: {
+              element: 'mercureOperationBinding',
               $visitor: MercureOperationBindingVisitor,
             },
             MessageBinding: {
+              element: 'mercureMessageBinding',
               $visitor: MercureMessageBindingVisitor,
             },
           },
           googlepubsub: {
             ServerBinding: {
+              element: 'googlepubsubServerBinding',
               $visitor: GooglepubsubServerBindingVisitor,
             },
             ChannelBinding: {
+              element: 'googlepubsubChannelBinding',
               $visitor: GooglepubsubChannelBindingVisitor,
               fixedFields: {
                 bindingVersion: {
@@ -1313,16 +1421,19 @@ const specification = {
               },
             },
             OperationBinding: {
+              element: 'googlepubsubOperationBinding',
               $visitor: GooglepubsubOperationBindingVisitor,
             },
             MessageBinding: {
+              element: 'googlepubsubMessageBinding',
               $visitor: GooglepubsubMessageBindingVisitor,
               fixedFields: {
                 bindingVersion: {
                   $ref: '#/visitors/value',
                 },
                 attributes: {
-                  $ref: '#/visitors/value',
+                  $visitor: FallbackVisitor,
+                  alias: 'attributesField',
                 },
                 orderingKey: {
                   $ref: '#/visitors/value',
@@ -1335,6 +1446,7 @@ const specification = {
           },
           ibmmq: {
             ServerBinding: {
+              element: 'ibmmqServerBinding',
               $visitor: IbmmqServerBindingVisitor,
               fixedFields: {
                 groupId: {
@@ -1358,6 +1470,7 @@ const specification = {
               },
             },
             ChannelBinding: {
+              element: 'ibmmqChannelBinding',
               $visitor: IbmmqChannelBindingVisitor,
               fixedFields: {
                 destinationType: {
@@ -1378,6 +1491,7 @@ const specification = {
               },
             },
             MessageBinding: {
+              element: 'ibmmqMessageBinding',
               $visitor: IbmmqMessageBindingVisitor,
               fixedFields: {
                 type: {
@@ -1398,6 +1512,7 @@ const specification = {
               },
             },
             OperationBinding: {
+              element: 'ibmmqOperationBinding',
               $visitor: IbmmqOperationBindingVisitor,
             },
           },

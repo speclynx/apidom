@@ -1,5 +1,5 @@
 import { pick } from 'ramda';
-import { ParseResultElement } from '@speclynx/apidom-core';
+import { ParseResultElement } from '@speclynx/apidom-datamodel';
 import {
   parse,
   mediaTypes as ArazzoYAML1MediaTypes,

@@ -1,4 +1,4 @@
-import { ParseResultElement } from '@speclynx/apidom-core';
+import { ParseResultElement } from '@speclynx/apidom-datamodel';
 import { mediaTypes, isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 
 import File from '../../../File.ts';

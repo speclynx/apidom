@@ -66,9 +66,13 @@ const specification = {
     document: {
       objects: {
         ArazzoSpecification: {
+          element: 'arazzoSpecification1',
           $visitor: ArazzoSpecificationVisitor,
           fixedFields: {
-            arazzo: ArazzoSpecificationArazzoVisitor,
+            arazzo: {
+              element: 'arazzo',
+              $visitor: ArazzoSpecificationArazzoVisitor,
+            },
             info: {
               $ref: '#/visitors/document/objects/Info',
             },
@@ -80,6 +84,7 @@ const specification = {
           },
         },
         Info: {
+          element: 'info',
           $visitor: InfoVisitor,
           fixedFields: {
             title: { $ref: '#/visitors/value' },
@@ -89,6 +94,7 @@ const specification = {
           },
         },
         SourceDescription: {
+          element: 'sourceDescription',
           $visitor: SourceDescriptionVisitor,
           fixedFields: {
             name: { $ref: '#/visitors/value' },
@@ -97,6 +103,7 @@ const specification = {
           },
         },
         Workflow: {
+          element: 'workflow',
           $visitor: WorkflowVisitor,
           fixedFields: {
             workflowId: { $ref: '#/visitors/value' },
@@ -112,6 +119,7 @@ const specification = {
           },
         },
         Step: {
+          element: 'step',
           $visitor: StepVisitor,
           fixedFields: {
             description: { $ref: '#/visitors/value' },
@@ -130,6 +138,7 @@ const specification = {
           },
         },
         Parameter: {
+          element: 'parameter',
           $visitor: ParameterVisitor,
           fixedFields: {
             name: { $ref: '#/visitors/value' },
@@ -138,6 +147,7 @@ const specification = {
           },
         },
         SuccessAction: {
+          element: 'successAction',
           $visitor: SuccessActionVisitor,
           fixedFields: {
             name: { $ref: '#/visitors/value' },
@@ -148,6 +158,7 @@ const specification = {
           },
         },
         FailureAction: {
+          element: 'failureAction',
           $visitor: FailureActionVisitor,
           fixedFields: {
             name: { $ref: '#/visitors/value' },
@@ -160,6 +171,7 @@ const specification = {
           },
         },
         Components: {
+          element: 'components',
           $visitor: ComponentsVisitor,
           fixedFields: {
             inputs: ComponentsInputsVisitor,
@@ -169,6 +181,7 @@ const specification = {
           },
         },
         Reusable: {
+          element: 'reusable',
           $visitor: ReusableVisitor,
           fixedFields: {
             reference: ReusableReferenceVisitor,
@@ -176,6 +189,7 @@ const specification = {
           },
         },
         Criterion: {
+          element: 'criterion',
           $visitor: CriterionVisitor,
           fixedFields: {
             context: { $ref: '#/visitors/value' },
@@ -184,6 +198,7 @@ const specification = {
           },
         },
         CriterionExpressionType: {
+          element: 'criterionExpressionType',
           $visitor: CriterionExpressionTypeVisitor,
           fixedFields: {
             type: { $ref: '#/visitors/value' },
@@ -191,6 +206,7 @@ const specification = {
           },
         },
         RequestBody: {
+          element: 'requestBody',
           $visitor: RequestBodyVisitor,
           fixedFields: {
             contentType: { $ref: '#/visitors/value' },
@@ -199,6 +215,7 @@ const specification = {
           },
         },
         PayloadReplacement: {
+          element: 'payloadReplacement',
           $visitor: PayloadReplacementVisitor,
           fixedFields: {
             target: { $ref: '#/visitors/value' },
@@ -206,6 +223,7 @@ const specification = {
           },
         },
         JSONSchema: {
+          element: 'jSONSchema202012',
           $visitor: JSONSchemaVisitor,
           fixedFields: {
             ...jsonSchemaFixedFields,

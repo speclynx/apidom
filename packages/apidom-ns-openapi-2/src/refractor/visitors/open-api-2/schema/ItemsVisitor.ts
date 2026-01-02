@@ -1,19 +1,14 @@
-import { ArrayElement, ObjectElement } from '@speclynx/apidom-core';
+import { ArrayElement, ObjectElement } from '@speclynx/apidom-datamodel';
 import {
-  specificationObj as JSONSchemaDraft4Specification,
   JSONReferenceElement,
   isJSONReferenceElement,
   ItemsVisitorOptions,
-  ItemsVisitor as ItemsVisitorType,
+  ItemsVisitor as JSONSchemaItemsVisitor,
 } from '@speclynx/apidom-ns-json-schema-draft-4';
 
 export type { ItemsVisitorOptions };
 
-/**
- * @public
- */
-export const JSONSchemaItemsVisitor: typeof ItemsVisitorType =
-  JSONSchemaDraft4Specification.visitors.document.objects.JSONSchema.fixedFields.items;
+export { JSONSchemaItemsVisitor };
 
 /**
  * @public
@@ -23,7 +18,7 @@ class ItemsVisitor extends JSONSchemaItemsVisitor {
     const result = JSONSchemaItemsVisitor.prototype.ObjectElement.call(this, objectElement);
 
     if (isJSONReferenceElement(this.element)) {
-      this.element.setMetaProperty('referenced-element', 'schema');
+      this.element.meta.set('referenced-element', 'schema');
     }
 
     return result;
@@ -36,7 +31,7 @@ class ItemsVisitor extends JSONSchemaItemsVisitor {
       .filter(isJSONReferenceElement)
       // @ts-ignore
       .forEach((referenceElement: JSONReferenceElement) => {
-        referenceElement.setMetaProperty('referenced-element', 'schema');
+        referenceElement.meta.set('referenced-element', 'schema');
       });
 
     return result;

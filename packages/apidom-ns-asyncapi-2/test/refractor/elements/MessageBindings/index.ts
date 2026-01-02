@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { MessageBindingsElement } from '../../../../src/index.ts';
+import { refractMessageBindings } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('MessageBindingsElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const messageBindingsElement = MessageBindingsElement.refract({
+        const messageBindingsElement = refractMessageBindings({
           http: {},
           ws: {},
           kafka: {},

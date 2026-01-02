@@ -1,15 +1,14 @@
 import { assert } from 'chai';
 import { uniqWith, equals } from 'ramda';
-
 import {
-  deepmerge,
-  toValue,
   Element,
   ObjectElement,
   ArrayElement,
   StringElement,
   isObjectElement,
-} from '../../src/index.ts';
+} from '@speclynx/apidom-datamodel';
+
+import { deepmerge, toValue } from '../../src/index.ts';
 
 describe('deepmerge', function () {
   it('should add keys in target that do not exist at the root', function () {
@@ -258,23 +257,56 @@ describe('deepmerge', function () {
 
     assert.deepEqual(toValue(merged), expected);
     assert.instanceOf(merged, ArrayElement, 'result should be an array');
-    assert.instanceOf(merged.get(0).get('key1'), ArrayElement, 'subkey should be an array too');
-    assert.notStrictEqual(merged.get(0).get('key1'), source.get(0).get('key1'), 'should be cloned');
-    assert.notStrictEqual(merged.get(0).get('key1'), target.get(0).get('key1'), 'should be cloned');
-    assert.notStrictEqual(merged.get(0).get('key2'), source.get(0).get('key2'), 'should be cloned');
-    assert.notStrictEqual(merged.get(1).get('key3'), source.get(1).get('key3'), 'should be cloned');
-    assert.notStrictEqual(merged.get(1).get('key3'), target.get(1).get('key3'), 'should be cloned');
+    assert.instanceOf(
+      (merged.get(0) as ObjectElement).get('key1'),
+      ArrayElement,
+      'subkey should be an array too',
+    );
+    assert.notStrictEqual(
+      (merged.get(0) as ObjectElement).get('key1'),
+      (source.get(0) as ObjectElement).get('key1'),
+      'should be cloned',
+    );
+    assert.notStrictEqual(
+      (merged.get(0) as ObjectElement).get('key1'),
+      (target.get(0) as ObjectElement).get('key1'),
+      'should be cloned',
+    );
+    assert.notStrictEqual(
+      (merged.get(0) as ObjectElement).get('key2'),
+      (source.get(0) as ObjectElement).get('key2'),
+      'should be cloned',
+    );
+    assert.notStrictEqual(
+      (merged.get(1) as ObjectElement).get('key3'),
+      (source.get(1) as ObjectElement).get('key3'),
+      'should be cloned',
+    );
+    assert.notStrictEqual(
+      (merged.get(1) as ObjectElement).get('key3'),
+      (target.get(1) as ObjectElement).get('key3'),
+      'should be cloned',
+    );
   });
 
   it('should work on custom element types', function () {
     class SourceElement extends ObjectElement {
-      element = 'source';
+      constructor(...args: ConstructorParameters<typeof ObjectElement>) {
+        super(...args);
+        this.element = 'source';
+      }
     }
     class TargetElement extends ObjectElement {
-      element = 'target';
+      constructor(...args: ConstructorParameters<typeof ObjectElement>) {
+        super(...args);
+        this.element = 'target';
+      }
     }
     class CustomArrayElement extends ArrayElement {
-      element = 'customArrayElement';
+      constructor(...args: ConstructorParameters<typeof ArrayElement>) {
+        super(...args);
+        this.element = 'customArrayElement';
+      }
     }
 
     const source = new SourceElement({
@@ -303,7 +335,7 @@ describe('deepmerge', function () {
     const merged = deepmerge(target, source) as ArrayElement;
 
     assert.notStrictEqual(merged.get(0), a);
-    assert.strictEqual(toValue(merged.get('0').get('key')), 'yup');
+    assert.strictEqual(toValue((merged.get(0) as ObjectElement).get('key')), 'yup');
   });
 
   it('should clone an array property when there is no target array', function () {
@@ -313,7 +345,7 @@ describe('deepmerge', function () {
     const merged = deepmerge(target, source) as ObjectElement;
 
     assert.deepEqual(toValue(merged), { ary: [{}] });
-    assert.notStrictEqual(merged.get('ary').get(0), someObject);
+    assert.notStrictEqual((merged.get('ary') as ArrayElement).get(0), someObject);
   });
 
   it('should overwrite values when property is initialised but undefined', function () {
@@ -334,7 +366,10 @@ describe('deepmerge', function () {
 
   it('should copy custom element types correctly in an array', function () {
     class DateElement extends StringElement {
-      element = 'date';
+      constructor(...args: ConstructorParameters<typeof StringElement>) {
+        super(...args);
+        this.element = 'date';
+      }
     }
 
     const monday = new DateElement('2016-09-27T01:08:12.761Z');
@@ -475,7 +510,10 @@ describe('deepmerge', function () {
           if (toValue(keyElement) === 'enum') {
             return (targetElement, sourceElement) =>
               new ArrayElement(
-                uniqWith(equals)([...toValue(targetElement), ...toValue(sourceElement)]),
+                uniqWith(equals)([
+                  ...(toValue(targetElement) as unknown[]),
+                  ...(toValue(sourceElement) as unknown[]),
+                ]),
               );
           }
           return deepmerge;
@@ -497,7 +535,10 @@ describe('deepmerge', function () {
   context('given isMergeableElement option', function () {
     specify('', function () {
       class CustomObjectElement extends ObjectElement {
-        element = 'custom';
+        constructor(...args: ConstructorParameters<typeof ObjectElement>) {
+          super(...args);
+          this.element = 'custom';
+        }
       }
       const instantiatedCustomObjectElement = new CustomObjectElement({ special: 'oh yeah' });
 
@@ -516,8 +557,11 @@ describe('deepmerge', function () {
       }) as ObjectElement;
 
       assert.instanceOf(merged.get('someProperty'), CustomObjectElement);
-      assert.isUndefined(merged.get('someProperty').get('cool'));
-      assert.strictEqual(toValue(merged.get('someProperty').get('special')), 'oh yeah');
+      assert.isUndefined((merged.get('someProperty') as ObjectElement).get('cool'));
+      assert.strictEqual(
+        toValue((merged.get('someProperty') as ObjectElement).get('special')),
+        'oh yeah',
+      );
     });
   });
 

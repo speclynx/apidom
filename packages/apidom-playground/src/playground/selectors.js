@@ -1,6 +1,7 @@
 import { createSelector } from 'swagger-adjust';
 import { isEmptyString, isNonEmptyString, isNull } from 'ramda-adjunct';
-import { from, traverse, createNamespace, sexprs, toValue } from '@speclynx/apidom-core';
+import { Namespace } from '@speclynx/apidom-datamodel';
+import { from, traverse, sexprs, toValue } from '@speclynx/apidom-core';
 /* eslint-disable camelcase */
 import openApi2NsPlugin, { mediaTypes as openApi2MediaTypes } from '@speclynx/apidom-ns-openapi-2';
 import openApi3_0NsPlugin, {
@@ -41,21 +42,21 @@ export const selectApiDOMNamespace = createSelector(selectMediaType, (mediaType)
     return null;
   }
   if (openApi2MediaTypes.includes(mediaType)) {
-    return createNamespace(openApi2NsPlugin);
+    return new Namespace().use(openApi2NsPlugin);
   }
   if (openApi3_0MediaTypes.includes(mediaType)) {
-    return createNamespace(openApi3_0NsPlugin);
+    return new Namespace().use(openApi3_0NsPlugin);
   }
   if (openApi3_1MediaTypes.includes(mediaType)) {
-    return createNamespace(openApi3_1NsPlugin);
+    return new Namespace().use(openApi3_1NsPlugin);
   }
   if (asyncApi2MediaTypes.includes(mediaType)) {
-    return createNamespace(asyncApi2NsPlugin);
+    return new Namespace().use(asyncApi2NsPlugin);
   }
   if (arazzoSpecification1MediaTypes.includes(mediaType)) {
-    return createNamespace(arazzoSpecification1NsPlugin);
+    return new Namespace().use(arazzoSpecification1NsPlugin);
   }
-  return createNamespace();
+  return new Namespace();
 });
 
 export const selectApiDOMInstance = createSelector(

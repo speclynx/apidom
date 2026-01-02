@@ -1,29 +1,28 @@
-import { Mixin } from 'ts-mixer';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import ComponentsRequestBodiesElement from '../../../../elements/nces/ComponentsRequestBodies.ts';
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import MapVisitor, { SpecPath } from '../../generics/MapVisitor.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from '../bases.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
 import { isReferenceElement } from '../../../../predicates.ts';
 
 /**
  * @public
  */
-export interface RequestBodiesVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+export type { BaseMapVisitorOptions as RequestBodiesVisitorOptions };
 
 /**
  * @public
  */
-class RequestBodiesVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class RequestBodiesVisitor extends BaseMapVisitor {
   declare public readonly element: ComponentsRequestBodiesElement;
 
   declare protected readonly specPath: SpecPath<
     ['document', 'objects', 'Reference'] | ['document', 'objects', 'RequestBody']
   >;
 
-  constructor(options: RequestBodiesVisitorOptions) {
+  constructor(options: BaseMapVisitorOptions) {
     super(options);
     this.element = new ComponentsRequestBodiesElement();
     this.specPath = (element: unknown) =>
@@ -37,7 +36,7 @@ class RequestBodiesVisitor extends Mixin(MapVisitor, FallbackVisitor) {
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
-      referenceElement.setMetaProperty('referenced-element', 'requestBody');
+      referenceElement.meta.set('referenced-element', 'requestBody');
     });
 
     return result;

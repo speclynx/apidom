@@ -1,6 +1,7 @@
 import { pathSatisfies, path, pick } from 'ramda';
 import { isFunction } from 'ramda-adjunct';
-import { visit, cloneDeep, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { visit, cloneDeep } from '@speclynx/apidom-core';
 
 import OpenApi3_0Element from '../../elements/OpenApi3-0.ts';
 import Visitor, { VisitorOptions } from './Visitor.ts';

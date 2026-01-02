@@ -1,34 +1,30 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
-import { ObjectElement, StringElement, toValue } from '@speclynx/apidom-core';
+import { ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 import CallbackElement from '../../../../elements/Callback.ts';
 import PathItemElement from '../../../../elements/PathItem.ts';
-import PatternedFieldsVisitor, {
-  PatternedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/PatternedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/PatternedFieldsVisitor.ts';
 import MapVisitor from '../../generics/MapVisitor.ts';
 import { isPathItemElement } from '../../../../predicates.ts';
+import { BasePatternedFieldsVisitor, BasePatternedFieldsVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface CallbackVisitorOptions
-  extends PatternedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type { BasePatternedFieldsVisitorOptions as CallbackVisitorOptions };
 
 /**
  * @public
  */
-class CallbackVisitor extends Mixin(PatternedFieldsVisitor, FallbackVisitor) {
+class CallbackVisitor extends BasePatternedFieldsVisitor {
   declare public readonly element: CallbackElement;
 
   declare protected readonly specPath: SpecPath;
 
   declare protected readonly canSupportSpecificationExtensions: true;
 
-  constructor(options: CallbackVisitorOptions) {
+  constructor(options: BasePatternedFieldsVisitorOptions) {
     super(options);
     this.element = new CallbackElement();
     this.specPath = always(['document', 'objects', 'PathItem']);
@@ -44,7 +40,7 @@ class CallbackVisitor extends Mixin(PatternedFieldsVisitor, FallbackVisitor) {
       .filter(isPathItemElement)
       // @ts-ignore
       .forEach((pathItemElement: PathItemElement, key: StringElement) => {
-        pathItemElement.setMetaProperty('runtime-expression', toValue(key));
+        pathItemElement.meta.set('runtime-expression', toValue(key));
       });
 
     return result;

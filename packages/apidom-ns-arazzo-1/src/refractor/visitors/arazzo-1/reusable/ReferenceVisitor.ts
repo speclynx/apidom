@@ -1,4 +1,4 @@
-import { StringElement } from '@speclynx/apidom-core';
+import { StringElement } from '@speclynx/apidom-datamodel';
 
 import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
 

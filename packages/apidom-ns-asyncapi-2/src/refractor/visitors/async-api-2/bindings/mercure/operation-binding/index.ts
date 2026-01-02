@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import MercureOperationBindingElement from '../../../../../../elements/bindings/mercure/MercureOperationBinding.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../../../FallbackVisitor.ts';
+import { SpecPath } from '../../../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../../../bases.ts';
 
 /**
  * @public
  */
-export interface MercureOperationBindingVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type MercureOperationBindingVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class MercureOperationBindingVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class MercureOperationBindingVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: MercureOperationBindingElement;
 
   declare protected readonly specPath: SpecPath<

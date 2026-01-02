@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -10,7 +15,7 @@ class CriterionExpressionType extends ObjectElement {
   }
 
   get type(): StringElement | undefined {
-    return this.get('type');
+    return this.get('type') as StringElement | undefined;
   }
 
   set type(type: StringElement | undefined) {
@@ -18,7 +23,7 @@ class CriterionExpressionType extends ObjectElement {
   }
 
   get version(): StringElement | undefined {
-    return this.get('version');
+    return this.get('version') as StringElement | undefined;
   }
 
   set version(version: StringElement | undefined) {

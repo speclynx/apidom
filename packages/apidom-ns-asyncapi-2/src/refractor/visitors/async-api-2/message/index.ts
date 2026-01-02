@@ -1,14 +1,11 @@
-import { Mixin } from 'ts-mixer';
 import { always, defaultTo } from 'ramda';
-import { ObjectElement, isObjectElement, toValue } from '@speclynx/apidom-core';
+import { ObjectElement, isObjectElement } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 import mediaTypes from '../../../../media-types.ts';
 import MessageElement from '../../../../elements/Message.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../bases.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
 
 /**
@@ -16,12 +13,12 @@ import { isReferenceLikeElement } from '../../../predicates.ts';
  * and currently only supports `AsyncAPI Schema Object >= 2.0.0 <=2.6.0.`
  * @public
  */
-export interface MessageVisitorOptions extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type MessageVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class MessageVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class MessageVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: MessageElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'Message']>;
@@ -36,11 +33,14 @@ class MessageVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
   }
 
   ObjectElement(objectElement: ObjectElement) {
-    const result = FixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+    const result = BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
     const payload = this.element.get('payload');
-    const schemaFormat = defaultTo(mediaTypes.latest(), toValue(objectElement.get('schemaFormat')));
+    const schemaFormat = defaultTo(
+      mediaTypes.latest(),
+      toValue(objectElement.get('schemaFormat')) as string,
+    );
 
-    if (mediaTypes.includes(schemaFormat) && isReferenceLikeElement(payload)) {
+    if (mediaTypes.includes(schemaFormat as string) && isReferenceLikeElement(payload)) {
       // refract to ReferenceElement
       const referenceElement = this.toRefractedElement(
         ['document', 'objects', 'Reference'],
@@ -48,7 +48,10 @@ class MessageVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
       );
       referenceElement.meta.set('referenced-element', 'schema');
       this.element.payload = referenceElement;
-    } else if (mediaTypes.includes(schemaFormat) && isObjectElement(this.element.payload)) {
+    } else if (
+      mediaTypes.includes(schemaFormat as string) &&
+      isObjectElement(this.element.payload)
+    ) {
       this.element.payload = this.toRefractedElement(['document', 'objects', 'Schema'], payload);
     }
 

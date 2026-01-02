@@ -1,12 +1,6 @@
 import { F as stubFalse } from 'ramda';
-import {
-  ObjectElement,
-  Element,
-  MemberElement,
-  BREAK,
-  cloneDeep,
-  toValue,
-} from '@speclynx/apidom-core';
+import { ObjectElement, Element, MemberElement } from '@speclynx/apidom-datamodel';
+import { BREAK, cloneDeep, toValue } from '@speclynx/apidom-core';
 
 import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
 import type { SpecPath } from './FixedFieldsVisitor.ts';
@@ -67,24 +61,22 @@ class PatternedFieldsVisitor extends SpecificationVisitor {
   ObjectElement(objectElement: ObjectElement) {
     // @ts-ignore
     objectElement.forEach((value: Element, key: Element, memberElement: MemberElement) => {
+      const keyValue = toValue(key) as string;
       if (
         this.canSupportSpecificationExtensions &&
         this.specificationExtensionPredicate(memberElement)
       ) {
         const extensionElement = this.toRefractedElement(['document', 'extension'], memberElement);
-        this.element.content.push(extensionElement);
-      } else if (
-        !this.ignoredFields.includes(toValue(key)) &&
-        this.fieldPatternPredicate(toValue(key))
-      ) {
+        (this.element.content as Element[]).push(extensionElement);
+      } else if (!this.ignoredFields.includes(keyValue) && this.fieldPatternPredicate(keyValue)) {
         const specPath = this.specPath(value);
         const patternedFieldElement = this.toRefractedElement(specPath, value);
         const newMemberElement = new MemberElement(cloneDeep(key), patternedFieldElement);
         this.copyMetaAndAttributes(memberElement, newMemberElement);
         newMemberElement.classes.push('patterned-field');
-        this.element.content.push(newMemberElement);
-      } else if (!this.ignoredFields.includes(toValue(key))) {
-        this.element.content.push(cloneDeep(memberElement));
+        (this.element.content as Element[]).push(newMemberElement);
+      } else if (!this.ignoredFields.includes(keyValue)) {
+        (this.element.content as Element[]).push(cloneDeep(memberElement));
       }
     });
 

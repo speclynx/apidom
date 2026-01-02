@@ -1,24 +1,22 @@
-import { Mixin } from 'ts-mixer';
-import { ArrayElement, Element, BREAK } from '@speclynx/apidom-core';
+import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
 import ServersElement from '../../../elements/nces/Servers.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
+import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from './bases.ts';
 import { isServerLikeElement } from '../../predicates.ts';
 
 /**
  * @public
  */
-export interface ServersVisitorOptions
-  extends SpecificationVisitorOptions, FallbackVisitorOptions {}
+export type { BaseSpecificationVisitorOptions as ServersVisitorOptions };
 
 /**
  * @public
  */
-class ServersVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class ServersVisitor extends BaseSpecificationVisitor {
   declare public readonly element: ServersElement;
 
-  constructor(options: ServersVisitorOptions) {
+  constructor(options: BaseSpecificationVisitorOptions) {
     super(options);
     this.element = new ServersElement();
   }

@@ -1,4 +1,9 @@
-import { ObjectElement, StringElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  ObjectElement,
+  StringElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -11,7 +16,7 @@ class SolaceServerBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {
@@ -19,7 +24,7 @@ class SolaceServerBinding extends ObjectElement {
   }
 
   get msgVpn(): StringElement | undefined {
-    return this.get('msgVpn');
+    return this.get('msgVpn') as StringElement | undefined;
   }
 
   set msgVpn(msgVpn: StringElement | undefined) {

@@ -1,4 +1,4 @@
-import { Element, Namespace as INamespace } from 'minim';
+import { Element, Namespace } from '@speclynx/apidom-datamodel';
 
 import defaultNamespaceInstance from '../namespace.ts';
 
@@ -7,7 +7,7 @@ import defaultNamespaceInstance from '../namespace.ts';
  * https://github.com/refractproject/refract-spec
  * @public
  */
-const dehydrate = (element: Element, namespace: INamespace = defaultNamespaceInstance): any => {
+const dehydrate = (element: Element, namespace: Namespace = defaultNamespaceInstance): unknown => {
   return namespace.toRefract(element);
 };
 

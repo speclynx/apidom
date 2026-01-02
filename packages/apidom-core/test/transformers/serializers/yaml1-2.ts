@@ -8,7 +8,7 @@ describe('serializers', function () {
   context('yaml-1-2', function () {
     context('given BooleanElement', function () {
       specify('should serialize to YAML 1.2', function () {
-        const apidom = from(true);
+        const apidom = from(true)!;
         const serialized = serialize(apidom);
         const expected = dedent`
           true
@@ -20,7 +20,7 @@ describe('serializers', function () {
 
     context('given NumberElement', function () {
       specify('should serialize to YAML 1.2', function () {
-        const apidom = from(1);
+        const apidom = from(1)!;
         const serialized = serialize(apidom);
         const expected = dedent`
           1
@@ -32,7 +32,7 @@ describe('serializers', function () {
 
     context('given StringElement', function () {
       specify('should serialize to YAML 1.2', function () {
-        const apidom = from('test');
+        const apidom = from('test')!;
         const serialized = serialize(apidom);
         const expected = dedent`
           "test"
@@ -43,7 +43,7 @@ describe('serializers', function () {
 
       context('and is multiline', function () {
         specify('should serialize to YAML 1.2', function () {
-          const apidom = from('test\n\ntest\n');
+          const apidom = from('test\n\ntest\n')!;
           const serialized = serialize(apidom);
           const expected = String.raw`"test\n\ntest\n"`;
 
@@ -54,7 +54,7 @@ describe('serializers', function () {
 
     context('given NullElement', function () {
       specify('should serialize to YAML 1.2', function () {
-        const apidom = from(null);
+        const apidom = from(null)!;
         const serialized = serialize(apidom);
         const expected = dedent`
           null
@@ -66,7 +66,7 @@ describe('serializers', function () {
 
     context('given empty ArrayElement', function () {
       specify('should serialize to YAML 1.2', function () {
-        const apidom = from([]);
+        const apidom = from([])!;
         const serialized = serialize(apidom);
         const expected = dedent`
           []
@@ -78,7 +78,7 @@ describe('serializers', function () {
 
     context('given simple ArrayElement', function () {
       specify('should serialize to YAML 1.2', function () {
-        const apidom = from([1, true, 'test', null]);
+        const apidom = from([1, true, 'test', null])!;
         const serialized = serialize(apidom, { directive: true });
         const expected = dedent`
           %YAML 1.2
@@ -96,7 +96,7 @@ describe('serializers', function () {
 
     context('given nested ArrayElement', function () {
       specify('should serialize to YAML 1.2', function () {
-        const apidom = from([1, [true, 'test', null]]);
+        const apidom = from([1, [true, 'test', null]])!;
         const serialized = serialize(apidom, { directive: true });
         const expected = dedent`
           %YAML 1.2
@@ -115,7 +115,7 @@ describe('serializers', function () {
 
     context('given ArrayElement in ObjectElement', function () {
       specify('should serialize to YAML 1.2', function () {
-        const apidom = from({ a: [1] });
+        const apidom = from({ a: [1] })!;
         const serialized = serialize(apidom, { directive: true });
         const expected = dedent`
           %YAML 1.2
@@ -131,7 +131,7 @@ describe('serializers', function () {
 
     context('given empty ObjectElement', function () {
       specify('should serialize to YAML 1.2', function () {
-        const apidom = from({});
+        const apidom = from({})!;
         const serialized = serialize(apidom);
         const expected = dedent`
           {}
@@ -143,7 +143,7 @@ describe('serializers', function () {
 
     context('given simple ObjectElement', function () {
       specify('should serialize to YAML 1.2', function () {
-        const apidom = from({ a: 1, b: true });
+        const apidom = from({ a: 1, b: true })!;
         const serialized = serialize(apidom, { directive: true });
         const expected = dedent`
           %YAML 1.2
@@ -159,7 +159,7 @@ describe('serializers', function () {
 
     context('given nested ObjectElement', function () {
       specify('should serialize to YAML 1.2', function () {
-        const apidom = from({ a: 1, b: { c: true } });
+        const apidom = from({ a: 1, b: { c: true } })!;
         const serialized = serialize(apidom, { directive: true });
         const expected = dedent`
           %YAML 1.2
@@ -176,7 +176,7 @@ describe('serializers', function () {
 
     context('given ObjectElement in ArrayElement', function () {
       specify('should serialize to YAML 1.2', function () {
-        const apidom = from([{ a: true }]);
+        const apidom = from([{ a: true }])!;
         const serialized = serialize(apidom, { directive: true });
         const expected = dedent`
           %YAML 1.2

@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import MessageTraitElement from '../../../../elements/MessageTrait.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface MessageTraitVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type MessageTraitVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class MessageTraitVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class MessageTraitVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: MessageTraitElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'MessageTrait']>;

@@ -4,7 +4,7 @@ import { toValue } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
 import {
-  OpenApi3_1Element,
+  refractOpenApi3_1,
   refractorPluginNormalizeHeaderExamples,
 } from '../../../../../src/index.ts';
 
@@ -31,9 +31,9 @@ describe('refractor', function () {
                                 value: 2
             `;
             const apiDOM = await parse(yamlDefinition);
-            const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+            const openApiElement = refractOpenApi3_1(apiDOM.result, {
               plugins: [refractorPluginNormalizeHeaderExamples()],
-            }) as OpenApi3_1Element;
+            });
 
             expect(toValue(openApiElement)).toMatchSnapshot();
           });
@@ -58,9 +58,9 @@ describe('refractor', function () {
                                 value: 2
             `;
             const apiDOM = await parse(yamlDefinition);
-            const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+            const openApiElement = refractOpenApi3_1(apiDOM.result, {
               plugins: [refractorPluginNormalizeHeaderExamples()],
-            }) as OpenApi3_1Element;
+            });
 
             expect(toValue(openApiElement)).toMatchSnapshot();
           });
@@ -88,9 +88,9 @@ describe('refractor', function () {
                                 value: 3
             `;
               const apiDOM = await parse(yamlDefinition);
-              const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+              const openApiElement = refractOpenApi3_1(apiDOM.result, {
                 plugins: [refractorPluginNormalizeHeaderExamples()],
-              }) as OpenApi3_1Element;
+              });
 
               expect(toValue(openApiElement)).toMatchSnapshot();
             },
@@ -117,9 +117,9 @@ describe('refractor', function () {
 
             `;
             const apiDOM = await parse(yamlDefinition);
-            const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+            const openApiElement = refractOpenApi3_1(apiDOM.result, {
               plugins: [refractorPluginNormalizeHeaderExamples()],
-            }) as OpenApi3_1Element;
+            });
 
             expect(toValue(openApiElement)).toMatchSnapshot();
           });
@@ -143,9 +143,9 @@ describe('refractor', function () {
 
             `;
             const apiDOM = await parse(yamlDefinition);
-            const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+            const openApiElement = refractOpenApi3_1(apiDOM.result, {
               plugins: [refractorPluginNormalizeHeaderExamples()],
-            }) as OpenApi3_1Element;
+            });
 
             expect(toValue(openApiElement)).toMatchSnapshot();
           });
@@ -172,9 +172,9 @@ describe('refractor', function () {
 
             `;
               const apiDOM = await parse(yamlDefinition);
-              const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+              const openApiElement = refractOpenApi3_1(apiDOM.result, {
                 plugins: [refractorPluginNormalizeHeaderExamples()],
-              }) as OpenApi3_1Element;
+              });
 
               expect(toValue(openApiElement)).toMatchSnapshot();
             },
@@ -204,9 +204,9 @@ describe('refractor', function () {
 
             `;
             const apiDOM = await parse(yamlDefinition);
-            const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+            const openApiElement = refractOpenApi3_1(apiDOM.result, {
               plugins: [refractorPluginNormalizeHeaderExamples()],
-            }) as OpenApi3_1Element;
+            });
 
             expect(toValue(openApiElement)).toMatchSnapshot();
           });
@@ -233,9 +233,9 @@ describe('refractor', function () {
 
             `;
             const apiDOM = await parse(yamlDefinition);
-            const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+            const openApiElement = refractOpenApi3_1(apiDOM.result, {
               plugins: [refractorPluginNormalizeHeaderExamples()],
-            }) as OpenApi3_1Element;
+            });
 
             expect(toValue(openApiElement)).toMatchSnapshot();
           });
@@ -265,9 +265,9 @@ describe('refractor', function () {
 
             `;
               const apiDOM = await parse(yamlDefinition);
-              const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+              const openApiElement = refractOpenApi3_1(apiDOM.result, {
                 plugins: [refractorPluginNormalizeHeaderExamples()],
-              }) as OpenApi3_1Element;
+              });
 
               expect(toValue(openApiElement)).toMatchSnapshot();
             },

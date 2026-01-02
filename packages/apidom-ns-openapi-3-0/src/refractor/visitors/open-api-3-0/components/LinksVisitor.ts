@@ -1,29 +1,28 @@
-import { Mixin } from 'ts-mixer';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import ComponentsLinksElement from '../../../../elements/nces/ComponentsLinks.ts';
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import MapVisitor, { SpecPath } from '../../generics/MapVisitor.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from '../bases.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
 import { isReferenceElement } from '../../../../predicates.ts';
 
 /**
  * @public
  */
-export interface LinksVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+export type { BaseMapVisitorOptions as LinksVisitorOptions };
 
 /**
  * @public
  */
-class LinksVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class LinksVisitor extends BaseMapVisitor {
   declare public readonly element: ComponentsLinksElement;
 
   declare protected readonly specPath: SpecPath<
     ['document', 'objects', 'Reference'] | ['document', 'objects', 'Link']
   >;
 
-  constructor(options: LinksVisitorOptions) {
+  constructor(options: BaseMapVisitorOptions) {
     super(options);
     this.element = new ComponentsLinksElement();
     this.specPath = (element: unknown) =>
@@ -37,7 +36,7 @@ class LinksVisitor extends Mixin(MapVisitor, FallbackVisitor) {
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
-      referenceElement.setMetaProperty('referenced-element', 'link');
+      referenceElement.meta.set('referenced-element', 'link');
     });
 
     return result;

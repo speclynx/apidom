@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import CriterionExpressionTypeElement from '../../../../elements/CriterionExpressionType.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
+import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsFallbackVisitor, BaseFixedFieldsFallbackVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface CriterionExpressionTypeVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export interface CriterionExpressionTypeVisitorOptions extends BaseFixedFieldsFallbackVisitorOptions {}
 
 /**
  * @public
  */
-class CriterionExpressionTypeVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class CriterionExpressionTypeVisitor extends BaseFixedFieldsFallbackVisitor {
   declare public readonly element: CriterionExpressionTypeElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'CriterionExpressionType']>;

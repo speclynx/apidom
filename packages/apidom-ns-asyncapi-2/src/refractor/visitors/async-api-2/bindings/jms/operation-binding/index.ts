@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import JmsOperationBindingElement from '../../../../../../elements/bindings/jms/JmsOperationBinding.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../../../FallbackVisitor.ts';
+import { SpecPath } from '../../../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../../../bases.ts';
 
 /**
  * @public
  */
-export interface JmsOperationBindingVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type JmsOperationBindingVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class JmsOperationBindingVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class JmsOperationBindingVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: JmsOperationBindingElement;
 
   declare protected readonly specPath: SpecPath<

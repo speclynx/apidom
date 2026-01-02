@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { PathItemElement } from '../../../../src/index.ts';
+import { refractPathItem } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('PathItemElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const pathItemElement = PathItemElement.refract({
+        const pathItemElement = refractPathItem({
           $ref: '#/components/pathsItems/PathItem1',
           summary: 'path item summary',
           description: 'path item description',

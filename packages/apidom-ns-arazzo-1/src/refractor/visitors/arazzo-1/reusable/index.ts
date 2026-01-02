@@ -1,24 +1,19 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
-import { ObjectElement, isStringElement } from '@speclynx/apidom-core';
+import { ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
 
 import ReusableElement from '../../../../elements/Reusable.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import FixedFieldsVisitor, { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsFallbackVisitor, BaseFixedFieldsFallbackVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface ReferenceVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export interface ReferenceVisitorOptions extends BaseFixedFieldsFallbackVisitorOptions {}
 
 /**
  * @public
  */
-class ReusableVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class ReusableVisitor extends BaseFixedFieldsFallbackVisitor {
   declare public readonly element: ReusableElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'Reusable']>;

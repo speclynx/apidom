@@ -1,4 +1,4 @@
-import { ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import { ObjectElement, type Attributes, type Meta } from '@speclynx/apidom-datamodel';
 
 import AsyncApiVersionElement from './AsyncApiVersion.ts';
 import DefaultContentTypeElement from './DefaultContentType.ts';
@@ -21,23 +21,23 @@ class AsyncApi2 extends ObjectElement {
   }
 
   get asyncapi(): AsyncApiVersionElement | undefined {
-    return this.get('asyncapi');
+    return this.get('asyncapi') as AsyncApiVersionElement | undefined;
   }
 
   set asyncapi(asyncapi: AsyncApiVersionElement | undefined) {
     this.set('asyncapi', asyncapi);
   }
 
-  get idProp(): IdentifierElement | undefined {
-    return this.get('id');
+  get idField(): IdentifierElement | undefined {
+    return this.get('id') as IdentifierElement | undefined;
   }
 
-  set idProp(id: IdentifierElement | undefined) {
+  set idField(id: IdentifierElement | undefined) {
     this.set('id', id);
   }
 
   get info(): InfoElement | undefined {
-    return this.get('info');
+    return this.get('info') as InfoElement | undefined;
   }
 
   set info(info: InfoElement | undefined) {
@@ -45,7 +45,7 @@ class AsyncApi2 extends ObjectElement {
   }
 
   get servers(): ServersElement | undefined {
-    return this.get('servers');
+    return this.get('servers') as ServersElement | undefined;
   }
 
   set servers(servers: ServersElement | undefined) {
@@ -53,7 +53,7 @@ class AsyncApi2 extends ObjectElement {
   }
 
   get defaultContentType(): DefaultContentTypeElement | undefined {
-    return this.get('defaultContentType');
+    return this.get('defaultContentType') as DefaultContentTypeElement | undefined;
   }
 
   set defaultContentType(defaultContentType: DefaultContentTypeElement | undefined) {
@@ -61,7 +61,7 @@ class AsyncApi2 extends ObjectElement {
   }
 
   get channels(): ChannelsElement | undefined {
-    return this.get('channels');
+    return this.get('channels') as ChannelsElement | undefined;
   }
 
   set channels(channels: ChannelsElement | undefined) {
@@ -69,7 +69,7 @@ class AsyncApi2 extends ObjectElement {
   }
 
   get components(): ComponentsElement | undefined {
-    return this.get('components');
+    return this.get('components') as ComponentsElement | undefined;
   }
 
   set components(components: ComponentsElement | undefined) {
@@ -77,7 +77,7 @@ class AsyncApi2 extends ObjectElement {
   }
 
   get tags(): TagsElement | undefined {
-    return this.get('tags');
+    return this.get('tags') as TagsElement | undefined;
   }
 
   set tags(tags: TagsElement | undefined) {
@@ -85,7 +85,7 @@ class AsyncApi2 extends ObjectElement {
   }
 
   get externalDocs(): ExternalDocumentationElement | undefined {
-    return this.get('externalDocs');
+    return this.get('externalDocs') as ExternalDocumentationElement | undefined;
   }
 
   set externalDocs(externalDocs: ExternalDocumentationElement | undefined) {

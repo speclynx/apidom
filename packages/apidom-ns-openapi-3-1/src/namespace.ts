@@ -1,4 +1,4 @@
-import { NamespacePluginOptions } from '@speclynx/apidom-core';
+import { NamespacePlugin } from '@speclynx/apidom-datamodel';
 
 import CallbackElement from './elements/Callback.ts';
 import ComponentsElement from './elements/Components.ts';
@@ -36,9 +36,8 @@ import XmlElement from './elements/Xml.ts';
 /**
  * @public
  */
-
-const openApi3_1 = {
-  namespace: (options: NamespacePluginOptions) => {
+const openApi3_1: NamespacePlugin = {
+  namespace: (options) => {
     const { base } = options;
 
     base.register('callback', CallbackElement);

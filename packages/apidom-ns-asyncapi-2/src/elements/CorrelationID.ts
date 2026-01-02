@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -10,7 +15,7 @@ class CorrelationID extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -18,7 +23,7 @@ class CorrelationID extends ObjectElement {
   }
 
   get location(): StringElement | undefined {
-    return this.get('location');
+    return this.get('location') as StringElement | undefined;
   }
 
   set location(location: StringElement | undefined) {

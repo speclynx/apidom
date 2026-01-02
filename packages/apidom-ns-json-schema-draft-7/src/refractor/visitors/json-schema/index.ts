@@ -1,3 +1,4 @@
+import { BooleanElement } from '@speclynx/apidom-datamodel';
 import {
   JSONSchemaVisitor as JSONSchemaDraft6Visitor,
   JSONSchemaVisitorOptions,
@@ -11,7 +12,7 @@ export type { JSONSchemaVisitorOptions };
  * @public
  */
 class JSONSchemaVisitor extends JSONSchemaDraft6Visitor {
-  declare public element: JSONSchemaElement;
+  declare public element: JSONSchemaElement | BooleanElement;
 
   constructor(options: JSONSchemaVisitorOptions) {
     super(options);

@@ -1,20 +1,21 @@
-import { Mixin } from 'ts-mixer';
-import { ArrayElement, Element, BREAK } from '@speclynx/apidom-core';
+import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
 import WorkflowDependsOnElement from '../../../../elements/nces/WorkflowDependsOn.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../../SpecificationVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import {
+  BaseSpecificationFallbackVisitor,
+  BaseSpecificationFallbackVisitorOptions,
+} from '../bases.ts';
 
 /**
  * @public
  */
-export interface WorkflowDependsOnVisitorOptions
-  extends SpecificationVisitorOptions, FallbackVisitorOptions {}
+export interface WorkflowDependsOnVisitorOptions extends BaseSpecificationFallbackVisitorOptions {}
 
 /**
  * @public
  */
-class WorkflowDependsOnVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class WorkflowDependsOnVisitor extends BaseSpecificationFallbackVisitor {
   public readonly element: WorkflowDependsOnElement;
 
   constructor(options: WorkflowDependsOnVisitorOptions) {

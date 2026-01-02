@@ -1,19 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import ComponentsSuccessActionsElement from '../../../../elements/nces/ComponentsSuccessActions.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
+import { SpecPath } from '../../generics/MapVisitor.ts';
+import { BaseMapFallbackVisitor, BaseMapFallbackVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface SuccessActionsVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+export interface SuccessActionsVisitorOptions extends BaseMapFallbackVisitorOptions {}
 
 /**
  * @public
  */
-class SuccessActionsVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class SuccessActionsVisitor extends BaseMapFallbackVisitor {
   declare public readonly element: ComponentsSuccessActionsElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'SuccessAction']>;

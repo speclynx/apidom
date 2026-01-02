@@ -5,7 +5,7 @@ import {
   NumberElement,
   isParseResultElement,
   isSourceMapElement,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 
 import File from '../../../../src/File.ts';
 import YAMLParser from '../../../../src/parse/parsers/yaml-1-2/index.ts';
@@ -82,10 +82,10 @@ describe('parsers', function () {
           const file = new File({ uri: '/path/to/file.yaml', data: 'prop: val' });
           const parser = new YAMLParser();
           const result = await parser.parse(file);
-          const objElement: ObjectElement = result.get(0);
+          const objElement = result.get(0) as ObjectElement;
 
           assert.isTrue(isParseResultElement(result));
-          assert.isTrue(objElement.get('prop').equals('val'));
+          assert.isTrue(objElement.get('prop')!.equals('val'));
         });
       });
 
@@ -94,10 +94,10 @@ describe('parsers', function () {
           const file = new File({ uri: '/path/to/file.yaml', data: Buffer.from('prop: val') });
           const parser = new YAMLParser();
           const result = await parser.parse(file);
-          const objElement: ObjectElement = result.get(0);
+          const objElement = result.get(0) as ObjectElement;
 
           assert.isTrue(isParseResultElement(result));
-          assert.isTrue(objElement.get('prop').equals('val'));
+          assert.isTrue(objElement.get('prop')!.equals('val'));
         });
       });
 
@@ -106,7 +106,7 @@ describe('parsers', function () {
           const file = new File({ uri: '/path/to/file.yaml', data: 1 as any });
           const parser = new YAMLParser();
           const result = await parser.parse(file);
-          const numberElement: NumberElement = result.get(0);
+          const numberElement = result.get(0) as NumberElement;
 
           assert.isTrue(isParseResultElement(result));
           assert.isTrue(numberElement.equals(1));
@@ -130,7 +130,7 @@ describe('parsers', function () {
             const file = new File({ uri: '/path/to/file.yaml', data: 'prop: val' });
             const parser = new YAMLParser({ sourceMap: true });
             const result = await parser.parse(file);
-            const objElement: ObjectElement = result.get(0);
+            const objElement = result.get(0) as ObjectElement;
 
             assert.isTrue(isSourceMapElement(objElement.meta.get('sourceMap')));
           });
@@ -141,7 +141,7 @@ describe('parsers', function () {
             const file = new File({ uri: '/path/to/file.yaml', data: 'prop: val' });
             const parser = new YAMLParser({ sourceMap: false });
             const result = await parser.parse(file);
-            const objElement: ObjectElement = result.get(0);
+            const objElement = result.get(0) as ObjectElement;
 
             assert.isUndefined(objElement.meta.get('sourceMap'));
           });

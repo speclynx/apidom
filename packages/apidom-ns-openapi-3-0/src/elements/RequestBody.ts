@@ -2,9 +2,9 @@ import {
   StringElement,
   ObjectElement,
   BooleanElement,
-  Attributes,
-  Meta,
-} from '@speclynx/apidom-core';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -16,24 +16,24 @@ class RequestBody extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
     this.set('description', description);
   }
 
-  get contentProp(): ObjectElement | undefined {
-    return this.get('content');
+  get contentField(): ObjectElement | undefined {
+    return this.get('content') as ObjectElement | undefined;
   }
 
-  set contentProp(content: ObjectElement | undefined) {
+  set contentField(content: ObjectElement | undefined) {
     this.set('content', content);
   }
 
   get required(): BooleanElement {
     if (this.hasKey('required')) {
-      return this.get('required');
+      return this.get('required') as BooleanElement;
     }
     return new BooleanElement(false);
   }

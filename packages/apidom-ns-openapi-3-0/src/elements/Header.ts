@@ -2,10 +2,10 @@ import {
   ObjectElement,
   StringElement,
   BooleanElement,
-  Attributes,
-  Meta,
   Element,
-} from '@speclynx/apidom-core';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import SchemaElement from './Schema.ts';
 import ReferenceElement from './Reference.ts';
@@ -21,7 +21,7 @@ class Header extends ObjectElement {
 
   get required(): BooleanElement {
     if (this.hasKey('required')) {
-      return this.get('required');
+      return this.get('required') as BooleanElement;
     }
     return new BooleanElement(false);
   }
@@ -32,7 +32,7 @@ class Header extends ObjectElement {
 
   get deprecated(): BooleanElement | undefined {
     if (this.hasKey('deprecated')) {
-      return this.get('deprecated');
+      return this.get('deprecated') as BooleanElement;
     }
     return new BooleanElement(false);
   }
@@ -42,7 +42,7 @@ class Header extends ObjectElement {
   }
 
   get allowEmptyValue(): BooleanElement | undefined {
-    return this.get('allowEmptyValue');
+    return this.get('allowEmptyValue') as BooleanElement | undefined;
   }
 
   set allowEmptyValue(allowEmptyValue: BooleanElement | undefined) {
@@ -50,7 +50,7 @@ class Header extends ObjectElement {
   }
 
   get style(): StringElement | undefined {
-    return this.get('style');
+    return this.get('style') as StringElement | undefined;
   }
 
   set style(style: StringElement | undefined) {
@@ -58,7 +58,7 @@ class Header extends ObjectElement {
   }
 
   get explode(): BooleanElement | undefined {
-    return this.get('explode');
+    return this.get('explode') as BooleanElement | undefined;
   }
 
   set explode(explode: BooleanElement | undefined) {
@@ -66,7 +66,7 @@ class Header extends ObjectElement {
   }
 
   get allowReserved(): BooleanElement | undefined {
-    return this.get('allowReserved');
+    return this.get('allowReserved') as BooleanElement | undefined;
   }
 
   set allowReserved(allowReserved: BooleanElement | undefined) {
@@ -74,7 +74,7 @@ class Header extends ObjectElement {
   }
 
   get schema(): SchemaElement | ReferenceElement | undefined {
-    return this.get('schema');
+    return this.get('schema') as SchemaElement | ReferenceElement | undefined;
   }
 
   set schema(schema: SchemaElement | ReferenceElement | undefined) {
@@ -82,7 +82,7 @@ class Header extends ObjectElement {
   }
 
   get example(): Element | undefined {
-    return this.get('example');
+    return this.get('example') as Element | undefined;
   }
 
   set example(example: Element | undefined) {
@@ -90,25 +90,25 @@ class Header extends ObjectElement {
   }
 
   get examples(): ObjectElement | undefined {
-    return this.get('examples');
+    return this.get('examples') as ObjectElement | undefined;
   }
 
   set examples(examples: ObjectElement | undefined) {
     this.set('examples', examples);
   }
 
-  get contentProp(): ObjectElement | undefined {
-    return this.get('content');
+  get contentField(): ObjectElement | undefined {
+    return this.get('content') as ObjectElement | undefined;
   }
 
-  set contentProp(content: ObjectElement | undefined) {
+  set contentField(content: ObjectElement | undefined) {
     this.set('content', content);
   }
 }
 
 Object.defineProperty(Header.prototype, 'description', {
   get(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   },
   set(description: StringElement | undefined) {
     this.set('description', description);

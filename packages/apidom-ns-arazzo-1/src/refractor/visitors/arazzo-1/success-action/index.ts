@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import SuccessActionElement from '../../../../elements/SuccessAction.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
+import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsFallbackVisitor, BaseFixedFieldsFallbackVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface SuccessActionVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export interface SuccessActionVisitorOptions extends BaseFixedFieldsFallbackVisitorOptions {}
 
 /**
  * @public
  */
-class SuccessActionVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class SuccessActionVisitor extends BaseFixedFieldsFallbackVisitor {
   declare public readonly element: SuccessActionElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'SuccessAction']>;

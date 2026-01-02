@@ -6,7 +6,7 @@ import {
   BooleanElement,
   Attributes,
   Meta,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -19,7 +19,7 @@ class PulsarChannelBinding extends ObjectElement {
   }
 
   get namespace(): StringElement | undefined {
-    return this.get('namespace');
+    return this.get('namespace') as StringElement | undefined;
   }
 
   set namespace(namespace: StringElement | undefined) {
@@ -27,7 +27,7 @@ class PulsarChannelBinding extends ObjectElement {
   }
 
   get persistence(): StringElement | undefined {
-    return this.get('persistence');
+    return this.get('persistence') as StringElement | undefined;
   }
 
   set persistence(persistence: StringElement | undefined) {
@@ -35,7 +35,7 @@ class PulsarChannelBinding extends ObjectElement {
   }
 
   get compaction(): NumberElement | undefined {
-    return this.get('compaction');
+    return this.get('compaction') as NumberElement | undefined;
   }
 
   set compaction(compaction: NumberElement | undefined) {
@@ -43,7 +43,7 @@ class PulsarChannelBinding extends ObjectElement {
   }
 
   get ['geo-replication'](): ArrayElement | undefined {
-    return this.get('compaction');
+    return this.get('geo-replication') as ArrayElement | undefined;
   }
 
   set ['geo-replication'](geoReplication: ArrayElement | undefined) {
@@ -51,7 +51,7 @@ class PulsarChannelBinding extends ObjectElement {
   }
 
   get retention(): ObjectElement | undefined {
-    return this.get('retention');
+    return this.get('retention') as ObjectElement | undefined;
   }
 
   set retention(retention: ObjectElement | undefined) {
@@ -59,7 +59,7 @@ class PulsarChannelBinding extends ObjectElement {
   }
 
   get ttl(): NumberElement | undefined {
-    return this.get('ttl');
+    return this.get('ttl') as NumberElement | undefined;
   }
 
   set ttl(ttl: NumberElement | undefined) {
@@ -67,7 +67,7 @@ class PulsarChannelBinding extends ObjectElement {
   }
 
   get deduplication(): BooleanElement | undefined {
-    return this.get('deduplication');
+    return this.get('deduplication') as BooleanElement | undefined;
   }
 
   set deduplication(deduplication: BooleanElement | undefined) {
@@ -75,7 +75,7 @@ class PulsarChannelBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

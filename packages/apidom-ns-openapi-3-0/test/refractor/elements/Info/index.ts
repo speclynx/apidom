@@ -1,13 +1,14 @@
 import { assert, expect } from 'chai';
-import { ObjectElement, toValue, sexprs } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { toValue, sexprs } from '@speclynx/apidom-core';
 
-import { InfoElement } from '../../../../src/index.ts';
+import { refractInfo, InfoElement } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('InfoElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const infoElement = InfoElement.refract({
+        const infoElement = refractInfo({
           title: 'Sample Pet Store App',
           description: 'This is a sample server for a pet store.',
           termsOfService: 'https://example.com/terms/',
@@ -23,7 +24,7 @@ describe('refractor', function () {
         let infoElement: InfoElement;
 
         beforeEach(function () {
-          infoElement = InfoElement.refract(
+          infoElement = refractInfo(
             new ObjectElement({}, { classes: ['example'] }, { attr: true }),
           ) as InfoElement;
         });
@@ -39,7 +40,7 @@ describe('refractor', function () {
         });
 
         specify('should deepmerge attributes', function () {
-          assert.isTrue(infoElement.attributes.get('attr').equals(true));
+          assert.isTrue(infoElement.attributes.get('attr')?.equals(true));
         });
       });
     });

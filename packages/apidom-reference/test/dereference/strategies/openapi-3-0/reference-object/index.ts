@@ -2,7 +2,13 @@ import path from 'node:path';
 import sinon from 'sinon';
 import { assert } from 'chai';
 import { identity } from 'ramda';
-import { Element, toValue, isRefElement, isParseResultElement } from '@speclynx/apidom-core';
+import {
+  Element,
+  ObjectElement,
+  isRefElement,
+  isParseResultElement,
+} from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 import { isParameterElement, mediaTypes } from '@speclynx/apidom-ns-openapi-3-0';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 import { fileURLToPath } from 'node:url';
@@ -56,7 +62,7 @@ describe('dereference', function () {
               const fragment = evaluate<Element>(dereferenced, '/0/components/parameters/userId');
 
               assert.strictEqual(
-                toValue(fragment.meta.get('ref-fields').get('$ref')),
+                toValue((fragment.meta.get('ref-fields') as ObjectElement).get('$ref')),
                 '#/components/parameters/indirection1',
               );
             },

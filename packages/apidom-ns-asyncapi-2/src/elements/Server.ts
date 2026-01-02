@@ -2,9 +2,9 @@ import {
   StringElement,
   ObjectElement,
   ArrayElement,
-  Attributes,
-  Meta,
-} from '@speclynx/apidom-core';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import ServerBindingsElement from './ServerBindings.ts';
 
@@ -18,7 +18,7 @@ class Server extends ObjectElement {
   }
 
   get url(): StringElement | undefined {
-    return this.get('url');
+    return this.get('url') as StringElement | undefined;
   }
 
   set url(url: StringElement | undefined) {
@@ -26,7 +26,7 @@ class Server extends ObjectElement {
   }
 
   get protocol(): StringElement | undefined {
-    return this.get('protocol');
+    return this.get('protocol') as StringElement | undefined;
   }
 
   set protocol(protocol: StringElement | undefined) {
@@ -34,7 +34,7 @@ class Server extends ObjectElement {
   }
 
   get protocolVersion(): StringElement | undefined {
-    return this.get('protocolVersion');
+    return this.get('protocolVersion') as StringElement | undefined;
   }
 
   set protocolVersion(protocolVersion: StringElement | undefined) {
@@ -42,7 +42,7 @@ class Server extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -50,7 +50,7 @@ class Server extends ObjectElement {
   }
 
   get variables(): ObjectElement | undefined {
-    return this.get('variables');
+    return this.get('variables') as ObjectElement | undefined;
   }
 
   set variables(variables: ObjectElement | undefined) {
@@ -58,7 +58,7 @@ class Server extends ObjectElement {
   }
 
   get tags(): ArrayElement | undefined {
-    return this.get('tags');
+    return this.get('tags') as ArrayElement | undefined;
   }
 
   set tags(tags: ArrayElement | undefined) {
@@ -66,7 +66,7 @@ class Server extends ObjectElement {
   }
 
   get security(): ArrayElement | undefined {
-    return this.get('security');
+    return this.get('security') as ArrayElement | undefined;
   }
 
   set security(security: ArrayElement | undefined) {
@@ -74,7 +74,7 @@ class Server extends ObjectElement {
   }
 
   get bindings(): ServerBindingsElement | undefined {
-    return this.get('bindings');
+    return this.get('bindings') as ServerBindingsElement | undefined;
   }
 
   set bindings(bindings: ServerBindingsElement | undefined) {

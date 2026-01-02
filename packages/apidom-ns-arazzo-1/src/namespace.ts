@@ -1,4 +1,4 @@
-import { NamespacePluginOptions } from '@speclynx/apidom-core';
+import type { NamespacePlugin } from '@speclynx/apidom-datamodel';
 
 import ArazzoElement from './elements/Arazzo.ts';
 import ArazzoSpecification1Element from './elements/ArazzoSpecification1.ts';
@@ -20,8 +20,8 @@ import WorkflowElement from './elements/Workflow.ts';
 /**
  * @public
  */
-const arazzo1 = {
-  namespace: (options: NamespacePluginOptions) => {
+const arazzo1: NamespacePlugin = {
+  namespace: (options) => {
     const { base } = options;
 
     base.register('arazzo', ArazzoElement);

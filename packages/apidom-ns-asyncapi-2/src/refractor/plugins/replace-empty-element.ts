@@ -8,9 +8,8 @@ import {
   isMemberElement,
   isElement,
   includesClasses,
-  cloneDeep,
-  toValue,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
+import { cloneDeep, toValue } from '@speclynx/apidom-core';
 
 import mediaTypes from '../../media-types.ts';
 /**
@@ -207,8 +206,9 @@ import { getNodeType } from '../../traversal/visitor.ts';
  *      (InfoElement))
  */
 
-const isEmptyElement = (element: any) =>
-  isStringElement(element) && includesClasses(['yaml-e-node', 'yaml-e-scalar'], element);
+const isEmptyElement = (element: unknown) =>
+  isStringElement(element) &&
+  includesClasses(element as StringElement, ['yaml-e-node', 'yaml-e-scalar']);
 
 const schema = {
   // concrete types handling (CTs)
@@ -391,7 +391,10 @@ const schema = {
     payload(...args: any[]) {
       // @ts-ignore
       const { context: messageElement } = this;
-      const schemaFormat = defaultTo(mediaTypes.latest(), toValue(messageElement.schemaFormat));
+      const schemaFormat = defaultTo(
+        mediaTypes.latest(),
+        toValue(messageElement.schemaFormat),
+      ) as string;
 
       if (mediaTypes.includes(schemaFormat)) {
         return new SchemaElement(...args);
@@ -1055,7 +1058,7 @@ const plugin = () => () => ({
         elementFactory = findElementFactory(parentElement, '<*>');
       } else if (isMemberElement(parentElement)) {
         context = lineage.at(-2);
-        elementFactory = findElementFactory(context, toValue(parentElement.key));
+        elementFactory = findElementFactory(context, toValue(parentElement.key) as string);
       }
 
       // no element factory found

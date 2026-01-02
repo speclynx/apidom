@@ -1,22 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import LicenseElement from '../../../../elements/License.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface LicenseVisitorOptions extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type LicenseVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class LicenseVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class LicenseVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: LicenseElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'License']>;

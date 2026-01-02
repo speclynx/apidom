@@ -5,7 +5,8 @@ import {
   isSecuritySchemeElement,
   isComponentsElement,
 } from '@speclynx/apidom-ns-openapi-3-1';
-import { AnnotationElement, toValue, isObjectElement, Element } from '@speclynx/apidom-core';
+import { AnnotationElement, isObjectElement, Element } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 import type { Toolbox } from '../toolbox.ts';
 
@@ -45,7 +46,7 @@ const securityRequirementsEmptyRolesRefractorPlugin =
           element.components.securitySchemes.forEach((value) => {
             if (
               isSecuritySchemeElement(value) &&
-              !nonEmptyRolesTypes.includes(toValue(value.type))
+              !nonEmptyRolesTypes.includes(toValue(value.type) as string)
             ) {
               relevantSecuritySchemes.push(value);
             }
@@ -64,7 +65,7 @@ const securityRequirementsEmptyRolesRefractorPlugin =
             );
 
             if (isSecuritySchemeElement(relevantSecurityScheme)) {
-              keysToEmpty.push(toValue(key));
+              keysToEmpty.push(toValue(key) as string);
               annotations.push(createAnnotation(value));
             }
           });

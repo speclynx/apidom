@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { ParameterElement } from '../../../../src/index.ts';
+import { refractParameter } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('ParameterElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const parameterElement = ParameterElement.refract({
+        const parameterElement = refractParameter({
           name: 'token',
           in: 'header',
           description: 'token to be passed as a header',

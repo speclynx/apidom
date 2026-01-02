@@ -5,8 +5,6 @@ import OpenAPI3_0ResolveStrategy from '../resolve/strategies/openapi-3-0/index.t
 import OpenAPI3_1ResolveStrategy from '../resolve/strategies/openapi-3-1/index.ts';
 import AsyncAPI2ResolveStrategy from '../resolve/strategies/asyncapi-2/index.ts';
 import ApiDOMResolveStrategy from '../resolve/strategies/apidom/index.ts';
-import APIDesignSystemsJSONParser from '../parse/parsers/api-design-systems-json/index.ts';
-import APIDesignSystemsYAMLParser from '../parse/parsers/api-design-systems-yaml/index.ts';
 import OpenAPIJSON2Parser from '../parse/parsers/openapi-json-2/index.ts';
 import OpenAPIYAML2Parser from '../parse/parsers/openapi-yaml-2/index.ts';
 import OpenAPIJSON3_0Parser from '../parse/parsers/openapi-json-3-0/index.ts';
@@ -40,8 +38,6 @@ options.parse.parsers = [
   new AsyncAPIYAML2Parser({ allowEmpty: true, sourceMap: false }),
   new ArazzoJSON1Parser({ allowEmpty: true, sourceMap: false }),
   new ArazzoYAML1Parser({ allowEmpty: true, sourceMap: false }),
-  new APIDesignSystemsJSONParser({ allowEmpty: true, sourceMap: false }),
-  new APIDesignSystemsYAMLParser({ allowEmpty: true, sourceMap: false }),
   new APIDOMJSONParser({ allowEmpty: true, sourceMap: false }),
   new JSONParser({ allowEmpty: true, sourceMap: false }),
   new YAMLParser({ allowEmpty: true, sourceMap: false }),

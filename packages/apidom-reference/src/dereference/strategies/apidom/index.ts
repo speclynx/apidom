@@ -1,4 +1,5 @@
-import { Element, isElement, cloneDeep, visit } from '@speclynx/apidom-core';
+import { Element, isElement } from '@speclynx/apidom-datamodel';
+import { cloneDeep, visit } from '@speclynx/apidom-core';
 
 import DereferenceStrategy, { DereferenceStrategyOptions } from '../DereferenceStrategy.ts';
 import File from '../../../File.ts';

@@ -1,6 +1,7 @@
 import { assert } from 'chai';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
-import { toValue, ObjectElement, mergeLeft } from '../../src/index.ts';
+import { toValue, mergeLeft } from '../../src/index.ts';
 
 /**
  * mergeLeft is just a specialization of mergeRight. We don't need tests here

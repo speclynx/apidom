@@ -1,5 +1,6 @@
 import { trimCharsStart, isUndefined } from 'ramda-adjunct';
-import { Element, find, toValue } from '@speclynx/apidom-core';
+import { Element } from '@speclynx/apidom-datamodel';
+import { find, toValue } from '@speclynx/apidom-core';
 import { isSchemaElement } from '@speclynx/apidom-ns-openapi-3-1';
 
 import { getHash } from '../../../../util/url.ts';

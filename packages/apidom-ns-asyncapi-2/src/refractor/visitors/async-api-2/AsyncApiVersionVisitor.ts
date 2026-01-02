@@ -1,24 +1,22 @@
-import { Mixin } from 'ts-mixer';
-import { StringElement, BREAK, toValue } from '@speclynx/apidom-core';
+import { StringElement } from '@speclynx/apidom-datamodel';
+import { BREAK, toValue } from '@speclynx/apidom-core';
 
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
 import AsyncApiVersionElement from '../../../elements/AsyncApiVersion.ts';
+import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from './bases.ts';
 
 /**
  * @public
  */
-export interface AsyncApiVersionVisitorOptions
-  extends SpecificationVisitorOptions, FallbackVisitorOptions {}
+export type AsyncApiVersionVisitorOptions = BaseSpecificationVisitorOptions;
 
 /**
  * @public
  */
-class AsyncApiVersionVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class AsyncApiVersionVisitor extends BaseSpecificationVisitor {
   declare public element: AsyncApiVersionElement;
 
   StringElement(stringElement: StringElement) {
-    const asyncApiVersionElement = new AsyncApiVersionElement(toValue(stringElement));
+    const asyncApiVersionElement = new AsyncApiVersionElement(toValue(stringElement) as string);
 
     this.copyMetaAndAttributes(stringElement, asyncApiVersionElement);
 

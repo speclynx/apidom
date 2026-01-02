@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import StompChannelBindingElement from '../../../../../../elements/bindings/stomp/StompChannelBinding.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../../../FallbackVisitor.ts';
+import { SpecPath } from '../../../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../../../bases.ts';
 
 /**
  * @public
  */
-export interface StompChannelBindingVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type StompChannelBindingVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class StompChannelBindingVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class StompChannelBindingVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: StompChannelBindingElement;
 
   declare protected readonly specPath: SpecPath<

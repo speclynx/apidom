@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import SchemaElement from './Schema.ts';
 import HeadersElement from './Headers.ts';
@@ -14,7 +19,7 @@ class Response extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -22,7 +27,7 @@ class Response extends ObjectElement {
   }
 
   get schema(): SchemaElement | undefined {
-    return this.get('schema');
+    return this.get('schema') as SchemaElement | undefined;
   }
 
   set schema(schema: SchemaElement | undefined) {
@@ -30,7 +35,7 @@ class Response extends ObjectElement {
   }
 
   get headers(): HeadersElement | undefined {
-    return this.get('headers');
+    return this.get('headers') as HeadersElement | undefined;
   }
 
   set headers(headers: HeadersElement | undefined) {
@@ -38,7 +43,7 @@ class Response extends ObjectElement {
   }
 
   get examples(): ExampleElement | undefined {
-    return this.get('examples');
+    return this.get('examples') as ExampleElement | undefined;
   }
 
   set examples(examples: ExampleElement | undefined) {

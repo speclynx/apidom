@@ -2,9 +2,9 @@ import {
   ObjectElement,
   ArrayElement,
   StringElement,
-  Attributes,
-  Meta,
-} from '@speclynx/apidom-core';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -16,7 +16,7 @@ class SecurityScheme extends ObjectElement {
   }
 
   get type(): StringElement | undefined {
-    return this.get('type');
+    return this.get('type') as StringElement | undefined;
   }
 
   set type(type: StringElement | undefined) {
@@ -24,7 +24,7 @@ class SecurityScheme extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -32,7 +32,7 @@ class SecurityScheme extends ObjectElement {
   }
 
   get name(): StringElement | undefined {
-    return this.get('name');
+    return this.get('name') as StringElement | undefined;
   }
 
   set name(name: StringElement | undefined) {
@@ -40,7 +40,7 @@ class SecurityScheme extends ObjectElement {
   }
 
   get in(): StringElement | undefined {
-    return this.get('in');
+    return this.get('in') as StringElement | undefined;
   }
 
   set in(inVal: StringElement | undefined) {
@@ -48,7 +48,7 @@ class SecurityScheme extends ObjectElement {
   }
 
   get flow(): StringElement | undefined {
-    return this.get('flow');
+    return this.get('flow') as StringElement | undefined;
   }
 
   set flow(flow: StringElement | undefined) {
@@ -56,7 +56,7 @@ class SecurityScheme extends ObjectElement {
   }
 
   get authorizationUrl(): StringElement | undefined {
-    return this.get('authorizationUrl');
+    return this.get('authorizationUrl') as StringElement | undefined;
   }
 
   set authorizationUrl(authorizationUrl: StringElement | undefined) {
@@ -64,7 +64,7 @@ class SecurityScheme extends ObjectElement {
   }
 
   get tokenUrl(): StringElement | undefined {
-    return this.get('tokenUrl');
+    return this.get('tokenUrl') as StringElement | undefined;
   }
 
   set tokenUrl(tokenUrl: StringElement | undefined) {
@@ -72,7 +72,7 @@ class SecurityScheme extends ObjectElement {
   }
 
   get scopes(): ArrayElement | undefined {
-    return this.get('scopes');
+    return this.get('scopes') as ArrayElement | undefined;
   }
 
   set scopes(scopes: ArrayElement | undefined) {

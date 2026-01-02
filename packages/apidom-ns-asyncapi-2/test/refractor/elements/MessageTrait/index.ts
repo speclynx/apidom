@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { MessageTraitElement } from '../../../../src/index.ts';
+import { refractMessageTrait } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('MessageTraitElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const messageTraitElement = MessageTraitElement.refract({
+        const messageTraitElement = refractMessageTrait({
           messageId: 'unique-id',
           schemaFormat: 'application/schema+json;version=draft-07',
           contentType: 'application/json',
@@ -26,7 +26,7 @@ describe('refractor', function () {
 
     context('given headers field of type SchemaElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const messageTraitElement = MessageTraitElement.refract({
+        const messageTraitElement = refractMessageTrait({
           headers: {},
         });
 
@@ -36,7 +36,7 @@ describe('refractor', function () {
 
     context('given headers field of type ReferenceElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const messageTraitElement = MessageTraitElement.refract({
+        const messageTraitElement = refractMessageTrait({
           headers: {
             $ref: '#/path/to/schema',
           },
@@ -48,7 +48,7 @@ describe('refractor', function () {
 
     context('given correlationId field of type CorrelationIDElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const messageTraitElement = MessageTraitElement.refract({
+        const messageTraitElement = refractMessageTrait({
           correlationId: {},
         });
 
@@ -58,7 +58,7 @@ describe('refractor', function () {
 
     context('given correlationId field of type ReferenceElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const messageTraitElement = MessageTraitElement.refract({
+        const messageTraitElement = refractMessageTrait({
           correlationId: {
             $ref: '#/path/to/correlationID',
           },
@@ -70,7 +70,7 @@ describe('refractor', function () {
 
     context('given bindings field of type MessageBindingsElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const messageTraitElement = MessageTraitElement.refract({
+        const messageTraitElement = refractMessageTrait({
           bindings: {},
         });
 
@@ -80,7 +80,7 @@ describe('refractor', function () {
 
     context('given bindings field of type ReferenceElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const messageTraitElement = MessageTraitElement.refract({
+        const messageTraitElement = refractMessageTrait({
           bindings: {
             $ref: '#/path/to/message-bindings',
           },

@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import NatsChannelBindingElement from '../../../../../../elements/bindings/nats/NatsChannelBinding.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../../../FallbackVisitor.ts';
+import { SpecPath } from '../../../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../../../bases.ts';
 
 /**
  * @public
  */
-export interface NatsChannelBindingVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type NatsChannelBindingVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class NatsChannelBindingVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class NatsChannelBindingVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: NatsChannelBindingElement;
 
   declare protected readonly specPath: SpecPath<

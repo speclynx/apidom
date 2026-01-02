@@ -3,14 +3,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import sinon from 'sinon';
-import { ObjectElement, toValue, Namespace } from '@speclynx/apidom-core';
-import { InfoElement as Info31Element, OpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
+import { ObjectElement, Namespace } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 import {
+  refract,
   OpenApi3_0Element,
   OpenapiElement,
-  InfoElement as Info30Element,
   isOpenapiElement,
+  isOpenApi3_0Element,
 } from '../../src/index.ts';
 import * as predicates from '../../src/predicates.ts';
 
@@ -24,20 +25,25 @@ describe('refractor', function () {
         .toString();
       const openApiPojo = JSON.parse(openApiString);
       const genericObjectElement = new ObjectElement(openApiPojo);
-      const openApiElement = OpenApi3_0Element.refract(genericObjectElement);
+      const openApiElement = refract(genericObjectElement);
 
       expect(openApiElement).toMatchSnapshot();
     });
   });
 
-  context('given semantic ApiDOM object in OpenAPI 3.1.0 shape', function () {
+  context('given semantic ApiDOM object', function () {
     specify('should refract to OpenApi 3.0', function () {
-      const openApi31Element = OpenApi3_1Element.refract({ openapi: '3.1.0', info: {} });
-      const openApi30Element = OpenApi3_0Element.refract(openApi31Element) as OpenApi3_0Element;
+      class SemanticElement extends ObjectElement {
+        constructor(content?: Record<string, unknown>) {
+          super(content);
+          this.element = 'custom';
+        }
+      }
 
-      assert.isTrue(openApi30Element.info instanceof Info30Element);
-      assert.isTrue(openApi30Element.info instanceof Info30Element);
-      assert.isFalse(openApi30Element.info instanceof Info31Element);
+      const semanticElement = new SemanticElement({ openapi: '3.0.4' });
+      const openApi30Element = refract<OpenApi3_0Element>(semanticElement);
+
+      assert.isTrue(isOpenApi3_0Element(openApi30Element));
     });
   });
 
@@ -87,7 +93,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           openapi: '3.0.4',
         });
-        OpenApi3_0Element.refract(genericObject, {
+        refract(genericObject, {
           plugins: [plugin1],
         });
 
@@ -98,7 +104,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           openapi: '3.0.4',
         });
-        OpenApi3_0Element.refract(genericObject, {
+        refract(genericObject, {
           plugins: [plugin1],
         });
 
@@ -109,7 +115,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           openapi: '3.0.4',
         });
-        OpenApi3_0Element.refract(genericObject, {
+        refract(genericObject, {
           plugins: [plugin1],
         });
 
@@ -122,7 +128,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           openapi: '3.0.4',
         });
-        OpenApi3_0Element.refract(genericObject, {
+        refract(genericObject, {
           plugins: [plugin1],
         });
 
@@ -133,7 +139,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           openapi: '3.0.4',
         });
-        OpenApi3_0Element.refract(genericObject, {
+        refract(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -144,7 +150,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           openapi: '3.0.4',
         });
-        OpenApi3_0Element.refract(genericObject, {
+        refract(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -158,7 +164,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           openapi: '3.0.4',
         });
-        OpenApi3_0Element.refract(genericObject, {
+        refract(genericObject, {
           plugins: [plugin1],
         });
 
@@ -169,7 +175,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           openapi: '3.0.4',
         });
-        OpenApi3_0Element.refract(genericObject, {
+        refract(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -180,7 +186,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           openapi: '3.0.4',
         });
-        OpenApi3_0Element.refract(genericObject, {
+        refract(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -194,7 +200,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           openapi: '3.0.4',
         });
-        OpenApi3_0Element.refract(genericObject, {
+        refract(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -206,7 +212,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           openapi: '3.0.4',
         });
-        OpenApi3_0Element.refract(genericObject, {
+        refract(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -220,7 +226,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             openapi: '3.0.4',
           });
-          OpenApi3_0Element.refract(genericObject, {
+          refract(genericObject, {
             plugins: [plugin1],
           });
 
@@ -231,7 +237,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             openapi: '3.0.4',
           });
-          OpenApi3_0Element.refract(genericObject, {
+          refract(genericObject, {
             plugins: [plugin1],
           });
 
@@ -242,7 +248,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             openapi: '3.0.4',
           });
-          const openApiElement = OpenApi3_0Element.refract(genericObject, {
+          const openApiElement = refract(genericObject, {
             plugins: [plugin1],
           });
 
@@ -255,7 +261,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             openapi: '3.0.4',
           });
-          OpenApi3_0Element.refract(genericObject, {
+          refract(genericObject, {
             plugins: [plugin1, plugin2],
           });
 
@@ -266,7 +272,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             openapi: '3.0.4',
           });
-          OpenApi3_0Element.refract(genericObject, {
+          refract(genericObject, {
             plugins: [plugin1, plugin2],
           });
 
@@ -277,7 +283,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             openapi: '3.0.4',
           });
-          const openApiElement = OpenApi3_0Element.refract(genericObject, {
+          const openApiElement = refract(genericObject, {
             plugins: [plugin1, plugin2],
           });
 

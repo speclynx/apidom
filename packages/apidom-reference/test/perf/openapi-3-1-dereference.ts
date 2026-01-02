@@ -3,14 +3,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Benchmark from 'benchmark';
 import type { Deferred, Event } from 'benchmark';
-import { OpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
+import { refractOpenApi3_1 } from '@speclynx/apidom-ns-openapi-3-1';
 
 import { dereferenceApiDOM } from '../../src/configuration/saturated.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturePath = path.join(__dirname, 'fixtures/openapi-3-1.json');
 const source = fs.readFileSync(fixturePath).toString();
-const apidom = OpenApi3_1Element.refract(JSON.parse(source));
+const apidom = refractOpenApi3_1(JSON.parse(source));
 
 const options = {
   name: 'openapi-3-1-dereference',

@@ -1,11 +1,13 @@
 import { expect } from 'chai';
 import dedent from 'dedent';
-import { sexprs, SourceMapElement } from '@speclynx/apidom-core';
+import { sexprs } from '@speclynx/apidom-core';
+import { SourceMapElement } from '@speclynx/apidom-datamodel';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
 import {
   refractorPluginReplaceEmptyElement,
   ArazzoSpecification1Element,
+  refractArazzoSpecification1,
 } from '../../../../src/index.ts';
 
 describe('given empty value instead of InfoElement', function () {
@@ -15,7 +17,7 @@ describe('given empty value instead of InfoElement', function () {
       info:
     `;
     const apiDOM = await parse(yamlDefinition);
-    const workflowsSpecificationElement = ArazzoSpecification1Element.refract(apiDOM.result, {
+    const workflowsSpecificationElement = refractArazzoSpecification1(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -30,16 +32,17 @@ describe('given Workflows definition with empty values', function () {
           info:
         `;
     const apiDOM = await parse(yamlDefinition, { sourceMap: true });
-    const workflowsSpecificationElement = ArazzoSpecification1Element.refract(apiDOM.result, {
+    const workflowsSpecificationElement = refractArazzoSpecification1(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as ArazzoSpecification1Element;
     const { info: infoValue } = workflowsSpecificationElement;
-    const sourceMap = infoValue?.meta.get('sourceMap');
-    const { positionStart, positionEnd } = sourceMap;
+    const sourceMap = infoValue?.meta.get('sourceMap') as SourceMapElement | undefined;
+    const positionStart = sourceMap?.positionStart;
+    const positionEnd = sourceMap?.positionEnd;
     const expectedPosition = [1, 5, 19];
 
     expect(infoValue?.meta.get('sourceMap')).to.be.an.instanceof(SourceMapElement);
-    expect(positionStart.equals(expectedPosition)).to.be.true;
-    expect(positionEnd.equals(expectedPosition)).to.be.true;
+    expect(positionStart?.equals(expectedPosition)).to.be.true;
+    expect(positionEnd?.equals(expectedPosition)).to.be.true;
   });
 });

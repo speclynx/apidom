@@ -1,23 +1,22 @@
-import { Mixin } from 'ts-mixer';
-import { ArrayElement, Element, BREAK } from '@speclynx/apidom-core';
+import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
 import TagsElement from '../../../elements/nces/Tags.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
+import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from './bases.ts';
 import { isTagLikeElement } from '../../predicates.ts';
 
 /**
  * @public
  */
-export interface TagsVisitorOptions extends SpecificationVisitorOptions, FallbackVisitorOptions {}
+export type { BaseSpecificationVisitorOptions as TagsVisitorOptions };
 
 /**
  * @public
  */
-class TagsVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class TagsVisitor extends BaseSpecificationVisitor {
   declare public readonly element: TagsElement;
 
-  constructor(options: TagsVisitorOptions) {
+  constructor(options: BaseSpecificationVisitorOptions) {
     super(options);
     this.element = new TagsElement();
   }

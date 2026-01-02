@@ -1,4 +1,9 @@
-import { ObjectElement, StringElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  ObjectElement,
+  StringElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -10,7 +15,7 @@ class OAuthFlow extends ObjectElement {
   }
 
   get authorizationUrl(): StringElement | undefined {
-    return this.get('authorizationUrl');
+    return this.get('authorizationUrl') as StringElement | undefined;
   }
 
   set authorizationUrl(authorizationUrl: StringElement | undefined) {
@@ -18,7 +23,7 @@ class OAuthFlow extends ObjectElement {
   }
 
   get tokenUrl(): StringElement | undefined {
-    return this.get('tokenUrl');
+    return this.get('tokenUrl') as StringElement | undefined;
   }
 
   set tokenUrl(tokenUrl: StringElement | undefined) {
@@ -26,7 +31,7 @@ class OAuthFlow extends ObjectElement {
   }
 
   get refreshUrl(): StringElement | undefined {
-    return this.get('refreshUrl');
+    return this.get('refreshUrl') as StringElement | undefined;
   }
 
   set refreshUrl(refreshUrl: StringElement | undefined) {
@@ -34,7 +39,7 @@ class OAuthFlow extends ObjectElement {
   }
 
   get scopes(): ObjectElement | undefined {
-    return this.get('scopes');
+    return this.get('scopes') as ObjectElement | undefined;
   }
 
   set scopes(scopes: ObjectElement | undefined) {

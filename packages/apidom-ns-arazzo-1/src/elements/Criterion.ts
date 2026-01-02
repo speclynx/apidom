@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import CriterionExpressionTypeElement from './CriterionExpressionType.ts';
 
@@ -12,7 +17,7 @@ class Criterion extends ObjectElement {
   }
 
   get context(): StringElement | undefined {
-    return this.get('context');
+    return this.get('context') as StringElement | undefined;
   }
 
   set context(context: StringElement | undefined) {
@@ -20,7 +25,7 @@ class Criterion extends ObjectElement {
   }
 
   get condition(): StringElement | undefined {
-    return this.get('condition');
+    return this.get('condition') as StringElement | undefined;
   }
 
   set condition(condition: StringElement | undefined) {
@@ -28,7 +33,7 @@ class Criterion extends ObjectElement {
   }
 
   get type(): StringElement | CriterionExpressionTypeElement | undefined {
-    return this.get('type');
+    return this.get('type') as StringElement | CriterionExpressionTypeElement | undefined;
   }
 
   set type(type: StringElement | CriterionExpressionTypeElement | undefined) {

@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import OAuthFlowElement from '../../../../elements/OAuthFlow.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface OAuthFlowVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type OAuthFlowVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class OAuthFlowVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class OAuthFlowVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: OAuthFlowElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'OAuthFlow']>;

@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import MercureMessageBindingElement from '../../../../../../elements/bindings/mercure/MercureMessageBinding.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../../../FallbackVisitor.ts';
+import { SpecPath } from '../../../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../../../bases.ts';
 
 /**
  * @public
  */
-export interface MercureMessageBindingVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type MercureMessageBindingVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class MercureMessageBindingVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class MercureMessageBindingVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: MercureMessageBindingElement;
 
   declare protected readonly specPath: SpecPath<

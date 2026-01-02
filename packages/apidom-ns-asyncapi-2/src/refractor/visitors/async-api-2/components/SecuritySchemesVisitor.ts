@@ -1,22 +1,21 @@
-import { Mixin } from 'ts-mixer';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import ComponentsSecuritySchemesElement from '../../../../elements/nces/ComponentsSecuritySchemes.ts';
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/MapVisitor.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
 import { isReferenceElement } from '../../../../predicates.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface SecuritySchemesVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+export type SecuritySchemesVisitorOptions = BaseMapVisitorOptions;
 
 /**
  * @public
  */
-class SecuritySchemesVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class SecuritySchemesVisitor extends BaseMapVisitor {
   declare public element: ComponentsSecuritySchemesElement;
 
   declare protected readonly specPath: SpecPath<
@@ -33,11 +32,11 @@ class SecuritySchemesVisitor extends Mixin(MapVisitor, FallbackVisitor) {
   }
 
   ObjectElement(objectElement: ObjectElement) {
-    const result = MapVisitor.prototype.ObjectElement.call(this, objectElement);
+    const result = BaseMapVisitor.prototype.ObjectElement.call(this, objectElement);
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
-      referenceElement.setMetaProperty('referenced-element', 'securityScheme');
+      referenceElement.meta.set('referenced-element', 'securityScheme');
     });
 
     return result;

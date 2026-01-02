@@ -1,4 +1,9 @@
-import { ObjectElement, StringElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  ObjectElement,
+  StringElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import SuccessActionCriteriaElement from './nces/SuccessActionCriteria.ts';
 
@@ -12,7 +17,7 @@ class SuccessAction extends ObjectElement {
   }
 
   get name(): StringElement | undefined {
-    return this.get('name');
+    return this.get('name') as StringElement | undefined;
   }
 
   set name(name: StringElement | undefined) {
@@ -20,7 +25,7 @@ class SuccessAction extends ObjectElement {
   }
 
   get type(): StringElement | undefined {
-    return this.get('type');
+    return this.get('type') as StringElement | undefined;
   }
 
   set type(type: StringElement | undefined) {
@@ -28,7 +33,7 @@ class SuccessAction extends ObjectElement {
   }
 
   get workflowId(): StringElement | undefined {
-    return this.get('workflowId');
+    return this.get('workflowId') as StringElement | undefined;
   }
 
   set workflowId(workflowId: StringElement | undefined) {
@@ -36,7 +41,7 @@ class SuccessAction extends ObjectElement {
   }
 
   get stepId(): StringElement | undefined {
-    return this.get('stepId');
+    return this.get('stepId') as StringElement | undefined;
   }
 
   set stepId(stepId: StringElement | undefined) {
@@ -44,7 +49,7 @@ class SuccessAction extends ObjectElement {
   }
 
   get criteria(): SuccessActionCriteriaElement | undefined {
-    return this.get('criteria');
+    return this.get('criteria') as SuccessActionCriteriaElement | undefined;
   }
 
   set criteria(criteria: SuccessActionCriteriaElement | undefined) {

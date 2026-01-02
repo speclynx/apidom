@@ -4,7 +4,7 @@ import {
   ArrayElement,
   Attributes,
   Meta,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 import { UnsupportedOperationError } from '@speclynx/apidom-error';
 import {
   JSONSchemaElement,
@@ -28,7 +28,7 @@ class JSONSchema extends JSONSchemaElement {
    */
 
   get $comment(): StringElement | undefined {
-    return this.get('$comment');
+    return this.get('$comment') as StringElement | undefined;
   }
 
   set $comment($comment: StringElement | undefined) {
@@ -44,11 +44,29 @@ class JSONSchema extends JSONSchemaElement {
   /**
    * Validation keywords for arrays
    */
-  get items(): this | BooleanElement | JSONReferenceElement | ArrayElement | undefined {
-    return this.get('items');
+
+  override get itemsField():
+    | this
+    | BooleanElement
+    | JSONReferenceElement
+    | ArrayElement<this | BooleanElement | JSONReferenceElement>
+    | undefined {
+    return this.get('items') as
+      | this
+      | BooleanElement
+      | JSONReferenceElement
+      | ArrayElement<this | BooleanElement | JSONReferenceElement>
+      | undefined;
   }
 
-  set items(items: this | BooleanElement | JSONReferenceElement | ArrayElement | undefined) {
+  override set itemsField(
+    items:
+      | this
+      | BooleanElement
+      | JSONReferenceElement
+      | ArrayElement<this | BooleanElement | JSONReferenceElement>
+      | undefined,
+  ) {
     this.set('items', items);
   }
 
@@ -59,7 +77,7 @@ class JSONSchema extends JSONSchemaElement {
    */
 
   get if(): this | BooleanElement | JSONReferenceElement | undefined {
-    return this.get('if');
+    return this.get('if') as this | BooleanElement | JSONReferenceElement | undefined;
   }
 
   set if(ifValue: this | BooleanElement | JSONReferenceElement | undefined) {
@@ -67,7 +85,7 @@ class JSONSchema extends JSONSchemaElement {
   }
 
   get then(): this | BooleanElement | JSONReferenceElement | undefined {
-    return this.get('then');
+    return this.get('then') as this | BooleanElement | JSONReferenceElement | undefined;
   }
 
   set then(then: this | BooleanElement | JSONReferenceElement | undefined) {
@@ -75,7 +93,7 @@ class JSONSchema extends JSONSchemaElement {
   }
 
   get else(): this | BooleanElement | JSONReferenceElement | undefined {
-    return this.get('else');
+    return this.get('else') as this | BooleanElement | JSONReferenceElement | undefined;
   }
 
   set else(elseValue: this | BooleanElement | JSONReferenceElement | undefined) {
@@ -88,11 +106,11 @@ class JSONSchema extends JSONSchemaElement {
    * URI: https://datatracker.ietf.org/doc/html/draft-handrews-json-schema-validation-01#section-6.7
    */
 
-  get not(): this | BooleanElement | JSONReferenceElement | undefined {
-    return this.get('not');
+  override get not(): this | BooleanElement | JSONReferenceElement | undefined {
+    return this.get('not') as this | BooleanElement | JSONReferenceElement | undefined;
   }
 
-  set not(not: this | BooleanElement | JSONReferenceElement | undefined) {
+  override set not(not: this | BooleanElement | JSONReferenceElement | undefined) {
     this.set('not', not);
   }
 
@@ -103,7 +121,7 @@ class JSONSchema extends JSONSchemaElement {
    */
 
   get contentEncoding(): StringElement | undefined {
-    return this.get('contentEncoding');
+    return this.get('contentEncoding') as StringElement | undefined;
   }
 
   set contentEncoding(contentEncoding: StringElement | undefined) {
@@ -111,20 +129,20 @@ class JSONSchema extends JSONSchemaElement {
   }
 
   get contentMediaType(): StringElement | undefined {
-    return this.get('contentMediaType');
+    return this.get('contentMediaType') as StringElement | undefined;
   }
 
   set contentMediaType(contentMediaType: StringElement | undefined) {
     this.set('contentMediaType', contentMediaType);
   }
 
-  get media(): MediaElement | undefined {
+  override get media(): MediaElement | undefined {
     throw new UnsupportedOperationError(
       'media keyword from Hyper-Schema vocabulary has been moved to validation vocabulary as "contentMediaType" / "contentEncoding"',
     );
   }
 
-  set media(media: MediaElement | undefined) {
+  override set media(_media: MediaElement | undefined) {
     throw new UnsupportedOperationError(
       'media keyword from Hyper-Schema vocabulary has been moved to validation vocabulary as "contentMediaType" / "contentEncoding"',
     );
@@ -137,7 +155,7 @@ class JSONSchema extends JSONSchemaElement {
    */
 
   get writeOnly(): BooleanElement | undefined {
-    return this.get('writeOnly');
+    return this.get('writeOnly') as BooleanElement | undefined;
   }
 
   set writeOnly(writeOnly: BooleanElement | undefined) {

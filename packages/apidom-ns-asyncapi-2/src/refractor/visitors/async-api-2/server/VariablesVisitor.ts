@@ -1,19 +1,17 @@
-import { Mixin } from 'ts-mixer';
-
 import ServerVariablesElement from '../../../../elements/nces/ServerVariables.ts';
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from '../bases.ts';
+import type { SpecPath } from '../../generics/MapVisitor.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
 
 /**
  * @public
  */
-export interface VariablesVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+export type VariablesVisitorOptions = BaseMapVisitorOptions;
 
 /**
  * @public
  */
-class VariablesVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class VariablesVisitor extends BaseMapVisitor {
   declare public readonly element: ServerVariablesElement;
 
   declare protected readonly specPath: SpecPath<

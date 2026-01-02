@@ -1,4 +1,5 @@
-import { keyMap as keyMapBase, isElement, Element } from '@speclynx/apidom-core';
+import { keyMap as keyMapBase } from '@speclynx/apidom-core';
+import { isElement, Element } from '@speclynx/apidom-datamodel';
 
 /**
  * @public

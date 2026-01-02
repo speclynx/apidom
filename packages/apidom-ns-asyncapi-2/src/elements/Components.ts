@@ -1,4 +1,4 @@
-import { ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import { ObjectElement, type Attributes, type Meta } from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -10,7 +10,7 @@ class Components extends ObjectElement {
   }
 
   get schemas(): ObjectElement | undefined {
-    return this.get('schemas');
+    return this.get('schemas') as ObjectElement | undefined;
   }
 
   set schemas(schemas: ObjectElement | undefined) {
@@ -18,7 +18,7 @@ class Components extends ObjectElement {
   }
 
   get servers(): ObjectElement | undefined {
-    return this.get('servers');
+    return this.get('servers') as ObjectElement | undefined;
   }
 
   set servers(servers: ObjectElement | undefined) {
@@ -26,7 +26,7 @@ class Components extends ObjectElement {
   }
 
   get serverVariables(): ObjectElement | undefined {
-    return this.get('serverVariables');
+    return this.get('serverVariables') as ObjectElement | undefined;
   }
 
   set serverVariables(serverVariables: ObjectElement | undefined) {
@@ -34,7 +34,7 @@ class Components extends ObjectElement {
   }
 
   get messages(): ObjectElement | undefined {
-    return this.get('messages');
+    return this.get('messages') as ObjectElement | undefined;
   }
 
   set messages(messages: ObjectElement | undefined) {
@@ -42,7 +42,7 @@ class Components extends ObjectElement {
   }
 
   get securitySchemes(): ObjectElement | undefined {
-    return this.get('securitySchemes');
+    return this.get('securitySchemes') as ObjectElement | undefined;
   }
 
   set securitySchemes(securitySchemes: ObjectElement | undefined) {
@@ -50,7 +50,7 @@ class Components extends ObjectElement {
   }
 
   get parameters(): ObjectElement | undefined {
-    return this.get('parameters');
+    return this.get('parameters') as ObjectElement | undefined;
   }
 
   set parameters(parameters: ObjectElement | undefined) {
@@ -58,7 +58,7 @@ class Components extends ObjectElement {
   }
 
   get correlationIds(): ObjectElement | undefined {
-    return this.get('correlationIds');
+    return this.get('correlationIds') as ObjectElement | undefined;
   }
 
   set correlationIds(correlationIds: ObjectElement | undefined) {
@@ -66,7 +66,7 @@ class Components extends ObjectElement {
   }
 
   get operationTraits(): ObjectElement | undefined {
-    return this.get('operationTraits');
+    return this.get('operationTraits') as ObjectElement | undefined;
   }
 
   set operationTraits(operationTraits: ObjectElement | undefined) {
@@ -74,7 +74,7 @@ class Components extends ObjectElement {
   }
 
   get messageTraits(): ObjectElement | undefined {
-    return this.get('messageTraits');
+    return this.get('messageTraits') as ObjectElement | undefined;
   }
 
   set messageTraits(messageTraits: ObjectElement | undefined) {
@@ -82,7 +82,7 @@ class Components extends ObjectElement {
   }
 
   get serverBindings(): ObjectElement | undefined {
-    return this.get('serverBindings');
+    return this.get('serverBindings') as ObjectElement | undefined;
   }
 
   set serverBindings(serverBindings: ObjectElement | undefined) {
@@ -90,7 +90,7 @@ class Components extends ObjectElement {
   }
 
   get channelBindings(): ObjectElement | undefined {
-    return this.get('channelBindings');
+    return this.get('channelBindings') as ObjectElement | undefined;
   }
 
   set channelBindings(channelBindings: ObjectElement | undefined) {
@@ -98,7 +98,7 @@ class Components extends ObjectElement {
   }
 
   get operationBindings(): ObjectElement | undefined {
-    return this.get('operationBindings');
+    return this.get('operationBindings') as ObjectElement | undefined;
   }
 
   set operationBindings(operationBindings: ObjectElement | undefined) {
@@ -106,7 +106,7 @@ class Components extends ObjectElement {
   }
 
   get messageBindings(): ObjectElement | undefined {
-    return this.get('messageBindings');
+    return this.get('messageBindings') as ObjectElement | undefined;
   }
 
   set messageBindings(messageBindings: ObjectElement | undefined) {

@@ -1,28 +1,24 @@
-import { Mixin } from 'ts-mixer';
-import { StringElement, BREAK, toValue } from '@speclynx/apidom-core';
-import {
-  FallbackVisitor,
-  FallbackVisitorOptions,
-  SpecificationVisitor,
-  SpecificationVisitorOptions,
-} from '@speclynx/apidom-ns-openapi-3-0';
+import { StringElement } from '@speclynx/apidom-datamodel';
+import { BREAK, toValue } from '@speclynx/apidom-core';
 
 import JsonSchemaDialectElement from '../../../elements/JsonSchemaDialect.ts';
+import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from './bases.ts';
 
 /**
  * @public
  */
-export interface JsonSchemaDialectVisitorOptions
-  extends SpecificationVisitorOptions, FallbackVisitorOptions {}
+export interface JsonSchemaDialectVisitorOptions extends BaseSpecificationVisitorOptions {}
 
 /**
  * @public
  */
-class JsonSchemaDialectVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class JsonSchemaDialectVisitor extends BaseSpecificationVisitor {
   declare public element: JsonSchemaDialectElement;
 
   StringElement(stringElement: StringElement) {
-    const jsonSchemaDialectElement = new JsonSchemaDialectElement(toValue(stringElement));
+    const jsonSchemaDialectElement = new JsonSchemaDialectElement(
+      toValue(stringElement) as string | undefined,
+    );
 
     this.copyMetaAndAttributes(stringElement, jsonSchemaDialectElement);
 

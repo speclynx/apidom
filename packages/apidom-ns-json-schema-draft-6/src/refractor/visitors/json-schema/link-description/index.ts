@@ -11,6 +11,7 @@ export type { LinkDescriptionVisitorOptions };
  * @public
  */
 class LinkDescriptionVisitor extends JSONSchemaDraft4LinkDescriptionVisitor {
+  // @ts-expect-error - widening type to include BooleanElement (boolean schemas introduced in draft-6)
   declare public readonly element: LinkDescriptionElement;
 
   constructor(options: LinkDescriptionVisitorOptions) {

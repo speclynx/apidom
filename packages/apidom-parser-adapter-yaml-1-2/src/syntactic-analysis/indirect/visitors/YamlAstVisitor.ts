@@ -23,11 +23,9 @@ import {
   ArrayElement,
   isPrimitiveElement,
   isElement,
-  keyMap as keyMapApiDOM,
-  getNodeType as getNodeTypeApiDOM,
   Namespace,
-  createNamespace,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
+import { keyMap as keyMapApiDOM, getNodeType as getNodeTypeApiDOM } from '@speclynx/apidom-core';
 
 export const keyMap = {
   stream: ['children'],
@@ -83,7 +81,7 @@ class YamlAstVisitor {
 
   constructor() {
     this.annotations = [];
-    this.namespace = createNamespace();
+    this.namespace = new Namespace();
   }
 
   public comment(node: YamlComment): CommentElement | null {
@@ -160,7 +158,7 @@ class YamlAstVisitor {
   }
 
   public scalar(node: YamlScalar): Element {
-    const element = this.namespace.toElement(node.content);
+    const element = this.namespace.toElement(node.content)!;
 
     // translate style information about empty nodes
     if (node.content === '' && node.style === YamlStyle.Plain) {

@@ -1,15 +1,13 @@
 import {
   Element,
-  visit,
-  cloneDeep,
-  BREAK,
   isElement,
   isMemberElement,
   isArrayElement,
   MemberElement,
   ArrayElement,
   NumberElement,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
+import { visit, cloneDeep, BREAK } from '@speclynx/apidom-core';
 import {
   compile as compileJsonPointer,
   evaluate as evaluateJsonPointer,
@@ -128,9 +126,10 @@ const evaluate = <T extends Element, U extends Element>(
       );
     }
 
-    const currentCursorIndex = containedArray.content.indexOf(cursor);
+    const arrayContent = containedArray.content as Element[];
+    const currentCursorIndex = arrayContent.indexOf(cursor!);
     const newCursorIndex = currentCursorIndex + relativeJsonPointer.indexManipulation;
-    cursor = containedArray.content[newCursorIndex] as Element | undefined;
+    cursor = arrayContent[newCursorIndex] as Element | undefined;
 
     if (typeof cursor === 'undefined') {
       throw new EvaluationRelativeJsonPointerError(
@@ -168,7 +167,7 @@ const evaluate = <T extends Element, U extends Element>(
       if (isMemberElement(parentElement)) {
         cursor = (parentElement as MemberElement).key as Element;
       } else if (isArrayElement(parentElement)) {
-        cursor = new NumberElement(parentElement.content.indexOf(cursor));
+        cursor = new NumberElement((parentElement.content as Element[]).indexOf(cursor!));
       }
     }
   }

@@ -7,7 +7,7 @@ describe('refractor', function () {
   context('elements', function () {
     context('OpenapiElement 3.0.0', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const openapiElement = OpenapiElement.refract('3.0.0');
+        const openapiElement = new OpenapiElement('3.0.0');
 
         expect(sexprs(openapiElement)).toMatchSnapshot();
       });
@@ -15,7 +15,7 @@ describe('refractor', function () {
 
     context('OpenapiElement 3.0.1', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const openapiElement = OpenapiElement.refract('3.0.1');
+        const openapiElement = new OpenapiElement('3.0.1');
 
         expect(sexprs(openapiElement)).toMatchSnapshot();
       });
@@ -23,7 +23,7 @@ describe('refractor', function () {
 
     context('OpenapiElement 3.0.2', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const openapiElement = OpenapiElement.refract('3.0.2');
+        const openapiElement = new OpenapiElement('3.0.2');
 
         expect(sexprs(openapiElement)).toMatchSnapshot();
       });
@@ -31,7 +31,7 @@ describe('refractor', function () {
 
     context('OpenapiElement 3.0.3', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const openapiElement = OpenapiElement.refract('3.0.3');
+        const openapiElement = new OpenapiElement('3.0.3');
 
         expect(sexprs(openapiElement)).toMatchSnapshot();
       });
@@ -39,7 +39,7 @@ describe('refractor', function () {
 
     context('OpenapiElement 3.0.4', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const openapiElement = OpenapiElement.refract('3.0.4');
+        const openapiElement = new OpenapiElement('3.0.4');
 
         expect(sexprs(openapiElement)).toMatchSnapshot();
       });

@@ -1,5 +1,5 @@
 import { ReferenceElement } from '@speclynx/apidom-ns-openapi-3-1';
-import { AnnotationElement } from '@speclynx/apidom-core';
+import { AnnotationElement } from '@speclynx/apidom-datamodel';
 
 type ReferenceSummaryPluginOptions = {
   annotations: AnnotationElement[];

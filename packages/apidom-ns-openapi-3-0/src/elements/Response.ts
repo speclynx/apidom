@@ -1,4 +1,9 @@
-import { ObjectElement, StringElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  ObjectElement,
+  StringElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -10,7 +15,7 @@ class Response extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -18,26 +23,26 @@ class Response extends ObjectElement {
   }
 
   get headers(): ObjectElement | undefined {
-    return this.get('headers');
+    return this.get('headers') as ObjectElement | undefined;
   }
 
   set headers(headers: ObjectElement | undefined) {
     this.set('headers', headers);
   }
 
-  get contentProp(): ObjectElement | undefined {
-    return this.get('content');
+  get contentField(): ObjectElement | undefined {
+    return this.get('content') as ObjectElement | undefined;
   }
 
-  set contentProp(contentProp: ObjectElement | undefined) {
-    this.set('content', contentProp);
+  set contentField(content: ObjectElement | undefined) {
+    this.set('content', content);
   }
 
-  get links(): ObjectElement | undefined {
-    return this.get('links');
+  get linksField(): ObjectElement | undefined {
+    return this.get('links') as ObjectElement | undefined;
   }
 
-  set links(links: ObjectElement | undefined) {
+  set linksField(links: ObjectElement | undefined) {
     this.set('links', links);
   }
 }

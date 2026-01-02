@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { JsonSchemaDialectElement } from '../../../../src/index.ts';
+import { refractJsonSchemaDialect } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('JsonSchemaDialectElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const jsonSchemaDialectElement = JsonSchemaDialectElement.refract(
+        const jsonSchemaDialectElement = refractJsonSchemaDialect(
           'https://spec.openapis.org/oas/3.1/dialect/base',
         );
 

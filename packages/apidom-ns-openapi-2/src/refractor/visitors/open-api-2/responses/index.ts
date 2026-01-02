@@ -1,27 +1,20 @@
-import { Mixin } from 'ts-mixer';
 import { test, always, range } from 'ramda';
-import { Element, ObjectElement, StringElement, cloneDeep, toValue } from '@speclynx/apidom-core';
+import { Element, ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
+import { cloneDeep, toValue } from '@speclynx/apidom-core';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import ResponsesElement from '../../../../elements/Responses.ts';
-import MixedFieldsVisitor, {
-  MixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/MixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/MixedFieldsVisitor.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
 import { isReferenceElement, isResponseElement } from '../../../../predicates.ts';
+import { BaseMixedFieldsVisitor, BaseMixedFieldsVisitorOptions } from '../bases.ts';
+
+export type { BaseMixedFieldsVisitorOptions as ResponsesVisitorOptions };
 
 /**
  * @public
  */
-export interface ResponsesVisitorOptions
-  extends MixedFieldsVisitorOptions, FallbackVisitorOptions {}
-
-/**
- * @public
- */
-class ResponsesVisitor extends Mixin(MixedFieldsVisitor, FallbackVisitor) {
+class ResponsesVisitor extends BaseMixedFieldsVisitor {
   declare public readonly element: ResponsesElement;
 
   declare protected readonly specPathFixedFields: SpecPath<['document', 'objects', 'Responses']>;
@@ -32,7 +25,7 @@ class ResponsesVisitor extends Mixin(MixedFieldsVisitor, FallbackVisitor) {
     ['document', 'objects', 'Reference'] | ['document', 'objects', 'Response']
   >;
 
-  constructor(options: ResponsesVisitorOptions) {
+  constructor(options: BaseMixedFieldsVisitorOptions) {
     super(options);
     this.element = new ResponsesElement();
     this.specPathFixedFields = always(['document', 'objects', 'Responses']);
@@ -49,12 +42,12 @@ class ResponsesVisitor extends Mixin(MixedFieldsVisitor, FallbackVisitor) {
   }
 
   ObjectElement(objectElement: ObjectElement) {
-    const result = MixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+    const result = BaseMixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
 
     // decorate every ReferenceElement with metadata about their referencing type
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
-      referenceElement.setMetaProperty('referenced-element', 'response');
+      referenceElement.meta.set('referenced-element', 'response');
     });
 
     // decorate every ResponseElement with metadata about their status code
@@ -62,7 +55,7 @@ class ResponsesVisitor extends Mixin(MixedFieldsVisitor, FallbackVisitor) {
     this.element.filter(isResponseElement).forEach((value: Element, key: StringElement) => {
       const httpStatusCode = cloneDeep(key);
       if (!this.fieldPatternPredicate(toValue(httpStatusCode))) return;
-      value.setMetaProperty('http-status-code', httpStatusCode);
+      value.meta.set('http-status-code', httpStatusCode);
     });
 
     return result;

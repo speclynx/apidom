@@ -1,4 +1,9 @@
-import { ObjectElement, StringElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  ObjectElement,
+  StringElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import RequestBodyElement from './RequestBody.ts';
 import StepParametersElement from './nces/StepParameters.ts';
@@ -17,7 +22,7 @@ class Step extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -25,7 +30,7 @@ class Step extends ObjectElement {
   }
 
   get stepId(): StringElement | undefined {
-    return this.get('stepId');
+    return this.get('stepId') as StringElement | undefined;
   }
 
   set stepId(stepId: StringElement | undefined) {
@@ -33,7 +38,7 @@ class Step extends ObjectElement {
   }
 
   get operationId(): StringElement | undefined {
-    return this.get('operationId');
+    return this.get('operationId') as StringElement | undefined;
   }
 
   set operationId(operationId: StringElement | undefined) {
@@ -41,7 +46,7 @@ class Step extends ObjectElement {
   }
 
   get operationPath(): StringElement | undefined {
-    return this.get('operationPath');
+    return this.get('operationPath') as StringElement | undefined;
   }
 
   set operationPath(operationPath: StringElement | undefined) {
@@ -49,7 +54,7 @@ class Step extends ObjectElement {
   }
 
   get workflowId(): StringElement | undefined {
-    return this.get('workflowId');
+    return this.get('workflowId') as StringElement | undefined;
   }
 
   set workflowId(workflowId: StringElement | undefined) {
@@ -57,7 +62,7 @@ class Step extends ObjectElement {
   }
 
   get parameters(): StepParametersElement | undefined {
-    return this.get('parameters');
+    return this.get('parameters') as StepParametersElement | undefined;
   }
 
   set parameters(parameters: StepParametersElement | undefined) {
@@ -65,7 +70,7 @@ class Step extends ObjectElement {
   }
 
   get requestBody(): RequestBodyElement | undefined {
-    return this.get('requestBody');
+    return this.get('requestBody') as RequestBodyElement | undefined;
   }
 
   set requestBody(requestBody: RequestBodyElement | undefined) {
@@ -73,7 +78,7 @@ class Step extends ObjectElement {
   }
 
   get successCriteria(): StepSuccessCriteriaElement | undefined {
-    return this.get('successCriteria');
+    return this.get('successCriteria') as StepSuccessCriteriaElement | undefined;
   }
 
   set successCriteria(successCriteria: StepSuccessCriteriaElement | undefined) {
@@ -81,7 +86,7 @@ class Step extends ObjectElement {
   }
 
   get onSuccess(): StepOnSuccessElement | undefined {
-    return this.get('onSuccess');
+    return this.get('onSuccess') as StepOnSuccessElement | undefined;
   }
 
   set onSuccess(onSuccess: StepOnSuccessElement | undefined) {
@@ -89,7 +94,7 @@ class Step extends ObjectElement {
   }
 
   get onFailure(): StepOnFailureElement | undefined {
-    return this.get('onFailure');
+    return this.get('onFailure') as StepOnFailureElement | undefined;
   }
 
   set onFailure(onFailure: StepOnFailureElement | undefined) {
@@ -97,7 +102,7 @@ class Step extends ObjectElement {
   }
 
   get outputs(): StepOutputsElement | undefined {
-    return this.get('outputs');
+    return this.get('outputs') as StepOutputsElement | undefined;
   }
 
   set outputs(outputs: StepOutputsElement | undefined) {

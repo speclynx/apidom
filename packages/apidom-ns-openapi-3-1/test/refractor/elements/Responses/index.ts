@@ -1,14 +1,14 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { ResponsesElement } from '../../../../src/index.ts';
+import { refractResponses } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('ResponsesElement', function () {
       context('given all fields of type ResponseElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const responsesElement = ResponsesElement.refract({
+          const responsesElement = refractResponses({
             default: {},
             '200': {},
           });
@@ -19,7 +19,7 @@ describe('refractor', function () {
 
       context('given all fields of type ReferenceElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const responsesElement = ResponsesElement.refract({
+          const responsesElement = refractResponses({
             default: { $ref: '#/components/responses/Response1' },
             '200': { $ref: '#/components/responses/Response1' },
           });

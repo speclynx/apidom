@@ -1,4 +1,4 @@
-import { NamespacePluginOptions } from '@speclynx/apidom-core';
+import { NamespacePlugin } from '@speclynx/apidom-datamodel';
 
 import JSONSchemaElement from './elements/JSONSchema.ts';
 import JSONReferenceElement from './elements/JSONReference.ts';
@@ -8,8 +8,8 @@ import LinkDescriptionElement from './elements/LinkDescription.ts';
 /**
  * @public
  */
-const jsonSchemaDraft4 = {
-  namespace: (options: NamespacePluginOptions) => {
+const jsonSchemaDraft4: NamespacePlugin = {
+  namespace: (options) => {
     const { base } = options;
 
     base.register('jSONSchemaDraft4', JSONSchemaElement);

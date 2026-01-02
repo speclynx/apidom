@@ -3,12 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { expect, assert } from 'chai';
 import { mediaTypes as openAPI31MediaTypes } from '@speclynx/apidom-parser-adapter-openapi-json-3-1';
 import { mediaTypes as openAPI30MediaTypes } from '@speclynx/apidom-parser-adapter-openapi-json-3-0';
-import {
-  AnnotationElement,
-  ParseResultElement,
-  toJSON,
-  includesClasses,
-} from '@speclynx/apidom-core';
+import { AnnotationElement, ParseResultElement, includesClasses } from '@speclynx/apidom-datamodel';
+import { toJSON } from '@speclynx/apidom-core';
 
 import convert from '../../../../../src/index.ts';
 
@@ -35,13 +31,11 @@ describe('converter', function () {
         });
 
         specify('should create WARNING annotation', async function () {
-          const annotations = Array.from(convertedParseResult.annotations);
-          const annotation = annotations.find((a: AnnotationElement) =>
-            a.code?.equals('license-identifier'),
-          );
+          const annotations = Array.from(convertedParseResult.annotations) as AnnotationElement[];
+          const annotation = annotations.find((a) => a.code?.equals('license-identifier'));
 
           assert.isDefined(annotation);
-          assert.isTrue(includesClasses(['warning'], annotation));
+          assert.isTrue(includesClasses(annotation!, ['warning']));
         });
       });
     });

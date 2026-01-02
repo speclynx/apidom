@@ -1,6 +1,7 @@
 import { reduce } from 'ramda';
-import { Element, isPrimitiveElement, toValue } from '@speclynx/apidom-core';
-import { SchemaElement } from '@speclynx/apidom-ns-openapi-3-1';
+import { Element, isPrimitiveElement } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
+import { SchemaElement, refractSchema } from '@speclynx/apidom-ns-openapi-3-1';
 
 import * as url from '../../../util/url.ts';
 
@@ -12,14 +13,16 @@ export const resolveSchema$refField = (retrievalURI: string, schemaElement: Sche
     return undefined;
   }
 
-  const hash = url.getHash(toValue(schemaElement.$ref));
-  const ancestorsSchemaIdentifiers = toValue(schemaElement.meta.get('ancestorsSchemaIdentifiers'));
+  const hash = url.getHash(toValue(schemaElement.$ref) as string);
+  const ancestorsSchemaIdentifiers = toValue(
+    schemaElement.meta.get('ancestorsSchemaIdentifiers'),
+  ) as string[];
   const $refBaseURI = reduce(
     (acc: string, uri: string): string => {
       return url.resolve(acc, url.sanitize(url.stripHash(uri)));
     },
     retrievalURI,
-    [...ancestorsSchemaIdentifiers, toValue(schemaElement.$ref)],
+    [...ancestorsSchemaIdentifiers, toValue(schemaElement.$ref) as string],
   );
 
   return `${$refBaseURI}${hash === '#' ? '' : hash}`;
@@ -28,12 +31,17 @@ export const resolveSchema$refField = (retrievalURI: string, schemaElement: Sche
 /**
  * @public
  */
-export const resolveSchema$idField = (retrievalURI: string, schemaElement: SchemaElement) => {
+export const resolveSchema$idField = (
+  retrievalURI: string,
+  schemaElement: SchemaElement,
+): string | undefined => {
   if (typeof schemaElement.$id === 'undefined') {
     return undefined;
   }
 
-  const ancestorsSchemaIdentifiers = toValue(schemaElement.meta.get('ancestorsSchemaIdentifiers'));
+  const ancestorsSchemaIdentifiers = toValue(
+    schemaElement.meta.get('ancestorsSchemaIdentifiers'),
+  ) as string[];
 
   return reduce(
     (acc: string, $id: string): string => {
@@ -52,7 +60,7 @@ export const refractToSchemaElement = <T extends Element>(element: T) => {
     return refractToSchemaElement.cache.get(element);
   }
 
-  const refracted = SchemaElement.refract(element);
+  const refracted = refractSchema(element);
   refractToSchemaElement.cache.set(element, refracted);
   return refracted;
 };

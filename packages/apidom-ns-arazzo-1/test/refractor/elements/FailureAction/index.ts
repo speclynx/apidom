@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { FailureActionElement } from '../../../../src/index.ts';
+import { refractFailureAction } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('FailureActionElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const failureActionElement = FailureActionElement.refract({
+        const failureActionElement = refractFailureAction({
           name: 'failureAction',
           type: 'retry',
           workflowId: 'uniqueWorkflowId',

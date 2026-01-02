@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import MqttOperationBindingElement from '../../../../../../elements/bindings/mqtt/MqttOperationBinding.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../../../FallbackVisitor.ts';
+import { SpecPath } from '../../../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../../../bases.ts';
 
 /**
  * @public
  */
-export interface MqttOperationBindingVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type MqttOperationBindingVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class MqttOperationBindingVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class MqttOperationBindingVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: MqttOperationBindingElement;
 
   declare protected readonly specPath: SpecPath<

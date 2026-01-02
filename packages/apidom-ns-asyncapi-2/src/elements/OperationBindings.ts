@@ -1,4 +1,4 @@
-import { ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import { ObjectElement, type Attributes, type Meta } from '@speclynx/apidom-datamodel';
 
 import HttpOperationBindingElement from './bindings/http/HttpOperationBinding.ts';
 import WebSocketOperationBindingElement from './bindings/ws/WebSocketOperationBinding.ts';
@@ -29,7 +29,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get http(): HttpOperationBindingElement | undefined {
-    return this.get('http');
+    return this.get('http') as HttpOperationBindingElement | undefined;
   }
 
   set http(http: HttpOperationBindingElement | undefined) {
@@ -37,7 +37,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get ws(): WebSocketOperationBindingElement | undefined {
-    return this.get('ws');
+    return this.get('ws') as WebSocketOperationBindingElement | undefined;
   }
 
   set ws(ws: WebSocketOperationBindingElement | undefined) {
@@ -45,7 +45,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get kafka(): KafkaOperationBindingElement | undefined {
-    return this.get('kafka');
+    return this.get('kafka') as KafkaOperationBindingElement | undefined;
   }
 
   set kafka(kafka: KafkaOperationBindingElement | undefined) {
@@ -53,7 +53,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get anypointmq(): AnypointmqOperationBindingElement | undefined {
-    return this.get('anypointmq');
+    return this.get('anypointmq') as AnypointmqOperationBindingElement | undefined;
   }
 
   set anypointmq(anypointmq: AnypointmqOperationBindingElement | undefined) {
@@ -61,7 +61,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get amqp(): AmqpOperationBindingElement | undefined {
-    return this.get('amqp');
+    return this.get('amqp') as AmqpOperationBindingElement | undefined;
   }
 
   set amqp(amqp: AmqpOperationBindingElement | undefined) {
@@ -69,7 +69,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get amqp1(): Amqp1OperationBindingElement | undefined {
-    return this.get('amqp1');
+    return this.get('amqp1') as Amqp1OperationBindingElement | undefined;
   }
 
   set amqp1(amqp1: Amqp1OperationBindingElement | undefined) {
@@ -77,7 +77,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get mqtt(): MqttOperationBindingElement | undefined {
-    return this.get('mqtt');
+    return this.get('mqtt') as MqttOperationBindingElement | undefined;
   }
 
   set mqtt(mqtt: MqttOperationBindingElement | undefined) {
@@ -85,7 +85,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get mqtt5(): Mqtt5OperationBindingElement | undefined {
-    return this.get('mqtt5');
+    return this.get('mqtt5') as Mqtt5OperationBindingElement | undefined;
   }
 
   set mqtt5(mqtt5: Mqtt5OperationBindingElement | undefined) {
@@ -93,7 +93,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get nats(): NatsOperationBindingElement | undefined {
-    return this.get('nats');
+    return this.get('nats') as NatsOperationBindingElement | undefined;
   }
 
   set nats(nats: NatsOperationBindingElement | undefined) {
@@ -101,7 +101,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get jms(): JmsOperationBindingElement | undefined {
-    return this.get('jms');
+    return this.get('jms') as JmsOperationBindingElement | undefined;
   }
 
   set jms(jms: JmsOperationBindingElement | undefined) {
@@ -109,7 +109,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get sns(): SnsOperationBindingElement | undefined {
-    return this.get('sns');
+    return this.get('sns') as SnsOperationBindingElement | undefined;
   }
 
   set sns(sns: SnsOperationBindingElement | undefined) {
@@ -117,7 +117,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get solace(): SolaceOperationBindingElement | undefined {
-    return this.get('solace');
+    return this.get('solace') as SolaceOperationBindingElement | undefined;
   }
 
   set solace(solace: SolaceOperationBindingElement | undefined) {
@@ -125,7 +125,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get sqs(): SqsOperationBindingElement | undefined {
-    return this.get('sqs');
+    return this.get('sqs') as SqsOperationBindingElement | undefined;
   }
 
   set sqs(sqs: SqsOperationBindingElement | undefined) {
@@ -133,7 +133,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get stomp(): StompOperationBindingElement | undefined {
-    return this.get('stomp');
+    return this.get('stomp') as StompOperationBindingElement | undefined;
   }
 
   set stomp(stomp: StompOperationBindingElement | undefined) {
@@ -141,7 +141,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get redis(): RedisOperationBindingElement | undefined {
-    return this.get('redis');
+    return this.get('redis') as RedisOperationBindingElement | undefined;
   }
 
   set redis(redis: RedisOperationBindingElement | undefined) {
@@ -149,7 +149,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get mercure(): MercureOperationBindingElement | undefined {
-    return this.get('mercure');
+    return this.get('mercure') as MercureOperationBindingElement | undefined;
   }
 
   set mercure(mercure: MercureOperationBindingElement | undefined) {
@@ -157,7 +157,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get googlepubsub(): GooglepubsubOperationBindingElement | undefined {
-    return this.get('googlepubsub');
+    return this.get('googlepubsub') as GooglepubsubOperationBindingElement | undefined;
   }
 
   set googlepubsub(googlepubsub: GooglepubsubOperationBindingElement | undefined) {
@@ -165,7 +165,7 @@ class OperationBindings extends ObjectElement {
   }
 
   get ibmmq(): IbmmqOperationBindingElement | undefined {
-    return this.get('ibmmq');
+    return this.get('ibmmq') as IbmmqOperationBindingElement | undefined;
   }
 
   set ibmmq(ibmmq: IbmmqOperationBindingElement | undefined) {

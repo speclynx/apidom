@@ -2,7 +2,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mediaTypes as openAPI31MediaTypes } from '@speclynx/apidom-parser-adapter-openapi-json-3-1';
 import { mediaTypes as openAPI30MediaTypes } from '@speclynx/apidom-parser-adapter-openapi-json-3-0';
-import { AnnotationElement, includesClasses, toJSON, toValue } from '@speclynx/apidom-core';
+import { AnnotationElement, SourceMapElement, includesClasses } from '@speclynx/apidom-datamodel';
+import { toJSON, toValue } from '@speclynx/apidom-core';
 import { assert, expect } from 'chai';
 
 import convert from '../../../../../src/index.ts';
@@ -44,14 +45,14 @@ describe('converter', function () {
               targetMediaType: openAPI30MediaTypes.findBy('3.0.3', 'json'),
             },
           });
-          const annotations = Array.from(convertedParseResult.annotations);
-          const annotation = annotations.find((a: AnnotationElement) =>
+          const annotations = Array.from(convertedParseResult.annotations) as AnnotationElement[];
+          const annotation = annotations.find((a) =>
             a.code?.equals('security-requirements-empty-roles'),
           );
 
           assert.isDefined(annotation);
           assert.lengthOf(annotations, 1);
-          assert.isTrue(includesClasses(['warning'], annotation));
+          assert.isTrue(includesClasses(annotation!, ['warning']));
         });
 
         specify('should attach source map to annotation', async function () {
@@ -69,14 +70,14 @@ describe('converter', function () {
               targetMediaType: openAPI30MediaTypes.findBy('3.0.3', 'json'),
             },
           });
-          const annotations = Array.from(convertedParseResult.annotations);
-          const annotation: AnnotationElement = annotations.find((a: AnnotationElement) =>
+          const annotations = Array.from(convertedParseResult.annotations) as AnnotationElement[];
+          const annotation = annotations.find((a) =>
             a.code?.equals('security-requirements-empty-roles'),
-          );
-          const sourceMap = annotation.meta.get('sourceMap');
+          )!;
+          const sourceMap = annotation.meta.get('sourceMap') as SourceMapElement;
           const { positionStart, positionEnd } = sourceMap;
-          const [startRow, startColumn, startChar] = toValue(positionStart);
-          const [endRow, endColumn, endChar] = toValue(positionEnd);
+          const [startRow, startColumn, startChar] = toValue(positionStart) as number[];
+          const [endRow, endColumn, endChar] = toValue(positionEnd) as number[];
 
           assert.isDefined(sourceMap);
 

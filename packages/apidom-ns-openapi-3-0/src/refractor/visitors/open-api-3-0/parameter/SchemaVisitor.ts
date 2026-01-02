@@ -1,24 +1,21 @@
-import { Mixin } from 'ts-mixer';
 import { T as stubTrue } from 'ramda';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
-import AlternatingVisitor, {
-  AlternatingVisitorOptions,
-} from '../../generics/AlternatingVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import AlternatingVisitor from '../../generics/AlternatingVisitor.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
 import { isReferenceElement } from '../../../../predicates.ts';
+import { BaseAlternatingVisitor, BaseAlternatingVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface SchemaVisitorOptions extends AlternatingVisitorOptions, FallbackVisitorOptions {}
+export type { BaseAlternatingVisitorOptions as SchemaVisitorOptions };
 
 /**
  * @public
  */
-class SchemaVisitor extends Mixin(AlternatingVisitor, FallbackVisitor) {
-  constructor(options: SchemaVisitorOptions) {
+class SchemaVisitor extends BaseAlternatingVisitor {
+  constructor(options: BaseAlternatingVisitorOptions) {
     super(options);
     this.alternator = [
       { predicate: isReferenceLikeElement, specPath: ['document', 'objects', 'Reference'] },
@@ -30,7 +27,7 @@ class SchemaVisitor extends Mixin(AlternatingVisitor, FallbackVisitor) {
     const result = AlternatingVisitor.prototype.enter.call(this, objectElement);
 
     if (isReferenceElement(this.element)) {
-      this.element.setMetaProperty('referenced-element', 'schema');
+      this.element.meta.set('referenced-element', 'schema');
     }
 
     return result;

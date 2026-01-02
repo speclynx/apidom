@@ -1,31 +1,23 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
-import { ObjectElement, isStringElement } from '@speclynx/apidom-core';
+import { ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../bases.ts';
+
+export type { BaseFixedFieldsVisitorOptions as ReferenceVisitorOptions };
 
 /**
  * @public
  */
-export interface ReferenceVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
-
-/**
- * @public
- */
-class ReferenceVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class ReferenceVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: ReferenceElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'Reference']>;
 
   declare protected readonly canSupportSpecificationExtensions: false;
 
-  constructor(options: ReferenceVisitorOptions) {
+  constructor(options: BaseFixedFieldsVisitorOptions) {
     super(options);
     this.element = new ReferenceElement();
     this.specPath = always(['document', 'objects', 'Reference']);
@@ -33,7 +25,7 @@ class ReferenceVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
   }
 
   ObjectElement(objectElement: ObjectElement) {
-    const result = FixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+    const result = BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
 
     // mark this ReferenceElement with reference metadata
     if (isStringElement(this.element.$ref)) {

@@ -1,4 +1,4 @@
-import { NamespacePluginOptions } from '@speclynx/apidom-core';
+import { NamespacePlugin } from '@speclynx/apidom-datamodel';
 
 import SwaggerElement from './elements/Swagger.ts';
 import SwaggerVersionElement from './elements/SwaggerVersion.ts';
@@ -8,7 +8,7 @@ import LicenseElement from './elements/License.ts';
 import PathsElement from './elements/Paths.ts';
 import PathItemElement from './elements/PathItem.ts';
 import OperationElement from './elements/Operation.ts';
-import ExternalDocumentation from './elements/ExternalDocumentation.ts';
+import ExternalDocumentationElement from './elements/ExternalDocumentation.ts';
 import ParameterElement from './elements/Parameter.ts';
 import ItemsElement from './elements/Items.ts';
 import ExampleElement from './elements/Example.ts';
@@ -31,8 +31,8 @@ import SecurityRequirementElement from './elements/SecurityRequirement.ts';
 /**
  * @public
  */
-const openApi2 = {
-  namespace: (options: NamespacePluginOptions) => {
+const openApi2: NamespacePlugin = {
+  namespace: (options) => {
     const { base } = options;
 
     base.register('swagger', SwaggerElement);
@@ -43,7 +43,7 @@ const openApi2 = {
     base.register('paths', PathsElement);
     base.register('pathItem', PathItemElement);
     base.register('operation', OperationElement);
-    base.register('externalDocumentation', ExternalDocumentation);
+    base.register('externalDocumentation', ExternalDocumentationElement);
     base.register('parameter', ParameterElement);
     base.register('items', ItemsElement);
     base.register('responses', ResponsesElement);

@@ -77,18 +77,13 @@ abstract class CollectionElement<T extends Element = Element> extends Element {
   }
 
   /**
-   * Adds the given element to the end of the collection.
+   * Adds the given elements to the end of the collection.
    */
-  push(value: unknown): this {
-    this._content.push(this.refract(value) as T);
+  push(...values: unknown[]): this {
+    for (const value of values) {
+      this._content.push(this.refract(value) as T);
+    }
     return this;
-  }
-
-  /**
-   * Alias for push.
-   */
-  add(value: unknown): void {
-    this.push(value);
   }
 
   /**
@@ -174,27 +169,17 @@ abstract class CollectionElement<T extends Element = Element> extends Element {
     return this.find((item) => item.id.toValue() === id).first;
   }
 
-  // Fantasy Land - Monoid
-
   /**
    * Returns an empty collection element.
    */
-  abstract empty(): CollectionElement<T>;
-
-  'fantasy-land/empty'(): CollectionElement<T> {
-    return this.empty();
-  }
+  abstract empty(): this;
 
   /**
    * Concatenates two collection elements.
    */
-  concat(other: CollectionElement<T>): CollectionElement<T> {
-    const Ctor = this.constructor as new (content: T[]) => CollectionElement<T>;
+  concat(other: CollectionElement<T>): this {
+    const Ctor = this.constructor as new (content: T[]) => this;
     return new Ctor(this._content.concat(other._content));
-  }
-
-  'fantasy-land/concat'(other: CollectionElement<T>): CollectionElement<T> {
-    return this.concat(other);
   }
 
   // Iterator support

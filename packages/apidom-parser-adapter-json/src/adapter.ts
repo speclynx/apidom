@@ -1,4 +1,4 @@
-import { ParseResultElement, createNamespace } from '@speclynx/apidom-core';
+import { ParseResultElement, Namespace } from '@speclynx/apidom-datamodel';
 
 import lexicalAnalysis from './lexical-analysis/index.ts';
 import syntacticAnalysisDirect from './syntactic-analysis/direct/index.ts';
@@ -22,7 +22,7 @@ export { default as mediaTypes } from './media-types.ts';
 /**
  * @public
  */
-export const namespace = createNamespace();
+export const namespace = new Namespace();
 
 /**
  * @public

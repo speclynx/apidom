@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { ChannelItemElement } from '../../../../src/index.ts';
+import { refractChannelItem } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('ChannelItemElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const channelItemElement = ChannelItemElement.refract({
+        const channelItemElement = refractChannelItem({
           $ref: '#/path/to/channel-item',
           description: 'channel-item-description',
           servers: ['server1', 'server2'],
@@ -21,7 +21,7 @@ describe('refractor', function () {
 
       context('given bindings field of type ChannelBindingsElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const channelItemElement = ChannelItemElement.refract({
+          const channelItemElement = refractChannelItem({
             bindings: {},
           });
 
@@ -31,7 +31,7 @@ describe('refractor', function () {
 
       context('given bindings field of type ReferenceElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const channelItemElement = ChannelItemElement.refract({
+          const channelItemElement = refractChannelItem({
             bindings: {
               $ref: '#/path/to/bindings',
             },

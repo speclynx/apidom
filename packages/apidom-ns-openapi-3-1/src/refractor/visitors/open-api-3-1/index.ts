@@ -1,28 +1,21 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
-import { ObjectElement } from '@speclynx/apidom-core';
-import {
-  FixedFieldsVisitor,
-  FixedFieldsVisitorOptions,
-  FallbackVisitor,
-  FallbackVisitorOptions,
-  SpecPath,
-} from '@speclynx/apidom-ns-openapi-3-0';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { FixedFieldsVisitor, SpecPath } from '@speclynx/apidom-ns-openapi-3-0';
 
 import OpenApi3_1Element from '../../../elements/OpenApi3-1.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from './bases.ts';
 
 /**
  * @public
  */
 
-export interface OpenApi3_1VisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export interface OpenApi3_1VisitorOptions extends BaseFixedFieldsVisitorOptions {}
 
 /**
  * @public
  */
 
-class OpenApi3_1Visitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class OpenApi3_1Visitor extends BaseFixedFieldsVisitor {
   declare public readonly element: OpenApi3_1Element;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'OpenApi']>;

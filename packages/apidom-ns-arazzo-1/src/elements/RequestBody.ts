@@ -1,4 +1,10 @@
-import { Element, StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  Element,
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import RequestBodyReplacementsElement from './nces/RequestBodyReplacements.ts';
 
@@ -12,7 +18,7 @@ class RequestBody extends ObjectElement {
   }
 
   get contentType(): StringElement | undefined {
-    return this.get('contentType');
+    return this.get('contentType') as StringElement | undefined;
   }
 
   set contentType(contentType: StringElement | undefined) {
@@ -20,7 +26,7 @@ class RequestBody extends ObjectElement {
   }
 
   get payload(): Element | undefined {
-    return this.get('payload');
+    return this.get('payload') as Element | undefined;
   }
 
   set payload(payload: Element | undefined) {
@@ -28,7 +34,7 @@ class RequestBody extends ObjectElement {
   }
 
   get replacements(): RequestBodyReplacementsElement | undefined {
-    return this.get('replacements');
+    return this.get('replacements') as RequestBodyReplacementsElement | undefined;
   }
 
   set replacements(replacements: RequestBodyReplacementsElement | undefined) {

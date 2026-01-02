@@ -1,17 +1,18 @@
 import {
   StringElement,
   BooleanElement,
-  Attributes,
-  Meta,
+  type Attributes,
+  type Meta,
   NumberElement,
   ArrayElement,
   ObjectElement,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 import { UnsupportedOperationError } from '@speclynx/apidom-error';
 import {
   JSONReferenceElement,
   JSONSchemaElement,
   MediaElement,
+  LinkDescriptionElement,
 } from '@speclynx/apidom-ns-json-schema-draft-4';
 
 /**
@@ -29,12 +30,12 @@ class Items extends JSONSchemaElement {
    *
    * URI: https://tools.ietf.org/html/draft-wright-json-schema-00
    */
-  get idProp(): StringElement | undefined {
-    throw new UnsupportedOperationError('idProp getter in Items class is not not supported.');
+  get idField(): StringElement | undefined {
+    throw new UnsupportedOperationError('idField getter in Items class is not not supported.');
   }
 
-  set idProp(idProps: StringElement | undefined) {
-    throw new UnsupportedOperationError('idProp setter in Items class is not not supported.');
+  set idField(idField: StringElement | undefined) {
+    throw new UnsupportedOperationError('idField setter in Items class is not not supported.');
   }
 
   get $schema(): StringElement | undefined {
@@ -61,11 +62,11 @@ class Items extends JSONSchemaElement {
     );
   }
 
-  get items(): this | undefined {
-    return this.get('items');
+  get itemsField(): this | undefined {
+    return this.get('items') as this | undefined;
   }
 
-  set items(items: this | undefined) {
+  set itemsField(items: this | undefined) {
     this.set('items', items);
   }
 
@@ -97,11 +98,11 @@ class Items extends JSONSchemaElement {
     );
   }
 
-  get required(): ArrayElement | undefined {
+  get required(): ArrayElement<StringElement> | undefined {
     throw new UnsupportedOperationError('required getter in Items class is not not supported.');
   }
 
-  set required(required: ArrayElement | undefined) {
+  set required(required: ArrayElement<StringElement> | undefined) {
     throw new UnsupportedOperationError('required setter in Items class is not not supported.');
   }
 
@@ -152,34 +153,34 @@ class Items extends JSONSchemaElement {
    */
 
   get type(): StringElement | undefined {
-    return this.get('type');
+    return this.get('type') as StringElement | undefined;
   }
 
   set type(type: StringElement | undefined) {
     this.set('type', type);
   }
 
-  get allOf(): ArrayElement | undefined {
+  get allOf(): ArrayElement<this | JSONReferenceElement> | undefined {
     throw new UnsupportedOperationError('allOf getter in Items class is not not supported.');
   }
 
-  set allOf(allOf: ArrayElement | undefined) {
+  set allOf(allOf: ArrayElement<this | JSONReferenceElement> | undefined) {
     throw new UnsupportedOperationError('allOf setter in Items class is not not supported.');
   }
 
-  get anyOf(): ArrayElement | undefined {
+  get anyOf(): ArrayElement<this | JSONReferenceElement> | undefined {
     throw new UnsupportedOperationError('anyOf getter in Items class is not not supported.');
   }
 
-  set anyOf(anyOf: ArrayElement | undefined) {
+  set anyOf(anyOf: ArrayElement<this | JSONReferenceElement> | undefined) {
     throw new UnsupportedOperationError('anyOf setter in Items class is not not supported.');
   }
 
-  get oneOf(): ArrayElement | undefined {
+  get oneOf(): ArrayElement<this | JSONReferenceElement> | undefined {
     throw new UnsupportedOperationError('oneOf getter in Items class is not not supported.');
   }
 
-  set oneOf(oneOf: ArrayElement | undefined) {
+  set oneOf(oneOf: ArrayElement<this | JSONReferenceElement> | undefined) {
     throw new UnsupportedOperationError('oneOf setter in Items class is not not supported.');
   }
 
@@ -235,12 +236,12 @@ class Items extends JSONSchemaElement {
     throw new UnsupportedOperationError('base setter in Items class is not not supported.');
   }
 
-  get links(): ArrayElement | undefined {
-    throw new UnsupportedOperationError('links getter in Items class is not not supported.');
+  get linksField(): ArrayElement<LinkDescriptionElement> | undefined {
+    throw new UnsupportedOperationError('linksField getter in Items class is not not supported.');
   }
 
-  set links(links: ArrayElement | undefined) {
-    throw new UnsupportedOperationError('links setter in Items class is not not supported.');
+  set linksField(links: ArrayElement<LinkDescriptionElement> | undefined) {
+    throw new UnsupportedOperationError('linksField setter in Items class is not not supported.');
   }
 
   get media(): MediaElement | undefined {

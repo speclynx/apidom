@@ -1,4 +1,4 @@
-import { ArrayElement } from '@speclynx/apidom-core';
+import { ArrayElement } from '@speclynx/apidom-datamodel';
 import { FallbackVisitor, FallbackVisitorOptions } from '@speclynx/apidom-ns-json-schema-draft-4';
 
 export type { FallbackVisitorOptions as ExamplesVisitorOptions };

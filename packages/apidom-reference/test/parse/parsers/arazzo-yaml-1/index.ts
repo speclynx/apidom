@@ -1,7 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { assert } from 'chai';
-import { NumberElement, isParseResultElement, isSourceMapElement } from '@speclynx/apidom-core';
+import {
+  NumberElement,
+  isParseResultElement,
+  isSourceMapElement,
+} from '@speclynx/apidom-datamodel';
 import { mediaTypes } from '@speclynx/apidom-parser-adapter-arazzo-yaml-1';
 import { fileURLToPath } from 'node:url';
 
@@ -170,7 +174,7 @@ describe('parsers', function () {
           });
           const parser = new ArazzoYAML1Parser();
           const result = await parser.parse(file);
-          const numberElement: NumberElement = result.get(0);
+          const numberElement = result.get(0) as NumberElement;
 
           assert.isTrue(isParseResultElement(result));
           assert.isTrue(numberElement.equals(1));

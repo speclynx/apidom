@@ -2,9 +2,9 @@ import {
   ObjectElement,
   StringElement,
   ArrayElement,
-  Attributes,
-  Meta,
-} from '@speclynx/apidom-core';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import TagsElement from './Tags.ts';
 import ExternalDocumentationElement from './ExternalDocumentation.ts';
@@ -22,7 +22,7 @@ class Operation extends ObjectElement {
   }
 
   get operationId(): StringElement | undefined {
-    return this.get('operationId');
+    return this.get('operationId') as StringElement | undefined;
   }
 
   set operationId(operationId: StringElement | undefined) {
@@ -30,7 +30,7 @@ class Operation extends ObjectElement {
   }
 
   get summary(): StringElement | undefined {
-    return this.get('summary');
+    return this.get('summary') as StringElement | undefined;
   }
 
   set summary(summary: StringElement | undefined) {
@@ -38,7 +38,7 @@ class Operation extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -46,7 +46,7 @@ class Operation extends ObjectElement {
   }
 
   get security(): ArrayElement | undefined {
-    return this.get('security');
+    return this.get('security') as ArrayElement | undefined;
   }
 
   set security(security: ArrayElement | undefined) {
@@ -54,7 +54,7 @@ class Operation extends ObjectElement {
   }
 
   get tags(): TagsElement | undefined {
-    return this.get('tags');
+    return this.get('tags') as TagsElement | undefined;
   }
 
   set tags(tags: TagsElement | undefined) {
@@ -62,7 +62,7 @@ class Operation extends ObjectElement {
   }
 
   get externalDocs(): ExternalDocumentationElement | undefined {
-    return this.get('externalDocs');
+    return this.get('externalDocs') as ExternalDocumentationElement | undefined;
   }
 
   set externalDocs(externalDocs: ExternalDocumentationElement | undefined) {
@@ -70,7 +70,7 @@ class Operation extends ObjectElement {
   }
 
   get bindings(): OperationBindingsElement | ReferenceElement | undefined {
-    return this.get('bindings');
+    return this.get('bindings') as OperationBindingsElement | ReferenceElement | undefined;
   }
 
   set bindings(bindings: OperationBindingsElement | ReferenceElement | undefined) {
@@ -78,7 +78,7 @@ class Operation extends ObjectElement {
   }
 
   get traits(): ArrayElement | undefined {
-    return this.get('traits');
+    return this.get('traits') as ArrayElement | undefined;
   }
 
   set traits(traits: ArrayElement | undefined) {
@@ -86,7 +86,7 @@ class Operation extends ObjectElement {
   }
 
   get message(): MessageElement | ReferenceElement | ObjectElement | undefined {
-    return this.get('message');
+    return this.get('message') as MessageElement | ReferenceElement | ObjectElement | undefined;
   }
 
   set message(message: MessageElement | ReferenceElement | ObjectElement | undefined) {

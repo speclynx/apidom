@@ -1,4 +1,4 @@
-import { Element } from 'minim';
+import { Element } from '@speclynx/apidom-datamodel';
 import { mergeDeepRight, propOr } from 'ramda';
 import { invokeArgs } from 'ramda-adjunct';
 

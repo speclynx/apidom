@@ -4,7 +4,7 @@ import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 import dedent from 'dedent';
 
 import {
-  MessageBindingsElement,
+  refractMessageBindings,
   refractorPluginReplaceEmptyElement,
 } from '../../../../../../src/index.ts';
 
@@ -29,7 +29,7 @@ it('should refract to semantic ApiDOM tree', async function () {
           ibmmq:
        `;
   const apiDOM = await parse(yamlDefinition);
-  const messageBindingsElement = MessageBindingsElement.refract(apiDOM.result, {
+  const messageBindingsElement = refractMessageBindings(apiDOM.result, {
     plugins: [refractorPluginReplaceEmptyElement()],
   });
 

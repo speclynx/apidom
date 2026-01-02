@@ -4,7 +4,7 @@ import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 import dedent from 'dedent';
 
 import {
-  OperationBindingsElement,
+  refractOperationBindings,
   refractorPluginReplaceEmptyElement,
 } from '../../../../../../src/index.ts';
 
@@ -28,7 +28,7 @@ it('should refract to semantic ApiDOM tree', async function () {
           mercure:
        `;
   const apiDOM = await parse(yamlDefinition);
-  const operationBindingsElement = OperationBindingsElement.refract(apiDOM.result, {
+  const operationBindingsElement = refractOperationBindings(apiDOM.result, {
     plugins: [refractorPluginReplaceEmptyElement()],
   });
 

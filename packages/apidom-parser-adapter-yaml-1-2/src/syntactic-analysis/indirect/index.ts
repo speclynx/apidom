@@ -1,5 +1,5 @@
 import { Tree } from 'web-tree-sitter';
-import { ParseResultElement } from '@speclynx/apidom-core';
+import { ParseResultElement } from '@speclynx/apidom-datamodel';
 import { visit, YamlJsonSchema as JsonSchema, YamlReferenceManager } from '@speclynx/apidom-ast';
 
 import CstVisitor, { keyMap as cstKeyMap, isNode as isCstNode } from './visitors/CstVisitor.ts';

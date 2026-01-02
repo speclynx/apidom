@@ -42,8 +42,6 @@ Additionally, convenience attributes are exposed on every element as shortcuts f
 
 - `id` (StringElement) - Shortcut for `.meta.get('id')`
 - `classes` (ArrayElement) - Shortcut for `.meta.get('classes')`
-- `title` (StringElement) - Shortcut for `.meta.get('title')`
-- `description` (StringElement) - Shortcut for `.meta.get('description')`
 - `links` (ArrayElement) - Shortcut for `.meta.get('links')`
 
 ```js
@@ -51,11 +49,9 @@ import { StringElement } from '@speclynx/apidom-datamodel';
 
 const element = new StringElement('hello');
 element.id = 'greeting';
-element.title = 'A greeting';
 element.classes = ['important', 'message'];
 
 element.id.toValue(); // => 'greeting'
-element.title.toValue(); // => 'A greeting'
 element.classes.toValue(); // => ['important', 'message']
 ```
 
@@ -390,20 +386,6 @@ const element = serialiser.deserialise(json);
 
 ## Element Operations
 
-### Cloning
-
-Elements can be deeply cloned:
-
-```js
-import { ObjectElement } from '@speclynx/apidom-datamodel';
-
-const original = new ObjectElement({ nested: { value: 1 } });
-const cloned = original.clone();
-
-cloned.get('nested').set('value', 2);
-original.get('nested').get('value').toValue(); // => 1 (unchanged)
-```
-
 ### Freezing
 
 Elements can be frozen for immutability. Freezing also sets up parent references:
@@ -475,5 +457,5 @@ const pair = new KeyValuePair();
 pair.key = new StringElement('name');
 pair.value = new NumberElement(42);
 
-pair.clone(); // creates a deep copy
+pair.toValue(); // { key: 'name', value: 42 }
 ```

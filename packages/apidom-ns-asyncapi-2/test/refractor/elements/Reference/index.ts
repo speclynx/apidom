@@ -1,13 +1,14 @@
 import { assert, expect } from 'chai';
-import { ObjectElement, sexprs, toValue } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { sexprs, toValue } from '@speclynx/apidom-core';
 
-import { ReferenceElement } from '../../../../src/index.ts';
+import { refractReference, ReferenceElement } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('ReferenceElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const referenceElement = ReferenceElement.refract({
+        const referenceElement = refractReference({
           $ref: '#/path/to/somewhere',
         });
 
@@ -18,7 +19,7 @@ describe('refractor', function () {
         let referenceElement: ReferenceElement;
 
         beforeEach(function () {
-          referenceElement = ReferenceElement.refract(
+          referenceElement = refractReference(
             new ObjectElement(
               { $ref: '#/path/to/somewhere' },
               { classes: ['example'] },
@@ -38,7 +39,7 @@ describe('refractor', function () {
         });
 
         specify('should deepmerge attributes', function () {
-          assert.isTrue(referenceElement.attributes.get('attr').equals(true));
+          assert.isTrue(referenceElement.attributes.get('attr')?.equals(true));
         });
       });
     });

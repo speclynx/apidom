@@ -1,5 +1,5 @@
 import { complement } from 'ramda';
-import { ArraySlice, Element } from 'minim';
+import { Element } from '@speclynx/apidom-datamodel';
 
 import filter from './filter.ts';
 
@@ -7,10 +7,7 @@ import filter from './filter.ts';
  * Complement of filter.
  * @public
  */
-const reject = <T extends Element>(
-  predicate: (element: any) => boolean,
-  element: T,
-): ArraySlice => {
+const reject = <T extends Element>(predicate: (element: any) => boolean, element: T): Element[] => {
   return filter(complement(predicate), element);
 };
 

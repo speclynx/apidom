@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert } from 'chai';
 import { mediaTypes } from '@speclynx/apidom-ns-openapi-3-1';
-import { isParseResultElement } from '@speclynx/apidom-core';
+import { isParseResultElement } from '@speclynx/apidom-datamodel';
 
 import { bundle } from '../../../../../src/index.ts';
 

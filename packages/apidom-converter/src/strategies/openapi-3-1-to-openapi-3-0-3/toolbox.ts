@@ -1,11 +1,17 @@
-import { Element, Meta, Attributes, AnnotationElement } from '@speclynx/apidom-core';
+import {
+  Element,
+  Meta,
+  Attributes,
+  AnnotationElement,
+  hasElementSourceMap,
+} from '@speclynx/apidom-datamodel';
 import { createToolbox as createToolboxOpenAPI31 } from '@speclynx/apidom-ns-openapi-3-1';
 
 const createToolbox = () => {
   const openAPI31Toolbox = createToolboxOpenAPI31();
 
   const copySourceMap = <T extends Element, U extends Element>(from: T, to: U): void => {
-    if (openAPI31Toolbox.predicates.hasElementSourceMap(from)) {
+    if (hasElementSourceMap(from)) {
       to.meta.set('sourceMap', from.meta.get('sourceMap'));
     }
   };

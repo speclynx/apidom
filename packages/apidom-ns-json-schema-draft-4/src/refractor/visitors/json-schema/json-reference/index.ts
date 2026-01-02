@@ -1,13 +1,11 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
-import { ObjectElement, isStringElement } from '@speclynx/apidom-core';
+import { ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
 
 import JSONReferenceElement from '../../../../elements/JSONReference.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import FixedFieldsVisitor, { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { FixedFieldsVisitorOptions } from '../../generics/FixedFieldsVisitor.ts';
+import { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { JSONReferenceVisitorBase } from '../bases.ts';
 
 /**
  * @public
@@ -18,7 +16,7 @@ export interface JSONReferenceVisitorOptions
 /**
  * @public
  */
-class JSONReferenceVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class JSONReferenceVisitor extends JSONReferenceVisitorBase {
   declare public readonly element: JSONReferenceElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'JSONReference']>;

@@ -1,24 +1,20 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
+import { SpecPath } from '../generics/FixedFieldsVisitor.ts';
+import FixedFieldsVisitor from '../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsFallbackVisitor, BaseFixedFieldsFallbackVisitorOptions } from './bases.ts';
 import ArazzoSpecification1Element from '../../../elements/ArazzoSpecification1.ts';
 
 /**
  * @public
  */
-export interface ArazzoSpecificationVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export interface ArazzoSpecificationVisitorOptions extends BaseFixedFieldsFallbackVisitorOptions {}
 
 /**
  * @public
  */
-class ArazzoSpecificationVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class ArazzoSpecificationVisitor extends BaseFixedFieldsFallbackVisitor {
   public readonly element: ArazzoSpecification1Element;
 
   protected readonly specPath: SpecPath<['document', 'objects', 'ArazzoSpecification']>;

@@ -31,9 +31,8 @@ import {
   isParseResultElement,
   isPrimitiveElement,
   isElement,
-  keyMap as keyMapApiDOM,
-  getNodeType as getNodeTypeApiDOM,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
+import { keyMap as keyMapApiDOM, getNodeType as getNodeTypeApiDOM } from '@speclynx/apidom-core';
 
 export const keyMap = {
   // @ts-ignore
@@ -136,7 +135,7 @@ class JsonAstVisitor {
     const element = new StringElement(value);
 
     if (parseError instanceof Error) {
-      element.setMetaProperty('jsonParse', {
+      element.meta.set('jsonParse', {
         isError: true,
         errorType: parseError.name,
         errorMessage: parseError.message,
@@ -160,7 +159,7 @@ class JsonAstVisitor {
     const element = new StringElement(value);
 
     if (parseError instanceof Error) {
-      element.setMetaProperty('jsonParse', {
+      element.meta.set('jsonParse', {
         isError: true,
         errorType: parseError.name,
         errorMessage: parseError.message,

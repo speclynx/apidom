@@ -6,7 +6,7 @@ import {
   ArrayElement,
   Attributes,
   Meta,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 import { UnsupportedOperationError } from '@speclynx/apidom-error';
 import { JSONSchemaElement, JSONReferenceElement } from '@speclynx/apidom-ns-json-schema-draft-4';
 
@@ -25,16 +25,16 @@ class JSONSchema extends JSONSchemaElement {
    * URI: https://datatracker.ietf.org/doc/html/draft-wright-json-schema-01
    */
 
-  get idProp(): StringElement | undefined {
+  override get idField(): StringElement | undefined {
     throw new UnsupportedOperationError('id keyword from Core vocabulary has been renamed to $id.');
   }
 
-  set idProp(id: StringElement | undefined) {
+  override set idField(id: StringElement | undefined) {
     throw new UnsupportedOperationError('id keyword from Core vocabulary has been renamed to $id.');
   }
 
   get $id(): StringElement | undefined {
-    return this.get('$id');
+    return this.get('$id') as StringElement | undefined;
   }
 
   set $id($id: StringElement | undefined) {
@@ -51,19 +51,19 @@ class JSONSchema extends JSONSchemaElement {
    *  Validation keywords for numeric instances (number and integer)
    */
 
-  get exclusiveMaximum(): NumberElement | undefined {
-    return this.get('exclusiveMaximum');
+  override get exclusiveMaximum(): NumberElement | undefined {
+    return this.get('exclusiveMaximum') as NumberElement | undefined;
   }
 
-  set exclusiveMaximum(exclusiveMaximum: NumberElement | undefined) {
+  override set exclusiveMaximum(exclusiveMaximum: NumberElement | undefined) {
     this.set('exclusiveMaximum', exclusiveMaximum);
   }
 
-  get exclusiveMinimum(): NumberElement | undefined {
-    return this.get('exclusiveMinimum');
+  override get exclusiveMinimum(): NumberElement | undefined {
+    return this.get('exclusiveMinimum') as NumberElement | undefined;
   }
 
-  set exclusiveMinimum(exclusiveMinimum: NumberElement | undefined) {
+  override set exclusiveMinimum(exclusiveMinimum: NumberElement | undefined) {
     this.set('exclusiveMinimum', exclusiveMinimum);
   }
 
@@ -71,19 +71,38 @@ class JSONSchema extends JSONSchemaElement {
    * Validation keywords for arrays
    */
 
-  get containsProp(): this | BooleanElement | JSONReferenceElement | undefined {
-    return this.get('contains');
+  get containsField(): this | BooleanElement | JSONReferenceElement | undefined {
+    return this.get('contains') as this | BooleanElement | JSONReferenceElement | undefined;
   }
 
-  set containsProp(contains: this | BooleanElement | JSONReferenceElement | undefined) {
+  set containsField(contains: this | BooleanElement | JSONReferenceElement | undefined) {
     this.set('contains', contains);
   }
 
-  get items(): this | BooleanElement | JSONReferenceElement | ArrayElement | undefined | any {
-    return this.get('items');
+  // @ts-expect-error - widening type to include BooleanElement (boolean schemas introduced in draft-6)
+  get itemsField():
+    | this
+    | BooleanElement
+    | JSONReferenceElement
+    | ArrayElement<this | BooleanElement | JSONReferenceElement>
+    | undefined {
+    return this.get('items') as
+      | this
+      | BooleanElement
+      | JSONReferenceElement
+      | ArrayElement<this | BooleanElement | JSONReferenceElement>
+      | undefined;
   }
 
-  set items(items: this | BooleanElement | JSONReferenceElement | ArrayElement | undefined | any) {
+  // @ts-expect-error - widening type to include BooleanElement (boolean schemas introduced in draft-6)
+  set itemsField(
+    items:
+      | this
+      | BooleanElement
+      | JSONReferenceElement
+      | ArrayElement<this | BooleanElement | JSONReferenceElement>
+      | undefined,
+  ) {
     this.set('items', items);
   }
 
@@ -92,7 +111,7 @@ class JSONSchema extends JSONSchemaElement {
    */
 
   get propertyNames(): this | BooleanElement | JSONReferenceElement | undefined {
-    return this.get('propertyNames');
+    return this.get('propertyNames') as this | BooleanElement | JSONReferenceElement | undefined;
   }
 
   set propertyNames(propertyNames: this | BooleanElement | JSONReferenceElement | undefined) {
@@ -104,18 +123,20 @@ class JSONSchema extends JSONSchemaElement {
    */
 
   get const(): Element | undefined {
-    return this.get('const');
+    return this.get('const') as Element | undefined;
   }
 
   set const(constValue: Element | undefined) {
     this.set('const', constValue);
   }
 
-  get not(): this | BooleanElement | JSONReferenceElement | undefined | any {
-    return this.get('not');
+  // @ts-expect-error - widening type to include BooleanElement (boolean schemas introduced in draft-6)
+  get not(): this | BooleanElement | JSONReferenceElement | undefined {
+    return this.get('not') as this | BooleanElement | JSONReferenceElement | undefined;
   }
 
-  set not(not: this | BooleanElement | JSONReferenceElement | undefined | any) {
+  // @ts-expect-error - widening type to include BooleanElement (boolean schemas introduced in draft-6)
+  set not(not: this | BooleanElement | JSONReferenceElement | undefined) {
     this.set('not', not);
   }
 
@@ -125,11 +146,11 @@ class JSONSchema extends JSONSchemaElement {
    * URI: https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-01#section-7
    */
 
-  get examples(): ArrayElement | undefined {
-    return this.get('examples');
+  get examples(): ArrayElement<Element> | undefined {
+    return this.get('examples') as ArrayElement<Element> | undefined;
   }
 
-  set examples(examples: ArrayElement | undefined) {
+  set examples(examples: ArrayElement<Element> | undefined) {
     this.set('examples', examples);
   }
 }

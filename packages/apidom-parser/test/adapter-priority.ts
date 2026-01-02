@@ -1,24 +1,85 @@
 import { assert } from 'chai';
 import { createSandbox } from 'sinon';
-import * as asyncApiJsonAdapterModule from '@speclynx/apidom-parser-adapter-asyncapi-json-2';
-import * as asyncApiYamlAdapterModule from '@speclynx/apidom-parser-adapter-asyncapi-yaml-2';
-import { isAsyncApi2Element } from '@speclynx/apidom-ns-asyncapi-2';
+import { Namespace, ParseResultElement, ObjectElement } from '@speclynx/apidom-datamodel';
+import { MediaTypes } from '@speclynx/apidom-core';
 
 import ApiDOMParser from '../src/parser.ts';
 
+// Create mock namespace
+const mockNamespace = new Namespace();
+
+// Create mock media types
+class MockMediaTypes extends MediaTypes<string> {
+  filterByFormat() {
+    return new MockMediaTypes(this[0]);
+  }
+
+  findBy() {
+    return this[0];
+  }
+
+  latest() {
+    return this.at(-1);
+  }
+}
+
+// Create mock JSON adapter
+const createMockJsonAdapter = () => ({
+  mediaTypes: new MockMediaTypes('application/vnd.mock+json'),
+  namespace: mockNamespace,
+  detect: async (source: string) => {
+    try {
+      JSON.parse(source);
+      return source.includes('"mockapi"');
+    } catch {
+      return false;
+    }
+  },
+  parse: async (source: string) => {
+    const parseResult = new ParseResultElement();
+    const result = new ObjectElement(JSON.parse(source));
+    result.classes.push('result');
+    parseResult.push(result);
+    return parseResult;
+  },
+});
+
+// Create mock YAML adapter
+const createMockYamlAdapter = () => ({
+  mediaTypes: new MockMediaTypes('application/vnd.mock+yaml'),
+  namespace: mockNamespace,
+  detect: async (source: string) => {
+    // Simple YAML detection - not JSON and contains mockapi
+    try {
+      JSON.parse(source);
+      return false; // It's valid JSON, not YAML
+    } catch {
+      return source.includes('mockapi:');
+    }
+  },
+  parse: async () => {
+    const parseResult = new ParseResultElement();
+    // Simple mock YAML parsing
+    const result = new ObjectElement({ mockapi: '2.6.0' });
+    result.classes.push('result');
+    parseResult.push(result);
+    return parseResult;
+  },
+});
+
 const parser = new ApiDOMParser();
-const asyncApiJsonAdapter = { ...asyncApiJsonAdapterModule };
-const asyncApiYamlAdapter = { ...asyncApiYamlAdapterModule };
+const mockJsonAdapter = createMockJsonAdapter();
+const mockYamlAdapter = createMockYamlAdapter();
 
-parser.use(asyncApiJsonAdapter);
-parser.use(asyncApiYamlAdapter);
+parser.use(mockJsonAdapter);
+parser.use(mockYamlAdapter);
 
-describe('given AsyncAPI 2.6 definition', function () {
+describe('given mock API definition', function () {
   const sandbox = createSandbox();
 
   beforeEach(function () {
-    sandbox.spy(asyncApiJsonAdapter, 'parse');
-    sandbox.spy(asyncApiYamlAdapter, 'parse');
+    sandbox.spy(mockJsonAdapter, 'parse');
+    sandbox.spy(mockYamlAdapter, 'parse');
   });
 
   afterEach(function () {
@@ -26,38 +87,36 @@ describe('given AsyncAPI 2.6 definition', function () {
   });
 
   context('given JSON format', function () {
-    sandbox.spy();
+    specify('should parse successfully', async function () {
+      const parseResult = await parser.parse('{"mockapi":"2.6.0"}');
 
-    specify('should parse semantically', async function () {
-      const { result } = await parser.parse('{"asyncapi":"2.6.0"}');
-
-      assert.isTrue(isAsyncApi2Element(result));
+      assert.isDefined(parseResult.result);
     });
 
-    specify('should use asyncApiJsonAdapter', async function () {
-      await parser.parse('{"asyncapi":"2.6.0"}');
+    specify('should use mockJsonAdapter', async function () {
+      await parser.parse('{"mockapi":"2.6.0"}');
 
       // @ts-ignore
-      assert.isTrue(asyncApiJsonAdapter.parse.calledOnce);
+      assert.isTrue(mockJsonAdapter.parse.calledOnce);
       // @ts-ignore
-      assert.isTrue(asyncApiYamlAdapter.parse.notCalled);
+      assert.isTrue(mockYamlAdapter.parse.notCalled);
     });
   });
 
-  context('given YAML 1.2 format', function () {
-    specify('should parse semantically', async function () {
-      const { result } = await parser.parse('asyncapi: "2.6.0"');
+  context('given YAML format', function () {
+    specify('should parse successfully', async function () {
+      const parseResult = await parser.parse('mockapi: "2.6.0"');
 
-      assert.isTrue(isAsyncApi2Element(result));
+      assert.isDefined(parseResult.result);
     });
 
-    specify('should use asyncApiYamlAdapter', async function () {
-      await parser.parse('asyncapi: "2.6.0"');
+    specify('should use mockYamlAdapter', async function () {
+      await parser.parse('mockapi: "2.6.0"');
 
       // @ts-ignore
-      assert.isTrue(asyncApiYamlAdapter.parse.calledOnce);
+      assert.isTrue(mockYamlAdapter.parse.calledOnce);
       // @ts-ignore
-      assert.isTrue(asyncApiJsonAdapter.parse.notCalled);
+      assert.isTrue(mockJsonAdapter.parse.notCalled);
     });
   });
 });

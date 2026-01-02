@@ -1,4 +1,4 @@
-import { Element } from 'minim';
+import { Element } from '@speclynx/apidom-datamodel';
 
 import File from '../../File.ts';
 import type { ReferenceOptions } from '../../options/index.ts';

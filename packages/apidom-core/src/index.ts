@@ -5,69 +5,13 @@ export type {
   DispatchPluginsOptions,
 } from './refractor/plugins/dispatcher/index.ts';
 
+export { default as createToolbox } from './refractor/toolbox.ts';
+export type { Toolbox, Predicates } from './refractor/toolbox.ts';
+
 export { default as refractorPluginElementIdentity } from './refractor/plugins/element-identity.ts';
 export { default as refractorPluginSemanticElementIdentity } from './refractor/plugins/semantic-element-identity.ts';
-export type { Predicates } from './refractor/plugins/semantic-element-identity.ts';
 
 export { default as MediaTypes } from './media-types.ts';
-
-export { Element, MemberElement, KeyValuePair, ObjectSlice, ArraySlice, refract } from 'minim';
-export type { NamespacePluginOptions, Attributes, Meta } from 'minim';
-export type { PositionRange, Position } from './elements/SourceMap.ts';
-export { default as namespace, Namespace, createNamespace } from './namespace.ts';
-
-export {
-  ObjectElement,
-  ArrayElement,
-  BooleanElement,
-  NullElement,
-  NumberElement,
-  StringElement,
-  LinkElement,
-  RefElement,
-  AnnotationElement,
-  CommentElement,
-  ParseResultElement,
-  SourceMapElement,
-} from './refractor/registration.ts';
-
-export type { default as createToolbox, Toolbox, basePredicates } from './refractor/toolbox.ts';
-
-export {
-  isElement,
-  isStringElement,
-  isNumberElement,
-  isNullElement,
-  isBooleanElement,
-  isArrayElement,
-  isObjectElement,
-  isMemberElement,
-  isLinkElement,
-  isRefElement,
-  isAnnotationElement,
-  isParseResultElement,
-  isSourceMapElement,
-  isPrimitiveElement,
-  hasElementSourceMap,
-  includesSymbols,
-  includesClasses,
-} from './predicates/index.ts';
-export type { PrimitiveElement } from './predicates/index.ts';
-export type {
-  ElementPredicate,
-  PredicateCreator,
-  PredicateHelpers,
-  hasMethod,
-  hasBasicElementProps,
-  primitiveEq,
-  isElementType,
-  hasClass,
-  ElementBasicsTrait,
-  ElementPrimitiveBehavior,
-  ElementClassesTrait,
-  ElementTypeTrait,
-} from './predicates/helpers.ts';
-export { default as createPredicate } from './predicates/helpers.ts';
 
 export { filter, reject, find, findAtOffset, some, traverse, parents } from './traversal/index.ts';
 export type { FindAtOffsetOptions } from './traversal/index.ts';
@@ -83,7 +27,7 @@ export type { Callback, TraverseOptions } from './traversal/traverse.ts';
 
 export { transclude, default as Transcluder } from './transcluder/index.ts';
 
-export { dereference } from './util.ts';
+export { resolveSpecification, type ResolvedSpecification } from './specification.ts';
 
 export { cloneShallow, cloneDeep } from './clone/index.ts';
 export { default as CloneError } from './clone/errors/CloneError.ts';

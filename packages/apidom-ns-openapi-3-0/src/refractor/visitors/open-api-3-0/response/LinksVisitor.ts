@@ -1,29 +1,28 @@
-import { Mixin } from 'ts-mixer';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import ResponseLinksElement from '../../../../elements/nces/ResponseLinks.ts';
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/MapVisitor.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
 import { isReferenceElement } from '../../../../predicates.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface LinksVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+export type { BaseMapVisitorOptions as LinksVisitorOptions };
 
 /**
  * @public
  */
-class LinksVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class LinksVisitor extends BaseMapVisitor {
   declare public readonly element: ResponseLinksElement;
 
   declare protected readonly specPath: SpecPath<
     ['document', 'objects', 'Reference'] | ['document', 'objects', 'Link']
   >;
 
-  constructor(options: LinksVisitorOptions) {
+  constructor(options: BaseMapVisitorOptions) {
     super(options);
     this.element = new ResponseLinksElement();
     this.specPath = (element: unknown) =>
@@ -33,11 +32,11 @@ class LinksVisitor extends Mixin(MapVisitor, FallbackVisitor) {
   }
 
   ObjectElement(objectElement: ObjectElement) {
-    const result = MapVisitor.prototype.ObjectElement.call(this, objectElement);
+    const result = BaseMapVisitor.prototype.ObjectElement.call(this, objectElement);
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
-      referenceElement.setMetaProperty('referenced-element', 'link');
+      referenceElement.meta.set('referenced-element', 'link');
     });
 
     return result;

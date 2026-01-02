@@ -1,4 +1,4 @@
-import { StringElement } from '@speclynx/apidom-core';
+import { StringElement } from '@speclynx/apidom-datamodel';
 import { InfoElement } from '@speclynx/apidom-ns-openapi-3-0';
 
 import LicenseElement from './License.ts';
@@ -8,7 +8,7 @@ import LicenseElement from './License.ts';
  */
 class Info extends InfoElement {
   get license(): LicenseElement | undefined {
-    return this.get('license');
+    return this.get('license') as LicenseElement | undefined;
   }
 
   set license(licenseElement: LicenseElement | undefined) {
@@ -16,7 +16,7 @@ class Info extends InfoElement {
   }
 
   get summary(): StringElement | undefined {
-    return this.get('summary');
+    return this.get('summary') as StringElement | undefined;
   }
 
   set summary(summary: StringElement | undefined) {

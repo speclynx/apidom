@@ -1,3 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`refractor elements Link should refract to generic ApiDOM tree 1`] = `(LinkElement)`;

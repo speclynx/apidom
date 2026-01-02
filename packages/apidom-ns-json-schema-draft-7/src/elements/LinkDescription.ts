@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, ArrayElement, BooleanElement } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  ArrayElement,
+  BooleanElement,
+} from '@speclynx/apidom-datamodel';
 import { UnsupportedOperationError } from '@speclynx/apidom-error';
 import {
   LinkDescriptionElement,
@@ -20,7 +25,7 @@ class LinkDescription extends LinkDescriptionElement {
    */
 
   get anchor(): StringElement | undefined {
-    return this.get('anchor');
+    return this.get('anchor') as StringElement | undefined;
   }
 
   set anchor(anchor: StringElement | undefined) {
@@ -28,7 +33,7 @@ class LinkDescription extends LinkDescriptionElement {
   }
 
   get anchorPointer(): StringElement | undefined {
-    return this.get('anchorPointer');
+    return this.get('anchorPointer') as StringElement | undefined;
   }
 
   set anchorPointer(anchorPointer: StringElement | undefined) {
@@ -42,7 +47,7 @@ class LinkDescription extends LinkDescriptionElement {
    */
 
   get templatePointers(): ObjectElement | undefined {
-    return this.get('templatePointers');
+    return this.get('templatePointers') as ObjectElement | undefined;
   }
 
   set templatePointers(templatePointers: ObjectElement | undefined) {
@@ -50,7 +55,7 @@ class LinkDescription extends LinkDescriptionElement {
   }
 
   get templateRequired(): ArrayElement | undefined {
-    return this.get('templateRequired');
+    return this.get('templateRequired') as ArrayElement | undefined;
   }
 
   set templateRequired(templateRequired: ArrayElement | undefined) {
@@ -64,7 +69,11 @@ class LinkDescription extends LinkDescriptionElement {
    */
 
   get targetSchema(): JSONSchema | BooleanElement | JSONReferenceElement | undefined {
-    return this.get('targetSchema');
+    return this.get('targetSchema') as
+      | JSONSchema
+      | BooleanElement
+      | JSONReferenceElement
+      | undefined;
   }
 
   set targetSchema(targetSchema: JSONSchema | BooleanElement | JSONReferenceElement | undefined) {
@@ -84,7 +93,7 @@ class LinkDescription extends LinkDescriptionElement {
   }
 
   get targetMediaType(): StringElement | undefined {
-    return this.get('targetMediaType');
+    return this.get('targetMediaType') as StringElement | undefined;
   }
 
   set targetMediaType(targetMediaType: StringElement | undefined) {
@@ -92,7 +101,7 @@ class LinkDescription extends LinkDescriptionElement {
   }
 
   get targetHints(): ObjectElement | undefined {
-    return this.get('targetHints');
+    return this.get('targetHints') as ObjectElement | undefined;
   }
 
   set targetHints(targetHints: ObjectElement | undefined) {
@@ -100,7 +109,7 @@ class LinkDescription extends LinkDescriptionElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -108,7 +117,7 @@ class LinkDescription extends LinkDescriptionElement {
   }
 
   get $comment(): StringElement | undefined {
-    return this.get('$comment');
+    return this.get('$comment') as StringElement | undefined;
   }
 
   set $comment($comment: StringElement | undefined) {
@@ -122,7 +131,7 @@ class LinkDescription extends LinkDescriptionElement {
    */
 
   get hrefSchema(): JSONSchema | BooleanElement | JSONReferenceElement | undefined {
-    return this.get('hrefSchema');
+    return this.get('hrefSchema') as JSONSchema | BooleanElement | JSONReferenceElement | undefined;
   }
 
   set hrefSchema(hrefSchema: JSONSchema | BooleanElement | JSONReferenceElement | undefined) {
@@ -130,7 +139,11 @@ class LinkDescription extends LinkDescriptionElement {
   }
 
   get headerSchema(): JSONSchema | BooleanElement | JSONReferenceElement | undefined {
-    return this.get('headerSchema');
+    return this.get('headerSchema') as
+      | JSONSchema
+      | BooleanElement
+      | JSONReferenceElement
+      | undefined;
   }
 
   set headerSchema(headerSchema: JSONSchema | BooleanElement | JSONReferenceElement | undefined) {
@@ -144,7 +157,11 @@ class LinkDescription extends LinkDescriptionElement {
    */
 
   get submissionSchema(): JSONSchema | BooleanElement | JSONReferenceElement | undefined {
-    return this.get('submissionSchema');
+    return this.get('submissionSchema') as
+      | JSONSchema
+      | BooleanElement
+      | JSONReferenceElement
+      | undefined;
   }
 
   set submissionSchema(
@@ -166,7 +183,7 @@ class LinkDescription extends LinkDescriptionElement {
   }
 
   get submissionMediaType(): StringElement | undefined {
-    return this.get('submissionMediaType');
+    return this.get('submissionMediaType') as StringElement | undefined;
   }
 
   set submissionMediaType(submissionMediaType: StringElement | undefined) {

@@ -1,4 +1,4 @@
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 import { ComponentsElement } from '@speclynx/apidom-ns-openapi-3-0';
 
 /**
@@ -6,7 +6,7 @@ import { ComponentsElement } from '@speclynx/apidom-ns-openapi-3-0';
  */
 class Components extends ComponentsElement {
   get pathItems(): ObjectElement | undefined {
-    return this.get('pathItems');
+    return this.get('pathItems') as ObjectElement | undefined;
   }
 
   set pathItems(pathItems: ObjectElement | undefined) {

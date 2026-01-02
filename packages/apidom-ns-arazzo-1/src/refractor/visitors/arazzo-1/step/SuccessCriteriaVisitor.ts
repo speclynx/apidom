@@ -1,20 +1,21 @@
-import { Mixin } from 'ts-mixer';
-import { ArrayElement, Element, BREAK } from '@speclynx/apidom-core';
+import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
 import StepSuccessCriteriaElement from '../../../../elements/nces/StepSuccessCriteria.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../../SpecificationVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import {
+  BaseSpecificationFallbackVisitor,
+  BaseSpecificationFallbackVisitorOptions,
+} from '../bases.ts';
 
 /**
  * @public
  */
-export interface SuccessCriteriaVisitorOptions
-  extends SpecificationVisitorOptions, FallbackVisitorOptions {}
+export interface SuccessCriteriaVisitorOptions extends BaseSpecificationFallbackVisitorOptions {}
 
 /**
  * @public
  */
-class SuccessCriteriaVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class SuccessCriteriaVisitor extends BaseSpecificationFallbackVisitor {
   declare public readonly element: StepSuccessCriteriaElement;
 
   constructor(options: SuccessCriteriaVisitorOptions) {

@@ -5,7 +5,7 @@ import {
   ObjectElement,
   isParseResultElement,
   isSourceMapElement,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 
 import File from '../../../../src/File.ts';
 import JSONParser from '../../../../src/parse/parsers/json/index.ts';
@@ -73,10 +73,10 @@ describe('parsers', function () {
           const file = new File({ uri: '/path/to/file.json', data: '{"prop": "val"}' });
           const parser = new JSONParser();
           const result = await parser.parse(file);
-          const objElement: ObjectElement = result.get(0);
+          const objElement = result.get(0) as ObjectElement;
 
           assert.isTrue(isParseResultElement(result));
-          assert.isTrue(objElement.get('prop').equals('val'));
+          assert.isTrue(objElement.get('prop')!.equals('val'));
         });
       });
 
@@ -88,10 +88,10 @@ describe('parsers', function () {
           });
           const parser = new JSONParser();
           const result = await parser.parse(file);
-          const objElement: ObjectElement = result.get(0);
+          const objElement = result.get(0) as ObjectElement;
 
           assert.isTrue(isParseResultElement(result));
-          assert.isTrue(objElement.get('prop').equals('val'));
+          assert.isTrue(objElement.get('prop')!.equals('val'));
         });
       });
 
@@ -100,7 +100,7 @@ describe('parsers', function () {
           const file = new File({ uri: '/path/to/file.json', data: 1 as any });
           const parser = new JSONParser();
           const result = await parser.parse(file);
-          const numberElement: NumberElement = result.get(0);
+          const numberElement = result.get(0) as NumberElement;
 
           assert.isTrue(isParseResultElement(result));
           assert.isTrue(numberElement.equals(1));
@@ -124,7 +124,7 @@ describe('parsers', function () {
             const file = new File({ uri: '/path/to/file.json', data: '{"prop": "val"}' });
             const parser = new JSONParser({ sourceMap: true });
             const result = await parser.parse(file);
-            const objElement: ObjectElement = result.get(0);
+            const objElement = result.get(0) as ObjectElement;
 
             assert.isTrue(isSourceMapElement(objElement.meta.get('sourceMap')));
           });
@@ -135,7 +135,7 @@ describe('parsers', function () {
             const file = new File({ uri: '/path/to/file.json', data: '{"prop": "val"}' });
             const parser = new JSONParser({ sourceMap: false });
             const result = await parser.parse(file);
-            const objElement: ObjectElement = result.get(0);
+            const objElement = result.get(0) as ObjectElement;
 
             assert.isUndefined(objElement.meta.get('sourceMap'));
           });

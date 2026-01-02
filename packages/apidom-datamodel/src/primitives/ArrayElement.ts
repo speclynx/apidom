@@ -12,15 +12,6 @@ export type { FindCondition, FindOptions } from './CollectionElement.ts';
  * @public
  */
 class ArrayElement<T extends Element = Element> extends CollectionElement<T> {
-  // Static Fantasy Land methods
-  static empty<T extends Element = Element>(): ArrayElement<T> {
-    return new this();
-  }
-
-  static 'fantasy-land/empty'<T extends Element = Element>(): ArrayElement<T> {
-    return ArrayElement.empty<T>();
-  }
-
   constructor(content?: unknown[], meta?: Meta, attributes?: Attributes) {
     super(content || [], meta, attributes);
     this.element = 'array';
@@ -159,34 +150,11 @@ class ArrayElement<T extends Element = Element> extends CollectionElement<T> {
     });
   }
 
-  // Fantasy Land
-
   /**
    * Returns an empty array element.
    */
-  empty(): ArrayElement<T> {
-    return new (this.constructor as new (content: unknown[]) => ArrayElement<T>)([]);
-  }
-
-  'fantasy-land/map'(transform: (element: T) => T): ArrayElement<T> {
-    return new (this.constructor as new (content: T[]) => ArrayElement<T>)(this.map(transform));
-  }
-
-  'fantasy-land/chain'(transform: (element: T) => ArrayElement<T>): ArrayElement<T> {
-    return this.map((element) => transform(element)).reduce(
-      (a: ArrayElement<T>, b: ArrayElement<T>) => a.concat(b) as ArrayElement<T>,
-      this.empty(),
-    );
-  }
-
-  'fantasy-land/filter'(callback: (element: T) => boolean): ArrayElement<T> {
-    return new (this.constructor as new (content: T[]) => ArrayElement<T>)(
-      this._content.filter(callback),
-    );
-  }
-
-  'fantasy-land/reduce'<U>(transform: (acc: U, element: T) => U, initialValue: U): U {
-    return this._content.reduce(transform, initialValue);
+  empty(): this {
+    return new (this.constructor as new (content: unknown[]) => this)([]);
   }
 }
 

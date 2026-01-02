@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import ExternalDocumentationElement from '../../../../elements/ExternalDocumentation.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface ExternalDocumentationVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type ExternalDocumentationVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class ExternalDocumentationVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class ExternalDocumentationVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: ExternalDocumentationElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'ExternalDocumentation']>;

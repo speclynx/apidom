@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import RedisOperationBindingElement from '../../../../../../elements/bindings/redis/RedisOperationBinding.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../../../FallbackVisitor.ts';
+import { SpecPath } from '../../../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../../../bases.ts';
 
 /**
  * @public
  */
-export interface RedisOperationBindingVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type RedisOperationBindingVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class RedisOperationBindingVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class RedisOperationBindingVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: RedisOperationBindingElement;
 
   declare protected readonly specPath: SpecPath<

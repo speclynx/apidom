@@ -1,15 +1,15 @@
 import { assert } from 'chai';
 import sinon from 'sinon';
-
 import {
   ArrayElement,
   ObjectElement,
-  traverse,
-  createNamespace,
+  Namespace,
   isStringElement,
-} from '../../src/index.ts';
+} from '@speclynx/apidom-datamodel';
 
-const namespace = createNamespace();
+import { traverse } from '../../src/index.ts';
+
+const namespace = new Namespace();
 
 describe('traversal', function () {
   context('traverse', function () {
@@ -47,7 +47,7 @@ describe('traversal', function () {
           traverse(callback, objElement);
           const { args } = callback.getCall(2);
 
-          assert.strictEqual(args[0], objElement.getMember('a').key);
+          assert.strictEqual(args[0], objElement.getMember('a')!.key);
         });
 
         specify('should execute callback on value', function () {
@@ -70,7 +70,7 @@ describe('traversal', function () {
           traverse(callback, objElement);
           const { args } = callback.getCall(5);
 
-          assert.strictEqual(args[0], objElement.getMember('c').key);
+          assert.strictEqual(args[0], objElement.getMember('c')!.key);
         });
 
         specify('should execute callback on value', function () {
@@ -92,7 +92,7 @@ describe('traversal', function () {
           traverse({ callback, predicate }, objElement);
           const { args } = callback.getCall(0);
 
-          assert.strictEqual(args[0], objElement.getMember('a').key);
+          assert.strictEqual(args[0], objElement.getMember('a')!.key);
         });
       });
     });

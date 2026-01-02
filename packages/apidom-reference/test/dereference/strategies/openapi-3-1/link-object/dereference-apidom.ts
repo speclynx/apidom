@@ -51,7 +51,9 @@ describe('dereference', function () {
             })) as LinkElement;
 
             assert.match(
-              toValue(dereferenced.operationRef?.meta.get('operation').meta.get('ref-origin')),
+              toValue(
+                dereferenced.operationRef?.meta.get('operation')!.meta.get('ref-origin'),
+              ) as string,
               /operation-ref-external\/ex\.json$/,
             );
           });

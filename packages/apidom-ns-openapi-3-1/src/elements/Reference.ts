@@ -1,4 +1,4 @@
-import { StringElement } from '@speclynx/apidom-core';
+import { StringElement } from '@speclynx/apidom-datamodel';
 import { ReferenceElement } from '@speclynx/apidom-ns-openapi-3-0';
 
 /**

@@ -1,17 +1,18 @@
 import {
   StringElement,
   BooleanElement,
-  Attributes,
-  Meta,
+  type Attributes,
+  type Meta,
   NumberElement,
   ArrayElement,
   ObjectElement,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 import { UnsupportedOperationError } from '@speclynx/apidom-error';
 import {
   JSONReferenceElement,
   JSONSchemaElement,
   MediaElement,
+  LinkDescriptionElement,
 } from '@speclynx/apidom-ns-json-schema-draft-4';
 
 import SchemaElement from './Schema.ts';
@@ -32,12 +33,12 @@ class Parameter extends JSONSchemaElement {
    * URI: https://tools.ietf.org/html/draft-wright-json-schema-00
    */
 
-  get idProp(): StringElement | undefined {
-    throw new UnsupportedOperationError('idProp getter in Parameter class is not not supported.');
+  get idField(): StringElement | undefined {
+    throw new UnsupportedOperationError('idField getter in Parameter class is not not supported.');
   }
 
-  set idProp(idProps: StringElement | undefined) {
-    throw new UnsupportedOperationError('idProp setter in Parameter class is not not supported.');
+  set idField(idField: StringElement | undefined) {
+    throw new UnsupportedOperationError('idField setter in Parameter class is not not supported.');
   }
 
   get $schema(): StringElement | undefined {
@@ -64,11 +65,11 @@ class Parameter extends JSONSchemaElement {
     );
   }
 
-  get items(): this | undefined {
-    return this.get('items');
+  get itemsField(): this | undefined {
+    return this.get('items') as this | undefined;
   }
 
-  set items(items: this | undefined) {
+  set itemsField(items: this | undefined) {
     this.set('items', items);
   }
 
@@ -102,7 +103,7 @@ class Parameter extends JSONSchemaElement {
 
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   get required(): BooleanElement | undefined | any {
-    return this.get('required');
+    return this.get('required') as BooleanElement | undefined | any;
   }
 
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
@@ -165,34 +166,34 @@ class Parameter extends JSONSchemaElement {
    */
 
   get type(): StringElement | undefined {
-    return this.get('type');
+    return this.get('type') as StringElement | undefined;
   }
 
   set type(type: StringElement | undefined) {
     this.set('type', type);
   }
 
-  get allOf(): ArrayElement | undefined {
+  get allOf(): ArrayElement<this | JSONReferenceElement> | undefined {
     throw new UnsupportedOperationError('allOf getter in Parameter class is not not supported.');
   }
 
-  set allOf(allOf: ArrayElement | undefined) {
+  set allOf(allOf: ArrayElement<this | JSONReferenceElement> | undefined) {
     throw new UnsupportedOperationError('allOf setter in Parameter class is not not supported.');
   }
 
-  get anyOf(): ArrayElement | undefined {
+  get anyOf(): ArrayElement<this | JSONReferenceElement> | undefined {
     throw new UnsupportedOperationError('anyOf getter in Parameter class is not not supported.');
   }
 
-  set anyOf(anyOf: ArrayElement | undefined) {
+  set anyOf(anyOf: ArrayElement<this | JSONReferenceElement> | undefined) {
     throw new UnsupportedOperationError('anyOf setter in Parameter class is not not supported.');
   }
 
-  get oneOf(): ArrayElement | undefined {
+  get oneOf(): ArrayElement<this | JSONReferenceElement> | undefined {
     throw new UnsupportedOperationError('oneOf getter in Parameter class is not not supported.');
   }
 
-  set oneOf(oneOf: ArrayElement | undefined) {
+  set oneOf(oneOf: ArrayElement<this | JSONReferenceElement> | undefined) {
     throw new UnsupportedOperationError('oneOf setter in Parameter class is not not supported.');
   }
 
@@ -231,11 +232,11 @@ class Parameter extends JSONSchemaElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
-    this.set('description,', description);
+    this.set('description', description);
   }
 
   /**
@@ -245,7 +246,7 @@ class Parameter extends JSONSchemaElement {
    */
 
   get format(): StringElement | undefined {
-    return this.get('format');
+    return this.get('format') as StringElement | undefined;
   }
 
   set format(format: StringElement | undefined) {
@@ -266,12 +267,16 @@ class Parameter extends JSONSchemaElement {
     throw new UnsupportedOperationError('base setter in Parameter class is not not supported.');
   }
 
-  get links(): ArrayElement | undefined {
-    throw new UnsupportedOperationError('links getter in Parameter class is not not supported.');
+  get linksField(): ArrayElement<LinkDescriptionElement> | undefined {
+    throw new UnsupportedOperationError(
+      'linksField getter in Parameter class is not not supported.',
+    );
   }
 
-  set links(links: ArrayElement | undefined) {
-    throw new UnsupportedOperationError('links setter in Parameter class is not not supported.');
+  set linksField(links: ArrayElement<LinkDescriptionElement> | undefined) {
+    throw new UnsupportedOperationError(
+      'linksField setter in Parameter class is not not supported.',
+    );
   }
 
   get media(): MediaElement | undefined {
@@ -294,7 +299,7 @@ class Parameter extends JSONSchemaElement {
    * OpenAPI vocabulary
    */
   get name(): StringElement | undefined {
-    return this.get('name');
+    return this.get('name') as StringElement | undefined;
   }
 
   set name(name: StringElement | undefined) {
@@ -302,7 +307,7 @@ class Parameter extends JSONSchemaElement {
   }
 
   get in(): StringElement | undefined {
-    return this.get('in');
+    return this.get('in') as StringElement | undefined;
   }
 
   set in(val: StringElement | undefined) {
@@ -310,7 +315,7 @@ class Parameter extends JSONSchemaElement {
   }
 
   get schema(): SchemaElement | undefined {
-    return this.get('schema');
+    return this.get('schema') as SchemaElement | undefined;
   }
 
   set schema(schema: SchemaElement | undefined) {

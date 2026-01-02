@@ -1,46 +1,43 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
-import { isObjectElement, ObjectElement, StringElement, toValue } from '@speclynx/apidom-core';
+import { isObjectElement, ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 import ResponseElement from '../../../../elements/Response.ts';
 import MediaTypeElement from '../../../../elements/MediaType.ts';
 import HeaderElement from '../../../../elements/Header.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
 import { isHeaderElement, isMediaTypeElement } from '../../../../predicates.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface ResponseVisitorOptions extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type { BaseFixedFieldsVisitorOptions as ResponseVisitorOptions };
 
 /**
  * @public
  */
-class ResponseVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class ResponseVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: ResponseElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'Response']>;
 
-  constructor(options: ResponseVisitorOptions) {
+  constructor(options: BaseFixedFieldsVisitorOptions) {
     super(options);
     this.element = new ResponseElement();
     this.specPath = always(['document', 'objects', 'Response']);
   }
 
   ObjectElement(objectElement: ObjectElement) {
-    const result = FixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+    const result = BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
 
     // decorate every MediaTypeElement with media type metadata
-    if (isObjectElement(this.element.contentProp)) {
-      this.element.contentProp
+    if (isObjectElement(this.element.contentField)) {
+      this.element.contentField
         .filter(isMediaTypeElement)
         // @ts-ignore
         .forEach((mediaTypeElement: MediaTypeElement, key: StringElement) => {
-          mediaTypeElement.setMetaProperty('media-type', toValue(key));
+          mediaTypeElement.meta.set('media-type', toValue(key));
         });
     }
 
@@ -50,7 +47,7 @@ class ResponseVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
         .filter(isHeaderElement)
         // @ts-ignore
         .forEach((headerElement: HeaderElement, key: StringElement) => {
-          headerElement.setMetaProperty('header-name', toValue(key));
+          headerElement.meta.set('header-name', toValue(key));
         });
     }
 

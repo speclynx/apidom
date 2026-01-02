@@ -5,7 +5,7 @@ import {
   NumberElement,
   Attributes,
   Meta,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -18,7 +18,7 @@ class MqttServerBinding extends ObjectElement {
   }
 
   get clientId(): StringElement | undefined {
-    return this.get('clientId');
+    return this.get('clientId') as StringElement | undefined;
   }
 
   set clientId(clientId: StringElement | undefined) {
@@ -26,7 +26,7 @@ class MqttServerBinding extends ObjectElement {
   }
 
   get cleanSession(): BooleanElement | undefined {
-    return this.get('cleanSession');
+    return this.get('cleanSession') as BooleanElement | undefined;
   }
 
   set cleanSession(cleanSession: BooleanElement | undefined) {
@@ -34,7 +34,7 @@ class MqttServerBinding extends ObjectElement {
   }
 
   get lastWill(): ObjectElement | undefined {
-    return this.get('lastWill');
+    return this.get('lastWill') as ObjectElement | undefined;
   }
 
   set lastWill(lastWill: ObjectElement | undefined) {
@@ -42,7 +42,7 @@ class MqttServerBinding extends ObjectElement {
   }
 
   get keepAlive(): NumberElement | undefined {
-    return this.get('keepAlive');
+    return this.get('keepAlive') as NumberElement | undefined;
   }
 
   set keepAlive(keepAlive: NumberElement | undefined) {
@@ -50,7 +50,7 @@ class MqttServerBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

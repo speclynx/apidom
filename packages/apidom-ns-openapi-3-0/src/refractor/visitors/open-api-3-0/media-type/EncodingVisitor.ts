@@ -1,24 +1,20 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import MediaTypeEncodingElement from '../../../../elements/nces/MediaTypeEncoding.ts';
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/MapVisitor.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from '../bases.ts';
+
+export type { BaseMapVisitorOptions as EncodingVisitorOptions };
 
 /**
  * @public
  */
-export interface EncodingVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
-
-/**
- * @public
- */
-class EncodingVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class EncodingVisitor extends BaseMapVisitor {
   declare public readonly element: MediaTypeEncodingElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'Encoding']>;
 
-  constructor(options: EncodingVisitorOptions) {
+  constructor(options: BaseMapVisitorOptions) {
     super(options);
     this.element = new MediaTypeEncodingElement();
     this.specPath = always(['document', 'objects', 'Encoding']);

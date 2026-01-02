@@ -217,7 +217,6 @@ describe('ObjectElement', function () {
   itHascollectionMethod('filter');
   itHascollectionMethod('forEach');
   itHascollectionMethod('push');
-  itHascollectionMethod('add');
 
   describe('#map', function () {
     specify('provides the keys', function () {

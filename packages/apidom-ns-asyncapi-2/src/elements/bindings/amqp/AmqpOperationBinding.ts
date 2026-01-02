@@ -6,7 +6,7 @@ import {
   BooleanElement,
   Attributes,
   Meta,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -19,7 +19,7 @@ class AmqpOperationBinding extends ObjectElement {
   }
 
   get expiration(): NumberElement | undefined {
-    return this.get('expiration');
+    return this.get('expiration') as NumberElement | undefined;
   }
 
   set expiration(expiration: NumberElement | undefined) {
@@ -27,7 +27,7 @@ class AmqpOperationBinding extends ObjectElement {
   }
 
   get userId(): StringElement | undefined {
-    return this.get('userId');
+    return this.get('userId') as StringElement | undefined;
   }
 
   set userId(userId: StringElement | undefined) {
@@ -35,7 +35,7 @@ class AmqpOperationBinding extends ObjectElement {
   }
 
   get cc(): ArrayElement | undefined {
-    return this.get('cc');
+    return this.get('cc') as ArrayElement | undefined;
   }
 
   set cc(cc: ArrayElement | undefined) {
@@ -43,7 +43,7 @@ class AmqpOperationBinding extends ObjectElement {
   }
 
   get priority(): NumberElement | undefined {
-    return this.get('priority');
+    return this.get('priority') as NumberElement | undefined;
   }
 
   set priority(priority: NumberElement | undefined) {
@@ -51,7 +51,7 @@ class AmqpOperationBinding extends ObjectElement {
   }
 
   get deliveryMode(): NumberElement | undefined {
-    return this.get('deliveryMode');
+    return this.get('deliveryMode') as NumberElement | undefined;
   }
 
   set deliveryMode(deliveryMode: NumberElement | undefined) {
@@ -59,7 +59,7 @@ class AmqpOperationBinding extends ObjectElement {
   }
 
   get mandatory(): BooleanElement | undefined {
-    return this.get('mandatory');
+    return this.get('mandatory') as BooleanElement | undefined;
   }
 
   set mandatory(mandatory: BooleanElement | undefined) {
@@ -67,7 +67,7 @@ class AmqpOperationBinding extends ObjectElement {
   }
 
   get bcc(): ArrayElement | undefined {
-    return this.get('bcc');
+    return this.get('bcc') as ArrayElement | undefined;
   }
 
   set bcc(bcc: ArrayElement | undefined) {
@@ -75,7 +75,7 @@ class AmqpOperationBinding extends ObjectElement {
   }
 
   get replyTo(): StringElement | undefined {
-    return this.get('replyTo');
+    return this.get('replyTo') as StringElement | undefined;
   }
 
   set replyTo(replyTo: StringElement | undefined) {
@@ -83,7 +83,7 @@ class AmqpOperationBinding extends ObjectElement {
   }
 
   get timestamp(): BooleanElement | undefined {
-    return this.get('timestamp');
+    return this.get('timestamp') as BooleanElement | undefined;
   }
 
   set timestamp(timestamp: BooleanElement | undefined) {
@@ -91,7 +91,7 @@ class AmqpOperationBinding extends ObjectElement {
   }
 
   get ack(): BooleanElement | undefined {
-    return this.get('ack');
+    return this.get('ack') as BooleanElement | undefined;
   }
 
   set ack(ack: BooleanElement | undefined) {
@@ -99,7 +99,7 @@ class AmqpOperationBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

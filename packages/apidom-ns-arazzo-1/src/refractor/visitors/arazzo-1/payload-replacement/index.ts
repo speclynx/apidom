@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import PayloadReplacementElement from '../../../../elements/PayloadReplacement.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
+import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsFallbackVisitor, BaseFixedFieldsFallbackVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface PayloadReplacementVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export interface PayloadReplacementVisitorOptions extends BaseFixedFieldsFallbackVisitorOptions {}
 
 /**
  * @public
  */
-class PayloadReplacementVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class PayloadReplacementVisitor extends BaseFixedFieldsFallbackVisitor {
   declare public readonly element: PayloadReplacementElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'PayloadReplacement']>;

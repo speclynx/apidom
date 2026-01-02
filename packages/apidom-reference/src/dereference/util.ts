@@ -1,4 +1,4 @@
-import { Element, isElement } from '@speclynx/apidom-core';
+import { Element, isElement } from '@speclynx/apidom-datamodel';
 
 /**
  * @public

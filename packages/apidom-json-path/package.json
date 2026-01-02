@@ -42,6 +42,7 @@
     "@speclynx/apidom-core": "^1.12.2",
     "@speclynx/apidom-error": "^1.12.2",
     "@speclynx/apidom-json-pointer": "^1.12.2",
+    "@speclynx/apidom-datamodel": "^1.12.2",
     "jsonpath-plus": "^10.3.0"
   },
   "files": [

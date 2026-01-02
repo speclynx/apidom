@@ -1,6 +1,7 @@
 import { Mixin } from 'ts-mixer';
 import { difference } from 'ramda';
-import { ObjectElement, MemberElement, BREAK, toValue } from '@speclynx/apidom-core';
+import { ObjectElement, MemberElement, Element } from '@speclynx/apidom-datamodel';
+import { BREAK, toValue } from '@speclynx/apidom-core';
 
 import FixedFieldsVisitor, { SpecPath } from './FixedFieldsVisitor.ts';
 import PatternedFieldsVisitor, { PatternedFieldsVisitorOptions } from './PatternedFieldsVisitor.ts';
@@ -16,12 +17,18 @@ export interface MixedFieldsVisitorOptions extends PatternedFieldsVisitorOptions
 }
 
 /**
+ * Base class for MixedFieldsVisitor combining FixedFieldsVisitor and PatternedFieldsVisitor.
  * @public
  */
-class MixedFieldsVisitor extends Mixin(FixedFieldsVisitor, PatternedFieldsVisitor) {
-  protected specPathFixedFields: SpecPath;
+export const MixedFieldsVisitorBase = Mixin(FixedFieldsVisitor, PatternedFieldsVisitor);
 
-  protected specPathPatternedFields: SpecPath;
+/**
+ * @public
+ */
+class MixedFieldsVisitor extends MixedFieldsVisitorBase {
+  protected readonly specPathFixedFields: SpecPath;
+
+  protected readonly specPathPatternedFields: SpecPath;
 
   constructor({
     specPathFixedFields,
@@ -50,10 +57,10 @@ class MixedFieldsVisitor extends Mixin(FixedFieldsVisitor, PatternedFieldsVisito
 
       // reorder this.element members by original objectElement keys
       const objectElementKeys = objectElement.keys() as string[];
-      this.element.content.sort((a: unknown, b: unknown) => {
+      (this.element.content as Element[]).sort((a: unknown, b: unknown) => {
         return (
-          objectElementKeys.indexOf(toValue((a as MemberElement).key)) -
-          objectElementKeys.indexOf(toValue((b as MemberElement).key))
+          objectElementKeys.indexOf(toValue((a as MemberElement).key) as string) -
+          objectElementKeys.indexOf(toValue((b as MemberElement).key) as string)
         );
       });
     } catch (e) {

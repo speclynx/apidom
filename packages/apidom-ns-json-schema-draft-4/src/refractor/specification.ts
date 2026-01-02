@@ -34,10 +34,14 @@ const specification = {
     document: {
       objects: {
         JSONSchema: {
+          element: 'jSONSchemaDraft4',
           $visitor: JSONSchemaVisitor,
           fixedFields: {
             // core vocabulary
-            id: { $ref: '#/visitors/value' },
+            id: {
+              $visitor: FallbackVisitor,
+              alias: 'idField',
+            },
             $schema: { $ref: '#/visitors/value' },
             // validation vocabulary
             // validation keywords for numeric instances (number and integer)
@@ -52,7 +56,10 @@ const specification = {
             pattern: { $ref: '#/visitors/value' },
             // validation keywords for arrays
             additionalItems: JSONSchemaOrJSONReferenceVisitor,
-            items: JSONSchemaItemsVisitor,
+            items: {
+              $visitor: JSONSchemaItemsVisitor,
+              alias: 'itemsField',
+            },
             maxItems: { $ref: '#/visitors/value' },
             minItems: { $ref: '#/visitors/value' },
             uniqueItems: { $ref: '#/visitors/value' },
@@ -80,7 +87,10 @@ const specification = {
             format: { $ref: '#/visitors/value' },
             // JSON Hyper-Schema
             base: { $ref: '#/visitors/value' },
-            links: JSONSchemaLinksVisitor,
+            links: {
+              $visitor: JSONSchemaLinksVisitor,
+              alias: 'linksField',
+            },
             media: {
               $ref: '#/visitors/document/objects/Media',
             },
@@ -88,12 +98,14 @@ const specification = {
           },
         },
         JSONReference: {
+          element: 'jSONReference',
           $visitor: JSONReferenceVisitor,
           fixedFields: {
             $ref: JSONReference$RefVisitor,
           },
         },
         Media: {
+          element: 'media',
           $visitor: MediaVisitor,
           fixedFields: {
             binaryEncoding: { $ref: '#/visitors/value' },
@@ -101,6 +113,7 @@ const specification = {
           },
         },
         LinkDescription: {
+          element: 'linkDescription',
           $visitor: LinkDescriptionVisitor,
           fixedFields: {
             href: { $ref: '#/visitors/value' },

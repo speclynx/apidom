@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, assert } from 'chai';
-import { sexprs, toJSON, isObjectElement, isParseResultElement } from '@speclynx/apidom-core';
+import { isObjectElement, isParseResultElement } from '@speclynx/apidom-datamodel';
+import { sexprs, toJSON } from '@speclynx/apidom-core';
 
 import * as adapter from '../src/adapter.ts';
 

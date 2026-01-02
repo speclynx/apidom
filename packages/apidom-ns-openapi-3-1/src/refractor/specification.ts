@@ -7,6 +7,7 @@ import ContactVisitor from './visitors/open-api-3-1/contact/index.ts';
 import LicenseVisitor from './visitors/open-api-3-1/license/index.ts';
 import LinkVisitor from './visitors/open-api-3-1/link/index.ts';
 import JsonSchemaDialectVisitor from './visitors/open-api-3-1/JsonSchemaDialectVisitor.ts';
+import OpenapiVisitor from './visitors/open-api-3-1/OpenapiVisitor.ts';
 import ServerVisitor from './visitors/open-api-3-1/server/index.ts';
 import ServerVariableVisitor from './visitors/open-api-3-1/server-variable/index.ts';
 import MediaTypeVisitor from './visitors/open-api-3-1/media-type/index.ts';
@@ -62,13 +63,20 @@ const specification = {
     document: {
       objects: {
         OpenApi: {
+          element: 'openApi3_1',
           $visitor: OpenApi3_1Visitor,
           fixedFields: {
-            openapi: OpenApi3_0Specification.visitors.document.objects.OpenApi.fixedFields.openapi,
+            openapi: {
+              element: 'openapi',
+              $visitor: OpenapiVisitor,
+            },
             info: {
               $ref: '#/visitors/document/objects/Info',
             },
-            jsonSchemaDialect: JsonSchemaDialectVisitor,
+            jsonSchemaDialect: {
+              element: 'jsonSchemaDialect',
+              $visitor: JsonSchemaDialectVisitor,
+            },
             servers: OpenApi3_0Specification.visitors.document.objects.OpenApi.fixedFields.servers,
             paths: {
               $ref: '#/visitors/document/objects/Paths',
@@ -86,6 +94,7 @@ const specification = {
           },
         },
         Info: {
+          element: 'info',
           $visitor: InfoVisitor,
           fixedFields: {
             title: OpenApi3_0Specification.visitors.document.objects.Info.fixedFields.title,
@@ -104,6 +113,7 @@ const specification = {
           },
         },
         Contact: {
+          element: 'contact',
           $visitor: ContactVisitor,
           fixedFields: {
             name: OpenApi3_0Specification.visitors.document.objects.Contact.fixedFields.name,
@@ -112,6 +122,7 @@ const specification = {
           },
         },
         License: {
+          element: 'license',
           $visitor: LicenseVisitor,
           fixedFields: {
             name: OpenApi3_0Specification.visitors.document.objects.License.fixedFields.name,
@@ -120,6 +131,7 @@ const specification = {
           },
         },
         Server: {
+          element: 'server',
           $visitor: ServerVisitor,
           fixedFields: {
             url: OpenApi3_0Specification.visitors.document.objects.Server.fixedFields.url,
@@ -130,6 +142,7 @@ const specification = {
           },
         },
         ServerVariable: {
+          element: 'serverVariable',
           $visitor: ServerVariableVisitor,
           fixedFields: {
             enum: OpenApi3_0Specification.visitors.document.objects.ServerVariable.fixedFields.enum,
@@ -141,6 +154,7 @@ const specification = {
           },
         },
         Components: {
+          element: 'components',
           $visitor: ComponentsVisitor,
           fixedFields: {
             schemas: ComponentsSchemasVisitor,
@@ -165,9 +179,11 @@ const specification = {
           },
         },
         Paths: {
+          element: 'paths',
           $visitor: PathsVisitor,
         },
         PathItem: {
+          element: 'pathItem',
           $visitor: PathItemVisitor,
           fixedFields: {
             $ref: OpenApi3_0Specification.visitors.document.objects.PathItem.fixedFields.$ref,
@@ -176,6 +192,7 @@ const specification = {
               OpenApi3_0Specification.visitors.document.objects.PathItem.fixedFields.description,
             get: {
               $ref: '#/visitors/document/objects/Operation',
+              alias: 'getField',
             },
             put: {
               $ref: '#/visitors/document/objects/Operation',
@@ -185,6 +202,7 @@ const specification = {
             },
             delete: {
               $ref: '#/visitors/document/objects/Operation',
+              alias: 'deleteField',
             },
             options: {
               $ref: '#/visitors/document/objects/Operation',
@@ -204,6 +222,7 @@ const specification = {
           },
         },
         Operation: {
+          element: 'operation',
           $visitor: OperationVisitor,
           fixedFields: {
             tags: OpenApi3_0Specification.visitors.document.objects.Operation.fixedFields.tags,
@@ -234,6 +253,7 @@ const specification = {
           },
         },
         ExternalDocumentation: {
+          element: 'externalDocumentation',
           $visitor: ExternalDocumentationVisitor,
           fixedFields: {
             description:
@@ -244,6 +264,7 @@ const specification = {
           },
         },
         Parameter: {
+          element: 'parameter',
           $visitor: ParameterVisitor,
           fixedFields: {
             name: OpenApi3_0Specification.visitors.document.objects.Parameter.fixedFields.name,
@@ -274,6 +295,7 @@ const specification = {
           },
         },
         RequestBody: {
+          element: 'requestBody',
           $visitor: RequestBodyVisitor,
           fixedFields: {
             description:
@@ -285,6 +307,7 @@ const specification = {
           },
         },
         MediaType: {
+          element: 'mediaType',
           $visitor: MediaTypeVisitor,
           fixedFields: {
             schema: {
@@ -299,6 +322,7 @@ const specification = {
           },
         },
         Encoding: {
+          element: 'encoding',
           $visitor: EncodingVisitor,
           fixedFields: {
             contentType:
@@ -311,6 +335,7 @@ const specification = {
           },
         },
         Responses: {
+          element: 'responses',
           $visitor: ResponsesVisitor,
           fixedFields: {
             default:
@@ -318,6 +343,7 @@ const specification = {
           },
         },
         Response: {
+          element: 'response',
           $visitor: ResponseVisitor,
           fixedFields: {
             description:
@@ -328,9 +354,11 @@ const specification = {
           },
         },
         Callback: {
+          element: 'callback',
           $visitor: CallbackVisitor,
         },
         Example: {
+          element: 'example',
           $visitor: ExampleVisitor,
           fixedFields: {
             summary: OpenApi3_0Specification.visitors.document.objects.Example.fixedFields.summary,
@@ -342,6 +370,7 @@ const specification = {
           },
         },
         Link: {
+          element: 'link',
           $visitor: LinkVisitor,
           fixedFields: {
             operationRef:
@@ -360,6 +389,7 @@ const specification = {
           },
         },
         Header: {
+          element: 'header',
           $visitor: HeaderVisitor,
           fixedFields: {
             description:
@@ -382,6 +412,7 @@ const specification = {
           },
         },
         Tag: {
+          element: 'tag',
           $visitor: TagVisitor,
           fixedFields: {
             name: OpenApi3_0Specification.visitors.document.objects.Tag.fixedFields.name,
@@ -393,6 +424,7 @@ const specification = {
           },
         },
         Reference: {
+          element: 'reference',
           $visitor: ReferenceVisitor,
           fixedFields: {
             $ref: OpenApi3_0Specification.visitors.document.objects.Reference.fixedFields.$ref,
@@ -407,6 +439,7 @@ const specification = {
           ...LinkDescriptionVisitor,
         },
         Schema: {
+          element: 'schema',
           $visitor: SchemaVisitor,
           fixedFields: {
             ...JSONSchemaVisitor.fixedFields,
@@ -470,6 +503,7 @@ const specification = {
           },
         },
         Discriminator: {
+          element: 'discriminator',
           $visitor: DiscriminatorVisitor,
           fixedFields: {
             propertyName:
@@ -480,6 +514,7 @@ const specification = {
           },
         },
         XML: {
+          element: 'xml',
           $visitor: XmlVisitor,
           fixedFields: {
             name: OpenApi3_0Specification.visitors.document.objects.XML.fixedFields.name,
@@ -490,6 +525,7 @@ const specification = {
           },
         },
         SecurityScheme: {
+          element: 'securityScheme',
           $visitor: SecuritySchemeVisitor,
           fixedFields: {
             type: OpenApi3_0Specification.visitors.document.objects.SecurityScheme.fixedFields.type,
@@ -512,6 +548,7 @@ const specification = {
           },
         },
         OAuthFlows: {
+          element: 'oAuthFlows',
           $visitor: OAuthFlowsVisitor,
           fixedFields: {
             implicit: {
@@ -529,6 +566,7 @@ const specification = {
           },
         },
         OAuthFlow: {
+          element: 'oAuthFlow',
           $visitor: OAuthFlowVisitor,
           fixedFields: {
             authorizationUrl:
@@ -542,6 +580,7 @@ const specification = {
           },
         },
         SecurityRequirement: {
+          element: 'securityRequirement',
           $visitor: SecurityRequirementVisitor,
         },
       },

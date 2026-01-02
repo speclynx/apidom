@@ -1,11 +1,21 @@
-import { createNamespace, isStringElement } from '@speclynx/apidom-core';
+import { isStringElement, Namespace } from '@speclynx/apidom-datamodel';
 
 import * as jsonSchemaDraft7Predicates from '../predicates.ts';
 import jsonSchemaDraft7Namespace from '../namespace.ts';
 
-const createToolbox = () => {
-  const namespace = createNamespace(jsonSchemaDraft7Namespace);
+/**
+ * @public
+ */
+export interface Toolbox {
+  predicates: Record<string, (...args: any[]) => boolean>;
+  namespace: Namespace;
+}
+
+const createToolbox = (): Toolbox => {
+  const namespace = new Namespace();
   const predicates = { ...jsonSchemaDraft7Predicates, isStringElement };
+
+  namespace.use(jsonSchemaDraft7Namespace);
 
   return { predicates, namespace };
 };

@@ -1,39 +1,39 @@
 import { assert } from 'chai';
+import { ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
 
 import {
-  ObjectElement,
-  StringElement,
   refractorPluginElementIdentity,
   dispatchRefractorPlugins,
+  toValue,
 } from '../../../src/index.ts';
 
 describe('refractor', function () {
   context('plugins', function () {
     context('element-identity', function () {
       specify('should add unique ID to all elements in ApiDOM tree', function () {
-        const objectElement = ObjectElement.refract(
-          { a: 'b' },
-          { plugins: [refractorPluginElementIdentity()] },
-        ) as any;
+        const objectElement = new ObjectElement({ a: 'b' });
+        const result = dispatchRefractorPlugins(objectElement, [
+          refractorPluginElementIdentity(),
+        ]) as ObjectElement;
         const defaultLength = 6;
 
-        assert.lengthOf(objectElement.id, defaultLength);
-        assert.lengthOf(objectElement.getMember('a').key.id, defaultLength);
-        assert.lengthOf(objectElement.getMember('a').value.id, defaultLength);
+        assert.lengthOf(toValue(result.id) as string, defaultLength);
+        assert.lengthOf(toValue(result.getMember('a')!.key!.id) as string, defaultLength);
+        assert.lengthOf(toValue(result.getMember('a')!.value!.id) as string, defaultLength);
       });
 
       specify(
         'should add unique ID of specific length to all elements in ApiDOM tree',
         function () {
           const length = 3;
-          const objectElement = ObjectElement.refract(
-            { a: 'b' },
-            { plugins: [refractorPluginElementIdentity({ length })] },
-          ) as any;
+          const objectElement = new ObjectElement({ a: 'b' });
+          const result = dispatchRefractorPlugins(objectElement, [
+            refractorPluginElementIdentity({ length }),
+          ]) as ObjectElement;
 
-          assert.lengthOf(objectElement.id, length);
-          assert.lengthOf(objectElement.getMember('a').key.id, length);
-          assert.lengthOf(objectElement.getMember('a').value.id, length);
+          assert.lengthOf(toValue(result.id) as string, length);
+          assert.lengthOf(toValue(result.getMember('a')!.key!.id) as string, length);
+          assert.lengthOf(toValue(result.getMember('a')!.value!.id) as string, length);
         },
       );
 

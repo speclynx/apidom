@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { IbmmqOperationBindingElement } from '../../../../../../src/index.ts';
+import { refractIbmmqOperationBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('IbmmqOperationBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const ibmmqOperationBindingElement = IbmmqOperationBindingElement.refract({});
+        const ibmmqOperationBindingElement = refractIbmmqOperationBinding({});
 
         expect(sexprs(ibmmqOperationBindingElement)).toMatchSnapshot();
       });

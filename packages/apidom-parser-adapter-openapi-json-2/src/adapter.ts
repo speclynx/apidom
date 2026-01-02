@@ -1,8 +1,8 @@
 import { propOr, omit } from 'ramda';
 import { isNotUndefined } from 'ramda-adjunct';
-import { ParseResultElement, createNamespace } from '@speclynx/apidom-core';
+import { ParseResultElement, Namespace } from '@speclynx/apidom-datamodel';
 import { parse as parseJSON, detect as detectJSON } from '@speclynx/apidom-parser-adapter-json';
-import openApiNamespace, { SwaggerElement } from '@speclynx/apidom-ns-openapi-2';
+import openApiNamespace, { refractSwagger } from '@speclynx/apidom-ns-openapi-2';
 
 export { default as mediaTypes } from './media-types.ts';
 
@@ -30,7 +30,7 @@ export const parse = async (
   const { result } = parseResultElement;
 
   if (isNotUndefined(result)) {
-    const swaggerElement = SwaggerElement.refract(result, refractorOpts);
+    const swaggerElement = refractSwagger(result, refractorOpts);
     swaggerElement.classes.push('result');
     parseResultElement.replaceResult(swaggerElement);
   }
@@ -41,4 +41,4 @@ export const parse = async (
 /**
  * @public
  */
-export const namespace = createNamespace(openApiNamespace);
+export const namespace = new Namespace().use(openApiNamespace);

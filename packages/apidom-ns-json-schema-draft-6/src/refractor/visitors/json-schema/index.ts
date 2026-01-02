@@ -1,4 +1,4 @@
-import { ObjectElement, BooleanElement } from '@speclynx/apidom-core';
+import { ObjectElement, BooleanElement } from '@speclynx/apidom-datamodel';
 import {
   JSONSchemaVisitor as JSONSchemaDraft4Visitor,
   JSONSchemaVisitorOptions,
@@ -12,7 +12,8 @@ export type { JSONSchemaVisitorOptions };
  * @public
  */
 class JSONSchemaVisitor extends JSONSchemaDraft4Visitor {
-  declare public element: JSONSchemaElement;
+  // @ts-expect-error - element can be BooleanElement (boolean schemas introduced in draft-6)
+  declare public element: JSONSchemaElement | BooleanElement;
 
   constructor(options: JSONSchemaVisitorOptions) {
     super(options);

@@ -1,4 +1,9 @@
-import { ObjectElement, StringElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  ObjectElement,
+  StringElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -10,7 +15,7 @@ class SourceDescription extends ObjectElement {
   }
 
   get name(): StringElement | undefined {
-    return this.get('name');
+    return this.get('name') as StringElement | undefined;
   }
 
   set name(name: StringElement | undefined) {
@@ -18,7 +23,7 @@ class SourceDescription extends ObjectElement {
   }
 
   get url(): StringElement | undefined {
-    return this.get('url');
+    return this.get('url') as StringElement | undefined;
   }
 
   set url(url: StringElement | undefined) {
@@ -26,7 +31,7 @@ class SourceDescription extends ObjectElement {
   }
 
   get type(): StringElement | undefined {
-    return this.get('type');
+    return this.get('type') as StringElement | undefined;
   }
 
   set type(type: StringElement | undefined) {

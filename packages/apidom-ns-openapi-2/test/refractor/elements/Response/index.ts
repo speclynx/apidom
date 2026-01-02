@@ -1,13 +1,14 @@
 import { assert, expect } from 'chai';
-import { includesClasses, sexprs } from '@speclynx/apidom-core';
+import { includesClasses } from '@speclynx/apidom-datamodel';
+import { sexprs } from '@speclynx/apidom-core';
 
-import { ResponseElement } from '../../../../src/index.ts';
+import { refractResponse, ResponseElement } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('ResponseElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const responseElement = ResponseElement.refract({
+        const responseElement = refractResponse({
           description: 'response description',
           schema: {},
           headers: {},
@@ -19,7 +20,7 @@ describe('refractor', function () {
 
       context('given schema keyword in form of object with $ref property', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const responseElement = ResponseElement.refract({
+          const responseElement = refractResponse({
             schema: { $ref: '#/pointer' },
           });
 
@@ -28,16 +29,20 @@ describe('refractor', function () {
       });
 
       specify('should support specification extensions', function () {
-        const responseElement = ResponseElement.refract({
+        const responseElement = refractResponse({
           description: 'response description',
           'x-extension': 'extension',
         }) as ResponseElement;
 
         assert.isFalse(
-          includesClasses(['specification-extension'], responseElement.getMember('description')),
+          includesClasses(responseElement.getMember('description') as any, [
+            'specification-extension',
+          ]),
         );
         assert.isTrue(
-          includesClasses(['specification-extension'], responseElement.getMember('x-extension')),
+          includesClasses(responseElement.getMember('x-extension') as any, [
+            'specification-extension',
+          ]),
         );
       });
     });

@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -10,7 +15,7 @@ class Discriminator extends ObjectElement {
   }
 
   get propertyName(): StringElement | undefined {
-    return this.get('propertyName');
+    return this.get('propertyName') as StringElement | undefined;
   }
 
   set propertyName(propertyName: StringElement | undefined) {
@@ -18,7 +23,7 @@ class Discriminator extends ObjectElement {
   }
 
   get mapping(): ObjectElement | undefined {
-    return this.get('mapping');
+    return this.get('mapping') as ObjectElement | undefined;
   }
 
   set mapping(mapping: ObjectElement | undefined) {

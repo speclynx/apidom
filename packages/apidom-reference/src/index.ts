@@ -1,4 +1,4 @@
-import { ParseResultElement, Element } from '@speclynx/apidom-core';
+import { ParseResultElement, Element } from '@speclynx/apidom-datamodel';
 
 import File from './File.ts';
 import ReferenceSet from './ReferenceSet.ts';

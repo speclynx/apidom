@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { ServerVariableElement } from '../../../../src/index.ts';
+import { refractServerVariable } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('ServerVariableElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const serverVariableElement = ServerVariableElement.refract({
+        const serverVariableElement = refractServerVariable({
           enum: ['val1', 'val2'],
           default: 'val1',
           description: 'server-variable-description',

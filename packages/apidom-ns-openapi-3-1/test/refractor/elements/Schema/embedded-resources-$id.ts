@@ -1,7 +1,8 @@
 import { assert } from 'chai';
-import { ObjectElement, find, toValue, isElement } from '@speclynx/apidom-core';
+import { ObjectElement, isElement } from '@speclynx/apidom-datamodel';
+import { find, toValue } from '@speclynx/apidom-core';
 
-import { isSchemaElement, OpenApi3_1Element } from '../../../../src/index.ts';
+import { isSchemaElement, refractOpenApi3_1 } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
@@ -20,7 +21,7 @@ describe('refractor', function () {
                   },
                 },
               });
-              const openApiElement = OpenApi3_1Element.refract(genericObjectElement);
+              const openApiElement = refractOpenApi3_1(genericObjectElement);
               const schemaElement = find((e) => isSchemaElement(e), openApiElement);
               const actual = toValue(schemaElement?.meta.get('ancestorsSchemaIdentifiers'));
 
@@ -49,7 +50,7 @@ describe('refractor', function () {
                     },
                   },
                 });
-                const openApiElement = OpenApi3_1Element.refract(genericObjectElement);
+                const openApiElement = refractOpenApi3_1(genericObjectElement);
                 const schemaElement = find(
                   (e) => isSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('1'),
                   openApiElement,
@@ -89,7 +90,7 @@ describe('refractor', function () {
                   },
                 },
               });
-              openApiElement = OpenApi3_1Element.refract(genericObjectElement);
+              openApiElement = refractOpenApi3_1(genericObjectElement);
             });
 
             specify(

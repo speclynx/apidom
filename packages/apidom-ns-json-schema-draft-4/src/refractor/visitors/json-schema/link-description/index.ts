@@ -1,12 +1,10 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import LinkDescriptionElement from '../../../../elements/LinkDescription.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { FixedFieldsVisitorOptions } from '../../generics/FixedFieldsVisitor.ts';
+import { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { LinkDescriptionVisitorBase } from '../bases.ts';
 
 /**
  * @public
@@ -17,7 +15,7 @@ export interface LinkDescriptionVisitorOptions
 /**
  * @public
  */
-class LinkDescriptionVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class LinkDescriptionVisitor extends LinkDescriptionVisitorBase {
   declare public readonly element: LinkDescriptionElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'LinkDescription']>;

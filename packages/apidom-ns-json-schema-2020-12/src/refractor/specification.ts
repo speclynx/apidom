@@ -7,6 +7,7 @@ import JSONSchemaLinkDescriptionVisitor from './visitors/json-schema/link-descri
 
 const specification = pipe(
   // JSON Schema object modifications
+  assocPath(['visitors', 'document', 'objects', 'JSONSchema', 'element'], 'jSONSchema202012'),
   assocPath(['visitors', 'document', 'objects', 'JSONSchema', '$visitor'], JSONSchemaVisitor),
   dissocPath(['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', '$recursiveAnchor']),
   assocPath(
@@ -68,6 +69,7 @@ const specification = pipe(
     JSONSchemaVisitor,
   ),
   // Link Description object modifications
+  assocPath(['visitors', 'document', 'objects', 'LinkDescription', 'element'], 'linkDescription'),
   assocPath(
     ['visitors', 'document', 'objects', 'LinkDescription', '$visitor'],
     JSONSchemaLinkDescriptionVisitor,

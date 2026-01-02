@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { HeaderElement } from '../../../../src/index.ts';
+import { refractHeader } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('HeaderElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const headerElement = HeaderElement.refract({
+        const headerElement = refractHeader({
           description: 'token to be passed as a header',
           required: true,
           deprecated: false,

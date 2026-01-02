@@ -1,9 +1,14 @@
 import { expect } from 'chai';
 import dedent from 'dedent';
-import { sexprs, SourceMapElement } from '@speclynx/apidom-core';
+import { SourceMapElement } from '@speclynx/apidom-datamodel';
+import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
-import { refractorPluginReplaceEmptyElement, JSONSchemaElement } from '../../../../src/index.ts';
+import {
+  refractorPluginReplaceEmptyElement,
+  refractJSONSchema,
+  JSONSchemaElement,
+} from '../../../../src/index.ts';
 
 describe('given empty value for field allOf', function () {
   it('should replace empty value with semantic element', async function () {
@@ -13,7 +18,7 @@ describe('given empty value for field allOf', function () {
            -
         `;
     const apiDOM = await parse(yamlDefinition);
-    const jsonSchema = JSONSchemaElement.refract(apiDOM.result, {
+    const jsonSchema = refractJSONSchema(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -30,7 +35,7 @@ describe('given empty value for field anyOf', function () {
            -
         `;
     const apiDOM = await parse(yamlDefinition);
-    const jsonSchema = JSONSchemaElement.refract(apiDOM.result, {
+    const jsonSchema = refractJSONSchema(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -47,7 +52,7 @@ describe('given empty value for field oneOf', function () {
            -
         `;
     const apiDOM = await parse(yamlDefinition);
-    const jsonSchema = JSONSchemaElement.refract(apiDOM.result, {
+    const jsonSchema = refractJSONSchema(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -62,7 +67,7 @@ describe('given empty value for field examples', function () {
           examples:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const jsonSchema = JSONSchemaElement.refract(apiDOM.result, {
+    const jsonSchema = refractJSONSchema(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -78,7 +83,7 @@ describe('given empty value for LinkDescription.templateRequired field', functio
             - templateRequired:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const jsonSchemaElement = JSONSchemaElement.refract(apiDOM.result, {
+    const jsonSchemaElement = refractJSONSchema(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as JSONSchemaElement;
 
@@ -95,7 +100,7 @@ describe('given JSON Schema definition with no empty values', function () {
            - {}
         `;
     const apiDOM = await parse(yamlDefinition);
-    const jsonSchemaElement = JSONSchemaElement.refract(apiDOM.result, {
+    const jsonSchemaElement = refractJSONSchema(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as JSONSchemaElement;
 
@@ -111,16 +116,16 @@ describe('given JSON Schema definition with empty values', function () {
            -
         `;
     const apiDOM = await parse(yamlDefinition, { sourceMap: true });
-    const jsonSchemaElement = JSONSchemaElement.refract(apiDOM.result, {
+    const jsonSchemaElement = refractJSONSchema(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as JSONSchemaElement;
     const { oneOf: oneOfValue } = jsonSchemaElement;
-    const sourceMap = oneOfValue?.get(0)?.meta.get('sourceMap');
+    const sourceMap = oneOfValue?.get(0)?.meta.get('sourceMap') as SourceMapElement;
     const { positionStart, positionEnd } = sourceMap;
     const expectedPosition = [2, 2, 60];
 
     expect(oneOfValue?.meta.get('sourceMap')).to.be.an.instanceof(SourceMapElement);
-    expect(positionStart.equals(expectedPosition)).to.be.true;
-    expect(positionEnd.equals(expectedPosition)).to.be.true;
+    expect(positionStart!.equals(expectedPosition)).to.be.true;
+    expect(positionEnd!.equals(expectedPosition)).to.be.true;
   });
 });

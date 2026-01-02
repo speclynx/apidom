@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import SchemaElement from '../../Schema.ts';
 import ReferenceElement from '../../Reference.ts';
@@ -14,7 +19,7 @@ class HttpOperationBinding extends ObjectElement {
   }
 
   get type(): StringElement | undefined {
-    return this.get('type');
+    return this.get('type') as StringElement | undefined;
   }
 
   set type(type: StringElement | undefined) {
@@ -22,7 +27,7 @@ class HttpOperationBinding extends ObjectElement {
   }
 
   get method(): StringElement | undefined {
-    return this.get('method');
+    return this.get('method') as StringElement | undefined;
   }
 
   set method(method: StringElement | undefined) {
@@ -30,7 +35,7 @@ class HttpOperationBinding extends ObjectElement {
   }
 
   get query(): SchemaElement | ReferenceElement | undefined {
-    return this.get('query');
+    return this.get('query') as SchemaElement | ReferenceElement | undefined;
   }
 
   set query(query: SchemaElement | ReferenceElement | undefined) {
@@ -38,7 +43,7 @@ class HttpOperationBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

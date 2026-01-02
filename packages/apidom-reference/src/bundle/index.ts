@@ -1,5 +1,5 @@
 import { isEmpty, propEq } from 'ramda';
-import { ParseResultElement } from '@speclynx/apidom-core';
+import { ParseResultElement } from '@speclynx/apidom-datamodel';
 
 import File from '../File.ts';
 import * as plugins from '../util/plugins.ts';

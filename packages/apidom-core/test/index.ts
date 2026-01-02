@@ -1,23 +1,59 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { assert } from 'chai';
-import openapi3_1 from '@speclynx/apidom-ns-openapi-3-1';
-import ApiDOMParser from '@speclynx/apidom-parser';
-import * as openapi3_1Adapter from '@speclynx/apidom-parser-adapter-openapi-json-3-1';
+import { ObjectElement, Namespace } from '@speclynx/apidom-datamodel';
 
 import * as apiDOM from '../src/index.ts';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// Ad-hoc semantic element classes for testing
+class InfoElement extends ObjectElement {
+  constructor(...args: ConstructorParameters<typeof ObjectElement>) {
+    super(...args);
+    this.element = 'info';
+  }
+}
 
-const parser = new ApiDOMParser().use(openapi3_1Adapter);
-const spec = fs.readFileSync(path.join(__dirname, 'fixtures', 'sample-api.json')).toString();
-const namespace = apiDOM.createNamespace(openapi3_1);
+class OpenApi3_1Element extends ObjectElement {
+  constructor(...args: ConstructorParameters<typeof ObjectElement>) {
+    super(...args);
+    this.element = 'openApi3_1';
+  }
+}
 
 describe('apidom', function () {
-  it('test', async function () {
-    const parseResult = await parser.parse(spec);
+  context('dehydrate', function () {
+    specify('should dehydrate generic ObjectElement', function () {
+      const objectElement = new ObjectElement({ a: 1, b: 'test' });
+      const namespace = new Namespace();
 
-    assert.isDefined(apiDOM.dehydrate(parseResult, namespace));
+      const result = apiDOM.dehydrate(objectElement, namespace);
+
+      assert.isDefined(result);
+      assert.isObject(result);
+    });
+
+    specify('should dehydrate semantic elements', function () {
+      const infoElement = new InfoElement({
+        title: 'Sample API',
+        version: '1.0.0',
+      });
+      const openApiElement = new OpenApi3_1Element({
+        openapi: '3.1.0',
+        info: infoElement,
+      });
+      const namespace = new Namespace();
+
+      const result = apiDOM.dehydrate(openApiElement, namespace);
+
+      assert.isDefined(result);
+      assert.isObject(result);
+    });
+
+    specify('should use default namespace when not provided', function () {
+      const objectElement = new ObjectElement({ key: 'value' });
+
+      const result = apiDOM.dehydrate(objectElement);
+
+      assert.isDefined(result);
+      assert.isObject(result);
+    });
   });
 });

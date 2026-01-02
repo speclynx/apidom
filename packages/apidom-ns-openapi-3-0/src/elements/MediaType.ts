@@ -1,4 +1,4 @@
-import { ObjectElement, Element, Attributes, Meta } from '@speclynx/apidom-core';
+import { ObjectElement, Element, type Attributes, type Meta } from '@speclynx/apidom-datamodel';
 
 import SchemaElement from './Schema.ts';
 import ReferenceElement from './Reference.ts';
@@ -13,7 +13,7 @@ class MediaType extends ObjectElement {
   }
 
   get schema(): SchemaElement | ReferenceElement | undefined {
-    return this.get('schema');
+    return this.get('schema') as SchemaElement | ReferenceElement | undefined;
   }
 
   set schema(schema: SchemaElement | ReferenceElement | undefined) {
@@ -21,7 +21,7 @@ class MediaType extends ObjectElement {
   }
 
   get example(): Element | undefined {
-    return this.get('example');
+    return this.get('example') as Element | undefined;
   }
 
   set example(example: Element | undefined) {
@@ -29,7 +29,7 @@ class MediaType extends ObjectElement {
   }
 
   get examples(): ObjectElement | undefined {
-    return this.get('examples');
+    return this.get('examples') as ObjectElement | undefined;
   }
 
   set examples(examples: ObjectElement | undefined) {
@@ -37,7 +37,7 @@ class MediaType extends ObjectElement {
   }
 
   get encoding(): ObjectElement | undefined {
-    return this.get('encoding');
+    return this.get('encoding') as ObjectElement | undefined;
   }
 
   set encoding(encoding: ObjectElement | undefined) {

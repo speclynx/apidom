@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { ServerElement } from '../../../../src/index.ts';
+import { refractServer } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('ServerElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const serverElement = ServerElement.refract({
+        const serverElement = refractServer({
           url: '{username}.gigantic-server.com',
           description: 'The production API server',
           protocol: 'kafka',
@@ -24,7 +24,7 @@ describe('refractor', function () {
 
       context('given bindings field of type ServerBindingsElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const serverElement = ServerElement.refract({
+          const serverElement = refractServer({
             bindings: {},
           });
 
@@ -34,7 +34,7 @@ describe('refractor', function () {
 
       context('given bindings field of type ReferenceElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const serverElement = ServerElement.refract({
+          const serverElement = refractServer({
             bindings: {
               $ref: '#/path/to/bindings',
             },
@@ -46,7 +46,7 @@ describe('refractor', function () {
 
       context('given variables field values contain ReferenceElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const serverElement = ServerElement.refract({
+          const serverElement = refractServer({
             variables: {
               username: {
                 $ref: '#/path/to/server-variable',

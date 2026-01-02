@@ -2,9 +2,9 @@ import {
   ArrayElement,
   StringElement,
   BooleanElement,
-  Attributes,
-  Meta,
-} from '@speclynx/apidom-core';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 import { JSONSchemaElement } from '@speclynx/apidom-ns-json-schema-draft-7';
 
 import ReferenceElement from './Reference.ts';
@@ -33,7 +33,7 @@ class Schema extends JSONSchemaElement {
    */
 
   get not(): this | BooleanElement | ReferenceElement | undefined | any {
-    return this.get('not');
+    return this.get('not') as this | BooleanElement | ReferenceElement | undefined | any;
   }
 
   /**
@@ -43,7 +43,7 @@ class Schema extends JSONSchemaElement {
    */
 
   get if(): this | BooleanElement | ReferenceElement | undefined {
-    return this.get('if');
+    return this.get('if') as this | BooleanElement | ReferenceElement | undefined;
   }
 
   set if(ifValue: this | BooleanElement | ReferenceElement | undefined) {
@@ -51,7 +51,7 @@ class Schema extends JSONSchemaElement {
   }
 
   get then(): this | BooleanElement | ReferenceElement | undefined {
-    return this.get('then');
+    return this.get('then') as this | BooleanElement | ReferenceElement | undefined;
   }
 
   set then(then: this | BooleanElement | ReferenceElement | undefined) {
@@ -59,7 +59,7 @@ class Schema extends JSONSchemaElement {
   }
 
   get else(): this | BooleanElement | ReferenceElement | undefined {
-    return this.get('else');
+    return this.get('else') as this | BooleanElement | ReferenceElement | undefined;
   }
 
   set else(elseValue: this | BooleanElement | ReferenceElement | undefined) {
@@ -72,27 +72,41 @@ class Schema extends JSONSchemaElement {
    * URI: https://datatracker.ietf.org/doc/html/draft-handrews-json-schema-validation-01#section-6.4
    */
 
-  get items(): this | BooleanElement | ReferenceElement | ArrayElement | undefined | any {
-    return this.get('items');
+  override get itemsField():
+    | this
+    | BooleanElement
+    | ReferenceElement
+    | ArrayElement
+    | undefined
+    | any {
+    return this.get('items') as
+      | this
+      | BooleanElement
+      | ReferenceElement
+      | ArrayElement
+      | undefined
+      | any;
   }
 
-  set items(items: this | BooleanElement | ReferenceElement | ArrayElement | undefined | any) {
+  override set itemsField(
+    items: this | BooleanElement | ReferenceElement | ArrayElement | undefined | any,
+  ) {
     this.set('items', items);
   }
 
   get additionalItems(): this | BooleanElement | ReferenceElement | undefined {
-    return this.get('additionalItems');
+    return this.get('additionalItems') as this | BooleanElement | ReferenceElement | undefined;
   }
 
   set additionalItems(additionalItems: this | BooleanElement | ReferenceElement | undefined) {
     this.set('additionalItems', additionalItems);
   }
 
-  get containsProp(): this | BooleanElement | ReferenceElement | undefined {
-    return this.get('contains');
+  get contains(): this | BooleanElement | ReferenceElement | undefined {
+    return this.get('contains') as this | BooleanElement | ReferenceElement | undefined;
   }
 
-  set containsProp(contains: this | BooleanElement | ReferenceElement | undefined) {
+  set contains(contains: this | BooleanElement | ReferenceElement | undefined) {
     this.set('contains', contains);
   }
 
@@ -103,7 +117,7 @@ class Schema extends JSONSchemaElement {
    */
 
   get propertyNames(): this | BooleanElement | ReferenceElement | undefined {
-    return this.get('propertyNames');
+    return this.get('propertyNames') as this | BooleanElement | ReferenceElement | undefined;
   }
 
   set propertyNames(propertyNames: this | BooleanElement | ReferenceElement | undefined) {
@@ -117,15 +131,15 @@ class Schema extends JSONSchemaElement {
    */
 
   get discriminator(): StringElement | undefined {
-    return this.get('discriminator');
+    return this.get('discriminator') as StringElement | undefined;
   }
 
   get externalDocs(): ExternalDocumentationElement | undefined {
-    return this.get('externalDocs');
+    return this.get('externalDocs') as ExternalDocumentationElement | undefined;
   }
 
   get deprecated(): BooleanElement | undefined {
-    return this.get('deprecated');
+    return this.get('deprecated') as BooleanElement | undefined;
   }
 }
 

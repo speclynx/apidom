@@ -3,7 +3,7 @@ import dedent from 'dedent';
 import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
-import { refractorPluginReplaceEmptyElement, OpenApi3_0Element } from '../../../../src/index.ts';
+import { refractorPluginReplaceEmptyElement, refract } from '../../../../src/index.ts';
 
 describe('given empty value instead of ServerElement', function () {
   it('should replace empty value with semantic element', async function () {
@@ -13,7 +13,7 @@ describe('given empty value instead of ServerElement', function () {
            -
         `;
     const apiDOM = await parse(yamlDefinition);
-    const openApiElement = OpenApi3_0Element.refract(apiDOM.result, {
+    const openApiElement = refract(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -29,7 +29,7 @@ describe('given empty value instead of SecurityRequirementElement', function () 
            -
         `;
     const apiDOM = await parse(yamlDefinition);
-    const openApiElement = OpenApi3_0Element.refract(apiDOM.result, {
+    const openApiElement = refract(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -46,7 +46,7 @@ describe('given multiple empty values instead of TagElement', function () {
            -
         `;
     const apiDOM = await parse(yamlDefinition);
-    const openApiElement = OpenApi3_0Element.refract(apiDOM.result, {
+    const openApiElement = refract(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -65,7 +65,7 @@ describe('given empty values instead of SchemaElement for allOf keyword', functi
                  -
         `;
     const apiDOM = await parse(yamlDefinition);
-    const openApiElement = OpenApi3_0Element.refract(apiDOM.result, {
+    const openApiElement = refract(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 

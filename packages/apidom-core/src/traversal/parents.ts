@@ -1,4 +1,4 @@
-import { Element, ObjectElement, ArrayElement, MemberElement } from 'minim';
+import { Element, ObjectElement, ArrayElement, MemberElement } from '@speclynx/apidom-datamodel';
 
 import { visit } from './visitor.ts';
 

@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { ArazzoSpecification1Element } from '../../../../src/index.ts';
+import { refractArazzoSpecification1 } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('ArazzoSpecification1Element', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const arazzoSpecification1Element = ArazzoSpecification1Element.refract({
+        const arazzoSpecification1Element = refractArazzoSpecification1({
           arazzo: '1.0.1',
           info: {},
           sourceDescriptions: [{}],

@@ -1,13 +1,14 @@
 import { assert, expect } from 'chai';
-import { includesClasses, sexprs } from '@speclynx/apidom-core';
+import { includesClasses } from '@speclynx/apidom-datamodel';
+import { sexprs } from '@speclynx/apidom-core';
 
-import { HeaderElement } from '../../../../src/index.ts';
+import { refractHeader, HeaderElement } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('HeaderElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const headerElement = HeaderElement.refract({
+        const headerElement = refractHeader({
           description: 'The number of allowed requests in the current period',
           type: 'array',
           items: {
@@ -26,16 +27,18 @@ describe('refractor', function () {
       });
 
       specify('should support specification extensions', function () {
-        const headerElement = HeaderElement.refract({
+        const headerElement = refractHeader({
           type: 'array',
           'x-extension': 'extension',
         }) as HeaderElement;
 
         assert.isFalse(
-          includesClasses(['specification-extension'], headerElement.getMember('type')),
+          includesClasses(headerElement.getMember('type') as any, ['specification-extension']),
         );
         assert.isTrue(
-          includesClasses(['specification-extension'], headerElement.getMember('x-extension')),
+          includesClasses(headerElement.getMember('x-extension') as any, [
+            'specification-extension',
+          ]),
         );
       });
     });

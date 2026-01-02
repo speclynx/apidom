@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -11,7 +16,7 @@ class Reusable extends ObjectElement {
   }
 
   get reference(): StringElement | undefined {
-    return this.get('reference');
+    return this.get('reference') as StringElement | undefined;
   }
 
   set reference(reference: StringElement | undefined) {
@@ -19,7 +24,7 @@ class Reusable extends ObjectElement {
   }
 
   get value(): StringElement | undefined {
-    return this.get('value');
+    return this.get('value') as StringElement | undefined;
   }
 
   set value(value: StringElement | undefined) {

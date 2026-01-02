@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { JSONSchemaElement } from '../../../../src/index.ts';
+import { refractJSONSchema } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('JSONSchemaElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const jsonSchemaElement = JSONSchemaElement.refract({
+        const jsonSchemaElement = refractJSONSchema({
           // core vocabulary
           $schema: 'https://example.com/',
           $id: 'https://example.com',
@@ -96,7 +96,7 @@ describe('refractor', function () {
 
       context('given embedded JSONSchemaElements', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const schemaElement = JSONSchemaElement.refract({
+          const schemaElement = refractJSONSchema({
             $defs: {
               enabledToggle: { not: {} },
             },
@@ -113,7 +113,7 @@ describe('refractor', function () {
 
       context('given Boolean JSON Schemas', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const schemaElement = JSONSchemaElement.refract({
+          const schemaElement = refractJSONSchema({
             $defs: {
               enabledToggle: { not: true },
             },

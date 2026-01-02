@@ -2,9 +2,13 @@ import {
   ArrayElement,
   ObjectElement,
   StringElement,
-  cloneDeep,
-  toValue,
-} from '@speclynx/apidom-core';
+  isStringElement,
+  isArrayElement,
+  isElement,
+  isMemberElement,
+  includesClasses,
+} from '@speclynx/apidom-datamodel';
+import { cloneDeep, toValue } from '@speclynx/apidom-core';
 import {
   ServersElement,
   SecurityElement,
@@ -76,7 +80,6 @@ import TagElement from '../../elements/Tag.ts';
 import ComponentsPathItemsElement from '../../elements/nces/ComponentsPathItems.ts';
 import WebhooksElement from '../../elements/nces/Webhooks.ts';
 import { getNodeType } from '../../traversal/visitor.ts';
-import { Predicates } from '../toolbox.ts';
 
 /**
  * This plugin is specific to YAML 1.2 format, which allows defining key-value pairs
@@ -675,43 +678,40 @@ const findElementFactory = (ancestor: any, keyName: string) => {
 /**
  * @public
  */
-const plugin =
-  () =>
-  ({ predicates }: { predicates: Predicates }) => {
-    const isEmptyElement = (element: any) =>
-      predicates.isStringElement(element) &&
-      predicates.includesClasses(['yaml-e-node', 'yaml-e-scalar'], element);
+const plugin = () => () => {
+  const isEmptyElement = (element: unknown) =>
+    isStringElement(element) && includesClasses(element, ['yaml-e-node', 'yaml-e-scalar']);
 
-    return {
-      visitor: {
-        StringElement(element: StringElement, key: any, parent: any, path: any, ancestors: any[]) {
-          if (!isEmptyElement(element)) return undefined;
+  return {
+    visitor: {
+      StringElement(element: StringElement, key: any, parent: any, path: any, ancestors: any[]) {
+        if (!isEmptyElement(element)) return undefined;
 
-          const lineage = [...ancestors, parent].filter(predicates.isElement);
-          const parentElement = lineage.at(-1);
-          let elementFactory;
-          let context;
+        const lineage = [...ancestors, parent].filter(isElement);
+        const parentElement = lineage.at(-1);
+        let elementFactory;
+        let context;
 
-          if (predicates.isArrayElement(parentElement)) {
-            context = element;
-            elementFactory = findElementFactory(parentElement, '<*>');
-          } else if (predicates.isMemberElement(parentElement)) {
-            context = lineage.at(-2);
-            elementFactory = findElementFactory(context, toValue(parentElement.key));
-          }
+        if (isArrayElement(parentElement)) {
+          context = element;
+          elementFactory = findElementFactory(parentElement, '<*>');
+        } else if (isMemberElement(parentElement)) {
+          context = lineage.at(-2);
+          elementFactory = findElementFactory(context, toValue(parentElement.key) as string);
+        }
 
-          // no element factory found
-          if (typeof elementFactory !== 'function') return undefined;
+        // no element factory found
+        if (typeof elementFactory !== 'function') return undefined;
 
-          return elementFactory.call(
-            { context },
-            undefined,
-            cloneDeep(element.meta),
-            cloneDeep(element.attributes),
-          );
-        },
+        return elementFactory.call(
+          { context },
+          undefined,
+          cloneDeep(element.meta),
+          cloneDeep(element.attributes),
+        );
       },
-    };
+    },
   };
+};
 
 export default plugin;

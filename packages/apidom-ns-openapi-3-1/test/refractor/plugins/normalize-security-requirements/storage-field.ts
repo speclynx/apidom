@@ -4,7 +4,7 @@ import { toValue } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
 import {
-  OpenApi3_1Element,
+  refractOpenApi3_1,
   refractorPluginNormalizeSecurityRequirements,
 } from '../../../../src/index.ts';
 
@@ -23,9 +23,9 @@ describe('refractor', function () {
                 - read:pets
   `;
         const apiDOM = await parse(yamlDefinition);
-        const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+        const openApiElement = refractOpenApi3_1(apiDOM.result, {
           plugins: [refractorPluginNormalizeSecurityRequirements()],
-        }) as OpenApi3_1Element;
+        });
 
         assert.deepEqual(toValue(openApiElement.get('x-normalized')), {
           'security-requirements': ['/paths/~1/get'],
@@ -45,13 +45,13 @@ describe('refractor', function () {
                     - read:pets
           `;
           const apiDOM = await parse(yamlDefinition);
-          const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+          const openApiElement = refractOpenApi3_1(apiDOM.result, {
             plugins: [
               refractorPluginNormalizeSecurityRequirements({
                 storageField: '$$normalized',
               }),
             ],
-          }) as OpenApi3_1Element;
+          });
 
           assert.deepEqual(toValue(openApiElement.get('$$normalized')), {
             'security-requirements': ['/paths/~1/get'],

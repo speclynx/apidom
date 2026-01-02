@@ -1,4 +1,4 @@
-import { StringElement } from '@speclynx/apidom-core';
+import { StringElement } from '@speclynx/apidom-datamodel';
 import { LicenseElement } from '@speclynx/apidom-ns-openapi-3-0';
 
 /**
@@ -6,7 +6,7 @@ import { LicenseElement } from '@speclynx/apidom-ns-openapi-3-0';
  */
 class License extends LicenseElement {
   get identifier(): StringElement | undefined {
-    return this.get('identifier');
+    return this.get('identifier') as StringElement | undefined;
   }
 
   set identifier(name: StringElement | undefined) {

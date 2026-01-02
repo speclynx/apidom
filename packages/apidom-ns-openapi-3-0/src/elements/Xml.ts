@@ -2,9 +2,9 @@ import {
   StringElement,
   ObjectElement,
   BooleanElement,
-  Attributes,
-  Meta,
-} from '@speclynx/apidom-core';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -16,7 +16,7 @@ class Xml extends ObjectElement {
   }
 
   get name(): StringElement | undefined {
-    return this.get('name');
+    return this.get('name') as StringElement | undefined;
   }
 
   set name(name: StringElement | undefined) {
@@ -24,7 +24,7 @@ class Xml extends ObjectElement {
   }
 
   get namespace(): StringElement | undefined {
-    return this.get('namespace');
+    return this.get('namespace') as StringElement | undefined;
   }
 
   set namespace(namespace: StringElement | undefined) {
@@ -32,7 +32,7 @@ class Xml extends ObjectElement {
   }
 
   get prefix(): StringElement | undefined {
-    return this.get('prefix');
+    return this.get('prefix') as StringElement | undefined;
   }
 
   set prefix(prefix: StringElement | undefined) {
@@ -40,7 +40,7 @@ class Xml extends ObjectElement {
   }
 
   get attribute(): BooleanElement | undefined {
-    return this.get('attribute');
+    return this.get('attribute') as BooleanElement | undefined;
   }
 
   set attribute(attribute: BooleanElement | undefined) {
@@ -48,7 +48,7 @@ class Xml extends ObjectElement {
   }
 
   get wrapped(): BooleanElement | undefined {
-    return this.get('wrapped');
+    return this.get('wrapped') as BooleanElement | undefined;
   }
 
   set wrapped(wrapped: BooleanElement | undefined) {

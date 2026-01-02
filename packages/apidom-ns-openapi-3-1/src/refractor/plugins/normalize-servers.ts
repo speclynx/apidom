@@ -1,4 +1,4 @@
-import { Element } from '@speclynx/apidom-core';
+import { Element } from '@speclynx/apidom-datamodel';
 import {
   PathItemServersElement,
   OperationServersElement,
@@ -11,6 +11,7 @@ import type ServerElement from '../../elements/Server.ts';
 import type OperationElement from '../../elements/Operation.ts';
 import type { Toolbox } from '../toolbox.ts';
 import NormalizeStorage from './normalize-header-examples/NormalizeStorage.ts';
+import { refractServer } from '../index.ts';
 
 /**
  * Override of Server Objects.
@@ -36,7 +37,7 @@ export interface PluginOptions {
 const plugin =
   ({ storageField = 'x-normalized' }: PluginOptions = {}) =>
   (toolbox: Toolbox) => {
-    const { namespace, ancestorLineageToJSONPointer, predicates } = toolbox;
+    const { ancestorLineageToJSONPointer, predicates } = toolbox;
     let storage: NormalizeStorage | undefined;
 
     return {
@@ -46,8 +47,7 @@ const plugin =
             const isServersUndefined = typeof openapiElement.servers === 'undefined';
             const isServersArrayElement = predicates.isArrayElement(openapiElement.servers);
             const isServersEmpty = isServersArrayElement && openapiElement.servers!.length === 0;
-            // @ts-ignore
-            const defaultServer = namespace.elements.Server.refract({ url: '/' });
+            const defaultServer = refractServer({ url: '/' });
 
             if (isServersUndefined || !isServersArrayElement) {
               openapiElement.servers = new ServersElement([defaultServer]);
@@ -89,7 +89,8 @@ const plugin =
 
           // duplicate OpenAPI.servers into this Path Item object
           if (predicates.isOpenApi3_1Element(parentOpenapiElement)) {
-            const openapiServersContent = parentOpenapiElement.servers?.content;
+            const openapiServersContent = (parentOpenapiElement as OpenApi3_1Element).servers
+              ?.content;
             const openapiServers = (openapiServersContent ?? []) as ServerElement[];
 
             if (isServersUndefined || !isServersArrayElement) {
@@ -131,7 +132,8 @@ const plugin =
           const isServersEmpty = isServersArrayElement && operationElement.servers!.length === 0;
 
           if (predicates.isPathItemElement(parentPathItemElement)) {
-            const pathItemServersContent = parentPathItemElement.servers?.content;
+            const pathItemServersContent = (parentPathItemElement as PathItemElement).servers
+              ?.content;
             const pathItemServers = (pathItemServersContent ?? []) as ServerElement[];
 
             if (isServersUndefined || !isServersArrayElement) {

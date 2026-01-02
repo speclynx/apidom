@@ -1,23 +1,21 @@
-import { Mixin } from 'ts-mixer';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import ComponentsOperationBindingsElement from '../../../../elements/nces/ComponentsOperationBindings.ts';
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/MapVisitor.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
 import { isReferenceElement } from '../../../../predicates.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface OperationBindingsVisitorOptions
-  extends MapVisitorOptions, FallbackVisitorOptions {}
+export type OperationBindingsVisitorOptions = BaseMapVisitorOptions;
 
 /**
  * @public
  */
-class OperationBindingsVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class OperationBindingsVisitor extends BaseMapVisitor {
   declare public readonly element: ComponentsOperationBindingsElement;
 
   declare protected readonly specPath: SpecPath<
@@ -34,11 +32,11 @@ class OperationBindingsVisitor extends Mixin(MapVisitor, FallbackVisitor) {
   }
 
   ObjectElement(objectElement: ObjectElement) {
-    const result = MapVisitor.prototype.ObjectElement.call(this, objectElement);
+    const result = BaseMapVisitor.prototype.ObjectElement.call(this, objectElement);
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
-      referenceElement.setMetaProperty('referenced-element', 'operationBindings');
+      referenceElement.meta.set('referenced-element', 'operationBindings');
     });
 
     return result;

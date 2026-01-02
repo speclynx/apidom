@@ -1,19 +1,20 @@
-import { Mixin } from 'ts-mixer';
-import { StringElement, ObjectElement } from '@speclynx/apidom-core';
+import { StringElement, ObjectElement } from '@speclynx/apidom-datamodel';
 
 import CriterionExpressionTypeElement from '../../../../elements/CriterionExpressionType.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../../SpecificationVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import {
+  BaseSpecificationFallbackVisitor,
+  BaseSpecificationFallbackVisitorOptions,
+} from '../bases.ts';
 
 /**
  * @public
  */
-export interface TypeVisitorOptions extends SpecificationVisitorOptions, FallbackVisitorOptions {}
+export interface TypeVisitorOptions extends BaseSpecificationFallbackVisitorOptions {}
 
 /**
  * @public
  */
-class TypeVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class TypeVisitor extends BaseSpecificationFallbackVisitor {
   declare public readonly element: StringElement | CriterionExpressionTypeElement;
 
   ObjectElement(objectElement: ObjectElement): CriterionExpressionTypeElement {

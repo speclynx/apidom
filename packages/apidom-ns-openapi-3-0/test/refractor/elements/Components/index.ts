@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { ComponentsElement } from '../../../../src/index.ts';
+import { refractComponents } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('ComponentsElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const componentsElement = ComponentsElement.refract({
+        const componentsElement = refractComponents({
           schemas: {
             Schema1: {},
           },

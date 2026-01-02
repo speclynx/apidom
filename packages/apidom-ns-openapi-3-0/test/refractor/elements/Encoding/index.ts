@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { EncodingElement } from '../../../../src/index.ts';
+import { refractEncoding } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('EncodingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const encodingElement = EncodingElement.refract({
+        const encodingElement = refractEncoding({
           contentType: 'application/json',
           headers: {
             Header1: {},

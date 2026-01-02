@@ -1,8 +1,8 @@
 import { propOr, omit } from 'ramda';
 import { isNotUndefined } from 'ramda-adjunct';
-import { ParseResultElement, createNamespace } from '@speclynx/apidom-core';
+import { Namespace, ParseResultElement } from '@speclynx/apidom-datamodel';
 import { parse as parseJSON, detect as detectJSON } from '@speclynx/apidom-parser-adapter-json';
-import arazzoNamespace, { ArazzoSpecification1Element } from '@speclynx/apidom-ns-arazzo-1';
+import arazzoNamespacePlugin, { refractArazzoSpecification1 } from '@speclynx/apidom-ns-arazzo-1';
 
 export { default as mediaTypes } from './media-types.ts';
 
@@ -31,7 +31,7 @@ export const parse = async (
   const { result } = parseResultElement;
 
   if (isNotUndefined(result)) {
-    const arazzoSpecificationElement = ArazzoSpecification1Element.refract(result, refractorOpts);
+    const arazzoSpecificationElement = refractArazzoSpecification1(result, refractorOpts);
     arazzoSpecificationElement.classes.push('result');
     parseResultElement.replaceResult(arazzoSpecificationElement);
   }
@@ -42,4 +42,4 @@ export const parse = async (
 /**
  * @public
  */
-export const namespace = createNamespace(arazzoNamespace);
+export const namespace = new Namespace().use(arazzoNamespacePlugin);

@@ -3,12 +3,16 @@ import {
   StringElement,
   BooleanElement,
   Element,
-  Attributes,
-  Meta,
   ObjectElement,
   ArrayElement,
-} from '@speclynx/apidom-core';
-import { JSONSchemaElement, MediaElement } from '@speclynx/apidom-ns-json-schema-draft-4';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
+import {
+  JSONSchemaElement,
+  MediaElement,
+  LinkDescriptionElement,
+} from '@speclynx/apidom-ns-json-schema-draft-4';
 
 import ReferenceElement from './Reference.ts';
 import DiscriminatorElement from './Discriminator.ts';
@@ -30,12 +34,12 @@ class Schema extends JSONSchemaElement {
    *
    * URI: https://tools.ietf.org/html/draft-wright-json-schema-00
    */
-  get idProp(): StringElement | undefined {
-    throw new UnsupportedOperationError('idProp getter in Schema class is not not supported.');
+  get idField(): StringElement | undefined {
+    throw new UnsupportedOperationError('idField getter in Schema class is not not supported.');
   }
 
-  set idProp(idProps: StringElement | undefined) {
-    throw new UnsupportedOperationError('idProp setter in Schema class is not not supported.');
+  set idField(idField: StringElement | undefined) {
+    throw new UnsupportedOperationError('idField setter in Schema class is not not supported.');
   }
 
   get $schema(): StringElement | undefined {
@@ -51,18 +55,18 @@ class Schema extends JSONSchemaElement {
    */
 
   get additionalItems(): this | ReferenceElement | BooleanElement | undefined {
-    return this.get('additionalItems');
+    return this.get('additionalItems') as this | ReferenceElement | BooleanElement | undefined;
   }
 
   set additionalItems(additionalItems: this | ReferenceElement | BooleanElement | undefined) {
     this.set('additionalItems', additionalItems);
   }
 
-  get items(): this | ReferenceElement | undefined {
-    return this.get('items');
+  override get itemsField(): this | ReferenceElement | undefined {
+    return this.get('items') as this | ReferenceElement | undefined;
   }
 
-  set items(items: this | ReferenceElement | undefined) {
+  override set itemsField(items: this | ReferenceElement | undefined) {
     this.set('items', items);
   }
 
@@ -71,7 +75,7 @@ class Schema extends JSONSchemaElement {
    */
 
   get additionalProperties(): this | ReferenceElement | BooleanElement | undefined {
-    return this.get('additionalProperties');
+    return this.get('additionalProperties') as this | ReferenceElement | BooleanElement | undefined;
   }
 
   set additionalProperties(
@@ -109,7 +113,7 @@ class Schema extends JSONSchemaElement {
    */
 
   get type(): StringElement | undefined {
-    return this.get('type');
+    return this.get('type') as StringElement | undefined;
   }
 
   set type(type: StringElement | undefined) {
@@ -117,7 +121,7 @@ class Schema extends JSONSchemaElement {
   }
 
   get not(): this | ReferenceElement | undefined {
-    return this.get('not');
+    return this.get('not') as this | ReferenceElement | undefined;
   }
 
   set not(not: this | ReferenceElement | undefined) {
@@ -146,12 +150,12 @@ class Schema extends JSONSchemaElement {
     throw new UnsupportedOperationError('base setter in Schema class is not not supported.');
   }
 
-  get links(): ArrayElement | undefined {
-    throw new UnsupportedOperationError('links getter in Schema class is not not supported.');
+  override get linksField(): ArrayElement<LinkDescriptionElement> | undefined {
+    throw new UnsupportedOperationError('linksField getter in Schema class is not not supported.');
   }
 
-  set links(links: ArrayElement | undefined) {
-    throw new UnsupportedOperationError('links setter in Schema class is not not supported.');
+  override set linksField(links: ArrayElement<LinkDescriptionElement> | undefined) {
+    throw new UnsupportedOperationError('linksField setter in Schema class is not not supported.');
   }
 
   get media(): MediaElement | undefined {
@@ -167,7 +171,7 @@ class Schema extends JSONSchemaElement {
    */
 
   get nullable(): BooleanElement | undefined {
-    return this.get('nullable');
+    return this.get('nullable') as BooleanElement | undefined;
   }
 
   set nullable(nullable: BooleanElement | undefined) {
@@ -175,7 +179,7 @@ class Schema extends JSONSchemaElement {
   }
 
   get discriminator(): DiscriminatorElement | undefined {
-    return this.get('discriminator');
+    return this.get('discriminator') as DiscriminatorElement | undefined;
   }
 
   set discriminator(discriminator: DiscriminatorElement | undefined) {
@@ -183,7 +187,7 @@ class Schema extends JSONSchemaElement {
   }
 
   get writeOnly(): BooleanElement | undefined {
-    return this.get('writeOnly');
+    return this.get('writeOnly') as BooleanElement | undefined;
   }
 
   set writeOnly(writeOnly: BooleanElement | undefined) {
@@ -191,7 +195,7 @@ class Schema extends JSONSchemaElement {
   }
 
   get xml(): XmlElement | undefined {
-    return this.get('xml');
+    return this.get('xml') as XmlElement | undefined;
   }
 
   set xml(xml: XmlElement | undefined) {
@@ -199,7 +203,7 @@ class Schema extends JSONSchemaElement {
   }
 
   get externalDocs(): ExternalDocumentationElement | undefined {
-    return this.get('externalDocs');
+    return this.get('externalDocs') as ExternalDocumentationElement | undefined;
   }
 
   set externalDocs(externalDocs: ExternalDocumentationElement | undefined) {
@@ -207,7 +211,7 @@ class Schema extends JSONSchemaElement {
   }
 
   get example(): Element | undefined {
-    return this.get('example');
+    return this.get('example') as Element | undefined;
   }
 
   set example(example: Element | undefined) {
@@ -215,7 +219,7 @@ class Schema extends JSONSchemaElement {
   }
 
   get deprecated(): BooleanElement | undefined {
-    return this.get('deprecated');
+    return this.get('deprecated') as BooleanElement | undefined;
   }
 
   set deprecated(deprecated: BooleanElement | undefined) {

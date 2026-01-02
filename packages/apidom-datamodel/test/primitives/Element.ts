@@ -247,8 +247,6 @@ describe('Element', function () {
     const meta = {
       id: 'foobar',
       classes: ['a'],
-      title: 'A Title',
-      description: 'A Description',
     };
 
     context('when the meta is already set', function () {
@@ -565,7 +563,7 @@ describe('Element', function () {
 
     specify('sets the parent of meta elements', function () {
       const element = new Element();
-      element.title = 'Example';
+      element.meta.set('title', 'Example');
       element.freeze();
 
       assert.strictEqual(element.meta.parent, element);
@@ -631,76 +629,13 @@ describe('Element', function () {
       // We must actually set values on meta/attributes for this test to work
       // We are protecting against trying to set parent on children elements
       const element = new Element(new Element(true));
-      element.title = 'Hello World';
+      element.meta.set('title', 'Hello World');
       element.attributes.set('version', 1.0);
 
       element.freeze();
       element.freeze();
 
       assert.isTrue(Object.isFrozen(element));
-    });
-  });
-
-  describe('#clone', function () {
-    specify('clones an element', function () {
-      const element = new Element('hello');
-      const cloned = element.clone();
-
-      assert.strictEqual(cloned.content, element.content);
-      assert.notStrictEqual(cloned, element);
-    });
-
-    specify('clones an element name', function () {
-      const element = new Element('hello');
-      element.element = 'test';
-      const cloned = element.clone();
-
-      assert.strictEqual(cloned.element, 'test');
-    });
-
-    specify('clones an element with child element', function () {
-      const child = new Element('child');
-      const element = new Element(child);
-      const cloned = element.clone();
-
-      assert.notStrictEqual(cloned.content, child);
-      assert.strictEqual((cloned.content as Element).content, 'child');
-    });
-
-    specify('clones an element with array of elements', function () {
-      const child = new Element('child');
-      const element = new Element([child]);
-      const cloned = element.clone();
-
-      assert.notStrictEqual((cloned.content as Element[])[0], child);
-      assert.strictEqual((cloned.content as Element[])[0].content, 'child');
-    });
-
-    specify('clones an element with key value pair', function () {
-      const child = new Element('name');
-      const element = new MemberElement(child);
-      const cloned = element.clone();
-
-      assert.notStrictEqual((cloned.content as KeyValuePair).key!, child);
-      assert.strictEqual((cloned.content as KeyValuePair).key!.content, 'name');
-    });
-
-    specify('clones meta values', function () {
-      const element = new Element();
-      element.title = 'Test';
-
-      const cloned = element.clone();
-
-      assert.strictEqual(cloned.title.toValue(), 'Test');
-    });
-
-    specify('clones attributes values', function () {
-      const element = new Element();
-      element.attributes.set('name', 'Test');
-
-      const cloned = element.clone();
-
-      assert.strictEqual(cloned.attributes.get('name')!.toValue(), 'Test');
     });
   });
 

@@ -1,4 +1,4 @@
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 import {
   isReferenceLikeElement,
   specificationObj as OpenApi3_1Specification,

@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import SchemaElement from '../../Schema.ts';
 import ReferenceElement from '../../Reference.ts';
@@ -14,7 +19,7 @@ class KafkaOperationBinding extends ObjectElement {
   }
 
   get groupId(): SchemaElement | ReferenceElement | undefined {
-    return this.get('groupId');
+    return this.get('groupId') as SchemaElement | ReferenceElement | undefined;
   }
 
   set groupId(groupId: SchemaElement | ReferenceElement | undefined) {
@@ -22,7 +27,7 @@ class KafkaOperationBinding extends ObjectElement {
   }
 
   get clientId(): SchemaElement | ReferenceElement | undefined {
-    return this.get('clientId');
+    return this.get('clientId') as SchemaElement | ReferenceElement | undefined;
   }
 
   set clientId(clientId: SchemaElement | ReferenceElement | undefined) {
@@ -30,7 +35,7 @@ class KafkaOperationBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

@@ -1,13 +1,18 @@
 import { assert, expect } from 'chai';
-import { ObjectElement, sexprs, toValue, find, isElement } from '@speclynx/apidom-core';
+import { ObjectElement, isElement } from '@speclynx/apidom-datamodel';
+import { sexprs, toValue, find } from '@speclynx/apidom-core';
 
-import { JSONSchemaElement, isJSONSchemaElement } from '../../../../src/index.ts';
+import {
+  refractJSONSchema,
+  JSONSchemaElement,
+  isJSONSchemaElement,
+} from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('JSONSchema', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const jsonSchemaElement = JSONSchemaElement.refract({
+        const jsonSchemaElement = refractJSONSchema({
           id: 'http://x.y.z/rootschema.json#',
           $schema: 'http://json-schema.org/draft-04/schema#',
           multipleOf: 1,
@@ -53,7 +58,7 @@ describe('refractor', function () {
 
     context('JSONSchema with alternate field values', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const jsonSchemaElement = JSONSchemaElement.refract({
+        const jsonSchemaElement = refractJSONSchema({
           additionalItems: true,
           items: {},
           additionalProperties: true,
@@ -67,7 +72,7 @@ describe('refractor', function () {
 
     context('given JSONSchema ancestors are embedded resources', function () {
       specify('should expose ancestors schema identifiers as metadata', function () {
-        const jsonSchemaElement = JSONSchemaElement.refract({
+        const jsonSchemaElement = refractJSONSchema({
           type: 'array',
           oneOf: [
             {
@@ -81,7 +86,7 @@ describe('refractor', function () {
           },
         });
         const foundJsonSchemaElement = find(
-          (e) => isJSONSchemaElement(e) && isElement(e.get('id')) && e.get('id').equals('id2'),
+          (e) => isJSONSchemaElement(e) && isElement(e.get('id')) && e.get('id')!.equals('id2'),
           jsonSchemaElement,
         );
         const ancestorsSchemaIdentifiers = foundJsonSchemaElement!.meta.get(
@@ -94,7 +99,7 @@ describe('refractor', function () {
 
     context('given JSONSchema switches dialect via parent schema', function () {
       specify('should expose ancestors schema dialect identifier as metadata', function () {
-        const jsonSchemaElement = JSONSchemaElement.refract({
+        const jsonSchemaElement = refractJSONSchema({
           type: 'object',
           oneOf: [
             {
@@ -113,11 +118,19 @@ describe('refractor', function () {
           'http://json-schema.org/draft-04/schema#',
         );
         assert.strictEqual(
-          toValue(jsonSchemaElement.items!.meta.get('inheritedDialectIdentifier')),
+          toValue(
+            (jsonSchemaElement.itemsField as JSONSchemaElement).meta.get(
+              'inheritedDialectIdentifier',
+            ),
+          ),
           'http://json-schema.org/draft-04/schema#',
         );
         assert.strictEqual(
-          toValue(jsonSchemaElement.oneOf!.get(0).items.meta.get('inheritedDialectIdentifier')),
+          toValue(
+            (jsonSchemaElement.oneOf!.get(0) as JSONSchemaElement).itemsField!.meta.get(
+              'inheritedDialectIdentifier',
+            ),
+          ),
           'schema1',
         );
       });
@@ -125,7 +138,7 @@ describe('refractor', function () {
 
     context('given fields of type JSONReference', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const jsonSchemaElement = JSONSchemaElement.refract({
+        const jsonSchemaElement = refractJSONSchema({
           additionalItems: { $ref: '#/json/pointer' },
           items: [{ $ref: '#/json/pointer' }],
           properties: { prop1: { $ref: '#/json/pointer' } },
@@ -148,7 +161,7 @@ describe('refractor', function () {
 
       beforeEach(function () {
         const propertiesKeyword = new ObjectElement({}, { classes: ['example'] }, { attr: true });
-        jsonSchemaElement = JSONSchemaElement.refract(
+        jsonSchemaElement = refractJSONSchema(
           new ObjectElement({ properties: propertiesKeyword }),
         ) as JSONSchemaElement;
       });
@@ -164,7 +177,7 @@ describe('refractor', function () {
       });
 
       specify('should deepmerge attributes', function () {
-        assert.isTrue(jsonSchemaElement.properties!.attributes.get('attr').equals(true));
+        assert.isTrue(jsonSchemaElement.properties!.attributes.get('attr')!.equals(true));
       });
     });
   });

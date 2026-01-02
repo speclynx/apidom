@@ -1,20 +1,21 @@
-import { Mixin } from 'ts-mixer';
-import { ArrayElement, Element, BREAK } from '@speclynx/apidom-core';
+import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
 import SourceDescriptionsElement from '../../../elements/nces/SourceDescriptions.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
+import {
+  BaseSpecificationFallbackVisitor,
+  BaseSpecificationFallbackVisitorOptions,
+} from './bases.ts';
 
 /**
  * @public
  */
-export interface SourceDescriptionsVisitorOptions
-  extends SpecificationVisitorOptions, FallbackVisitorOptions {}
+export interface SourceDescriptionsVisitorOptions extends BaseSpecificationFallbackVisitorOptions {}
 
 /**
  * @public
  */
-class SourceDescriptionsVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class SourceDescriptionsVisitor extends BaseSpecificationFallbackVisitor {
   public readonly element: SourceDescriptionsElement;
 
   constructor(options: SourceDescriptionsVisitorOptions) {

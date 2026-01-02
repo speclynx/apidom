@@ -5,7 +5,7 @@ import {
   StringElement,
   ArrayElement,
   ObjectElement,
-} from 'minim';
+} from '@speclynx/apidom-datamodel';
 
 import { visit } from '../../traversal/visitor.ts';
 import serializeValue from './value/index.ts';

@@ -1,6 +1,7 @@
 import { JSONPath } from 'jsonpath-plus';
 import { evaluate as jsonPointerEvaluate } from '@speclynx/apidom-json-pointer';
-import { Element, toValue, cloneDeep } from '@speclynx/apidom-core';
+import { Element } from '@speclynx/apidom-datamodel';
+import { toValue, cloneDeep } from '@speclynx/apidom-core';
 
 import MultiEvaluationJsonPathError from './errors/MultiEvaluationJsonPathError.ts';
 
@@ -23,7 +24,7 @@ export type EvaluateMulti = {
  */
 const evaluateMulti: EvaluateMulti = (paths, element) => {
   try {
-    const json = toValue(element);
+    const json = toValue(element) as object;
     const results: JSONPathEvalTuple[] = [];
 
     for (const path of paths) {
@@ -31,7 +32,7 @@ const evaluateMulti: EvaluateMulti = (paths, element) => {
         path,
         json,
         resultType: 'pointer',
-      }) as string[];
+      }) as unknown as string[];
 
       const endPointValues: Element[] = [];
       for (const pointer of pointers) {

@@ -13,9 +13,8 @@ import {
   ParseResultElement,
   AnnotationElement,
   isObjectElement,
-  toValue,
-  cloneDeep,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
+import { toValue, cloneDeep } from '@speclynx/apidom-core';
 import { dereferenceApiDOM, ReferenceSet, Reference, url } from '@speclynx/apidom-reference';
 
 import type { Toolbox } from '../toolbox.ts';
@@ -86,7 +85,7 @@ const securitySchemeTypeRefractorPlugin =
             });
 
             if (isRemovableSecuritySchemeElement(dereferenced)) {
-              element.securitySchemes.remove(toValue(memberElement.key));
+              element.securitySchemes.remove(toValue(memberElement.key) as string);
               annotations.push(createAnnotation(referenceElement));
             }
           }
@@ -97,7 +96,7 @@ const securitySchemeTypeRefractorPlugin =
           element.securitySchemes.forEach((value, key) => {
             if (isRemovableSecuritySchemeElement(value)) {
               if (!removedSecuritySchemes.includes(value)) removedSecuritySchemes.push(value);
-              (element.securitySchemes as SecuritySchemeElement).remove(toValue(key));
+              (element.securitySchemes as SecuritySchemeElement).remove(toValue(key) as string);
               annotations.push(createAnnotation(value));
             }
           });
@@ -115,7 +114,7 @@ const securitySchemeTypeRefractorPlugin =
             );
 
             if (isSecuritySchemeElement(removedSecurityScheme)) {
-              keysToRemove.push(toValue(key));
+              keysToRemove.push(toValue(key) as string);
               annotations.push(createAnnotation(value));
             }
           });

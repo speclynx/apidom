@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { SecuritySchemeElement } from '../../../../src/index.ts';
+import { refractSecurityScheme } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('SecuritySchemeElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const securitySchemeElement = SecuritySchemeElement.refract({
+        const securitySchemeElement = refractSecurityScheme({
           type: 'security-scheme-type',
           description: 'This is a sample server for a pet store.',
           name: 'security-scheme-name',

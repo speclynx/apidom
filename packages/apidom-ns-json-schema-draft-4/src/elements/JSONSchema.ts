@@ -7,15 +7,19 @@ import {
   BooleanElement,
   Attributes,
   Meta,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 
 import JSONReferenceElement from './JSONReference.ts';
 import MediaElement from './Media.ts';
+import LinkDescriptionElement from './LinkDescription.ts';
+import type { FixedField } from '../refractor/inspect.ts';
 
 /**
  * @public
  */
 class JSONSchema extends ObjectElement {
+  declare static fixedFields: FixedField[];
+
   constructor(content?: Record<string, unknown>, meta?: Meta, attributes?: Attributes) {
     super(content, meta, attributes);
     this.element = 'JSONSchemaDraft4';
@@ -27,16 +31,16 @@ class JSONSchema extends ObjectElement {
    * URI: https://tools.ietf.org/html/draft-wright-json-schema-00
    */
 
-  get idProp(): StringElement | undefined {
-    return this.get('id');
+  get idField(): StringElement | undefined {
+    return this.get('id') as StringElement | undefined;
   }
 
-  set idProp(idProp: StringElement | undefined) {
-    this.set('id', idProp);
+  set idField(idField: StringElement | undefined) {
+    this.set('id', idField);
   }
 
   get $schema(): StringElement | undefined {
-    return this.get('$schema');
+    return this.get('$schema') as StringElement | undefined;
   }
 
   set $schema($schema: StringElement | undefined) {
@@ -54,7 +58,7 @@ class JSONSchema extends ObjectElement {
    */
 
   get multipleOf(): NumberElement | undefined {
-    return this.get('multipleOf');
+    return this.get('multipleOf') as NumberElement | undefined;
   }
 
   set multipleOf(multipleOf: NumberElement | undefined) {
@@ -62,7 +66,7 @@ class JSONSchema extends ObjectElement {
   }
 
   get maximum(): NumberElement | undefined {
-    return this.get('maximum');
+    return this.get('maximum') as NumberElement | undefined;
   }
 
   set maximum(maximum: NumberElement | undefined) {
@@ -70,7 +74,7 @@ class JSONSchema extends ObjectElement {
   }
 
   get exclusiveMaximum(): BooleanElement | undefined {
-    return this.get('exclusiveMaximum');
+    return this.get('exclusiveMaximum') as BooleanElement | undefined;
   }
 
   set exclusiveMaximum(exclusiveMaximum: BooleanElement | undefined) {
@@ -78,7 +82,7 @@ class JSONSchema extends ObjectElement {
   }
 
   get minimum(): NumberElement | undefined {
-    return this.get('minimum');
+    return this.get('minimum') as NumberElement | undefined;
   }
 
   set minimum(minimum: NumberElement | undefined) {
@@ -86,7 +90,7 @@ class JSONSchema extends ObjectElement {
   }
 
   get exclusiveMinimum(): BooleanElement | undefined {
-    return this.get('exclusiveMinimum');
+    return this.get('exclusiveMinimum') as BooleanElement | undefined;
   }
 
   set exclusiveMinimum(exclusiveMinimum: BooleanElement | undefined) {
@@ -98,7 +102,7 @@ class JSONSchema extends ObjectElement {
    */
 
   get maxLength(): NumberElement | undefined {
-    return this.get('maxLength');
+    return this.get('maxLength') as NumberElement | undefined;
   }
 
   set maxLength(maxLength: NumberElement | undefined) {
@@ -106,7 +110,7 @@ class JSONSchema extends ObjectElement {
   }
 
   get minLength(): NumberElement | undefined {
-    return this.get('minLength');
+    return this.get('minLength') as NumberElement | undefined;
   }
 
   set minLength(minLength: NumberElement | undefined) {
@@ -114,7 +118,7 @@ class JSONSchema extends ObjectElement {
   }
 
   get pattern(): StringElement | undefined {
-    return this.get('pattern');
+    return this.get('pattern') as StringElement | undefined;
   }
 
   set pattern(pattern: StringElement | undefined) {
@@ -126,23 +130,33 @@ class JSONSchema extends ObjectElement {
    */
 
   get additionalItems(): this | JSONReferenceElement | BooleanElement | undefined {
-    return this.get('additionalItems');
+    return this.get('additionalItems') as this | JSONReferenceElement | BooleanElement | undefined;
   }
 
   set additionalItems(additionalItems: this | JSONReferenceElement | BooleanElement | undefined) {
     this.set('additionalItems', additionalItems);
   }
 
-  get items(): this | JSONReferenceElement | ArrayElement | undefined {
-    return this.get('items');
+  get itemsField():
+    | this
+    | JSONReferenceElement
+    | ArrayElement<this | JSONReferenceElement>
+    | undefined {
+    return this.get('items') as
+      | this
+      | JSONReferenceElement
+      | ArrayElement<this | JSONReferenceElement>
+      | undefined;
   }
 
-  set items(items: this | JSONReferenceElement | ArrayElement | undefined) {
+  set itemsField(
+    items: this | JSONReferenceElement | ArrayElement<this | JSONReferenceElement> | undefined,
+  ) {
     this.set('items', items);
   }
 
   get maxItems(): NumberElement | undefined {
-    return this.get('maxItems');
+    return this.get('maxItems') as NumberElement | undefined;
   }
 
   set maxItems(maxItems: NumberElement | undefined) {
@@ -150,7 +164,7 @@ class JSONSchema extends ObjectElement {
   }
 
   get minItems(): NumberElement | undefined {
-    return this.get('minItems');
+    return this.get('minItems') as NumberElement | undefined;
   }
 
   set minItems(minItems: NumberElement | undefined) {
@@ -158,7 +172,7 @@ class JSONSchema extends ObjectElement {
   }
 
   get uniqueItems(): BooleanElement | undefined {
-    return this.get('uniqueItems');
+    return this.get('uniqueItems') as BooleanElement | undefined;
   }
 
   set uniqueItems(uniqueItems: BooleanElement | undefined) {
@@ -170,7 +184,7 @@ class JSONSchema extends ObjectElement {
    */
 
   get maxProperties(): NumberElement | undefined {
-    return this.get('maxProperties');
+    return this.get('maxProperties') as NumberElement | undefined;
   }
 
   set maxProperties(maxProperties: NumberElement | undefined) {
@@ -178,23 +192,23 @@ class JSONSchema extends ObjectElement {
   }
 
   get minProperties(): NumberElement | undefined {
-    return this.get('minProperties');
+    return this.get('minProperties') as NumberElement | undefined;
   }
 
   set minProperties(minProperties: NumberElement | undefined) {
     this.set('minProperties', minProperties);
   }
 
-  get required(): ArrayElement | undefined {
-    return this.get('required');
+  get required(): ArrayElement<StringElement> | undefined {
+    return this.get('required') as ArrayElement<StringElement> | undefined;
   }
 
-  set required(required: ArrayElement | undefined) {
+  set required(required: ArrayElement<StringElement> | undefined) {
     this.set('required', required);
   }
 
   get properties(): ObjectElement | undefined {
-    return this.get('properties');
+    return this.get('properties') as ObjectElement | undefined;
   }
 
   set properties(properties: ObjectElement | undefined) {
@@ -202,7 +216,11 @@ class JSONSchema extends ObjectElement {
   }
 
   get additionalProperties(): this | JSONReferenceElement | BooleanElement | undefined {
-    return this.get('additionalProperties');
+    return this.get('additionalProperties') as
+      | this
+      | JSONReferenceElement
+      | BooleanElement
+      | undefined;
   }
 
   set additionalProperties(
@@ -212,7 +230,7 @@ class JSONSchema extends ObjectElement {
   }
 
   get patternProperties(): ObjectElement | undefined {
-    return this.get('patternProperties');
+    return this.get('patternProperties') as ObjectElement | undefined;
   }
 
   set patternProperties(patternProperties: ObjectElement | undefined) {
@@ -220,7 +238,7 @@ class JSONSchema extends ObjectElement {
   }
 
   get dependencies(): ObjectElement | undefined {
-    return this.get('dependencies');
+    return this.get('dependencies') as ObjectElement | undefined;
   }
 
   set dependencies(dependencies: ObjectElement | undefined) {
@@ -231,48 +249,48 @@ class JSONSchema extends ObjectElement {
    *  Validation keywords for any instance type
    */
 
-  get enum(): ArrayElement | undefined {
-    return this.get('enum');
+  get enum(): ArrayElement<Element> | undefined {
+    return this.get('enum') as ArrayElement<Element> | undefined;
   }
 
-  set enum(enumValue: ArrayElement | undefined) {
+  set enum(enumValue: ArrayElement<Element> | undefined) {
     this.set('enum', enumValue);
   }
 
-  get type(): ArrayElement | StringElement | undefined {
-    return this.get('type');
+  get type(): ArrayElement<StringElement> | StringElement | undefined {
+    return this.get('type') as ArrayElement<StringElement> | StringElement | undefined;
   }
 
-  set type(type: ArrayElement | StringElement | undefined) {
+  set type(type: ArrayElement<StringElement> | StringElement | undefined) {
     this.set('type', type);
   }
 
-  get allOf(): ArrayElement | undefined {
-    return this.get('allOf');
+  get allOf(): ArrayElement<this | JSONReferenceElement> | undefined {
+    return this.get('allOf') as ArrayElement<this | JSONReferenceElement> | undefined;
   }
 
-  set allOf(allOf: ArrayElement | undefined) {
+  set allOf(allOf: ArrayElement<this | JSONReferenceElement> | undefined) {
     this.set('allOf', allOf);
   }
 
-  get anyOf(): ArrayElement | undefined {
-    return this.get('anyOf');
+  get anyOf(): ArrayElement<this | JSONReferenceElement> | undefined {
+    return this.get('anyOf') as ArrayElement<this | JSONReferenceElement> | undefined;
   }
 
-  set anyOf(anyOf: ArrayElement | undefined) {
+  set anyOf(anyOf: ArrayElement<this | JSONReferenceElement> | undefined) {
     this.set('anyOf', anyOf);
   }
 
-  get oneOf(): ArrayElement | undefined {
-    return this.get('oneOf');
+  get oneOf(): ArrayElement<this | JSONReferenceElement> | undefined {
+    return this.get('oneOf') as ArrayElement<this | JSONReferenceElement> | undefined;
   }
 
-  set oneOf(oneOf: ArrayElement | undefined) {
+  set oneOf(oneOf: ArrayElement<this | JSONReferenceElement> | undefined) {
     this.set('oneOf', oneOf);
   }
 
   get not(): this | JSONReferenceElement | undefined {
-    return this.get('not');
+    return this.get('not') as this | JSONReferenceElement | undefined;
   }
 
   set not(not: this | JSONReferenceElement | undefined) {
@@ -280,7 +298,7 @@ class JSONSchema extends ObjectElement {
   }
 
   get definitions(): ObjectElement | undefined {
-    return this.get('definitions');
+    return this.get('definitions') as ObjectElement | undefined;
   }
 
   set definitions(definitions: ObjectElement | undefined) {
@@ -294,7 +312,7 @@ class JSONSchema extends ObjectElement {
    */
 
   get title(): StringElement | undefined {
-    return this.get('title');
+    return this.get('title') as StringElement | undefined;
   }
 
   set title(title: StringElement | undefined) {
@@ -302,7 +320,7 @@ class JSONSchema extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -310,7 +328,7 @@ class JSONSchema extends ObjectElement {
   }
 
   get default(): Element | undefined {
-    return this.get('default');
+    return this.get('default') as Element | undefined;
   }
 
   set default(defaultValue: Element | undefined) {
@@ -324,7 +342,7 @@ class JSONSchema extends ObjectElement {
    */
 
   get format(): StringElement | undefined {
-    return this.get('format');
+    return this.get('format') as StringElement | undefined;
   }
 
   set format(format: StringElement | undefined) {
@@ -338,23 +356,23 @@ class JSONSchema extends ObjectElement {
    */
 
   get base(): StringElement | undefined {
-    return this.get('base');
+    return this.get('base') as StringElement | undefined;
   }
 
   set base(base: StringElement | undefined) {
     this.set('base', base);
   }
 
-  get links(): ArrayElement | undefined {
-    return this.get('links');
+  get linksField(): ArrayElement<LinkDescriptionElement> | undefined {
+    return this.get('links') as ArrayElement<LinkDescriptionElement> | undefined;
   }
 
-  set links(links: ArrayElement | undefined) {
+  set linksField(links: ArrayElement<LinkDescriptionElement> | undefined) {
     this.set('links', links);
   }
 
   get media(): MediaElement | undefined {
-    return this.get('media');
+    return this.get('media') as MediaElement | undefined;
   }
 
   set media(media: MediaElement | undefined) {
@@ -362,7 +380,7 @@ class JSONSchema extends ObjectElement {
   }
 
   get readOnly(): BooleanElement | undefined {
-    return this.get('readOnly');
+    return this.get('readOnly') as BooleanElement | undefined;
   }
 
   set readOnly(readOnly: BooleanElement | undefined) {

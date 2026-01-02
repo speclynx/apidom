@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { LinkElement } from '../../../../src/index.ts';
+import { refractLink } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('LinkElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const linkElement = LinkElement.refract({
+        const linkElement = refractLink({
           operationRef: './operation.json',
           operationId: 'op1',
           parameters: {

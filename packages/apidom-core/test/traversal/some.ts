@@ -1,9 +1,10 @@
 import { assert } from 'chai';
 import { F as stubFalse } from 'ramda';
+import { Namespace, isMemberElement } from '@speclynx/apidom-datamodel';
 
-import { some, createNamespace, isMemberElement } from '../../src/index.ts';
+import { some } from '../../src/index.ts';
 
-const namespace = createNamespace();
+const namespace = new Namespace();
 
 describe('traversal', function () {
   context('some', function () {

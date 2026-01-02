@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { JSONReferenceElement } from '../../../../src/index.ts';
+import { refractJSONReference } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('JSONReference', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const jsonReferenceElement = JSONReferenceElement.refract({
+        const jsonReferenceElement = refractJSONReference({
           $ref: 'https://example.com/#/json/pointer',
         });
 

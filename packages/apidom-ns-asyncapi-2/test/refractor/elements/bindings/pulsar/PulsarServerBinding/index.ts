@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { PulsarServerBindingElement } from '../../../../../../src/index.ts';
+import { refractPulsarServerBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('PulsarServerBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const pulsarServerBindingElement = PulsarServerBindingElement.refract({
+        const pulsarServerBindingElement = refractPulsarServerBinding({
           tenant: 'public',
           version: '0.1.0',
         });

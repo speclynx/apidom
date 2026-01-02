@@ -1,9 +1,14 @@
 import { expect } from 'chai';
 import dedent from 'dedent';
-import { sexprs, SourceMapElement } from '@speclynx/apidom-core';
+import { SourceMapElement } from '@speclynx/apidom-datamodel';
+import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
-import { refractorPluginReplaceEmptyElement, SwaggerElement } from '../../../../src/index.ts';
+import {
+  refractorPluginReplaceEmptyElement,
+  refractSwagger,
+  SwaggerElement,
+} from '../../../../src/index.ts';
 
 describe('given empty value instead of InfoElement', function () {
   it('should replace empty value with semantic element', async function () {
@@ -12,7 +17,7 @@ describe('given empty value instead of InfoElement', function () {
           info:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const swaggerElement = SwaggerElement.refract(apiDOM.result, {
+    const swaggerElement = refractSwagger(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -28,7 +33,7 @@ describe('given empty value instead of ContactElement', function () {
             contact:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const swaggerElement = SwaggerElement.refract(apiDOM.result, {
+    const swaggerElement = refractSwagger(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -46,10 +51,10 @@ describe('given empty value instead for Operation.parameters', function () {
                 parameters:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const swaggerElement = SwaggerElement.refract(apiDOM.result, {
+    const swaggerElement = refractSwagger(apiDOM.result!, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as SwaggerElement;
-    const isOperationParameters = swaggerElement
+    const isOperationParameters = (swaggerElement as any)
       .get('paths')
       .get('/path')
       .get('get')
@@ -69,7 +74,7 @@ describe('given empty value instead for Swagger.definitions.Schema1', function (
             Schema1:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const swaggerElement = SwaggerElement.refract(apiDOM.result, {
+    const swaggerElement = refractSwagger(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as SwaggerElement;
 
@@ -87,7 +92,7 @@ describe('given empty value instead for Schema.properties.*', function () {
                 firstName:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const swaggerElement = SwaggerElement.refract(apiDOM.result, {
+    const swaggerElement = refractSwagger(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as SwaggerElement;
 
@@ -102,7 +107,7 @@ describe('given OpenAPI definition with no empty values', function () {
           info: {}
         `;
     const apiDOM = await parse(yamlDefinition);
-    const swaggerElement = SwaggerElement.refract(apiDOM.result, {
+    const swaggerElement = refractSwagger(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as SwaggerElement;
 
@@ -117,16 +122,16 @@ describe('given OpenAPI definition with empty values', function () {
           info:
         `;
     const apiDOM = await parse(yamlDefinition, { sourceMap: true });
-    const swaggerElement = SwaggerElement.refract(apiDOM.result, {
+    const swaggerElement = refractSwagger(apiDOM.result!, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as SwaggerElement;
     const { info: infoValue } = swaggerElement;
-    const sourceMap = infoValue?.meta.get('sourceMap');
+    const sourceMap = infoValue?.meta.get('sourceMap') as SourceMapElement;
     const { positionStart, positionEnd } = sourceMap;
     const expectedPosition = [1, 5, 20];
 
     expect(infoValue?.meta.get('sourceMap')).to.be.an.instanceof(SourceMapElement);
-    expect(positionStart.equals(expectedPosition)).to.be.true;
-    expect(positionEnd.equals(expectedPosition)).to.be.true;
+    expect(positionStart!.equals(expectedPosition)).to.be.true;
+    expect(positionEnd!.equals(expectedPosition)).to.be.true;
   });
 });

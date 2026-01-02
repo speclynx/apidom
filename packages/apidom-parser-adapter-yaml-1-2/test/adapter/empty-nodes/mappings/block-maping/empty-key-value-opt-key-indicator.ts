@@ -1,6 +1,7 @@
 import { assert } from 'chai';
 import dedent from 'dedent';
-import { includesClasses, toValue, SourceMapElement } from '@speclynx/apidom-core';
+import { includesClasses, SourceMapElement } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 import * as adapter from '../../../../../src/adapter.ts';
 
@@ -20,7 +21,7 @@ describe('given block mapping pair specified as optional “?” mapping key ind
   it('should create empty key element', async function () {
     const emptyElement = await setupEmptyKeyElement();
 
-    assert.isTrue(includesClasses(['yaml-e-node', 'yaml-e-scalar'], emptyElement));
+    assert.isTrue(includesClasses(emptyElement, ['yaml-e-node', 'yaml-e-scalar']));
   });
 
   it('should generate source maps for empty key', async function () {
@@ -61,7 +62,7 @@ describe('given block mapping pair specified as optional “?” mapping key ind
   it('should create empty value element', async function () {
     const emptyElement = await setupEmptyValueElement();
 
-    assert.isTrue(includesClasses(['yaml-e-node', 'yaml-e-scalar'], emptyElement));
+    assert.isTrue(includesClasses(emptyElement, ['yaml-e-node', 'yaml-e-scalar']));
   });
 
   it('should generate source maps for empty value', async function () {

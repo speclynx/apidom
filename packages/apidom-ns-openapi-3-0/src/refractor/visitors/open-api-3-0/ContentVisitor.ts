@@ -1,24 +1,23 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
-
-/**
- * @public
- */
-export interface ContentVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+import { SpecPath } from '../generics/MapVisitor.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from './bases.ts';
 
 /**
  * @public
  */
-class ContentVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+export type { BaseMapVisitorOptions as ContentVisitorOptions };
+
+/**
+ * @public
+ */
+class ContentVisitor extends BaseMapVisitor {
   declare public readonly element: ObjectElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'MediaType']>;
 
-  constructor(options: ContentVisitorOptions) {
+  constructor(options: BaseMapVisitorOptions) {
     super(options);
     this.element = new ObjectElement();
     this.element.classes.push('content');

@@ -1,17 +1,20 @@
 import {
-  Attributes,
-  Meta,
+  type Attributes,
+  type Meta,
   ArrayElement,
   BooleanElement,
   ObjectElement,
   StringElement,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 import { UnsupportedOperationError } from '@speclynx/apidom-error';
 import {
   JSONReferenceElement,
   JSONSchemaElement,
   MediaElement,
+  LinkDescriptionElement,
 } from '@speclynx/apidom-ns-json-schema-draft-4';
+
+import type XmlElement from './Xml.ts';
 
 /**
  * @public
@@ -28,12 +31,12 @@ class Schema extends JSONSchemaElement {
    *
    * URI: https://tools.ietf.org/html/draft-wright-json-schema-00
    */
-  get idProp(): StringElement | undefined {
-    throw new UnsupportedOperationError('idProp getter in Schema class is not not supported.');
+  get idField(): StringElement | undefined {
+    throw new UnsupportedOperationError('idField getter in Schema class is not not supported.');
   }
 
-  set idProp(idProps: StringElement | undefined) {
-    throw new UnsupportedOperationError('idProp setter in Schema class is not not supported.');
+  set idField(idField: StringElement | undefined) {
+    throw new UnsupportedOperationError('idField setter in Schema class is not not supported.');
   }
 
   get $schema(): StringElement | undefined {
@@ -91,19 +94,19 @@ class Schema extends JSONSchemaElement {
   /**
    *  Validation keywords for any instance type
    */
-  get anyOf(): ArrayElement | undefined {
+  get anyOf(): ArrayElement<this | JSONReferenceElement> | undefined {
     throw new UnsupportedOperationError('anyOf getter in Schema class is not not supported.');
   }
 
-  set anyOf(anyOf: ArrayElement | undefined) {
+  set anyOf(anyOf: ArrayElement<this | JSONReferenceElement> | undefined) {
     throw new UnsupportedOperationError('anyOf setter in Schema class is not not supported.');
   }
 
-  get oneOf(): ArrayElement | undefined {
+  get oneOf(): ArrayElement<this | JSONReferenceElement> | undefined {
     throw new UnsupportedOperationError('oneOf getter in Schema class is not not supported.');
   }
 
-  set oneOf(oneOf: ArrayElement | undefined) {
+  set oneOf(oneOf: ArrayElement<this | JSONReferenceElement> | undefined) {
     throw new UnsupportedOperationError('oneOf setter in Schema class is not not supported.');
   }
 
@@ -137,12 +140,12 @@ class Schema extends JSONSchemaElement {
     throw new UnsupportedOperationError('base setter in Schema class is not not supported.');
   }
 
-  get links(): ArrayElement | undefined {
-    throw new UnsupportedOperationError('links getter in Schema class is not not supported.');
+  get linksField(): ArrayElement<LinkDescriptionElement> | undefined {
+    throw new UnsupportedOperationError('linksField getter in Schema class is not not supported.');
   }
 
-  set links(links: ArrayElement | undefined) {
-    throw new UnsupportedOperationError('links setter in Schema class is not not supported.');
+  set linksField(links: ArrayElement<LinkDescriptionElement> | undefined) {
+    throw new UnsupportedOperationError('linksField setter in Schema class is not not supported.');
   }
 
   get media(): MediaElement | undefined {
@@ -151,6 +154,50 @@ class Schema extends JSONSchemaElement {
 
   set media(media: MediaElement | undefined) {
     throw new UnsupportedOperationError('media setter in Schema class is not not supported.');
+  }
+
+  /**
+   * OpenAPI 2.0 specific
+   */
+
+  get xml(): XmlElement | undefined {
+    return this.get('xml') as XmlElement | undefined;
+  }
+
+  set xml(xml: XmlElement | undefined) {
+    this.set('xml', xml);
+  }
+
+  get discriminator(): StringElement | undefined {
+    return this.get('discriminator') as StringElement | undefined;
+  }
+
+  set discriminator(discriminator: StringElement | undefined) {
+    this.set('discriminator', discriminator);
+  }
+
+  get readOnly(): BooleanElement | undefined {
+    return this.get('readOnly') as BooleanElement | undefined;
+  }
+
+  set readOnly(readOnly: BooleanElement | undefined) {
+    this.set('readOnly', readOnly);
+  }
+
+  get externalDocs(): ObjectElement | undefined {
+    return this.get('externalDocs') as ObjectElement | undefined;
+  }
+
+  set externalDocs(externalDocs: ObjectElement | undefined) {
+    this.set('externalDocs', externalDocs);
+  }
+
+  get example(): unknown {
+    return this.get('example');
+  }
+
+  set example(example: unknown) {
+    this.set('example', example);
   }
 }
 

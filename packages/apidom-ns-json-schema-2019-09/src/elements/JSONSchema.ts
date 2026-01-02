@@ -6,14 +6,18 @@ import {
   BooleanElement,
   Attributes,
   Meta,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 import { UnsupportedOperationError } from '@speclynx/apidom-error';
-import { JSONSchemaElement } from '@speclynx/apidom-ns-json-schema-draft-7';
+import { JSONSchemaElement, JSONReferenceElement } from '@speclynx/apidom-ns-json-schema-draft-7';
+
+import type { FixedField } from '../refractor/inspect.ts';
 
 /**
  * @public
  */
 class JSONSchema extends JSONSchemaElement {
+  declare static fixedFields: FixedField[];
+
   constructor(content?: Record<string, unknown>, meta?: Meta, attributes?: Attributes) {
     super(content, meta, attributes);
     this.element = 'JSONSchema201909';
@@ -26,7 +30,7 @@ class JSONSchema extends JSONSchemaElement {
    */
 
   get $vocabulary(): ObjectElement | undefined {
-    return this.get('$vocabulary');
+    return this.get('$vocabulary') as ObjectElement | undefined;
   }
 
   set $vocabulary($vocabulary: ObjectElement | undefined) {
@@ -34,7 +38,7 @@ class JSONSchema extends JSONSchemaElement {
   }
 
   get $anchor(): StringElement | undefined {
-    return this.get('$anchor');
+    return this.get('$anchor') as StringElement | undefined;
   }
 
   set $anchor($anchor: StringElement | undefined) {
@@ -42,7 +46,7 @@ class JSONSchema extends JSONSchemaElement {
   }
 
   get $recursiveAnchor(): BooleanElement | undefined {
-    return this.get('$recursiveAnchor');
+    return this.get('$recursiveAnchor') as BooleanElement | undefined;
   }
 
   set $recursiveAnchor($recursiveAnchor: BooleanElement | undefined) {
@@ -50,7 +54,7 @@ class JSONSchema extends JSONSchemaElement {
   }
 
   get $recursiveRef(): StringElement | undefined {
-    return this.get('$recursiveRef');
+    return this.get('$recursiveRef') as StringElement | undefined;
   }
 
   set $recursiveRef($recursiveRef: StringElement | undefined) {
@@ -58,7 +62,7 @@ class JSONSchema extends JSONSchemaElement {
   }
 
   get $ref(): StringElement | undefined {
-    return this.get('$ref');
+    return this.get('$ref') as StringElement | undefined;
   }
 
   set $ref($ref: StringElement | undefined) {
@@ -66,20 +70,20 @@ class JSONSchema extends JSONSchemaElement {
   }
 
   get $defs(): ObjectElement | undefined {
-    return this.get('$defs');
+    return this.get('$defs') as ObjectElement | undefined;
   }
 
   set $defs($defs: ObjectElement | undefined) {
     this.set('$defs', $defs);
   }
 
-  get definitions(): ObjectElement | undefined {
+  override get definitions(): ObjectElement | undefined {
     throw new UnsupportedOperationError(
       'definitions keyword from Validation vocabulary has been renamed to $defs.',
     );
   }
 
-  set definitions(definitions: ObjectElement | undefined) {
+  override set definitions(_definitions: ObjectElement | undefined) {
     throw new UnsupportedOperationError(
       'definitions keyword from Validation vocabulary has been renamed to $defs.',
     );
@@ -91,111 +95,144 @@ class JSONSchema extends JSONSchemaElement {
    * URI: https://json-schema.org/draft/2019-09/vocab/applicator
    */
 
-  get not(): this | BooleanElement | undefined {
-    return this.get('not');
+  override get not(): this | BooleanElement | JSONReferenceElement | undefined {
+    return this.get('not') as this | BooleanElement | JSONReferenceElement | undefined;
   }
 
-  set not(not: this | BooleanElement | undefined) {
+  override set not(not: this | BooleanElement | JSONReferenceElement | undefined) {
     this.set('not', not);
   }
 
-  get if(): this | BooleanElement | undefined {
-    return this.get('if');
+  override get if(): this | BooleanElement | JSONReferenceElement | undefined {
+    return this.get('if') as this | BooleanElement | JSONReferenceElement | undefined;
   }
 
-  set if(ifSchema: this | BooleanElement | undefined) {
+  override set if(ifSchema: this | BooleanElement | JSONReferenceElement | undefined) {
     this.set('if', ifSchema);
   }
 
-  get then(): this | BooleanElement | undefined {
-    return this.get('then');
+  override get then(): this | BooleanElement | JSONReferenceElement | undefined {
+    return this.get('then') as this | BooleanElement | JSONReferenceElement | undefined;
   }
 
-  set then(thenSchema: this | BooleanElement | undefined) {
+  override set then(thenSchema: this | BooleanElement | JSONReferenceElement | undefined) {
     this.set('then', thenSchema);
   }
 
-  get else(): this | BooleanElement | undefined {
-    return this.get('else');
+  override get else(): this | BooleanElement | JSONReferenceElement | undefined {
+    return this.get('else') as this | BooleanElement | JSONReferenceElement | undefined;
   }
 
-  set else(elseSchema: this | BooleanElement | undefined) {
+  override set else(elseSchema: this | BooleanElement | JSONReferenceElement | undefined) {
     this.set('else', elseSchema);
   }
 
   get dependentSchemas(): ObjectElement | undefined {
-    return this.get('dependentSchemas');
+    return this.get('dependentSchemas') as ObjectElement | undefined;
   }
 
   set dependentSchemas(dependentSchemas: ObjectElement | undefined) {
     this.set('dependentSchemas', dependentSchemas);
   }
 
-  get dependencies(): ObjectElement | undefined {
+  override get dependencies(): ObjectElement | undefined {
     throw new UnsupportedOperationError(
       'dependencies keyword from Validation vocabulary has been renamed to dependentSchemas.',
     );
   }
 
-  set dependencies(dependencies: ObjectElement | undefined) {
+  override set dependencies(_dependencies: ObjectElement | undefined) {
     throw new UnsupportedOperationError(
       'dependencies keyword from Validation vocabulary has been renamed to dependentSchemas.',
     );
   }
 
-  get items(): this | BooleanElement | ArrayElement | undefined {
-    return this.get('items');
+  override get itemsField():
+    | this
+    | BooleanElement
+    | JSONReferenceElement
+    | ArrayElement<this | BooleanElement | JSONReferenceElement>
+    | undefined {
+    return this.get('items') as
+      | this
+      | BooleanElement
+      | JSONReferenceElement
+      | ArrayElement<this | BooleanElement | JSONReferenceElement>
+      | undefined;
   }
 
-  set items(items: this | BooleanElement | ArrayElement | undefined) {
+  override set itemsField(
+    items:
+      | this
+      | BooleanElement
+      | JSONReferenceElement
+      | ArrayElement<this | BooleanElement | JSONReferenceElement>
+      | undefined,
+  ) {
     this.set('items', items);
   }
 
-  get containsProp(): this | BooleanElement | undefined {
-    return this.get('contains');
+  get contains(): this | BooleanElement | JSONReferenceElement | undefined {
+    return this.get('contains') as this | BooleanElement | JSONReferenceElement | undefined;
   }
 
-  set containsProp(containsProp: this | BooleanElement | undefined) {
-    this.set('contains', containsProp);
+  set contains(contains: this | BooleanElement | JSONReferenceElement | undefined) {
+    this.set('contains', contains);
   }
 
-  get additionalProperties(): this | BooleanElement | undefined {
-    return this.get('additionalProperties');
+  override get additionalProperties(): this | BooleanElement | JSONReferenceElement | undefined {
+    return this.get('additionalProperties') as
+      | this
+      | BooleanElement
+      | JSONReferenceElement
+      | undefined;
   }
 
-  set additionalProperties(additionalProperties: this | BooleanElement | undefined) {
+  override set additionalProperties(
+    additionalProperties: this | BooleanElement | JSONReferenceElement | undefined,
+  ) {
     this.set('additionalProperties', additionalProperties);
   }
 
-  get additionalItems(): this | BooleanElement | undefined {
-    return this.get('additionalItems');
+  override get additionalItems(): this | BooleanElement | JSONReferenceElement | undefined {
+    return this.get('additionalItems') as this | BooleanElement | JSONReferenceElement | undefined;
   }
 
-  set additionalItems(additionalItems: this | BooleanElement | undefined) {
+  override set additionalItems(
+    additionalItems: this | BooleanElement | JSONReferenceElement | undefined,
+  ) {
     this.set('additionalItems', additionalItems);
   }
 
-  get propertyNames(): this | BooleanElement | undefined {
-    return this.get('propertyNames');
+  override get propertyNames(): this | BooleanElement | JSONReferenceElement | undefined {
+    return this.get('propertyNames') as this | BooleanElement | JSONReferenceElement | undefined;
   }
 
-  set propertyNames(propertyNames: this | BooleanElement | undefined) {
+  override set propertyNames(
+    propertyNames: this | BooleanElement | JSONReferenceElement | undefined,
+  ) {
     this.set('propertyNames', propertyNames);
   }
 
-  get unevaluatedItems(): this | BooleanElement | undefined {
-    return this.get('unevaluatedItems');
+  get unevaluatedItems(): this | BooleanElement | JSONReferenceElement | undefined {
+    return this.get('unevaluatedItems') as this | BooleanElement | JSONReferenceElement | undefined;
   }
 
-  set unevaluatedItems(unevaluatedItems: this | BooleanElement | undefined) {
+  set unevaluatedItems(unevaluatedItems: this | BooleanElement | JSONReferenceElement | undefined) {
     this.set('unevaluatedItems', unevaluatedItems);
   }
 
-  get unevaluatedProperties(): this | BooleanElement | undefined {
-    return this.get('unevaluatedProperties');
+  get unevaluatedProperties(): this | BooleanElement | JSONReferenceElement | undefined {
+    return this.get('unevaluatedProperties') as
+      | this
+      | BooleanElement
+      | JSONReferenceElement
+      | undefined;
   }
 
-  set unevaluatedProperties(unevaluatedProperties: this | BooleanElement | undefined) {
+  set unevaluatedProperties(
+    unevaluatedProperties: this | BooleanElement | JSONReferenceElement | undefined,
+  ) {
     this.set('unevaluatedProperties', unevaluatedProperties);
   }
 
@@ -212,7 +249,7 @@ class JSONSchema extends JSONSchemaElement {
    */
 
   get maxContains(): NumberElement | undefined {
-    return this.get('maxContains');
+    return this.get('maxContains') as NumberElement | undefined;
   }
 
   set maxContains(maxContains: NumberElement | undefined) {
@@ -220,7 +257,7 @@ class JSONSchema extends JSONSchemaElement {
   }
 
   get minContains(): NumberElement | undefined {
-    return this.get('minContains');
+    return this.get('minContains') as NumberElement | undefined;
   }
 
   set minContains(minContains: NumberElement | undefined) {
@@ -234,7 +271,7 @@ class JSONSchema extends JSONSchemaElement {
    */
 
   get dependentRequired(): ObjectElement | undefined {
-    return this.get('dependentRequired');
+    return this.get('dependentRequired') as ObjectElement | undefined;
   }
 
   set dependentRequired(dependentRequired: ObjectElement | undefined) {
@@ -248,7 +285,7 @@ class JSONSchema extends JSONSchemaElement {
    */
 
   get deprecated(): BooleanElement | undefined {
-    return this.get('deprecated');
+    return this.get('deprecated') as BooleanElement | undefined;
   }
 
   set deprecated(deprecated: BooleanElement | undefined) {
@@ -261,11 +298,11 @@ class JSONSchema extends JSONSchemaElement {
    * URI: https://json-schema.org/draft/2019-09/vocab/content
    */
 
-  get contentSchema(): this | BooleanElement | undefined {
-    return this.get('contentSchema');
+  get contentSchema(): this | BooleanElement | JSONReferenceElement | undefined {
+    return this.get('contentSchema') as this | BooleanElement | JSONReferenceElement | undefined;
   }
 
-  set contentSchema(contentSchema: this | BooleanElement | undefined) {
+  set contentSchema(contentSchema: this | BooleanElement | JSONReferenceElement | undefined) {
     this.set('contentSchema', contentSchema);
   }
 }

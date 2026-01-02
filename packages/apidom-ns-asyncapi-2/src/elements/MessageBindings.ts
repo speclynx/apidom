@@ -1,4 +1,4 @@
-import { ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import { ObjectElement, type Attributes, type Meta } from '@speclynx/apidom-datamodel';
 
 import HttpMessageBindingElement from './bindings/http/HttpMessageBinding.ts';
 import WebSocketMessageBindingElement from './bindings/ws/WebSocketMessageBinding.ts';
@@ -29,7 +29,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get http(): HttpMessageBindingElement | undefined {
-    return this.get('http');
+    return this.get('http') as HttpMessageBindingElement | undefined;
   }
 
   set http(http: HttpMessageBindingElement | undefined) {
@@ -37,7 +37,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get ws(): WebSocketMessageBindingElement | undefined {
-    return this.get('ws');
+    return this.get('ws') as WebSocketMessageBindingElement | undefined;
   }
 
   set ws(ws: WebSocketMessageBindingElement | undefined) {
@@ -45,7 +45,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get kafka(): KafkaMessageBindingElement | undefined {
-    return this.get('kafka');
+    return this.get('kafka') as KafkaMessageBindingElement | undefined;
   }
 
   set kafka(kafka: KafkaMessageBindingElement | undefined) {
@@ -53,7 +53,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get anypointmq(): AnypointmqMessageBindingElement | undefined {
-    return this.get('anypointmq');
+    return this.get('anypointmq') as AnypointmqMessageBindingElement | undefined;
   }
 
   set anypointmq(anypointmq: AnypointmqMessageBindingElement | undefined) {
@@ -61,7 +61,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get amqp(): AmqpMessageBindingElement | undefined {
-    return this.get('amqp');
+    return this.get('amqp') as AmqpMessageBindingElement | undefined;
   }
 
   set amqp(amqp: AmqpMessageBindingElement | undefined) {
@@ -69,7 +69,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get amqp1(): Amqp1MessageBindingElement | undefined {
-    return this.get('amqp1');
+    return this.get('amqp1') as Amqp1MessageBindingElement | undefined;
   }
 
   set amqp1(amqp1: Amqp1MessageBindingElement | undefined) {
@@ -77,7 +77,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get mqtt(): MqttMessageBindingElement | undefined {
-    return this.get('mqtt');
+    return this.get('mqtt') as MqttMessageBindingElement | undefined;
   }
 
   set mqtt(mqtt: MqttMessageBindingElement | undefined) {
@@ -85,7 +85,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get mqtt5(): Mqtt5MessageBindingElement | undefined {
-    return this.get('mqtt5');
+    return this.get('mqtt5') as Mqtt5MessageBindingElement | undefined;
   }
 
   set mqtt5(mqtt5: Mqtt5MessageBindingElement | undefined) {
@@ -93,7 +93,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get nats(): NatsMessageBindingElement | undefined {
-    return this.get('nats');
+    return this.get('nats') as NatsMessageBindingElement | undefined;
   }
 
   set nats(nats: NatsMessageBindingElement | undefined) {
@@ -101,7 +101,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get jms(): JmsMessageBindingElement | undefined {
-    return this.get('jms');
+    return this.get('jms') as JmsMessageBindingElement | undefined;
   }
 
   set jms(jms: JmsMessageBindingElement | undefined) {
@@ -109,7 +109,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get sns(): SnsMessageBindingElement | undefined {
-    return this.get('sns');
+    return this.get('sns') as SnsMessageBindingElement | undefined;
   }
 
   set sns(sns: SnsMessageBindingElement | undefined) {
@@ -117,7 +117,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get solace(): SolaceMessageBindingElement | undefined {
-    return this.get('solace');
+    return this.get('solace') as SolaceMessageBindingElement | undefined;
   }
 
   set solace(solace: SolaceMessageBindingElement | undefined) {
@@ -125,7 +125,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get sqs(): SqsMessageBindingElement | undefined {
-    return this.get('sqs');
+    return this.get('sqs') as SqsMessageBindingElement | undefined;
   }
 
   set sqs(sqs: SqsMessageBindingElement | undefined) {
@@ -133,7 +133,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get stomp(): StompMessageBindingElement | undefined {
-    return this.get('stomp');
+    return this.get('stomp') as StompMessageBindingElement | undefined;
   }
 
   set stomp(stomp: StompMessageBindingElement | undefined) {
@@ -141,7 +141,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get redis(): RedisMessageBindingElement | undefined {
-    return this.get('redis');
+    return this.get('redis') as RedisMessageBindingElement | undefined;
   }
 
   set redis(redis: RedisMessageBindingElement | undefined) {
@@ -149,7 +149,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get mercure(): MercureMessageBindingElement | undefined {
-    return this.get('mercure');
+    return this.get('mercure') as MercureMessageBindingElement | undefined;
   }
 
   set mercure(mercure: MercureMessageBindingElement | undefined) {
@@ -157,7 +157,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get googlepubsub(): GooglepubsubMessageBindingElement | undefined {
-    return this.get('googlepubsub');
+    return this.get('googlepubsub') as GooglepubsubMessageBindingElement | undefined;
   }
 
   set googlepubsub(googlepubsub: GooglepubsubMessageBindingElement | undefined) {
@@ -165,7 +165,7 @@ class MessageBindings extends ObjectElement {
   }
 
   get ibmmq(): IbmmqMessageBindingElement | undefined {
-    return this.get('ibmmq');
+    return this.get('ibmmq') as IbmmqMessageBindingElement | undefined;
   }
 
   set ibmmq(ibmmq: IbmmqMessageBindingElement | undefined) {

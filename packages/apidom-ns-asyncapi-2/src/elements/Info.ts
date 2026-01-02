@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import ContactElement from './Contact.ts';
 import LicenseElement from './License.ts';
@@ -14,7 +19,7 @@ class Info extends ObjectElement {
   }
 
   get title(): StringElement | undefined {
-    return this.get('title');
+    return this.get('title') as StringElement | undefined;
   }
 
   set title(title: StringElement | undefined) {
@@ -22,7 +27,7 @@ class Info extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -30,7 +35,7 @@ class Info extends ObjectElement {
   }
 
   get termsOfService(): StringElement | undefined {
-    return this.get('termsOfService');
+    return this.get('termsOfService') as StringElement | undefined;
   }
 
   set termsOfService(tos: StringElement | undefined) {
@@ -38,7 +43,7 @@ class Info extends ObjectElement {
   }
 
   get version(): StringElement | undefined {
-    return this.get('version');
+    return this.get('version') as StringElement | undefined;
   }
 
   set version(version: StringElement | undefined) {
@@ -46,7 +51,7 @@ class Info extends ObjectElement {
   }
 
   get license(): LicenseElement | undefined {
-    return this.get('license');
+    return this.get('license') as LicenseElement | undefined;
   }
 
   set license(licenseElement: LicenseElement | undefined) {
@@ -54,7 +59,7 @@ class Info extends ObjectElement {
   }
 
   get contact(): ContactElement | undefined {
-    return this.get('contact');
+    return this.get('contact') as ContactElement | undefined;
   }
 
   set contact(contactElement: ContactElement | undefined) {

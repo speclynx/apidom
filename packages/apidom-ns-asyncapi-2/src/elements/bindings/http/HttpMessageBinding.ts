@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import SchemaElement from '../../Schema.ts';
 import ReferenceElement from '../../Reference.ts';
@@ -14,7 +19,7 @@ class HttpMessageBinding extends ObjectElement {
   }
 
   get headers(): SchemaElement | ReferenceElement | undefined {
-    return this.get('headers');
+    return this.get('headers') as SchemaElement | ReferenceElement | undefined;
   }
 
   set headers(headers: SchemaElement | ReferenceElement | undefined) {
@@ -22,7 +27,7 @@ class HttpMessageBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

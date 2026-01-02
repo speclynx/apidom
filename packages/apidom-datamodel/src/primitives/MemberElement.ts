@@ -23,7 +23,10 @@ class MemberElement<K extends Element = Element, V extends Element = Element> ex
       this.key = key;
     }
 
-    if (value !== undefined) {
+    // Note: We check arguments.length to distinguish between:
+    // - new MemberElement('key') - value not provided, don't set
+    // - new MemberElement('key', undefined) - value explicitly undefined, set it
+    if (arguments.length >= 2) {
       this.value = value;
     }
   }
@@ -51,7 +54,7 @@ class MemberElement<K extends Element = Element, V extends Element = Element> ex
   }
 
   set value(value: unknown) {
-    this._content.value = this.refract(value);
+    this._content.value = value === undefined ? undefined : this.refract(value);
   }
 }
 

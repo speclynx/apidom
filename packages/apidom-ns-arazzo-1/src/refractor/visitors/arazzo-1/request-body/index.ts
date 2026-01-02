@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import RequestBodyElement from '../../../../elements/RequestBody.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
+import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsFallbackVisitor, BaseFixedFieldsFallbackVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface RequestBodyVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export interface RequestBodyVisitorOptions extends BaseFixedFieldsFallbackVisitorOptions {}
 
 /**
  * @public
  */
-class RequestBodyVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class RequestBodyVisitor extends BaseFixedFieldsFallbackVisitor {
   declare public readonly element: RequestBodyElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'RequestBody']>;

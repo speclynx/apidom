@@ -1,4 +1,4 @@
-import { ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import { ObjectElement, type Attributes, type Meta } from '@speclynx/apidom-datamodel';
 
 import ComponentsInputsElement from './nces/ComponentsInputs.ts';
 import ComponentsParametersElement from './nces/ComponentsParameters.ts';
@@ -15,7 +15,7 @@ class Components extends ObjectElement {
   }
 
   get inputs(): ComponentsInputsElement | undefined {
-    return this.get('inputs');
+    return this.get('inputs') as ComponentsInputsElement | undefined;
   }
 
   set inputs(inputs: ComponentsInputsElement | undefined) {
@@ -23,7 +23,7 @@ class Components extends ObjectElement {
   }
 
   get parameters(): ComponentsParametersElement | undefined {
-    return this.get('parameters');
+    return this.get('parameters') as ComponentsParametersElement | undefined;
   }
 
   set parameters(parameters: ComponentsParametersElement | undefined) {
@@ -31,7 +31,7 @@ class Components extends ObjectElement {
   }
 
   get successActions(): ComponentsSuccessActionsElement | undefined {
-    return this.get('successActions');
+    return this.get('successActions') as ComponentsSuccessActionsElement | undefined;
   }
 
   set successActions(successActions: ComponentsSuccessActionsElement | undefined) {
@@ -39,7 +39,7 @@ class Components extends ObjectElement {
   }
 
   get failureActions(): ComponentsFailureActionsElement | undefined {
-    return this.get('failureActions');
+    return this.get('failureActions') as ComponentsFailureActionsElement | undefined;
   }
 
   set failureActions(failureActions: ComponentsFailureActionsElement | undefined) {

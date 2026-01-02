@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import SqsServerBindingElement from '../../../../../../elements/bindings/sqs/SqsServerBinding.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../../../FallbackVisitor.ts';
+import { SpecPath } from '../../../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../../../bases.ts';
 
 /**
  * @public
  */
-export interface SqsServerBindingVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type SqsServerBindingVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class SqsServerBindingVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class SqsServerBindingVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: SqsServerBindingElement;
 
   declare protected readonly specPath: SpecPath<

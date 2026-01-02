@@ -15,6 +15,10 @@ export {
   MemberElement,
   RefElement,
   LinkElement,
+  AnnotationElement,
+  CommentElement,
+  ParseResultElement,
+  SourceMapElement,
   refract,
 } from './registration.ts';
 
@@ -32,6 +36,30 @@ export type { SerializedElement, RefractDocument } from './serialisers/JSONSeria
 export type { DetectionTest, DetectionEntry, ElementsMap } from './Namespace.ts';
 export type { ObjectSliceCallback, ObjectSliceForEachCallback } from './ObjectSlice.ts';
 export type { FindCondition, FindOptions } from './primitives/CollectionElement.ts';
-export type { Cloneable, ToValue, Equatable, Freezable } from './types.ts';
+export type { ToValue, Equatable, Freezable } from './types.ts';
 export type { ObjectElementCallback } from './primitives/ObjectElement.ts';
 export type { SerializedContent, SerializedKeyValuePair } from './serialisers/JSONSerialiser.ts';
+export type { Position, PositionRange } from './elements/SourceMap.ts';
+
+// Re-export predicates
+export {
+  isElement,
+  isStringElement,
+  isNumberElement,
+  isNullElement,
+  isBooleanElement,
+  isObjectElement,
+  isArrayElement,
+  isMemberElement,
+  isLinkElement,
+  isRefElement,
+  isAnnotationElement,
+  isCommentElement,
+  isParseResultElement,
+  isSourceMapElement,
+  isPrimitiveElement,
+  hasElementSourceMap,
+  includesSymbols,
+  includesClasses,
+} from './predicates/index.ts';
+export type { PrimitiveElement } from './predicates/index.ts';

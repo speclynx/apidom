@@ -1,4 +1,4 @@
-import { ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import { ObjectElement, type Attributes, type Meta } from '@speclynx/apidom-datamodel';
 
 import ArazzoElement from './Arazzo.ts';
 import InfoElement from './Info.ts';
@@ -18,7 +18,7 @@ class ArazzoSpecification1 extends ObjectElement {
   }
 
   get arazzo(): ArazzoElement | undefined {
-    return this.get('arazzo');
+    return this.get('arazzo') as ArazzoElement | undefined;
   }
 
   set arazzo(arazzo: ArazzoElement | undefined) {
@@ -26,7 +26,7 @@ class ArazzoSpecification1 extends ObjectElement {
   }
 
   get info(): InfoElement | undefined {
-    return this.get('info');
+    return this.get('info') as InfoElement | undefined;
   }
 
   set info(info: InfoElement | undefined) {
@@ -34,7 +34,7 @@ class ArazzoSpecification1 extends ObjectElement {
   }
 
   get sourceDescriptions(): SourceDescriptions | undefined {
-    return this.get('sourceDescriptions');
+    return this.get('sourceDescriptions') as SourceDescriptions | undefined;
   }
 
   set sourceDescriptions(sourceDescriptions: SourceDescriptions | undefined) {
@@ -42,7 +42,7 @@ class ArazzoSpecification1 extends ObjectElement {
   }
 
   get workflows(): Workflows | undefined {
-    return this.get('workflows');
+    return this.get('workflows') as Workflows | undefined;
   }
 
   set workflows(workflows: Workflows | undefined) {
@@ -50,7 +50,7 @@ class ArazzoSpecification1 extends ObjectElement {
   }
 
   get components(): ComponentsElement | undefined {
-    return this.get('components');
+    return this.get('components') as ComponentsElement | undefined;
   }
 
   set components(components: ComponentsElement | undefined) {

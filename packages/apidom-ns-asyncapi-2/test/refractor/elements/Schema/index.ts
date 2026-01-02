@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { SchemaElement } from '../../../../src/index.ts';
+import { refractSchema } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('SchemaElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const schemaElement = SchemaElement.refract({
+        const schemaElement = refractSchema({
           // core vocabulary
           $id: '#foo',
           $comment: 'comment',
@@ -89,7 +89,7 @@ describe('refractor', function () {
 
       context('given embedded SchemaElements', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const schemaElement = SchemaElement.refract({
+          const schemaElement = refractSchema({
             definitions: {
               enabledToggle: { not: {} },
             },
@@ -105,7 +105,7 @@ describe('refractor', function () {
 
       context('given fields of type ReferenceElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const schemaElement = SchemaElement.refract({
+          const schemaElement = refractSchema({
             // validation Keywords for Applying Subschemas Conditionally
             if: { $ref: '#/components/schemas/Schema1' },
             then: { $ref: '#/components/schemas/Schema1' },
