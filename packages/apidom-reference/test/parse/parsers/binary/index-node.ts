@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
 import { assert } from 'chai';
-import { StringElement, isParseResultElement, isStringElement } from '@speclynx/apidom-core';
+import { StringElement, isParseResultElement, isStringElement } from '@speclynx/apidom-datamodel';
 
 import File from '../../../../src/File.ts';
 import BinaryParser from '../../../../src/parse/parsers/binary/index-node.ts';
@@ -84,7 +84,7 @@ describe('parsers', function () {
           const file = new File({ uri: '/path/to/file.bin', data: 1 as any });
           const parser = new BinaryParser();
           const result = await parser.parse(file);
-          const stringElement: StringElement = result.get(0);
+          const stringElement = result.get(0) as StringElement;
 
           assert.isTrue(isParseResultElement(result));
           assert.isTrue(stringElement.equals(Buffer.from(String(file.data)).toString('base64')));

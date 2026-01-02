@@ -1,12 +1,5 @@
-import {
-  BREAK,
-  isStringElement,
-  MemberElement,
-  Element,
-  cloneDeep,
-  toValue,
-  ObjectElement,
-} from '@speclynx/apidom-core';
+import { isStringElement, MemberElement, Element, ObjectElement } from '@speclynx/apidom-datamodel';
+import { BREAK, cloneDeep, toValue } from '@speclynx/apidom-core';
 
 import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
 import { isAsyncApiExtension } from '../../predicates.ts';
@@ -64,27 +57,28 @@ class FixedFieldsVisitor extends SpecificationVisitor {
 
     // @ts-ignore
     objectElement.forEach((value: Element, key: Element, memberElement: MemberElement) => {
+      const keyValue = toValue(key) as string;
       if (
         isStringElement(key) &&
-        fields.includes(toValue(key)) &&
-        !this.ignoredFields.includes(toValue(key))
+        fields.includes(keyValue) &&
+        !this.ignoredFields.includes(keyValue)
       ) {
         const fixedFieldElement = this.toRefractedElement(
-          [...specPath, 'fixedFields', toValue(key)],
+          [...specPath, 'fixedFields', keyValue],
           value,
         );
         const newMemberElement = new MemberElement(cloneDeep(key), fixedFieldElement);
         newMemberElement.classes.push('fixed-field');
         this.copyMetaAndAttributes(memberElement, newMemberElement);
-        this.element.content.push(newMemberElement);
+        (this.element.content as MemberElement[]).push(newMemberElement);
       } else if (
         this.canSupportSpecificationExtensions &&
         this.specificationExtensionPredicate(memberElement)
       ) {
         const extensionElement = this.toRefractedElement(['document', 'extension'], memberElement);
-        this.element.content.push(extensionElement);
-      } else if (!this.ignoredFields.includes(toValue(key))) {
-        this.element.content.push(cloneDeep(memberElement));
+        (this.element.content as MemberElement[]).push(extensionElement);
+      } else if (!this.ignoredFields.includes(keyValue)) {
+        (this.element.content as MemberElement[]).push(cloneDeep(memberElement));
       }
     });
 

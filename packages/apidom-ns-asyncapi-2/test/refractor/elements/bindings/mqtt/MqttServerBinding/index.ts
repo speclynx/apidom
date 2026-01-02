@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { MqttServerBindingElement } from '../../../../../../src/index.ts';
+import { refractMqttServerBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('MqttServerBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const mqttServerBindingElement = MqttServerBindingElement.refract({
+        const mqttServerBindingElement = refractMqttServerBinding({
           clientId: 'guest',
           cleanSession: true,
           lastWill: {

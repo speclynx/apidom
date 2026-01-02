@@ -3,9 +3,9 @@ import {
   MemberElement,
   ObjectElement,
   isStringElement,
-  toValue,
   isObjectElement,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 /**
  * @public
@@ -18,7 +18,7 @@ export interface ReferenceLikeElement extends ObjectElement {
  * @public
  */
 export const isSwaggerExtension = (element: MemberElement): boolean => {
-  return isStringElement(element.key) && startsWith('x-', toValue(element.key));
+  return isStringElement(element.key) && startsWith('x-', toValue(element.key) as string);
 };
 
 /**

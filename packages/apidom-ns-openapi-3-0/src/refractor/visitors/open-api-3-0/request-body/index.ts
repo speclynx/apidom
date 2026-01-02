@@ -1,31 +1,27 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
-import { StringElement, ObjectElement, isObjectElement, toValue } from '@speclynx/apidom-core';
+import { StringElement, ObjectElement, isObjectElement } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 import RequestBodyElement from '../../../../elements/RequestBody.ts';
 import MediaTypeElement from '../../../../elements/MediaType.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import FixedFieldsVisitor, { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
 import { isMediaTypeElement } from '../../../../predicates.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface RequestBodyVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type { BaseFixedFieldsVisitorOptions as RequestBodyVisitorOptions };
 
 /**
  * @public
  */
-class RequestBodyVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class RequestBodyVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: RequestBodyElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'RequestBody']>;
 
-  constructor(options: RequestBodyVisitorOptions) {
+  constructor(options: BaseFixedFieldsVisitorOptions) {
     super(options);
     this.element = new RequestBodyElement();
     this.specPath = always(['document', 'objects', 'RequestBody']);
@@ -35,12 +31,12 @@ class RequestBodyVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
     const result = FixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
 
     // decorate every MediaTypeElement with media type metadata
-    if (isObjectElement(this.element.contentProp)) {
-      this.element.contentProp
+    if (isObjectElement(this.element.contentField)) {
+      this.element.contentField
         .filter(isMediaTypeElement)
         // @ts-ignore
         .forEach((mediaTypeElement: MediaTypeElement, key: StringElement) => {
-          mediaTypeElement.setMetaProperty('media-type', toValue(key));
+          mediaTypeElement.meta.set('media-type', toValue(key));
         });
     }
 

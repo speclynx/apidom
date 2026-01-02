@@ -1,9 +1,15 @@
 import { expect } from 'chai';
 import dedent from 'dedent';
-import { sexprs, SourceMapElement } from '@speclynx/apidom-core';
+import { SourceMapElement } from '@speclynx/apidom-datamodel';
+import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
-import { refractorPluginReplaceEmptyElement, AsyncApi2Element } from '../../../../src/index.ts';
+import {
+  refractorPluginReplaceEmptyElement,
+  AsyncApi2Element,
+  ComponentsElement,
+  refractAsyncApi2,
+} from '../../../../src/index.ts';
 
 describe('given empty value instead of InfoElement', function () {
   it('should replace empty value with semantic element', async function () {
@@ -12,7 +18,7 @@ describe('given empty value instead of InfoElement', function () {
           info:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const asyncApiElement = AsyncApi2Element.refract(apiDOM.result, {
+    const asyncApiElement = refractAsyncApi2(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -28,7 +34,7 @@ describe('given empty value instead of ContactElement', function () {
             contact:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const asyncApiElement = AsyncApi2Element.refract(apiDOM.result, {
+    const asyncApiElement = refractAsyncApi2(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -46,7 +52,7 @@ describe('given empty value instead of Message.payload with unspecified schema f
                   payload:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const asyncApiElement = AsyncApi2Element.refract(apiDOM.result, {
+    const asyncApiElement = refractAsyncApi2(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -65,7 +71,7 @@ describe('given empty value instead of Message.payload with supported schema for
                   payload:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const asyncApiElement = AsyncApi2Element.refract(apiDOM.result, {
+    const asyncApiElement = refractAsyncApi2(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -84,7 +90,7 @@ describe('given empty value instead of Message.payload with unsupported schema f
                   payload:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const asyncApiElement = AsyncApi2Element.refract(apiDOM.result, {
+    const asyncApiElement = refractAsyncApi2(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -100,13 +106,13 @@ describe('given empty value instead for AsyncAPI.components.schemas', function (
             schemas:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const asyncApiElement = AsyncApi2Element.refract(apiDOM.result, {
+    const asyncApiElement = refractAsyncApi2(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as AsyncApi2Element;
-    const isComponentsSchemas = asyncApiElement
-      .get('components')
+    const componentsElement = asyncApiElement.get('components') as ComponentsElement;
+    const isComponentsSchemas = componentsElement
       .get('schemas')
-      .classes.includes('components-schemas');
+      ?.classes.includes('components-schemas');
 
     expect(sexprs(asyncApiElement)).toMatchSnapshot();
     expect(isComponentsSchemas).to.be.true;
@@ -122,7 +128,7 @@ describe('given empty value instead for AsyncAPI.components.schemas.*', function
               Schema1:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const asyncApiElement = AsyncApi2Element.refract(apiDOM.result, {
+    const asyncApiElement = refractAsyncApi2(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as AsyncApi2Element;
 
@@ -141,7 +147,7 @@ describe('given empty value instead for Schema.properties.*', function () {
                   firstName:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const asyncApiElement = AsyncApi2Element.refract(apiDOM.result, {
+    const asyncApiElement = refractAsyncApi2(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as AsyncApi2Element;
 
@@ -156,7 +162,7 @@ describe('given AsyncAPI definition with no empty values', function () {
           id: urn:com:smartylighting:streetlights:server
         `;
     const apiDOM = await parse(yamlDefinition);
-    const asyncApiElement = AsyncApi2Element.refract(apiDOM.result, {
+    const asyncApiElement = refractAsyncApi2(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as AsyncApi2Element;
 
@@ -171,16 +177,15 @@ describe('given AsyncAPI definition with empty values', function () {
           info:
         `;
     const apiDOM = await parse(yamlDefinition, { sourceMap: true });
-    const asyncApiElement = AsyncApi2Element.refract(apiDOM.result, {
+    const asyncApiElement = refractAsyncApi2(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as AsyncApi2Element;
     const { info: infoValue } = asyncApiElement;
-    const sourceMap = infoValue?.meta.get('sourceMap');
-    const { positionStart, positionEnd } = sourceMap;
+    const sourceMap = infoValue?.meta.get('sourceMap') as SourceMapElement | undefined;
     const expectedPosition = [1, 5, 21];
 
     expect(infoValue?.meta.get('sourceMap')).to.be.an.instanceof(SourceMapElement);
-    expect(positionStart.equals(expectedPosition)).to.be.true;
-    expect(positionEnd.equals(expectedPosition)).to.be.true;
+    expect(sourceMap?.positionStart?.equals(expectedPosition)).to.be.true;
+    expect(sourceMap?.positionEnd?.equals(expectedPosition)).to.be.true;
   });
 });

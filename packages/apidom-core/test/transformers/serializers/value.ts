@@ -1,5 +1,4 @@
 import { assert } from 'chai';
-
 import {
   BooleanElement,
   NumberElement,
@@ -9,7 +8,8 @@ import {
   ArrayElement,
   RefElement,
   LinkElement,
-} from '../../../src/index.ts';
+} from '@speclynx/apidom-datamodel';
+
 import serializer from '../../../src/transformers/serializers/value/index.ts';
 
 describe('serializers', function () {
@@ -109,7 +109,7 @@ describe('serializers', function () {
       specify('should serialize to JavaScript value', function () {
         const array = new ArrayElement(['a', 'b', 'c']);
         const object = new ObjectElement({ d: array, e: array });
-        const serialized = serializer(object);
+        const serialized = serializer(object) as { d: unknown[]; e: unknown[] };
 
         assert.deepEqual(serialized, { d: ['a', 'b', 'c'], e: ['a', 'b', 'c'] });
         assert.strictEqual(serialized.d, serialized.e);
@@ -120,7 +120,7 @@ describe('serializers', function () {
       specify('should serialize to JavaScript value', function () {
         const object = new ObjectElement({ a: 'b' });
         const array = new ArrayElement([object, object]);
-        const serialized = serializer(array);
+        const serialized = serializer(array) as unknown[];
 
         assert.deepEqual(serialized, [{ a: 'b' }, { a: 'b' }]);
         assert.strictEqual(serialized[0], serialized[1]);
@@ -160,7 +160,7 @@ describe('serializers', function () {
           const object = new ObjectElement({
             a: 'b',
           });
-          object.content.push(new RefElement('id'));
+          (object.content as unknown[]).push(new RefElement('id'));
           const serialized = serializer(object);
 
           assert.deepEqual(serialized, { a: 'b' });

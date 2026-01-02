@@ -8,7 +8,7 @@ import ReferenceElement from './Reference.ts';
  */
 class Operation extends OperationElement {
   get requestBody(): RequestBodyElement | ReferenceElement | undefined {
-    return this.get('requestBody');
+    return this.get('requestBody') as RequestBodyElement | ReferenceElement | undefined;
   }
 
   set requestBody(requestBody: RequestBodyElement | ReferenceElement | undefined) {

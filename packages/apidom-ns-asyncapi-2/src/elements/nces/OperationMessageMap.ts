@@ -1,4 +1,9 @@
-import { ObjectElement, ArrayElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  ObjectElement,
+  ArrayElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -12,7 +17,7 @@ class OperationMessageMap extends ObjectElement {
   }
 
   get oneOf(): ArrayElement | undefined {
-    return this.get('oneOf');
+    return this.get('oneOf') as ArrayElement | undefined;
   }
 
   set oneOf(oneOf: ArrayElement | undefined) {

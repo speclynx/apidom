@@ -4,7 +4,7 @@ import {
   NumberElement,
   Attributes,
   Meta,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -17,7 +17,7 @@ class IbmmqChannelBinding extends ObjectElement {
   }
 
   get destinationType(): StringElement | undefined {
-    return this.get('destinationType');
+    return this.get('destinationType') as StringElement | undefined;
   }
 
   set destinationType(destinationType: StringElement | undefined) {
@@ -25,7 +25,7 @@ class IbmmqChannelBinding extends ObjectElement {
   }
 
   get queue(): ObjectElement | undefined {
-    return this.get('queue');
+    return this.get('queue') as ObjectElement | undefined;
   }
 
   set queue(queue: ObjectElement | undefined) {
@@ -33,7 +33,7 @@ class IbmmqChannelBinding extends ObjectElement {
   }
 
   get topic(): ObjectElement | undefined {
-    return this.get('topic');
+    return this.get('topic') as ObjectElement | undefined;
   }
 
   set topic(topic: ObjectElement | undefined) {
@@ -41,7 +41,7 @@ class IbmmqChannelBinding extends ObjectElement {
   }
 
   get maxMsgLength(): NumberElement | undefined {
-    return this.get('maxMsgLength');
+    return this.get('maxMsgLength') as NumberElement | undefined;
   }
 
   set maxMsgLength(maxMsgLength: NumberElement | undefined) {
@@ -49,7 +49,7 @@ class IbmmqChannelBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

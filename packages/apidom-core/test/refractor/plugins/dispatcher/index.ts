@@ -1,13 +1,9 @@
 import sinon from 'sinon';
 import { assert } from 'chai';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
+import { NumberElement, ObjectElement } from '@speclynx/apidom-datamodel';
 
-import {
-  NumberElement,
-  ObjectElement,
-  toValue,
-  dispatchRefractorPlugins as dispatchPluginsSync,
-} from '../../../../src/index.ts';
+import { toValue, dispatchRefractorPlugins as dispatchPluginsSync } from '../../../../src/index.ts';
 
 const dispatchPluginsAsync = dispatchPluginsSync[Symbol.for('nodejs.util.promisify.custom')];
 

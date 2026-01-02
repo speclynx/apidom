@@ -3,12 +3,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import sinon from 'sinon';
-import { ObjectElement, toValue, Namespace } from '@speclynx/apidom-core';
+import { ObjectElement, Namespace } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 import {
-  JSONSchemaElement,
   LinkDescriptionElement,
   isLinkDescriptionElement,
+  refractJSONSchema,
 } from '../../src/index.ts';
 import * as predicates from '../../src/predicates.ts';
 
@@ -22,7 +23,7 @@ describe('refractor', function () {
         .toString();
       const jsonSchemaPojo = JSON.parse(jsonSchemaString);
       const genericObjectElement = new ObjectElement(jsonSchemaPojo);
-      const jsonSchemaElement = JSONSchemaElement.refract(genericObjectElement);
+      const jsonSchemaElement = refractJSONSchema(genericObjectElement);
 
       expect(jsonSchemaElement).toMatchSnapshot();
     });
@@ -75,7 +76,7 @@ describe('refractor', function () {
           $id: 'http://x.y.z/rootschema.json#',
           $schema: 'https://json-schema.org/draft/2020-12/schema',
         });
-        JSONSchemaElement.refract(genericObject, {
+        refractJSONSchema(genericObject, {
           plugins: [plugin1],
         });
 
@@ -87,7 +88,7 @@ describe('refractor', function () {
           $id: 'http://x.y.z/rootschema.json#',
           $schema: 'https://json-schema.org/draft/2020-12/schema',
         });
-        JSONSchemaElement.refract(genericObject, {
+        refractJSONSchema(genericObject, {
           plugins: [plugin1],
         });
 
@@ -99,7 +100,7 @@ describe('refractor', function () {
           $id: 'http://x.y.z/rootschema.json#',
           $schema: 'https://json-schema.org/draft/2020-12/schema',
         });
-        JSONSchemaElement.refract(genericObject, {
+        refractJSONSchema(genericObject, {
           plugins: [plugin1],
         });
 
@@ -113,7 +114,7 @@ describe('refractor', function () {
           $id: 'http://x.y.z/rootschema.json#',
           $schema: 'https://json-schema.org/draft/2020-12/schema',
         });
-        JSONSchemaElement.refract(genericObject, {
+        refractJSONSchema(genericObject, {
           plugins: [plugin1],
         });
 
@@ -125,7 +126,7 @@ describe('refractor', function () {
           $id: 'http://x.y.z/rootschema.json#',
           $schema: 'https://json-schema.org/draft/2020-12/schema',
         });
-        JSONSchemaElement.refract(genericObject, {
+        refractJSONSchema(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -138,7 +139,7 @@ describe('refractor', function () {
           $schema: 'https://json-schema.org/draft/2020-12/schema',
           links: [{}],
         });
-        JSONSchemaElement.refract(genericObject, {
+        refractJSONSchema(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -153,7 +154,7 @@ describe('refractor', function () {
           $id: 'http://x.y.z/rootschema.json#',
           $schema: 'https://json-schema.org/draft/2020-12/schema',
         });
-        JSONSchemaElement.refract(genericObject, {
+        refractJSONSchema(genericObject, {
           plugins: [plugin1],
         });
 
@@ -165,7 +166,7 @@ describe('refractor', function () {
           $id: 'http://x.y.z/rootschema.json#',
           $schema: 'https://json-schema.org/draft/2020-12/schema',
         });
-        JSONSchemaElement.refract(genericObject, {
+        refractJSONSchema(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -178,7 +179,7 @@ describe('refractor', function () {
           $schema: 'https://json-schema.org/draft/2020-12/schema',
           links: [{}],
         });
-        JSONSchemaElement.refract(genericObject, {
+        refractJSONSchema(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -194,7 +195,7 @@ describe('refractor', function () {
           $schema: 'https://json-schema.org/draft/2020-12/schema',
           links: [{}],
         });
-        JSONSchemaElement.refract(genericObject, {
+        refractJSONSchema(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -208,7 +209,7 @@ describe('refractor', function () {
           $schema: 'https://json-schema.org/draft/2020-12/schema',
           links: [{}],
         });
-        JSONSchemaElement.refract(genericObject, {
+        refractJSONSchema(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -226,7 +227,7 @@ describe('refractor', function () {
             $schema: 'https://json-schema.org/draft/2020-12/schema',
             links: [{}],
           });
-          JSONSchemaElement.refract(genericObject, {
+          refractJSONSchema(genericObject, {
             plugins: [plugin1],
           });
 
@@ -239,7 +240,7 @@ describe('refractor', function () {
             $schema: 'https://json-schema.org/draft/2020-12/schema',
             links: [{}],
           });
-          JSONSchemaElement.refract(genericObject, {
+          refractJSONSchema(genericObject, {
             plugins: [plugin1],
           });
 
@@ -254,7 +255,7 @@ describe('refractor', function () {
             $schema: 'https://json-schema.org/draft/2020-12/schema',
             links: [{}],
           });
-          const jsonSchemaElement = JSONSchemaElement.refract(genericObject, {
+          const jsonSchemaElement = refractJSONSchema(genericObject, {
             plugins: [plugin1],
           });
 
@@ -273,7 +274,7 @@ describe('refractor', function () {
             $schema: 'https://json-schema.org/draft/2020-12/schema',
             links: [{}],
           });
-          JSONSchemaElement.refract(genericObject, {
+          refractJSONSchema(genericObject, {
             plugins: [plugin1, plugin2],
           });
 
@@ -286,7 +287,7 @@ describe('refractor', function () {
             $schema: 'https://json-schema.org/draft/2020-12/schema',
             links: [{}],
           });
-          JSONSchemaElement.refract(genericObject, {
+          refractJSONSchema(genericObject, {
             plugins: [plugin1, plugin2],
           });
 
@@ -299,17 +300,15 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             $id: 'http://x.y.z/rootschema.json#',
             $schema: 'https://json-schema.org/draft/2020-12/schema',
-            links: [{}],
+            links: [{ href: 'test' }],
           });
-          const jsonSchemaElement = JSONSchemaElement.refract(genericObject, {
+          refractJSONSchema(genericObject, {
             plugins: [plugin1, plugin2],
           });
 
-          assert.strictEqual(
-            // @ts-ignore
-            toValue(jsonSchemaElement.links.get(0).meta.get('metaKey')),
-            'metaValue',
-          );
+          // Verify the plugin was called and modified the element
+          const visitedElement = plugin2Spec.visitor.LinkDescriptionElement.firstCall.args[0];
+          assert.strictEqual(toValue(visitedElement.meta.get('metaKey')), 'metaValue');
         });
       });
     });

@@ -308,35 +308,6 @@ Supported media types are:
 ]
 ```
 
-#### [api-design-systems-json](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/parse/parsers/api-design-systems-json)
-
-Wraps [@speclynx/apidom-parser-adapter-api-design-systsems-json](https://github.com/speclynx/apidom/tree/main/packages/apidom-parser-adapter-api-design-systems-json) package
-and is uniquely identified by `api-design-systems-json` name.
-
-Supported media types are:
-
-```js
-[
-  'application/vnd.aai.apidesignsystems;version=2021-05-07',
-  'application/vnd.aai.apidesignsystems+json;version=2021-05-07'
-]
-```
-
-#### [api-design-systems-yaml](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/parse/parsers/api-design-systems-yaml)
-
-Wraps [@speclynx/apidom-parser-adapter-api-design-systems-yaml](https://github.com/speclynx/apidom/tree/main/packages/apidom-parser-adapter-api-design-systems-yaml) package
-and is uniquely  identified by `api-design-systems-yaml` name.
-
-
-Supported media types are:
-
-```js
-[
-  'application/vnd.aai.apidesignsystems;version=2021-05-07',
-  'application/vnd.aai.apidesignsystems+yaml;version=2021-05-07'
-]
-```
-
 #### [json](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/parse/parsers/json)
 
 Wraps [@speclynx/apidom-parser-adapter-json](https://github.com/speclynx/apidom/tree/main/packages/apidom-parser-adapter-json) package
@@ -421,8 +392,6 @@ import AsyncAPIYAML2Parser from '@speclynx/apidom-reference/parse/parsers/asynca
 import ArazzoJSON1Parser from '@speclynx/apidom-reference/parse/parsers/arazzo-json-1';
 import ArazzoYAML1Parser from '@speclynx/apidom-reference/parse/parsers/arazzo-yaml-1';
 import APIDOMJSONParser from '@speclynx/apidom-reference/parse/parsers/apidom-json';
-import APIDesignSystemsJSONParser from '@speclynx/apidom-reference/parse/parsers/api-design-systems-json';
-import APIDesignSystemsYAMLParser from '@speclynx/apidom-reference/parse/parsers/api-design-systems-json';
 import JSONParser from '@speclynx/apidom-reference/parse/parsers/json';
 import YAMLParser from '@speclynx/apidom-reference/parse/parsers/yaml';
 import BinaryParser from '@speclynx/apidom-reference/parse/parsers/binary';
@@ -463,8 +432,6 @@ import AsyncAPIYAML2Parser from '@speclynx/apidom-reference/parse/parsers/asynca
 import ArazzoJSON1Parser from '@speclynx/apidom-reference/parse/parsers/arazzo-json-1';
 import ArazzoYAML1Parser from '@speclynx/apidom-reference/parse/parsers/arazzo-yaml-1';
 import APIDOMJSONParser from '@speclynx/apidom-reference/parse/parsers/apidom-json';
-import APIDesignSystemsJSONParser from '@speclynx/apidom-reference/parse/parsers/api-design-systems-json';
-import APIDesignSystemsYAMLParser from '@speclynx/apidom-reference/parse/parsers/api-design-systems-json';
 import JSONParser from '@speclynx/apidom-reference/parse/parsers/json';
 import YAMLParser from '@speclynx/apidom-reference/parse/parsers/yaml';
 import BinaryParser from '@speclynx/apidom-reference/parse/parsers/binary';

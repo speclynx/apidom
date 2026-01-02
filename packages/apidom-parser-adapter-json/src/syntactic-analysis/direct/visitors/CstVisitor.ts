@@ -11,7 +11,7 @@ import {
   StringElement,
   AnnotationElement,
   isPrimitiveElement,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 
 import TreeCursorSyntaxNode from '../../TreeCursorSyntaxNode.ts';
 
@@ -127,7 +127,7 @@ class CstVisitor {
     } catch (error: unknown) {
       element = new StringElement(node.text);
       if (error instanceof Error) {
-        element.setMetaProperty('jsonParse', {
+        element.meta.set('jsonParse', {
           isError: true,
           errorType: error.name,
           errorMessage: error.message,

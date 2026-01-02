@@ -1,13 +1,14 @@
 import { assert } from 'chai';
-
 import {
-  from,
-  toValue,
   NumberElement,
   MemberElement,
   ArrayElement,
   StringElement,
-} from '../../src/index.ts';
+  ObjectElement,
+  Element,
+} from '@speclynx/apidom-datamodel';
+
+import { from, toValue } from '../../src/index.ts';
 import Transcluder from '../../src/transcluder/index.ts';
 
 describe('transcluder', function () {
@@ -16,7 +17,7 @@ describe('transcluder', function () {
       context('given parent is Array Element', function () {
         specify('should transclude', function () {
           const element = from([1, 2, 3]) as ArrayElement;
-          const search = element.get(1);
+          const search = element.get(1) as Element;
           const replace = new NumberElement(4);
           const transcluder = new Transcluder({ element });
           const transcludedElement = transcluder.transclude(search, replace);
@@ -30,7 +31,7 @@ describe('transcluder', function () {
       context('given parent is Member Element', function () {
         specify('should transclude', function () {
           const element = from([1, { prop: 'value' }, 3]) as ArrayElement;
-          const search = element.get(1).get('prop');
+          const search = (element.get(1) as ObjectElement).get('prop') as Element;
           const replace = new NumberElement(4);
           const transcluder = new Transcluder({ element });
           const transcludedElement = transcluder.transclude(search, replace);
@@ -44,7 +45,7 @@ describe('transcluder', function () {
       context('given parent is Object Element', function () {
         specify('should transclude', function () {
           const element = from([1, { prop: 'value', prop2: 'value2' }, 3]) as ArrayElement;
-          const search = element.get(1).getMember('prop');
+          const search = (element.get(1) as ObjectElement).getMember('prop') as MemberElement;
           const replace = new MemberElement(
             new StringElement('prop1'),
             new StringElement('value1'),
@@ -61,12 +62,12 @@ describe('transcluder', function () {
       context('given multiple transclude operations', function () {
         specify('should transclude all', function () {
           const element = from([1, { prop: 'value', prop2: 'value2' }, 3]) as ArrayElement;
-          const search1 = element.get(1).getMember('prop');
+          const search1 = (element.get(1) as ObjectElement).getMember('prop') as MemberElement;
           const replace1 = new MemberElement(
             new StringElement('prop1'),
             new StringElement('value1'),
           );
-          const search2 = element.get(2);
+          const search2 = element.get(2) as Element;
           const replace2 = new NumberElement(4);
           const transcluder = new Transcluder({ element });
 
@@ -87,7 +88,7 @@ describe('transcluder', function () {
         specify('should throw error', function () {
           const element = from([1, { prop: 'value', prop2: 'value2' }, 3]) as ArrayElement;
           element.freeze();
-          const search = element.get(1).getMember('prop');
+          const search = (element.get(1) as ObjectElement).getMember('prop') as MemberElement;
           const replace = new MemberElement(
             new StringElement('prop1'),
             new StringElement('value1'),

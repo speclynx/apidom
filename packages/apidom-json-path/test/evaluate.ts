@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { ObjectElement, NumberElement } from '@speclynx/apidom-core';
+import { ObjectElement, NumberElement } from '@speclynx/apidom-datamodel';
 
 import { evaluate } from '../src/index.ts';
 

@@ -1,4 +1,5 @@
-import { Element, BREAK, cloneDeep } from '@speclynx/apidom-core';
+import { Element } from '@speclynx/apidom-datamodel';
+import { BREAK, cloneDeep } from '@speclynx/apidom-core';
 
 import Visitor, { VisitorOptions } from './Visitor.ts';
 

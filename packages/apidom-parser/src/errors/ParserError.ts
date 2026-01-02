@@ -1,6 +1,6 @@
 import { ApiDOMStructuredError, ApiDOMErrorOptions } from '@speclynx/apidom-error';
 
-import type { ApiDOMParserOptions } from '../types.d.ts';
+import type { ApiDOMParserOptions } from '../parser.ts';
 
 /**
  * @public

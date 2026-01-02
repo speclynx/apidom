@@ -3,7 +3,7 @@ import dedent from 'dedent';
 import { toValue } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
-import { OpenApi3_1Element, refractorPluginNormalizeParameters } from '../../../../src/index.ts';
+import { refractOpenApi3_1, refractorPluginNormalizeParameters } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('plugins', function () {
@@ -24,9 +24,9 @@ describe('refractor', function () {
                       in: query
         `;
         const apiDOM = await parse(yamlDefinition);
-        const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+        const openApiElement = refractOpenApi3_1(apiDOM.result, {
           plugins: [refractorPluginNormalizeParameters()],
-        }) as OpenApi3_1Element;
+        });
 
         assert.deepEqual(toValue(openApiElement.get('x-normalized')), {
           parameters: ['/paths/~1/get'],
@@ -50,13 +50,13 @@ describe('refractor', function () {
                       in: query
           `;
           const apiDOM = await parse(yamlDefinition);
-          const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+          const openApiElement = refractOpenApi3_1(apiDOM.result, {
             plugins: [
               refractorPluginNormalizeParameters({
                 storageField: '$$normalized',
               }),
             ],
-          }) as OpenApi3_1Element;
+          });
 
           assert.deepEqual(toValue(openApiElement.get('$$normalized')), {
             parameters: ['/paths/~1/get'],

@@ -5,15 +5,18 @@ import {
   isStringElement,
   isMemberElement,
   isElement,
+  Element,
+  RefElement,
+  Namespace,
+  ParseResultElement,
+} from '@speclynx/apidom-datamodel';
+import {
   IdentityManager,
   visit,
   find,
   cloneShallow,
   cloneDeep,
   toValue,
-  Element,
-  RefElement,
-  Namespace,
 } from '@speclynx/apidom-core';
 import { ApiDOMError } from '@speclynx/apidom-error';
 import { evaluate, URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
@@ -23,12 +26,15 @@ import {
   ReferenceElement,
   ExampleElement,
   LinkElement,
-  OperationElement,
   PathItemElement,
   isReferenceElement,
   isOperationElement,
   isPathItemElement,
   isReferenceLikeElement,
+  refract,
+  refractReference,
+  refractPathItem,
+  refractOperation,
 } from '@speclynx/apidom-ns-openapi-3-0';
 
 import MaximumDereferenceDepthError from '../../../errors/MaximumDereferenceDepthError.ts';
@@ -59,7 +65,7 @@ export const mutationReplacer = (
   if (isMemberElement(parent)) {
     parent.value = newElement;
   } else if (Array.isArray(parent)) {
-    parent[key] = newElement;
+    (parent as Element[])[key as number] = newElement;
   }
 };
 
@@ -181,7 +187,7 @@ class OpenAPI3_0DereferenceVisitor {
 
     const [ancestorsLineage, directAncestors] = this.toAncestorLineage([...ancestors, parent]);
 
-    const retrievalURI = this.toBaseURI(toValue(referencingElement.$ref));
+    const retrievalURI = this.toBaseURI(toValue(referencingElement.$ref) as string);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
     const isExternalReference = !isInternalReference;
 
@@ -196,35 +202,39 @@ class OpenAPI3_0DereferenceVisitor {
       return false;
     }
 
-    const reference = await this.toReference(toValue(referencingElement.$ref));
-    const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref));
+    const reference = await this.toReference(toValue(referencingElement.$ref) as string);
+    const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
 
     this.indirections.push(referencingElement);
 
     const jsonPointer = URIFragmentIdentifier.fromURIReference($refBaseURI);
 
     // possibly non-semantic fragment
-    let referencedElement = evaluate<Element>(reference.value.result, jsonPointer);
+    let referencedElement = evaluate<Element>(
+      (reference.value as ParseResultElement).result as Element,
+      jsonPointer,
+    );
     referencedElement.id = identityManager.identify(referencedElement);
 
     /**
      * Applying semantics to a referenced element if semantics are missing.
      */
     if (isPrimitiveElement(referencedElement)) {
-      const referencedElementType = toValue(referencingElement.meta.get('referenced-element'));
+      const referencedElementType = toValue(
+        referencingElement.meta.get('referenced-element'),
+      ) as string;
       const cacheKey = `${referencedElementType}-${toValue(identityManager.identify(referencedElement))}`;
 
       if (this.refractCache.has(cacheKey)) {
         referencedElement = this.refractCache.get(cacheKey)!;
       } else if (isReferenceLikeElement(referencedElement)) {
         // handling indirect references
-        referencedElement = ReferenceElement.refract(referencedElement);
-        referencedElement.setMetaProperty('referenced-element', referencedElementType);
+        referencedElement = refractReference(referencedElement);
+        referencedElement.meta.set('referenced-element', referencedElementType);
         this.refractCache.set(cacheKey, referencedElement);
       } else {
         // handling direct references
-        const ElementClass = this.namespace.getElementClass(referencedElementType);
-        referencedElement = ElementClass.refract(referencedElement);
+        referencedElement = refract(referencedElement, { element: referencedElementType });
         this.refractCache.set(cacheKey, referencedElement);
       }
     }
@@ -309,15 +319,15 @@ class OpenAPI3_0DereferenceVisitor {
      */
     const mergedElement = cloneShallow(referencedElement);
     // assign unique id to merged element
-    mergedElement.setMetaProperty('id', identityManager.generateId());
+    mergedElement.meta.set('id', identityManager.generateId());
     // annotate referenced element with info about original referencing element
-    mergedElement.setMetaProperty('ref-fields', {
+    mergedElement.meta.set('ref-fields', {
       $ref: toValue(referencingElement.$ref),
     });
     // annotate fragment with info about origin
-    mergedElement.setMetaProperty('ref-origin', reference.uri);
+    mergedElement.meta.set('ref-origin', reference.uri);
     // annotate fragment with info about referencing element
-    mergedElement.setMetaProperty(
+    mergedElement.meta.set(
       'ref-referencing-element-id',
       cloneDeep(identityManager.identify(referencingElement)),
     );
@@ -353,7 +363,7 @@ class OpenAPI3_0DereferenceVisitor {
 
     const [ancestorsLineage, directAncestors] = this.toAncestorLineage([...ancestors, parent]);
 
-    const retrievalURI = this.toBaseURI(toValue(referencingElement.$ref));
+    const retrievalURI = this.toBaseURI(toValue(referencingElement.$ref) as string);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
     const isExternalReference = !isInternalReference;
 
@@ -368,15 +378,18 @@ class OpenAPI3_0DereferenceVisitor {
       return undefined;
     }
 
-    const reference = await this.toReference(toValue(referencingElement.$ref));
-    const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref));
+    const reference = await this.toReference(toValue(referencingElement.$ref) as string);
+    const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
 
     this.indirections.push(referencingElement);
 
     const jsonPointer = URIFragmentIdentifier.fromURIReference($refBaseURI);
 
     // possibly non-semantic referenced element
-    let referencedElement = evaluate<Element>(reference.value.result, jsonPointer);
+    let referencedElement = evaluate<Element>(
+      (reference.value as ParseResultElement).result as Element,
+      jsonPointer,
+    );
     referencedElement.id = identityManager.identify(referencedElement);
 
     /**
@@ -388,7 +401,7 @@ class OpenAPI3_0DereferenceVisitor {
       if (this.refractCache.has(cacheKey)) {
         referencedElement = this.refractCache.get(cacheKey)!;
       } else {
-        referencedElement = PathItemElement.refract(referencedElement);
+        referencedElement = refractPathItem(referencedElement);
         this.refractCache.set(cacheKey, referencedElement);
       }
     }
@@ -472,28 +485,24 @@ class OpenAPI3_0DereferenceVisitor {
      * Creating a new version of Path Item by merging fields from referenced Path Item with referencing one.
      */
     if (isPathItemElement(referencedElement)) {
-      const mergedElement = new PathItemElement(
-        [...referencedElement.content] as any,
-        cloneDeep(referencedElement.meta),
-        cloneDeep(referencedElement.attributes),
-      );
+      const mergedElement = cloneShallow<PathItemElement>(referencedElement);
       // assign unique id to merged element
-      mergedElement.setMetaProperty('id', identityManager.generateId());
+      mergedElement.meta.set('id', identityManager.generateId());
       // existing keywords from referencing PathItemElement overrides ones from referenced element
       referencingElement.forEach((value: Element, keyElement: Element, item: Element) => {
-        mergedElement.remove(toValue(keyElement));
-        mergedElement.content.push(item);
+        mergedElement.remove(toValue(keyElement) as string);
+        (mergedElement.content as Element[]).push(item);
       });
       mergedElement.remove('$ref');
 
       // annotate referenced element with info about original referencing element
-      mergedElement.setMetaProperty('ref-fields', {
+      mergedElement.meta.set('ref-fields', {
         $ref: toValue(referencingElement.$ref),
       });
       // annotate referenced element with info about origin
-      mergedElement.setMetaProperty('ref-origin', reference.uri);
+      mergedElement.meta.set('ref-origin', reference.uri);
       // annotate fragment with info about referencing element
-      mergedElement.setMetaProperty(
+      mergedElement.meta.set(
         'ref-referencing-element-id',
         cloneDeep(identityManager.identify(referencingElement)),
       );
@@ -536,8 +545,10 @@ class OpenAPI3_0DereferenceVisitor {
 
     if (isStringElement(linkElement.operationRef)) {
       // possibly non-semantic referenced element
-      const jsonPointer = URIFragmentIdentifier.fromURIReference(toValue(linkElement.operationRef));
-      const retrievalURI = this.toBaseURI(toValue(linkElement.operationRef));
+      const jsonPointer = URIFragmentIdentifier.fromURIReference(
+        toValue(linkElement.operationRef) as string,
+      );
+      const retrievalURI = this.toBaseURI(toValue(linkElement.operationRef) as string);
       const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
       const isExternalReference = !isInternalReference;
 
@@ -552,9 +563,12 @@ class OpenAPI3_0DereferenceVisitor {
         return undefined;
       }
 
-      const reference = await this.toReference(toValue(linkElement.operationRef));
+      const reference = await this.toReference(toValue(linkElement.operationRef) as string);
 
-      operationElement = evaluate<Element>(reference.value.result, jsonPointer);
+      operationElement = evaluate<Element>(
+        (reference.value as ParseResultElement).result as Element,
+        jsonPointer,
+      );
       // applying semantics to a referenced element
       if (isPrimitiveElement(operationElement)) {
         const cacheKey = `operation-${toValue(identityManager.identify(operationElement))}`;
@@ -562,14 +576,14 @@ class OpenAPI3_0DereferenceVisitor {
         if (this.refractCache.has(cacheKey)) {
           operationElement = this.refractCache.get(cacheKey)!;
         } else {
-          operationElement = OperationElement.refract(operationElement);
+          operationElement = refractOperation(operationElement);
           this.refractCache.set(cacheKey, operationElement);
         }
       }
       // create shallow clone to be able to annotate with metadata
       operationElement = cloneShallow(operationElement);
       // annotate operation element with info about origin
-      operationElement.setMetaProperty('ref-origin', reference.uri);
+      operationElement.meta.set('ref-origin', reference.uri);
 
       const linkElementCopy = cloneShallow(linkElement);
       linkElementCopy.operationRef?.meta.set('operation', operationElement);
@@ -586,12 +600,12 @@ class OpenAPI3_0DereferenceVisitor {
     }
 
     if (isStringElement(linkElement.operationId)) {
-      const operationId = toValue(linkElement.operationId);
+      const operationId = toValue(linkElement.operationId) as string;
       const reference = await this.toReference(url.unsanitize(this.reference.uri));
       operationElement = find(
         (e) =>
           isOperationElement(e) && isElement(e.operationId) && e.operationId.equals(operationId),
-        reference.value.result as Element,
+        (reference.value as ParseResultElement).result as Element,
       );
       // OperationElement not found by its operationId
       if (isUndefined(operationElement)) {
@@ -635,7 +649,7 @@ class OpenAPI3_0DereferenceVisitor {
       );
     }
 
-    const retrievalURI = this.toBaseURI(toValue(exampleElement.externalValue));
+    const retrievalURI = this.toBaseURI(toValue(exampleElement.externalValue) as string);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
     const isExternalReference = !isInternalReference;
 
@@ -650,12 +664,12 @@ class OpenAPI3_0DereferenceVisitor {
       return undefined;
     }
 
-    const reference = await this.toReference(toValue(exampleElement.externalValue));
+    const reference = await this.toReference(toValue(exampleElement.externalValue) as string);
 
     // shallow clone of the referenced element
-    const valueElement = cloneShallow(reference.value.result as Element);
+    const valueElement = cloneShallow((reference.value as ParseResultElement).result as Element);
     // annotate operation element with info about origin
-    valueElement.setMetaProperty('ref-origin', reference.uri);
+    valueElement.meta.set('ref-origin', reference.uri);
 
     const exampleElementCopy = cloneShallow(exampleElement);
     exampleElementCopy.value = valueElement;

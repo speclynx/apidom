@@ -1,24 +1,22 @@
-import { Mixin } from 'ts-mixer';
-import { StringElement, BREAK, toValue } from '@speclynx/apidom-core';
+import { StringElement } from '@speclynx/apidom-datamodel';
+import { BREAK, toValue } from '@speclynx/apidom-core';
 
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
 import IdentifierElement from '../../../elements/Identifier.ts';
+import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from './bases.ts';
 
 /**
  * @public
  */
-export interface IdentifierVisitorOptions
-  extends SpecificationVisitorOptions, FallbackVisitorOptions {}
+export type IdentifierVisitorOptions = BaseSpecificationVisitorOptions;
 
 /**
  * @public
  */
-class IdentifierVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class IdentifierVisitor extends BaseSpecificationVisitor {
   declare public element: IdentifierElement;
 
   StringElement(stringElement: StringElement) {
-    const identifierElement = new IdentifierElement(toValue(stringElement));
+    const identifierElement = new IdentifierElement(toValue(stringElement) as string);
 
     this.copyMetaAndAttributes(stringElement, identifierElement);
 

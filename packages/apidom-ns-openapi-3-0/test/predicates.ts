@@ -1,5 +1,4 @@
 import { assert } from 'chai';
-import { ArrayElement } from '@speclynx/apidom-core';
 
 import {
   isSchemaElement,
@@ -60,36 +59,6 @@ describe('predicates', function () {
         assert.isFalse(isOpenApi3_0Element('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      const openApi3_0ElementDuck = {
-        _storedElement: 'openApi3_0',
-        classes: new ArrayElement(['api']),
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      const openApi3_0ElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-        get length() {
-          return 0;
-        },
-      };
-
-      assert.isTrue(isOpenApi3_0Element(openApi3_0ElementDuck));
-      assert.isFalse(isOpenApi3_0Element(openApi3_0ElementSwan));
-    });
   });
 
   context('isSchemaElement', function () {
@@ -118,30 +87,6 @@ describe('predicates', function () {
         assert.isFalse(isSchemaElement([]));
         assert.isFalse(isSchemaElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const schemaElementDuck = {
-        _storedElement: 'schema',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const schemaElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isSchemaElement(schemaElementDuck));
-      assert.isFalse(isSchemaElement(schemaElementSwan));
     });
   });
 
@@ -172,30 +117,6 @@ describe('predicates', function () {
         assert.isFalse(isOpenapiElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const openapiElementDuck = {
-        _storedElement: 'openapi',
-        _content: '',
-        primitive() {
-          return 'string';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const openapiElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isOpenapiElement(openapiElementDuck));
-      assert.isFalse(isOpenapiElement(openapiElementSwan));
-    });
   });
 
   context('isComponentsElement', function () {
@@ -224,30 +145,6 @@ describe('predicates', function () {
         assert.isFalse(isComponentsElement([]));
         assert.isFalse(isComponentsElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const componentsElementDuck = {
-        _storedElement: 'components',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const componentsElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isComponentsElement(componentsElementDuck));
-      assert.isFalse(isComponentsElement(componentsElementSwan));
     });
   });
 
@@ -278,30 +175,6 @@ describe('predicates', function () {
         assert.isFalse(isInfoElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const infoElementDuck = {
-        _storedElement: 'info',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const infoElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isInfoElement(infoElementDuck));
-      assert.isFalse(isInfoElement(infoElementSwan));
-    });
   });
 
   context('isLicenseElement', function () {
@@ -330,30 +203,6 @@ describe('predicates', function () {
         assert.isFalse(isLicenseElement([]));
         assert.isFalse(isLicenseElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const licenseElementDuck = {
-        _storedElement: 'license',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const licenseElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isLicenseElement(licenseElementDuck));
-      assert.isFalse(isLicenseElement(licenseElementSwan));
     });
   });
 
@@ -384,30 +233,6 @@ describe('predicates', function () {
         assert.isFalse(isContactElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const concatElementDuck = {
-        _storedElement: 'contact',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const contactElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isContactElement(concatElementDuck));
-      assert.isFalse(isContactElement(contactElementSwan));
-    });
   });
 
   context('isServerElement', function () {
@@ -436,30 +261,6 @@ describe('predicates', function () {
         assert.isFalse(isServerElement([]));
         assert.isFalse(isServerElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const serverElementDuck = {
-        _storedElement: 'server',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const serverElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isServerElement(serverElementDuck));
-      assert.isFalse(isServerElement(serverElementSwan));
     });
   });
 
@@ -490,30 +291,6 @@ describe('predicates', function () {
         assert.isFalse(isServerVariableElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const serverVariableElementDuck = {
-        _storedElement: 'serverVariable',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const serverVariableElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isServerVariableElement(serverVariableElementDuck));
-      assert.isFalse(isServerVariableElement(serverVariableElementSwan));
-    });
   });
 
   context('isSecuritySchemeElement', function () {
@@ -542,30 +319,6 @@ describe('predicates', function () {
         assert.isFalse(isSecuritySchemeElement([]));
         assert.isFalse(isSecuritySchemeElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const securitySchemeElementDuck = {
-        _storedElement: 'securityScheme',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const securitySchemeElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isSecuritySchemeElement(securitySchemeElementDuck));
-      assert.isFalse(isSecuritySchemeElement(securitySchemeElementSwan));
     });
   });
 
@@ -596,30 +349,6 @@ describe('predicates', function () {
         assert.isFalse(isPathsElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const pathsElementDuck = {
-        _storedElement: 'paths',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const pathsElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isPathsElement(pathsElementDuck));
-      assert.isFalse(isPathsElement(pathsElementSwan));
-    });
   });
 
   context('isPathItemElement', function () {
@@ -648,30 +377,6 @@ describe('predicates', function () {
         assert.isFalse(isPathItemElement([]));
         assert.isFalse(isPathItemElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const pathItemElementDuck = {
-        _storedElement: 'pathItem',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const pathItemElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isPathItemElement(pathItemElementDuck));
-      assert.isFalse(isPathItemElement(pathItemElementSwan));
     });
   });
 
@@ -702,30 +407,6 @@ describe('predicates', function () {
         assert.isFalse(isOperationElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const operationElementDuck = {
-        _storedElement: 'operation',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const operationElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isOperationElement(operationElementDuck));
-      assert.isFalse(isOperationElement(operationElementSwan));
-    });
   });
 
   context('isReferenceElement', function () {
@@ -754,30 +435,6 @@ describe('predicates', function () {
         assert.isFalse(isReferenceElement([]));
         assert.isFalse(isReferenceElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const referenceElementDuck = {
-        _storedElement: 'reference',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const referenceElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isReferenceElement(referenceElementDuck));
-      assert.isFalse(isReferenceElement(referenceElementSwan));
     });
   });
 });

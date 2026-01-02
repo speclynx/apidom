@@ -4,7 +4,7 @@ import {
   ObjectElement,
   Attributes,
   Meta,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -17,7 +17,7 @@ class KafkaChannelBinding extends ObjectElement {
   }
 
   get topic(): StringElement | undefined {
-    return this.get('topic');
+    return this.get('topic') as StringElement | undefined;
   }
 
   set topic(topic: StringElement | undefined) {
@@ -25,7 +25,7 @@ class KafkaChannelBinding extends ObjectElement {
   }
 
   get partitions(): NumberElement | undefined {
-    return this.get('partitions');
+    return this.get('partitions') as NumberElement | undefined;
   }
 
   set partitions(partitions: NumberElement | undefined) {
@@ -33,7 +33,7 @@ class KafkaChannelBinding extends ObjectElement {
   }
 
   get replicas(): NumberElement | undefined {
-    return this.get('replicas');
+    return this.get('replicas') as NumberElement | undefined;
   }
 
   set replicas(replicas: NumberElement | undefined) {
@@ -41,7 +41,7 @@ class KafkaChannelBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

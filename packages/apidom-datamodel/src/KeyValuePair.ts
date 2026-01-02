@@ -1,4 +1,3 @@
-import type { Cloneable } from './types.ts';
 import type Element from './primitives/Element.ts';
 
 /**
@@ -9,25 +8,13 @@ import type Element from './primitives/Element.ts';
  * @typeParam V - Value element type
  * @public
  */
-class KeyValuePair<K extends Element = Element, V extends Element = Element> implements Cloneable<
-  KeyValuePair<K, V>
-> {
+class KeyValuePair<K extends Element = Element, V extends Element = Element> {
   public key: K | undefined;
   public value: V | undefined;
 
   constructor(key?: K, value?: V) {
     this.key = key;
     this.value = value;
-  }
-
-  /**
-   * Creates a deep clone of the KeyValuePair.
-   */
-  clone(): KeyValuePair<K, V> {
-    return new KeyValuePair<K, V>(
-      this.key?.clone() as K | undefined,
-      this.value?.clone() as V | undefined,
-    );
   }
 
   /**

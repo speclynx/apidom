@@ -1,14 +1,5 @@
-import { Element } from 'minim';
-import { F as stubFalse, pipe } from 'ramda';
-import { isString } from 'ramda-adjunct';
 import {
-  visit as astVisit,
-  BREAK,
-  mergeAllVisitors,
-  cloneNode as cloneNodeDefault,
-} from '@speclynx/apidom-ast';
-
-import {
+  Element,
   isElement,
   isMemberElement,
   isArrayElement,
@@ -19,7 +10,16 @@ import {
   isObjectElement,
   isNullElement,
   isNumberElement,
-} from '../predicates/index.ts';
+} from '@speclynx/apidom-datamodel';
+import { F as stubFalse, pipe } from 'ramda';
+import { isString } from 'ramda-adjunct';
+import {
+  visit as astVisit,
+  BREAK,
+  mergeAllVisitors,
+  cloneNode as cloneNodeDefault,
+} from '@speclynx/apidom-ast';
+
 import { cloneShallow } from '../clone/index.ts';
 
 export { BREAK, mergeAllVisitors };
@@ -29,7 +29,7 @@ export { BREAK, mergeAllVisitors };
  */
 export const getNodeType = <T extends Element>(element: T): string | undefined => {
   /*
-   * We're translating every possible higher element type to primitive minim type here.
+   * We're translating every possible higher element type to primitive datamodel type here.
    * We're using polymorphism to recognize any higher element type as ObjectElement or ArrayElement.
    * Using polymorphism allows us to assume any namespace.
    *

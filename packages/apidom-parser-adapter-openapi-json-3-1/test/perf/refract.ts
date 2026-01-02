@@ -3,8 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Benchmark from 'benchmark';
 import type { Event } from 'benchmark';
-import { ObjectElement } from '@speclynx/apidom-core';
-import { OpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { refractOpenApi3_1 } from '@speclynx/apidom-ns-openapi-3-1';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturePath = path.join(__dirname, 'fixtures/openapi.json');
@@ -17,7 +17,7 @@ const options = {
   minSamples: 600,
   expected: '63.49 ops/sec ±1.08% (660 runs sampled)',
   fn() {
-    OpenApi3_1Element.refract(genericObjectElement);
+    refractOpenApi3_1(genericObjectElement);
   },
 };
 

@@ -1,5 +1,5 @@
 import { T as stubTrue } from 'ramda';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
 import { isReferenceElement } from '../../../../predicates.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
@@ -30,7 +30,7 @@ class RequestBodyVisitor extends AlternatingVisitor {
     const result = AlternatingVisitor.prototype.enter.call(this, objectElement);
 
     if (isReferenceElement(this.element)) {
-      this.element.setMetaProperty('referenced-element', 'requestBody');
+      this.element.meta.set('referenced-element', 'requestBody');
     }
 
     return result;

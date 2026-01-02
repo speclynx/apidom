@@ -1,5 +1,5 @@
 import { pathOr } from 'ramda';
-import { Element } from 'minim';
+import { Element } from '@speclynx/apidom-datamodel';
 
 import { PredicateVisitor, BREAK, visit } from './visitor.ts';
 

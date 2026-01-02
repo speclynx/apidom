@@ -1,7 +1,12 @@
 import { assert } from 'chai';
-import { find, toValue, isElement } from '@speclynx/apidom-core';
+import { find, toValue } from '@speclynx/apidom-core';
+import { isElement } from '@speclynx/apidom-datamodel';
 
-import { JSONSchemaElement, isJSONSchemaElement } from '../../../../src/index.ts';
+import {
+  refractJSONSchema,
+  isJSONSchemaElement,
+  JSONSchemaElement,
+} from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
@@ -9,7 +14,7 @@ describe('refractor', function () {
       context('$schema keyword in embedded resources', function () {
         context('given JSONSchema Object without $schema keyword', function () {
           specify('should annotate JSONSchema Object with default dialect', function () {
-            const jsonSchemaElement = JSONSchemaElement.refract({
+            const jsonSchemaElement = refractJSONSchema({
               $id: '1',
               type: 'object',
               not: {},
@@ -25,7 +30,7 @@ describe('refractor', function () {
           'given direct refracting to JSONSchema Element from generic structure',
           function () {
             specify('should annotate Schema Object with default dialect', function () {
-              const jsonSchemaElement = JSONSchemaElement.refract({
+              const jsonSchemaElement = refractJSONSchema({
                 $id: '1',
                 type: 'object',
               }) as JSONSchemaElement;
@@ -41,7 +46,7 @@ describe('refractor', function () {
           let jsonSchemaElement: any;
 
           beforeEach(function () {
-            jsonSchemaElement = JSONSchemaElement.refract({
+            jsonSchemaElement = refractJSONSchema({
               $id: '1',
               type: 'object',
               oneOf: [

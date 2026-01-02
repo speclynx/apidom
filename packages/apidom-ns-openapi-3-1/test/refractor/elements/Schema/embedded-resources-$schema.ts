@@ -1,12 +1,13 @@
 import { assert } from 'chai';
-import { ObjectElement, find, toValue, isElement } from '@speclynx/apidom-core';
+import { ObjectElement, isElement } from '@speclynx/apidom-datamodel';
+import { find, toValue } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-json';
 
 import {
   isSchemaElement,
   JsonSchemaDialectElement,
-  OpenApi3_1Element,
-  SchemaElement,
+  refractOpenApi3_1,
+  refractSchema,
 } from '../../../../src/index.ts';
 
 describe('refractor', function () {
@@ -26,7 +27,7 @@ describe('refractor', function () {
                 },
               },
             });
-            const openApiElement = OpenApi3_1Element.refract(genericObjectElement);
+            const openApiElement = refractOpenApi3_1(genericObjectElement);
             const schemaElement = find((e) => isSchemaElement(e), openApiElement);
             const actual = toValue(schemaElement?.meta.get('inheritedDialectIdentifier'));
             const expected = toValue(JsonSchemaDialectElement.default);
@@ -42,7 +43,7 @@ describe('refractor', function () {
               specify('should annotate Schema Object with default dialect', function () {
                 const genericObjectElement = { type: 'object' };
 
-                const schemaElement = SchemaElement.refract(genericObjectElement);
+                const schemaElement = refractSchema(genericObjectElement);
                 const actual = toValue(schemaElement.meta.get('inheritedDialectIdentifier'));
                 const expected = toValue(JsonSchemaDialectElement.default);
 
@@ -67,7 +68,7 @@ describe('refractor', function () {
                 }
               }
             }`);
-              const openApiElement = OpenApi3_1Element.refract(genericObjectElement.result);
+              const openApiElement = refractOpenApi3_1(genericObjectElement.result);
               const schemaElement = find((e) => isSchemaElement(e), openApiElement);
               const actual = toValue(schemaElement?.meta.get('inheritedDialectIdentifier'));
               const expected = 'https://arbitrary-schema-url.com/';
@@ -92,7 +93,7 @@ describe('refractor', function () {
               },
               "jsonSchemaDialect": "https://arbitrary-schema-url.com/"
             }`);
-              const openApiElement = OpenApi3_1Element.refract(genericObjectElement.result);
+              const openApiElement = refractOpenApi3_1(genericObjectElement.result);
               const schemaElement = find((e) => isSchemaElement(e), openApiElement);
               const actual = toValue(schemaElement?.meta.get('inheritedDialectIdentifier'));
               const expected = 'https://arbitrary-schema-url.com/';
@@ -130,7 +131,7 @@ describe('refractor', function () {
                 },
               },
             });
-            openApiElement = OpenApi3_1Element.refract(genericObjectElement);
+            openApiElement = refractOpenApi3_1(genericObjectElement);
           });
 
           specify('should annotate Schema Object($id=1) with appropriate dialect', function () {

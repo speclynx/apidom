@@ -3,7 +3,7 @@ import dedent from 'dedent';
 import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
-import { OpenApi3_1Element, refractorPluginNormalizeParameters } from '../../../../../src/index.ts';
+import { refractOpenApi3_1, refractorPluginNormalizeParameters } from '../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('plugins', function () {
@@ -23,7 +23,7 @@ describe('refractor', function () {
                     get: {}
             `;
           const apiDOM = await parse(yamlDefinition);
-          const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+          const openApiElement = refractOpenApi3_1(apiDOM.result, {
             plugins: [refractorPluginNormalizeParameters()],
           });
 
@@ -45,7 +45,7 @@ describe('refractor', function () {
                        get: {}
             `;
           const apiDOM = await parse(yamlDefinition);
-          const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+          const openApiElement = refractOpenApi3_1(apiDOM.result, {
             plugins: [refractorPluginNormalizeParameters()],
           });
 

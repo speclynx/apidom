@@ -7,9 +7,8 @@ import {
   isElement,
   isMemberElement,
   includesClasses,
-  cloneDeep,
-  toValue,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
+import { cloneDeep, toValue } from '@speclynx/apidom-core';
 
 /**
  * OpenAPI 3.0.x specification elements.
@@ -113,8 +112,8 @@ import { getNodeType } from '../../traversal/visitor.ts';
  *      (InfoElement))
  */
 
-const isEmptyElement = (element: any) =>
-  isStringElement(element) && includesClasses(['yaml-e-node', 'yaml-e-scalar'], element);
+const isEmptyElement = (element: unknown) =>
+  isStringElement(element) && includesClasses(element, ['yaml-e-node', 'yaml-e-scalar']);
 
 const schema = {
   // concrete types handling (CTs)
@@ -629,7 +628,7 @@ const plugin = () => () => ({
         elementFactory = findElementFactory(parentElement, '<*>');
       } else if (isMemberElement(parentElement)) {
         context = lineage.at(-2);
-        elementFactory = findElementFactory(context, toValue(parentElement.key));
+        elementFactory = findElementFactory(context, toValue(parentElement.key) as string);
       }
 
       // no element factory found

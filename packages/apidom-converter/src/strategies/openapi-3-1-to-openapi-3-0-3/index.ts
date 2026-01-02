@@ -1,19 +1,15 @@
 import {
-  OpenApi3_0Element,
   mediaTypes as openAPI3_0MediaTypes,
+  refractOpenApi3_0,
 } from '@speclynx/apidom-ns-openapi-3-0';
 import {
-  isOpenApi3_1Element,
   mediaTypes as openAPI3_1MediaTypes,
   keyMap,
   getNodeType,
+  isOpenApi3_1Element,
 } from '@speclynx/apidom-ns-openapi-3-1';
-import {
-  ParseResultElement,
-  AnnotationElement,
-  cloneDeep,
-  dispatchRefractorPlugins as dispatchPlugins,
-} from '@speclynx/apidom-core';
+import { ParseResultElement, AnnotationElement } from '@speclynx/apidom-datamodel';
+import { cloneDeep, dispatchRefractorPlugins as dispatchPlugins } from '@speclynx/apidom-core';
 import { File } from '@speclynx/apidom-reference';
 
 import ConvertStrategy from '../ConvertStrategy.ts';
@@ -80,7 +76,7 @@ class OpenAPI31ToOpenAPI30ConvertStrategy extends ConvertStrategy {
     );
 
     annotations.forEach((a) => parseResultElement.push(a));
-    parseResultElement.replaceResult(OpenApi3_0Element.refract(parseResultElement.api));
+    parseResultElement.replaceResult(refractOpenApi3_0(parseResultElement.api));
 
     return parseResultElement;
   }

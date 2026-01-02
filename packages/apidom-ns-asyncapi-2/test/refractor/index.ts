@@ -3,11 +3,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import sinon from 'sinon';
-import { ObjectElement, toValue, Namespace } from '@speclynx/apidom-core';
+import { ObjectElement, Namespace } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 import * as predicates from '../../src/predicates.ts';
 import {
-  AsyncApi2Element,
+  refractAsyncApi2,
   AsyncApiVersionElement,
   isAsyncApiVersionElement,
 } from '../../src/index.ts';
@@ -22,7 +23,7 @@ describe('refractor', function () {
         .toString();
       const asyncApiPojo = JSON.parse(asyncApiString);
       const genericObjectElement = new ObjectElement(asyncApiPojo);
-      const asyncApiElement = AsyncApi2Element.refract(genericObjectElement);
+      const asyncApiElement = refractAsyncApi2(genericObjectElement);
 
       expect(asyncApiElement).toMatchSnapshot();
     });
@@ -35,7 +36,7 @@ describe('refractor', function () {
         .toString();
       const asyncApiPojo = JSON.parse(asyncApiString);
       const genericObjectElement = new ObjectElement(asyncApiPojo);
-      const asyncApiElement = AsyncApi2Element.refract(genericObjectElement);
+      const asyncApiElement = refractAsyncApi2(genericObjectElement);
 
       expect(asyncApiElement).toMatchSnapshot();
     });
@@ -48,7 +49,7 @@ describe('refractor', function () {
         .toString();
       const asyncApiPojo = JSON.parse(asyncApiString);
       const genericObjectElement = new ObjectElement(asyncApiPojo);
-      const asyncApiElement = AsyncApi2Element.refract(genericObjectElement);
+      const asyncApiElement = refractAsyncApi2(genericObjectElement);
 
       expect(asyncApiElement).toMatchSnapshot();
     });
@@ -61,7 +62,7 @@ describe('refractor', function () {
         .toString();
       const asyncApiPojo = JSON.parse(asyncApiString);
       const genericObjectElement = new ObjectElement(asyncApiPojo);
-      const asyncApiElement = AsyncApi2Element.refract(genericObjectElement);
+      const asyncApiElement = refractAsyncApi2(genericObjectElement);
 
       expect(asyncApiElement).toMatchSnapshot();
     });
@@ -74,7 +75,7 @@ describe('refractor', function () {
         .toString();
       const asyncApiPojo = JSON.parse(asyncApiString);
       const genericObjectElement = new ObjectElement(asyncApiPojo);
-      const asyncApiElement = AsyncApi2Element.refract(genericObjectElement);
+      const asyncApiElement = refractAsyncApi2(genericObjectElement);
 
       expect(asyncApiElement).toMatchSnapshot();
     });
@@ -87,7 +88,7 @@ describe('refractor', function () {
         .toString();
       const asyncApiPojo = JSON.parse(asyncApiString);
       const genericObjectElement = new ObjectElement(asyncApiPojo);
-      const asyncApiElement = AsyncApi2Element.refract(genericObjectElement);
+      const asyncApiElement = refractAsyncApi2(genericObjectElement);
 
       expect(asyncApiElement).toMatchSnapshot();
     });
@@ -100,7 +101,7 @@ describe('refractor', function () {
         .toString();
       const asyncApiPojo = JSON.parse(asyncApiString);
       const genericObjectElement = new ObjectElement(asyncApiPojo);
-      const asyncApiElement = AsyncApi2Element.refract(genericObjectElement);
+      const asyncApiElement = refractAsyncApi2(genericObjectElement);
 
       expect(asyncApiElement).toMatchSnapshot();
     });
@@ -152,7 +153,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           asyncapi: '2.6.0',
         });
-        AsyncApi2Element.refract(genericObject, {
+        refractAsyncApi2(genericObject, {
           plugins: [plugin1],
         });
 
@@ -163,7 +164,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           asyncapi: '2.6.0',
         });
-        AsyncApi2Element.refract(genericObject, {
+        refractAsyncApi2(genericObject, {
           plugins: [plugin1],
         });
 
@@ -174,7 +175,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           asyncapi: '2.6.0',
         });
-        AsyncApi2Element.refract(genericObject, {
+        refractAsyncApi2(genericObject, {
           plugins: [plugin1],
         });
 
@@ -187,7 +188,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           asyncapi: '2.6.0',
         });
-        AsyncApi2Element.refract(genericObject, {
+        refractAsyncApi2(genericObject, {
           plugins: [plugin1],
         });
 
@@ -198,7 +199,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           asyncapi: '2.6.0',
         });
-        AsyncApi2Element.refract(genericObject, {
+        refractAsyncApi2(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -209,7 +210,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           asyncapi: '2.6.0',
         });
-        AsyncApi2Element.refract(genericObject, {
+        refractAsyncApi2(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -223,7 +224,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           asyncapi: '2.6.0',
         });
-        AsyncApi2Element.refract(genericObject, {
+        refractAsyncApi2(genericObject, {
           plugins: [plugin1],
         });
 
@@ -234,7 +235,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           asyncapi: '2.6.0',
         });
-        AsyncApi2Element.refract(genericObject, {
+        refractAsyncApi2(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -245,7 +246,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           asyncapi: '2.6.0',
         });
-        AsyncApi2Element.refract(genericObject, {
+        refractAsyncApi2(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -259,7 +260,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           asyncapi: '2.6.0',
         });
-        AsyncApi2Element.refract(genericObject, {
+        refractAsyncApi2(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -271,7 +272,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           asyncapi: '2.6.0',
         });
-        AsyncApi2Element.refract(genericObject, {
+        refractAsyncApi2(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -287,7 +288,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             asyncapi: '2.6.0',
           });
-          AsyncApi2Element.refract(genericObject, {
+          refractAsyncApi2(genericObject, {
             plugins: [plugin1],
           });
 
@@ -298,7 +299,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             asyncapi: '2.6.0',
           });
-          AsyncApi2Element.refract(genericObject, {
+          refractAsyncApi2(genericObject, {
             plugins: [plugin1],
           });
 
@@ -311,7 +312,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             asyncapi: '2.6.0',
           });
-          const asyncApiElement = AsyncApi2Element.refract(genericObject, {
+          const asyncApiElement = refractAsyncApi2(genericObject, {
             plugins: [plugin1],
           });
 
@@ -324,7 +325,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             asyncapi: '2.6.0',
           });
-          AsyncApi2Element.refract(genericObject, {
+          refractAsyncApi2(genericObject, {
             plugins: [plugin1, plugin2],
           });
 
@@ -335,7 +336,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             asyncapi: '2.6.0',
           });
-          AsyncApi2Element.refract(genericObject, {
+          refractAsyncApi2(genericObject, {
             plugins: [plugin1, plugin2],
           });
 
@@ -348,7 +349,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             asyncapi: '2.6.0',
           });
-          const asyncApiElement = AsyncApi2Element.refract(genericObject, {
+          const asyncApiElement = refractAsyncApi2(genericObject, {
             plugins: [plugin1, plugin2],
           });
 

@@ -1,23 +1,19 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
-import { ObjectElement, BooleanElement } from '@speclynx/apidom-core';
+import { ObjectElement, BooleanElement } from '@speclynx/apidom-datamodel';
 
 import SchemaElement from '../../../../elements/Schema.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
+import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface SchemaVisitorOptions extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type SchemaVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class SchemaVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class SchemaVisitor extends BaseFixedFieldsVisitor {
   declare public element: SchemaElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'Schema']>;
@@ -33,7 +29,7 @@ class SchemaVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
   ObjectElement(objectElement: ObjectElement) {
     this.element = new SchemaElement();
 
-    return FixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+    return BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
   }
 
   BooleanElement(booleanElement: BooleanElement) {

@@ -1,13 +1,14 @@
 import { expect, assert } from 'chai';
-import { sexprs, includesClasses } from '@speclynx/apidom-core';
+import { includesClasses } from '@speclynx/apidom-datamodel';
+import { sexprs } from '@speclynx/apidom-core';
 
-import { SecuritySchemeElement } from '../../../../src/index.ts';
+import { refractSecurityScheme, SecuritySchemeElement } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('SecuritySchemeElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const securitySchemeElement = SecuritySchemeElement.refract({
+        const securitySchemeElement = refractSecurityScheme({
           type: 'apiKey',
           description: 'simple description',
           name: 'api_key',
@@ -25,19 +26,20 @@ describe('refractor', function () {
       });
 
       specify('should support specification extensions', function () {
-        const securitySchemeElement = SecuritySchemeElement.refract({
+        const securitySchemeElement = refractSecurityScheme({
           type: 'apiKey',
           'x-extension': 'extension',
         }) as SecuritySchemeElement;
 
         assert.isFalse(
-          includesClasses(['specification-extension'], securitySchemeElement.getMember('type')),
+          includesClasses(securitySchemeElement.getMember('type') as any, [
+            'specification-extension',
+          ]),
         );
         assert.isTrue(
-          includesClasses(
-            ['specification-extension'],
-            securitySchemeElement.getMember('x-extension'),
-          ),
+          includesClasses(securitySchemeElement.getMember('x-extension') as any, [
+            'specification-extension',
+          ]),
         );
       });
     });

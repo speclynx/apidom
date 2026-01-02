@@ -3,9 +3,9 @@ import {
   StringElement,
   Element,
   isStringElement,
-  Attributes,
-  Meta,
-} from '@speclynx/apidom-core';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import ServerElement from './Server.ts';
 import OperationElement from './Operation.ts';
@@ -20,7 +20,7 @@ class Link extends ObjectElement {
   }
 
   get operationRef(): StringElement | undefined {
-    return this.get('operationRef');
+    return this.get('operationRef') as StringElement | undefined;
   }
 
   set operationRef(operationRef: StringElement | undefined) {
@@ -28,7 +28,7 @@ class Link extends ObjectElement {
   }
 
   get operationId(): StringElement | undefined {
-    return this.get('operationId');
+    return this.get('operationId') as StringElement | undefined;
   }
 
   set operationId(operationId: StringElement | undefined) {
@@ -37,10 +37,10 @@ class Link extends ObjectElement {
 
   get operation(): OperationElement | undefined {
     if (isStringElement(this.operationRef)) {
-      return this.operationRef?.meta.get('operation');
+      return this.operationRef?.meta.get('operation') as OperationElement | undefined;
     }
     if (isStringElement(this.operationId)) {
-      return this.operationId?.meta.get('operation');
+      return this.operationId?.meta.get('operation') as OperationElement | undefined;
     }
     return undefined;
   }
@@ -50,7 +50,7 @@ class Link extends ObjectElement {
   }
 
   get parameters(): ObjectElement | undefined {
-    return this.get('parameters');
+    return this.get('parameters') as ObjectElement | undefined;
   }
 
   set parameters(parameters: ObjectElement | undefined) {
@@ -58,7 +58,7 @@ class Link extends ObjectElement {
   }
 
   get requestBody(): Element | undefined {
-    return this.get('requestBody');
+    return this.get('requestBody') as Element | undefined;
   }
 
   set requestBody(requestBody: Element | undefined) {
@@ -66,7 +66,7 @@ class Link extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -74,7 +74,7 @@ class Link extends ObjectElement {
   }
 
   get server(): ServerElement | undefined {
-    return this.get('server');
+    return this.get('server') as ServerElement | undefined;
   }
 
   set server(server: ServerElement | undefined) {

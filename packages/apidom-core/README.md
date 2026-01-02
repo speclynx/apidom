@@ -1,6 +1,7 @@
 # @speclynx/apidom-core
 
 `apidom-core` is a package that contains tools for manipulating the ApiDOM structures.
+It provides utilities for traversal, transformation, merging, cloning, and refraction of ApiDOM elements.
 
 ## Installation
 
@@ -12,63 +13,22 @@ You can install this package via [npm CLI](https://docs.npmjs.com/cli) by runnin
 
 ---
 
-## Base namespace
+## Relationship with @speclynx/apidom-datamodel
 
-Base namespace consists of [four higher order elements](https://github.com/speclynx/apidom/tree/main/packages/apidom-core/src/elements) implemented on top
-of [primitive ones](https://github.com/refractproject/minim/tree/master/lib/primitives).
+This package works together with `@speclynx/apidom-datamodel`:
 
-```js
-import { createNamespace } from '@speclynx/apidom-core';
-
-const namespace = createNamespace();
-
-const objectElement = new namespace.elements.Object();
-const commentElement = new namespace.elements.Comment();
-```
-
-It's possible to create namespace instances using another namespaces.
+- **@speclynx/apidom-datamodel** - Contains the core element primitives (`ObjectElement`, `ArrayElement`, `StringElement`, etc.), predicates, and the `Namespace` class
+- **@speclynx/apidom-core** - Contains utilities for working with elements: traversal, transformers, merging, cloning, and refractor plugins
 
 ```js
-import { createNamespace } from '@speclynx/apidom-core';
-import openApi3_1Namespace from '@speclynx/apidom-ns-openapi-3-1';
+// Elements and predicates come from datamodel
+import { ObjectElement, StringElement, isObjectElement } from '@speclynx/apidom-datamodel';
 
-const namespace = createNamespace(openApi3_1Namespace);
+// Utilities come from core
+import { toValue, deepmerge, visit, from } from '@speclynx/apidom-core';
 
-const objectElement = new namespace.elements.Object();
-const openApiElement = new namespace.elements.OpenApi3_1();
-```
-
-When namespace instance is created in this way, it will extend the base namespace
-with the namespace provided as an argument.
-
----
-
-## Predicates
-
-This package exposes [predicates](https://github.com/speclynx/apidom/blob/main/packages/apidom-core/src/predicates/index.ts)
-for all primitive elements and all higher order elements that are part of the base namespace.
-
-```js
-import { CommentElement, isCommentElement } from '@speclynx/apidom-core';
-
-const commentElement = new CommentElement();
-
-isCommentElement(commentElement); // => true
-```
-
-[Predicate helpers](https://github.com/speclynx/apidom/blob/main/packages/apidom-core/src/predicates/helpers.ts)
-helps in building predicates for this and other packages.
-
-```js
-import { createPredicate } from '@speclynx/apidom-core';
-
-const isMyElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element) =>
-      element instanceof MyElement ||
-      (hasBasicElementProps(element) && isElementType('myElement', element) && primitiveEq('object', element));
-  },
-);
+const obj = new ObjectElement({ a: 'b' });
+toValue(obj); // => { a: 'b' }
 ```
 
 ---
@@ -79,7 +39,8 @@ Transclusion is the inclusion of one ApiDOM fragment into another ApiDOM fragmen
 Our [transcluder](https://github.com/speclynx/apidom/tree/main/packages/apidom-core/src/transcluder) does exactly that and is based on mutating algorithm.
 
 ```js
-import { transclude, ArrayElement, NumberElement } from '@speclynx/apidom-core';
+import { ArrayElement, NumberElement } from '@speclynx/apidom-datamodel';
+import { transclude } from '@speclynx/apidom-core';
 
 const element = new ArrayElement([1, 2, 3]);
 const search = element.get(1);
@@ -92,7 +53,8 @@ When multiple transclusions are going to be performed use [Transcluder stamp](ht
 for optimal performance.
 
 ```js
-import { Transcluder, ArrayElement, NumberElement } from '@speclynx/apidom-core';
+import { ArrayElement, NumberElement } from '@speclynx/apidom-datamodel';
+import { Transcluder } from '@speclynx/apidom-core';
 
 const element = new ArrayElement([1, 2, 3]);
 const search = element.get(1);
@@ -119,7 +81,8 @@ the value from source will appear in the result. Merging creates a new ApiDOM el
 so that neither target nor source is modified (operation is immutable).
 
 ```js
-import { mergeRight, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { mergeRight } from '@speclynx/apidom-core';
 
 const x = new ObjectElement({
   foo: { bar: 3 },
@@ -145,7 +108,8 @@ const output = mergeRight(x, y);
 Merges shallowly any number of ApiDOM elements into a single ApiDOM element.
 
 ```js
-import { mergeRight, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { mergeRight } from '@speclynx/apidom-core';
 
 const foobar = new ObjectElement({ foo: { bar: 3 } });
 const foobaz = new ObjectElement({ foo: { baz: 4 } });
@@ -163,7 +127,8 @@ the value from source will appear in the result. Merging creates a new ApiDOM el
 so that neither target nor source is modified (operation is immutable).
 
 ```js
-import { mergeLeft, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { mergeLeft } from '@speclynx/apidom-core';
 
 const x = new ObjectElement({
   foo: { bar: 3 },
@@ -189,7 +154,8 @@ const output = mergeLeft(x, y);
 Merges shallowly any number of ApiDOM elements into a single ApiDOM element.
 
 ```js
-import { mergeLeft, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { mergeLeft } from '@speclynx/apidom-core';
 
 const foobar = new ObjectElement({ foo: { bar: 3 } });
 const foobaz = new ObjectElement({ foo: { baz: 4 } });
@@ -220,7 +186,8 @@ the value from source will appear in the result. Merging creates a new ApiDOM el
 so that neither target nor source is modified (operation is immutable).
 
 ```js
-import { deepmerge, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { deepmerge } from '@speclynx/apidom-core';
 
 const x = new ObjectElement({
   foo: { bar: 3 },
@@ -275,7 +242,8 @@ const output = deepmerge(x, y);
 Merges deeply any number of ApiDOM elements into a single ApiDOM element.
 
 ```js
-import { deepmerge, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { deepmerge } from '@speclynx/apidom-core';
 
 const foobar = new ObjectElement({ foo: { bar: 3 } });
 const foobaz = new ObjectElement({ foo: { baz: 4 } });
@@ -295,7 +263,8 @@ Your `arrayElementMerge` function will be called with three arguments: a `target
 and an `options` object.
 
 ```js
-import { deepmerge, ArrayElement } from '@speclynx/apidom-core';
+import { ArrayElement } from '@speclynx/apidom-datamodel';
+import { deepmerge } from '@speclynx/apidom-core';
 
 const arrayElementMerge = (destination, source, options) => source;
 
@@ -313,7 +282,8 @@ Your `objectElementMerge` function will be called with three arguments: a `targe
 and an `options` object.
 
 ```js
-import { deepmerge, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { deepmerge } from '@speclynx/apidom-core';
 
 const objectElementMerge = (destination, source, options) => source;
 
@@ -332,10 +302,14 @@ and you want to copy the whole ObjectElement instead of just copying its member.
 You can accomplish this by passing in a function for the `isMergeableElement` option.
 
 ```js
-import { deepmerge, ObjectElement, isObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement, Element, isObjectElement } from '@speclynx/apidom-datamodel';
+import { deepmerge } from '@speclynx/apidom-core';
 
 class CustomObjectElement extends ObjectElement {
-  element = 'custom';
+  constructor(...args) {
+    super(...args);
+    this.element = 'custom';
+  }
 }
 const instantiatedCustomObjectElement = new CustomObjectElement({ special: 'oh yeah' });
 
@@ -365,7 +339,8 @@ be used to merge the values for that member.
 It may also return undefined, in which case the default merge behaviour will be used.
 
 ```js
-import { deepmerge, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement, StringElement, Element } from '@speclynx/apidom-datamodel';
+import { deepmerge, toValue } from '@speclynx/apidom-core';
 
 const alex = new ObjectElement({
 	name: {
@@ -387,7 +362,7 @@ const mergeNames = (nameA: ObjectElement, nameB: ObjectElement) =>
 const customMerge = (key: Element) => (toValue(key) === 'name' ? mergeNames : undefined);
 
 const output = deepmerge(alex, tony, { customMerge });
-// output.get('name'); // => StrignElement('Alex and Tony')
+// output.get('name'); // => StringElement('Alex and Tony')
 // output.get('pets'); // => ArrayElement(['Cat', 'Parrot', 'Dog'])
 ```
 
@@ -398,7 +373,8 @@ The `customMetaMerge` function will be passed target and source metadata. If not
 the default behavior is to deep copy metadata from target to new merged element.
 
 ```js
-import { deepmerge, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { deepmerge } from '@speclynx/apidom-core';
 
 const alex = new ObjectElement({ name: { first: 'Alex' } }, { metaKey: true });
 const tony = new ObjectElement({ name: { first: 'Tony' } }, { metaKey: false });
@@ -416,7 +392,8 @@ The `customAttributesMerge` function will be passed target and source attributes
 the default behavior is to deep copy attributes from target to new merged element.
 
 ```js
-import { deepmerge, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { deepmerge } from '@speclynx/apidom-core';
 
 const alex = new ObjectElement({ name: { first: 'Alex' } }, undefined, { attributeKey: true });
 const tony = new ObjectElement({ name: { first: 'Tony' } }, undefined, { attributeKey: false });
@@ -424,7 +401,7 @@ const tony = new ObjectElement({ name: { first: 'Tony' } }, undefined, { attribu
 const customAttributesMerge = (targetMeta, sourceMeta) => deepmerge(targetMeta, sourceMeta);
 
 const output = deepmerge(alex, tony, { customAttributesMerge });
-// output.attributs.get('attributeKey') // => BooleanElement(false)
+// output.attributes.get('attributeKey') // => BooleanElement(false)
 ```
 
 #### clone
@@ -435,41 +412,17 @@ If `clone` is false then child elements will be copied directly instead of being
 
 ---
 
-## Refractors
+## Refractor plugins
 
-Refractor is a special layer inside the base namespace that can transform JavaScript structures
-into generic ApiDOM structures built from elements of this base namespace.
-
-**Refracting JavaScript structures**:
+Refractor plugins allow you to transform ApiDOM structures during traversal.
+Use `dispatchRefractorPlugins` to apply plugins to an element tree.
 
 ```js
-import { ObjectElement } from '@speclynx/apidom-core';
-
-const object = {
-    title: 'my title',
-    description: 'my description',
-    version: '0.1.0',
-};
-
-ObjectElement.refract(object); // => ObjectElement({ title, description, version })
-```
-
-```js
-import { CommentElement } from '@speclynx/apidom-core';
-
-const comment = 'this is comment';
-
-CommentElement.refract(comment); // => CommentElement('this is comment')
-```
-
-### Refractor plugins
-
-Refractors can accept plugins as a second argument of refract static method.
-
-```js
-import { ObjectElement, StringElement } from '@speclynx/apidom-core';
+import { ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
+import { dispatchRefractorPlugins, from } from '@speclynx/apidom-core';
 
 const object = { a: 'b' };
+const objectElement = from(object);
 
 const plugin = ({ predicates, namespace }) => ({
   name: 'plugin',
@@ -486,24 +439,22 @@ const plugin = ({ predicates, namespace }) => ({
   },
 });
 
-ObjectElement.refract(object, { plugins: [plugin] }); // => ObjectElement({ a = 'c' })
+dispatchRefractorPlugins(objectElement, [plugin]); // => ObjectElement({ a = 'c' })
 ```
-You can define as many plugins as needed to enhance the resulting namespaced ApiDOM structure.
+You can define as many plugins as needed to enhance the resulting ApiDOM structure.
 If multiple plugins with the same visitor method are defined, they run in parallel (just like in Babel).
 
-#### Element identity plugin
+### Element identity plugin
 
-`apidom` package comes with `refractorPluginElementIdentity`. When used, this plugin will
+`apidom-core` package comes with `refractorPluginElementIdentity`. When used, this plugin will
 assign unique ID to all elements in ApiDOM tree.
 
 ```js
-import { refractorPluginElementIdentity, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { refractorPluginElementIdentity, dispatchRefractorPlugins, from } from '@speclynx/apidom-core';
 
-const objectElement = ObjectElement.refract({ a: 'b' }, {
-  plugins: [
-    refractorPluginElementIdentity(),
-  ]
-});
+const objectElement = from({ a: 'b' });
+dispatchRefractorPlugins(objectElement, [refractorPluginElementIdentity()]);
 
 objectElement.id; // 8RaWF9
 objectElement.getMember('a').key.id; // NdHHV7
@@ -513,35 +464,38 @@ objectElement.getMember('a').value.id; // rFGVFP
 You can configure the plugin to generate unique IDs in the specific length:
 
 ```js
-import { refractorPluginElementIdentity, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { refractorPluginElementIdentity, dispatchRefractorPlugins, from } from '@speclynx/apidom-core';
 
-const objectElement = ObjectElement.refract({ a: 'b' }, {
-  plugins: [
-    refractorPluginElementIdentity({ length: 36}),
-  ]
-});
+const objectElement = from({ a: 'b' });
+dispatchRefractorPlugins(objectElement, [refractorPluginElementIdentity({ length: 36 })]);
 
 objectElement.id; // OnReGGrO7fMd9ztacvGfwGbOdGKuOFLiQQ1W
 objectElement.getMember('a').key.id; // BN6rHsmqI56SMQ1elshtbgRVECtEWNYS9lmd
 objectElement.getMember('a').value.id; // Ki4tWmf9xw9Lwb8MxkXJq1uONmJrmhXifmsI
 ```
 
-#### Semantic element identity plugin
+### Semantic element identity plugin
 
-`apidom` package comes with `refractorPluginSemanticElementIdentity`. When used, this plugin will
+`apidom-core` package comes with `refractorPluginSemanticElementIdentity`. When used, this plugin will
 assign unique ID to all non-primitive elements in ApiDOM tree. Primitive elements include
-`ObjectElement`, `ArrayElement`, `StringElement`, `BooleanElement`, `NullElement` and `NumberElement`.
+`ObjectElement`, `ArrayElement`, `StringElement`, `BooleanElement`, `NullElement`, `NumberElement`, and `MemberElement`.
 
 ```js
-import { refractorPluginSemanticElementIdentity, ObjectElement } from '@speclynx/apidom-core';
-import { InfoElement } from '@speclynx/apidom-ns-openapi-3-1';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { refractorPluginSemanticElementIdentity, dispatchRefractorPlugins, from } from '@speclynx/apidom-core';
 
-const infoElement = InfoElement.refract({ title: 'title' });
-const objectElement = ObjectElement.refract({ a: 'b', info: infoElement }, {
-  plugins: [
-    refractorPluginSemanticElementIdentity(),
-  ]
-});
+// Create a semantic element (element with non-primitive name)
+class InfoElement extends ObjectElement {
+  constructor(...args) {
+    super(...args);
+    this.element = 'info';
+  }
+}
+
+const infoElement = new InfoElement({ title: 'title' });
+const objectElement = from({ a: 'b', info: infoElement });
+dispatchRefractorPlugins(objectElement, [refractorPluginSemanticElementIdentity()]);
 
 objectElement.id; // ''
 objectElement.getMember('a').key.id; // ''
@@ -553,20 +507,11 @@ objectElement.getMember('info').value.id; // '8RaWF9'
 You can configure the plugin to generate unique IDs in the specific length:
 
 ```js
-import { refractorPluginSemanticElementIdentity, ObjectElement } from '@speclynx/apidom-core';
-import { InfoElement } from '@speclynx/apidom-ns-openapi-3-1';
+import { refractorPluginSemanticElementIdentity, dispatchRefractorPlugins, from } from '@speclynx/apidom-core';
 
-const infoElement = InfoElement.refract({ title: 'title' });
-const objectElement = ObjectElement.refract({ a: 'b', info: infoElement }, {
-  plugins: [
-    refractorPluginSemanticElementIdentity({ length: 36 }),
-  ]
-});
+const objectElement = from({ a: 'b', info: infoElement });
+dispatchRefractorPlugins(objectElement, [refractorPluginSemanticElementIdentity({ length: 36 })]);
 
-objectElement.id; // ''
-objectElement.getMember('a').key.id; // ''
-objectElement.getMember('a').value.id; // ''
-objectElement.getMember('info').key.id; // ''
 objectElement.getMember('info').value.id; // 'OnReGGrO7fMd9ztacvGfwGbOdGKuOFLiQQ1W'
 ```
 
@@ -574,25 +519,26 @@ objectElement.getMember('info').value.id; // 'OnReGGrO7fMd9ztacvGfwGbOdGKuOFLiQQ
 
 ## Traversal
 
-`apidom` comes with its own traversal algorithm along with couple of convenient abstractions on top of it.
+`apidom-core` comes with its own traversal algorithm along with couple of convenient abstractions on top of it.
 
 ### visit
 
-[visit](https://github.com/speclynx/apidom/blob/main/packages/apidom-core/src/traversal/visitor.ts#L104-L103) will walk through an AST using a depth first traversal, calling
+[visit](https://github.com/speclynx/apidom/blob/main/packages/apidom-core/src/traversal/visitor.ts) will walk through an AST using a depth first traversal, calling
 the visitor's enter function at each node in the traversal, and calling the
 leave function after visiting that node and all of its child nodes.
 
 By returning different values from the enter and leave functions, the
 behavior of the visitor can be altered, including skipping over a sub-tree of
 the ApiDOM (by returning false), editing the ApiDOM by returning a value or null
-to remove the value, or to stop the whole traversal by returning [BREAK](https://github.com/speclynx/apidom/blob/main/packages/apidom-core/src/index.ts#L52).
+to remove the value, or to stop the whole traversal by returning [BREAK](https://github.com/speclynx/apidom/blob/main/packages/apidom-core/src/traversal/visitor.ts).
 
 When using `visit` to edit an ApiDOM, the original ApiDOM will not be modified, and
 a new version of the ApiDOM with the changes applied will be returned from the
 visit function.
 
 ```js
-import { visit, ObjectElement, NumberElement } from '@speclynx/apidom-core';
+import { ObjectElement, NumberElement } from '@speclynx/apidom-datamodel';
+import { visit } from '@speclynx/apidom-core';
 
 const visitor = {
     NumberElement(numberElement) {
@@ -605,7 +551,7 @@ const newElement = visit(element, visitor); // => ObjectElement<{a: 2}>
 ```
 
 This function originally comes from [@speclynx/apidom-ast package](https://github.com/speclynx/apidom/blob/main/packages/apidom-ast/src/visitor.ts)
-and is originally designed to work with [CST](https://en.wikipedia.org/wiki/Parse_tree). `apidom` package
+and is originally designed to work with [CST](https://en.wikipedia.org/wiki/Parse_tree). `apidom-core` package
 imports it, specializes it to work with ApiDOM and re-export it.
 
 All following algorithms are based on `visit` function.
@@ -615,7 +561,8 @@ All following algorithms are based on `visit` function.
 Finds all elements matching the predicate.
 
 ```js
-import { ObjectElement, filter, isNumberElement } from '@speclynx/apidom-core'
+import { ObjectElement, isNumberElement } from '@speclynx/apidom-datamodel';
+import { filter } from '@speclynx/apidom-core';
 
 const objElement = new ObjectElement({ a: 'b', c: 2 });
 
@@ -627,7 +574,8 @@ filter(isNumberElement, objElement); // => ArraySlice<[NumberElement<2>]>
 Find first element that satisfies the provided predicate.
 
 ```js
-import { ObjectElement, find, isMemberElement } from '@speclynx/apidom-core'
+import { ObjectElement, isNumberElement } from '@speclynx/apidom-datamodel';
+import { find } from '@speclynx/apidom-core';
 
 const objElement = new ObjectElement({ a: 'b', c: 2 });
 
@@ -640,7 +588,7 @@ ApiDOM nodes can be associated with source maps. This function finds the most in
 If includeRightBound is set, also finds nodes that end at the given offset.
 
 ```js
-import { findAtOffset } from '@speclynx/apidom-core'
+import { findAtOffset } from '@speclynx/apidom-core';
 
 findAtOffset(3, elementWithSourceMaps); // => returns most inner node at offset 3
 ```
@@ -650,7 +598,8 @@ findAtOffset(3, elementWithSourceMaps); // => returns most inner node at offset 
 Complement of [filter](#filter).
 
 ```js
-import { ArrayElement, reject, isNumberElement } from '@speclynx/apidom-core'
+import { ArrayElement, isNumberElement } from '@speclynx/apidom-datamodel';
+import { reject } from '@speclynx/apidom-core';
 
 const arrayElement = new ArrayElement([1, 'a']);
 
@@ -662,7 +611,8 @@ reject(isNumberElement, arrayElement); // => ArraySlice<[StringElement<'a'>]>
 Tests whether at least one element passes the predicate.
 
 ```js
-import { ArrayElement, some, isNumberElement } from '@speclynx/apidom-core'
+import { ArrayElement, isNumberElement } from '@speclynx/apidom-datamodel';
+import { some } from '@speclynx/apidom-core';
 
 const arrayElement = new ArrayElement([1, 'a']);
 
@@ -674,7 +624,8 @@ some(isNumberElement, arrayElement); // => true
 Executes the callback on this element and all descendants.
 
 ```js
-import { ArrayElement, traverse } from '@speclynx/apidom-core'
+import { ArrayElement } from '@speclynx/apidom-datamodel';
+import { traverse } from '@speclynx/apidom-core';
 
 const arrayElement = new ArrayElement([1, 'a']);
 
@@ -684,7 +635,8 @@ traverse(console.dir, arrayElement); // => prints ArrayElement, NumberElement, S
 The execution of the callback can be controlled further by providing a predicate.
 
 ```js
-import { ArrayElement, traverse, isNumberElement } from '@speclynx/apidom-core'
+import { ArrayElement, isNumberElement } from '@speclynx/apidom-datamodel';
+import { traverse } from '@speclynx/apidom-core';
 
 const arrayElement = new ArrayElement([1, 'a']);
 
@@ -698,7 +650,8 @@ Computes upwards edges from every child to its parent.
 #### ObjectElement example
 
 ```js
-import { parents, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { parents } from '@speclynx/apidom-core';
 
 const objectElement = new ObjectElement({ key: 'value' });
 const memberElement = objectElement.getMember('key');
@@ -714,7 +667,8 @@ parentEdges.get(valueElement) === memberElement; // => true
 #### ArrayElement example
 
 ```js
-import { parents, ArrayElement, StringElement } from '@speclynx/apidom-core';
+import { ArrayElement, StringElement } from '@speclynx/apidom-datamodel';
+import { parents } from '@speclynx/apidom-core';
 
 const itemElement1 = new StringElement('item1');
 const itemElement2 = new StringElement('item2');
@@ -773,7 +727,8 @@ Transforms the ApiDOM into JavaScript POJO. This POJO would be the result of int
 into JavaScript structure. This function can handle cycles in ApiDOM structure.
 
 ```js
-import { toValue, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 const objElement = new ObjectElement({ a: 'b' });
 
@@ -785,7 +740,8 @@ toValue(objElement); // => { a: 'b' }
 Transforms the ApiDOM into JSON string.
 
 ```js
-import { toJSON, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { toJSON } from '@speclynx/apidom-core';
 
 const objElement = new ObjectElement({ a: 'b' });
 
@@ -794,10 +750,11 @@ toJSON(objElement); // => '{"a":"b"}'
 
 ### toYAML
 
-Transforms the ApiDOM into JSON string.
+Transforms the ApiDOM into YAML string.
 
 ```js
-import { toYAML, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { toYAML } from '@speclynx/apidom-core';
 
 const objElement = new ObjectElement({ a: 'b' });
 
@@ -812,14 +769,15 @@ toYAML(objElement);
 
 ### dehydrate
 
-Creates a [refract representation](https://github.com/refractproject/refract-spec) of the an Element.
+Creates a [refract representation](https://github.com/refractproject/refract-spec) of an Element.
 
 ```js
-import { dehyrate, NumberElement } from '@speclynx/apidom-core';
+import { NumberElement } from '@speclynx/apidom-datamodel';
+import { dehydrate } from '@speclynx/apidom-core';
 
 const numberElement = new NumberElement(1);
 
-dehyrate(numberElement); // => { element: 'number', content: 1 }
+dehydrate(numberElement); // => { element: 'number', content: 1 }
 ```
 
 ### S-Expression
@@ -827,7 +785,8 @@ dehyrate(numberElement); // => { element: 'number', content: 1 }
 Transforms ApiDOM into [symbolic expression](https://en.wikipedia.org/wiki/S-expression).
 
 ```js
-import { sexprs, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { sexprs } from '@speclynx/apidom-core';
 
 const objectElement = new ObjectElement({ a: 1 });
 
@@ -846,7 +805,8 @@ sexprs(objectElement);
 Create a [refracted string](https://github.com/refractproject/refract-spec) representation of an Element.
 
 ```js
-import { toString, NumberElement } from '@speclynx/apidom-core';
+import { NumberElement } from '@speclynx/apidom-datamodel';
+import { toString } from '@speclynx/apidom-core';
 
 const numberElement = new NumberElement(1);
 
@@ -862,7 +822,8 @@ Following functions provide mechanism for creating shallow and deep copies of Ap
 Creates shallow clone of ApiDOM element.
 
 ```js
-import { cloneShallow, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { cloneShallow } from '@speclynx/apidom-core';
 
 const objectElement = new ObjectElement({ a: 'b' });
 const objectElementShallowClone = cloneShallow(objectElement);
@@ -873,9 +834,9 @@ const objectElementShallowClone = cloneShallow(objectElement);
 Creates deep clone of ApiDOM Element.
 
 ```js
-import { cloneDeep, ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { cloneDeep } from '@speclynx/apidom-core';
 
 const objectElement = new ObjectElement({ a: 'b' });
 const objectElementDeepClone = cloneDeep(objectElement);
 ```
-

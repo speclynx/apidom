@@ -1,20 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/MapVisitor.ts';
 import SecurityRequirementElement from '../../../../elements/SecurityRequirement.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface SecurityRequirementVisitorOptions
-  extends MapVisitorOptions, FallbackVisitorOptions {}
+export type SecurityRequirementVisitorOptions = BaseMapVisitorOptions;
 
 /**
  * @public
  */
-class SecurityRequirementVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class SecurityRequirementVisitor extends BaseMapVisitor {
   declare public readonly element: SecurityRequirementElement;
 
   declare protected readonly specPath: SpecPath<['value']>;

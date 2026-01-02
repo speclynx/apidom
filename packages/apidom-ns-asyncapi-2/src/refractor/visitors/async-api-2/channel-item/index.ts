@@ -1,24 +1,19 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
-import { ObjectElement, isStringElement } from '@speclynx/apidom-core';
+import { ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
 
 import ChannelItemElement from '../../../../elements/ChannelItem.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../bases.ts';
+import type { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
 
 /**
  * @public
  */
-export interface ChannelItemVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type ChannelItemVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class ChannelItemVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class ChannelItemVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: ChannelItemElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'ChannelItem']>;
@@ -33,12 +28,12 @@ class ChannelItemVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
   }
 
   ObjectElement(objectElement: ObjectElement) {
-    const result = FixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+    const result = BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
 
     // mark this ChannelItemElement with reference metadata
     if (isStringElement(this.element.$ref)) {
       this.element.classes.push('reference-element');
-      this.element.setMetaProperty('referenced-element', 'channelItem');
+      this.element.meta.set('referenced-element', 'channelItem');
     }
 
     return result;

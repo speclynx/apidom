@@ -7,8 +7,8 @@ import {
   StringElement,
   RefElement,
   isRefElement,
-  toValue,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 import { dereference, dereferenceApiDOM, DereferenceError } from '../../../../../src/index.ts';
 
@@ -67,7 +67,7 @@ describe('dereference', function () {
                 object1: new ObjectElement({ a: 'b', c: 'd' }, { id: 'unique-id' }),
                 object2: new ObjectElement({ e: 'f' }),
               });
-              element.get('object2').content.push(new RefElement('unique-id'));
+              (element.get('object2')!.content as ArrayElement).push(new RefElement('unique-id'));
               const actual = await dereferenceApiDOM(element, {
                 parse: { mediaType: 'application/vnd.apidom' },
               });
@@ -101,7 +101,7 @@ describe('dereference', function () {
           const actual = await dereferenceApiDOM(element, {
             parse: { mediaType: 'application/vnd.apidom' },
           });
-          const expected = toValue(actual);
+          const expected = toValue(actual) as { parent: unknown };
 
           assert.strictEqual(expected, expected.parent);
         });
@@ -129,7 +129,13 @@ describe('dereference', function () {
           const actual = await dereferenceApiDOM(element, {
             parse: { mediaType: 'application/vnd.apidom' },
           });
-          const expected = toValue(actual);
+          const expected = toValue(actual) as {
+            level1: {
+              level2b: unknown;
+              ref1: unknown;
+              level2a: { level3: { ref2: unknown } };
+            };
+          };
 
           assert.strictEqual(expected.level1.level2b, expected.level1.ref1);
           assert.strictEqual(expected.level1, expected.level1.level2a.level3.ref2);
@@ -226,9 +232,9 @@ describe('dereference', function () {
                     object1: new ObjectElement({ a: 'b', c: 'd' }, { id: 'unique-id' }),
                     object2: new ObjectElement({ e: 'f' }),
                   });
-                  element
-                    .get('object2')
-                    .content.push(new RefElement('unique-id', undefined, { path: 'content' }));
+                  (element.get('object2')!.content as ArrayElement).push(
+                    new RefElement('unique-id', undefined, { path: 'content' }),
+                  );
                   const actual = await dereferenceApiDOM(element, {
                     parse: { mediaType: 'application/vnd.apidom' },
                   });

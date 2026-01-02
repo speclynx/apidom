@@ -1,8 +1,9 @@
-import { BooleanElement, StringElement } from '@speclynx/apidom-core';
+import { BooleanElement, StringElement } from '@speclynx/apidom-datamodel';
 import { UnsupportedOperationError } from '@speclynx/apidom-error';
 import {
   LinkDescriptionElement,
   JSONReferenceElement,
+  JSONSchemaElement,
 } from '@speclynx/apidom-ns-json-schema-draft-4';
 
 import JSONSchema from './JSONSchema.ts';
@@ -14,37 +15,47 @@ import JSONSchema from './JSONSchema.ts';
 
 class LinkDescription extends LinkDescriptionElement {
   get hrefSchema(): JSONSchema | BooleanElement | JSONReferenceElement | undefined {
-    return this.get('hrefSchema');
+    return this.get('hrefSchema') as JSONSchema | BooleanElement | JSONReferenceElement | undefined;
   }
 
   set hrefSchema(hrefSchema: JSONSchema | BooleanElement | JSONReferenceElement | undefined) {
     this.set('hrefSchema', hrefSchema);
   }
 
-  get targetSchema(): JSONSchema | BooleanElement | JSONReferenceElement | undefined | any {
-    return this.get('targetSchema');
+  // @ts-expect-error - widening type to include BooleanElement (boolean schemas introduced in draft-6)
+  override get targetSchema(): JSONSchema | BooleanElement | JSONReferenceElement | undefined {
+    return this.get('targetSchema') as
+      | JSONSchema
+      | BooleanElement
+      | JSONReferenceElement
+      | undefined;
   }
 
-  set targetSchema(
-    targetSchema: JSONSchema | BooleanElement | JSONReferenceElement | undefined | any,
+  // @ts-expect-error - widening type to include BooleanElement (boolean schemas introduced in draft-6)
+  override set targetSchema(
+    targetSchema: JSONSchema | BooleanElement | JSONReferenceElement | undefined,
   ) {
     this.set('targetSchema', targetSchema);
   }
 
-  get schema(): JSONSchema | JSONReferenceElement | undefined {
+  override get schema(): JSONSchemaElement | JSONReferenceElement | undefined {
     throw new UnsupportedOperationError(
       'schema keyword from Hyper-Schema vocabulary has been renamed to submissionSchema.',
     );
   }
 
-  set schema(schema: JSONSchema | JSONReferenceElement | undefined) {
+  override set schema(schema: JSONSchemaElement | JSONReferenceElement | undefined) {
     throw new UnsupportedOperationError(
       'schema keyword from Hyper-Schema vocabulary has been renamed to submissionSchema.',
     );
   }
 
   get submissionSchema(): JSONSchema | BooleanElement | JSONReferenceElement | undefined {
-    return this.get('submissionSchema');
+    return this.get('submissionSchema') as
+      | JSONSchema
+      | BooleanElement
+      | JSONReferenceElement
+      | undefined;
   }
 
   set submissionSchema(
@@ -53,32 +64,32 @@ class LinkDescription extends LinkDescriptionElement {
     this.set('submissionSchema', submissionSchema);
   }
 
-  get method(): StringElement | undefined {
+  override get method(): StringElement | undefined {
     throw new UnsupportedOperationError(
       'method keyword from Hyper-Schema vocabulary has been removed.',
     );
   }
 
-  set method(method: StringElement | undefined) {
+  override set method(method: StringElement | undefined) {
     throw new UnsupportedOperationError(
       'method keyword from Hyper-Schema vocabulary has been removed.',
     );
   }
 
-  get encType(): StringElement | undefined {
+  override get encType(): StringElement | undefined {
     throw new UnsupportedOperationError(
       'encType keyword from Hyper-Schema vocabulary has been renamed to submissionEncType.',
     );
   }
 
-  set encType(encType: StringElement | undefined) {
+  override set encType(encType: StringElement | undefined) {
     throw new UnsupportedOperationError(
       'encType keyword from Hyper-Schema vocabulary has been renamed to submissionEncType.',
     );
   }
 
   get submissionEncType(): StringElement | undefined {
-    return this.get('submissionEncType');
+    return this.get('submissionEncType') as StringElement | undefined;
   }
 
   set submissionEncType(submissionEncType: StringElement | undefined) {

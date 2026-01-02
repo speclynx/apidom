@@ -1,28 +1,23 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import OperationElement from '../../../../elements/Operation.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface OperationVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type { BaseFixedFieldsVisitorOptions as OperationVisitorOptions };
 
 /**
  * @public
  */
-class OperationVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class OperationVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: OperationElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'Operation']>;
 
-  constructor(options: OperationVisitorOptions) {
+  constructor(options: BaseFixedFieldsVisitorOptions) {
     super(options);
     this.element = new OperationElement();
     this.specPath = always(['document', 'objects', 'Operation']);

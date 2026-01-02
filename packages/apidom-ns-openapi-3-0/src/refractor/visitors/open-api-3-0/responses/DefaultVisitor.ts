@@ -1,24 +1,21 @@
-import { Mixin } from 'ts-mixer';
 import { T as stubTrue } from 'ramda';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
 import { isReferenceLikeElement } from '../../../predicates.ts';
 import { isReferenceElement, isResponseElement } from '../../../../predicates.ts';
-import AlternatingVisitor, {
-  AlternatingVisitorOptions,
-} from '../../generics/AlternatingVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { BaseAlternatingVisitor, BaseAlternatingVisitorOptions } from '../bases.ts';
+import AlternatingVisitor from '../../generics/AlternatingVisitor.ts';
 
 /**
  * @public
  */
-export interface DefaultVisitorOptions extends AlternatingVisitorOptions, FallbackVisitorOptions {}
+export type { BaseAlternatingVisitorOptions as DefaultVisitorOptions };
 
 /**
  * @public
  */
-class DefaultVisitor extends Mixin(AlternatingVisitor, FallbackVisitor) {
-  constructor(options: DefaultVisitorOptions) {
+class DefaultVisitor extends BaseAlternatingVisitor {
+  constructor(options: BaseAlternatingVisitorOptions) {
     super(options);
     this.alternator = [
       { predicate: isReferenceLikeElement, specPath: ['document', 'objects', 'Reference'] },
@@ -31,9 +28,9 @@ class DefaultVisitor extends Mixin(AlternatingVisitor, FallbackVisitor) {
 
     // decorate ReferenceElement with type of referencing element
     if (isReferenceElement(this.element)) {
-      this.element.setMetaProperty('referenced-element', 'response');
+      this.element.meta.set('referenced-element', 'response');
     } else if (isResponseElement(this.element)) {
-      this.element.setMetaProperty('http-status-code', 'default');
+      this.element.meta.set('http-status-code', 'default');
     }
 
     return result;

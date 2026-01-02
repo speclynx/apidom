@@ -6,68 +6,68 @@ import OperationElement from './Operation.ts';
  * @public
  */
 class PathItem extends PathItemElement {
-  get GET(): OperationElement {
-    return this.get('get');
+  get getField(): OperationElement | undefined {
+    return this.get('get') as OperationElement | undefined;
   }
 
-  set GET(operation: OperationElement | undefined) {
-    this.set('GET', operation);
+  set getField(operation: OperationElement | undefined) {
+    this.set('get', operation);
   }
 
-  get PUT(): OperationElement {
-    return this.get('put');
+  get put(): OperationElement | undefined {
+    return this.get('put') as OperationElement | undefined;
   }
 
-  set PUT(operation: OperationElement | undefined) {
-    this.set('PUT', operation);
+  set put(operation: OperationElement | undefined) {
+    this.set('put', operation);
   }
 
-  get POST(): OperationElement {
-    return this.get('post');
+  get post(): OperationElement | undefined {
+    return this.get('post') as OperationElement | undefined;
   }
 
-  set POST(operation: OperationElement | undefined) {
-    this.set('POST', operation);
+  set post(operation: OperationElement | undefined) {
+    this.set('post', operation);
   }
 
-  get DELETE(): OperationElement {
-    return this.get('delete');
+  get deleteField(): OperationElement | undefined {
+    return this.get('delete') as OperationElement | undefined;
   }
 
-  set DELETE(operation: OperationElement | undefined) {
-    this.set('DELETE', operation);
+  set deleteField(operation: OperationElement | undefined) {
+    this.set('delete', operation);
   }
 
-  get OPTIONS(): OperationElement {
-    return this.get('options');
+  get options(): OperationElement | undefined {
+    return this.get('options') as OperationElement | undefined;
   }
 
-  set OPTIONS(operation: OperationElement | undefined) {
-    this.set('OPTIONS', operation);
+  set options(operation: OperationElement | undefined) {
+    this.set('options', operation);
   }
 
-  get HEAD(): OperationElement {
-    return this.get('head');
+  get head(): OperationElement | undefined {
+    return this.get('head') as OperationElement | undefined;
   }
 
-  set HEAD(operation: OperationElement | undefined) {
-    this.set('HEAD', operation);
+  set head(operation: OperationElement | undefined) {
+    this.set('head', operation);
   }
 
-  get PATCH(): OperationElement {
-    return this.get('patch');
+  get patch(): OperationElement | undefined {
+    return this.get('patch') as OperationElement | undefined;
   }
 
-  set PATCH(operation: OperationElement | undefined) {
-    this.set('PATCH', operation);
+  set patch(operation: OperationElement | undefined) {
+    this.set('patch', operation);
   }
 
-  get TRACE(): OperationElement {
-    return this.get('trace');
+  get trace(): OperationElement | undefined {
+    return this.get('trace') as OperationElement | undefined;
   }
 
-  set TRACE(operation: OperationElement | undefined) {
-    this.set('TRACE', operation);
+  set trace(operation: OperationElement | undefined) {
+    this.set('trace', operation);
   }
 }
 

@@ -1,4 +1,4 @@
-import { ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import { ObjectElement, type Attributes, type Meta } from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -10,7 +10,7 @@ class Components extends ObjectElement {
   }
 
   get schemas(): ObjectElement | undefined {
-    return this.get('schemas');
+    return this.get('schemas') as ObjectElement | undefined;
   }
 
   set schemas(schemas: ObjectElement | undefined) {
@@ -18,7 +18,7 @@ class Components extends ObjectElement {
   }
 
   get responses(): ObjectElement | undefined {
-    return this.get('responses');
+    return this.get('responses') as ObjectElement | undefined;
   }
 
   set responses(responses: ObjectElement | undefined) {
@@ -26,7 +26,7 @@ class Components extends ObjectElement {
   }
 
   get parameters(): ObjectElement | undefined {
-    return this.get('parameters');
+    return this.get('parameters') as ObjectElement | undefined;
   }
 
   set parameters(parameters: ObjectElement | undefined) {
@@ -34,7 +34,7 @@ class Components extends ObjectElement {
   }
 
   get examples(): ObjectElement | undefined {
-    return this.get('examples');
+    return this.get('examples') as ObjectElement | undefined;
   }
 
   set examples(examples: ObjectElement | undefined) {
@@ -42,7 +42,7 @@ class Components extends ObjectElement {
   }
 
   get requestBodies(): ObjectElement | undefined {
-    return this.get('requestBodies');
+    return this.get('requestBodies') as ObjectElement | undefined;
   }
 
   set requestBodies(requestBodies: ObjectElement | undefined) {
@@ -50,7 +50,7 @@ class Components extends ObjectElement {
   }
 
   get headers(): ObjectElement | undefined {
-    return this.get('headers');
+    return this.get('headers') as ObjectElement | undefined;
   }
 
   set headers(headers: ObjectElement | undefined) {
@@ -58,23 +58,23 @@ class Components extends ObjectElement {
   }
 
   get securitySchemes(): ObjectElement | undefined {
-    return this.get('securitySchemes');
+    return this.get('securitySchemes') as ObjectElement | undefined;
   }
 
   set securitySchemes(securitySchemes: ObjectElement | undefined) {
     this.set('securitySchemes', securitySchemes);
   }
 
-  get links(): ObjectElement | undefined {
-    return this.get('links');
+  get linksField(): ObjectElement | undefined {
+    return this.get('links') as ObjectElement | undefined;
   }
 
-  set links(links: ObjectElement | undefined) {
+  set linksField(links: ObjectElement | undefined) {
     this.set('links', links);
   }
 
   get callbacks(): ObjectElement | undefined {
-    return this.get('callbacks');
+    return this.get('callbacks') as ObjectElement | undefined;
   }
 
   set callbacks(callbacks: ObjectElement | undefined) {

@@ -1,13 +1,14 @@
 import { expect, assert } from 'chai';
-import { sexprs, includesClasses } from '@speclynx/apidom-core';
+import { includesClasses } from '@speclynx/apidom-datamodel';
+import { sexprs } from '@speclynx/apidom-core';
 
-import { XmlElement } from '../../../../src/index.ts';
+import { refractXml, XmlElement } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('XmlElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const xmlElement = XmlElement.refract({
+        const xmlElement = refractXml({
           name: 'animal',
           namespace: 'http://swagger.io/schema/sample',
           prefix: 'sample',
@@ -19,14 +20,16 @@ describe('refractor', function () {
       });
 
       specify('should support specification extensions', function () {
-        const xmlElement = XmlElement.refract({
+        const xmlElement = refractXml({
           name: 'animal',
           'x-extension': 'extension',
         }) as XmlElement;
 
-        assert.isFalse(includesClasses(['specification-extension'], xmlElement.getMember('name')));
+        assert.isFalse(
+          includesClasses(xmlElement.getMember('name') as any, ['specification-extension']),
+        );
         assert.isTrue(
-          includesClasses(['specification-extension'], xmlElement.getMember('x-extension')),
+          includesClasses(xmlElement.getMember('x-extension') as any, ['specification-extension']),
         );
       });
     });

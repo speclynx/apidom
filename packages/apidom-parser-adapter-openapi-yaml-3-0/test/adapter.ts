@@ -3,7 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import dedent from 'dedent';
-import { isParseResultElement, SourceMapElement, sexprs } from '@speclynx/apidom-core';
+import { isParseResultElement, SourceMapElement } from '@speclynx/apidom-datamodel';
+import { sexprs } from '@speclynx/apidom-core';
 import { isOpenApi3_0Element } from '@speclynx/apidom-ns-openapi-3-0';
 
 import * as adapter from '../src/adapter.ts';

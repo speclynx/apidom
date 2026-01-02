@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { SecurityDefinitionsElement } from '../../../../src/index.ts';
+import { refractSecurityDefinitions } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('SecurityDefinitionsElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const securityDefinitionsElement = SecurityDefinitionsElement.refract({
+        const securityDefinitionsElement = refractSecurityDefinitions({
           api_key: {},
           petstore_auth: {},
         });

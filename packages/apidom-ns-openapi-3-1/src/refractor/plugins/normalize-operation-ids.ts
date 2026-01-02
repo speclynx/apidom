@@ -1,5 +1,6 @@
 import { last, defaultTo, groupBy } from 'ramda';
-import { toValue, Element, StringElement, cloneDeep } from '@speclynx/apidom-core';
+import { toValue, cloneDeep } from '@speclynx/apidom-core';
+import { Element, StringElement } from '@speclynx/apidom-datamodel';
 
 import LinkElement from '../../elements/Link.ts';
 import PathItemElement from '../../elements/PathItem.ts';
@@ -80,7 +81,7 @@ const plugin =
           leave() {
             // group normalized operations by normalized operationId
             const normalizedOperationGroups = groupBy((operationElement: OperationElement) => {
-              return toValue(operationElement.operationId as StringElement);
+              return toValue(operationElement.operationId as StringElement) as string;
             }, normalizedOperations);
 
             // append incremental numerical suffixes to identical operationIds
@@ -128,7 +129,10 @@ const plugin =
         PathItemElement: {
           enter(pathItemElement: PathItemElement) {
             // `path` meta may not be always available, e.g. in Callback Object or Components Object
-            const pathTemplate = defaultTo('path', toValue(pathItemElement.meta.get('path')));
+            const pathTemplate = defaultTo(
+              'path',
+              toValue(pathItemElement.meta.get('path')) as string,
+            );
             pathTemplates.push(pathTemplate);
           },
           leave() {

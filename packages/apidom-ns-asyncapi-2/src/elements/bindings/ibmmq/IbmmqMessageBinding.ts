@@ -4,7 +4,7 @@ import {
   NumberElement,
   Attributes,
   Meta,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -17,7 +17,7 @@ class IbmmqMessageBinding extends ObjectElement {
   }
 
   get type(): StringElement | undefined {
-    return this.get('type');
+    return this.get('type') as StringElement | undefined;
   }
 
   set type(type: StringElement | undefined) {
@@ -25,7 +25,7 @@ class IbmmqMessageBinding extends ObjectElement {
   }
 
   get headers(): StringElement | undefined {
-    return this.get('headers');
+    return this.get('headers') as StringElement | undefined;
   }
 
   set headers(headers: StringElement | undefined) {
@@ -33,7 +33,7 @@ class IbmmqMessageBinding extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -41,7 +41,7 @@ class IbmmqMessageBinding extends ObjectElement {
   }
 
   get expiry(): NumberElement | undefined {
-    return this.get('expiry');
+    return this.get('expiry') as NumberElement | undefined;
   }
 
   set expiry(expiry: NumberElement | undefined) {
@@ -49,7 +49,7 @@ class IbmmqMessageBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

@@ -1,8 +1,8 @@
 import { propOr, omit } from 'ramda';
 import { isNotUndefined } from 'ramda-adjunct';
-import { ParseResultElement, createNamespace } from '@speclynx/apidom-core';
+import { ParseResultElement, Namespace } from '@speclynx/apidom-datamodel';
 import { parse as parseJSON, detect as detectJSON } from '@speclynx/apidom-parser-adapter-json';
-import asyncApiNamespace, { AsyncApi2Element } from '@speclynx/apidom-ns-asyncapi-2';
+import asyncApiNamespacePlugin, { refractAsyncApi2 } from '@speclynx/apidom-ns-asyncapi-2';
 
 export { default as mediaTypes } from './media-types.ts';
 
@@ -31,7 +31,7 @@ export const parse = async (
   const { result } = parseResultElement;
 
   if (isNotUndefined(result)) {
-    const asyncApiElement = AsyncApi2Element.refract(result, refractorOpts);
+    const asyncApiElement = refractAsyncApi2(result, refractorOpts);
     asyncApiElement.classes.push('result');
     parseResultElement.replaceResult(asyncApiElement);
   }
@@ -42,4 +42,4 @@ export const parse = async (
 /**
  * @public
  */
-export const namespace = createNamespace(asyncApiNamespace);
+export const namespace = new Namespace().use(asyncApiNamespacePlugin);

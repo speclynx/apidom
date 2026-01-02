@@ -49,7 +49,10 @@ describe('dereference', function () {
               resolve: { baseURI: fixturePath },
             });
 
-            assert.match(toValue(dereferenced.meta.get('ref-origin')), /external-only\/ex\.json$/);
+            assert.match(
+              toValue(dereferenced.meta.get('ref-origin')) as string,
+              /external-only\/ex\.json$/,
+            );
           });
         });
       });

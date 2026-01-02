@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import SchemaElement from './Schema.ts';
 import ReferenceElement from './Reference.ts';
@@ -13,7 +18,7 @@ class Parameter extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -21,7 +26,7 @@ class Parameter extends ObjectElement {
   }
 
   get schema(): SchemaElement | ReferenceElement | undefined {
-    return this.get('schema');
+    return this.get('schema') as SchemaElement | ReferenceElement | undefined;
   }
 
   set schema(schema: SchemaElement | ReferenceElement | undefined) {
@@ -29,7 +34,7 @@ class Parameter extends ObjectElement {
   }
 
   get location(): StringElement | undefined {
-    return this.get('location');
+    return this.get('location') as StringElement | undefined;
   }
 
   set location(location: StringElement | undefined) {

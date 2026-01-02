@@ -15,13 +15,14 @@ You can install this package via [npm CLI](https://docs.npmjs.com/cli) by runnin
 ## JSON Schema Draft 4 namespace
 
 JSON Schema Draft 4 namespace consists of [number of elements](https://github.com/speclynx/apidom/tree/main/packages/apidom-ns-json-schema-draft-4/src/elements) implemented on top
-of [primitive ones](https://github.com/refractproject/minim/tree/master/lib/primitives).
+of [primitive ones](https://github.com/speclynx/apidom/tree/main/packages/apidom-datamodel/src/primitives).
 
 ```js
-import { createNamespace } from '@speclynx/apidom-core';
+import { Namespace } from '@speclynx/apidom-datamodel';
 import jsonShemaDraft4Namespace from '@speclynx/apidom-ns-json-schema-draft-4';
 
-const namespace = createNamespace(jsonShemaDraft4Namespace);
+const namespace = new Namespace();
+namespace.use(jsonShemaDraft4Namespace);
 
 const objectElement = new namespace.elements.Object();
 const jsonSchemaElement = new namespace.elements.JSONSchemaDraft4();
@@ -83,37 +84,37 @@ or generic ApiDOM structures into structures built from elements of this namespa
 **Refracting JavaScript structures**:
 
 ```js
-import { MediaElement } from '@speclynx/apidom-ns-json-schema-draft-4';
+import { refractMedia } from '@speclynx/apidom-ns-json-schema-draft-4';
 
 const object = {
   binaryEncoding: 'base64',
   type: 'image/png',
 };
 
-MediaElement.refract(object); // => MediaElement({ binaryEncoding, type })
+refractMedia(object); // => MediaElement({ binaryEncoding, type })
 ```
 
 **Refracting generic ApiDOM structures**:
 
 ```js
-import { ObjectElement } from '@speclynx/apidom-core';
-import { MediaElement } from '@speclynx/apidom-ns-json-schema-draft-4';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { refractMedia } from '@speclynx/apidom-ns-json-schema-draft-4';
 
 const objectElement = new ObjectElement({
   binaryEncoding: 'base64',
   type: 'image/png',
 });
 
-MediaElement.refract(objectElement); // => MediaElement({ binaryEncoding = 'base64', type = 'image/png' })
+refractMedia(objectElement); // => MediaElement({ binaryEncoding = 'base64', type = 'image/png' })
 ```
 
 ### Refractor plugins
 
-Refractors can accept plugins as a second argument of refract static method.
+Refractors can accept plugins as a second argument of refract function.
 
 ```js
-import { ObjectElement } from '@speclynx/apidom-core';
-import { MediaElement } from '@speclynx/apidom-ns-json-schema-draft-4';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { refractMedia } from '@speclynx/apidom-ns-json-schema-draft-4';
 
 const objectElement = new ObjectElement({
   binaryEncoding: 'base64',
@@ -135,7 +136,7 @@ const plugin = ({ predicates, namespace }) => ({
   },
 });
 
-MediaElement.refract(objectElement, { plugins: [plugin] }); // => MediaElement({ binaryEncoding = 'base64', type = 'image/gif' })
+refractMedia(objectElement, { plugins: [plugin] }); // => MediaElement({ binaryEncoding = 'base64', type = 'image/gif' })
 ```
 
 You can define as many plugins as needed to enhance the resulting namespaced ApiDOM structure.
@@ -149,14 +150,14 @@ this missing value with the most appropriate semantic element type.
 
 ```js
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
-import { refractorPluginReplaceEmptyElement, JSONSchemaElement } from '@speclynx/apidom-ns-json-schema-draft-4';
+import { refractorPluginReplaceEmptyElement, refractJSONSchema } from '@speclynx/apidom-ns-json-schema-draft-4';
 
 const yamlDefinition = `
 $schema: 'http://json-schema.org/draft-04/schema#'
 additionalProperties:
 `;
 const apiDOM = await parse(yamlDefinition);
-const jsonSchemaElement = JSONSchemaElement.refract(apiDOM.result, {
+const jsonSchemaElement = refractJSONSchema(apiDOM.result, {
   plugins: [refractorPluginReplaceEmptyElement()],
 });
 

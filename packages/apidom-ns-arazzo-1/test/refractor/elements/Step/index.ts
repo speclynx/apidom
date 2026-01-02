@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { StepElement } from '../../../../src/index.ts';
+import { refractStep } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('StepElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const stepElement = StepElement.refract({
+        const stepElement = refractStep({
           description: 'Search for available pets',
           stepId: 'searchForPet',
           operationId: 'getPets',

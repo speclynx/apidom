@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { IbmmqServerBindingElement } from '../../../../../../src/index.ts';
+import { refractIbmmqServerBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('IbmmqServerBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const ibmmqServerBindingElement = IbmmqServerBindingElement.refract({
+        const ibmmqServerBindingElement = refractIbmmqServerBinding({
           groupId: 'PRODCLSTR1',
           ccdtQueueManagerName: 'qm1',
           cipherSpec: 'ANY_TLS12_OR_HIGHER',

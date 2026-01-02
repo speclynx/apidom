@@ -1,8 +1,7 @@
 import { last, pathOr } from 'ramda';
 import { isNumber } from 'ramda-adjunct';
-import { Element } from 'minim';
+import { Element, hasElementSourceMap } from '@speclynx/apidom-datamodel';
 
-import { hasElementSourceMap } from '../predicates/index.ts';
 import { visit } from './visitor.ts';
 import toValue from '../transformers/serializers/value/index.ts';
 
@@ -30,8 +29,8 @@ class Visitor<T> {
     }
 
     const sourceMapElement = element.getMetaProperty('sourceMap');
-    const charStart = toValue(sourceMapElement.positionStart.get(2));
-    const charEnd = toValue(sourceMapElement.positionEnd.get(2));
+    const charStart: number = toValue(sourceMapElement.positionStart.get(2)) as number;
+    const charEnd: number = toValue(sourceMapElement.positionEnd.get(2)) as number;
     const isWithinOffsetRange =
       this.offset >= charStart &&
       (this.offset < charEnd || (this.includeRightBound && this.offset <= charEnd));

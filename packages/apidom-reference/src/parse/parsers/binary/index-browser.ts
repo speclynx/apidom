@@ -1,4 +1,4 @@
-import { ParseResultElement, StringElement } from '@speclynx/apidom-core';
+import { ParseResultElement, StringElement } from '@speclynx/apidom-datamodel';
 
 import ParserError from '../../../errors/ParserError.ts';
 import Parser, { ParserOptions } from '../Parser.ts';

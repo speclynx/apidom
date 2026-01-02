@@ -9,18 +9,16 @@ import {
   NullElement,
   RefElement,
   LinkElement,
-} from 'minim';
-
-import { visit } from './visitor.ts';
-import EphemeralArray from './ast/ephemeral-array.ts';
-import EphemeralObject from './ast/ephemeral-object.ts';
-import {
   isElement,
   isBooleanElement,
   isNumberElement,
   isStringElement,
   isNullElement,
-} from '../../../predicates/index.ts';
+} from '@speclynx/apidom-datamodel';
+
+import { visit } from './visitor.ts';
+import EphemeralArray from './ast/ephemeral-array.ts';
+import EphemeralObject from './ast/ephemeral-object.ts';
 
 class Visitor {
   public readonly ObjectElement = {
@@ -29,7 +27,7 @@ class Visitor {
         return this.references.get(element).toReference();
       }
 
-      const ephemeral = new EphemeralObject(element.content);
+      const ephemeral = new EphemeralObject(element.content as unknown[]);
       this.references.set(element, ephemeral);
       return ephemeral;
     },
@@ -53,7 +51,7 @@ class Visitor {
         return this.references.get(element).toReference();
       }
 
-      const ephemeral = new EphemeralArray(element.content);
+      const ephemeral = new EphemeralArray(element.content as unknown[]);
       this.references.set(element, ephemeral);
       return ephemeral;
     },
@@ -68,15 +66,15 @@ class Visitor {
   protected references: WeakMap<Element, any> = new WeakMap();
 
   public BooleanElement(element: BooleanElement): boolean {
-    return element.toValue();
+    return element.toValue() as boolean;
   }
 
   public NumberElement(element: NumberElement): number {
-    return element.toValue();
+    return element.toValue() as number;
   }
 
   public StringElement(element: StringElement): string {
-    return element.toValue();
+    return element.toValue() as string;
   }
 
   public NullElement() {
@@ -85,8 +83,9 @@ class Visitor {
 
   public RefElement(element: RefElement, ...rest: unknown[]) {
     const ancestors = rest[3] as (Element | EphemeralArray | EphemeralObject)[];
+    const last = ancestors[ancestors.length - 1];
 
-    if (ancestors[ancestors.length - 1]?.type === 'EphemeralObject') {
+    if (last && 'type' in last && last.type === 'EphemeralObject') {
       return Symbol.for('delete-node');
     }
 
@@ -95,7 +94,7 @@ class Visitor {
 
   public LinkElement(element: LinkElement): string {
     if (isStringElement(element.href)) {
-      return element.href.toValue();
+      return element.href.toValue() as string;
     }
     return '';
   }
@@ -106,7 +105,7 @@ type ShortCutElementTypes = StringElement | NumberElement | BooleanElement | Nul
 /**
  * @public
  */
-const serializer = <T extends Element | unknown>(element: T): any => {
+const serializer = <T extends Element | unknown>(element: T): unknown => {
   if (!isElement(element)) return element;
 
   // shortcut optimization for certain element types

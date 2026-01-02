@@ -1,22 +1,72 @@
 import { assert } from 'chai';
-import ApiDOMParser from '@speclynx/apidom-parser';
-import { mediaTypes } from '@speclynx/apidom-ns-openapi-3-1';
-import * as openapi3_1Adapter from '@speclynx/apidom-parser-adapter-openapi-json-3-1';
+import {
+  ObjectElement,
+  StringElement,
+  MemberElement,
+  ParseResultElement,
+  SourceMapElement,
+} from '@speclynx/apidom-datamodel';
 
 import { findAtOffset } from '../../src/index.ts';
 
-const parser = new ApiDOMParser().use(openapi3_1Adapter);
+/**
+ * Helper to create a SourceMapElement with the given character positions.
+ * Simulates parsing of: {"prop": "val"}
+ *                       0123456789...
+ */
+const createSourceMap = (startChar: number, endChar: number): SourceMapElement => {
+  const sourceMap = new SourceMapElement();
+  sourceMap.position = {
+    start: { row: 0, column: startChar, char: startChar },
+    end: { row: 0, column: endChar, char: endChar },
+  };
+  return sourceMap;
+};
+
+/**
+ * Helper to set sourceMap on an element's meta.
+ */
+const setSourceMap = <T extends { meta: ObjectElement }>(
+  element: T,
+  startChar: number,
+  endChar: number,
+): T => {
+  element.meta.set('sourceMap', createSourceMap(startChar, endChar));
+  return element;
+};
 
 describe('traversal', function () {
   context('findAtOffset', function () {
     context('given JSON object', function () {
-      let parseResult: any;
+      let parseResult: ParseResultElement;
+      let objectElement: ObjectElement;
+      let memberElement: MemberElement;
+      let keyElement: StringElement;
+      let valueElement: StringElement;
 
-      beforeEach(async function () {
-        parseResult = await parser.parse('{"prop": "val"}', {
-          sourceMap: true,
-          mediaType: mediaTypes.latest('json'),
-        });
+      beforeEach(function () {
+        // Simulate parsing: {"prop": "val"}
+        //                   0123456789012345
+        // Positions:
+        // - Object: 0-15 (entire object including braces)
+        // - Member: 1-14 (the prop/val pair, excluding braces)
+        // - Key "prop": 1-7 (including quotes)
+        // - Value "val": 9-14 (including quotes)
+
+        keyElement = new StringElement('prop');
+        setSourceMap(keyElement, 1, 7);
+
+        valueElement = new StringElement('val');
+        setSourceMap(valueElement, 9, 14);
+
+        memberElement = new MemberElement(keyElement, valueElement);
+        setSourceMap(memberElement, 1, 14);
+
+        objectElement = new ObjectElement();
+        (objectElement.content as MemberElement[]).push(memberElement);
+        setSourceMap(objectElement, 0, 15);
+
+        parseResult = new ParseResultElement([objectElement]);
       });
 
       specify('should find MemberElement and not dive in', function () {
@@ -28,13 +78,13 @@ describe('traversal', function () {
       specify('should find key as most inner node', function () {
         const found = findAtOffset(5, parseResult);
 
-        assert.strictEqual(found, parseResult.get(0).getMember('prop').key);
+        assert.strictEqual(found, (parseResult.get(0) as ObjectElement).getMember('prop')!.key);
       });
 
       specify('should find value as most inner node', function () {
         const found = findAtOffset(12, parseResult);
 
-        assert.strictEqual(found, parseResult.get(0).getMember('prop').value);
+        assert.strictEqual(found, (parseResult.get(0) as ObjectElement).getMember('prop')!.value);
       });
 
       context('given out of range offset', function () {

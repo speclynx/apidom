@@ -1,6 +1,6 @@
 import { assert } from 'chai';
+import { NumberElement, StringElement } from '@speclynx/apidom-datamodel';
 
-import { NumberElement, StringElement } from '../../src/index.ts';
 import { transclude } from '../../src/transcluder/index.ts';
 
 describe('transclude', function () {

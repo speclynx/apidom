@@ -1,8 +1,8 @@
-import { ArrayElement } from '@speclynx/apidom-core';
+import { ArrayElement } from '@speclynx/apidom-datamodel';
 import {
   specificationObj as JSONSchemaDraft4Specification,
   TypeVisitorOptions,
-  TypeVisitor as TypeVisitorOptionsType,
+  TypeVisitor as TypeVisitorType,
 } from '@speclynx/apidom-ns-json-schema-draft-4';
 
 export type { TypeVisitorOptions };
@@ -10,7 +10,7 @@ export type { TypeVisitorOptions };
 /**
  * @public
  */
-export const JSONSchemaTypeVisitor: typeof TypeVisitorOptionsType =
+export const JSONSchemaTypeVisitor: typeof TypeVisitorType =
   JSONSchemaDraft4Specification.visitors.document.objects.JSONSchema.fixedFields.type;
 
 /**

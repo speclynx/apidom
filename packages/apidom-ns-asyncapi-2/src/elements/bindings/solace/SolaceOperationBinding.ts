@@ -4,7 +4,7 @@ import {
   StringElement,
   Attributes,
   Meta,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -17,7 +17,7 @@ class SolaceOperationBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {
@@ -25,7 +25,7 @@ class SolaceOperationBinding extends ObjectElement {
   }
 
   get destinations(): ArrayElement | undefined {
-    return this.get('destinations');
+    return this.get('destinations') as ArrayElement | undefined;
   }
 
   set destinations(destinations: ArrayElement | undefined) {

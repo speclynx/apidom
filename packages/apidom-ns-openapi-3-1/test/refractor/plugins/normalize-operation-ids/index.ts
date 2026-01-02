@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import dedent from 'dedent';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
-import { OpenApi3_1Element, refractorPluginNormalizeOperationIds } from '../../../../src/index.ts';
+import { refractOpenApi3_1, refractorPluginNormalizeOperationIds } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('plugins', function () {
@@ -22,7 +22,7 @@ describe('refractor', function () {
                     operationId: get operation ^
             `;
             const apiDOM = await parse(yamlDefinition);
-            const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+            const openApiElement = refractOpenApi3_1(apiDOM.result, {
               plugins: [refractorPluginNormalizeOperationIds()],
             });
 
@@ -39,7 +39,7 @@ describe('refractor', function () {
                     operationId: get operation ^
             `;
           const apiDOM = await parse(yamlDefinition);
-          const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+          const openApiElement = refractOpenApi3_1(apiDOM.result, {
             plugins: [refractorPluginNormalizeOperationIds()],
           });
 
@@ -57,7 +57,7 @@ describe('refractor', function () {
                     operationId: getOperation
             `;
           const apiDOM = await parse(yamlDefinition);
-          const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+          const openApiElement = refractOpenApi3_1(apiDOM.result, {
             plugins: [refractorPluginNormalizeOperationIds()],
           });
 
@@ -74,7 +74,7 @@ describe('refractor', function () {
                   get: {}
             `;
           const apiDOM = await parse(yamlDefinition);
-          const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+          const openApiElement = refractOpenApi3_1(apiDOM.result, {
             plugins: [refractorPluginNormalizeOperationIds()],
           });
 
@@ -94,7 +94,7 @@ describe('refractor', function () {
                     operationId: ^%~ *@#
             `;
             const apiDOM = await parse(yamlDefinition);
-            const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+            const openApiElement = refractOpenApi3_1(apiDOM.result, {
               plugins: [refractorPluginNormalizeOperationIds()],
             });
 
@@ -117,7 +117,7 @@ describe('refractor', function () {
                     operationId: "   "
             `;
               const apiDOM = await parse(yamlDefinition);
-              const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+              const openApiElement = refractOpenApi3_1(apiDOM.result, {
                 plugins: [refractorPluginNormalizeOperationIds()],
               });
 
@@ -139,7 +139,7 @@ describe('refractor', function () {
                     operationId: get user
             `;
           const apiDOM = await parse(yamlDefinition);
-          const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+          const openApiElement = refractOpenApi3_1(apiDOM.result, {
             plugins: [refractorPluginNormalizeOperationIds()],
           });
 

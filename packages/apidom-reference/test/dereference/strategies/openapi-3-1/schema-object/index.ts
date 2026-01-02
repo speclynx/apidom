@@ -1,7 +1,8 @@
 import path from 'node:path';
 import util from 'node:util';
 import { assert } from 'chai';
-import { Element, toValue } from '@speclynx/apidom-core';
+import { Element, ObjectElement } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 import { isSchemaElement, mediaTypes } from '@speclynx/apidom-ns-openapi-3-1';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 import { fileURLToPath } from 'node:url';
@@ -58,7 +59,7 @@ describe('dereference', function () {
               );
 
               assert.strictEqual(
-                toValue(fragment.meta.get('ref-fields').get('$ref')),
+                toValue((fragment.meta.get('ref-fields') as ObjectElement).get('$ref')),
                 '#/components/schemas/UserProfile',
               );
             },

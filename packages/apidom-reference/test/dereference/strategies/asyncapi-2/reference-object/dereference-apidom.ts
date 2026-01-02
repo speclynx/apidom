@@ -57,7 +57,7 @@ describe('dereference', function () {
                 });
 
                 assert.match(
-                  toValue(dereferenced.meta.get('ref-origin')),
+                  toValue(dereferenced.meta.get('ref-origin')) as string as string,
                   /internal-only\/root\.json$/,
                 );
               });
@@ -110,7 +110,10 @@ describe('dereference', function () {
                   },
                 });
 
-                assert.match(toValue(dereferenced.meta.get('ref-origin')), /\/root\.json$/);
+                assert.match(
+                  toValue(dereferenced.meta.get('ref-origin')) as string,
+                  /\/root\.json$/,
+                );
               });
             });
           },
@@ -152,7 +155,7 @@ describe('dereference', function () {
                 });
 
                 assert.match(
-                  toValue(dereferenced.meta.get('ref-origin')),
+                  toValue(dereferenced.meta.get('ref-origin')) as string,
                   /external-only\/ex\.json$/,
                 );
               });
@@ -201,7 +204,7 @@ describe('dereference', function () {
                   resolve: { baseURI: `http://localhost:${httpPort}/root.json` },
                 });
 
-                assert.match(toValue(dereferenced.meta.get('ref-origin')), /\/ex\.json$/);
+                assert.match(toValue(dereferenced.meta.get('ref-origin')) as string, /\/ex\.json$/);
               });
             });
 
@@ -253,7 +256,7 @@ describe('dereference', function () {
                   resolve: { baseURI: `http://localhost:${httpPort}/root.json` },
                 });
 
-                assert.match(toValue(dereferenced.meta.get('ref-origin')), /\/ex\.json$/);
+                assert.match(toValue(dereferenced.meta.get('ref-origin')) as string, /\/ex\.json$/);
               });
             });
           },

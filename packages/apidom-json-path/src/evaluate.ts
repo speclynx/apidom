@@ -1,6 +1,7 @@
 import { JSONPath } from 'jsonpath-plus';
 import { evaluate as jsonPointerEvaluate } from '@speclynx/apidom-json-pointer';
-import { Element, toValue, cloneDeep } from '@speclynx/apidom-core';
+import { Element } from '@speclynx/apidom-datamodel';
+import { toValue, cloneDeep } from '@speclynx/apidom-core';
 
 import EvaluationJsonPathError from './errors/EvaluationJsonPathError.ts';
 
@@ -18,14 +19,14 @@ export type Evaluate = {
  */
 const evaluate: Evaluate = (path, element) => {
   try {
-    const json = toValue(element);
+    const json = toValue(element) as object;
     const pointers = JSONPath({
       path,
       json,
       resultType: 'pointer',
-    }) as string[];
+    }) as unknown as string[];
 
-    return pointers.map((pointer) => jsonPointerEvaluate(element, pointer));
+    return pointers.map((pointer) => jsonPointerEvaluate<Element>(element, pointer));
   } catch (error: unknown) {
     throw new EvaluationJsonPathError(
       `JSON Path evaluation failed while evaluating "${String(path)}".`,

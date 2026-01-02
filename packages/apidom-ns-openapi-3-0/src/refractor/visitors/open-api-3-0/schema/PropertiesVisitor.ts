@@ -1,4 +1,4 @@
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 import {
   specificationObj as JSONSchemaDraft4Specification,
   PropertiesVisitorOptions,
@@ -25,7 +25,7 @@ class PropertiesVisitor extends JSONSchemaPropertiesVisitor {
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
-      referenceElement.setMetaProperty('referenced-element', 'schema');
+      referenceElement.meta.set('referenced-element', 'schema');
     });
 
     return result;

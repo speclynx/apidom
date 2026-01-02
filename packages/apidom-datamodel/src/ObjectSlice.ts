@@ -210,13 +210,6 @@ class ObjectSlice {
   }
 
   /**
-   * Creates a deep clone of the ObjectSlice.
-   */
-  clone(): ObjectSlice {
-    return new ObjectSlice(this.elements.map((element) => element.clone() as MemberElement));
-  }
-
-  /**
    * Determines whether the slice includes a member with the given key value.
    * @param keyValue - The key value to search for
    */

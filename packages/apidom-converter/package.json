@@ -42,6 +42,7 @@
     "@babel/runtime-corejs3": "^7.28.4",
     "@speclynx/apidom-error": "*",
     "@speclynx/apidom-core": "*",
+    "@speclynx/apidom-datamodel": "*",
     "@speclynx/apidom-ns-openapi-3-0": "*",
     "@speclynx/apidom-ns-openapi-3-1": "*",
     "@speclynx/apidom-reference": "*"

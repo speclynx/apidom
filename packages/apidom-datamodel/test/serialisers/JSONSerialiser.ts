@@ -169,7 +169,7 @@ describe('JSON Serialiser', function () {
 
     specify('serialises an elements meta', function () {
       const doe = new StringElement('Doe');
-      doe.title = 'Name';
+      doe.meta.set('title', 'Name');
 
       const object = serialiser.serialise(doe);
 
@@ -322,8 +322,9 @@ describe('JSON Serialiser', function () {
         },
       });
 
-      assert.instanceOf(element.title, StringElement);
-      assert.strictEqual((element.title as StringElement).content, 'hello');
+      const title = element.meta.get('title');
+      assert.instanceOf(title, StringElement);
+      assert.strictEqual((title as StringElement).content, 'hello');
     });
 
     specify('deserialise attributes', function () {

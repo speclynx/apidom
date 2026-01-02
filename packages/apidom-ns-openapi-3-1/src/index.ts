@@ -1,16 +1,3 @@
-export {
-  isRefElement,
-  isLinkElement as isLinkPrimitiveElement,
-  isMemberElement,
-  isObjectElement,
-  isArrayElement,
-  isBooleanElement,
-  isNullElement,
-  isElement,
-  isNumberElement,
-  isStringElement,
-} from '@speclynx/apidom-core';
-
 export { default as mediaTypes, OpenAPIMediaTypes } from './media-types.ts';
 export type { Format } from './media-types.ts';
 
@@ -30,13 +17,43 @@ export type { PluginOptions as RefractorPluginNormalizeParameterExamplesOptions 
 export { default as refractorPluginNormalizeHeaderExamples } from './refractor/plugins/normalize-header-examples/index.ts';
 export type { PluginOptions as RefractorPluginNormalizeHeaderExamplesOptions } from './refractor/plugins/normalize-header-examples/index.ts';
 export { default as createToolbox } from './refractor/toolbox.ts';
-export type {
-  Predicates as ToolboxPredicates,
-  openApi3_1Predicates,
-  Toolbox,
-  ancestorLineageToJSONPointer,
-} from './refractor/toolbox.ts';
+export type { Toolbox, ancestorLineageToJSONPointer } from './refractor/toolbox.ts';
 export { default as specificationObj } from './refractor/specification.ts';
+export {
+  default as refract,
+  refractOpenApi3_1,
+  refractInfo,
+  refractContact,
+  refractLicense,
+  refractServer,
+  refractServerVariable,
+  refractComponents,
+  refractPaths,
+  refractPathItem,
+  refractOperation,
+  refractExternalDocumentation,
+  refractParameter,
+  refractRequestBody,
+  refractMediaType,
+  refractEncoding,
+  refractResponses,
+  refractResponse,
+  refractCallback,
+  refractExample,
+  refractLink,
+  refractHeader,
+  refractTag,
+  refractReference,
+  refractSchema,
+  refractDiscriminator,
+  refractXml,
+  refractSecurityScheme,
+  refractOAuthFlows,
+  refractOAuthFlow,
+  refractSecurityRequirement,
+  refractJsonSchemaDialect,
+} from './refractor/index.ts';
+export type { RefractorOptions, RefractorPlugin } from './refractor/index.ts';
 
 export { AlternatingVisitor } from '@speclynx/apidom-ns-openapi-3-0';
 export type { AlternatingVisitorOptions } from '@speclynx/apidom-ns-openapi-3-0';
@@ -56,6 +73,20 @@ export { SpecificationVisitor } from '@speclynx/apidom-ns-openapi-3-0';
 export type { SpecificationVisitorOptions } from '@speclynx/apidom-ns-openapi-3-0';
 export { Visitor } from '@speclynx/apidom-ns-openapi-3-0';
 export type { VisitorOptions } from '@speclynx/apidom-ns-openapi-3-0';
+
+// Base visitor classes (Mixin combinations)
+export {
+  BaseSpecificationVisitor,
+  BaseFixedFieldsVisitor,
+  BaseMapVisitor,
+  BaseSchemaVisitor,
+} from './refractor/visitors/open-api-3-1/bases.ts';
+export type {
+  BaseSpecificationVisitorOptions,
+  BaseFixedFieldsVisitorOptions,
+  BaseMapVisitorOptions,
+  BaseSchemaVisitorOptions,
+} from './refractor/visitors/open-api-3-1/bases.ts';
 
 export type {
   default as CallbackVisitor,
@@ -436,7 +467,10 @@ export type {
   default as WebhooksVisitor,
   WebhooksVisitorOptions,
 } from './refractor/visitors/open-api-3-1/WebhooksVisitor.ts';
-export type { OpenapiVisitor, OpenapiVisitorOptions } from '@speclynx/apidom-ns-openapi-3-0';
+export type {
+  default as OpenapiVisitor,
+  OpenapiVisitorOptions,
+} from './refractor/visitors/open-api-3-1/OpenapiVisitor.ts';
 export type { ParametersVisitor, ParametersVisitorOptions } from '@speclynx/apidom-ns-openapi-3-0';
 export type { SecurityVisitor, SecurityVisitorOptions } from '@speclynx/apidom-ns-openapi-3-0';
 export type { ServersVisitor, ServersVisitorOptions } from '@speclynx/apidom-ns-openapi-3-0';
@@ -518,7 +552,7 @@ export {
   ServerVariableElement,
   TagElement,
   XmlElement,
-} from './refractor/registration.ts';
+} from './refractor/inspect.ts';
 // NCE types
 export {
   ComponentsCallbacksElement,

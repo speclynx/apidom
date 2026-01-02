@@ -1,16 +1,3 @@
-export {
-  isRefElement,
-  isLinkElement,
-  isMemberElement,
-  isObjectElement,
-  isArrayElement,
-  isBooleanElement,
-  isNullElement,
-  isElement,
-  isNumberElement,
-  isStringElement,
-} from '@speclynx/apidom-core';
-
 export { default as mediaTypes, JSONSchemaDraft6MediaTypes } from './media-types.ts';
 export type { Format } from './media-types.ts';
 
@@ -18,7 +5,13 @@ export { default } from './namespace.ts';
 
 export { default as refractorPluginReplaceEmptyElement } from './refractor/plugins/replace-empty-element.ts';
 
-export { default as refract, createRefractor } from './refractor/index.ts';
+export {
+  default as refract,
+  refractJSONSchema,
+  refractLinkDescription,
+} from './refractor/index.ts';
+export type { RefractorOptions, RefractorPlugin } from './refractor/index.ts';
+export type { Toolbox } from './refractor/toolbox.ts';
 export { default as specificationObj } from './refractor/specification.ts';
 
 export {
@@ -84,5 +77,10 @@ export { keyMap, getNodeType } from './traversal/visitor.ts';
 /**
  * JSON Schema Draft 6 specification elements.
  */
-export { JSONSchemaElement, LinkDescriptionElement } from './refractor/registration.ts';
-export { JSONReferenceElement, MediaElement } from '@speclynx/apidom-ns-json-schema-draft-4';
+export {
+  JSONSchemaElement,
+  JSONReferenceElement,
+  MediaElement,
+  LinkDescriptionElement,
+} from './refractor/inspect.ts';
+export type { FixedField } from './refractor/inspect.ts';

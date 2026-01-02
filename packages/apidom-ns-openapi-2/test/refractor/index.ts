@@ -3,9 +3,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import sinon from 'sinon';
-import { ObjectElement, toValue, Namespace } from '@speclynx/apidom-core';
+import { ObjectElement, Namespace } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
-import { SwaggerElement, SwaggerVersionElement, isSwaggerVersionElement } from '../../src/index.ts';
+import { refractSwagger, SwaggerVersionElement, isSwaggerVersionElement } from '../../src/index.ts';
 import * as predicates from '../../src/predicates.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -18,7 +19,7 @@ describe('refractor', function () {
         .toString();
       const openApiPojo = JSON.parse(openApiString);
       const genericObjectElement = new ObjectElement(openApiPojo);
-      const swaggerElement = SwaggerElement.refract(genericObjectElement);
+      const swaggerElement = refractSwagger(genericObjectElement);
 
       expect(swaggerElement).toMatchSnapshot();
     });
@@ -70,7 +71,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           swagger: '2.0',
         });
-        SwaggerElement.refract(genericObject, {
+        refractSwagger(genericObject, {
           plugins: [plugin1],
         });
 
@@ -81,7 +82,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           swagger: '2.0',
         });
-        SwaggerElement.refract(genericObject, {
+        refractSwagger(genericObject, {
           plugins: [plugin1],
         });
 
@@ -92,7 +93,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           swagger: '2.0',
         });
-        SwaggerElement.refract(genericObject, {
+        refractSwagger(genericObject, {
           plugins: [plugin1],
         });
 
@@ -105,7 +106,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           swagger: '2.0',
         });
-        SwaggerElement.refract(genericObject, {
+        refractSwagger(genericObject, {
           plugins: [plugin1],
         });
 
@@ -116,7 +117,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           swagger: '2.0',
         });
-        SwaggerElement.refract(genericObject, {
+        refractSwagger(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -127,7 +128,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           swagger: '2.0',
         });
-        SwaggerElement.refract(genericObject, {
+        refractSwagger(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -141,7 +142,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           swagger: '2.0',
         });
-        SwaggerElement.refract(genericObject, {
+        refractSwagger(genericObject, {
           plugins: [plugin1],
         });
 
@@ -152,7 +153,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           swagger: '2.0',
         });
-        SwaggerElement.refract(genericObject, {
+        refractSwagger(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -163,7 +164,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           swagger: '2.0',
         });
-        SwaggerElement.refract(genericObject, {
+        refractSwagger(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -177,7 +178,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           swagger: '2.0',
         });
-        SwaggerElement.refract(genericObject, {
+        refractSwagger(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -189,7 +190,7 @@ describe('refractor', function () {
         const genericObject = new ObjectElement({
           swagger: '2.0',
         });
-        SwaggerElement.refract(genericObject, {
+        refractSwagger(genericObject, {
           plugins: [plugin1, plugin2],
         });
 
@@ -205,7 +206,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             swagger: '2.0',
           });
-          SwaggerElement.refract(genericObject, {
+          refractSwagger(genericObject, {
             plugins: [plugin1],
           });
 
@@ -216,7 +217,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             swagger: '2.0',
           });
-          SwaggerElement.refract(genericObject, {
+          refractSwagger(genericObject, {
             plugins: [plugin1],
           });
 
@@ -229,7 +230,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             swagger: '2.0',
           });
-          const swaggerElement = SwaggerElement.refract(genericObject, {
+          const swaggerElement = refractSwagger(genericObject, {
             plugins: [plugin1],
           });
 
@@ -242,7 +243,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             swagger: '2.0',
           });
-          SwaggerElement.refract(genericObject, {
+          refractSwagger(genericObject, {
             plugins: [plugin1, plugin2],
           });
 
@@ -253,7 +254,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             swagger: '2.0',
           });
-          SwaggerElement.refract(genericObject, {
+          refractSwagger(genericObject, {
             plugins: [plugin1, plugin2],
           });
 
@@ -266,7 +267,7 @@ describe('refractor', function () {
           const genericObject = new ObjectElement({
             swagger: '2.0',
           });
-          const swaggerElement = SwaggerElement.refract(genericObject, {
+          const swaggerElement = refractSwagger(genericObject, {
             plugins: [plugin1, plugin2],
           });
 

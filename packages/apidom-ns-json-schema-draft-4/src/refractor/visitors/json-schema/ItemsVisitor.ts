@@ -1,11 +1,10 @@
-import { Mixin } from 'ts-mixer';
-import { ObjectElement, ArrayElement, Element, BREAK } from '@speclynx/apidom-core';
+import { ObjectElement, ArrayElement, Element } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
-import ParentSchemaAwareVisitor, {
-  ParentSchemaAwareVisitorOptions,
-} from './ParentSchemaAwareVisitor.ts';
+import { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
+import { FallbackVisitorOptions } from '../FallbackVisitor.ts';
+import { ParentSchemaAwareVisitorOptions } from './ParentSchemaAwareVisitor.ts';
+import { ItemsVisitorBase } from './bases.ts';
 import { isJSONReferenceLikeElement } from '../../predicates.ts';
 
 /**
@@ -17,7 +16,7 @@ export interface ItemsVisitorOptions
 /**
  * @public
  */
-class ItemsVisitor extends Mixin(SpecificationVisitor, ParentSchemaAwareVisitor, FallbackVisitor) {
+class ItemsVisitor extends ItemsVisitorBase {
   declare public element: ArrayElement | ObjectElement;
 
   ObjectElement(objectElement: ObjectElement) {

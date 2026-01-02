@@ -1,9 +1,14 @@
 import { expect } from 'chai';
 import dedent from 'dedent';
-import { sexprs, SourceMapElement } from '@speclynx/apidom-core';
+import { SourceMapElement } from '@speclynx/apidom-datamodel';
+import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
-import { refractorPluginReplaceEmptyElement, OpenApi3_1Element } from '../../../../src/index.ts';
+import {
+  refractorPluginReplaceEmptyElement,
+  refractOpenApi3_1,
+  ComponentsElement,
+} from '../../../../src/index.ts';
 
 describe('given empty value instead of InfoElement', function () {
   it('should replace empty value with semantic element', async function () {
@@ -12,7 +17,7 @@ describe('given empty value instead of InfoElement', function () {
           info:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+    const openApiElement = refractOpenApi3_1(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -28,7 +33,7 @@ describe('given empty value instead of ContactElement', function () {
             contact:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+    const openApiElement = refractOpenApi3_1(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -44,12 +49,11 @@ describe('given empty value instead for OpenAPI.components.schemas', function ()
             schemas:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+    const openApiElement = refractOpenApi3_1(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
-    }) as OpenApi3_1Element;
-    const isComponentsSchemas = openApiElement
-      .get('components')
-      .get('schemas')
+    });
+    const isComponentsSchemas = (openApiElement.get('components') as ComponentsElement)
+      .get('schemas')!
       .classes.includes('components-schemas');
 
     expect(sexprs(openApiElement)).toMatchSnapshot();
@@ -66,9 +70,9 @@ describe('given empty value instead for OpenAPI.components.schemas.*', function 
               Schema1:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+    const openApiElement = refractOpenApi3_1(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
-    }) as OpenApi3_1Element;
+    });
 
     expect(sexprs(openApiElement)).toMatchSnapshot();
   });
@@ -85,9 +89,9 @@ describe('given empty value instead for Schema.properties.*', function () {
                   firstName:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+    const openApiElement = refractOpenApi3_1(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
-    }) as OpenApi3_1Element;
+    });
 
     expect(sexprs(openApiElement)).toMatchSnapshot();
   });
@@ -100,9 +104,9 @@ describe('given OpenAPI definition with no empty values', function () {
           jsonSchemaDialect: https://spec.openapis.org/oas/3.1/dialect/base
         `;
     const apiDOM = await parse(yamlDefinition);
-    const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+    const openApiElement = refractOpenApi3_1(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
-    }) as OpenApi3_1Element;
+    });
 
     expect(sexprs(openApiElement)).toMatchSnapshot();
   });
@@ -115,16 +119,16 @@ describe('given OpenAPI definition with empty values', function () {
           info:
         `;
     const apiDOM = await parse(yamlDefinition, { sourceMap: true });
-    const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+    const openApiElement = refractOpenApi3_1(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
-    }) as OpenApi3_1Element;
+    });
     const { info: infoValue } = openApiElement;
-    const sourceMap = infoValue?.meta.get('sourceMap');
+    const sourceMap = infoValue?.meta.get('sourceMap') as SourceMapElement;
     const { positionStart, positionEnd } = sourceMap;
     const expectedPosition = [1, 5, 20];
 
     expect(infoValue?.meta.get('sourceMap')).to.be.an.instanceof(SourceMapElement);
-    expect(positionStart.equals(expectedPosition)).to.be.true;
-    expect(positionEnd.equals(expectedPosition)).to.be.true;
+    expect(positionStart!.equals(expectedPosition)).to.be.true;
+    expect(positionEnd!.equals(expectedPosition)).to.be.true;
   });
 });

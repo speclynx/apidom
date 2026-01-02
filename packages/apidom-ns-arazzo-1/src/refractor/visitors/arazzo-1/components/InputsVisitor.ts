@@ -1,19 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import ComponentsInputsElement from '../../../../elements/nces/ComponentsInputs.ts';
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/MapVisitor.ts';
+import { BaseMapFallbackVisitor, BaseMapFallbackVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface InputsVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+export interface InputsVisitorOptions extends BaseMapFallbackVisitorOptions {}
 
 /**
  * @public
  */
-class InputsVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class InputsVisitor extends BaseMapFallbackVisitor {
   declare public readonly element: ComponentsInputsElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'JSONSchema']>;

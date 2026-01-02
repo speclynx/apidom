@@ -15,20 +15,21 @@ You can install this package via [npm CLI](https://docs.npmjs.com/cli) by runnin
 ## OpenAPI 2.0 namespace
 
 OpenAPI 2.0 namespace consists of [number of elements](https://github.com/speclynx/apidom/tree/main/packages/apidom-ns-openapi-2/src/elements) implemented on top
-of [primitive ones](https://github.com/refractproject/minim/tree/master/lib/primitives).
+of [primitive ones](https://github.com/speclynx/apidom/tree/main/packages/apidom-datamodel/src/primitives).
 
 ```js
-import { createNamespace } from '@speclynx/apidom-core';
+import { Namespace } from '@speclynx/apidom-datamodel';
 import openApi2Namespace from '@speclynx/apidom-ns-openapi-2';
 
-const namespace = createNamespace(openApi2Namespace);
+const namespace = new Namespace();
+namespace.use(openApi2Namespace);
 
 const objectElement = new namespace.elements.Object();
 const swaggerElement = new namespace.elements.Swagger();
 ```
 
-When namespace instance is created in this way, it will extend the base namespace
-with the namespace provided as an argument.
+When a namespace instance is created in this way, calling `use()` with the namespace plugin
+will extend the base namespace with the OpenAPI 2.0 elements.
 
 Elements from the namespace can also be used directly by importing them.
 

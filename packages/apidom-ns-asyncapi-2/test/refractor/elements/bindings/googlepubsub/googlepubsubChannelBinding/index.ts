@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { GooglepubsubChannelBindingElement } from '../../../../../../src/index.ts';
+import { refractGooglepubsubChannelBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('GooglepubsubChannelBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const googlepubsubChannelBindingElement = GooglepubsubChannelBindingElement.refract({
+        const googlepubsubChannelBindingElement = refractGooglepubsubChannelBinding({
           bindingVersion: '0.1.0',
           labels: {},
           messageRetentionDuration: '86400s',

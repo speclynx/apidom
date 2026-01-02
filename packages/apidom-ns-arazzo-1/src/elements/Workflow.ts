@@ -1,4 +1,9 @@
-import { ObjectElement, StringElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  ObjectElement,
+  StringElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import JSONSchemaElement from './JSONSchema.ts';
 import WorkflowDependsOnElement from './nces/WorkflowDependsOn.ts';
@@ -18,7 +23,7 @@ class Workflow extends ObjectElement {
   }
 
   get workflowId(): StringElement | undefined {
-    return this.get('workflowId');
+    return this.get('workflowId') as StringElement | undefined;
   }
 
   set workflowId(workflowId: StringElement | undefined) {
@@ -26,7 +31,7 @@ class Workflow extends ObjectElement {
   }
 
   get summary(): StringElement | undefined {
-    return this.get('summary');
+    return this.get('summary') as StringElement | undefined;
   }
 
   set summary(summary: StringElement | undefined) {
@@ -34,7 +39,7 @@ class Workflow extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -42,7 +47,7 @@ class Workflow extends ObjectElement {
   }
 
   get inputs(): JSONSchemaElement | undefined {
-    return this.get('inputs');
+    return this.get('inputs') as JSONSchemaElement | undefined;
   }
 
   set inputs(inputs: JSONSchemaElement | undefined) {
@@ -50,7 +55,7 @@ class Workflow extends ObjectElement {
   }
 
   get dependsOn(): WorkflowDependsOnElement | undefined {
-    return this.get('dependsOn');
+    return this.get('dependsOn') as WorkflowDependsOnElement | undefined;
   }
 
   set dependsOn(dependsOn: WorkflowDependsOnElement | undefined) {
@@ -58,7 +63,7 @@ class Workflow extends ObjectElement {
   }
 
   get steps(): WorkflowStepsElement | undefined {
-    return this.get('steps');
+    return this.get('steps') as WorkflowStepsElement | undefined;
   }
 
   set steps(steps: WorkflowStepsElement | undefined) {
@@ -66,7 +71,7 @@ class Workflow extends ObjectElement {
   }
 
   get successActions(): WorkflowSuccessActionsElement | undefined {
-    return this.get('successActions');
+    return this.get('successActions') as WorkflowSuccessActionsElement | undefined;
   }
 
   set successActions(successActions: WorkflowSuccessActionsElement | undefined) {
@@ -74,7 +79,7 @@ class Workflow extends ObjectElement {
   }
 
   get failureActions(): WorkflowFailureActionsElement | undefined {
-    return this.get('failureActions');
+    return this.get('failureActions') as WorkflowFailureActionsElement | undefined;
   }
 
   set failureActions(failureActions: WorkflowFailureActionsElement | undefined) {
@@ -82,7 +87,7 @@ class Workflow extends ObjectElement {
   }
 
   get outputs(): WorkflowOutputsElement | undefined {
-    return this.get('outputs');
+    return this.get('outputs') as WorkflowOutputsElement | undefined;
   }
 
   set outputs(outputs: WorkflowOutputsElement | undefined) {
@@ -90,7 +95,7 @@ class Workflow extends ObjectElement {
   }
 
   get parameters(): WorkflowParametersElement | undefined {
-    return this.get('parameters');
+    return this.get('parameters') as WorkflowParametersElement | undefined;
   }
 
   set parameters(parameters: WorkflowParametersElement | undefined) {

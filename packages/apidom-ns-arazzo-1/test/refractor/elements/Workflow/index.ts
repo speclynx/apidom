@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { WorkflowElement } from '../../../../src/index.ts';
+import { refractWorkflow } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('WorkflowElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const workflowElement = WorkflowElement.refract({
+        const workflowElement = refractWorkflow({
           workflowId: 'uniqueWorkflowId',
           summary: 'Adopt a pet',
           description: 'Adopt a pet by calling APIs in a chain',

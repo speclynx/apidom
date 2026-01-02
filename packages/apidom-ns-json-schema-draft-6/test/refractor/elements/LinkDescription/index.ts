@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { LinkDescriptionElement } from '../../../../src/index.ts';
+import { refractLinkDescription } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('LinkDescription', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const linkDescriptionElement = LinkDescriptionElement.refract({
+        const linkDescriptionElement = refractLinkDescription({
           href: 'base64',
           hrefSchema: {},
           rel: 'image/png',

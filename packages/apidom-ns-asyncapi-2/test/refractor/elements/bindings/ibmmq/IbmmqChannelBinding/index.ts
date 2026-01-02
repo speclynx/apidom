@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { IbmmqChannelBindingElement } from '../../../../../../src/index.ts';
+import { refractIbmmqChannelBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('IbmmqChannelBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const ibmmqChannelBindingElement = IbmmqChannelBindingElement.refract({
+        const ibmmqChannelBindingElement = refractIbmmqChannelBinding({
           destinationType: 'topic',
           topic: {
             objectName: 'myTopicName',

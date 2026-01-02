@@ -1,24 +1,20 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/MapVisitor.ts';
 import DiscriminatorMappingElement from '../../../../elements/nces/DiscriminatorMapping.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from '../bases.ts';
+
+export type { BaseMapVisitorOptions as MappingVisitorOptions };
 
 /**
  * @public
  */
-export interface MappingVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
-
-/**
- * @public
- */
-class MappingVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class MappingVisitor extends BaseMapVisitor {
   declare public readonly element: DiscriminatorMappingElement;
 
   declare protected readonly specPath: SpecPath<['value']>;
 
-  constructor(options: MappingVisitorOptions) {
+  constructor(options: BaseMapVisitorOptions) {
     super(options);
     this.element = new DiscriminatorMappingElement();
     this.specPath = always(['value']);

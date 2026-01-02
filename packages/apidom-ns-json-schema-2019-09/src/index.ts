@@ -1,16 +1,3 @@
-export {
-  isRefElement,
-  isLinkElement,
-  isMemberElement,
-  isObjectElement,
-  isArrayElement,
-  isBooleanElement,
-  isNullElement,
-  isElement,
-  isNumberElement,
-  isStringElement,
-} from '@speclynx/apidom-core';
-
 export { default as mediaTypes, JSONSchema201909MediaTypes } from './media-types.ts';
 export type { Format } from './media-types.ts';
 
@@ -18,10 +5,21 @@ export { default } from './namespace.ts';
 
 export { default as refractorPluginReplaceEmptyElement } from './refractor/plugins/replace-empty-element.ts';
 
-export { default as refract, createRefractor } from './refractor/index.ts';
+export {
+  default as refract,
+  refractJSONSchema,
+  refractLinkDescription,
+} from './refractor/index.ts';
+export type { RefractorOptions, RefractorPlugin } from './refractor/index.ts';
+export type { Toolbox } from './refractor/toolbox.ts';
 export { default as specificationObj } from './refractor/specification.ts';
 
-export { isJSONSchemaElement, isLinkDescriptionElement } from './predicates.ts';
+export {
+  isJSONReferenceElement,
+  isMediaElement,
+  isJSONSchemaElement,
+  isLinkDescriptionElement,
+} from './predicates.ts';
 
 export {
   SpecificationVisitor,
@@ -45,6 +43,14 @@ export type {
   SpecPath,
 } from '@speclynx/apidom-ns-json-schema-draft-7';
 
+export {
+  BaseSchemaArrayVisitor,
+  BaseSchemaMapVisitor,
+} from './refractor/visitors/json-schema/bases.ts';
+export type {
+  BaseSchemaArrayVisitorOptions,
+  BaseSchemaMapVisitorOptions,
+} from './refractor/visitors/json-schema/bases.ts';
 export { default as JSONSchemaVisitor } from './refractor/visitors/json-schema/index.ts';
 export type { JSONSchemaVisitorOptions } from './refractor/visitors/json-schema/index.ts';
 export { default as LinkDescriptionVisitor } from './refractor/visitors/json-schema/link-description/index.ts';
@@ -77,4 +83,5 @@ export { keyMap, getNodeType } from './traversal/visitor.ts';
 /**
  * JSON Schema 2019-09 specification elements.
  */
-export { JSONSchemaElement, LinkDescriptionElement } from './refractor/registration.ts';
+export { JSONSchemaElement, LinkDescriptionElement } from './refractor/inspect.ts';
+export type { FixedField } from './refractor/inspect.ts';

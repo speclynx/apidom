@@ -1,5 +1,6 @@
 import { uniqWith, pathOr, last } from 'ramda';
-import { Element, StringElement, toValue } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
+import { Element, StringElement } from '@speclynx/apidom-datamodel';
 import { OperationParametersElement } from '@speclynx/apidom-ns-openapi-3-0';
 
 import ParameterElement from '../../elements/Parameter.ts';
@@ -81,7 +82,9 @@ const plugin =
             const { parameters } = pathItemElement;
 
             if (predicates.isArrayElement(parameters)) {
-              pathItemParameters.push([...parameters.content] as ParameterElement[]);
+              pathItemParameters.push([
+                ...((parameters.content ?? []) as unknown[]),
+              ] as ParameterElement[]);
             } else {
               pathItemParameters.push([]);
             }

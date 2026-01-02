@@ -1,13 +1,17 @@
 import { expect, assert } from 'chai';
-import { sexprs, includesClasses } from '@speclynx/apidom-core';
+import { includesClasses } from '@speclynx/apidom-datamodel';
+import { sexprs } from '@speclynx/apidom-core';
 
-import { ExternalDocumentationElement } from '../../../../src/index.ts';
+import {
+  refractExternalDocumentation,
+  ExternalDocumentationElement,
+} from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('ExternalDocumentationElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const externalDocumentationElement = ExternalDocumentationElement.refract({
+        const externalDocumentationElement = refractExternalDocumentation({
           description: 'Find more info here',
           url: 'https://swagger.io',
         });
@@ -16,22 +20,20 @@ describe('refractor', function () {
       });
 
       specify('should support specification extensions', function () {
-        const externalDocumentationElement = ExternalDocumentationElement.refract({
+        const externalDocumentationElement = refractExternalDocumentation({
           description: 'Find more info here',
           'x-extension': 'extension',
         }) as ExternalDocumentationElement;
 
         assert.isFalse(
-          includesClasses(
-            ['specification-extension'],
-            externalDocumentationElement.getMember('description'),
-          ),
+          includesClasses(externalDocumentationElement.getMember('description') as any, [
+            'specification-extension',
+          ]),
         );
         assert.isTrue(
-          includesClasses(
-            ['specification-extension'],
-            externalDocumentationElement.getMember('x-extension'),
-          ),
+          includesClasses(externalDocumentationElement.getMember('x-extension') as any, [
+            'specification-extension',
+          ]),
         );
       });
     });

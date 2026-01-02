@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { KafkaOperationBindingElement } from '../../../../../../src/index.ts';
+import { refractKafkaOperationBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('KafkaOperationBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const kafkaOperationBindingElement = KafkaOperationBindingElement.refract({
+        const kafkaOperationBindingElement = refractKafkaOperationBinding({
           groupId: {},
           clientId: {},
           bindingVersion: '0.1.0',
@@ -18,7 +18,7 @@ describe('refractor', function () {
 
       context('given query field of type ReferenceElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const kafkaOperationBindingElement = KafkaOperationBindingElement.refract({
+          const kafkaOperationBindingElement = refractKafkaOperationBinding({
             groupId: {
               $ref: '#/pointer',
             },

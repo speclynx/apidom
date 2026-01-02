@@ -1,9 +1,31 @@
 import { assert } from 'chai';
 import dedent from 'dedent';
 import { trim } from 'ramda';
-import { InfoElement } from '@speclynx/apidom-ns-openapi-3-1';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
-import { sexprs, ObjectElement } from '../../src/index.ts';
+import { sexprs } from '../../src/index.ts';
+
+// Ad-hoc semantic element classes for testing
+class ContactElement extends ObjectElement {
+  constructor(...args: ConstructorParameters<typeof ObjectElement>) {
+    super(...args);
+    this.element = 'contact';
+  }
+}
+
+class LicenseElement extends ObjectElement {
+  constructor(...args: ConstructorParameters<typeof ObjectElement>) {
+    super(...args);
+    this.element = 'license';
+  }
+}
+
+class InfoElement extends ObjectElement {
+  constructor(...args: ConstructorParameters<typeof ObjectElement>) {
+    super(...args);
+    this.element = 'info';
+  }
+}
 
 describe('sexprs', function () {
   context('given generic ApiDOM', function () {
@@ -33,21 +55,22 @@ describe('sexprs', function () {
 
   context('given semantic ApiDOM', function () {
     specify('should transform into S-expressions', function () {
-      // @ts-ignore
-      const semanticObj = InfoElement.refract({
+      const contactElement = new ContactElement({
+        name: 'name',
+        url: 'url',
+        email: 'email',
+      });
+      const licenseElement = new LicenseElement({
+        name: 'name',
+        identifier: 'identifier',
+        url: 'url',
+      });
+      const semanticObj = new InfoElement({
         title: 'title',
         summary: 'summary',
         description: 'description',
-        contact: {
-          name: 'name',
-          url: 'url',
-          email: 'email',
-        },
-        license: {
-          name: 'name',
-          identifier: 'identifier',
-          url: 'url',
-        },
+        contact: contactElement,
+        license: licenseElement,
         version: '1.0.0',
       });
       const expected = trim(dedent`

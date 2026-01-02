@@ -1,7 +1,8 @@
 import { assert } from 'chai';
-import { find, toValue, isElement } from '@speclynx/apidom-core';
+import { find, toValue } from '@speclynx/apidom-core';
+import { isElement } from '@speclynx/apidom-datamodel';
 
-import { isJSONSchemaElement, JSONSchemaElement } from '../../../../src/index.ts';
+import { isJSONSchemaElement, refractJSONSchema } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
@@ -9,7 +10,7 @@ describe('refractor', function () {
       context('$id keyword in embedded resources', function () {
         context('given JSONSchema Object without $id keyword', function () {
           specify('should have empty ancestorsSchemaIdentifiers', function () {
-            const jsonSchemaElement = JSONSchemaElement.refract({});
+            const jsonSchemaElement = refractJSONSchema({});
             const actual = toValue(jsonSchemaElement.meta.get('ancestorsSchemaIdentifiers'));
 
             assert.deepEqual(actual, []);
@@ -18,7 +19,7 @@ describe('refractor', function () {
 
         context('given JSONSchema Object with arbitrary fields boundaries', function () {
           specify('should annotate Schema($anchor=1) with ancestorsSchemaIdentifiers', function () {
-            const jsonSchemaElement = JSONSchemaElement.refract({
+            const jsonSchemaElement = refractJSONSchema({
               $id: './nested/',
               type: 'object',
               properties: {
@@ -38,7 +39,7 @@ describe('refractor', function () {
           let jsonSchemaElement: any;
 
           beforeEach(function () {
-            jsonSchemaElement = JSONSchemaElement.refract({
+            jsonSchemaElement = refractJSONSchema({
               $anchor: '1',
               type: 'object',
               oneOf: [

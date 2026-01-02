@@ -1,14 +1,14 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { OperationElement } from '../../../../src/index.ts';
+import { refractOperation } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('OperationElement', function () {
       context('given requestBody field of type RequestBodyElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const operationElement = OperationElement.refract({
+          const operationElement = refractOperation({
             tags: ['tag1', 'tag2'],
             summary: 'operation-summary',
             description: 'operation-description',
@@ -32,7 +32,7 @@ describe('refractor', function () {
 
       context('given requestBody field of type ReferenceElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const operationElement = OperationElement.refract({
+          const operationElement = refractOperation({
             tags: ['tag1', 'tag2'],
             summary: 'operation-summary',
             description: 'operation-description',

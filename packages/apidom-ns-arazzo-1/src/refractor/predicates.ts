@@ -3,9 +3,9 @@ import {
   MemberElement,
   ObjectElement,
   isStringElement,
-  toValue,
   isObjectElement,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 export interface ReusableLikeElement extends ObjectElement {
   hasKey: (value: 'reference') => true;
@@ -15,7 +15,7 @@ export interface ReusableLikeElement extends ObjectElement {
  * @public
  */
 export const isArazzoSpecificationExtension = (element: MemberElement): boolean => {
-  return isStringElement(element.key) && startsWith('x-', toValue(element.key));
+  return isStringElement(element.key) && startsWith('x-', toValue(element.key) as string);
 };
 
 export const isReusableLikeElement = (element: unknown): element is ReusableLikeElement => {

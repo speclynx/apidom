@@ -3,9 +3,9 @@ import {
   ArrayElement,
   BooleanElement,
   StringElement,
-  Attributes,
-  Meta,
-} from '@speclynx/apidom-core';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import ExternalDocumentationElement from './ExternalDocumentation.ts';
 import ResponsesElement from './Responses.ts';
@@ -20,7 +20,7 @@ class Operation extends ObjectElement {
   }
 
   get tags(): ArrayElement | undefined {
-    return this.get('tags');
+    return this.get('tags') as ArrayElement | undefined;
   }
 
   set tags(tags: ArrayElement | undefined) {
@@ -28,7 +28,7 @@ class Operation extends ObjectElement {
   }
 
   get summary(): StringElement | undefined {
-    return this.get('summary');
+    return this.get('summary') as StringElement | undefined;
   }
 
   set summary(description: StringElement | undefined) {
@@ -36,7 +36,7 @@ class Operation extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -48,11 +48,11 @@ class Operation extends ObjectElement {
   }
 
   get externalDocs(): ExternalDocumentationElement | undefined {
-    return this.get('externalDocs');
+    return this.get('externalDocs') as ExternalDocumentationElement | undefined;
   }
 
   get operationId(): StringElement | undefined {
-    return this.get('operationId');
+    return this.get('operationId') as StringElement | undefined;
   }
 
   set operationId(operationId: StringElement | undefined) {
@@ -60,7 +60,7 @@ class Operation extends ObjectElement {
   }
 
   get parameters(): ArrayElement | undefined {
-    return this.get('parameters');
+    return this.get('parameters') as ArrayElement | undefined;
   }
 
   set parameters(parameters: ArrayElement | undefined) {
@@ -68,7 +68,7 @@ class Operation extends ObjectElement {
   }
 
   get responses(): ResponsesElement | undefined {
-    return this.get('responses');
+    return this.get('responses') as ResponsesElement | undefined;
   }
 
   set responses(responses: ResponsesElement | undefined) {
@@ -76,7 +76,7 @@ class Operation extends ObjectElement {
   }
 
   get schemes(): ArrayElement | undefined {
-    return this.get('schemes');
+    return this.get('schemes') as ArrayElement | undefined;
   }
 
   set schemes(schemes: ArrayElement | undefined) {
@@ -85,7 +85,7 @@ class Operation extends ObjectElement {
 
   get deprecated(): BooleanElement {
     if (this.hasKey('deprecated')) {
-      return this.get('deprecated');
+      return this.get('deprecated') as BooleanElement;
     }
     return new BooleanElement(false);
   }
@@ -95,7 +95,7 @@ class Operation extends ObjectElement {
   }
 
   get security(): ArrayElement | undefined {
-    return this.get('security');
+    return this.get('security') as ArrayElement | undefined;
   }
 
   set security(security: ArrayElement | undefined) {

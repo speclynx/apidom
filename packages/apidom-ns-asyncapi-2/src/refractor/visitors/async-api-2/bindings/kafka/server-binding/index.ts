@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import KafkaServerBindingElement from '../../../../../../elements/bindings/kafka/KafkaServerBinding.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../../../FallbackVisitor.ts';
+import { SpecPath } from '../../../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../../../bases.ts';
 
 /**
  * @public
  */
-export interface KafkaServerBindingVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type KafkaServerBindingVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class KafkaServerBindingVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class KafkaServerBindingVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: KafkaServerBindingElement;
 
   declare protected readonly specPath: SpecPath<

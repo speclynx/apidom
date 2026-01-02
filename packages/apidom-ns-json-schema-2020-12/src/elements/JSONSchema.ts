@@ -4,14 +4,18 @@ import {
   BooleanElement,
   Attributes,
   Meta,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 import { UnsupportedOperationError } from '@speclynx/apidom-error';
 import { JSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2019-09';
+
+import type { FixedField } from '../refractor/inspect.ts';
 
 /**
  * @public
  */
 class JSONSchema extends JSONSchemaElement {
+  declare static fixedFields: FixedField[];
+
   constructor(content?: Record<string, unknown>, meta?: Meta, attributes?: Attributes) {
     super(content, meta, attributes);
     this.element = 'JSONSchema202012';
@@ -24,7 +28,7 @@ class JSONSchema extends JSONSchemaElement {
    */
 
   get $dynamicAnchor(): StringElement | undefined {
-    return this.get('$dynamicAnchor');
+    return this.get('$dynamicAnchor') as StringElement | undefined;
   }
 
   set $dynamicAnchor($dynamicAnchor: StringElement | undefined) {
@@ -44,7 +48,7 @@ class JSONSchema extends JSONSchemaElement {
   }
 
   get $dynamicRef(): StringElement | undefined {
-    return this.get('$dynamicRef');
+    return this.get('$dynamicRef') as StringElement | undefined;
   }
 
   set $dynamicRef($dynamicRef: StringElement | undefined) {
@@ -70,7 +74,7 @@ class JSONSchema extends JSONSchemaElement {
    */
 
   get prefixItems(): ArrayElement | undefined {
-    return this.get('prefixItems');
+    return this.get('prefixItems') as ArrayElement | undefined;
   }
 
   set prefixItems(prefixItems: ArrayElement | undefined) {

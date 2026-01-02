@@ -1,13 +1,13 @@
 import { expect, assert } from 'chai';
 import { sexprs, toValue } from '@speclynx/apidom-core';
 
-import { SchemaElement } from '../../../../src/index.ts';
+import { refractSchema, SchemaElement } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('SchemaElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const schemaElement = SchemaElement.refract({
+        const schemaElement = refractSchema({
           // the following properties are taken directly from the JSON Schema definition and follow the same specifications
           title: 'title',
           multipleOf: 1,
@@ -53,7 +53,7 @@ describe('refractor', function () {
 
       context('given items keyword in form of object', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const schemaElement = SchemaElement.refract({
+          const schemaElement = refractSchema({
             items: {},
           });
 
@@ -63,7 +63,7 @@ describe('refractor', function () {
 
       context('given embedded SchemaElements', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const schemaElement = SchemaElement.refract({
+          const schemaElement = refractSchema({
             allOf: [{ not: {} }],
           });
 
@@ -72,7 +72,7 @@ describe('refractor', function () {
       });
 
       context('given allOf keyword with reference', function () {
-        const schemaElement = SchemaElement.refract({
+        const schemaElement = refractSchema({
           allOf: [{ $ref: '#/path/to/schema' }],
         }) as SchemaElement;
 
@@ -82,14 +82,14 @@ describe('refractor', function () {
 
         specify('should contain referenced-element meta', function () {
           const referenceElement = schemaElement.allOf?.get(0);
-          const referencedElementMeta = referenceElement?.getMetaProperty('referenced-element');
+          const referencedElementMeta = referenceElement?.meta.get('referenced-element');
 
           assert.strictEqual(toValue(referencedElementMeta), 'schema');
         });
       });
 
       context('given anyOf keyword with reference', function () {
-        const schemaElement = SchemaElement.refract({
+        const schemaElement = refractSchema({
           anyOf: [{ $ref: '#/path/to/schema' }],
         }) as SchemaElement;
 
@@ -99,14 +99,14 @@ describe('refractor', function () {
 
         specify('should contain referenced-element meta', function () {
           const referenceElement = schemaElement.anyOf?.get(0);
-          const referencedElementMeta = referenceElement?.getMetaProperty('referenced-element');
+          const referencedElementMeta = referenceElement?.meta.get('referenced-element');
 
           assert.strictEqual(toValue(referencedElementMeta), 'schema');
         });
       });
 
       context('given oneOf keyword with reference', function () {
-        const schemaElement = SchemaElement.refract({
+        const schemaElement = refractSchema({
           oneOf: [{ $ref: '#/path/to/schema' }],
         }) as SchemaElement;
 
@@ -116,14 +116,14 @@ describe('refractor', function () {
 
         specify('should contain referenced-element meta', function () {
           const referenceElement = schemaElement.oneOf?.get(0);
-          const referencedElementMeta = referenceElement?.getMetaProperty('referenced-element');
+          const referencedElementMeta = referenceElement?.meta.get('referenced-element');
 
           assert.strictEqual(toValue(referencedElementMeta), 'schema');
         });
       });
 
       context('given properties keyword with reference', function () {
-        const schemaElement = SchemaElement.refract({
+        const schemaElement = refractSchema({
           properties: { prop1: { $ref: '#/path/to/schema' } },
         }) as SchemaElement;
 
@@ -133,7 +133,7 @@ describe('refractor', function () {
 
         specify('should contain referenced-element meta', function () {
           const referenceElement = schemaElement.properties?.get('prop1');
-          const referencedElementMeta = referenceElement?.getMetaProperty('referenced-element');
+          const referencedElementMeta = referenceElement?.meta.get('referenced-element');
 
           assert.strictEqual(toValue(referencedElementMeta), 'schema');
         });

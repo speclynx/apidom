@@ -3,13 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import { YamlTagError } from '@speclynx/apidom-ast';
-import {
-  toValue,
-  isObjectElement,
-  isParseResultElement,
-  sexprs,
-  isStringElement,
-} from '@speclynx/apidom-core';
+import { isObjectElement, isParseResultElement, isStringElement } from '@speclynx/apidom-datamodel';
+import { toValue, sexprs } from '@speclynx/apidom-core';
 
 import * as adapter from '../../src/adapter.ts';
 
@@ -193,14 +188,16 @@ describe('adapter', function () {
   context('given single-quote scalar containing only space characters', function () {
     specify('should parse all space characters', async function () {
       const result = await adapter.parse("' '");
-      assert.strictEqual(result.toValue()[0], ' ');
+      const expected = toValue(result) as string[];
+      assert.strictEqual(expected[0], ' ');
     });
   });
 
   context('given double-quote scalar containing only space characters', function () {
     specify('should parse all space characters', async function () {
       const result = await adapter.parse('" "');
-      assert.strictEqual(result.toValue()[0], ' ');
+      const expected = toValue(result) as string[];
+      assert.strictEqual(expected[0], ' ');
     });
   });
 });

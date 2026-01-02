@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { assert } from 'chai';
-import { ObjectElement, RefElement } from '@speclynx/apidom-core';
+import { ObjectElement, RefElement } from '@speclynx/apidom-datamodel';
 import { fileURLToPath } from 'node:url';
 
 import { resolveApiDOM } from '../../../../../src/index.ts';

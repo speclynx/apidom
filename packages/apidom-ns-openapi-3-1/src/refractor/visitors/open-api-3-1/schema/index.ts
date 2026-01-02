@@ -1,31 +1,23 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
-import { ObjectElement, BooleanElement, isStringElement, toValue } from '@speclynx/apidom-core';
-import {
-  FallbackVisitor,
-  FallbackVisitorOptions,
-  FixedFieldsVisitor,
-  FixedFieldsVisitorOptions,
-} from '@speclynx/apidom-ns-openapi-3-0';
-import {
-  JSONSchemaVisitor,
-  ParentSchemaAwareVisitor,
-  ParentSchemaAwareVisitorOptions,
-} from '@speclynx/apidom-ns-json-schema-2020-12';
+import { ObjectElement, BooleanElement, isStringElement } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
+import { FixedFieldsVisitor } from '@speclynx/apidom-ns-openapi-3-0';
+import { JSONSchemaVisitor } from '@speclynx/apidom-ns-json-schema-2020-12';
 
 import { isJsonSchemaDialectElement } from '../../../../predicates.ts';
 import SchemaElement from '../../../../elements/Schema.ts';
 import JsonSchemaDialectElement from '../../../../elements/JsonSchemaDialect.ts';
-/**
- * @public
- */
-export interface SchemaVisitorOptions
-  extends FixedFieldsVisitorOptions, ParentSchemaAwareVisitorOptions, FallbackVisitorOptions {}
+import { BaseSchemaVisitor, BaseSchemaVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-class SchemaVisitor extends Mixin(FixedFieldsVisitor, ParentSchemaAwareVisitor, FallbackVisitor) {
+export interface SchemaVisitorOptions extends BaseSchemaVisitorOptions {}
+
+/**
+ * @public
+ */
+class SchemaVisitor extends BaseSchemaVisitor {
   declare public readonly element: SchemaElement;
 
   declare protected readonly jsonSchemaDefaultDialect: JsonSchemaDialectElement;
@@ -50,7 +42,7 @@ class SchemaVisitor extends Mixin(FixedFieldsVisitor, ParentSchemaAwareVisitor, 
     // mark this SchemaElement with reference metadata
     if (isStringElement(this.element.$ref)) {
       this.element.classes.push('reference-element');
-      this.element.setMetaProperty('referenced-element', 'schema');
+      this.element.meta.set('referenced-element', 'schema');
     }
 
     return result;
@@ -66,7 +58,7 @@ class SchemaVisitor extends Mixin(FixedFieldsVisitor, ParentSchemaAwareVisitor, 
    * into Schema Element: `SchemaElement.refract(new ObjectElement({ type: 'object' });`
    */
   get defaultDialectIdentifier(): JsonSchemaDialectElement {
-    let jsonSchemaDialect;
+    let jsonSchemaDialect: unknown;
 
     if (
       this.openApiSemanticElement !== undefined &&
@@ -84,7 +76,7 @@ class SchemaVisitor extends Mixin(FixedFieldsVisitor, ParentSchemaAwareVisitor, 
       jsonSchemaDialect = toValue(this.jsonSchemaDefaultDialect);
     }
 
-    return jsonSchemaDialect;
+    return jsonSchemaDialect as JsonSchemaDialectElement;
   }
 
   handleDialectIdentifier(objectElement: ObjectElement): void {

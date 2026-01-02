@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { OAuthFlowElement } from '../../../../src/index.ts';
+import { refractOAuthFlow } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('OAuthFlowElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const oAuthFlowElement = OAuthFlowElement.refract({
+        const oAuthFlowElement = refractOAuthFlow({
           authorizationUrl: 'oauth-flow-authorizationURL',
           tokenUrl: 'oauth-flow-tokenUrl',
           refreshUrl: 'oauth-flow-refreshUrl',

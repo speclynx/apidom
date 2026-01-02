@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { AnypointmqMessageBindingElement } from '../../../../../../src/index.ts';
+import { refractAnypointmqMessageBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('AnypointmqMessageBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const anypointmqMessageBindingElement = AnypointmqMessageBindingElement.refract({
+        const anypointmqMessageBindingElement = refractAnypointmqMessageBinding({
           headers: {},
           bindingVersion: '0.1.0',
         });
@@ -17,7 +17,7 @@ describe('refractor', function () {
 
       context('given headers field of type ReferenceElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const anypointmqMessageBindingElement = AnypointmqMessageBindingElement.refract({
+          const anypointmqMessageBindingElement = refractAnypointmqMessageBinding({
             headers: {
               $ref: '#/pointer',
             },

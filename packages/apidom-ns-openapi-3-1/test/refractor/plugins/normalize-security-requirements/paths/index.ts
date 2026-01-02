@@ -4,7 +4,7 @@ import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
 import {
-  OpenApi3_1Element,
+  refractOpenApi3_1,
   refractorPluginNormalizeSecurityRequirements,
 } from '../../../../../src/index.ts';
 
@@ -27,7 +27,7 @@ describe('refractor', function () {
                   get: {}
             `;
               const apiDOM = await parse(yamlDefinition);
-              const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+              const openApiElement = refractOpenApi3_1(apiDOM.result, {
                 plugins: [refractorPluginNormalizeSecurityRequirements()],
               });
 
@@ -52,7 +52,7 @@ describe('refractor', function () {
                     security: []
             `;
               const apiDOM = await parse(yamlDefinition);
-              const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+              const openApiElement = refractOpenApi3_1(apiDOM.result, {
                 plugins: [refractorPluginNormalizeSecurityRequirements()],
               });
 
@@ -77,7 +77,7 @@ describe('refractor', function () {
                     security: [{}]
             `;
               const apiDOM = await parse(yamlDefinition);
-              const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+              const openApiElement = refractOpenApi3_1(apiDOM.result, {
                 plugins: [refractorPluginNormalizeSecurityRequirements()],
               });
 
@@ -98,7 +98,7 @@ describe('refractor', function () {
                     security: [{}]
             `;
             const apiDOM = await parse(yamlDefinition);
-            const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+            const openApiElement = refractOpenApi3_1(apiDOM.result, {
               plugins: [refractorPluginNormalizeSecurityRequirements()],
             });
 
@@ -115,7 +115,7 @@ describe('refractor', function () {
                   get: {}
             `;
             const apiDOM = await parse(yamlDefinition);
-            const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+            const openApiElement = refractOpenApi3_1(apiDOM.result, {
               plugins: [refractorPluginNormalizeSecurityRequirements()],
             });
 

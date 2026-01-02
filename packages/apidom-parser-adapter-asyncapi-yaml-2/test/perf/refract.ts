@@ -3,15 +3,16 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Benchmark from 'benchmark';
 import type { Event } from 'benchmark';
-import { ObjectElement, toValue } from '@speclynx/apidom-core';
-import { AsyncApi2Element } from '@speclynx/apidom-ns-asyncapi-2';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
+import { refractAsyncApi2 } from '@speclynx/apidom-ns-asyncapi-2';
 
 import { parse } from '../../src/adapter.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturePath = path.join(__dirname, 'fixtures/asyncapi.yaml');
 const source = fs.readFileSync(fixturePath).toString();
-const pojo = toValue((await parse(source)).result);
+const pojo = toValue((await parse(source)).result) as Record<string, unknown>;
 
 const genericObjectElement = new ObjectElement(pojo);
 
@@ -20,7 +21,7 @@ const options = {
   minSamples: 600,
   expected: '350 ops/sec ±1.29% (679 runs sampled)',
   fn() {
-    AsyncApi2Element.refract(genericObjectElement);
+    refractAsyncApi2(genericObjectElement);
   },
 };
 

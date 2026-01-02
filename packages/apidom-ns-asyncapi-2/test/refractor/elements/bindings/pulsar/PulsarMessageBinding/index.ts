@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { PulsarMessageBindingElement } from '../../../../../../src/index.ts';
+import { refractPulsarMessageBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('PulsarMessageBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const pulsarMessageBindingElement = PulsarMessageBindingElement.refract({});
+        const pulsarMessageBindingElement = refractPulsarMessageBinding({});
 
         expect(sexprs(pulsarMessageBindingElement)).toMatchSnapshot();
       });

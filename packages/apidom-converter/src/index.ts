@@ -1,4 +1,4 @@
-import { ParseResultElement } from '@speclynx/apidom-core';
+import { ParseResultElement } from '@speclynx/apidom-datamodel';
 import { mergeOptions, bundle, File } from '@speclynx/apidom-reference';
 
 import defaultOptions, { ConverterOptions } from './options/index.ts';

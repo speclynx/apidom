@@ -1,4 +1,4 @@
-import { Element, ArrayElement } from '@speclynx/apidom-core';
+import { Element, ArrayElement } from '@speclynx/apidom-datamodel';
 import { OperationSecurityElement } from '@speclynx/apidom-ns-openapi-3-0';
 
 import OpenApi3_1Element from '../../elements/OpenApi3-1.ts';
@@ -75,7 +75,9 @@ const plugin =
             const hasTopLevelSecurity = typeof topLevelSecurity !== 'undefined';
 
             if (missingOperationLevelSecurity && hasTopLevelSecurity) {
-              operationElement.security = new OperationSecurityElement(topLevelSecurity?.content);
+              operationElement.security = new OperationSecurityElement(
+                (topLevelSecurity?.content as unknown[] | undefined) ?? undefined,
+              );
               storage!.append(operationJSONPointer);
             }
           },

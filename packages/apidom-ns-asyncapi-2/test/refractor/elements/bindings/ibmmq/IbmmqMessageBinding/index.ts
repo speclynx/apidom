@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { IbmmqMessageBindingElement } from '../../../../../../src/index.ts';
+import { refractIbmmqMessageBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('IbmmqMessageBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const ibmmqMessageBindingElement = IbmmqMessageBindingElement.refract({
+        const ibmmqMessageBindingElement = refractIbmmqMessageBinding({
           type: 'jms',
           headers: 'MQFMT_CICS,MQFMT_ADMIN',
           description: 'JMS stream message',

@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -11,7 +16,7 @@ class Reference extends ObjectElement {
   }
 
   get $ref(): StringElement | undefined {
-    return this.get('$ref');
+    return this.get('$ref') as StringElement | undefined;
   }
 
   set $ref($ref: StringElement | undefined) {

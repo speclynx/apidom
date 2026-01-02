@@ -16,20 +16,20 @@ You can install this package via [npm CLI](https://docs.npmjs.com/cli) by runnin
 ## Arazzo 1.0.1 namespace
 
 Arazzo 1.0.1 namespace consists of [number of elements](https://github.com/speclynx/apidom/tree/main/packages/apidom-ns-arazzo-1/src/elements) implemented on top
-of [primitive ones](https://github.com/refractproject/minim/tree/master/lib/primitives).
+of [primitive ones](https://github.com/speclynx/apidom/tree/main/packages/apidom-datamodel/src/primitives).
 
 ```js
-import { createNamespace } from '@speclynx/apidom-core';
+import { Namespace } from '@speclynx/apidom-datamodel';
 import arazzo1Namespace from '@speclynx/apidom-ns-arazzo-1';
 
-const namespace = createNamespace(arazzo1Namespace);
+const namespace = new Namespace().use(arazzo1Namespace);
 
 const objectElement = new namespace.elements.Object();
 const arazzoElement = new namespace.elements.ArazzoSpecification1();
 ```
 
 When namespace instance is created in this way, it will extend the base namespace
-with the namespace provided as an argument.
+with the namespace plugin provided as an argument.
 
 Elements from the namespace can also be used directly by importing them.
 
@@ -82,7 +82,7 @@ or generic ApiDOM structures into structures built from elements of this namespa
 **Refracting JavaScript structures**:
 
 ```js
-import { InfoElement } from '@speclynx/apidom-ns-arazzo-1';
+import { refractInfo } from '@speclynx/apidom-ns-arazzo-1';
 
 const object = {
     title: 'my title',
@@ -91,14 +91,14 @@ const object = {
     version: '0.1.0',
 };
 
-InfoElement.refract(object); // => InfoElement({ title, summary, description, version })
+refractInfo(object); // => InfoElement({ title, summary, description, version })
 ```
 
 **Refracting generic ApiDOM structures**:
 
 ```js
-import { ObjectElement } from '@speclynx/apidom-core';
-import { InfoElement } from '@speclynx/apidom-ns-arazzo-1';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { refractInfo } from '@speclynx/apidom-ns-arazzo-1';
 
 const objectElement = new ObjectElement({
     title: 'my title',
@@ -107,16 +107,16 @@ const objectElement = new ObjectElement({
     version: '0.1.0',
 });
 
-InfoElement.refract(objectElement); // => InfoElement({ title = 'my title', summary = 'my summary', description = 'my description', version = '0.1.0' })
+refractInfo(objectElement); // => InfoElement({ title = 'my title', summary = 'my summary', description = 'my description', version = '0.1.0' })
 ```
 
 ### Refractor plugins
 
-Refractors can accept plugins as a second argument of refract static method.
+Refractors can accept plugins as a second argument of the refract function.
 
 ```js
-import { ObjectElement } from '@speclynx/apidom-core';
-import { InfoElement } from '@speclynx/apidom-ns-arazzo-1';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { refractInfo } from '@speclynx/apidom-ns-arazzo-1';
 
 const objectElement = new ObjectElement({
     title: 'my title',
@@ -140,7 +140,7 @@ const plugin = ({ predicates, namespace }) => ({
   },
 });
 
-InfoElement.refract(objectElement, { plugins: [plugin] }); // => InfoElement({ title = 'my title', description = 'my description', version = '2.0.0' })
+refractInfo(objectElement, { plugins: [plugin] }); // => InfoElement({ title = 'my title', description = 'my description', version = '2.0.0' })
 ```
 
 You can define as many plugins as needed to enhance the resulting namespaced ApiDOM structure.
@@ -154,14 +154,14 @@ this missing value with the most appropriate semantic element type.
 
 ```js
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
-import { refractorPluginReplaceEmptyElement, ArazzoSpecification1Element } from '@speclynx/apidom-ns-arazzo-1';
+import { refractorPluginReplaceEmptyElement, refractArazzoSpecification1 } from '@speclynx/apidom-ns-arazzo-1';
 
 const yamlDefinition = `
 arazzo: 1.0.1
 info:
 `;
 const apiDOM = await parse(yamlDefinition);
-const arazzoElement = ArazzoSpecification1Element.refract(apiDOM.result, {
+const arazzoElement = refractArazzoSpecification1(apiDOM.result, {
   plugins: [refractorPluginReplaceEmptyElement()],
 });
 

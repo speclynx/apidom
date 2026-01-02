@@ -2,9 +2,9 @@ import {
   ObjectElement,
   ArrayElement,
   StringElement,
-  Attributes,
-  Meta,
-} from '@speclynx/apidom-core';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import SwaggerVersionElement from './SwaggerVersion.ts';
 import InfoElement from './Info.ts';
@@ -26,7 +26,7 @@ class Swagger extends ObjectElement {
   }
 
   get swagger(): SwaggerVersionElement | undefined {
-    return this.get('swagger');
+    return this.get('swagger') as SwaggerVersionElement | undefined;
   }
 
   set swagger(swagger: SwaggerVersionElement | undefined) {
@@ -34,7 +34,7 @@ class Swagger extends ObjectElement {
   }
 
   get info(): InfoElement | undefined {
-    return this.get('info');
+    return this.get('info') as InfoElement | undefined;
   }
 
   set info(info: InfoElement | undefined) {
@@ -42,7 +42,7 @@ class Swagger extends ObjectElement {
   }
 
   get host(): StringElement | undefined {
-    return this.get('host');
+    return this.get('host') as StringElement | undefined;
   }
 
   set host(host: StringElement | undefined) {
@@ -50,7 +50,7 @@ class Swagger extends ObjectElement {
   }
 
   get basePath(): StringElement | undefined {
-    return this.get('basePath');
+    return this.get('basePath') as StringElement | undefined;
   }
 
   set basePath(basePath: StringElement | undefined) {
@@ -58,7 +58,7 @@ class Swagger extends ObjectElement {
   }
 
   get schemes(): ArrayElement | undefined {
-    return this.get('schemes');
+    return this.get('schemes') as ArrayElement | undefined;
   }
 
   set schemes(schemes: ArrayElement | undefined) {
@@ -66,7 +66,7 @@ class Swagger extends ObjectElement {
   }
 
   get consumes(): ArrayElement | undefined {
-    return this.get('consumes');
+    return this.get('consumes') as ArrayElement | undefined;
   }
 
   set consumes(consumes: ArrayElement | undefined) {
@@ -74,7 +74,7 @@ class Swagger extends ObjectElement {
   }
 
   get produces(): ArrayElement | undefined {
-    return this.get('produces');
+    return this.get('produces') as ArrayElement | undefined;
   }
 
   set produces(produces: ArrayElement | undefined) {
@@ -82,7 +82,7 @@ class Swagger extends ObjectElement {
   }
 
   get paths(): PathsElement | undefined {
-    return this.get('paths');
+    return this.get('paths') as PathsElement | undefined;
   }
 
   set paths(paths: PathsElement | undefined) {
@@ -90,7 +90,7 @@ class Swagger extends ObjectElement {
   }
 
   get definitions(): DefinitionsElement | undefined {
-    return this.get('definitions');
+    return this.get('definitions') as DefinitionsElement | undefined;
   }
 
   set definitions(definitions: DefinitionsElement | undefined) {
@@ -98,7 +98,7 @@ class Swagger extends ObjectElement {
   }
 
   get parameters(): ParametersDefinitionsElement | undefined {
-    return this.get('parameters');
+    return this.get('parameters') as ParametersDefinitionsElement | undefined;
   }
 
   set parameters(parameters: ParametersDefinitionsElement | undefined) {
@@ -106,7 +106,7 @@ class Swagger extends ObjectElement {
   }
 
   get responses(): ResponsesDefinitionsElement | undefined {
-    return this.get('responses');
+    return this.get('responses') as ResponsesDefinitionsElement | undefined;
   }
 
   set responses(responses: ResponsesDefinitionsElement | undefined) {
@@ -114,7 +114,7 @@ class Swagger extends ObjectElement {
   }
 
   get securityDefinitions(): SecurityDefinitionsElement | undefined {
-    return this.get('securityDefinitions');
+    return this.get('securityDefinitions') as SecurityDefinitionsElement | undefined;
   }
 
   set securityDefinitions(securityDefinitions: SecurityDefinitionsElement | undefined) {
@@ -122,7 +122,7 @@ class Swagger extends ObjectElement {
   }
 
   get security(): ArrayElement | undefined {
-    return this.get('security');
+    return this.get('security') as ArrayElement | undefined;
   }
 
   set security(security: ArrayElement | undefined) {
@@ -130,7 +130,7 @@ class Swagger extends ObjectElement {
   }
 
   get tags(): ArrayElement | undefined {
-    return this.get('tags');
+    return this.get('tags') as ArrayElement | undefined;
   }
 
   set tags(tags: ArrayElement | undefined) {
@@ -138,7 +138,7 @@ class Swagger extends ObjectElement {
   }
 
   get externalDocs(): ExternalDocumentationElement | undefined {
-    return this.get('externalDocs');
+    return this.get('externalDocs') as ExternalDocumentationElement | undefined;
   }
 
   set externalDocs(externalDocs: ExternalDocumentationElement | undefined) {

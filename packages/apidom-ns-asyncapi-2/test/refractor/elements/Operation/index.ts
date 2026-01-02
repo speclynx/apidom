@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { OperationElement } from '../../../../src/index.ts';
+import { refractOperation } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('OperationElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const operationElement = OperationElement.refract({
+        const operationElement = refractOperation({
           operationId: 'operation-operationId',
           summary: 'operation-summary',
           description: 'operation-description',
@@ -21,7 +21,7 @@ describe('refractor', function () {
 
       context('given bindings field of type OperationBindingsElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const operationElement = OperationElement.refract({
+          const operationElement = refractOperation({
             bindings: {},
           });
 
@@ -31,7 +31,7 @@ describe('refractor', function () {
 
       context('given bindings field of type ReferenceElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const operationElement = OperationElement.refract({
+          const operationElement = refractOperation({
             bindings: {
               $ref: '#/path/to/bindings',
             },
@@ -43,7 +43,7 @@ describe('refractor', function () {
 
       context('given traits field contains list of type OperationTraitElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const operationElement = OperationElement.refract({
+          const operationElement = refractOperation({
             traits: [{}],
           });
 
@@ -53,7 +53,7 @@ describe('refractor', function () {
 
       context('given traits field contains list of type ReferenceElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const operationElement = OperationElement.refract({
+          const operationElement = refractOperation({
             traits: [
               {
                 $ref: '#/path/to/operation-trait',
@@ -67,7 +67,7 @@ describe('refractor', function () {
 
       context('given message field of type MessageElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const operationElement = OperationElement.refract({
+          const operationElement = refractOperation({
             message: {},
           });
 
@@ -77,7 +77,7 @@ describe('refractor', function () {
 
       context('given message field of type ReferenceElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const operationElement = OperationElement.refract({
+          const operationElement = refractOperation({
             message: { $ref: '#/path/to/message' },
           });
 
@@ -87,7 +87,7 @@ describe('refractor', function () {
 
       context('given message field of `oneOf` shape', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const operationElement = OperationElement.refract({
+          const operationElement = refractOperation({
             message: {
               oneOf: [{}, { $ref: '#/path/to/message' }],
             },

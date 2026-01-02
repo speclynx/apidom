@@ -1,20 +1,19 @@
-import { Mixin } from 'ts-mixer';
-import { ArrayElement, Element, BREAK } from '@speclynx/apidom-core';
+import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
 import OperationTraitsElement from '../../../../elements/nces/OperationTraits.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../../SpecificationVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from '../bases.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
 
 /**
  * @public
  */
-export interface TraitsVisitorOptions extends SpecificationVisitorOptions, FallbackVisitorOptions {}
+export type TraitsVisitorOptions = BaseSpecificationVisitorOptions;
 
 /**
  * @public
  */
-class TraitsVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class TraitsVisitor extends BaseSpecificationVisitor {
   declare public readonly element: OperationTraitsElement;
 
   constructor(options: TraitsVisitorOptions) {
@@ -28,7 +27,7 @@ class TraitsVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
 
       if (isReferenceLikeElement(item)) {
         element = this.toRefractedElement(['document', 'objects', 'Reference'], item);
-        element.setMetaProperty('referenced-element', 'operationTrait');
+        element.meta.set('referenced-element', 'operationTrait');
       } else {
         element = this.toRefractedElement(['document', 'objects', 'OperationTrait'], item);
       }

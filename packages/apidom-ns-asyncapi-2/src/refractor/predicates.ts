@@ -1,6 +1,11 @@
 import { startsWith } from 'ramda';
-import { MemberElement, isStringElement, isObjectElement, toValue } from '@speclynx/apidom-core';
-import { ObjectElement } from 'minim';
+import {
+  MemberElement,
+  ObjectElement,
+  isStringElement,
+  isObjectElement,
+} from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 /**
  * @public
@@ -20,5 +25,5 @@ export const isReferenceLikeElement = (element: unknown): element is ReferenceLi
  * @public
  */
 export const isAsyncApiExtension = (element: MemberElement): boolean => {
-  return isStringElement(element.key) && startsWith('x-', toValue(element.key));
+  return isStringElement(element.key) && startsWith('x-', toValue(element.key) as string);
 };

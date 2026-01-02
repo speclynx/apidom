@@ -1,19 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import ComponentsChannelsElement from '../../../../elements/nces/ComponentsChannels.ts';
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/MapVisitor.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface ChannelsVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+export type ChannelsVisitorOptions = BaseMapVisitorOptions;
 
 /**
  * @public
  */
-class ChannelsVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class ChannelsVisitor extends BaseMapVisitor {
   declare public readonly element: ComponentsChannelsElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'ChannelItem']>;

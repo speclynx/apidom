@@ -1,4 +1,10 @@
-import { ObjectElement, StringElement, Element, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  ObjectElement,
+  StringElement,
+  Element,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -10,7 +16,7 @@ class Parameter extends ObjectElement {
   }
 
   get name(): StringElement | undefined {
-    return this.get('name');
+    return this.get('name') as StringElement | undefined;
   }
 
   set name(name: StringElement | undefined) {
@@ -18,7 +24,7 @@ class Parameter extends ObjectElement {
   }
 
   get in(): StringElement | undefined {
-    return this.get('in');
+    return this.get('in') as StringElement | undefined;
   }
 
   set in(val: StringElement | undefined) {
@@ -26,7 +32,7 @@ class Parameter extends ObjectElement {
   }
 
   get value(): Element | undefined {
-    return this.get('value');
+    return this.get('value') as Element | undefined;
   }
 
   set value(value: Element | undefined) {

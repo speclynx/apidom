@@ -1,33 +1,26 @@
-import { Mixin } from 'ts-mixer';
 import { T as stubTrue, always } from 'ramda';
-import { ObjectElement, StringElement, cloneDeep } from '@speclynx/apidom-core';
+import { ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
+import { cloneDeep } from '@speclynx/apidom-core';
 
 import PathsElement from '../../../../elements/Paths.ts';
 import PathItemElement from '../../../../elements/PathItem.ts';
-import PatternedFieldsVisitor, {
-  PatternedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/PatternedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/PatternedFieldsVisitor.ts';
 import { isPathItemElement } from '../../../../predicates.ts';
+import { BasePatternedFieldsVisitor, BasePatternedFieldsVisitorOptions } from '../bases.ts';
+
+export type { BasePatternedFieldsVisitorOptions as PathsVisitorOptions };
 
 /**
  * @public
  */
-export interface PathsVisitorOptions
-  extends PatternedFieldsVisitorOptions, FallbackVisitorOptions {}
-
-/**
- * @public
- */
-class PathsVisitor extends Mixin(PatternedFieldsVisitor, FallbackVisitor) {
+class PathsVisitor extends BasePatternedFieldsVisitor {
   public readonly element: PathsElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'PathItem']>;
 
   declare protected readonly canSupportSpecificationExtensions: true;
 
-  constructor(options: PathsVisitorOptions) {
+  constructor(options: BasePatternedFieldsVisitorOptions) {
     super(options);
     this.element = new PathsElement();
     this.specPath = always(['document', 'objects', 'PathItem']);
@@ -36,7 +29,7 @@ class PathsVisitor extends Mixin(PatternedFieldsVisitor, FallbackVisitor) {
   }
 
   ObjectElement(objectElement: ObjectElement) {
-    const result = PatternedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+    const result = BasePatternedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
 
     // decorate every PathItemElement with path metadata
     this.element
@@ -45,7 +38,7 @@ class PathsVisitor extends Mixin(PatternedFieldsVisitor, FallbackVisitor) {
       .forEach((pathItemElement: PathItemElement, key: StringElement) => {
         key.classes.push('openapi-path-template');
         key.classes.push('path-template');
-        pathItemElement.setMetaProperty('path', cloneDeep(key));
+        pathItemElement.meta.set('path', cloneDeep(key));
       });
 
     return result;

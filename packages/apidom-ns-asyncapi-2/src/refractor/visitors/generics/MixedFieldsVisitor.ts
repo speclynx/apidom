@@ -1,17 +1,17 @@
-import { Mixin } from 'ts-mixer';
 import { difference } from 'ramda';
-import { ObjectElement, MemberElement, BREAK, toValue } from '@speclynx/apidom-core';
+import { ObjectElement, MemberElement } from '@speclynx/apidom-datamodel';
+import { BREAK, toValue } from '@speclynx/apidom-core';
 
-import FixedFieldsVisitor, { FixedFieldsVisitorOptions, SpecPath } from './FixedFieldsVisitor.ts';
-import PatternedFieldsVisitor, { PatternedFieldsVisitorOptions } from './PatternedFieldsVisitor.ts';
+import FixedFieldsVisitor, { SpecPath } from './FixedFieldsVisitor.ts';
+import PatternedFieldsVisitor from './PatternedFieldsVisitor.ts';
+import { BaseMixedFieldsVisitor, BaseMixedFieldsVisitorOptions } from '../async-api-2/bases.ts';
 
 export type { SpecPath };
 
 /**
  * @public
  */
-export interface MixedFieldsVisitorOptions
-  extends FixedFieldsVisitorOptions, PatternedFieldsVisitorOptions {
+export interface MixedFieldsVisitorOptions extends BaseMixedFieldsVisitorOptions {
   readonly specPathFixedFields: SpecPath;
   readonly specPathPatternedFields: SpecPath;
 }
@@ -19,7 +19,7 @@ export interface MixedFieldsVisitorOptions
 /**
  * @public
  */
-class MixedFieldsVisitor extends Mixin(FixedFieldsVisitor, PatternedFieldsVisitor) {
+class MixedFieldsVisitor extends BaseMixedFieldsVisitor {
   protected specPathFixedFields: SpecPath;
 
   protected specPathPatternedFields: SpecPath;
@@ -51,10 +51,10 @@ class MixedFieldsVisitor extends Mixin(FixedFieldsVisitor, PatternedFieldsVisito
 
       // reorder this.element members by original objectElement keys
       const objectElementKeys = objectElement.keys() as string[];
-      this.element.content.sort((a: unknown, b: unknown) => {
+      (this.element.content as MemberElement[]).sort((a: MemberElement, b: MemberElement) => {
         return (
-          objectElementKeys.indexOf(toValue((a as MemberElement).key)) -
-          objectElementKeys.indexOf(toValue((b as MemberElement).key))
+          objectElementKeys.indexOf(toValue(a.key) as string) -
+          objectElementKeys.indexOf(toValue(b.key) as string)
         );
       });
     } catch (e) {

@@ -1,4 +1,4 @@
-import { ObjectElement, isStringElement } from '@speclynx/apidom-core';
+import { ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
 import {
   FixedFieldsVisitor,
   JSONSchemaVisitor as JSONSchemaDraft7Visitor,
@@ -35,7 +35,7 @@ class JSONSchemaVisitor extends JSONSchemaDraft7Visitor {
     // mark this SchemaElement with reference metadata
     if (isStringElement(this.element.$ref)) {
       this.element.classes.push('reference-element');
-      this.element.setMetaProperty('referenced-element', 'schema');
+      this.element.meta.set('referenced-element', 'schema');
     }
 
     return result;

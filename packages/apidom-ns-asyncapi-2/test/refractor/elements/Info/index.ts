@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { InfoElement } from '../../../../src/index.ts';
+import { refractInfo } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('InfoElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const infoElement = InfoElement.refract({
+        const infoElement = refractInfo({
           title: 'AsyncAPI Sample App',
           version: '1.0.1',
           description: 'This is a sample server.',

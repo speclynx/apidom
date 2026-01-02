@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import SchemaElement from '../../Schema.ts';
 import ReferenceElement from '../../Reference.ts';
@@ -14,7 +19,7 @@ class KafkaMessageBinding extends ObjectElement {
   }
 
   get key(): SchemaElement | ReferenceElement | undefined {
-    return this.get('key');
+    return this.get('key') as SchemaElement | ReferenceElement | undefined;
   }
 
   set key(key: SchemaElement | ReferenceElement | undefined) {
@@ -22,7 +27,7 @@ class KafkaMessageBinding extends ObjectElement {
   }
 
   get schemaIdLocation(): StringElement | undefined {
-    return this.get('schemaIdLocation');
+    return this.get('schemaIdLocation') as StringElement | undefined;
   }
 
   set schemaIdLocation(schemaIdLocation: StringElement | undefined) {
@@ -30,7 +35,7 @@ class KafkaMessageBinding extends ObjectElement {
   }
 
   get schemaIdPayloadEncoding(): StringElement | undefined {
-    return this.get('schemaIdPayloadEncoding');
+    return this.get('schemaIdPayloadEncoding') as StringElement | undefined;
   }
 
   set schemaIdPayloadEncoding(schemaIdPayloadEncoding: StringElement | undefined) {
@@ -38,7 +43,7 @@ class KafkaMessageBinding extends ObjectElement {
   }
 
   get schemaLookupStrategy(): StringElement | undefined {
-    return this.get('schemaLookupStrategy');
+    return this.get('schemaLookupStrategy') as StringElement | undefined;
   }
 
   set schemaLookupStrategy(schemaLookupStrategy: StringElement | undefined) {
@@ -46,7 +51,7 @@ class KafkaMessageBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

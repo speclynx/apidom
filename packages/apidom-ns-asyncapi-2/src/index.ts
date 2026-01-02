@@ -1,16 +1,3 @@
-export {
-  isRefElement,
-  isLinkElement,
-  isMemberElement,
-  isObjectElement,
-  isArrayElement,
-  isBooleanElement,
-  isNullElement,
-  isElement,
-  isNumberElement,
-  isStringElement,
-} from '@speclynx/apidom-core';
-
 export { default as mediaTypes, AsyncAPIMediaTypes } from './media-types.ts';
 export type { Format } from './media-types.ts';
 
@@ -68,6 +55,23 @@ export { default as SpecificationVisitor } from './refractor/visitors/Specificat
 export type { SpecificationVisitorOptions } from './refractor/visitors/SpecificationVisitor.ts';
 export { default as Visitor } from './refractor/visitors/Visitor.ts';
 export type { VisitorOptions } from './refractor/visitors/Visitor.ts';
+
+export {
+  BaseSpecificationVisitor,
+  BaseFixedFieldsVisitor,
+  BasePatternedFieldsVisitor,
+  BaseMapVisitor,
+  BaseMixedFieldsVisitor,
+  BaseAlternatingVisitor,
+} from './refractor/visitors/async-api-2/bases.ts';
+export type {
+  BaseSpecificationVisitorOptions,
+  BaseFixedFieldsVisitorOptions,
+  BasePatternedFieldsVisitorOptions,
+  BaseMapVisitorOptions,
+  BaseMixedFieldsVisitorOptions,
+  BaseAlternatingVisitorOptions,
+} from './refractor/visitors/async-api-2/bases.ts';
 
 export type {
   default as AmqpChannelBindingVisitor,
@@ -856,7 +860,144 @@ export {
   WebSocketMessageBindingElement,
   WebSocketOperationBindingElement,
   WebSocketServerBindingElement,
-} from './refractor/registration.ts';
+} from './refractor/inspect.ts';
+export type { FixedField } from './refractor/inspect.ts';
+
+export {
+  default as refract,
+  refractAsyncApi2,
+  refractAsyncApiVersion,
+  refractIdentifier,
+  refractDefaultContentType,
+  refractChannels,
+  refractServers,
+  refractParameters,
+  refractTags,
+  refractChannelBindings,
+  refractChannelItem,
+  refractComponents,
+  refractContact,
+  refractCorrelationID,
+  refractExternalDocumentation,
+  refractInfo,
+  refractLicense,
+  refractMessage,
+  refractMessageBindings,
+  refractMessageExample,
+  refractMessageTrait,
+  refractOAuthFlow,
+  refractOAuthFlows,
+  refractOperation,
+  refractOperationBindings,
+  refractOperationTrait,
+  refractParameter,
+  refractReference,
+  refractSchema,
+  refractSecurityRequirement,
+  refractSecurityScheme,
+  refractServer,
+  refractServerBindings,
+  refractServerVariable,
+  refractTag,
+  // Binding refract functions
+  // AMQP 0-9-1
+  refractAmqpChannelBinding,
+  refractAmqpMessageBinding,
+  refractAmqpOperationBinding,
+  refractAmqpServerBinding,
+  // AMQP 1.0
+  refractAmqp1ChannelBinding,
+  refractAmqp1MessageBinding,
+  refractAmqp1OperationBinding,
+  refractAmqp1ServerBinding,
+  // Anypoint MQ
+  refractAnypointmqChannelBinding,
+  refractAnypointmqMessageBinding,
+  refractAnypointmqOperationBinding,
+  refractAnypointmqServerBinding,
+  // Google Cloud Pub/Sub
+  refractGooglepubsubChannelBinding,
+  refractGooglepubsubMessageBinding,
+  refractGooglepubsubOperationBinding,
+  refractGooglepubsubServerBinding,
+  // HTTP
+  refractHttpChannelBinding,
+  refractHttpMessageBinding,
+  refractHttpOperationBinding,
+  refractHttpServerBinding,
+  // IBM MQ
+  refractIbmmqChannelBinding,
+  refractIbmmqMessageBinding,
+  refractIbmmqOperationBinding,
+  refractIbmmqServerBinding,
+  // JMS
+  refractJmsChannelBinding,
+  refractJmsMessageBinding,
+  refractJmsOperationBinding,
+  refractJmsServerBinding,
+  // Kafka
+  refractKafkaChannelBinding,
+  refractKafkaMessageBinding,
+  refractKafkaOperationBinding,
+  refractKafkaServerBinding,
+  // Mercure
+  refractMercureChannelBinding,
+  refractMercureMessageBinding,
+  refractMercureOperationBinding,
+  refractMercureServerBinding,
+  // MQTT
+  refractMqttChannelBinding,
+  refractMqttMessageBinding,
+  refractMqttOperationBinding,
+  refractMqttServerBinding,
+  // MQTT 5
+  refractMqtt5ChannelBinding,
+  refractMqtt5MessageBinding,
+  refractMqtt5OperationBinding,
+  refractMqtt5ServerBinding,
+  // NATS
+  refractNatsChannelBinding,
+  refractNatsMessageBinding,
+  refractNatsOperationBinding,
+  refractNatsServerBinding,
+  // Pulsar
+  refractPulsarChannelBinding,
+  refractPulsarMessageBinding,
+  refractPulsarOperationBinding,
+  refractPulsarServerBinding,
+  // Redis
+  refractRedisChannelBinding,
+  refractRedisMessageBinding,
+  refractRedisOperationBinding,
+  refractRedisServerBinding,
+  // SNS
+  refractSnsChannelBinding,
+  refractSnsMessageBinding,
+  refractSnsOperationBinding,
+  refractSnsServerBinding,
+  // Solace
+  refractSolaceChannelBinding,
+  refractSolaceMessageBinding,
+  refractSolaceOperationBinding,
+  refractSolaceServerBinding,
+  // SQS
+  refractSqsChannelBinding,
+  refractSqsMessageBinding,
+  refractSqsOperationBinding,
+  refractSqsServerBinding,
+  // STOMP
+  refractStompChannelBinding,
+  refractStompMessageBinding,
+  refractStompOperationBinding,
+  refractStompServerBinding,
+  // WebSocket
+  refractWebSocketChannelBinding,
+  refractWebSocketMessageBinding,
+  refractWebSocketOperationBinding,
+  refractWebSocketServerBinding,
+} from './refractor/index.ts';
+export type { RefractorOptions, RefractorPlugin } from './refractor/index.ts';
+export type { Toolbox } from './refractor/toolbox.ts';
 
 export type { default as ChannelItemsServersElement } from './elements/nces/ChannelItemsServers.ts';
 export type { default as ComponentsChannelBindingsElement } from './elements/nces/ComponentsChannelBindings.ts';

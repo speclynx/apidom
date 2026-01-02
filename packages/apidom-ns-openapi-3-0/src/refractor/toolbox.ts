@@ -1,50 +1,22 @@
-import {
-  isElement,
-  isStringElement,
-  isArrayElement,
-  isObjectElement,
-  isMemberElement,
-  createNamespace,
-  includesClasses,
-  hasElementSourceMap,
-} from '@speclynx/apidom-core';
+import { isStringElement, Namespace } from '@speclynx/apidom-datamodel';
 
 import * as openApi3_0Predicates from '../predicates.ts';
+import * as refractorPredicates from './predicates.ts';
 import openApi3_0Namespace from '../namespace.ts';
 
 /**
  * @public
  */
-export type { openApi3_0Predicates };
+export interface Toolbox {
+  predicates: Record<string, (...args: any[]) => boolean>;
+  namespace: Namespace;
+}
 
-/**
- * @public
- */
-export type Predicates = typeof openApi3_0Predicates & {
-  isElement: typeof isElement;
-  isStringElement: typeof isStringElement;
-  isArrayElement: typeof isArrayElement;
-  isObjectElement: typeof isObjectElement;
-  isMemberElement: typeof isMemberElement;
-  includesClasses: typeof includesClasses;
-  hasElementSourceMap: typeof hasElementSourceMap;
-};
+const createToolbox = (): Toolbox => {
+  const namespace = new Namespace();
+  const predicates = { ...refractorPredicates, ...openApi3_0Predicates, isStringElement };
 
-/**
- * @public
- */
-const createToolbox = () => {
-  const namespace = createNamespace(openApi3_0Namespace);
-  const predicates: Predicates = {
-    ...openApi3_0Predicates,
-    isElement,
-    isStringElement,
-    isArrayElement,
-    isObjectElement,
-    isMemberElement,
-    includesClasses,
-    hasElementSourceMap,
-  };
+  namespace.use(openApi3_0Namespace);
 
   return { predicates, namespace };
 };

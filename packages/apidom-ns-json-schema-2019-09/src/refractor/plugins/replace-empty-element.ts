@@ -2,14 +2,13 @@ import {
   ArrayElement,
   ObjectElement,
   StringElement,
-  isStringElement,
   isArrayElement,
   isElement,
   isMemberElement,
+  isStringElement,
   includesClasses,
-  cloneDeep,
-  toValue,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
+import { cloneDeep, toValue } from '@speclynx/apidom-core';
 /**
  * JSON Schema 2019-09 specification elements.
  */
@@ -53,7 +52,7 @@ import { getNodeType } from '../../traversal/visitor.ts';
  */
 
 const isEmptyElement = (element: any) =>
-  isStringElement(element) && includesClasses(['yaml-e-node', 'yaml-e-scalar'], element);
+  isStringElement(element) && includesClasses(element, ['yaml-e-node', 'yaml-e-scalar']);
 
 const schema = {
   JSONSchema201909Element: {
@@ -259,7 +258,7 @@ const plugin = () => () => {
           elementFactory = findElementFactory(parentElement, '<*>');
         } else if (isMemberElement(parentElement)) {
           context = lineage.at(-2);
-          elementFactory = findElementFactory(context, toValue(parentElement.key));
+          elementFactory = findElementFactory(context, toValue(parentElement.key) as string);
         }
 
         // no element factory found

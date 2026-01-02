@@ -125,7 +125,7 @@ describe('dereference', function () {
 
               assert.isTrue(
                 // @ts-ignore
-                isOperationElement(dereferenced.api.components.links.get('link1').operation),
+                isOperationElement(dereferenced.api.components.linksField.get('link1').operation),
               );
             });
 

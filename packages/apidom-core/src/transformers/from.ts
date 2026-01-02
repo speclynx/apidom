@@ -1,8 +1,8 @@
 import { has } from 'ramda';
 import { isPlainObject, isString } from 'ramda-adjunct';
-import { Element, Namespace as INamespace } from 'minim';
+import { Element, Namespace } from '@speclynx/apidom-datamodel';
 
-import defaultNamespaceInstance from '../namespace.ts';
+import defaultNamespace from '../namespace.ts';
 
 /**
  * Transforms data to an Element from a particular namespace.
@@ -14,7 +14,7 @@ import defaultNamespaceInstance from '../namespace.ts';
  * - https://github.com/swagger-api/swagger-ui/issues/9466#issuecomment-1881053410
  * @public
  */
-const fromFn = (data: any, namespace: INamespace = defaultNamespaceInstance): Element => {
+const fromFn = (data: unknown, namespace: Namespace = defaultNamespace): Element | undefined => {
   if (isString(data)) {
     // JSON serialized refract
     try {

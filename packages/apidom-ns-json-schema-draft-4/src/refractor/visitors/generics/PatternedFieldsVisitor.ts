@@ -1,12 +1,6 @@
 import { F as stubFalse } from 'ramda';
-import {
-  ObjectElement,
-  Element,
-  MemberElement,
-  BREAK,
-  cloneDeep,
-  toValue,
-} from '@speclynx/apidom-core';
+import { ObjectElement, Element, MemberElement } from '@speclynx/apidom-datamodel';
+import { BREAK, cloneDeep, toValue } from '@speclynx/apidom-core';
 
 import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
 import { SpecPath } from './FixedFieldsVisitor.ts';
@@ -50,15 +44,16 @@ class PatternedFieldsVisitor extends SpecificationVisitor {
   ObjectElement(objectElement: ObjectElement) {
     // @ts-ignore
     objectElement.forEach((value: Element, key: Element, memberElement: MemberElement) => {
-      if (!this.ignoredFields.includes(toValue(key)) && this.fieldPatternPredicate(toValue(key))) {
+      const keyValue = toValue(key) as string;
+      if (!this.ignoredFields.includes(keyValue) && this.fieldPatternPredicate(keyValue)) {
         const specPath = this.specPath(value);
         const patternedFieldElement = this.toRefractedElement(specPath, value);
         const newMemberElement = new MemberElement(cloneDeep(key), patternedFieldElement);
         this.copyMetaAndAttributes(memberElement, newMemberElement);
         newMemberElement.classes.push('patterned-field');
-        this.element.content.push(newMemberElement);
-      } else if (!this.ignoredFields.includes(toValue(key))) {
-        this.element.content.push(cloneDeep(memberElement));
+        (this.element.content as Element[]).push(newMemberElement);
+      } else if (!this.ignoredFields.includes(keyValue)) {
+        (this.element.content as Element[]).push(cloneDeep(memberElement));
       }
     });
 

@@ -1,4 +1,5 @@
-import { createNamespace, visit, Element, cloneDeep } from '@speclynx/apidom-core';
+import { Element, Namespace } from '@speclynx/apidom-datamodel';
+import { visit, cloneDeep } from '@speclynx/apidom-core';
 import openApi2Namespace, {
   getNodeType,
   isSwaggerElement,
@@ -71,7 +72,7 @@ class OpenAPI2DereferenceStrategy extends DereferenceStrategy {
   }
 
   async dereference(file: File, options: ReferenceOptions): Promise<Element> {
-    const namespace = createNamespace(openApi2Namespace);
+    const namespace = new Namespace().use(openApi2Namespace);
     const immutableRefSet = options.dereference.refSet ?? new ReferenceSet();
     const mutableRefSet = new ReferenceSet();
     let refSet = immutableRefSet;

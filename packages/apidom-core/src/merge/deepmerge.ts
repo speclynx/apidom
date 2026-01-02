@@ -1,6 +1,12 @@
-import { ObjectElement, ArrayElement, MemberElement, Element } from 'minim';
+import {
+  ObjectElement,
+  ArrayElement,
+  MemberElement,
+  Element,
+  isObjectElement,
+  isArrayElement,
+} from '@speclynx/apidom-datamodel';
 
-import { isObjectElement, isArrayElement } from '../predicates/index.ts';
 import { cloneDeep, cloneShallow } from '../clone/index.ts';
 import toValue from '../transformers/serializers/value/index.ts';
 
@@ -130,10 +136,11 @@ const getAttributesMergeFunction = (options: DeepMergeOptions): CustomAttributes
   return options.customAttributesMerge;
 };
 
-const mergeArrayElement: ArrayElementMerge = (targetElement, sourceElement, options) =>
-  targetElement
-    .concat(sourceElement)
-    ['fantasy-land/map']((item: Element) => cloneUnlessOtherwiseSpecified(item, options));
+const mergeArrayElement: ArrayElementMerge = (targetElement, sourceElement, options) => {
+  const Ctor = targetElement.constructor as new (content: Element[]) => ArrayElement;
+  const merged = targetElement.concat(sourceElement) as ArrayElement;
+  return new Ctor(merged.map((item: Element) => cloneUnlessOtherwiseSpecified(item, options)));
+};
 
 const mergeObjectElement: ObjectElementMerge = (targetElement, sourceElement, options) => {
   const destination = isObjectElement(targetElement)
@@ -149,7 +156,7 @@ const mergeObjectElement: ObjectElementMerge = (targetElement, sourceElement, op
   }
 
   sourceElement.forEach((value, key, member) => {
-    const keyValue = toValue(key);
+    const keyValue = toValue(key) as string;
     let clonedMember;
 
     if (
@@ -157,10 +164,10 @@ const mergeObjectElement: ObjectElementMerge = (targetElement, sourceElement, op
       targetElement.hasKey(keyValue) &&
       options.isMergeableElement(value)
     ) {
-      const targetValue = targetElement.get(keyValue);
+      const targetValue = targetElement.get(keyValue)!;
       clonedMember = cloneShallow(member as MemberElement);
       clonedMember.value = getMergeFunction(key, options)(
-        targetValue,
+        targetValue as ObjectOrArrayElement,
         value as ObjectOrArrayElement,
         options,
       );

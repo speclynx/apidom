@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { PulsarChannelBindingElement } from '../../../../../../src/index.ts';
+import { refractPulsarChannelBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('PulsarChannelBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const pulsarChannelBindingElement = PulsarChannelBindingElement.refract({
+        const pulsarChannelBindingElement = refractPulsarChannelBinding({
           namespace: 'namespace',
           persistence: 'persistent',
           compaction: 1,

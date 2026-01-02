@@ -2,9 +2,9 @@ import {
   StringElement,
   ObjectElement,
   ArrayElement,
-  Attributes,
-  Meta,
-} from '@speclynx/apidom-core';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import OperationElement from './Operation.ts';
 import ParametersElement from './Parameters.ts';
@@ -20,7 +20,7 @@ class ChannelItem extends ObjectElement {
   }
 
   get $ref(): StringElement | undefined {
-    return this.get('$ref');
+    return this.get('$ref') as StringElement | undefined;
   }
 
   set $ref($ref: StringElement | undefined) {
@@ -28,7 +28,7 @@ class ChannelItem extends ObjectElement {
   }
 
   get description(): StringElement | undefined {
-    return this.get('description');
+    return this.get('description') as StringElement | undefined;
   }
 
   set description(description: StringElement | undefined) {
@@ -36,7 +36,7 @@ class ChannelItem extends ObjectElement {
   }
 
   get servers(): ArrayElement | undefined {
-    return this.get('servers');
+    return this.get('servers') as ArrayElement | undefined;
   }
 
   set servers(servers: ArrayElement | undefined) {
@@ -44,7 +44,7 @@ class ChannelItem extends ObjectElement {
   }
 
   get subscribe(): OperationElement | undefined {
-    return this.get('subscribe');
+    return this.get('subscribe') as OperationElement | undefined;
   }
 
   set subscribe(subscribe: OperationElement | undefined) {
@@ -52,7 +52,7 @@ class ChannelItem extends ObjectElement {
   }
 
   get publish(): OperationElement | undefined {
-    return this.get('publish');
+    return this.get('publish') as OperationElement | undefined;
   }
 
   set publish(publish: OperationElement | undefined) {
@@ -60,7 +60,7 @@ class ChannelItem extends ObjectElement {
   }
 
   get parameters(): ParametersElement | undefined {
-    return this.get('parameters');
+    return this.get('parameters') as ParametersElement | undefined;
   }
 
   set parameters(parameters: ParametersElement | undefined) {
@@ -68,7 +68,7 @@ class ChannelItem extends ObjectElement {
   }
 
   get bindings(): ChannelBindingsElement | undefined {
-    return this.get('bindings');
+    return this.get('bindings') as ChannelBindingsElement | undefined;
   }
 
   set bindings(bindings: ChannelBindingsElement | undefined) {

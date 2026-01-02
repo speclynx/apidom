@@ -5,7 +5,7 @@ import {
   NumberElement,
   Attributes,
   Meta,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -18,7 +18,7 @@ class IbmmqServerBinding extends ObjectElement {
   }
 
   get groupId(): StringElement | undefined {
-    return this.get('groupId');
+    return this.get('groupId') as StringElement | undefined;
   }
 
   set groupId(groupId: StringElement | undefined) {
@@ -26,7 +26,7 @@ class IbmmqServerBinding extends ObjectElement {
   }
 
   get ccdtQueueManagerName(): StringElement | undefined {
-    return this.get('ccdtQueueManagerName');
+    return this.get('ccdtQueueManagerName') as StringElement | undefined;
   }
 
   set ccdtQueueManagerName(ccdtQueueManagerName: StringElement | undefined) {
@@ -34,7 +34,7 @@ class IbmmqServerBinding extends ObjectElement {
   }
 
   get cipherSpec(): StringElement | undefined {
-    return this.get('cipherSpec');
+    return this.get('cipherSpec') as StringElement | undefined;
   }
 
   set cipherSpec(cipherSpec: StringElement | undefined) {
@@ -42,7 +42,7 @@ class IbmmqServerBinding extends ObjectElement {
   }
 
   get multiEndpointServer(): BooleanElement | undefined {
-    return this.get('multiEndpointServer');
+    return this.get('multiEndpointServer') as BooleanElement | undefined;
   }
 
   set multiEndpointServer(multiEndpointServer: BooleanElement | undefined) {
@@ -50,7 +50,7 @@ class IbmmqServerBinding extends ObjectElement {
   }
 
   get heartBeatInterval(): NumberElement | undefined {
-    return this.get('heartBeatInterval');
+    return this.get('heartBeatInterval') as NumberElement | undefined;
   }
 
   set heartBeatInterval(heartBeatInterval: NumberElement | undefined) {
@@ -58,7 +58,7 @@ class IbmmqServerBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

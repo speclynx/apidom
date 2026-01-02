@@ -1,12 +1,10 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import MediaElement from '../../../../elements/Media.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
+import { FixedFieldsVisitorOptions } from '../../generics/FixedFieldsVisitor.ts';
+import { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { MediaVisitorBase } from '../bases.ts';
 
 /**
  * @public
@@ -16,7 +14,7 @@ export interface MediaVisitorOptions extends FixedFieldsVisitorOptions, Fallback
 /**
  * @public
  */
-class MediaVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class MediaVisitor extends MediaVisitorBase {
   declare public readonly element: MediaElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'Media']>;

@@ -1,5 +1,3 @@
-import { createPredicate } from '@speclynx/apidom-core';
-
 import SwaggerElement from './elements/Swagger.ts';
 import SwaggerVersionElement from './elements/SwaggerVersion.ts';
 import InfoElement from './elements/Info.ts';
@@ -31,350 +29,166 @@ import ScopesElement from './elements/Scopes.ts';
 /**
  * @public
  */
-export const isSwaggerElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is SwaggerElement =>
-      element instanceof SwaggerElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('swagger', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isSwaggerElement = (element: unknown): element is SwaggerElement =>
+  element instanceof SwaggerElement;
 
 /**
  * @public
  */
-export const isSwaggerVersionElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is SwaggerVersionElement =>
-      element instanceof SwaggerVersionElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('swaggerVersion', element) &&
-        primitiveEq('string', element));
-  },
-);
+export const isSwaggerVersionElement = (element: unknown): element is SwaggerVersionElement =>
+  element instanceof SwaggerVersionElement;
 
 /**
  * @public
  */
-export const isInfoElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is InfoElement =>
-      element instanceof InfoElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('info', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isInfoElement = (element: unknown): element is InfoElement =>
+  element instanceof InfoElement;
 
 /**
  * @public
  */
-export const isLicenseElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is LicenseElement =>
-      element instanceof LicenseElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('license', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isLicenseElement = (element: unknown): element is LicenseElement =>
+  element instanceof LicenseElement;
 
 /**
  * @public
  */
-export const isContactElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is ContactElement =>
-      element instanceof ContactElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('contact', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isContactElement = (element: unknown): element is ContactElement =>
+  element instanceof ContactElement;
 
 /**
  * @public
  */
-export const isPathsElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is PathsElement =>
-      element instanceof PathsElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('paths', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isPathsElement = (element: unknown): element is PathsElement =>
+  element instanceof PathsElement;
 
 /**
  * @public
  */
-export const isPathItemElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is PathItemElement =>
-      element instanceof PathItemElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('pathItem', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isPathItemElement = (element: unknown): element is PathItemElement =>
+  element instanceof PathItemElement;
 
 /**
  * @public
  */
-export const isOperationElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is OperationElement =>
-      element instanceof OperationElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('operation', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isOperationElement = (element: unknown): element is OperationElement =>
+  element instanceof OperationElement;
 
 /**
  * @public
  */
-export const isExternalDocumentationElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is ExternalDocumentationElement =>
-      element instanceof ExternalDocumentationElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('externalDocumentation', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isExternalDocumentationElement = (
+  element: unknown,
+): element is ExternalDocumentationElement => element instanceof ExternalDocumentationElement;
 
 /**
  * @public
  */
-export const isParameterElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is ParameterElement =>
-      element instanceof ParameterElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('parameter', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isParameterElement = (element: unknown): element is ParameterElement =>
+  element instanceof ParameterElement;
 
 /**
  * @public
  */
-export const isItemsElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is ItemsElement =>
-      element instanceof ItemsElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('items', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isItemsElement = (element: unknown): element is ItemsElement =>
+  element instanceof ItemsElement;
 
 /**
  * @public
  */
-export const isResponsesElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is ResponsesElement =>
-      element instanceof ResponsesElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('responses', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isResponsesElement = (element: unknown): element is ResponsesElement =>
+  element instanceof ResponsesElement;
 
 /**
  * @public
  */
-export const isResponseElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is ResponseElement =>
-      element instanceof ResponseElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('response', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isResponseElement = (element: unknown): element is ResponseElement =>
+  element instanceof ResponseElement;
 
 /**
  * @public
  */
-export const isHeadersElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is HeadersElement =>
-      element instanceof HeadersElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('headers', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isHeadersElement = (element: unknown): element is HeadersElement =>
+  element instanceof HeadersElement;
 
 /**
  * @public
  */
-export const isExampleElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is ExampleElement =>
-      element instanceof ExampleElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('example', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isExampleElement = (element: unknown): element is ExampleElement =>
+  element instanceof ExampleElement;
 
 /**
  * @public
  */
-export const isHeaderElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is HeaderElement =>
-      element instanceof HeaderElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('header', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isHeaderElement = (element: unknown): element is HeaderElement =>
+  element instanceof HeaderElement;
 
 /**
  * @public
  */
-export const isTagElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is TagElement =>
-      element instanceof TagElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('tag', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isTagElement = (element: unknown): element is TagElement =>
+  element instanceof TagElement;
 
 /**
  * @public
  */
-export const isReferenceElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is ReferenceElement =>
-      element instanceof ReferenceElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('reference', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isReferenceElement = (element: unknown): element is ReferenceElement =>
+  element instanceof ReferenceElement;
 
 /**
  * @public
  */
-export const isSchemaElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is SchemaElement =>
-      element instanceof SchemaElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('schema', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isSchemaElement = (element: unknown): element is SchemaElement =>
+  element instanceof SchemaElement;
 
 /**
  * @public
  */
-export const isXmlElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is XmlElement =>
-      element instanceof XmlElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('xml', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isXmlElement = (element: unknown): element is XmlElement =>
+  element instanceof XmlElement;
 
 /**
  * @public
  */
-export const isResponsesDefinitionsElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is ResponsesDefinitionsElement =>
-      element instanceof ResponsesDefinitionsElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('responsesDefinitions', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isResponsesDefinitionsElement = (
+  element: unknown,
+): element is ResponsesDefinitionsElement => element instanceof ResponsesDefinitionsElement;
 
 /**
  * @public
  */
-export const isSecurityDefinitionsElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is SecurityDefinitionsElement =>
-      element instanceof SecurityDefinitionsElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('securityDefinitions', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isSecurityDefinitionsElement = (
+  element: unknown,
+): element is SecurityDefinitionsElement => element instanceof SecurityDefinitionsElement;
 
 /**
  * @public
  */
-export const isDefinitionsElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is DefinitionsElement =>
-      element instanceof DefinitionsElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('definitions', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isDefinitionsElement = (element: unknown): element is DefinitionsElement =>
+  element instanceof DefinitionsElement;
 
 /**
  * @public
  */
-export const isParametersDefinitionsElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is ParametersDefinitionsElement =>
-      element instanceof ParametersDefinitionsElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('parametersDefinitions', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isParametersDefinitionsElement = (
+  element: unknown,
+): element is ParametersDefinitionsElement => element instanceof ParametersDefinitionsElement;
 
 /**
  * @public
  */
-export const isSecuritySchemeElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is SecuritySchemeElement =>
-      element instanceof SecuritySchemeElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('securityScheme', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isSecuritySchemeElement = (element: unknown): element is SecuritySchemeElement =>
+  element instanceof SecuritySchemeElement;
 
 /**
  * @public
  */
-export const isScopesElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is ScopesElement =>
-      element instanceof ScopesElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('scopes', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isScopesElement = (element: unknown): element is ScopesElement =>
+  element instanceof ScopesElement;
 
 /**
  * @public
  */
-export const isSecurityRequirementElement = createPredicate(
-  ({ hasBasicElementProps, isElementType, primitiveEq }) => {
-    return (element: unknown): element is SecurityRequirementElement =>
-      element instanceof SecurityRequirementElement ||
-      (hasBasicElementProps(element) &&
-        isElementType('securityRequirement', element) &&
-        primitiveEq('object', element));
-  },
-);
+export const isSecurityRequirementElement = (
+  element: unknown,
+): element is SecurityRequirementElement => element instanceof SecurityRequirementElement;

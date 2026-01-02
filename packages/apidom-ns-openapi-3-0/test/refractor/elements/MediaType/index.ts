@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { MediaTypeElement } from '../../../../src/index.ts';
+import { refractMediaType } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('MediaTypeElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const mediaTypeElement = MediaTypeElement.refract({
+        const mediaTypeElement = refractMediaType({
           schema: {},
           example: {},
           examples: {

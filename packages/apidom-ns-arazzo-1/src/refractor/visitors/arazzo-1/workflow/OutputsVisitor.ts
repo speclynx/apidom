@@ -1,19 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/MapVisitor.ts';
 import WorkflowOutputsElement from '../../../../elements/nces/WorkflowOutputs.ts';
+import { BaseMapFallbackVisitor, BaseMapFallbackVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface OutputsVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+export interface OutputsVisitorOptions extends BaseMapFallbackVisitorOptions {}
 
 /**
  * @public
  */
-class OutputsVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class OutputsVisitor extends BaseMapFallbackVisitor {
   declare public readonly element: WorkflowOutputsElement;
 
   declare protected readonly specPath: SpecPath<['value']>;

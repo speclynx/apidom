@@ -108,6 +108,7 @@ const specification = {
       objects: {
         OpenApi: {
           $visitor: OpenApi3_0Visitor,
+          element: 'openApi3_0',
           fixedFields: {
             openapi: OpenapiVisitor,
             info: {
@@ -129,6 +130,7 @@ const specification = {
         },
         Info: {
           $visitor: InfoVisitor,
+          element: 'info',
           fixedFields: {
             title: { $ref: '#/visitors/value' },
             description: { $ref: '#/visitors/value' },
@@ -144,6 +146,7 @@ const specification = {
         },
         Contact: {
           $visitor: ContactVisitor,
+          element: 'contact',
           fixedFields: {
             name: { $ref: '#/visitors/value' },
             url: { $ref: '#/visitors/value' },
@@ -152,6 +155,7 @@ const specification = {
         },
         License: {
           $visitor: LicenseVisitor,
+          element: 'license',
           fixedFields: {
             name: { $ref: '#/visitors/value' },
             url: { $ref: '#/visitors/value' },
@@ -159,6 +163,7 @@ const specification = {
         },
         Server: {
           $visitor: ServerVisitor,
+          element: 'server',
           fixedFields: {
             url: ServerUrlVisitor,
             description: { $ref: '#/visitors/value' },
@@ -167,6 +172,7 @@ const specification = {
         },
         ServerVariable: {
           $visitor: ServerVariableVisitor,
+          element: 'serverVariable',
           fixedFields: {
             enum: { $ref: '#/visitors/value' },
             default: { $ref: '#/visitors/value' },
@@ -175,6 +181,7 @@ const specification = {
         },
         Components: {
           $visitor: ComponentsVisitor,
+          element: 'components',
           fixedFields: {
             schemas: ComponentsSchemasVisitor,
             responses: ComponentsResponsesVisitor,
@@ -183,21 +190,27 @@ const specification = {
             requestBodies: ComponentsRequestBodiesVisitor,
             headers: ComponentsHeadersVisitor,
             securitySchemes: ComponentsSecuritySchemesVisitor,
-            links: ComponentsLinksVisitor,
+            links: {
+              $visitor: ComponentsLinksVisitor,
+              alias: 'linksField',
+            },
             callbacks: ComponentsCallbacksVisitor,
           },
         },
         Paths: {
           $visitor: PathsVisitor,
+          element: 'paths',
         },
         PathItem: {
           $visitor: PathItemVisitor,
+          element: 'pathItem',
           fixedFields: {
             $ref: PathItem$RefVisitor,
             summary: { $ref: '#/visitors/value' },
             description: { $ref: '#/visitors/value' },
             get: {
               $ref: '#/visitors/document/objects/Operation',
+              alias: 'getField',
             },
             put: {
               $ref: '#/visitors/document/objects/Operation',
@@ -207,6 +220,7 @@ const specification = {
             },
             delete: {
               $ref: '#/visitors/document/objects/Operation',
+              alias: 'deleteField',
             },
             options: {
               $ref: '#/visitors/document/objects/Operation',
@@ -226,6 +240,7 @@ const specification = {
         },
         Operation: {
           $visitor: OperationVisitor,
+          element: 'operation',
           fixedFields: {
             tags: OperationTagsVisitor,
             summary: { $ref: '#/visitors/value' },
@@ -247,6 +262,7 @@ const specification = {
         },
         ExternalDocumentation: {
           $visitor: ExternalDocumentationVisitor,
+          element: 'externalDocumentation',
           fixedFields: {
             description: { $ref: '#/visitors/value' },
             url: { $ref: '#/visitors/value' },
@@ -254,6 +270,7 @@ const specification = {
         },
         Parameter: {
           $visitor: ParameterVisitor,
+          element: 'parameter',
           fixedFields: {
             name: { $ref: '#/visitors/value' },
             in: { $ref: '#/visitors/value' },
@@ -267,19 +284,27 @@ const specification = {
             schema: ParameterSchemaVisitor,
             example: { $ref: '#/visitors/value' },
             examples: ParameterExamplesVisitor,
-            content: ParameterContentVisitor,
+            content: {
+              $visitor: ParameterContentVisitor,
+              alias: 'contentField',
+            },
           },
         },
         RequestBody: {
           $visitor: RequestBodyVisitor,
+          element: 'requestBody',
           fixedFields: {
             description: { $ref: '#/visitors/value' },
-            content: RequestBodyContentVisitor,
+            content: {
+              $visitor: RequestBodyContentVisitor,
+              alias: 'contentField',
+            },
             required: { $ref: '#/visitors/value' },
           },
         },
         MediaType: {
           $visitor: MediaTypeVisitor,
+          element: 'mediaType',
           fixedFields: {
             schema: MediaTypeSchemaVisitor,
             example: { $ref: '#/visitors/value' },
@@ -289,6 +314,7 @@ const specification = {
         },
         Encoding: {
           $visitor: EncodingVisitor,
+          element: 'encoding',
           fixedFields: {
             contentType: { $ref: '#/visitors/value' },
             headers: EncodingHeadersVisitor,
@@ -299,24 +325,34 @@ const specification = {
         },
         Responses: {
           $visitor: ResponsesVisitor,
+          element: 'responses',
           fixedFields: {
             default: ResponsesDefaultVisitor,
           },
         },
         Response: {
           $visitor: ResponseVisitor,
+          element: 'response',
           fixedFields: {
             description: { $ref: '#/visitors/value' },
             headers: ResponseHeadersVisitor,
-            content: ResponseContentVisitor,
-            links: ResponseLinksVisitor,
+            content: {
+              $visitor: ResponseContentVisitor,
+              alias: 'contentField',
+            },
+            links: {
+              $visitor: ResponseLinksVisitor,
+              alias: 'linksField',
+            },
           },
         },
         Callback: {
           $visitor: CallbackVisitor,
+          element: 'callback',
         },
         Example: {
           $visitor: ExampleVisitor,
+          element: 'example',
           fixedFields: {
             summary: { $ref: '#/visitors/value' },
             description: { $ref: '#/visitors/value' },
@@ -326,6 +362,7 @@ const specification = {
         },
         Link: {
           $visitor: LinkVisitor,
+          element: 'link',
           fixedFields: {
             operationRef: LinkOperationRefVisitor,
             operationId: LinkOperationIdVisitor,
@@ -339,6 +376,7 @@ const specification = {
         },
         Header: {
           $visitor: HeaderVisitor,
+          element: 'header',
           fixedFields: {
             description: { $ref: '#/visitors/value' },
             required: { $ref: '#/visitors/value' },
@@ -350,11 +388,15 @@ const specification = {
             schema: HeaderSchemaVisitor,
             example: { $ref: '#/visitors/value' },
             examples: HeaderExamplesVisitor,
-            content: HeaderContentVisitor,
+            content: {
+              $visitor: HeaderContentVisitor,
+              alias: 'contentField',
+            },
           },
         },
         Tag: {
           $visitor: TagVisitor,
+          element: 'tag',
           fixedFields: {
             name: { $ref: '#/visitors/value' },
             description: { $ref: '#/visitors/value' },
@@ -365,6 +407,7 @@ const specification = {
         },
         Reference: {
           $visitor: ReferenceVisitor,
+          element: 'reference',
           fixedFields: {
             $ref: Reference$RefVisitor,
           },
@@ -377,6 +420,7 @@ const specification = {
         },
         Schema: {
           $visitor: SchemaVisitor,
+          element: 'schema',
           fixedFields: {
             // the following properties are taken directly from the JSON Schema definition and follow the same specifications
             title: jsonSchemaFixedFields.title,
@@ -401,7 +445,10 @@ const specification = {
             anyOf: SchemaAnyOfVisitor,
             oneOf: SchemaOneOfVisitor,
             not: SchemaOrReferenceVisitor,
-            items: SchemaItemsVisitor,
+            items: {
+              $visitor: SchemaItemsVisitor,
+              alias: 'itemsField',
+            },
             properties: SchemaPropertiesVisitor,
             additionalProperties: SchemaOrReferenceVisitor,
             description: jsonSchemaFixedFields.description,
@@ -425,6 +472,7 @@ const specification = {
         },
         Discriminator: {
           $visitor: DiscriminatorVisitor,
+          element: 'discriminator',
           fixedFields: {
             propertyName: { $ref: '#/visitors/value' },
             mapping: DiscriminatorMappingVisitor,
@@ -432,6 +480,7 @@ const specification = {
         },
         XML: {
           $visitor: XmlVisitor,
+          element: 'xml',
           fixedFields: {
             name: { $ref: '#/visitors/value' },
             namespace: { $ref: '#/visitors/value' },
@@ -442,6 +491,7 @@ const specification = {
         },
         SecurityScheme: {
           $visitor: SecuritySchemeVisitor,
+          element: 'securityScheme',
           fixedFields: {
             type: { $ref: '#/visitors/value' },
             description: { $ref: '#/visitors/value' },
@@ -457,6 +507,7 @@ const specification = {
         },
         OAuthFlows: {
           $visitor: OAuthFlowsVisitor,
+          element: 'oAuthFlows',
           fixedFields: {
             implicit: {
               $ref: '#/visitors/document/objects/OAuthFlow',
@@ -474,6 +525,7 @@ const specification = {
         },
         OAuthFlow: {
           $visitor: OAuthFlowVisitor,
+          element: 'oAuthFlow',
           fixedFields: {
             authorizationUrl: { $ref: '#/visitors/value' },
             tokenUrl: { $ref: '#/visitors/value' },
@@ -483,6 +535,7 @@ const specification = {
         },
         SecurityRequirement: {
           $visitor: SecurityRequirementVisitor,
+          element: 'securityRequirement',
         },
       },
       extension: {

@@ -1,24 +1,21 @@
-import { Mixin } from 'ts-mixer';
-import { StringElement, BREAK, toValue } from '@speclynx/apidom-core';
+import { StringElement } from '@speclynx/apidom-datamodel';
+import { BREAK, toValue } from '@speclynx/apidom-core';
 
 import SwaggerVersionElement from '../../../elements/SwaggerVersion.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
+import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from './bases.ts';
+
+export type { BaseSpecificationVisitorOptions as SwaggerVisitorOptions };
 
 /**
  * @public
  */
-export interface SwaggerVisitorOptions
-  extends SpecificationVisitorOptions, FallbackVisitorOptions {}
-
-/**
- * @public
- */
-class SwaggerVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class SwaggerVisitor extends BaseSpecificationVisitor {
   declare public element: SwaggerVersionElement;
 
   StringElement(stringElement: StringElement) {
-    const swaggerVersionElement = new SwaggerVersionElement(toValue(stringElement));
+    const swaggerVersionElement = new SwaggerVersionElement(
+      toValue(stringElement) as string | undefined,
+    );
 
     this.copyMetaAndAttributes(stringElement, swaggerVersionElement);
 

@@ -1,7 +1,8 @@
 import { Buffer } from 'node:buffer';
 import path from 'node:path';
 import { assert } from 'chai';
-import { isParseResultElement, toValue } from '@speclynx/apidom-core';
+import { isParseResultElement } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 import { mediaTypes } from '@speclynx/apidom-ns-openapi-3-1';
 import { fileURLToPath } from 'node:url';
 
@@ -64,7 +65,7 @@ describe('parse', function () {
         const uri = path.join(__dirname, 'fixtures', 'unknown-extension.ext');
         const parseResult = await parse(uri, defaultOptions);
         const { result } = parseResult;
-        const actual = Buffer.from(toValue(result), 'base64').toString('utf8');
+        const actual = Buffer.from(toValue(result) as string, 'base64').toString('utf8');
 
         assert.strictEqual(actual, 'possibly binary content\n');
       });

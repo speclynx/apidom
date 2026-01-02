@@ -13,13 +13,14 @@ You can install this package via [npm CLI](https://docs.npmjs.com/cli) by runnin
 ## JSON Schema Draft 7 namespace
 
 JSON Schema Draft 7 namespace consists of [number of elements](https://github.com/speclynx/apidom/tree/main/packages/apidom-ns-json-schema-draft-7/src/elements) implemented on top
-of [primitive ones](https://github.com/refractproject/minim/tree/master/lib/primitives).
+of [primitive ones](https://github.com/speclynx/apidom/tree/main/packages/apidom-datamodel/src/primitives).
 
 ```js
-import { createNamespace } from '@speclynx/apidom-core';
+import { Namespace } from '@speclynx/apidom-datamodel';
 import jsonShemaDraft7Namespace from '@speclynx/apidom-ns-json-schema-draft-7';
 
-const namespace = createNamespace(jsonShemaDraft7Namespace);
+const namespace = new Namespace();
+namespace.use(jsonShemaDraft7Namespace);
 
 const objectElement = new namespace.elements.Object();
 const jsonSchemaElement = new namespace.elements.JSONSchemaDraft7();
@@ -80,37 +81,37 @@ or generic ApiDOM structures into structures built from elements of this namespa
 **Refracting JavaScript structures**:
 
 ```js
-import { LinkDescriptionElement } from '@speclynx/apidom-ns-json-schema-draft-7';
+import { refractLinkDescription } from '@speclynx/apidom-ns-json-schema-draft-7';
 
 const object = {
   anchor: 'nodes/{thisNodeId}',
   anchorPointer: '#/relative/json/pointer',
 };
 
-LinkDescriptionElement.refract(object); // => LinkDescriptionElement({ anchor, anchorPointer })
+refractLinkDescription(object); // => LinkDescriptionElement({ anchor, anchorPointer })
 ```
 
 **Refracting generic ApiDOM structures**:
 
 ```js
-import { ObjectElement } from '@speclynx/apidom-core';
-import { LinkDescriptionElement } from '@speclynx/apidom-ns-json-schema-draft-7';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { refractLinkDescription } from '@speclynx/apidom-ns-json-schema-draft-7';
 
 const objectElement = new ObjectElement({
   anchor: 'nodes/{thisNodeId}',
   anchorPointer: '#/relative/json/pointer',
 });
 
-LinkDescriptionElement.refract(objectElement); // => LinkDescriptionElement({ anchor = 'nodes/{thisNodeId}', anchorPointer = '#/relative/json/pointer' })
+refractLinkDescription(objectElement); // => LinkDescriptionElement({ anchor = 'nodes/{thisNodeId}', anchorPointer = '#/relative/json/pointer' })
 ```
 
 ### Refractor plugins
 
-Refractors can accept plugins as a second argument of refract static method.
+Refractors can accept plugins as a second argument of refract function.
 
 ```js
-import { ObjectElement } from '@speclynx/apidom-core';
-import { LinkDescriptionElement } from '@speclynx/apidom-ns-json-schema-draft-7';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { refractLinkDescription } from '@speclynx/apidom-ns-json-schema-draft-7';
 
 const objectElement = new ObjectElement({
   anchor: 'nodes/{thisNodeId}',
@@ -132,7 +133,7 @@ const plugin = ({ predicates, namespace }) => ({
   },
 });
 
-LinkDescriptionElement.refract(objectElement, { plugins: [plugin] }); // => LinkDescriptionElement({ anchor = 'nodes/{thisNodeId}', anchorPointer = '#/relative/json/pointer/x' })
+refractLinkDescription(objectElement, { plugins: [plugin] }); // => LinkDescriptionElement({ anchor = 'nodes/{thisNodeId}', anchorPointer = '#/relative/json/pointer/x' })
 ```
 
 You can define as many plugins as needed to enhance the resulting namespaced ApiDOM structure.
@@ -146,14 +147,14 @@ this missing value with the most appropriate semantic element type.
 
 ```js
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
-import { refractorPluginReplaceEmptyElement, JSONSchemaElement } from '@speclynx/apidom-ns-json-schema-draft-7';
+import { refractorPluginReplaceEmptyElement, refractJSONSchema } from '@speclynx/apidom-ns-json-schema-draft-7';
 
 const yamlDefinition = `
 $schema: 'https://json-schema.org/draft-07/schema#'
 if:
 `;
 const apiDOM = await parse(yamlDefinition);
-const jsonSchemaElement = JSONSchemaElement.refract(apiDOM.result, {
+const jsonSchemaElement = refractJSONSchema(apiDOM.result, {
   plugins: [refractorPluginReplaceEmptyElement()],
 });
 

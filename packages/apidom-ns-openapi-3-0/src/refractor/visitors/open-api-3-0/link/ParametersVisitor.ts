@@ -1,24 +1,20 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/MapVisitor.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from '../bases.ts';
 import LinkParametersElement from '../../../../elements/nces/LinkParameters.ts';
 
-/**
- * @public
- */
-export interface ParametersVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+export type { BaseMapVisitorOptions as ParametersVisitorOptions };
 
 /**
  * @public
  */
-class ParametersVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class ParametersVisitor extends BaseMapVisitor {
   declare public readonly element: LinkParametersElement;
 
   declare protected readonly specPath: SpecPath<['value']>;
 
-  constructor(options: ParametersVisitorOptions) {
+  constructor(options: BaseMapVisitorOptions) {
     super(options);
     this.element = new LinkParametersElement();
     this.specPath = always(['value']);

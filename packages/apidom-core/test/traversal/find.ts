@@ -1,15 +1,10 @@
 import { assert } from 'chai';
 import { F as stubFalse } from 'ramda';
+import { Namespace, isMemberElement, isElement, MemberElement } from '@speclynx/apidom-datamodel';
 
-import {
-  createNamespace,
-  find,
-  isMemberElement,
-  isElement,
-  MemberElement,
-} from '../../src/index.ts';
+import { find } from '../../src/index.ts';
 
-const namespace = createNamespace();
+const namespace = new Namespace();
 
 describe('traversal', function () {
   context('find', function () {

@@ -1,4 +1,5 @@
-import { BooleanElement, BREAK } from '@speclynx/apidom-core';
+import { BooleanElement } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 import {
   ItemsVisitor as JSONSchemaDraft4ItemsVisitor,
   ItemsVisitorOptions,

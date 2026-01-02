@@ -1,6 +1,7 @@
 import { ifElse, always } from 'ramda';
 import { dispatch, stubUndefined } from 'ramda-adjunct';
-import { Element, BREAK } from '@speclynx/apidom-core';
+import { Element } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
 import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
 

@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { WebSocketChannelBindingElement } from '../../../../../../src/index.ts';
+import { refractWebSocketChannelBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('WebSocketChannelBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const webSocketChannelBindingElement = WebSocketChannelBindingElement.refract({
+        const webSocketChannelBindingElement = refractWebSocketChannelBinding({
           method: 'web-socket-channel-method',
           query: {},
           headers: {},
@@ -19,7 +19,7 @@ describe('refractor', function () {
 
       context('given query and header fields of type ReferenceElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const webSocketChannelBindingElement = WebSocketChannelBindingElement.refract({
+          const webSocketChannelBindingElement = refractWebSocketChannelBinding({
             method: 'web-socket-channel-method',
             query: {
               $ref: '#/pointer',

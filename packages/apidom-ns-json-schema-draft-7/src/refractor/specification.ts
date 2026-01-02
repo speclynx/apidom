@@ -6,6 +6,7 @@ import LinkDescriptionVisitor from './visitors/json-schema/link-description/inde
 
 const specification = pipe(
   // JSON Schema object modifications
+  assocPath(['visitors', 'document', 'objects', 'JSONSchema', 'element'], 'jSONSchemaDraft7'),
   assocPath(['visitors', 'document', 'objects', 'JSONSchema', '$visitor'], JSONSchemaVisitor),
   assocPath(
     ['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', '$comment'],

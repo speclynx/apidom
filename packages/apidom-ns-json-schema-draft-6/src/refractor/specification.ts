@@ -8,28 +8,27 @@ import LinkDescriptionVisitor from './visitors/json-schema/link-description/inde
 
 const specification = pipe(
   // JSON Schema object modifications
+  assocPath(['visitors', 'document', 'objects', 'JSONSchema', 'element'], 'jSONSchemaDraft6'),
   assocPath(['visitors', 'document', 'objects', 'JSONSchema', '$visitor'], JSONSchemaVisitor),
   dissocPath(['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', 'id']),
-  assocPath(
-    ['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', '$id'],
-    specificationObj.visitors.value,
-  ),
-  assocPath(
-    ['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', 'contains'],
-    specificationObj.visitors.JSONSchemaOrJSONReferenceVisitor,
-  ),
-  assocPath(
-    ['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', 'items'],
-    JSONSchemaItemsVisitor,
-  ),
+  assocPath(['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', '$id'], {
+    $ref: '#/visitors/value',
+  }),
+  assocPath(['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', 'contains'], {
+    $visitor: specificationObj.visitors.JSONSchemaOrJSONReferenceVisitor,
+    alias: 'containsField',
+  }),
+  assocPath(['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', 'items'], {
+    $visitor: JSONSchemaItemsVisitor,
+    alias: 'itemsField',
+  }),
   assocPath(
     ['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', 'propertyNames'],
     specificationObj.visitors.JSONSchemaOrJSONReferenceVisitor,
   ),
-  assocPath(
-    ['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', 'const'],
-    specificationObj.visitors.value,
-  ),
+  assocPath(['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', 'const'], {
+    $ref: '#/visitors/value',
+  }),
   assocPath(
     ['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', 'examples'],
     JSONSchemaExamplesVisitor,
@@ -52,7 +51,7 @@ const specification = pipe(
   dissocPath(['visitors', 'document', 'objects', 'LinkDescription', 'fixedFields', 'encType']),
   assocPath(
     ['visitors', 'document', 'objects', 'LinkDescription', 'fixedFields', 'submissionEncType'],
-    specificationObj.visitors.value,
+    { $ref: '#/visitors/value' },
   ),
 )(specificationObj);
 

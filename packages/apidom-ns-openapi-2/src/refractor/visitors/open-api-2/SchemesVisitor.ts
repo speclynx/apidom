@@ -1,4 +1,5 @@
-import { ArrayElement, BREAK, cloneDeep } from '@speclynx/apidom-core';
+import { ArrayElement } from '@speclynx/apidom-datamodel';
+import { BREAK, cloneDeep } from '@speclynx/apidom-core';
 
 import SwaggerSchemesElement from '../../../elements/nces/SwaggerSchemes.ts';
 import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';

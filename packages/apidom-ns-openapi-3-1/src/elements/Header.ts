@@ -7,7 +7,7 @@ import SchemaElement from './Schema.ts';
  */
 class Header extends HeaderElement {
   get schema(): SchemaElement | undefined {
-    return this.get('schema');
+    return this.get('schema') as SchemaElement | undefined;
   }
 
   set schema(schema: SchemaElement | undefined) {

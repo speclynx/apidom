@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -11,7 +16,7 @@ class AmqpChannelBinding extends ObjectElement {
   }
 
   get is(): StringElement | undefined {
-    return this.get('is');
+    return this.get('is') as StringElement | undefined;
   }
 
   set is(is: StringElement | undefined) {
@@ -19,7 +24,7 @@ class AmqpChannelBinding extends ObjectElement {
   }
 
   get exchange(): ObjectElement | undefined {
-    return this.get('exchange');
+    return this.get('exchange') as ObjectElement | undefined;
   }
 
   set exchange(exchange: ObjectElement | undefined) {
@@ -27,7 +32,7 @@ class AmqpChannelBinding extends ObjectElement {
   }
 
   get queue(): ObjectElement | undefined {
-    return this.get('queue');
+    return this.get('queue') as ObjectElement | undefined;
   }
 
   set queue(queue: ObjectElement | undefined) {
@@ -35,7 +40,7 @@ class AmqpChannelBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

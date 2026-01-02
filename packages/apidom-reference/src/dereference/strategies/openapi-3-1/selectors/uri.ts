@@ -1,5 +1,6 @@
 import { isUndefined } from 'ramda-adjunct';
-import { Element, filter } from '@speclynx/apidom-core';
+import { Element } from '@speclynx/apidom-datamodel';
+import { filter } from '@speclynx/apidom-core';
 import { isSchemaElement, SchemaElement } from '@speclynx/apidom-ns-openapi-3-1';
 import {
   URIFragmentIdentifier,

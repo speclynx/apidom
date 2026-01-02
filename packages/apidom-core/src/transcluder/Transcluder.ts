@@ -1,7 +1,13 @@
-import { ArrayElement, Element, MemberElement, ObjectElement } from 'minim';
+import {
+  ArrayElement,
+  Element,
+  MemberElement,
+  ObjectElement,
+  isObjectElement,
+  isArrayElement,
+  isMemberElement,
+} from '@speclynx/apidom-datamodel';
 import { isUndefined } from 'ramda-adjunct';
-
-import { isObjectElement, isArrayElement, isMemberElement } from '../predicates/index.ts';
 
 const computeEdges = (element: Element, edges = new WeakMap()): WeakMap<Element, any> => {
   if (isMemberElement(element)) {

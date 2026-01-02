@@ -1,6 +1,7 @@
 import { assert } from 'chai';
+import { ObjectElement, ArrayElement } from '@speclynx/apidom-datamodel';
 
-import { parents, ObjectElement } from '../../src/index.ts';
+import { parents } from '../../src/index.ts';
 
 describe('traversal', function () {
   context('parents', function () {
@@ -20,21 +21,21 @@ describe('traversal', function () {
       });
 
       specify('should add parent property to #/a key', function () {
-        const memberElement = data.getMember('a');
+        const memberElement = data.getMember('a')!;
         const parent = parentEdges.get(memberElement.key);
 
         assert.strictEqual(parent, memberElement);
       });
 
       specify('should add parent property to #/a value', function () {
-        const memberElement = data.getMember('a');
+        const memberElement = data.getMember('a')!;
         const parent = parentEdges.get(memberElement.value);
 
         assert.strictEqual(parent, memberElement);
       });
 
       specify('should add parent property to #/a/1', function () {
-        const arrayElement = data.get('a');
+        const arrayElement = data.get('a') as ArrayElement;
         const numberElement = arrayElement.get(1);
         const parent = parentEdges.get(numberElement);
 
@@ -42,14 +43,18 @@ describe('traversal', function () {
       });
 
       specify('should add parent property to #/a/2/d key', function () {
-        const memberElement = data.get('a').get(2).getMember('d');
+        const memberElement = ((data.get('a') as ArrayElement).get(2) as ObjectElement).getMember(
+          'd',
+        )!;
         const parent = parentEdges.get(memberElement.key);
 
         assert.strictEqual(parent, memberElement);
       });
 
       specify('should add parent property to #/a/2/d value', function () {
-        const memberElement = data.get('a').get(2).getMember('d');
+        const memberElement = ((data.get('a') as ArrayElement).get(2) as ObjectElement).getMember(
+          'd',
+        )!;
         const parent = parentEdges.get(memberElement.value);
 
         assert.strictEqual(parent, memberElement);
@@ -73,35 +78,35 @@ describe('traversal', function () {
       });
 
       specify('should add parent property to #/a key', function () {
-        const memberElement = data.getMember('a');
+        const memberElement = data.getMember('a')!;
         const parent = parentEdges.get(memberElement.key);
 
         assert.strictEqual(parent, memberElement);
       });
 
       specify('should add parent property to #/a value', function () {
-        const memberElement = data.getMember('a');
+        const memberElement = data.getMember('a')!;
         const parent = parentEdges.get(memberElement.value);
 
         assert.strictEqual(parent, memberElement);
       });
 
       specify('should add parent property to #/cycle key', function () {
-        const memberElement = data.getMember('cycle');
+        const memberElement = data.getMember('cycle')!;
         const parent = parentEdges.get(memberElement.key);
 
         assert.strictEqual(parent, memberElement);
       });
 
       specify('should add parent property to #/cycle value', function () {
-        const memberElement = data.getMember('cycle');
+        const memberElement = data.getMember('cycle')!;
         const parent = parentEdges.get(memberElement.value);
 
         assert.isUndefined(parent);
       });
 
       specify('should add parent property to #/a/1', function () {
-        const arrayElement = data.get('a');
+        const arrayElement = data.get('a') as ArrayElement;
         const numberElement = arrayElement.get(1);
         const parent = parentEdges.get(numberElement);
 
@@ -109,14 +114,18 @@ describe('traversal', function () {
       });
 
       specify('should add parent property to #/a/2/d key', function () {
-        const memberElement = data.get('a').get(2).getMember('d');
+        const memberElement = ((data.get('a') as ArrayElement).get(2) as ObjectElement).getMember(
+          'd',
+        )!;
         const parent = parentEdges.get(memberElement.key);
 
         assert.strictEqual(parent, memberElement);
       });
 
       specify('should add parent property to #/a/2/d value', function () {
-        const memberElement = data.get('a').get(2).getMember('d');
+        const memberElement = ((data.get('a') as ArrayElement).get(2) as ObjectElement).getMember(
+          'd',
+        )!;
         const parent = parentEdges.get(memberElement.value);
 
         assert.strictEqual(parent, memberElement);

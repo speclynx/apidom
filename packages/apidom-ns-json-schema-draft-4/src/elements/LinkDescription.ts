@@ -1,7 +1,8 @@
-import { ObjectElement, StringElement, Attributes, Meta } from '@speclynx/apidom-core';
+import { ObjectElement, StringElement, Attributes, Meta } from '@speclynx/apidom-datamodel';
 
 import JSONSchema from './JSONSchema.ts';
 import JSONReferenceElement from './JSONReference.ts';
+import type { FixedField } from '../refractor/inspect.ts';
 
 /**
  * URI: https://datatracker.ietf.org/doc/html/draft-wright-json-schema-hyperschema-00#section-5
@@ -9,13 +10,15 @@ import JSONReferenceElement from './JSONReference.ts';
  */
 
 class LinkDescription extends ObjectElement {
+  declare static fixedFields: FixedField[];
+
   constructor(content?: Record<string, unknown>, meta?: Meta, attributes?: Attributes) {
     super(content, meta, attributes);
     this.element = 'linkDescription';
   }
 
   get href(): StringElement | undefined {
-    return this.get('href');
+    return this.get('href') as StringElement | undefined;
   }
 
   set href(href: StringElement | undefined) {
@@ -23,7 +26,7 @@ class LinkDescription extends ObjectElement {
   }
 
   get rel(): StringElement | undefined {
-    return this.get('rel');
+    return this.get('rel') as StringElement | undefined;
   }
 
   set rel(rel: StringElement | undefined) {
@@ -31,7 +34,7 @@ class LinkDescription extends ObjectElement {
   }
 
   get title(): StringElement | undefined {
-    return this.get('title');
+    return this.get('title') as StringElement | undefined;
   }
 
   set title(title: StringElement | undefined) {
@@ -39,7 +42,7 @@ class LinkDescription extends ObjectElement {
   }
 
   get targetSchema(): JSONSchema | JSONReferenceElement | undefined {
-    return this.get('targetSchema');
+    return this.get('targetSchema') as JSONSchema | JSONReferenceElement | undefined;
   }
 
   set targetSchema(targetSchema: JSONSchema | JSONReferenceElement | undefined) {
@@ -47,7 +50,7 @@ class LinkDescription extends ObjectElement {
   }
 
   get mediaType(): StringElement | undefined {
-    return this.get('mediaType');
+    return this.get('mediaType') as StringElement | undefined;
   }
 
   set mediaType(mediaType: StringElement | undefined) {
@@ -55,7 +58,7 @@ class LinkDescription extends ObjectElement {
   }
 
   get method(): StringElement | undefined {
-    return this.get('method');
+    return this.get('method') as StringElement | undefined;
   }
 
   set method(method: StringElement | undefined) {
@@ -63,7 +66,7 @@ class LinkDescription extends ObjectElement {
   }
 
   get encType(): StringElement | undefined {
-    return this.get('encType');
+    return this.get('encType') as StringElement | undefined;
   }
 
   set encType(encType: StringElement | undefined) {
@@ -71,7 +74,7 @@ class LinkDescription extends ObjectElement {
   }
 
   get schema(): JSONSchema | JSONReferenceElement | undefined {
-    return this.get('schema');
+    return this.get('schema') as JSONSchema | JSONReferenceElement | undefined;
   }
 
   set schema(schema: JSONSchema | JSONReferenceElement | undefined) {

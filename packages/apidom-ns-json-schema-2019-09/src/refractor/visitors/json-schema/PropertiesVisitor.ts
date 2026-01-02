@@ -1,26 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
-import { ObjectElement } from '@speclynx/apidom-core';
-import {
-  FallbackVisitor,
-  FallbackVisitorOptions,
-  MapVisitor,
-  MapVisitorOptions,
-  ParentSchemaAwareVisitor,
-  ParentSchemaAwareVisitorOptions,
-  SpecPath,
-} from '@speclynx/apidom-ns-json-schema-draft-7';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { SpecPath } from '@speclynx/apidom-ns-json-schema-draft-7';
+
+import { BaseSchemaMapVisitor, BaseSchemaMapVisitorOptions } from './bases.ts';
 
 /**
  * @public
  */
-export interface PropertiesVisitorOptions
-  extends MapVisitorOptions, ParentSchemaAwareVisitorOptions, FallbackVisitorOptions {}
+export type PropertiesVisitorOptions = BaseSchemaMapVisitorOptions;
 
 /**
  * @public
  */
-class PropertiesVisitor extends Mixin(MapVisitor, ParentSchemaAwareVisitor, FallbackVisitor) {
+class PropertiesVisitor extends BaseSchemaMapVisitor {
   declare public readonly element: ObjectElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'JSONSchema']>;

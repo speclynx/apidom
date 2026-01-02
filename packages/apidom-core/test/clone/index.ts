@@ -1,5 +1,4 @@
 import { assert } from 'chai';
-
 import {
   ObjectElement,
   ArrayElement,
@@ -7,9 +6,12 @@ import {
   NullElement,
   StringElement,
   BooleanElement,
-  ArraySlice,
+  MemberElement,
   ObjectSlice,
   KeyValuePair,
+} from '@speclynx/apidom-datamodel';
+
+import {
   cloneDeep,
   cloneShallow,
   ShallowCloneError,
@@ -82,19 +84,12 @@ describe('clone', function () {
       assert.notStrictEqual(clone, keyValuePair);
     });
 
-    specify('should shallow clone ArraySlice', function () {
-      const firstItemElement = new NumberElement(1);
-      const arraySlice = new ArraySlice([firstItemElement, new NumberElement(2)]);
-      const clone = cloneShallow(arraySlice);
-
-      assert.notStrictEqual(clone, arraySlice);
-      assert.strictEqual(clone.get(0), firstItemElement);
-      assert.deepEqual([...clone], [...arraySlice]);
-    });
-
     specify('should shallow clone ObjectSlice', function () {
-      const firstItemElement = new NumberElement(1);
-      const objectSlice = new ObjectSlice([firstItemElement, new NumberElement(2)]);
+      const firstItemElement = new MemberElement(new StringElement('a'), new NumberElement(1));
+      const objectSlice = new ObjectSlice([
+        firstItemElement,
+        new MemberElement(new StringElement('b'), new NumberElement(2)),
+      ]);
       const clone = cloneShallow(objectSlice);
 
       assert.notStrictEqual(clone, objectSlice);
@@ -202,19 +197,12 @@ describe('clone', function () {
       assert.notStrictEqual(clone, keyValuePair);
     });
 
-    specify('should deep clone ArraySlice', function () {
-      const firstItemElement = new NumberElement(1);
-      const arraySlice = new ArraySlice([firstItemElement, new NumberElement(2)]);
-      const clone = cloneDeep(arraySlice);
-
-      assert.notStrictEqual(clone, arraySlice);
-      assert.notStrictEqual(clone.get(0), firstItemElement);
-      assert.deepEqual([...clone].map(toValue), [...arraySlice].map(toValue));
-    });
-
     specify('should deep clone ObjectSlice', function () {
-      const firstItemElement = new NumberElement(1);
-      const objectSlice = new ObjectSlice([firstItemElement, new NumberElement(2)]);
+      const firstItemElement = new MemberElement(new StringElement('a'), new NumberElement(1));
+      const objectSlice = new ObjectSlice([
+        firstItemElement,
+        new MemberElement(new StringElement('b'), new NumberElement(2)),
+      ]);
       const clone = cloneDeep(objectSlice);
 
       assert.notStrictEqual(clone, objectSlice);

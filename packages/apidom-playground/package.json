@@ -28,6 +28,7 @@
     "@mui/material": "^7.0.2",
     "@speclynx/apidom-ast": "*",
     "@speclynx/apidom-core": "*",
+    "@speclynx/apidom-datamodel": "*",
     "@speclynx/apidom-ns-asyncapi-2": "*",
     "@speclynx/apidom-ns-openapi-2": "*",
     "@speclynx/apidom-ns-openapi-3-0": "*",

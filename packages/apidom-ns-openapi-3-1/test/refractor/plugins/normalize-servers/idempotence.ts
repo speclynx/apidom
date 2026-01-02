@@ -5,7 +5,7 @@ import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
 import {
   createToolbox,
-  OpenApi3_1Element,
+  refractOpenApi3_1,
   refractorPluginNormalizeServers,
   keyMap,
   getNodeType,
@@ -25,7 +25,7 @@ describe('refractor', function () {
                 get: {}
         `;
         const apiDOM = await parse(yamlDefinition);
-        const openApiElement = OpenApi3_1Element.refract(apiDOM.result) as OpenApi3_1Element;
+        const openApiElement = refractOpenApi3_1(apiDOM.result);
         const options = {
           toolboxCreator: createToolbox,
           visitorOptions: { keyMap, nodeTypeGetter: getNodeType },

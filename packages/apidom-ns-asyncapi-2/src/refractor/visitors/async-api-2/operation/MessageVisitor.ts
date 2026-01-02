@@ -1,8 +1,7 @@
-import { Mixin } from 'ts-mixer';
-import { ObjectElement, isArrayElement, BREAK } from '@speclynx/apidom-core';
+import { Element, ObjectElement, ArrayElement, isArrayElement } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../../SpecificationVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from '../bases.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
 import OperationMessageMapElement from '../../../../elements/nces/OperationMessageMap.ts';
 import OperationMessageElement from '../../../../elements/nces/OperationMessage.ts';
@@ -10,31 +9,32 @@ import OperationMessageElement from '../../../../elements/nces/OperationMessage.
 /**
  * @public
  */
-export interface MessageVisitorOptions
-  extends SpecificationVisitorOptions, FallbackVisitorOptions {}
+export type MessageVisitorOptions = BaseSpecificationVisitorOptions;
 
 /**
  * @public
  */
-class MessageVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class MessageVisitor extends BaseSpecificationVisitor {
   declare public element: OperationMessageMapElement;
 
   ObjectElement(objectElement: ObjectElement) {
     if (isReferenceLikeElement(objectElement)) {
       this.element = this.toRefractedElement(['document', 'objects', 'Reference'], objectElement);
-      this.element.setMetaProperty('referenced-element', 'message');
+      this.element.meta.set('referenced-element', 'message');
     } else if (isArrayElement(objectElement.get('oneOf'))) {
       this.element = new OperationMessageMapElement();
       const operationMessageElement = new OperationMessageElement();
+      const oneOfElement = objectElement.get('oneOf') as ArrayElement;
 
-      objectElement.get('oneOf').forEach((item: ObjectElement) => {
+      oneOfElement.forEach((item: Element) => {
         let element;
+        const itemObject = item as ObjectElement;
 
-        if (isReferenceLikeElement(item)) {
-          element = this.toRefractedElement(['document', 'objects', 'Reference'], item);
-          element.setMetaProperty('referenced-element', 'message');
+        if (isReferenceLikeElement(itemObject)) {
+          element = this.toRefractedElement(['document', 'objects', 'Reference'], itemObject);
+          element.meta.set('referenced-element', 'message');
         } else {
-          element = this.toRefractedElement(['document', 'objects', 'Message'], item);
+          element = this.toRefractedElement(['document', 'objects', 'Message'], itemObject);
         }
 
         operationMessageElement.push(element);

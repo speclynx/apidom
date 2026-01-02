@@ -1,4 +1,6 @@
-import { ObjectElement, StringElement, Attributes, Meta } from '@speclynx/apidom-core';
+import { ObjectElement, StringElement, Attributes, Meta } from '@speclynx/apidom-datamodel';
+
+import type { FixedField } from '../refractor/inspect.ts';
 
 /**
  * In Draft 4, $ref behaves a little differently. When an object contains a $ref property,
@@ -11,6 +13,8 @@ import { ObjectElement, StringElement, Attributes, Meta } from '@speclynx/apidom
  */
 
 class JSONReference extends ObjectElement {
+  declare static fixedFields: FixedField[];
+
   constructor(content?: Record<string, unknown>, meta?: Meta, attributes?: Attributes) {
     super(content, meta, attributes);
     this.element = 'JSONReference';
@@ -18,7 +22,7 @@ class JSONReference extends ObjectElement {
   }
 
   get $ref(): StringElement | undefined {
-    return this.get('$ref');
+    return this.get('$ref') as StringElement | undefined;
   }
 
   set $ref($ref: StringElement | undefined) {

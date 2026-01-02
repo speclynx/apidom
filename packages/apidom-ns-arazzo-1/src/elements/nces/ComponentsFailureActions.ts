@@ -1,4 +1,4 @@
-import { Attributes, Meta, ObjectElement } from '@speclynx/apidom-core';
+import { type Attributes, type Meta, ObjectElement } from '@speclynx/apidom-datamodel';
 
 /**
  * @public

@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { RedisServerBindingElement } from '../../../../../../src/index.ts';
+import { refractRedisServerBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('RedisServerBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const redisServerBindingElement = RedisServerBindingElement.refract({});
+        const redisServerBindingElement = refractRedisServerBinding({});
 
         expect(sexprs(redisServerBindingElement)).toMatchSnapshot();
       });

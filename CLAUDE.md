@@ -10,6 +10,11 @@ ApiDOM is a TypeScript monorepo that provides a unified structure for describing
 
 **Prerequisites:** Node.js >=24.10.0, npm >=11.6.1
 
+**Important:** Always run nvm before executing any node/npm/npx commands to ensure the correct Node.js version is used:
+```bash
+source ~/.nvm/nvm.sh && nvm use
+```
+
 ```bash
 # Install dependencies (required before any other operation)
 npm i
@@ -69,7 +74,6 @@ The monorepo contains 38 packages organized into these categories:
    - `apidom-ns-asyncapi-2`
    - `apidom-ns-arazzo-1`
    - `apidom-ns-json-schema-draft-4/6/7`, `apidom-ns-json-schema-2019-09/2020-12`
-   - `apidom-ns-api-design-systems`
 
 3. **Parser Adapters (`apidom-parser-adapter-*`):** Parse specific formats into ApiDOM
    - Format-specific adapters for JSON/YAML variants of each namespace

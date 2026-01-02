@@ -1,22 +1,23 @@
-import { Mixin } from 'ts-mixer';
-import { ArrayElement, Element, BREAK } from '@speclynx/apidom-core';
+import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
 import StepOnSuccessElement from '../../../../elements/nces/StepOnSuccess.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../../SpecificationVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import {
+  BaseSpecificationFallbackVisitor,
+  BaseSpecificationFallbackVisitorOptions,
+} from '../bases.ts';
 import { isReusableLikeElement } from '../../../predicates.ts';
 import { isReusableElement } from '../../../../predicates.ts';
 
 /**
  * @public
  */
-export interface OnSuccessVisitorOptions
-  extends SpecificationVisitorOptions, FallbackVisitorOptions {}
+export interface OnSuccessVisitorOptions extends BaseSpecificationFallbackVisitorOptions {}
 
 /**
  * @public
  */
-class OnSuccessVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class OnSuccessVisitor extends BaseSpecificationFallbackVisitor {
   declare public readonly element: StepOnSuccessElement;
 
   constructor(options: OnSuccessVisitorOptions) {
@@ -32,7 +33,7 @@ class OnSuccessVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
       const element = this.toRefractedElement(specPath, item);
 
       if (isReusableElement(element)) {
-        element.setMetaProperty('referenced-element', 'successAction');
+        element.meta.set('referenced-element', 'successAction');
       }
 
       this.element.push(element);

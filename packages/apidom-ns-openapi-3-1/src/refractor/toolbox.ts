@@ -2,46 +2,23 @@ import {
   Element,
   Namespace,
   ArrayElement,
-  isElement,
   isStringElement,
   isArrayElement,
   isObjectElement,
   isMemberElement,
-  toValue,
-  createNamespace,
-  includesClasses,
-  hasElementSourceMap,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 import { compile as compileJSONPointerTokens } from '@speclynx/apidom-json-pointer';
-import { isServersElement } from '@speclynx/apidom-ns-openapi-3-0';
 
 import * as openApi3_1Predicates from '../predicates.ts';
+import * as refractorPredicates from './predicates.ts';
 import openApi3_1Namespace from '../namespace.ts';
 
 /**
  * @public
  */
-export type { openApi3_1Predicates };
-
-/**
- * @public
- */
-export type Predicates = typeof openApi3_1Predicates & {
-  isElement: typeof isElement;
-  isStringElement: typeof isStringElement;
-  isArrayElement: typeof isArrayElement;
-  isObjectElement: typeof isObjectElement;
-  isMemberElement: typeof isMemberElement;
-  isServersElement: typeof isServersElement;
-  includesClasses: typeof includesClasses;
-  hasElementSourceMap: typeof hasElementSourceMap;
-};
-
-/**
- * @public
- */
 export interface Toolbox {
-  predicates: Predicates;
+  predicates: Record<string, (...args: any[]) => boolean>;
   ancestorLineageToJSONPointer: typeof ancestorLineageToJSONPointer;
   namespace: Namespace;
 }
@@ -61,7 +38,8 @@ export const ancestorLineageToJSONPointer = <T extends (Element | Element[])[]>(
       const token = String(toValue(element.key));
       path.push(token);
     } else if (isArrayElement(elementPath[index - 2])) {
-      const token = String((elementPath[index - 2] as ArrayElement).content.indexOf(element));
+      const arrayElement = elementPath[index - 2] as ArrayElement;
+      const token = String((arrayElement.content as Element[])?.indexOf(element as Element) ?? -1);
       path.push(token);
     }
 
@@ -75,18 +53,16 @@ export const ancestorLineageToJSONPointer = <T extends (Element | Element[])[]>(
  * @public
  */
 const createToolbox = (): Toolbox => {
-  const namespace = createNamespace(openApi3_1Namespace);
-  const predicates: Predicates = {
+  const namespace = new Namespace();
+  const predicates = {
+    ...refractorPredicates,
     ...openApi3_1Predicates,
-    isElement,
     isStringElement,
     isArrayElement,
     isObjectElement,
-    isMemberElement,
-    isServersElement,
-    includesClasses,
-    hasElementSourceMap,
   };
+
+  namespace.use(openApi3_1Namespace);
 
   return { predicates, ancestorLineageToJSONPointer, namespace };
 };

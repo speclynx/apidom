@@ -1,16 +1,3 @@
-export {
-  isRefElement,
-  isLinkElement as isLinkPrimitiveElement,
-  isMemberElement,
-  isObjectElement,
-  isArrayElement,
-  isBooleanElement,
-  isNullElement,
-  isElement,
-  isNumberElement,
-  isStringElement,
-} from '@speclynx/apidom-core';
-
 export { default as mediaTypes, ArazzoMediaTypes } from './media-types.ts';
 export type { Format } from './media-types.ts';
 
@@ -18,8 +5,39 @@ export { default } from './namespace.ts';
 
 export { default as refractorPluginReplaceEmptyElement } from './refractor/plugins/replace-empty-element.ts';
 
-export { default as refract, createRefractor } from './refractor/index.ts';
+export {
+  default as refract,
+  refractArazzo,
+  refractArazzoSpecification1,
+  refractComponents,
+  refractCriterion,
+  refractCriterionExpressionType,
+  refractFailureAction,
+  refractInfo,
+  refractJSONSchema,
+  refractParameter,
+  refractPayloadReplacement,
+  refractRequestBody,
+  refractReusable,
+  refractSourceDescription,
+  refractStep,
+  refractSuccessAction,
+  refractWorkflow,
+} from './refractor/index.ts';
+export type { RefractorOptions, RefractorPlugin } from './refractor/index.ts';
+export type { Toolbox } from './refractor/toolbox.ts';
 export { default as specificationObj } from './refractor/specification.ts';
+
+export {
+  BaseSpecificationFallbackVisitor,
+  BaseFixedFieldsFallbackVisitor,
+  BaseMapFallbackVisitor,
+} from './refractor/visitors/arazzo-1/bases.ts';
+export type {
+  BaseSpecificationFallbackVisitorOptions,
+  BaseFixedFieldsFallbackVisitorOptions,
+  BaseMapFallbackVisitorOptions,
+} from './refractor/visitors/arazzo-1/bases.ts';
 
 export { default as FixedFieldsVisitor } from './refractor/visitors/generics/FixedFieldsVisitor.ts';
 export type {
@@ -270,7 +288,8 @@ export {
   StepElement,
   SuccessActionElement,
   WorkflowElement,
-} from './refractor/registration.ts';
+} from './refractor/inspect.ts';
+export type { FixedField } from './refractor/inspect.ts';
 // NCE types
 export { default as ComponentsFailureActionsElement } from './elements/nces/ComponentsFailureActions.ts';
 export { default as ComponentsInputsElement } from './elements/nces/ComponentsInputs.ts';

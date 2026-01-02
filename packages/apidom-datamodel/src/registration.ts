@@ -9,6 +9,10 @@ import MemberElement from './primitives/MemberElement.ts';
 import ObjectElement from './primitives/ObjectElement.ts';
 import LinkElement from './elements/LinkElement.ts';
 import RefElement from './elements/RefElement.ts';
+import AnnotationElement from './elements/Annotation.ts';
+import CommentElement from './elements/Comment.ts';
+import ParseResultElement from './elements/ParseResult.ts';
+import SourceMapElement from './elements/SourceMap.ts';
 import ObjectSlice from './ObjectSlice.ts';
 import KeyValuePair from './KeyValuePair.ts';
 
@@ -85,6 +89,10 @@ export {
   ObjectElement,
   LinkElement,
   RefElement,
+  AnnotationElement,
+  CommentElement,
+  ParseResultElement,
+  SourceMapElement,
   refract,
   ObjectSlice,
   KeyValuePair,
@@ -94,3 +102,4 @@ export {
 export type { FindCondition, FindOptions } from './primitives/CollectionElement.ts';
 export type { ObjectElementCallback } from './primitives/ObjectElement.ts';
 export type { ObjectSliceCallback, ObjectSliceForEachCallback } from './ObjectSlice.ts';
+export type { Position, PositionRange } from './elements/SourceMap.ts';

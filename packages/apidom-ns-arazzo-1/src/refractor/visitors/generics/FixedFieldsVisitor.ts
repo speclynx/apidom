@@ -1,12 +1,5 @@
-import {
-  isStringElement,
-  MemberElement,
-  Element,
-  BREAK,
-  cloneDeep,
-  toValue,
-  ObjectElement,
-} from '@speclynx/apidom-core';
+import { isStringElement, MemberElement, Element, ObjectElement } from '@speclynx/apidom-datamodel';
+import { BREAK, cloneDeep, toValue } from '@speclynx/apidom-core';
 
 import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
 import { isArazzoSpecificationExtension } from '../../predicates.ts';
@@ -65,25 +58,25 @@ class FixedFieldsVisitor extends SpecificationVisitor {
     objectElement.forEach((value: Element, key: Element, memberElement: MemberElement) => {
       if (
         isStringElement(key) &&
-        fields.includes(toValue(key)) &&
-        !this.ignoredFields.includes(toValue(key))
+        fields.includes(toValue(key) as string) &&
+        !this.ignoredFields.includes(toValue(key) as string)
       ) {
         const fixedFieldElement = this.toRefractedElement(
-          [...specPath, 'fixedFields', toValue(key)],
+          [...specPath, 'fixedFields', toValue(key) as string],
           value,
         );
         const newMemberElement = new MemberElement(cloneDeep(key), fixedFieldElement);
         this.copyMetaAndAttributes(memberElement, newMemberElement);
         newMemberElement.classes.push('fixed-field');
-        this.element.content.push(newMemberElement);
+        (this.element as ObjectElement).push(newMemberElement);
       } else if (
         this.canSupportSpecificationExtensions &&
         this.specificationExtensionPredicate(memberElement)
       ) {
         const extensionElement = this.toRefractedElement(['document', 'extension'], memberElement);
-        this.element.content.push(extensionElement);
-      } else if (!this.ignoredFields.includes(toValue(key))) {
-        this.element.content.push(cloneDeep(memberElement));
+        (this.element as ObjectElement).push(extensionElement);
+      } else if (!this.ignoredFields.includes(toValue(key) as string)) {
+        (this.element as ObjectElement).push(cloneDeep(memberElement));
       }
     });
 

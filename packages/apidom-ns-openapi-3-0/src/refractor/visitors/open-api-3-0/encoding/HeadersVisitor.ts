@@ -1,29 +1,29 @@
-import { Mixin } from 'ts-mixer';
-import { Element, ObjectElement, StringElement, toValue } from '@speclynx/apidom-core';
+import { Element, ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import MapVisitor, { SpecPath } from '../../generics/MapVisitor.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
 import { isHeaderElement, isReferenceElement } from '../../../../predicates.ts';
 import EncodingHeadersElement from '../../../../elements/nces/EncodingHeaders.ts';
 import ReferenceElement from '../../../../elements/Reference.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface HeadersVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+export type { BaseMapVisitorOptions as HeadersVisitorOptions };
 
 /**
  * @public
  */
-class HeadersVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class HeadersVisitor extends BaseMapVisitor {
   declare public readonly element: EncodingHeadersElement;
 
   declare protected readonly specPath: SpecPath<
     ['document', 'objects', 'Reference'] | ['document', 'objects', 'Header']
   >;
 
-  constructor(options: HeadersVisitorOptions) {
+  constructor(options: BaseMapVisitorOptions) {
     super(options);
     this.element = new EncodingHeadersElement();
     this.specPath = (element: unknown) =>
@@ -38,16 +38,17 @@ class HeadersVisitor extends Mixin(MapVisitor, FallbackVisitor) {
     // decorate every ReferenceElement with metadata about their referencing type
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
-      referenceElement.setMetaProperty('referenced-element', 'header');
+      referenceElement.meta.set('referenced-element', 'header');
     });
 
     // decorate every HeaderElement with metadata about their name
+    // @ts-ignore
     this.element.forEach((value: Element, key: StringElement): void => {
       if (!isHeaderElement(value)) return;
 
       const headerName = toValue(key);
 
-      value.setMetaProperty('headerName', headerName);
+      value.meta.set('headerName', headerName);
     });
 
     return result;

@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -11,7 +16,7 @@ class GooglepubsubChannelBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {
@@ -19,7 +24,7 @@ class GooglepubsubChannelBinding extends ObjectElement {
   }
 
   get labels(): ObjectElement | undefined {
-    return this.get('labels');
+    return this.get('labels') as ObjectElement | undefined;
   }
 
   set labels(labels: ObjectElement | undefined) {
@@ -27,7 +32,7 @@ class GooglepubsubChannelBinding extends ObjectElement {
   }
 
   get messageRetentionDuration(): StringElement | undefined {
-    return this.get('messageRetentionDuration');
+    return this.get('messageRetentionDuration') as StringElement | undefined;
   }
 
   set messageRetentionDuration(messageRetentionDuration: StringElement | undefined) {
@@ -35,7 +40,7 @@ class GooglepubsubChannelBinding extends ObjectElement {
   }
 
   get messageStoragePolicy(): ObjectElement | undefined {
-    return this.get('messageStoragePolicy');
+    return this.get('messageStoragePolicy') as ObjectElement | undefined;
   }
 
   set messageStoragePolicy(messageStoragePolicy: ObjectElement | undefined) {
@@ -43,7 +48,7 @@ class GooglepubsubChannelBinding extends ObjectElement {
   }
 
   get schemaSettings(): ObjectElement | undefined {
-    return this.get('schemaSettings');
+    return this.get('schemaSettings') as ObjectElement | undefined;
   }
 
   set schemaSettings(schemaSettings: ObjectElement | undefined) {
@@ -51,7 +56,7 @@ class GooglepubsubChannelBinding extends ObjectElement {
   }
 
   get topic(): StringElement | undefined {
-    return this.get('topic');
+    return this.get('topic') as StringElement | undefined;
   }
 
   set topic(topic: StringElement | undefined) {

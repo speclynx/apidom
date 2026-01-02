@@ -1,24 +1,24 @@
-import { Mixin } from 'ts-mixer';
-import { StringElement, BREAK, toValue } from '@speclynx/apidom-core';
+import { StringElement } from '@speclynx/apidom-datamodel';
+import { BREAK, toValue } from '@speclynx/apidom-core';
 
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
 import DefaultContentTypeElement from '../../../elements/DefaultContentType.ts';
+import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from './bases.ts';
 
 /**
  * @public
  */
-export interface DefaultContentTypeVisitorOptions
-  extends SpecificationVisitorOptions, FallbackVisitorOptions {}
+export type DefaultContentTypeVisitorOptions = BaseSpecificationVisitorOptions;
 
 /**
  * @public
  */
-class DefaultContentTypeVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class DefaultContentTypeVisitor extends BaseSpecificationVisitor {
   declare public element: DefaultContentTypeElement;
 
   StringElement(stringElement: StringElement) {
-    const defaultContentTypeElement = new DefaultContentTypeElement(toValue(stringElement));
+    const defaultContentTypeElement = new DefaultContentTypeElement(
+      toValue(stringElement) as string,
+    );
 
     this.copyMetaAndAttributes(stringElement, defaultContentTypeElement);
 

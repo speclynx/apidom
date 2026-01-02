@@ -1,12 +1,7 @@
 import { Tree } from 'web-tree-sitter';
 import { visit, getNodeType as getCSTNodeType, isNode as isCSTNode } from '@speclynx/apidom-ast';
-import {
-  ParseResultElement,
-  isElement,
-  isParseResultElement,
-  keyMap as keyMapApiDOM,
-  getNodeType as getNodeTypeApiDOM,
-} from '@speclynx/apidom-core';
+import { ParseResultElement, isElement, isParseResultElement } from '@speclynx/apidom-datamodel';
+import { keyMap as keyMapApiDOM, getNodeType as getNodeTypeApiDOM } from '@speclynx/apidom-core';
 
 import CstVisitor from './visitors/CstVisitor.ts';
 import TreeCursorIterator from '../TreeCursorIterator.ts';

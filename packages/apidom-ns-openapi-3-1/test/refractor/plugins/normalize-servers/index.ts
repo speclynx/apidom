@@ -3,7 +3,7 @@ import dedent from 'dedent';
 import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
-import { OpenApi3_1Element, refractorPluginNormalizeServers } from '../../../../src/index.ts';
+import { refractOpenApi3_1, refractorPluginNormalizeServers } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('plugins', function () {
@@ -22,7 +22,7 @@ describe('refractor', function () {
                   get: {}
             `;
             const apiDOM = await parse(yamlDefinition);
-            const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+            const openApiElement = refractOpenApi3_1(apiDOM.result, {
               plugins: [refractorPluginNormalizeServers()],
             });
 
@@ -43,7 +43,7 @@ describe('refractor', function () {
                   get: {}
             `;
           const apiDOM = await parse(yamlDefinition);
-          const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+          const openApiElement = refractOpenApi3_1(apiDOM.result, {
             plugins: [refractorPluginNormalizeServers()],
           });
 
@@ -66,7 +66,7 @@ describe('refractor', function () {
                   get: {}
             `;
           const apiDOM = await parse(yamlDefinition);
-          const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+          const openApiElement = refractOpenApi3_1(apiDOM.result, {
             plugins: [refractorPluginNormalizeServers()],
           });
 
@@ -83,7 +83,7 @@ describe('refractor', function () {
                   get: {}
             `;
           const apiDOM = await parse(yamlDefinition);
-          const openApiElement = OpenApi3_1Element.refract(apiDOM.result, {
+          const openApiElement = refractOpenApi3_1(apiDOM.result, {
             plugins: [refractorPluginNormalizeServers()],
           });
 

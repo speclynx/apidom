@@ -2,9 +2,9 @@ import {
   ObjectElement,
   StringElement,
   NumberElement,
-  Attributes,
-  Meta,
-} from '@speclynx/apidom-core';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import FailureActionCriteriaElement from './nces/FailureActionCriteria.ts';
 
@@ -18,7 +18,7 @@ class FailureAction extends ObjectElement {
   }
 
   get name(): StringElement | undefined {
-    return this.get('name');
+    return this.get('name') as StringElement | undefined;
   }
 
   set name(name: StringElement | undefined) {
@@ -26,7 +26,7 @@ class FailureAction extends ObjectElement {
   }
 
   get type(): StringElement | undefined {
-    return this.get('type');
+    return this.get('type') as StringElement | undefined;
   }
 
   set type(type: StringElement | undefined) {
@@ -34,7 +34,7 @@ class FailureAction extends ObjectElement {
   }
 
   get workflowId(): StringElement | undefined {
-    return this.get('workflowId');
+    return this.get('workflowId') as StringElement | undefined;
   }
 
   set workflowId(workflowId: StringElement | undefined) {
@@ -42,7 +42,7 @@ class FailureAction extends ObjectElement {
   }
 
   get stepId(): StringElement | undefined {
-    return this.get('stepId');
+    return this.get('stepId') as StringElement | undefined;
   }
 
   set stepId(stepId: StringElement | undefined) {
@@ -50,7 +50,7 @@ class FailureAction extends ObjectElement {
   }
 
   get retryAfter(): NumberElement | undefined {
-    return this.get('retryAfter');
+    return this.get('retryAfter') as NumberElement | undefined;
   }
 
   set retryAfter(retryAfter: NumberElement | undefined) {
@@ -58,7 +58,7 @@ class FailureAction extends ObjectElement {
   }
 
   get retryLimit(): NumberElement | undefined {
-    return this.get('retryLimit');
+    return this.get('retryLimit') as NumberElement | undefined;
   }
 
   set retryLimit(retryLimit: NumberElement | undefined) {
@@ -66,7 +66,7 @@ class FailureAction extends ObjectElement {
   }
 
   get criteria(): FailureActionCriteriaElement | undefined {
-    return this.get('criteria');
+    return this.get('criteria') as FailureActionCriteriaElement | undefined;
   }
 
   set criteria(criteria: FailureActionCriteriaElement | undefined) {

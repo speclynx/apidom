@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -11,23 +16,23 @@ class GooglepubsubMessageBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {
     this.set('bindingVersion', bindingVersion);
   }
 
-  get attributesProp(): ObjectElement | undefined {
-    return this.get('attributes');
+  get attributesField(): ObjectElement | undefined {
+    return this.get('attributes') as ObjectElement | undefined;
   }
 
-  set attributesProp(attributes: ObjectElement | undefined) {
+  set attributesField(attributes: ObjectElement | undefined) {
     this.set('attributes', attributes);
   }
 
   get orderingKey(): StringElement | undefined {
-    return this.get('orderingKey');
+    return this.get('orderingKey') as StringElement | undefined;
   }
 
   set orderingKey(orderingKey: StringElement | undefined) {
@@ -35,7 +40,7 @@ class GooglepubsubMessageBinding extends ObjectElement {
   }
 
   get schema(): ObjectElement | undefined {
-    return this.get('schema');
+    return this.get('schema') as ObjectElement | undefined;
   }
 
   set schema(schema: ObjectElement | undefined) {

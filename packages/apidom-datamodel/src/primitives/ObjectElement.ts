@@ -252,13 +252,11 @@ class ObjectElement<
     return memo;
   }
 
-  // Fantasy Land
-
   /**
    * Returns an empty object element.
    */
-  empty(): ObjectElement<K, V> {
-    return new (this.constructor as new (content: unknown[]) => ObjectElement<K, V>)([]);
+  empty(): this {
+    return new (this.constructor as new (content: unknown[]) => this)([]);
   }
 }
 

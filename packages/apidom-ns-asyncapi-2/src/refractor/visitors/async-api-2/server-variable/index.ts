@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import ServerVariableElement from '../../../../elements/ServerVariable.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../bases.ts';
+import type { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
 
 /**
  * @public
  */
-export interface ServerVariableVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type ServerVariableVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class ServerVariableVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class ServerVariableVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: ServerVariableElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'ServerVariable']>;

@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
 import PulsarServerBindingElement from '../../../../../../elements/bindings/pulsar/PulsarServerBinding.ts';
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../../../../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../../../FallbackVisitor.ts';
+import { SpecPath } from '../../../../generics/FixedFieldsVisitor.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../../../bases.ts';
 
 /**
  * @public
  */
-export interface PulsarServerBindingVisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type PulsarServerBindingVisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class PulsarServerBindingVisitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class PulsarServerBindingVisitor extends BaseFixedFieldsVisitor {
   declare public readonly element: PulsarServerBindingElement;
 
   declare protected readonly specPath: SpecPath<

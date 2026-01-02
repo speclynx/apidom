@@ -3,7 +3,7 @@ import {
   ObjectElement,
   isObjectElement,
   isArrayElement,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
 
 import OpenApi3_1Element from '../../../elements/OpenApi3-1.ts';
 
@@ -20,14 +20,14 @@ class NormalizeStorage {
 
   protected get store() {
     if (!this.internalStore) {
-      let rootStore = this.storageElement!.get(this.storageField);
+      let rootStore: ObjectElement = this.storageElement!.get(this.storageField) as ObjectElement;
 
       if (!isObjectElement(rootStore)) {
         rootStore = new ObjectElement();
         this.storageElement!.set(this.storageField, rootStore);
       }
 
-      let store = rootStore.get(this.storageSubField);
+      let store: ArrayElement = rootStore.get(this.storageSubField) as ArrayElement;
       if (!isArrayElement(store)) {
         store = new ArrayElement();
         rootStore.set(this.storageSubField, store);

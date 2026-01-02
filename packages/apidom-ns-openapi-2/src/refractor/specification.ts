@@ -80,6 +80,7 @@ const specification = {
         // OpenAPI 2 specific visitors
         Swagger: {
           $visitor: SwaggerVisitor,
+          element: 'swagger',
           fixedFields: {
             swagger: SwaggerSwaggerVisitor,
             info: {
@@ -114,6 +115,7 @@ const specification = {
         },
         Info: {
           $visitor: InfoVisitor,
+          element: 'info',
           fixedFields: {
             title: { $ref: '#/visitors/value' },
             description: { $ref: '#/visitors/value' },
@@ -129,6 +131,7 @@ const specification = {
         },
         Contact: {
           $visitor: ContactVisitor,
+          element: 'contact',
           fixedFields: {
             name: { $ref: '#/visitors/value' },
             url: { $ref: '#/visitors/value' },
@@ -137,6 +140,7 @@ const specification = {
         },
         License: {
           $visitor: LicenseVisitor,
+          element: 'license',
           fixedFields: {
             name: { $ref: '#/visitors/value' },
             url: { $ref: '#/visitors/value' },
@@ -144,9 +148,11 @@ const specification = {
         },
         Paths: {
           $visitor: PathsVisitor,
+          element: 'paths',
         },
         PathItem: {
           $visitor: PathItemVisitor,
+          element: 'pathItem',
           fixedFields: {
             $ref: PathItem$RefVisitor,
             get: {
@@ -175,6 +181,7 @@ const specification = {
         },
         Operation: {
           $visitor: OperationVisitor,
+          element: 'operation',
           fixedFields: {
             tags: OperationTagsVisitor,
             summary: { $ref: '#/visitors/value' },
@@ -196,6 +203,7 @@ const specification = {
         },
         ExternalDocumentation: {
           $visitor: ExternalDocumentationElement,
+          element: 'externalDocumentation',
           fixedFields: {
             description: { $ref: '#/visitors/value' },
             url: { $ref: '#/visitors/value' },
@@ -203,6 +211,7 @@ const specification = {
         },
         Parameter: {
           $visitor: ParameterVisitor,
+          element: 'parameter',
           fixedFields: {
             name: { $ref: '#/visitors/value' },
             in: { $ref: '#/visitors/value' },
@@ -212,7 +221,8 @@ const specification = {
             type: jsonSchemaFixedFields.type,
             format: jsonSchemaFixedFields.format,
             items: {
-              $ref: '#/visitors/document/objects/Items',
+              $visitor: ItemsVisitor,
+              alias: 'itemsField',
             },
             collectionFormat: { $ref: '#/visitors/value' },
             default: jsonSchemaFixedFields.default,
@@ -232,11 +242,13 @@ const specification = {
         },
         Items: {
           $visitor: ItemsVisitor,
+          element: 'items',
           fixedFields: {
             type: jsonSchemaFixedFields.type,
             format: jsonSchemaFixedFields.format,
             items: {
-              $ref: '#/visitors/document/objects/Items',
+              $visitor: ItemsVisitor,
+              alias: 'itemsField',
             },
             collectionFormat: { $ref: '#/visitors/value' },
             default: jsonSchemaFixedFields.default,
@@ -256,12 +268,14 @@ const specification = {
         },
         Responses: {
           $visitor: ResponsesVisitor,
+          element: 'responses',
           fixedFields: {
             default: ResponsesDefaultVisitor,
           },
         },
         Response: {
           $visitor: ResponseVisitor,
+          element: 'response',
           fixedFields: {
             description: { $ref: '#/visitors/value' },
             schema: SchemaOrJSONReferenceVisitor,
@@ -275,18 +289,22 @@ const specification = {
         },
         Headers: {
           $visitor: HeadersVisitor,
+          element: 'headers',
         },
         Example: {
           $visitor: ExampleVisitor,
+          element: 'example',
         },
         Header: {
           $visitor: HeaderVisitor,
+          element: 'header',
           fixedFields: {
             description: jsonSchemaFixedFields.description,
             type: jsonSchemaFixedFields.type,
             format: jsonSchemaFixedFields.format,
             items: {
-              $ref: '#/visitors/document/objects/Items',
+              $visitor: ItemsVisitor,
+              alias: 'itemsField',
             },
             collectionFormat: { $ref: '#/visitors/value' },
             default: jsonSchemaFixedFields.default,
@@ -306,6 +324,7 @@ const specification = {
         },
         Tag: {
           $visitor: TagVisitor,
+          element: 'tag',
           fixedFields: {
             name: { $ref: '#/visitors/value' },
             description: { $ref: '#/visitors/value' },
@@ -316,12 +335,14 @@ const specification = {
         },
         Reference: {
           $visitor: ReferenceVisitor,
+          element: 'reference',
           fixedFields: {
             $ref: Reference$RefVisitor,
           },
         },
         Schema: {
           $visitor: SchemaVisitor,
+          element: 'schema',
           fixedFields: {
             // the following properties are taken directly from the JSON Schema definition and follow the same specifications
             format: jsonSchemaFixedFields.format,
@@ -363,6 +384,7 @@ const specification = {
         },
         XML: {
           $visitor: XmlVisitor,
+          element: 'xml',
           fixedFields: {
             name: { $ref: '#/visitors/value' },
             namespace: { $ref: '#/visitors/value' },
@@ -373,18 +395,23 @@ const specification = {
         },
         Definitions: {
           $visitor: DefinitionsVisitor,
+          element: 'definitions',
         },
         ParametersDefinitions: {
           $visitor: ParametersDefinitionsVisitor,
+          element: 'parametersDefinitions',
         },
         ResponsesDefinitions: {
           $visitor: ResponsesDefinitionsVisitor,
+          element: 'responsesDefinitions',
         },
         SecurityDefinitions: {
           $visitor: SecurityDefinitionsVisitor,
+          element: 'securityDefinitions',
         },
         SecurityScheme: {
           $visitor: SecuritySchemeVisitor,
+          element: 'securityScheme',
           fixedFields: {
             type: { $ref: '#/visitors/value' },
             description: { $ref: '#/visitors/value' },
@@ -400,9 +427,11 @@ const specification = {
         },
         Scopes: {
           $visitor: ScopesVisitor,
+          element: 'scopes',
         },
         SecurityRequirement: {
           $visitor: SecurityRequirementVisitor,
+          element: 'securityRequirement',
         },
       },
       extension: {

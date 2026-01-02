@@ -1,5 +1,5 @@
 import { Tree } from 'web-tree-sitter';
-import { ParseResultElement } from '@speclynx/apidom-core';
+import { ParseResultElement } from '@speclynx/apidom-datamodel';
 import { visit } from '@speclynx/apidom-ast';
 
 import TreeCursorIterator from '../TreeCursorIterator.ts';

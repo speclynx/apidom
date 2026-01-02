@@ -1,16 +1,3 @@
-export {
-  isRefElement,
-  isLinkElement,
-  isMemberElement,
-  isObjectElement,
-  isArrayElement,
-  isBooleanElement,
-  isNullElement,
-  isElement,
-  isNumberElement,
-  isStringElement,
-} from '@speclynx/apidom-core';
-
 export { default as mediaTypes, JSONSchema202012MediaTypes } from './media-types.ts';
 export type { Format } from './media-types.ts';
 
@@ -18,7 +5,13 @@ export { default } from './namespace.ts';
 
 export { default as refractorPluginReplaceEmptyElement } from './refractor/plugins/replace-empty-element.ts';
 
-export { default as refract, createRefractor } from './refractor/index.ts';
+export {
+  default as refract,
+  refractJSONSchema,
+  refractLinkDescription,
+} from './refractor/index.ts';
+export type { RefractorOptions, RefractorPlugin } from './refractor/index.ts';
+export type { Toolbox } from './refractor/toolbox.ts';
 export { default as specificationObj } from './refractor/specification.ts';
 
 export { isJSONSchemaElement, isLinkDescriptionElement } from './predicates.ts';
@@ -74,7 +67,19 @@ export type { PropertiesVisitorOptions } from '@speclynx/apidom-ns-json-schema-2
 export { default as PrefixItemsVisitor } from './refractor/visitors/json-schema/PrefixItemsVisitor.ts';
 export type { PrefixItemsVisitorOptions } from './refractor/visitors/json-schema/PrefixItemsVisitor.ts';
 
+export {
+  BaseSchemaArrayVisitor,
+  BaseSchemaMapVisitor,
+} from '@speclynx/apidom-ns-json-schema-2019-09';
+export type {
+  BaseSchemaArrayVisitorOptions,
+  BaseSchemaMapVisitorOptions,
+} from '@speclynx/apidom-ns-json-schema-2019-09';
+
+export { keyMap, getNodeType } from './traversal/visitor.ts';
+
 /**
  * JSON Schema 2020-12 specification elements.
  */
-export { JSONSchemaElement, LinkDescriptionElement } from './refractor/registration.ts';
+export { JSONSchemaElement, LinkDescriptionElement } from './refractor/inspect.ts';
+export type { FixedField } from './refractor/inspect.ts';

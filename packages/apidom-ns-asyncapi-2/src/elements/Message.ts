@@ -3,9 +3,9 @@ import {
   StringElement,
   ObjectElement,
   ArrayElement,
-  Attributes,
-  Meta,
-} from '@speclynx/apidom-core';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import CorrelationIDElement from './CorrelationID.ts';
 import ReferenceElement from './Reference.ts';
@@ -24,7 +24,7 @@ class Message extends ObjectElement {
   }
 
   get messageId(): StringElement | undefined {
-    return this.get('messageId');
+    return this.get('messageId') as StringElement | undefined;
   }
 
   set messageId(messageId: StringElement | undefined) {
@@ -32,7 +32,7 @@ class Message extends ObjectElement {
   }
 
   get headers(): SchemaElement | ReferenceElement | undefined {
-    return this.get('headers');
+    return this.get('headers') as SchemaElement | ReferenceElement | undefined;
   }
 
   set headers(headers: SchemaElement | ReferenceElement | undefined) {
@@ -40,7 +40,7 @@ class Message extends ObjectElement {
   }
 
   get payload(): SchemaElement | ReferenceElement | Element | undefined {
-    return this.get('payload');
+    return this.get('payload') as SchemaElement | ReferenceElement | Element | undefined;
   }
 
   set payload(payload: SchemaElement | ReferenceElement | Element | undefined) {
@@ -48,7 +48,7 @@ class Message extends ObjectElement {
   }
 
   get correlationId(): CorrelationIDElement | ReferenceElement | undefined {
-    return this.get('correlationId');
+    return this.get('correlationId') as CorrelationIDElement | ReferenceElement | undefined;
   }
 
   set correlationId(correlationId: CorrelationIDElement | ReferenceElement | undefined) {
@@ -56,7 +56,7 @@ class Message extends ObjectElement {
   }
 
   get schemaFormat(): StringElement {
-    return this.get('schemaFormat');
+    return this.get('schemaFormat') as StringElement;
   }
 
   set schemaFormat(schemaFormat: StringElement) {
@@ -64,7 +64,7 @@ class Message extends ObjectElement {
   }
 
   get contentType(): StringElement {
-    return this.get('contentType');
+    return this.get('contentType') as StringElement;
   }
 
   set contentType(contentType: StringElement) {
@@ -72,7 +72,7 @@ class Message extends ObjectElement {
   }
 
   get name(): StringElement {
-    return this.get('name');
+    return this.get('name') as StringElement;
   }
 
   set name(name: StringElement) {
@@ -80,7 +80,7 @@ class Message extends ObjectElement {
   }
 
   get title(): StringElement {
-    return this.get('title');
+    return this.get('title') as StringElement;
   }
 
   set title(title: StringElement) {
@@ -88,7 +88,7 @@ class Message extends ObjectElement {
   }
 
   get summary(): StringElement {
-    return this.get('summary');
+    return this.get('summary') as StringElement;
   }
 
   set summary(summary: StringElement) {
@@ -96,7 +96,7 @@ class Message extends ObjectElement {
   }
 
   get description(): StringElement {
-    return this.get('description');
+    return this.get('description') as StringElement;
   }
 
   set description(description: StringElement) {
@@ -104,7 +104,7 @@ class Message extends ObjectElement {
   }
 
   get tags(): TagsElement | undefined {
-    return this.get('tags');
+    return this.get('tags') as TagsElement | undefined;
   }
 
   set tags(tags: TagsElement | undefined) {
@@ -112,7 +112,7 @@ class Message extends ObjectElement {
   }
 
   get externalDocs(): ExternalDocumentationElement | undefined {
-    return this.get('externalDocs');
+    return this.get('externalDocs') as ExternalDocumentationElement | undefined;
   }
 
   set externalDocs(externalDocs: ExternalDocumentationElement | undefined) {
@@ -120,7 +120,7 @@ class Message extends ObjectElement {
   }
 
   get bindings(): MessageBindingsElement | ReferenceElement | undefined {
-    return this.get('bindings');
+    return this.get('bindings') as MessageBindingsElement | ReferenceElement | undefined;
   }
 
   set bindings(bindings: MessageBindingsElement | ReferenceElement | undefined) {
@@ -128,7 +128,7 @@ class Message extends ObjectElement {
   }
 
   get examples(): ArrayElement | undefined {
-    return this.get('examples');
+    return this.get('examples') as ArrayElement | undefined;
   }
 
   set examples(examples: ArrayElement | undefined) {
@@ -136,7 +136,7 @@ class Message extends ObjectElement {
   }
 
   get traits(): ArrayElement | undefined {
-    return this.get('traits');
+    return this.get('traits') as ArrayElement | undefined;
   }
 
   set traits(traits: ArrayElement | undefined) {

@@ -1,7 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { assert } from 'chai';
-import { NumberElement, isParseResultElement, isSourceMapElement } from '@speclynx/apidom-core';
+import {
+  NumberElement,
+  isParseResultElement,
+  isSourceMapElement,
+} from '@speclynx/apidom-datamodel';
 import { mediaTypes } from '@speclynx/apidom-parser-adapter-asyncapi-yaml-2';
 import { fileURLToPath } from 'node:url';
 
@@ -162,7 +166,7 @@ describe('parsers', function () {
           });
           const parser = new AsyncAPIYAML2Parser();
           const parseResult = await parser.parse(file);
-          const numberElement: NumberElement = parseResult.get(0);
+          const numberElement = parseResult.get(0) as NumberElement;
 
           assert.isTrue(isParseResultElement(parseResult));
           assert.isTrue(numberElement.equals(1));

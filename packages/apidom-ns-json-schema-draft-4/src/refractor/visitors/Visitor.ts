@@ -1,4 +1,5 @@
-import { ObjectElement, hasElementSourceMap, deepmerge, Element } from '@speclynx/apidom-core';
+import { deepmerge } from '@speclynx/apidom-core';
+import { Element, ObjectElement, hasElementSourceMap } from '@speclynx/apidom-datamodel';
 
 /**
  * @public

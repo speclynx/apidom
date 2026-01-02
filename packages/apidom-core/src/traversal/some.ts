@@ -1,5 +1,5 @@
 import { isNotUndefined } from 'ramda-adjunct';
-import { Element } from 'minim';
+import { Element } from '@speclynx/apidom-datamodel';
 
 import find from './find.ts';
 

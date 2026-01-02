@@ -1,13 +1,14 @@
 import { expect, assert } from 'chai';
-import { sexprs, includesClasses } from '@speclynx/apidom-core';
+import { includesClasses } from '@speclynx/apidom-datamodel';
+import { sexprs } from '@speclynx/apidom-core';
 
-import { ScopesElement } from '../../../../src/index.ts';
+import { refractScopes, ScopesElement } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('ScopesElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const scopesElement = ScopesElement.refract({
+        const scopesElement = refractScopes({
           'write:pets': 'modify pets in your account',
           'read:pets': 'read your pets',
           'x-extension': 'extension',
@@ -17,17 +18,21 @@ describe('refractor', function () {
       });
 
       specify('should support specification extensions', function () {
-        const scopesElement = ScopesElement.refract({
+        const scopesElement = refractScopes({
           'write:pets': 'modify pets in your account',
           'read:pets': 'read your pets',
           'x-extension': 'extension',
         }) as ScopesElement;
 
         assert.isFalse(
-          includesClasses(['specification-extension'], scopesElement.getMember('write:pets')),
+          includesClasses(scopesElement.getMember('write:pets') as any, [
+            'specification-extension',
+          ]),
         );
         assert.isTrue(
-          includesClasses(['specification-extension'], scopesElement.getMember('x-extension')),
+          includesClasses(scopesElement.getMember('x-extension') as any, [
+            'specification-extension',
+          ]),
         );
       });
     });

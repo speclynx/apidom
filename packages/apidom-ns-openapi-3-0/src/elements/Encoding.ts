@@ -2,9 +2,9 @@ import {
   StringElement,
   ObjectElement,
   BooleanElement,
-  Attributes,
-  Meta,
-} from '@speclynx/apidom-core';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -16,7 +16,7 @@ class Encoding extends ObjectElement {
   }
 
   get contentType(): StringElement | undefined {
-    return this.get('contentType');
+    return this.get('contentType') as StringElement | undefined;
   }
 
   set contentType(contentType: StringElement | undefined) {
@@ -24,7 +24,7 @@ class Encoding extends ObjectElement {
   }
 
   get headers(): ObjectElement | undefined {
-    return this.get('headers');
+    return this.get('headers') as ObjectElement | undefined;
   }
 
   set headers(headers: ObjectElement | undefined) {
@@ -32,7 +32,7 @@ class Encoding extends ObjectElement {
   }
 
   get style(): StringElement | undefined {
-    return this.get('style');
+    return this.get('style') as StringElement | undefined;
   }
 
   set style(style: StringElement | undefined) {
@@ -40,7 +40,7 @@ class Encoding extends ObjectElement {
   }
 
   get explode(): BooleanElement | undefined {
-    return this.get('explode');
+    return this.get('explode') as BooleanElement | undefined;
   }
 
   set explode(explode: BooleanElement | undefined) {
@@ -48,7 +48,7 @@ class Encoding extends ObjectElement {
   }
 
   get allowedReserved(): BooleanElement | undefined {
-    return this.get('allowedReserved');
+    return this.get('allowedReserved') as BooleanElement | undefined;
   }
 
   set allowedReserved(allowedReserved: BooleanElement | undefined) {

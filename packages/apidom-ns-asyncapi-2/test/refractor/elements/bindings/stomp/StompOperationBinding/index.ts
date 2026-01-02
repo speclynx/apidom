@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { StompOperationBindingElement } from '../../../../../../src/index.ts';
+import { refractStompOperationBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('StompOperationBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const stompOperationBindingElement = StompOperationBindingElement.refract({});
+        const stompOperationBindingElement = refractStompOperationBinding({});
 
         expect(sexprs(stompOperationBindingElement)).toMatchSnapshot();
       });

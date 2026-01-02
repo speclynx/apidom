@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
-import { ArrayElement, Element, BREAK } from '@speclynx/apidom-core';
+import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
 import SwaggerSecurityElement from '../../../elements/nces/SwaggerSecurity.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
+import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from './bases.ts';
+
+export type { BaseSpecificationVisitorOptions as SecurityVisitorOptions };
 
 /**
  * @public
  */
-export interface SecurityVisitorOptions
-  extends SpecificationVisitorOptions, FallbackVisitorOptions {}
-
-/**
- * @public
- */
-class SecurityVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class SecurityVisitor extends BaseSpecificationVisitor {
   declare public readonly element: SwaggerSecurityElement;
 
-  constructor(options: SecurityVisitorOptions) {
+  constructor(options: BaseSpecificationVisitorOptions) {
     super(options);
     this.element = new SwaggerSecurityElement();
   }

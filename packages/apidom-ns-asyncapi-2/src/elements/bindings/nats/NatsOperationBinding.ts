@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -11,7 +16,7 @@ class NatsOperationBinding extends ObjectElement {
   }
 
   get queue(): StringElement | undefined {
-    return this.get('queue');
+    return this.get('queue') as StringElement | undefined;
   }
 
   set queue(queue: StringElement | undefined) {
@@ -19,7 +24,7 @@ class NatsOperationBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

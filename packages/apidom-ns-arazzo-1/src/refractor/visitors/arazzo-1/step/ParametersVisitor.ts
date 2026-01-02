@@ -1,22 +1,23 @@
-import { Mixin } from 'ts-mixer';
-import { ArrayElement, Element, BREAK } from '@speclynx/apidom-core';
+import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
 import StepParametersElement from '../../../../elements/nces/StepParameters.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../../SpecificationVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import {
+  BaseSpecificationFallbackVisitor,
+  BaseSpecificationFallbackVisitorOptions,
+} from '../bases.ts';
 import { isReusableLikeElement } from '../../../predicates.ts';
 import { isReusableElement } from '../../../../predicates.ts';
 
 /**
  * @public
  */
-export interface ParametersVisitorOptions
-  extends SpecificationVisitorOptions, FallbackVisitorOptions {}
+export interface ParametersVisitorOptions extends BaseSpecificationFallbackVisitorOptions {}
 
 /**
  * @public
  */
-class ParametersActionsVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class ParametersActionsVisitor extends BaseSpecificationFallbackVisitor {
   declare public readonly element: StepParametersElement;
 
   constructor(options: ParametersVisitorOptions) {
@@ -32,7 +33,7 @@ class ParametersActionsVisitor extends Mixin(SpecificationVisitor, FallbackVisit
       const element = this.toRefractedElement(specPath, item);
 
       if (isReusableElement(element)) {
-        element.setMetaProperty('referenced-element', 'parameter');
+        element.meta.set('referenced-element', 'parameter');
       }
 
       this.element.push(element);

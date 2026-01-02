@@ -1,23 +1,18 @@
-import { Mixin } from 'ts-mixer';
 import { always } from 'ramda';
 
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../generics/FixedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
+import { SpecPath } from '../generics/FixedFieldsVisitor.ts';
 import AsyncApi2Element from '../../../elements/AsyncApi2.ts';
+import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from './bases.ts';
 
 /**
  * @public
  */
-export interface AsyncApi2VisitorOptions
-  extends FixedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type AsyncApi2VisitorOptions = BaseFixedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class AsyncApi2Visitor extends Mixin(FixedFieldsVisitor, FallbackVisitor) {
+class AsyncApi2Visitor extends BaseFixedFieldsVisitor {
   declare public readonly element: AsyncApi2Element;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'AsyncApi']>;

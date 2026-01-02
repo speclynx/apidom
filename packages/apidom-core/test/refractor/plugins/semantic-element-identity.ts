@@ -1,73 +1,99 @@
 import { assert } from 'chai';
-import { InfoElement } from '@speclynx/apidom-ns-openapi-3-1';
+import { ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
 
 import {
-  ObjectElement,
-  StringElement,
   dispatchRefractorPlugins,
   refractorPluginSemanticElementIdentity,
+  toValue,
 } from '../../../src/index.ts';
+
+// Ad-hoc semantic element classes for testing
+class ContactElement extends ObjectElement {
+  constructor(...args: ConstructorParameters<typeof ObjectElement>) {
+    super(...args);
+    this.element = 'contact';
+  }
+}
+
+class InfoElement extends ObjectElement {
+  constructor(...args: ConstructorParameters<typeof ObjectElement>) {
+    super(...args);
+    this.element = 'info';
+  }
+}
 
 describe('refractor', function () {
   context('plugins', function () {
     context('semantic-element-identity', function () {
-      specify('should not add unique ID to semantic elements in ApiDOM tree', function () {
-        const infoElement = InfoElement.refract({
+      specify('should not add unique ID to primitive elements in ApiDOM tree', function () {
+        const contactElement = new ContactElement({ name: 'John Doe' });
+        const infoElement = new InfoElement({
           title: 'title',
           summary: 'summary',
-          contact: { name: 'John Doe' },
+          contact: contactElement,
         });
-        const objectElement: any = ObjectElement.refract(
-          { a: 'b', info: infoElement },
-          { plugins: [refractorPluginSemanticElementIdentity()] },
-        );
+        const objectElement = new ObjectElement({ a: 'b', info: infoElement });
+        const result = dispatchRefractorPlugins(objectElement, [
+          refractorPluginSemanticElementIdentity(),
+        ]) as ObjectElement;
 
-        assert.lengthOf(objectElement.id, 0);
-        assert.lengthOf(objectElement.getMember('a').key.id, 0);
-        assert.lengthOf(objectElement.getMember('a').value.id, 0);
-        assert.lengthOf(objectElement.getMember('info').key.id, 0);
+        // Primitive elements should NOT have IDs
+        assert.lengthOf(toValue(result.id) as string, 0);
+        assert.lengthOf(toValue(result.getMember('a')!.key!.id) as string, 0);
+        assert.lengthOf(toValue(result.getMember('a')!.value!.id) as string, 0);
+        assert.lengthOf(toValue(result.getMember('info')!.key!.id) as string, 0);
       });
 
       specify('should add unique ID to semantic elements in ApiDOM tree', function () {
-        const infoElement = InfoElement.refract({
+        const contactElement = new ContactElement({ name: 'John Doe' });
+        const infoElement = new InfoElement({
           title: 'title',
           summary: 'summary',
-          contact: { name: 'John Doe' },
+          contact: contactElement,
         });
-        const objectElement: any = ObjectElement.refract(
-          { a: 'b', info: infoElement },
-          { plugins: [refractorPluginSemanticElementIdentity()] },
-        );
+        const objectElement = new ObjectElement({ a: 'b', info: infoElement });
+        const result = dispatchRefractorPlugins(objectElement, [
+          refractorPluginSemanticElementIdentity(),
+        ]) as ObjectElement;
         const defaultLength = 6;
 
-        assert.lengthOf(objectElement.getMember('info').value.id, defaultLength);
-        assert.lengthOf(objectElement.getMember('info').value.get('contact').id, defaultLength);
+        // Semantic elements (InfoElement, ContactElement) should have IDs
+        assert.lengthOf(toValue(result.getMember('info')!.value!.id) as string, defaultLength);
+        assert.lengthOf(
+          toValue((result.getMember('info')!.value as ObjectElement).get('contact')!.id) as string,
+          defaultLength,
+        );
       });
 
       specify(
         'should add unique ID of specific length to semantic elements in ApiDOM tree',
         function () {
           const length = 3;
-          const infoElement = InfoElement.refract({
+          const contactElement = new ContactElement({ name: 'John Doe' });
+          const infoElement = new InfoElement({
             title: 'title',
             summary: 'summary',
-            contact: { name: 'John Doe' },
+            contact: contactElement,
           });
-          const objectElement: any = ObjectElement.refract(
-            { a: 'b', info: infoElement },
-            { plugins: [refractorPluginSemanticElementIdentity({ length })] },
-          );
+          const objectElement = new ObjectElement({ a: 'b', info: infoElement });
+          const result = dispatchRefractorPlugins(objectElement, [
+            refractorPluginSemanticElementIdentity({ length }),
+          ]) as ObjectElement;
 
-          assert.lengthOf(objectElement.getMember('info').value.id, length);
-          assert.lengthOf(objectElement.getMember('info').value.get('contact').id, length);
+          assert.lengthOf(toValue(result.getMember('info')!.value!.id) as string, length);
+          assert.lengthOf(
+            toValue(
+              (result.getMember('info')!.value as ObjectElement).get('contact')!.id,
+            ) as string,
+            length,
+          );
         },
       );
 
       specify('should not add unique ID when already present', function () {
-        const infoElement = InfoElement.refract({
+        const infoElement = new InfoElement({
           title: 'title',
           summary: 'summary',
-          contact: { name: 'John Doe' },
         });
         infoElement.id = new StringElement('unique-id');
         const newInfoElement = dispatchRefractorPlugins(infoElement, [

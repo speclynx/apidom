@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { AmqpChannelBindingElement } from '../../../../../../src/index.ts';
+import { refractAmqpChannelBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('AmqpChannelBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const amqpChannelBindingElement = AmqpChannelBindingElement.refract({
+        const amqpChannelBindingElement = refractAmqpChannelBinding({
           is: 'routingKey',
           exchange: {
             name: 'myExchange',

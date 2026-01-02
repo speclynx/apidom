@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { SolaceMessageBindingElement } from '../../../../../../src/index.ts';
+import { refractSolaceMessageBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('SolaceMessageBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const solaceMessageBindingElement = SolaceMessageBindingElement.refract({});
+        const solaceMessageBindingElement = refractSolaceMessageBinding({});
 
         expect(sexprs(solaceMessageBindingElement)).toMatchSnapshot();
       });

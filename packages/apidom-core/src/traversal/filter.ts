@@ -1,4 +1,4 @@
-import { ArraySlice, Element } from 'minim';
+import { Element } from '@speclynx/apidom-datamodel';
 
 import { PredicateVisitor, visit } from './visitor.ts';
 
@@ -7,14 +7,14 @@ import { PredicateVisitor, visit } from './visitor.ts';
  * @public
  */
 const filter = <T extends Element>(
-  predicate: (element: any) => boolean,
+  predicate: (element: Element) => boolean,
   element: T,
-): ArraySlice => {
+): Element[] => {
   const visitor = new PredicateVisitor({ predicate });
 
   visit(element, visitor);
 
-  return new ArraySlice(visitor.result);
+  return visitor.result;
 };
 
 export default filter;

@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { AmqpOperationBindingElement } from '../../../../../../src/index.ts';
+import { refractAmqpOperationBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('AmqpOperationBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const amqpOperationBindingElement = AmqpOperationBindingElement.refract({
+        const amqpOperationBindingElement = refractAmqpOperationBinding({
           expiration: 100000,
           userId: 'guest',
           cc: ['user.logs'],

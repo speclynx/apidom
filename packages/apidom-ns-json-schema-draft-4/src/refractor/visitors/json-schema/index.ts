@@ -1,22 +1,13 @@
-import { Mixin } from 'ts-mixer';
 import { always, defaultTo } from 'ramda';
 import { isNonEmptyString, isUndefined } from 'ramda-adjunct';
-import {
-  ObjectElement,
-  ArrayElement,
-  isStringElement,
-  cloneDeep,
-  toValue,
-} from '@speclynx/apidom-core';
+import { ObjectElement, ArrayElement, isStringElement } from '@speclynx/apidom-datamodel';
+import { cloneDeep, toValue } from '@speclynx/apidom-core';
 
-import FixedFieldsVisitor, {
-  FixedFieldsVisitorOptions,
-  SpecPath,
-} from '../generics/FixedFieldsVisitor.ts';
-import ParentSchemaAwareVisitor, {
-  ParentSchemaAwareVisitorOptions,
-} from './ParentSchemaAwareVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
+import FixedFieldsVisitor, { SpecPath } from '../generics/FixedFieldsVisitor.ts';
+import { FixedFieldsVisitorOptions } from '../generics/FixedFieldsVisitor.ts';
+import { ParentSchemaAwareVisitorOptions } from './ParentSchemaAwareVisitor.ts';
+import { FallbackVisitorOptions } from '../FallbackVisitor.ts';
+import { JSONSchemaVisitorBase } from './bases.ts';
 import JSONSchemaElement from '../../../elements/JSONSchema.ts';
 import { isJSONSchemaElement } from '../../../predicates.ts';
 
@@ -29,11 +20,7 @@ export interface JSONSchemaVisitorOptions
 /**
  * @public
  */
-class JSONSchemaVisitor extends Mixin(
-  FixedFieldsVisitor,
-  ParentSchemaAwareVisitor,
-  FallbackVisitor,
-) {
+class JSONSchemaVisitor extends JSONSchemaVisitorBase {
   declare public element: JSONSchemaElement;
 
   declare protected readonly specPath: SpecPath<['document', 'objects', 'JSONSchema']>;
@@ -62,23 +49,25 @@ class JSONSchemaVisitor extends Mixin(
     // handle $schema keyword in embedded resources
     if (isUndefined(this.parent) && !isStringElement(objectElement.get('$schema'))) {
       // no parent available and no $schema is defined, set default $schema
-      this.element.setMetaProperty('inheritedDialectIdentifier', this.defaultDialectIdentifier);
+      this.element.meta.set('inheritedDialectIdentifier', this.defaultDialectIdentifier);
     } else if (isJSONSchemaElement(this.parent) && !isStringElement(objectElement.get('$schema'))) {
       // parent is available and no $schema is defined, set parent $schema
       const inheritedDialectIdentifier = defaultTo(
         toValue(this.parent.meta.get('inheritedDialectIdentifier')),
         toValue(this.parent.$schema),
       );
-      this.element.setMetaProperty('inheritedDialectIdentifier', inheritedDialectIdentifier);
+      this.element.meta.set('inheritedDialectIdentifier', inheritedDialectIdentifier);
     }
   }
 
   handleSchemaIdentifier(objectElement: ObjectElement, identifierKeyword: string = 'id'): void {
     // handle schema identifier in embedded resources
     // fetch parent's ancestorsSchemaIdentifiers
-    const ancestorsSchemaIdentifiers =
+    const ancestorsSchemaIdentifiers: ArrayElement =
       this.parent !== undefined
-        ? cloneDeep(this.parent.getMetaProperty('ancestorsSchemaIdentifiers', []))
+        ? (cloneDeep(
+            this.parent.meta.get('ancestorsSchemaIdentifiers') ?? new ArrayElement(),
+          ) as ArrayElement)
         : new ArrayElement();
     // get current schema identifier
     const schemaIdentifier = toValue(objectElement.get(identifierKeyword));
@@ -88,7 +77,7 @@ class JSONSchemaVisitor extends Mixin(
       ancestorsSchemaIdentifiers.push(schemaIdentifier);
     }
 
-    this.element.setMetaProperty('ancestorsSchemaIdentifiers', ancestorsSchemaIdentifiers);
+    this.element.meta.set('ancestorsSchemaIdentifiers', ancestorsSchemaIdentifiers);
   }
 }
 

@@ -1,29 +1,28 @@
-import { Mixin } from 'ts-mixer';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import ComponentsParametersElement from '../../../../elements/nces/ComponentsParameters.ts';
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import MapVisitor, { SpecPath } from '../../generics/MapVisitor.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from '../bases.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
 import { isReferenceElement } from '../../../../predicates.ts';
 
 /**
  * @public
  */
-export interface ParametersVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+export type { BaseMapVisitorOptions as ParametersVisitorOptions };
 
 /**
  * @public
  */
-class ParametersVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class ParametersVisitor extends BaseMapVisitor {
   declare public readonly element: ComponentsParametersElement;
 
   declare protected readonly specPath: SpecPath<
     ['document', 'objects', 'Reference'] | ['document', 'objects', 'Parameter']
   >;
 
-  constructor(options: ParametersVisitorOptions) {
+  constructor(options: BaseMapVisitorOptions) {
     super(options);
     this.element = new ComponentsParametersElement();
     this.specPath = (element: unknown) =>
@@ -38,7 +37,7 @@ class ParametersVisitor extends Mixin(MapVisitor, FallbackVisitor) {
     // decorate every ReferenceElement with metadata about their referencing type
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
-      referenceElement.setMetaProperty('referenced-element', 'parameter');
+      referenceElement.meta.set('referenced-element', 'parameter');
     });
 
     return result;

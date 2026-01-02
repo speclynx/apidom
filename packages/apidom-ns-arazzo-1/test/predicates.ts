@@ -1,5 +1,4 @@
 import { assert } from 'chai';
-import { ArrayElement } from '@speclynx/apidom-core';
 
 import {
   isArazzoSpecification1Element,
@@ -106,34 +105,6 @@ describe('predicates', function () {
         assert.isFalse(isArazzoSpecification1Element('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const arazzoSpecificationElementDuck = {
-        _storedElement: 'arazzoSpecification1',
-        classes: new ArrayElement(['api', 'arazzo']),
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const arazzoSpecificationElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-        get length() {
-          return 0;
-        },
-      };
-
-      assert.isTrue(isArazzoSpecification1Element(arazzoSpecificationElementDuck));
-      assert.isFalse(isArazzoSpecification1Element(arazzoSpecificationElementSwan));
-    });
   });
 
   context('isInfoElement', function () {
@@ -163,31 +134,6 @@ describe('predicates', function () {
         assert.isFalse(isInfoElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const infoElementDuck = {
-        _storedElement: 'info',
-        _content: [],
-        classes: new ArrayElement(['info']),
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const infoElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isInfoElement(infoElementDuck));
-      assert.isFalse(isInfoElement(infoElementSwan));
-    });
   });
 
   context('isArazzoElement', function () {
@@ -207,7 +153,7 @@ describe('predicates', function () {
       });
     });
 
-    context('given non OpenapiElement instance value', function () {
+    context('given non ArazzoElement instance value', function () {
       specify('should return false', function () {
         assert.isFalse(isArazzoElement(1));
         assert.isFalse(isArazzoElement(null));
@@ -216,30 +162,6 @@ describe('predicates', function () {
         assert.isFalse(isArazzoElement([]));
         assert.isFalse(isArazzoElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const arazzoElementDuck = {
-        _storedElement: 'arazzo',
-        _content: '',
-        primitive() {
-          return 'string';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const arazzoElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isArazzoElement(arazzoElementDuck));
-      assert.isFalse(isArazzoElement(arazzoElementSwan));
     });
   });
 
@@ -270,30 +192,6 @@ describe('predicates', function () {
         assert.isFalse(isSourceDescriptionElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const SourceDescriptionElementDuck = {
-        _storedElement: 'sourceDescription',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const SourceDescriptionElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isSourceDescriptionElement(SourceDescriptionElementDuck));
-      assert.isFalse(isSourceDescriptionElement(SourceDescriptionElementSwan));
-    });
   });
 
   context('isSourceDescriptionsElement', function () {
@@ -322,31 +220,6 @@ describe('predicates', function () {
         assert.isFalse(isSourceDescriptionsElement([]));
         assert.isFalse(isSourceDescriptionsElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const sourceDescriptionsElementDuck = {
-        _storedElement: 'sourceDescriptions',
-        _content: [],
-        classes: new ArrayElement(['sourceDescriptions']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const sourceDescriptionsElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isSourceDescriptionsElement(sourceDescriptionsElementDuck));
-      assert.isFalse(isSourceDescriptionsElement(sourceDescriptionsElementSwan));
     });
   });
 
@@ -377,30 +250,6 @@ describe('predicates', function () {
         assert.isFalse(isComponentsElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const componentsElementDuck = {
-        _storedElement: 'components',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const componentsElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isComponentsElement(componentsElementDuck));
-      assert.isFalse(isComponentsElement(componentsElementSwan));
-    });
   });
 
   context('isCriterionElement', function () {
@@ -430,37 +279,10 @@ describe('predicates', function () {
         assert.isFalse(isCriterionElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const CriterionElementDuck = {
-        _storedElement: 'criterion',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const CriterionElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-        get length() {
-          return 0;
-        },
-      };
-
-      assert.isTrue(isCriterionElement(CriterionElementDuck));
-      assert.isFalse(isCriterionElement(CriterionElementSwan));
-    });
   });
 
-  context('isCriteriaElement', function () {
-    context('given CriteriaElement instance value', function () {
+  context('isSuccessActionCriteriaElement', function () {
+    context('given SuccessActionCriteriaElement instance value', function () {
       specify('should return true', function () {
         const element = new SuccessActionCriteriaElement();
 
@@ -476,7 +298,7 @@ describe('predicates', function () {
       });
     });
 
-    context('given non Criteria instance value', function () {
+    context('given non SuccessActionCriteriaElement instance value', function () {
       specify('should return false', function () {
         assert.isFalse(isSuccessActionCriteriaElement(1));
         assert.isFalse(isSuccessActionCriteriaElement(null));
@@ -485,31 +307,6 @@ describe('predicates', function () {
         assert.isFalse(isSuccessActionCriteriaElement([]));
         assert.isFalse(isSuccessActionCriteriaElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const criteriaElementDuck = {
-        _storedElement: 'array',
-        _content: [],
-        classes: new ArrayElement(['criteria', 'success-action-criteria']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const criteriaElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isSuccessActionCriteriaElement(criteriaElementDuck));
-      assert.isFalse(isSuccessActionCriteriaElement(criteriaElementSwan));
     });
   });
 
@@ -540,33 +337,6 @@ describe('predicates', function () {
         assert.isFalse(isParameterElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const ParameterElementDuck = {
-        _storedElement: 'parameter',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const ParameterElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-        get length() {
-          return 0;
-        },
-      };
-
-      assert.isTrue(isParameterElement(ParameterElementDuck));
-      assert.isFalse(isParameterElement(ParameterElementSwan));
-    });
   });
 
   context('isSuccessActionElement', function () {
@@ -596,33 +366,6 @@ describe('predicates', function () {
         assert.isFalse(isSuccessActionElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const SuccessActionElementDuck = {
-        _storedElement: 'successAction',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const SuccessActionElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-        get length() {
-          return 0;
-        },
-      };
-
-      assert.isTrue(isSuccessActionElement(SuccessActionElementDuck));
-      assert.isFalse(isSuccessActionElement(SuccessActionElementSwan));
-    });
   });
 
   context('isFailureActionCriteriaElement', function () {
@@ -642,7 +385,7 @@ describe('predicates', function () {
       });
     });
 
-    context('given non Criteria instance value', function () {
+    context('given non FailureActionCriteriaElement instance value', function () {
       specify('should return false', function () {
         assert.isFalse(isFailureActionCriteriaElement(1));
         assert.isFalse(isFailureActionCriteriaElement(null));
@@ -651,31 +394,6 @@ describe('predicates', function () {
         assert.isFalse(isFailureActionCriteriaElement([]));
         assert.isFalse(isFailureActionCriteriaElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const criteriaElementDuck = {
-        _storedElement: 'array',
-        _content: [],
-        classes: new ArrayElement(['criteria', 'failure-action-criteria']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const criteriaElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isFailureActionCriteriaElement(criteriaElementDuck));
-      assert.isFalse(isFailureActionCriteriaElement(criteriaElementSwan));
     });
   });
 
@@ -706,33 +424,6 @@ describe('predicates', function () {
         assert.isFalse(isFailureActionElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const FailureActionElementDuck = {
-        _storedElement: 'failureAction',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const FailureActionElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-        get length() {
-          return 0;
-        },
-      };
-
-      assert.isTrue(isFailureActionElement(FailureActionElementDuck));
-      assert.isFalse(isFailureActionElement(FailureActionElementSwan));
-    });
   });
 
   context('isReusableElement', function () {
@@ -761,31 +452,6 @@ describe('predicates', function () {
         assert.isFalse(isReusableElement([]));
         assert.isFalse(isReusableElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const reusableElementDuck = {
-        _storedElement: 'reusable',
-        _content: [],
-        classes: new ArrayElement(['arazzo-reference']),
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const reusableElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isReusableElement(reusableElementDuck));
-      assert.isFalse(isReusableElement(reusableElementSwan));
     });
   });
 
@@ -816,33 +482,6 @@ describe('predicates', function () {
         assert.isFalse(isWorkflowElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const workflowElementDuck = {
-        _storedElement: 'workflow',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const workflowElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-        get length() {
-          return 0;
-        },
-      };
-
-      assert.isTrue(isWorkflowElement(workflowElementDuck));
-      assert.isFalse(isWorkflowElement(workflowElementSwan));
-    });
   });
 
   context('isWorkflowStepsElement', function () {
@@ -871,31 +510,6 @@ describe('predicates', function () {
         assert.isFalse(isWorkflowStepsElement([]));
         assert.isFalse(isWorkflowStepsElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const workflowStepsElementDuck = {
-        _storedElement: 'array',
-        _content: [],
-        classes: new ArrayElement(['workflow-steps']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const workflowStepsElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isWorkflowStepsElement(workflowStepsElementDuck));
-      assert.isFalse(isWorkflowStepsElement(workflowStepsElementSwan));
     });
   });
 
@@ -926,31 +540,6 @@ describe('predicates', function () {
         assert.isFalse(isWorkflowOutputsElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const workflowOutputsElementDuck = {
-        _storedElement: 'array',
-        _content: [],
-        classes: new ArrayElement(['workflow-outputs']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const workflowOutputsElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isWorkflowOutputsElement(workflowOutputsElementDuck));
-      assert.isFalse(isWorkflowOutputsElement(workflowOutputsElementSwan));
-    });
   });
 
   context('isStepElement', function () {
@@ -979,33 +568,6 @@ describe('predicates', function () {
         assert.isFalse(isStepElement([]));
         assert.isFalse(isStepElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const StepElementDuck = {
-        _storedElement: 'step',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const StepElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-        get length() {
-          return 0;
-        },
-      };
-
-      assert.isTrue(isStepElement(StepElementDuck));
-      assert.isFalse(isStepElement(StepElementSwan));
     });
   });
 
@@ -1036,31 +598,6 @@ describe('predicates', function () {
         assert.isFalse(isStepParametersElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const stepParametersElementDuck = {
-        _storedElement: 'array',
-        _content: [],
-        classes: new ArrayElement(['step-parameters']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const stepParametersElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isStepParametersElement(stepParametersElementDuck));
-      assert.isFalse(isStepParametersElement(stepParametersElementSwan));
-    });
   });
 
   context('isStepDependsOnElement', function () {
@@ -1089,31 +626,6 @@ describe('predicates', function () {
         assert.isFalse(isStepDependsOnElement([]));
         assert.isFalse(isStepDependsOnElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const stepDependsOnElementDuck = {
-        _storedElement: 'array',
-        _content: [],
-        classes: new ArrayElement(['step-depends-on']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const stepDependsOnElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isStepDependsOnElement(stepDependsOnElementDuck));
-      assert.isFalse(isStepDependsOnElement(stepDependsOnElementSwan));
     });
   });
 
@@ -1144,31 +656,6 @@ describe('predicates', function () {
         assert.isFalse(isStepSuccessCriteriaElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const stepSuccessCriteriaElementDuck = {
-        _storedElement: 'array',
-        _content: [],
-        classes: new ArrayElement(['criteria', 'step-success-criteria']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const stepSuccessCriteriaElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isStepSuccessCriteriaElement(stepSuccessCriteriaElementDuck));
-      assert.isFalse(isStepSuccessCriteriaElement(stepSuccessCriteriaElementSwan));
-    });
   });
 
   context('isStepOnSuccessElement', function () {
@@ -1197,31 +684,6 @@ describe('predicates', function () {
         assert.isFalse(isStepOnSuccessElement([]));
         assert.isFalse(isStepOnSuccessElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const stepOnSuccessElementDuck = {
-        _storedElement: 'array',
-        _content: [],
-        classes: new ArrayElement(['step-on-success']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const stepOnSuccessElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isStepOnSuccessElement(stepOnSuccessElementDuck));
-      assert.isFalse(isStepOnSuccessElement(stepOnSuccessElementSwan));
     });
   });
 
@@ -1252,31 +714,6 @@ describe('predicates', function () {
         assert.isFalse(isStepOnFailureElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const stepOnFailureElementDuck = {
-        _storedElement: 'array',
-        _content: [],
-        classes: new ArrayElement(['step-on-failure']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const stepOnFailureElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isStepOnFailureElement(stepOnFailureElementDuck));
-      assert.isFalse(isStepOnFailureElement(stepOnFailureElementSwan));
-    });
   });
 
   context('isStepOutputsElement', function () {
@@ -1305,31 +742,6 @@ describe('predicates', function () {
         assert.isFalse(isStepOutputsElement([]));
         assert.isFalse(isStepOutputsElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const stepOutputsElementDuck = {
-        _storedElement: 'array',
-        _content: [],
-        classes: new ArrayElement(['step-outputs']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const stepOutputsElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isStepOutputsElement(stepOutputsElementDuck));
-      assert.isFalse(isStepOutputsElement(stepOutputsElementSwan));
     });
   });
 
@@ -1360,30 +772,6 @@ describe('predicates', function () {
         assert.isFalse(isCriterionExpressionTypeElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const criterionExpressionTypeElementDuck = {
-        _storedElement: 'criterionExpressionType',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const criterionExpressionTypeElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isCriterionExpressionTypeElement(criterionExpressionTypeElementDuck));
-      assert.isFalse(isCriterionExpressionTypeElement(criterionExpressionTypeElementSwan));
-    });
   });
 
   context('isPayloadReplacementElement', function () {
@@ -1413,30 +801,6 @@ describe('predicates', function () {
         assert.isFalse(isPayloadReplacementElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const payloadReplacementElementDuck = {
-        _storedElement: 'payloadReplacement',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const payloadReplacementElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isPayloadReplacementElement(payloadReplacementElementDuck));
-      assert.isFalse(isPayloadReplacementElement(payloadReplacementElementSwan));
-    });
   });
 
   context('isRequestBodyElement', function () {
@@ -1465,30 +829,6 @@ describe('predicates', function () {
         assert.isFalse(isRequestBodyElement([]));
         assert.isFalse(isRequestBodyElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const requestBodyElementDuck = {
-        _storedElement: 'requestBody',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const requestBodyElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isRequestBodyElement(requestBodyElementDuck));
-      assert.isFalse(isRequestBodyElement(requestBodyElementSwan));
     });
   });
 
@@ -1548,31 +888,6 @@ describe('predicates', function () {
         assert.isFalse(isComponentsInputsElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const componentsInputsElementDuck = {
-        _storedElement: 'object',
-        _content: [],
-        classes: new ArrayElement(['components-inputs']),
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const componentsInputsElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isComponentsInputsElement(componentsInputsElementDuck));
-      assert.isFalse(isComponentsInputsElement(componentsInputsElementSwan));
-    });
   });
 
   context('isComponentsParametersElement', function () {
@@ -1601,31 +916,6 @@ describe('predicates', function () {
         assert.isFalse(isComponentsParametersElement([]));
         assert.isFalse(isComponentsParametersElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const componentsParametersElementDuck = {
-        _storedElement: 'object',
-        _content: [],
-        classes: new ArrayElement(['components-parameters', 'parameters']),
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const componentsParametersElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isComponentsParametersElement(componentsParametersElementDuck));
-      assert.isFalse(isComponentsParametersElement(componentsParametersElementSwan));
     });
   });
 
@@ -1656,31 +946,6 @@ describe('predicates', function () {
         assert.isFalse(isComponentsSuccessActionsElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const componentsSuccessActionsElementDuck = {
-        _storedElement: 'object',
-        _content: [],
-        classes: new ArrayElement(['components-success-actions']),
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const componentsSuccessActionsElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isComponentsSuccessActionsElement(componentsSuccessActionsElementDuck));
-      assert.isFalse(isComponentsSuccessActionsElement(componentsSuccessActionsElementSwan));
-    });
   });
 
   context('isComponentsFailureActionsElement', function () {
@@ -1709,31 +974,6 @@ describe('predicates', function () {
         assert.isFalse(isComponentsFailureActionsElement([]));
         assert.isFalse(isComponentsFailureActionsElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const componentsFailureActionsElementDuck = {
-        _storedElement: 'object',
-        _content: [],
-        classes: new ArrayElement(['components-failure-actions']),
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const componentsFailureActionsElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isComponentsFailureActionsElement(componentsFailureActionsElementDuck));
-      assert.isFalse(isComponentsFailureActionsElement(componentsFailureActionsElementSwan));
     });
   });
 
@@ -1764,31 +1004,6 @@ describe('predicates', function () {
         assert.isFalse(isRequestBodyReplacementsElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const requestBodyReplacementsElementDuck = {
-        _storedElement: 'array',
-        _content: [],
-        classes: new ArrayElement(['request-body-replacements']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const requestBodyReplacementsElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isRequestBodyReplacementsElement(requestBodyReplacementsElementDuck));
-      assert.isFalse(isRequestBodyReplacementsElement(requestBodyReplacementsElementSwan));
-    });
   });
 
   context('isWorkflowDependsOnElement', function () {
@@ -1817,31 +1032,6 @@ describe('predicates', function () {
         assert.isFalse(isWorkflowDependsOnElement([]));
         assert.isFalse(isWorkflowDependsOnElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const workflowDependsOnElementDuck = {
-        _storedElement: 'array',
-        _content: [],
-        classes: new ArrayElement(['workflow-depends-on']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const workflowDependsOnElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isWorkflowDependsOnElement(workflowDependsOnElementDuck));
-      assert.isFalse(isWorkflowDependsOnElement(workflowDependsOnElementSwan));
     });
   });
 
@@ -1872,31 +1062,6 @@ describe('predicates', function () {
         assert.isFalse(isWorkflowParametersElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const workflowParametersElementDuck = {
-        _storedElement: 'array',
-        _content: [],
-        classes: new ArrayElement(['workflow-parameters', 'parameters']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const workflowParametersElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isWorkflowParametersElement(workflowParametersElementDuck));
-      assert.isFalse(isWorkflowParametersElement(workflowParametersElementSwan));
-    });
   });
 
   context('isWorkflowSuccessActionsElement', function () {
@@ -1925,31 +1090,6 @@ describe('predicates', function () {
         assert.isFalse(isWorkflowSuccessActionsElement([]));
         assert.isFalse(isWorkflowSuccessActionsElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const workflowSuccessActionsElementDuck = {
-        _storedElement: 'array',
-        _content: [],
-        classes: new ArrayElement(['workflow-success-actions']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const workflowSuccessActionsElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isWorkflowSuccessActionsElement(workflowSuccessActionsElementDuck));
-      assert.isFalse(isWorkflowSuccessActionsElement(workflowSuccessActionsElementSwan));
     });
   });
 
@@ -1980,31 +1120,6 @@ describe('predicates', function () {
         assert.isFalse(isWorkflowFailureActionsElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const workflowFailureActionsElementDuck = {
-        _storedElement: 'array',
-        _content: [],
-        classes: new ArrayElement(['workflow-failure-actions']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const workflowFailureActionsElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isWorkflowFailureActionsElement(workflowFailureActionsElementDuck));
-      assert.isFalse(isWorkflowFailureActionsElement(workflowFailureActionsElementSwan));
-    });
   });
 
   context('isWorkflowsElement', function () {
@@ -2033,31 +1148,6 @@ describe('predicates', function () {
         assert.isFalse(isWorkflowsElement([]));
         assert.isFalse(isWorkflowsElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const workflowsElementDuck = {
-        _storedElement: 'workflows',
-        _content: [],
-        classes: new ArrayElement(['workflows']),
-        primitive() {
-          return 'array';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const workflowsElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isWorkflowsElement(workflowsElementDuck));
-      assert.isFalse(isWorkflowsElement(workflowsElementSwan));
     });
   });
 });

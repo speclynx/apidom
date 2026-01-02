@@ -22,20 +22,21 @@ You can install this package via [npm CLI](https://docs.npmjs.com/cli) by runnin
 ## AsyncApi 2.x.y namespace
 
 AsyncApi 2.x.y namespace consists of [number of elements](https://github.com/speclynx/apidom/tree/main/packages/apidom-ns-asyncapi-2/src/elements) implemented on top
-of [primitive ones](https://github.com/refractproject/minim/tree/main/lib/primitives).
+of [primitive ones](https://github.com/speclynx/apidom/tree/main/packages/apidom-datamodel/src/primitives).
 
 ```js
-import { createNamespace } from '@speclynx/apidom-core';
+import { Namespace } from '@speclynx/apidom-datamodel';
 import asyncApi2Namespace from '@speclynx/apidom-ns-asyncapi-2';
 
-const namespace = createNamespace(asyncApi2Namespace);
+const namespace = new Namespace();
+namespace.use(asyncApi2Namespace);
 
 const objectElement = new namespace.elements.Object();
 const asyncApiElement = new namespace.elements.AsyncApi2();
 ```
 
-When namespace instance is created in this way, it will extend the base namespace
-with the namespace provided as an argument.
+When a namespace instance is created in this way, calling `use()` with the namespace plugin
+will extend the base namespace with the AsyncAPI 2.x elements.
 
 Elements from the namespace can also be used directly by importing them.
 
@@ -88,7 +89,7 @@ or generic ApiDOM structures into structures built from elements of this namespa
 **Refracting JavaScript structures**:
 
 ```js
-import { InfoElement } from '@speclynx/apidom-ns-asyncapi-2';
+import { refractInfo } from '@speclynx/apidom-ns-asyncapi-2';
 
 const object = {
     title: 'my title',
@@ -96,14 +97,14 @@ const object = {
     version: '0.1.0',
 };
 
-InfoElement.refract(object); // => InfoElement({ title, description, version })
+refractInfo(object); // => InfoElement({ title, description, version })
 ```
 
 **Refracting generic ApiDOM structures**:
 
 ```js
-import { ObjectElement } from '@speclynx/apidom-core';
-import { InfoElement } from '@speclynx/apidom-ns-asyncapi-2';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { refractInfo } from '@speclynx/apidom-ns-asyncapi-2';
 
 const objectElement = new ObjectElement({
     title: 'my title',
@@ -111,16 +112,16 @@ const objectElement = new ObjectElement({
     version: '0.1.0',
 });
 
-InfoElement.refract(objectElement); // => InfoElement({ title = 'my title', description = 'my description', version = '0.1.0' })
+refractInfo(objectElement); // => InfoElement({ title = 'my title', description = 'my description', version = '0.1.0' })
 ```
 
 ### Refractor plugins
 
-Refractors can accept plugins as a second argument of refract static method.
+Refractors can accept plugins as a second argument of refract function.
 
 ```js
-import { ObjectElement } from '@speclynx/apidom-core';
-import { InfoElement } from '@speclynx/apidom-ns-asyncapi-2';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { refractInfo } from '@speclynx/apidom-ns-asyncapi-2';
 
 const objectElement = new ObjectElement({
     title: 'my title',
@@ -143,7 +144,7 @@ const plugin = ({ predicates, namespace }) => ({
   },
 });
 
-InfoElement.refract(objectElement, { plugins: [plugin] }); // => InfoElement({ title = 'my title', description = 'my description', version = '2.6.0' })
+refractInfo(objectElement, { plugins: [plugin] }); // => InfoElement({ title = 'my title', description = 'my description', version = '2.6.0' })
 ```
 
 You can define as many plugins as needed to enhance the resulting namespaced ApiDOM structure.
@@ -157,14 +158,14 @@ this missing value with the most appropriate semantic element type.
 
 ```js
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
-import { refractorPluginReplaceEmptyElement, AsyncApi2Element } from '@speclynx/apidom-ns-asyncapi-2';
+import { refractorPluginReplaceEmptyElement, refractAsyncApi2 } from '@speclynx/apidom-ns-asyncapi-2';
 
 const yamlDefinition = `
 asyncapi: 2.6.0
 info:
 `;
 const apiDOM = await parse(yamlDefinition);
-const asyncApiElement = AsyncApi2Element.refract(apiDOM.result, {
+const asyncApiElement = refractAsyncApi2(apiDOM.result, {
   plugins: [refractorPluginReplaceEmptyElement()],
 });
 

@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { ResponsesDefinitionsElement } from '../../../../src/index.ts';
+import { refractResponsesDefinitions } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('ResponsesDefinitionsElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const responsesDefinitionsElement = ResponsesDefinitionsElement.refract({
+        const responsesDefinitionsElement = refractResponsesDefinitions({
           response1: {},
           response2: {},
         });

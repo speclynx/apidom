@@ -19,22 +19,9 @@ You can install this package via [npm CLI](https://docs.npmjs.com/cli) by runnin
 ## OpenAPI 3.0.x namespace
 
 OpenAPI 3.0.x namespace consists of [number of elements](https://github.com/speclynx/apidom/tree/main/packages/apidom-ns-openapi-3-0/src/elements) implemented on top
-of [primitive ones](https://github.com/refractproject/minim/tree/master/lib/primitives).
+of [primitive ones](https://github.com/speclynx/apidom/tree/main/packages/apidom-datamodel/src/primitives).
 
-```js
-import { createNamespace } from '@speclynx/apidom-core';
-import openApi3_0Namespace from '@speclynx/apidom-ns-openapi-3-0';
-
-const namespace = createNamespace(openApi3_0Namespace);
-
-const objectElement = new namespace.elements.Object();
-const openApiElement = new namespace.elements.OpenApi3_0();
-```
-
-When namespace instance is created in this way, it will extend the base namespace
-with the namespace provided as an argument.
-
-Elements from the namespace can also be used directly by importing them.
+Elements from the namespace can be used directly by importing them.
 
 ```js
 import { OpenApi3_0Element, InfoElement } from '@speclynx/apidom-ns-openapi-3-0';
@@ -99,7 +86,7 @@ InfoElement.refract(object); // => InfoElement({ title, description, version })
 **Refracting generic ApiDOM structures**:
 
 ```js
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 import { InfoElement } from '@speclynx/apidom-ns-openapi-3-0';
 
 const objectElement = new ObjectElement({
@@ -116,7 +103,7 @@ InfoElement.refract(objectElement); // => InfoElement({ title = 'my title', desc
 Refractors can accept plugins as a second argument of refract static method.
 
 ```js
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 import { InfoElement } from '@speclynx/apidom-ns-openapi-3-0';
 
 const objectElement = new ObjectElement({

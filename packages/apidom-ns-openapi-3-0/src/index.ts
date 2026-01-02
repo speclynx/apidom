@@ -1,16 +1,3 @@
-export {
-  isRefElement,
-  isLinkElement as isLinkPrimitiveElement,
-  isMemberElement,
-  isObjectElement,
-  isArrayElement,
-  isBooleanElement,
-  isNullElement,
-  isElement,
-  isNumberElement,
-  isStringElement,
-} from '@speclynx/apidom-core';
-
 export { default as mediaTypes, OpenAPIMediaTypes } from './media-types.ts';
 export type { Format } from './media-types.ts';
 
@@ -18,9 +5,41 @@ export { default } from './namespace.ts';
 
 export { default as refractorPluginReplaceEmptyElement } from './refractor/plugins/replace-empty-element.ts';
 
-export { default as refract, createRefractor } from './refractor/index.ts';
-export { default as createToolbox } from './refractor/toolbox.ts';
-export type { Predicates as ToolboxPredicates, openApi3_0Predicates } from './refractor/toolbox.ts';
+export {
+  default as refract,
+  refractOpenApi3_0,
+  refractInfo,
+  refractContact,
+  refractLicense,
+  refractServer,
+  refractServerVariable,
+  refractComponents,
+  refractPaths,
+  refractPathItem,
+  refractOperation,
+  refractExternalDocumentation,
+  refractParameter,
+  refractRequestBody,
+  refractMediaType,
+  refractEncoding,
+  refractResponses,
+  refractResponse,
+  refractCallback,
+  refractExample,
+  refractLink,
+  refractHeader,
+  refractTag,
+  refractReference,
+  refractSchema,
+  refractDiscriminator,
+  refractXml,
+  refractSecurityScheme,
+  refractOAuthFlows,
+  refractOAuthFlow,
+  refractSecurityRequirement,
+} from './refractor/index.ts';
+export type { RefractorOptions, RefractorPlugin } from './refractor/index.ts';
+export type { Toolbox } from './refractor/toolbox.ts';
 export { default as specificationObj } from './refractor/specification.ts';
 
 export {
@@ -69,7 +88,10 @@ export { default as FixedFieldsVisitor } from './refractor/visitors/generics/Fix
 export type { FixedFieldsVisitorOptions } from './refractor/visitors/generics/FixedFieldsVisitor.ts';
 export { default as MapVisitor } from './refractor/visitors/generics/MapVisitor.ts';
 export type { MapVisitorOptions } from './refractor/visitors/generics/MapVisitor.ts';
-export { default as MixedFieldsVisitor } from './refractor/visitors/generics/MixedFieldsVisitor.ts';
+export {
+  default as MixedFieldsVisitor,
+  MixedFieldsVisitorBase,
+} from './refractor/visitors/generics/MixedFieldsVisitor.ts';
 export type { MixedFieldsVisitorOptions } from './refractor/visitors/generics/MixedFieldsVisitor.ts';
 export { default as PatternedFieldsVisitor } from './refractor/visitors/generics/PatternedFieldsVisitor.ts';
 export type { PatternedFieldsVisitorOptions } from './refractor/visitors/generics/PatternedFieldsVisitor.ts';
@@ -440,6 +462,24 @@ export type {
 
 export type { SpecPath } from './refractor/visitors/generics/FixedFieldsVisitor.ts';
 
+// Base visitor classes (Mixin combinations)
+export {
+  BaseSpecificationVisitor,
+  BaseFixedFieldsVisitor,
+  BasePatternedFieldsVisitor,
+  BaseMapVisitor,
+  BaseAlternatingVisitor,
+  BaseMixedFieldsVisitor,
+} from './refractor/visitors/open-api-3-0/bases.ts';
+export type {
+  BaseSpecificationVisitorOptions,
+  BaseFixedFieldsVisitorOptions,
+  BasePatternedFieldsVisitorOptions,
+  BaseMapVisitorOptions,
+  BaseAlternatingVisitorOptions,
+  BaseMixedFieldsVisitorOptions,
+} from './refractor/visitors/open-api-3-0/bases.ts';
+
 export { keyMap, getNodeType } from './traversal/visitor.ts';
 
 // OpenAPI 3.0.x elements
@@ -475,7 +515,7 @@ export {
   ServerVariableElement,
   TagElement,
   XmlElement,
-} from './refractor/registration.ts';
+} from './refractor/inspect.ts';
 // NCE types
 export { default as ComponentsCallbacksElement } from './elements/nces/ComponentsCallbacks.ts';
 export { default as ComponentsExamplesElement } from './elements/nces/ComponentsExamples.ts';

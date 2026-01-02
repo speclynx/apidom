@@ -55,6 +55,7 @@
     "@types/mocha": "=10.0.10",
     "@types/node": "^24.10.1",
     "@types/sinon": "=21.0.0",
+    "@types/ramda": "~0.30.0",
     "@eslint/js": "^9.28.0",
     "babel-loader": "=10.0.0",
     "babel-plugin-inline-json-import": "^0.3.2",

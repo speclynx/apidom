@@ -1,14 +1,15 @@
-import { Element } from 'minim';
+import { Element } from '@speclynx/apidom-datamodel';
 
 import { IdentityManager } from '../../identity/index.ts';
-import { isPrimitiveElement } from '../../predicates/index.ts';
 
 /**
- * @public
+ * Primitive element names from the datamodel.
+ * Semantic elements have custom names (e.g., 'info', 'schema', 'contact').
  */
-export type Predicates = {
-  isPrimitiveElement: typeof isPrimitiveElement;
-};
+const primitiveElementNames = ['object', 'array', 'string', 'number', 'boolean', 'null', 'member'];
+
+const isSemanticElement = (element: Element): boolean =>
+  !primitiveElementNames.includes(element.element);
 
 /**
  * Plugin for decorating every semantic element in ApiDOM tree with UUID.
@@ -16,7 +17,7 @@ export type Predicates = {
  */
 const plugin =
   ({ length = 6 } = {}) =>
-  ({ predicates }: { predicates: Predicates }) => {
+  () => {
     let identityManager: IdentityManager | null;
 
     return {
@@ -25,7 +26,7 @@ const plugin =
       },
       visitor: {
         enter<T extends Element>(element: T) {
-          if (!predicates.isPrimitiveElement(element)) {
+          if (isSemanticElement(element)) {
             (element as Element).id = identityManager!.identify(element);
           }
         },

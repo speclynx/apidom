@@ -35,33 +35,6 @@ describe('predicates', function () {
         assert.isFalse(isJSONSchemaElement('string'));
       });
     });
-
-    specify('should support duck-typing', function () {
-      const jsonSchemaElementDuck = {
-        _storedElement: 'JSONSchema202012',
-        _content: [],
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const jsonSchemaElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-        get length() {
-          return 0;
-        },
-      };
-
-      assert.isTrue(isJSONSchemaElement(jsonSchemaElementDuck));
-      assert.isFalse(isJSONSchemaElement(jsonSchemaElementSwan));
-    });
   });
 
   context('isLinkDescriptionElement', function () {
@@ -90,30 +63,6 @@ describe('predicates', function () {
         assert.isFalse(isLinkDescriptionElement([]));
         assert.isFalse(isLinkDescriptionElement('string'));
       });
-    });
-
-    specify('should support duck-typing', function () {
-      const linkDescriptionElementDuck = {
-        _storedElement: 'linkDescription',
-        _content: '',
-        primitive() {
-          return 'object';
-        },
-        get element() {
-          return this._storedElement;
-        },
-      };
-
-      const linkDescriptionElementSwan = {
-        _storedElement: undefined,
-        _content: undefined,
-        primitive() {
-          return 'swan';
-        },
-      };
-
-      assert.isTrue(isLinkDescriptionElement(linkDescriptionElementDuck));
-      assert.isFalse(isLinkDescriptionElement(linkDescriptionElementSwan));
     });
   });
 });

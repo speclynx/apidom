@@ -1,12 +1,8 @@
-import { Mixin } from 'ts-mixer';
 import { test } from 'ramda';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
-import PatternedFieldsVisitor, {
-  PatternedFieldsVisitorOptions,
-  SpecPath,
-} from '../../generics/PatternedFieldsVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { BasePatternedFieldsVisitor, BasePatternedFieldsVisitorOptions } from '../bases.ts';
+import type { SpecPath } from '../../generics/PatternedFieldsVisitor.ts';
 import ServersElement from '../../../../elements/Servers.ts';
 import ReferenceElement from '../../../../elements/Reference.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
@@ -15,13 +11,12 @@ import { isReferenceElement } from '../../../../predicates.ts';
 /**
  * @public
  */
-export interface ServersVisitorOptions
-  extends PatternedFieldsVisitorOptions, FallbackVisitorOptions {}
+export type ServersVisitorOptions = BasePatternedFieldsVisitorOptions;
 
 /**
  * @public
  */
-class ServersVisitor extends Mixin(PatternedFieldsVisitor, FallbackVisitor) {
+class ServersVisitor extends BasePatternedFieldsVisitor {
   declare public readonly element: ServersElement;
 
   declare protected readonly specPath: SpecPath<
@@ -45,11 +40,11 @@ class ServersVisitor extends Mixin(PatternedFieldsVisitor, FallbackVisitor) {
   }
 
   ObjectElement(objectElement: ObjectElement) {
-    const result = PatternedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+    const result = BasePatternedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
-      referenceElement.setMetaProperty('referenced-element', 'server');
+      referenceElement.meta.set('referenced-element', 'server');
     });
 
     return result;

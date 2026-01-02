@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { HeadersElement } from '../../../../src/index.ts';
+import { refractHeaders } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('HeadersElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const headersElement = HeadersElement.refract({
+        const headersElement = refractHeaders({
           header1: {},
           header2: {},
         });

@@ -1,4 +1,4 @@
-import { NamespacePluginOptions } from '@speclynx/apidom-core';
+import type { NamespacePlugin } from '@speclynx/apidom-datamodel';
 
 /**
  * AsyncApi >= 2.0.0 <=2.6.0 specification elements.
@@ -139,8 +139,8 @@ import WebSocketServerBindingElement from './elements/bindings/ws/WebSocketServe
 /**
  * @public
  */
-const asyncApi2 = {
-  namespace: (options: NamespacePluginOptions) => {
+const asyncApi2: NamespacePlugin = {
+  namespace: (options) => {
     const { base } = options;
 
     /**

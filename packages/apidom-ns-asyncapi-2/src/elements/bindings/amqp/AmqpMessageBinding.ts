@@ -1,4 +1,9 @@
-import { StringElement, ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  StringElement,
+  ObjectElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -11,7 +16,7 @@ class AmqpMessageBinding extends ObjectElement {
   }
 
   get contentEncoding(): StringElement | undefined {
-    return this.get('contentEncoding');
+    return this.get('contentEncoding') as StringElement | undefined;
   }
 
   set contentEncoding(contentEncoding: StringElement | undefined) {
@@ -19,7 +24,7 @@ class AmqpMessageBinding extends ObjectElement {
   }
 
   get messageType(): StringElement | undefined {
-    return this.get('messageType');
+    return this.get('messageType') as StringElement | undefined;
   }
 
   set messageType(messageType: StringElement | undefined) {
@@ -27,7 +32,7 @@ class AmqpMessageBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

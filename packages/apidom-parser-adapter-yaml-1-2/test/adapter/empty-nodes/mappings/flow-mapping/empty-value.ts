@@ -1,5 +1,6 @@
 import { assert } from 'chai';
-import { includesClasses, toValue, SourceMapElement } from '@speclynx/apidom-core';
+import { includesClasses, SourceMapElement } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 import * as adapter from '../../../../../src/adapter.ts';
 
@@ -14,7 +15,7 @@ describe('given empty node as flow mapping value', function () {
   it('should create empty element', async function () {
     const emptyElement = await setupEmptyElement();
 
-    assert.isTrue(includesClasses(['yaml-e-node', 'yaml-e-scalar'], emptyElement));
+    assert.isTrue(includesClasses(emptyElement, ['yaml-e-node', 'yaml-e-scalar']));
   });
 
   it('should generate source maps', async function () {

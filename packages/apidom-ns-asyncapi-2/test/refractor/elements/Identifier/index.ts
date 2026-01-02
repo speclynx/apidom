@@ -1,15 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { IdentifierElement } from '../../../../src/index.ts';
+import { refractIdentifier } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('IdentifierElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const identifierElement = IdentifierElement.refract(
-          'urn:com:smartylighting:streetlights:server',
-        );
+        const identifierElement = refractIdentifier('urn:com:smartylighting:streetlights:server');
 
         expect(sexprs(identifierElement)).toMatchSnapshot();
       });

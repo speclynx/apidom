@@ -1,16 +1,3 @@
-export {
-  isRefElement,
-  isLinkElement,
-  isMemberElement,
-  isObjectElement,
-  isArrayElement,
-  isBooleanElement,
-  isNullElement,
-  isElement,
-  isNumberElement,
-  isStringElement,
-} from '@speclynx/apidom-core';
-
 export { default as mediaTypes, JSONSchemaDraft4MediaTypes } from './media-types.ts';
 export type { Format } from './media-types.ts';
 
@@ -18,7 +5,15 @@ export { default } from './namespace.ts';
 
 export { default as refractorPluginReplaceEmptyElement } from './refractor/plugins/replace-empty-element.ts';
 
-export { default as refract, createRefractor } from './refractor/index.ts';
+export {
+  default as refract,
+  refractJSONSchema,
+  refractJSONReference,
+  refractMedia,
+  refractLinkDescription,
+} from './refractor/index.ts';
+export type { RefractorOptions, RefractorPlugin } from './refractor/index.ts';
+export type { Toolbox } from './refractor/toolbox.ts';
 export { default as specificationObj } from './refractor/specification.ts';
 
 export {
@@ -50,6 +45,21 @@ export type {
 } from './refractor/visitors/generics/AlternatingVisitor.ts';
 export { default as ParentSchemaAwareVisitor } from './refractor/visitors/json-schema/ParentSchemaAwareVisitor.ts';
 export type { ParentSchemaAwareVisitorOptions } from './refractor/visitors/json-schema/ParentSchemaAwareVisitor.ts';
+export {
+  JSONSchemaVisitorBase,
+  JSONReferenceVisitorBase,
+  LinkDescriptionVisitorBase,
+  MediaVisitorBase,
+  AllOfVisitorBase,
+  AnyOfVisitorBase,
+  OneOfVisitorBase,
+  ItemsVisitorBase,
+  LinksVisitorBase,
+  DefinitionsVisitorBase,
+  DependenciesVisitorBase,
+  PatternPropertiesVisitorBase,
+  PropertiesVisitorBase,
+} from './refractor/visitors/json-schema/bases.ts';
 
 export type {
   default as JSONReferenceVisitor,
@@ -130,4 +140,5 @@ export {
   JSONReferenceElement,
   MediaElement,
   LinkDescriptionElement,
-} from './refractor/registration.ts';
+} from './refractor/inspect.ts';
+export type { FixedField } from './refractor/inspect.ts';

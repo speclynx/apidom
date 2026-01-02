@@ -1,8 +1,7 @@
-import { Element, StringElement } from 'minim';
+import { Element, StringElement, isElement, isStringElement } from '@speclynx/apidom-datamodel';
 import ShortUniqueId from 'short-unique-id';
 
 import ElementIdentityError from './errors/ElementIdentityError.ts';
-import { isElement, isStringElement } from '../predicates/index.ts';
 
 /**
  * @public
@@ -28,12 +27,9 @@ export class IdentityManager {
     }
 
     // use already assigned identity
-    if (
-      element.meta.hasKey('id') &&
-      isStringElement(element.meta.get('id')) &&
-      !element.meta.get('id').equals('')
-    ) {
-      return element.id;
+    const existingId = element.meta.get('id');
+    if (isStringElement(existingId) && !existingId.equals('')) {
+      return element.id as StringElement;
     }
 
     // assign identity in immutable way
@@ -55,7 +51,7 @@ export class IdentityManager {
     return false;
   }
 
-  generateId() {
+  generateId(): string {
     return this.uuid.randomUUID();
   }
 }

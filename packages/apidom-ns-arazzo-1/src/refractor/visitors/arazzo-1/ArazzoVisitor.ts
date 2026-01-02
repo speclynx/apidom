@@ -1,23 +1,25 @@
-import { Mixin } from 'ts-mixer';
-import { StringElement, BREAK, toValue } from '@speclynx/apidom-core';
+import { StringElement } from '@speclynx/apidom-datamodel';
+import { BREAK, toValue } from '@speclynx/apidom-core';
 
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
-import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
+import {
+  BaseSpecificationFallbackVisitor,
+  BaseSpecificationFallbackVisitorOptions,
+} from './bases.ts';
 import ArazzoElement from '../../../elements/Arazzo.ts';
 
 /**
  * @public
  */
-export interface ArazzoVisitorOptions extends SpecificationVisitorOptions, FallbackVisitorOptions {}
+export interface ArazzoVisitorOptions extends BaseSpecificationFallbackVisitorOptions {}
 
 /**
  * @public
  */
-class ArazzoVisitor extends Mixin(SpecificationVisitor, FallbackVisitor) {
+class ArazzoVisitor extends BaseSpecificationFallbackVisitor {
   declare public element: ArazzoElement;
 
   StringElement(stringElement: StringElement) {
-    const arazzoElement = new ArazzoElement(toValue(stringElement));
+    const arazzoElement = new ArazzoElement(toValue(stringElement) as string);
 
     this.copyMetaAndAttributes(stringElement, arazzoElement);
     this.element = arazzoElement;

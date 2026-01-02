@@ -1,8 +1,7 @@
-import { Mixin } from 'ts-mixer';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
+import { SpecPath } from '../generics/MapVisitor.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from './bases.ts';
 import { isReferenceLikeElement } from '../../predicates.ts';
 import { isReferenceElement } from '../../../predicates.ts';
 import ReferenceElement from '../../../elements/Reference.ts';
@@ -10,12 +9,12 @@ import ReferenceElement from '../../../elements/Reference.ts';
 /**
  * @public
  */
-export interface ExamplesVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+export type { BaseMapVisitorOptions as ExamplesVisitorOptions };
 
 /**
  * @public
  */
-class ExamplesVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class ExamplesVisitor extends BaseMapVisitor {
   declare public readonly element: ObjectElement;
 
   declare protected readonly specPath: SpecPath<
@@ -24,7 +23,7 @@ class ExamplesVisitor extends Mixin(MapVisitor, FallbackVisitor) {
 
   declare protected readonly canSupportSpecificationExtensions: true;
 
-  constructor(options: ExamplesVisitorOptions) {
+  constructor(options: BaseMapVisitorOptions) {
     super(options);
     this.element = new ObjectElement();
     this.element.classes.push('examples');
@@ -36,11 +35,11 @@ class ExamplesVisitor extends Mixin(MapVisitor, FallbackVisitor) {
   }
 
   ObjectElement(objectElement: ObjectElement) {
-    const result = MapVisitor.prototype.ObjectElement.call(this, objectElement);
+    const result = BaseMapVisitor.prototype.ObjectElement.call(this, objectElement);
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
-      referenceElement.setMetaProperty('referenced-element', 'example');
+      referenceElement.meta.set('referenced-element', 'example');
     });
 
     return result;

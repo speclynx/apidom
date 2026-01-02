@@ -9,8 +9,8 @@
   },
   "type": "module",
   "sideEffects": [
-    "./src/refractor/registration.mjs",
-    "./src/refractor/registration.cjs"
+    "./src/refractor/inspect.mjs",
+    "./src/refractor/inspect.cjs"
   ],
   "unpkg": "./dist/apidom-ns-openapi-2.browser.min.js",
   "main": "./src/index.cjs",
@@ -31,7 +31,7 @@
     "test": "npm run build:es && cross-env BABEL_ENV=es babel test --out-dir test --extensions '.ts' --out-file-extension '.mjs' --root-mode 'upward' && cross-env NODE_ENV=test mocha",
     "test:update-snapshots": "cross-env UPDATE_SNAPSHOT=1 mocha",
     "typescript:check-types": "tsc --noEmit && tsc -p ./test/tsconfig.json --noEmit",
-    "typescript:declaration": "tsc -p tsconfig.declaration.json && api-extractor run -l -c ./config/api-extractor/api-extractor.json 2>&1 | shx grep -v 'Visitor_base'",
+    "typescript:declaration": "tsc -p tsconfig.declaration.json && api-extractor run -l -c ./config/api-extractor/api-extractor.json",
     "prepack": "copyfiles -u 3 ../../LICENSES/* LICENSES && copyfiles -u 2 ../../NOTICE .",
     "postpack": "rimraf NOTICE LICENSES"
   },
@@ -45,8 +45,8 @@
     "@babel/runtime-corejs3": "^7.28.4",
     "@speclynx/apidom-core": "^1.12.2",
     "@speclynx/apidom-error": "^1.12.2",
+    "@speclynx/apidom-datamodel": "^1.12.2",
     "@speclynx/apidom-ns-json-schema-draft-4": "^1.12.2",
-    "@types/ramda": "~0.30.0",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.0.0",
     "ts-mixer": "^6.0.4"

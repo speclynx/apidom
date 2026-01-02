@@ -1,5 +1,5 @@
 import { isEmpty } from 'ramda';
-import { ParseResultElement } from '@speclynx/apidom-core';
+import { ParseResultElement } from '@speclynx/apidom-datamodel';
 
 import * as url from '../util/url.ts';
 import File from '../File.ts';

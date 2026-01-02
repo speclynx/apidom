@@ -1,29 +1,28 @@
-import { Mixin } from 'ts-mixer';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import ComponentsSecuritySchemesElement from '../../../../elements/nces/ComponentsSecuritySchemes.ts';
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import MapVisitor, { SpecPath } from '../../generics/MapVisitor.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from '../bases.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
 import { isReferenceElement } from '../../../../predicates.ts';
 
 /**
  * @public
  */
-export interface SecuritySchemesVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+export type { BaseMapVisitorOptions as SecuritySchemesVisitorOptions };
 
 /**
  * @public
  */
-class SecuritySchemesVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class SecuritySchemesVisitor extends BaseMapVisitor {
   declare public readonly element: ComponentsSecuritySchemesElement;
 
   declare protected readonly specPath: SpecPath<
     ['document', 'objects', 'Reference'] | ['document', 'objects', 'SecurityScheme']
   >;
 
-  constructor(options: SecuritySchemesVisitorOptions) {
+  constructor(options: BaseMapVisitorOptions) {
     super(options);
     this.element = new ComponentsSecuritySchemesElement();
     this.specPath = (element: unknown) =>
@@ -37,7 +36,7 @@ class SecuritySchemesVisitor extends Mixin(MapVisitor, FallbackVisitor) {
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
-      referenceElement.setMetaProperty('referenced-element', 'securityScheme');
+      referenceElement.meta.set('referenced-element', 'securityScheme');
     });
 
     return result;

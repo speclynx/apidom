@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { KafkaServerBindingElement } from '../../../../../../src/index.ts';
+import { refractKafkaServerBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('KafkaServerBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const kafkaServerBindingElement = KafkaServerBindingElement.refract({
+        const kafkaServerBindingElement = refractKafkaServerBinding({
           schemaRegistryUrl: 'https://my-schema-registry.com',
           schemaRegistryVendor: 'confluent',
           bindingVersion: '0.3.0',

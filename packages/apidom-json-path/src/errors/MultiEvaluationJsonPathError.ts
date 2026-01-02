@@ -1,4 +1,4 @@
-import { Element } from '@speclynx/apidom-core';
+import { Element } from '@speclynx/apidom-datamodel';
 import { ApiDOMErrorOptions } from '@speclynx/apidom-error';
 
 import JsonPathError from './JsonPathError.ts';

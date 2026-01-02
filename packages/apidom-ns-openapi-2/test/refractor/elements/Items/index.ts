@@ -1,13 +1,14 @@
 import { assert, expect } from 'chai';
-import { includesClasses, sexprs } from '@speclynx/apidom-core';
+import { includesClasses } from '@speclynx/apidom-datamodel';
+import { sexprs } from '@speclynx/apidom-core';
 
-import { ItemsElement } from '../../../../src/index.ts';
+import { refractItems, ItemsElement } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('ItemsElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const itemsElement = ItemsElement.refract({
+        const itemsElement = refractItems({
           type: 'array',
           items: {
             type: 'integer',
@@ -25,16 +26,18 @@ describe('refractor', function () {
       });
 
       specify('should support specification extensions', function () {
-        const itemsElement = ItemsElement.refract({
+        const itemsElement = refractItems({
           type: 'array',
           'x-extension': 'extension',
         }) as ItemsElement;
 
         assert.isFalse(
-          includesClasses(['specification-extension'], itemsElement.getMember('type')),
+          includesClasses(itemsElement.getMember('type') as any, ['specification-extension']),
         );
         assert.isTrue(
-          includesClasses(['specification-extension'], itemsElement.getMember('x-extension')),
+          includesClasses(itemsElement.getMember('x-extension') as any, [
+            'specification-extension',
+          ]),
         );
       });
     });

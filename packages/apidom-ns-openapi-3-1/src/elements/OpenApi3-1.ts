@@ -2,9 +2,9 @@ import {
   ObjectElement,
   ArrayElement,
   StringElement,
-  Attributes,
-  Meta,
-} from '@speclynx/apidom-core';
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import OpenapiElement from './Openapi.ts';
 import InfoElement from './Info.ts';
@@ -24,7 +24,7 @@ class OpenApi3_1 extends ObjectElement {
   }
 
   get openapi(): OpenapiElement | undefined {
-    return this.get('openapi');
+    return this.get('openapi') as OpenapiElement | undefined;
   }
 
   set openapi(openapi: OpenapiElement | undefined) {
@@ -32,7 +32,7 @@ class OpenApi3_1 extends ObjectElement {
   }
 
   get info(): InfoElement | undefined {
-    return this.get('info');
+    return this.get('info') as InfoElement | undefined;
   }
 
   set info(info: InfoElement | undefined) {
@@ -40,7 +40,7 @@ class OpenApi3_1 extends ObjectElement {
   }
 
   get jsonSchemaDialect(): StringElement | undefined {
-    return this.get('jsonSchemaDialect');
+    return this.get('jsonSchemaDialect') as StringElement | undefined;
   }
 
   set jsonSchemaDialect(jsonSchemaDialect: StringElement | undefined) {
@@ -48,7 +48,7 @@ class OpenApi3_1 extends ObjectElement {
   }
 
   get servers(): ArrayElement | undefined {
-    return this.get('servers');
+    return this.get('servers') as ArrayElement | undefined;
   }
 
   set servers(servers: ArrayElement | undefined) {
@@ -56,7 +56,7 @@ class OpenApi3_1 extends ObjectElement {
   }
 
   get paths(): PathsElement | undefined {
-    return this.get('paths');
+    return this.get('paths') as PathsElement | undefined;
   }
 
   set paths(paths: PathsElement | undefined) {
@@ -64,7 +64,7 @@ class OpenApi3_1 extends ObjectElement {
   }
 
   get components(): ComponentsElement | undefined {
-    return this.get('components');
+    return this.get('components') as ComponentsElement | undefined;
   }
 
   set components(components: ComponentsElement | undefined) {
@@ -72,7 +72,7 @@ class OpenApi3_1 extends ObjectElement {
   }
 
   get security(): ArrayElement | undefined {
-    return this.get('security');
+    return this.get('security') as ArrayElement | undefined;
   }
 
   set security(security: ArrayElement | undefined) {
@@ -80,7 +80,7 @@ class OpenApi3_1 extends ObjectElement {
   }
 
   get tags(): ArrayElement | undefined {
-    return this.get('tags');
+    return this.get('tags') as ArrayElement | undefined;
   }
 
   set tags(tags: ArrayElement | undefined) {
@@ -88,7 +88,7 @@ class OpenApi3_1 extends ObjectElement {
   }
 
   get externalDocs(): ExternalDocumentationElement | undefined {
-    return this.get('externalDocs');
+    return this.get('externalDocs') as ExternalDocumentationElement | undefined;
   }
 
   set externalDocs(externalDocs: ExternalDocumentationElement | undefined) {
@@ -96,7 +96,7 @@ class OpenApi3_1 extends ObjectElement {
   }
 
   get webhooks(): ObjectElement | undefined {
-    return this.get('webhooks');
+    return this.get('webhooks') as ObjectElement | undefined;
   }
 
   set webhooks(webhooks: ObjectElement | undefined) {

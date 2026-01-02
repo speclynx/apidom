@@ -1,9 +1,14 @@
 import { expect } from 'chai';
 import dedent from 'dedent';
-import { sexprs, SourceMapElement } from '@speclynx/apidom-core';
+import { SourceMapElement } from '@speclynx/apidom-datamodel';
+import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
-import { refractorPluginReplaceEmptyElement, JSONSchemaElement } from '../../../../src/index.ts';
+import {
+  refractorPluginReplaceEmptyElement,
+  refractJSONSchema,
+  JSONSchemaElement,
+} from '../../../../src/index.ts';
 
 describe('given empty value for field additionalItems', function () {
   it('should replace empty value with semantic element', async function () {
@@ -12,7 +17,7 @@ describe('given empty value for field additionalItems', function () {
           additionalItems:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const jsonSchemaElement = JSONSchemaElement.refract(apiDOM.result, {
+    const jsonSchemaElement = refractJSONSchema(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -27,7 +32,7 @@ describe('given empty value for field patternProperties', function () {
           patternProperties:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const jsonSchemaElement = JSONSchemaElement.refract(apiDOM.result, {
+    const jsonSchemaElement = refractJSONSchema(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -42,7 +47,7 @@ describe('given empty value for field enum', function () {
           enum:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const jsonSchemaElement = JSONSchemaElement.refract(apiDOM.result, {
+    const jsonSchemaElement = refractJSONSchema(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
 
@@ -58,7 +63,7 @@ describe('given empty value for properties field', function () {
             prop1:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const jsonSchemaElement = JSONSchemaElement.refract(apiDOM.result, {
+    const jsonSchemaElement = refractJSONSchema(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as JSONSchemaElement;
 
@@ -74,7 +79,7 @@ describe('given empty value for LinkDescription.targetSchema field', function ()
             - targetSchema:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const jsonSchemaElement = JSONSchemaElement.refract(apiDOM.result, {
+    const jsonSchemaElement = refractJSONSchema(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as JSONSchemaElement;
 
@@ -90,7 +95,7 @@ describe('given empty value for LinkDescription.schema field', function () {
             - schema:
         `;
     const apiDOM = await parse(yamlDefinition);
-    const jsonSchemaElement = JSONSchemaElement.refract(apiDOM.result, {
+    const jsonSchemaElement = refractJSONSchema(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as JSONSchemaElement;
 
@@ -106,7 +111,7 @@ describe('given JSON Schema definition with no empty values', function () {
             prop1: {}
         `;
     const apiDOM = await parse(yamlDefinition);
-    const jsonSchemaElement = JSONSchemaElement.refract(apiDOM.result, {
+    const jsonSchemaElement = refractJSONSchema(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as JSONSchemaElement;
 
@@ -121,16 +126,16 @@ describe('given JSON Schema definition with empty values', function () {
           properties:
         `;
     const apiDOM = await parse(yamlDefinition, { sourceMap: true });
-    const jsonSchemaElement = JSONSchemaElement.refract(apiDOM.result, {
+    const jsonSchemaElement = refractJSONSchema(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as JSONSchemaElement;
     const { properties: propertiesValue } = jsonSchemaElement;
-    const sourceMap = propertiesValue?.meta.get('sourceMap');
+    const sourceMap = propertiesValue?.meta.get('sourceMap') as SourceMapElement;
     const { positionStart, positionEnd } = sourceMap;
     const expectedPosition = [1, 11, 62];
 
     expect(propertiesValue?.meta.get('sourceMap')).to.be.an.instanceof(SourceMapElement);
-    expect(positionStart.equals(expectedPosition)).to.be.true;
-    expect(positionEnd.equals(expectedPosition)).to.be.true;
+    expect(positionStart!.equals(expectedPosition)).to.be.true;
+    expect(positionEnd!.equals(expectedPosition)).to.be.true;
   });
 });

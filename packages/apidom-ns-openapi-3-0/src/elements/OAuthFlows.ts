@@ -1,4 +1,4 @@
-import { ObjectElement, Attributes, Meta } from '@speclynx/apidom-core';
+import { ObjectElement, type Attributes, type Meta } from '@speclynx/apidom-datamodel';
 
 import OAuthFlowElement from './OAuthFlow.ts';
 
@@ -12,7 +12,7 @@ class OAuthFlows extends ObjectElement {
   }
 
   get implicit(): OAuthFlowElement | undefined {
-    return this.get('implicit');
+    return this.get('implicit') as OAuthFlowElement | undefined;
   }
 
   set implicit(implicit: OAuthFlowElement | undefined) {
@@ -20,7 +20,7 @@ class OAuthFlows extends ObjectElement {
   }
 
   get password(): OAuthFlowElement | undefined {
-    return this.get('password');
+    return this.get('password') as OAuthFlowElement | undefined;
   }
 
   set password(password: OAuthFlowElement | undefined) {
@@ -28,7 +28,7 @@ class OAuthFlows extends ObjectElement {
   }
 
   get clientCredentials(): OAuthFlowElement | undefined {
-    return this.get('clientCredentials');
+    return this.get('clientCredentials') as OAuthFlowElement | undefined;
   }
 
   set clientCredentials(clientCredentials: OAuthFlowElement | undefined) {
@@ -36,7 +36,7 @@ class OAuthFlows extends ObjectElement {
   }
 
   get authorizationCode(): OAuthFlowElement | undefined {
-    return this.get('authorizationCode');
+    return this.get('authorizationCode') as OAuthFlowElement | undefined;
   }
 
   set authorizationCode(authorizationCode: OAuthFlowElement | undefined) {

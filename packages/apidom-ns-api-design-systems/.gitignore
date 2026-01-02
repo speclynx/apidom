@@ -1,7 +1,0 @@
-/src/**/*.mjs
-/src/**/*.cjs
-/test/**/*.mjs
-/dist
-/types
-/NOTICE
-/speclynx-apidom-ns-api-design-systems-*.tgz

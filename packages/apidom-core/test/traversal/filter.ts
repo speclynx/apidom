@@ -1,15 +1,9 @@
 import { assert } from 'chai';
+import { Namespace, isMemberElement, isElement, ObjectElement } from '@speclynx/apidom-datamodel';
 
-import {
-  filter,
-  createNamespace,
-  isMemberElement,
-  isElement,
-  ArraySlice,
-  ObjectElement,
-} from '../../src/index.ts';
+import { filter } from '../../src/index.ts';
 
-const namespace = createNamespace();
+const namespace = new Namespace();
 
 describe('traversal', function () {
   context('filter', function () {
@@ -17,10 +11,10 @@ describe('traversal', function () {
       // @ts-ignore
       const objElement: ObjectElement = new namespace.elements.Object({ a: 'b', c: 'd' });
 
-      specify('should return ArraySlice instance', function () {
+      specify('should return Array instance', function () {
         const filtered = filter(isMemberElement, objElement);
 
-        assert.instanceOf(filtered, ArraySlice);
+        assert.isArray(filtered);
       });
 
       specify('should find content matching the predicate', function () {
@@ -29,9 +23,9 @@ describe('traversal', function () {
         const filtered = filter(predicate, objElement);
 
         assert.lengthOf(filtered, 1);
-        assert.isTrue(isMemberElement(filtered.get(0)));
+        assert.isTrue(isMemberElement(filtered[0]));
         // @ts-ignore
-        assert.isTrue(filtered.get(0).value.equals('b'));
+        assert.isTrue(filtered[0].value.equals('b'));
       });
     });
   });

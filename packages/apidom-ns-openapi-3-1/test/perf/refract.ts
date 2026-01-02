@@ -1,8 +1,8 @@
 import Benchmark from 'benchmark';
 import type { Event } from 'benchmark';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
-import { OpenApi3_1Element } from '../../src/index.ts';
+import { refractOpenApi3_1 } from '../../src/index.ts';
 
 const genericObjectElement = new ObjectElement({
   openapi: '3.1.0',
@@ -414,7 +414,7 @@ const options = {
   minSamples: 400,
   expected: '56.33 ops/sec ±0.68% (1453 runs sampled)',
   fn() {
-    OpenApi3_1Element.refract(genericObjectElement);
+    refractOpenApi3_1(genericObjectElement);
   },
 };
 

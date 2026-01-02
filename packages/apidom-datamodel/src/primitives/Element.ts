@@ -1,6 +1,6 @@
 import { equals } from 'ramda';
 
-import type { Meta, Attributes, Cloneable, ToValue, Equatable, Freezable } from '../types.ts';
+import type { Meta, Attributes, ToValue, Equatable, Freezable } from '../types.ts';
 import type ObjectElement from './ObjectElement.ts';
 import type ArrayElement from './ArrayElement.ts';
 import KeyValuePair from '../KeyValuePair.ts';
@@ -33,7 +33,7 @@ export type ElementContent =
  *
  * @public
  */
-class Element implements Cloneable<Element>, ToValue, Equatable, Freezable {
+class Element implements ToValue, Equatable, Freezable {
   /**
    * The element type identifier.
    * @internal
@@ -232,38 +232,20 @@ class Element implements Cloneable<Element>, ToValue, Equatable, Freezable {
   }
 
   /** CSS-like class names. */
-  get classes(): Element {
-    return this.getMetaProperty('classes', []);
+  get classes(): ArrayElement {
+    return this.getMetaProperty('classes', []) as ArrayElement;
   }
 
-  set classes(value: Element | unknown[]) {
+  set classes(value: ArrayElement | unknown[]) {
     this.setMetaProperty('classes', value);
   }
 
-  /** Human-readable title. */
-  get title(): Element {
-    return this.getMetaProperty('title', '');
-  }
-
-  set title(value: Element | string) {
-    this.setMetaProperty('title', value);
-  }
-
-  /** Human-readable description. */
-  get description(): Element {
-    return this.getMetaProperty('description', '');
-  }
-
-  set description(value: Element | string) {
-    this.setMetaProperty('description', value);
-  }
-
   /** Hyperlinks associated with this element. */
-  get links(): Element {
-    return this.getMetaProperty('links', []);
+  get links(): ArrayElement {
+    return this.getMetaProperty('links', []) as ArrayElement;
   }
 
-  set links(value: Element | unknown[]) {
+  set links(value: ArrayElement | unknown[]) {
     this.setMetaProperty('links', value);
   }
 
@@ -332,43 +314,6 @@ class Element implements Cloneable<Element>, ToValue, Equatable, Freezable {
     }
 
     Object.freeze(this);
-  }
-
-  // ============================================================
-  // Cloneable Implementation
-  // ============================================================
-
-  /**
-   * Creates a deep clone of this element.
-   */
-  clone(): Element {
-    const Ctor = this.constructor as new () => this;
-    const copy = new Ctor();
-
-    copy.element = this.element;
-
-    if (this._meta) {
-      copy._meta = this._meta.clone();
-    }
-
-    if (this._attributes) {
-      copy._attributes = this._attributes.clone();
-    }
-
-    // Clone content based on its type
-    const { _content } = this;
-    if (_content instanceof Element) {
-      copy._content = _content.clone();
-    } else if (_content instanceof KeyValuePair) {
-      copy._content = _content.clone();
-    } else if (Array.isArray(_content)) {
-      copy._content = _content.map((el) => el.clone());
-    } else {
-      // Primitives are immutable, assign as-is
-      copy._content = _content;
-    }
-
-    return copy;
   }
 
   // ============================================================

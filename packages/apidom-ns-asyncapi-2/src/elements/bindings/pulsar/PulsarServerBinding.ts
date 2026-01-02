@@ -1,4 +1,9 @@
-import { ObjectElement, StringElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  ObjectElement,
+  StringElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -11,7 +16,7 @@ class PulsarServerBinding extends ObjectElement {
   }
 
   get tenant(): StringElement | undefined {
-    return this.get('tenant');
+    return this.get('tenant') as StringElement | undefined;
   }
 
   set tenant(tenant: StringElement | undefined) {
@@ -19,7 +24,7 @@ class PulsarServerBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

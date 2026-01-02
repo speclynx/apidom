@@ -1,22 +1,21 @@
-import { Mixin } from 'ts-mixer';
-import { ObjectElement } from '@speclynx/apidom-core';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import ComponentsCorrelationIDsElement from '../../../../elements/nces/ComponentsCorrelationIDs.ts';
-import MapVisitor, { MapVisitorOptions, SpecPath } from '../../generics/MapVisitor.ts';
-import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
+import { SpecPath } from '../../generics/MapVisitor.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
 import { isReferenceElement } from '../../../../predicates.ts';
+import { BaseMapVisitor, BaseMapVisitorOptions } from '../bases.ts';
 
 /**
  * @public
  */
-export interface CorrelationIdsVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+export type CorrelationIdsVisitorOptions = BaseMapVisitorOptions;
 
 /**
  * @public
  */
-class CorrelationIdsVisitor extends Mixin(MapVisitor, FallbackVisitor) {
+class CorrelationIdsVisitor extends BaseMapVisitor {
   declare public readonly element: ComponentsCorrelationIDsElement;
 
   declare protected readonly specPath: SpecPath<
@@ -33,11 +32,11 @@ class CorrelationIdsVisitor extends Mixin(MapVisitor, FallbackVisitor) {
   }
 
   ObjectElement(objectElement: ObjectElement) {
-    const result = MapVisitor.prototype.ObjectElement.call(this, objectElement);
+    const result = BaseMapVisitor.prototype.ObjectElement.call(this, objectElement);
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
-      referenceElement.setMetaProperty('referenced-element', 'correlationID');
+      referenceElement.meta.set('referenced-element', 'correlationID');
     });
 
     return result;

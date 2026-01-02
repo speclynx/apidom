@@ -1,32 +1,22 @@
-import { createNamespace, isStringElement, Namespace } from '@speclynx/apidom-core';
+import { Namespace, isStringElement } from '@speclynx/apidom-datamodel';
 
 import * as arazzo1Predicates from '../predicates.ts';
 import * as refractorPredicates from './predicates.ts';
-import workflowsNamespace from '../namespace.ts';
-
-/**
- * @public
- */
-export type Predicates = typeof arazzo1Predicates &
-  typeof refractorPredicates & {
-    isStringElement: typeof isStringElement;
-  };
+import arazzo1Namespace from '../namespace.ts';
 
 /**
  * @public
  */
 export interface Toolbox {
-  predicates: Predicates;
+  predicates: Record<string, (...args: any[]) => boolean>;
   namespace: Namespace;
 }
 
-const createToolbox = () => {
-  const namespace = createNamespace(workflowsNamespace);
-  const predicates = {
-    ...refractorPredicates,
-    ...arazzo1Predicates,
-    isStringElement,
-  };
+const createToolbox = (): Toolbox => {
+  const namespace = new Namespace();
+  const predicates = { ...refractorPredicates, ...arazzo1Predicates, isStringElement };
+
+  namespace.use(arazzo1Namespace);
 
   return { predicates, namespace };
 };

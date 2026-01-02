@@ -1,15 +1,15 @@
 import { assert, expect } from 'chai';
 import sinon from 'sinon';
-import { Namespace } from 'minim';
+import { Namespace, ObjectElement, isObjectElement } from '@speclynx/apidom-datamodel';
+import * as predicates from '@speclynx/apidom-datamodel';
 
-import * as predicates from '../../src/predicates/index.ts';
-import { ObjectElement, isObjectElement, toValue } from '../../src/index.ts';
+import { toValue, dispatchRefractorPlugins, from } from '../../src/index.ts';
 
 describe('refractor', function () {
   context('given POJO in object literal shape', function () {
     specify('should refract to Object Element', function () {
       const pojo = { a: 'b' };
-      const objectElement = ObjectElement.refract(pojo);
+      const objectElement = from(pojo);
 
       expect(objectElement).toMatchSnapshot();
     });
@@ -27,7 +27,7 @@ describe('refractor', function () {
         pre() {},
         visitor: {
           ObjectElement(element: ObjectElement) {
-            element.getMember('a').value = 'c';
+            element.getMember('a')!.value = 'c';
           },
         },
         post() {},
@@ -56,34 +56,22 @@ describe('refractor', function () {
 
     context('plugin', function () {
       specify('should be called with toolbox object', function () {
-        ObjectElement.refract(
-          { a: 'b' },
-          {
-            plugins: [plugin1],
-          },
-        );
+        const objectElement = new ObjectElement({ a: 'b' });
+        dispatchRefractorPlugins(objectElement, [plugin1]);
 
         assert.hasAllKeys(plugin1.firstCall.args[0], ['predicates', 'namespace']);
       });
 
       specify('should have predicates in toolbox object', function () {
-        ObjectElement.refract(
-          { a: 'b' },
-          {
-            plugins: [plugin1],
-          },
-        );
+        const objectElement = new ObjectElement({ a: 'b' });
+        dispatchRefractorPlugins(objectElement, [plugin1]);
 
         assert.hasAnyKeys(plugin1.firstCall.args[0].predicates, Object.keys(predicates));
       });
 
       specify('should have namespace in toolbox object', function () {
-        ObjectElement.refract(
-          { a: 'b' },
-          {
-            plugins: [plugin1],
-          },
-        );
+        const objectElement = new ObjectElement({ a: 'b' });
+        dispatchRefractorPlugins(objectElement, [plugin1]);
 
         assert.instanceOf(plugin1.firstCall.args[0].namespace, Namespace);
       });
@@ -91,34 +79,22 @@ describe('refractor', function () {
 
     context('pre hook', function () {
       specify('should call it once', function () {
-        ObjectElement.refract(
-          { a: 'b' },
-          {
-            plugins: [plugin1],
-          },
-        );
+        const objectElement = new ObjectElement({ a: 'b' });
+        dispatchRefractorPlugins(objectElement, [plugin1]);
 
         assert.isTrue(plugin1Spec.pre.calledOnce);
       });
 
       specify('should call it before other plugin pre hook', function () {
-        ObjectElement.refract(
-          { a: 'b' },
-          {
-            plugins: [plugin1, plugin2],
-          },
-        );
+        const objectElement = new ObjectElement({ a: 'b' });
+        dispatchRefractorPlugins(objectElement, [plugin1, plugin2]);
 
         assert.isTrue(plugin1Spec.pre.calledBefore(plugin2Spec.pre));
       });
 
       specify('should call it before visiting', function () {
-        ObjectElement.refract(
-          { a: 'b' },
-          {
-            plugins: [plugin1, plugin2],
-          },
-        );
+        const objectElement = new ObjectElement({ a: 'b' });
+        dispatchRefractorPlugins(objectElement, [plugin1, plugin2]);
 
         assert.isTrue(plugin1Spec.pre.calledBefore(plugin1Spec.visitor.ObjectElement));
         assert.isTrue(plugin1Spec.pre.calledBefore(plugin2Spec.visitor.ObjectElement));
@@ -127,34 +103,22 @@ describe('refractor', function () {
 
     context('post hook', function () {
       specify('should call it once', function () {
-        ObjectElement.refract(
-          { a: 'b' },
-          {
-            plugins: [plugin1],
-          },
-        );
+        const objectElement = new ObjectElement({ a: 'b' });
+        dispatchRefractorPlugins(objectElement, [plugin1]);
 
         assert.isTrue(plugin1Spec.post.calledOnce);
       });
 
       specify('should call it before other plugin post hook', function () {
-        ObjectElement.refract(
-          { a: 'b' },
-          {
-            plugins: [plugin1, plugin2],
-          },
-        );
+        const objectElement = new ObjectElement({ a: 'b' });
+        dispatchRefractorPlugins(objectElement, [plugin1, plugin2]);
 
         assert.isTrue(plugin1Spec.post.calledBefore(plugin2Spec.post));
       });
 
       specify('should call it after visiting', function () {
-        ObjectElement.refract(
-          { a: 'b' },
-          {
-            plugins: [plugin1, plugin2],
-          },
-        );
+        const objectElement = new ObjectElement({ a: 'b' });
+        dispatchRefractorPlugins(objectElement, [plugin1, plugin2]);
 
         assert.isTrue(plugin1Spec.post.calledAfter(plugin1Spec.visitor.ObjectElement));
         assert.isTrue(plugin1Spec.post.calledAfter(plugin2Spec.visitor.ObjectElement));
@@ -163,24 +127,16 @@ describe('refractor', function () {
 
     context('visitor', function () {
       specify('should be called once', function () {
-        ObjectElement.refract(
-          { a: 'b' },
-          {
-            plugins: [plugin1, plugin2],
-          },
-        );
+        const objectElement = new ObjectElement({ a: 'b' });
+        dispatchRefractorPlugins(objectElement, [plugin1, plugin2]);
 
         assert.isTrue(plugin1Spec.visitor.ObjectElement.calledOnce);
         assert.isTrue(plugin2Spec.visitor.ObjectElement.calledOnce);
       });
 
       specify('should be called in proper order', function () {
-        ObjectElement.refract(
-          { a: 'b' },
-          {
-            plugins: [plugin1, plugin2],
-          },
-        );
+        const objectElement = new ObjectElement({ a: 'b' });
+        dispatchRefractorPlugins(objectElement, [plugin1, plugin2]);
 
         assert.isTrue(
           plugin1Spec.visitor.ObjectElement.calledBefore(plugin2Spec.visitor.ObjectElement),
@@ -189,71 +145,47 @@ describe('refractor', function () {
 
       context('first plugin', function () {
         specify('should receive arguments', function () {
-          ObjectElement.refract(
-            { a: 'b' },
-            {
-              plugins: [plugin1],
-            },
-          );
+          const objectElement = new ObjectElement({ a: 'b' });
+          dispatchRefractorPlugins(objectElement, [plugin1]);
 
           assert.lengthOf(plugin1Spec.visitor.ObjectElement.firstCall.args, 6);
         });
 
         specify('should receive node as first argument', function () {
-          ObjectElement.refract(
-            { a: 'b' },
-            {
-              plugins: [plugin1],
-            },
-          );
+          const objectElement = new ObjectElement({ a: 'b' });
+          dispatchRefractorPlugins(objectElement, [plugin1]);
 
           assert.isTrue(isObjectElement(plugin1Spec.visitor.ObjectElement.firstCall.args[0]));
         });
 
         specify('should augment object element data', function () {
-          const objectElement = ObjectElement.refract(
-            { a: 'b' },
-            {
-              plugins: [plugin1],
-            },
-          );
+          const objectElement = new ObjectElement({ a: 'b' });
+          const result = dispatchRefractorPlugins(objectElement, [plugin1]);
 
-          assert.deepEqual(toValue(objectElement), { a: 'c' });
+          assert.deepEqual(toValue(result), { a: 'c' });
         });
       });
 
       context('second plugin', function () {
         specify('should receive arguments', function () {
-          ObjectElement.refract(
-            { a: 'b' },
-            {
-              plugins: [plugin1, plugin2],
-            },
-          );
+          const objectElement = new ObjectElement({ a: 'b' });
+          dispatchRefractorPlugins(objectElement, [plugin1, plugin2]);
 
           assert.lengthOf(plugin2Spec.visitor.ObjectElement.firstCall.args, 6);
         });
 
         specify('should receive node as first argument', function () {
-          ObjectElement.refract(
-            { a: 'b' },
-            {
-              plugins: [plugin1, plugin2],
-            },
-          );
+          const objectElement = new ObjectElement({ a: 'b' });
+          dispatchRefractorPlugins(objectElement, [plugin1, plugin2]);
 
           assert.isTrue(isObjectElement(plugin2Spec.visitor.ObjectElement.firstCall.args[0]));
         });
 
         specify('should append metadata', function () {
-          const objectElement = ObjectElement.refract(
-            { a: 'b' },
-            {
-              plugins: [plugin1, plugin2],
-            },
-          );
+          const objectElement = new ObjectElement({ a: 'b' });
+          const result = dispatchRefractorPlugins(objectElement, [plugin1, plugin2]);
 
-          assert.strictEqual(toValue(objectElement.meta.get('metaKey')), 'metaValue');
+          assert.strictEqual(toValue(result.meta.get('metaKey')), 'metaValue');
         });
       });
     });

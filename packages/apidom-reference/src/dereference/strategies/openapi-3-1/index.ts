@@ -1,5 +1,6 @@
 import { propEq } from 'ramda';
-import { createNamespace, visit, Element, cloneDeep } from '@speclynx/apidom-core';
+import { Element, Namespace } from '@speclynx/apidom-datamodel';
+import { visit, cloneDeep } from '@speclynx/apidom-core';
 import openApi3_1Namespace, {
   getNodeType,
   isOpenApi3_1Element,
@@ -71,7 +72,7 @@ class OpenAPI3_1DereferenceStrategy extends DereferenceStrategy {
   }
 
   async dereference(file: File, options: ReferenceOptions): Promise<Element> {
-    const namespace = createNamespace(openApi3_1Namespace);
+    const namespace = new Namespace().use(openApi3_1Namespace);
     const immutableRefSet = options.dereference.refSet ?? new ReferenceSet();
     const mutableRefSet = new ReferenceSet();
     let refSet = immutableRefSet;

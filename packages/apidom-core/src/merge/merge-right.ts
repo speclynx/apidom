@@ -1,4 +1,4 @@
-import { ObjectElement } from 'minim';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
 import deepmerge, { defaultOptions as defaultDeepmergeOptions, emptyElement } from './deepmerge.ts';
 import type { ObjectOrArrayElement, DeepMergeUserOptions, AnyElement } from './deepmerge.ts';

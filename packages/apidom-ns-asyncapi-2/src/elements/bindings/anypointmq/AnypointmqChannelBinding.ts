@@ -1,4 +1,9 @@
-import { ObjectElement, StringElement, Attributes, Meta } from '@speclynx/apidom-core';
+import {
+  ObjectElement,
+  StringElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -11,7 +16,7 @@ class AnypointmqChannelBinding extends ObjectElement {
   }
 
   get destination(): StringElement | undefined {
-    return this.get('destination');
+    return this.get('destination') as StringElement | undefined;
   }
 
   set destination(destination: StringElement | undefined) {
@@ -19,7 +24,7 @@ class AnypointmqChannelBinding extends ObjectElement {
   }
 
   get destinationType(): StringElement | undefined {
-    return this.get('destinationType');
+    return this.get('destinationType') as StringElement | undefined;
   }
 
   set destinationType(destinationType: StringElement | undefined) {
@@ -27,7 +32,7 @@ class AnypointmqChannelBinding extends ObjectElement {
   }
 
   get bindingVersion(): StringElement | undefined {
-    return this.get('bindingVersion');
+    return this.get('bindingVersion') as StringElement | undefined;
   }
 
   set bindingVersion(bindingVersion: StringElement | undefined) {

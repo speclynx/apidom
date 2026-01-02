@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { HttpOperationBindingElement } from '../../../../../../src/index.ts';
+import { refractHttpOperationBinding } from '../../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
     context('HttpOperationBindingElement', function () {
       specify('should refract to semantic ApiDOM tree', function () {
-        const httpOperationBindingElement = HttpOperationBindingElement.refract({
+        const httpOperationBindingElement = refractHttpOperationBinding({
           type: 'request',
           method: 'GET',
           query: {},
@@ -19,7 +19,7 @@ describe('refractor', function () {
 
       context('given query field of type ReferenceElement', function () {
         specify('should refract to semantic ApiDOM tree', function () {
-          const httpOperationBindingElement = HttpOperationBindingElement.refract({
+          const httpOperationBindingElement = refractHttpOperationBinding({
             type: 'request',
             method: 'GET',
             query: {

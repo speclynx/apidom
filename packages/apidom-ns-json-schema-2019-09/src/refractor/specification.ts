@@ -17,6 +17,7 @@ import JSONSchemaLinkDescriptionVisitor from './visitors/json-schema/link-descri
 
 const specification = pipe(
   // JSON Schema object modifications
+  assocPath(['visitors', 'document', 'objects', 'JSONSchema', 'element'], 'jSONSchema201909'),
   assocPath(['visitors', 'document', 'objects', 'JSONSchema', '$visitor'], JSONSchemaVisitor),
   assocPath(
     ['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', '$vocabulary'],
@@ -77,10 +78,10 @@ const specification = pipe(
     ['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', 'dependentSchemas'],
     JSONSchemaDependentSchemasVisitor,
   ),
-  assocPath(
-    ['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', 'items'],
-    JSONSchemaItemsVisitor,
-  ),
+  assocPath(['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', 'items'], {
+    $visitor: JSONSchemaItemsVisitor,
+    alias: 'itemsField',
+  }),
   assocPath(
     ['visitors', 'document', 'objects', 'JSONSchema', 'fixedFields', 'contains'],
     JSONSchemaVisitor,
@@ -134,6 +135,7 @@ const specification = pipe(
     JSONSchemaVisitor,
   ),
   // Link Description object modifications
+  assocPath(['visitors', 'document', 'objects', 'LinkDescription', 'element'], 'linkDescription'),
   assocPath(
     ['visitors', 'document', 'objects', 'LinkDescription', '$visitor'],
     JSONSchemaLinkDescriptionVisitor,
