@@ -609,9 +609,6 @@ class OpenAPI3_0DereferenceVisitor {
      */
     path.replaceWith(exampleElementCopy);
   }
-
-  // Index signature for Visitor compatibility
-  [key: string]: unknown;
 }
 
 export default OpenAPI3_0DereferenceVisitor;

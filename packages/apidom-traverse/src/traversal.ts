@@ -10,7 +10,6 @@ import { isPromise } from 'ramda-adjunct';
 import { Path } from './Path.ts';
 import type { VisitorFn, VisitorResult } from './Path.ts';
 import { getNodeType, isNode, cloneNode, mutateNode, getVisitFn, getNodeKeys } from './visitors.ts';
-import type { Visitor } from './visitors.ts';
 
 /**
  * Options for the traverse function.
@@ -79,7 +78,7 @@ interface TraversalState<TNode> {
 
 function* traverseGenerator<TNode>(
   root: TNode,
-  visitor: Visitor<TNode>,
+  visitor: object,
   options: Required<TraverseOptions<TNode>>,
 ): Generator<VisitorCall<TNode>, TNode, VisitorResult<TNode>> {
   const {
@@ -175,7 +174,7 @@ function* traverseGenerator<TNode>(
       // Always create Path for the current node (needed for parentPath chain)
       currentPath = new Path<TNode>(node, parent, parentPath, key, inArray);
 
-      const visitFn = getVisitFn(visitor, nodeTypeGetter(node), isLeaving);
+      const visitFn = getVisitFn<TNode>(visitor, nodeTypeGetter(node), isLeaving);
 
       if (visitFn) {
         // Assign state to visitor
@@ -310,7 +309,7 @@ function* traverseGenerator<TNode>(
  */
 export const traverse = <TNode>(
   root: TNode,
-  visitor: Visitor<TNode>,
+  visitor: object,
   options: TraverseOptions<TNode> = {},
 ): TNode => {
   const resolvedOptions: Required<TraverseOptions<TNode>> = {
@@ -350,7 +349,7 @@ export const traverse = <TNode>(
  */
 export const traverseAsync = async <TNode>(
   root: TNode,
-  visitor: Visitor<TNode>,
+  visitor: object,
   options: TraverseOptions<TNode> = {},
 ): Promise<TNode> => {
   const resolvedOptions: Required<TraverseOptions<TNode>> = {

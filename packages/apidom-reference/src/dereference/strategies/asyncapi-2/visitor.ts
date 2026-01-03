@@ -490,9 +490,6 @@ class AsyncAPI2DereferenceVisitor {
      */
     path.replaceWith(referencedElement);
   }
-
-  // Index signature for Visitor compatibility
-  [key: string]: unknown;
 }
 
 export default AsyncAPI2DereferenceVisitor;

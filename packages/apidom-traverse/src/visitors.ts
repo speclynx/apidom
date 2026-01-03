@@ -10,7 +10,7 @@ import {
 import { isPromise } from 'ramda-adjunct';
 
 import { Path } from './Path.ts';
-import type { VisitorFn } from './Path.ts';
+import type { VisitorFn, VisitorResult } from './Path.ts';
 
 /**
  * Enter/leave visitor structure for a specific node type.
@@ -20,23 +20,6 @@ export interface NodeVisitor<TNode, TVisitor = unknown> {
   enter?: VisitorFn<TNode, TVisitor>;
   leave?: VisitorFn<TNode, TVisitor>;
 }
-
-/**
- * Visitor object structure.
- * Visitors can have:
- * - `enter`/`leave` for generic callbacks
- * - Type-specific methods like `StringElement(path) {}`
- * - Type-specific enter/leave like `StringElement: { enter, leave }`
- * - Any other properties (for class-based visitors)
- *
- * Note: Class-based visitors must add `[key: string]: unknown;` index signature.
- * @public
- */
-export type Visitor<TNode> = {
-  enter?: VisitorFn<TNode> | Record<string, VisitorFn<TNode>>;
-  leave?: VisitorFn<TNode> | Record<string, VisitorFn<TNode>>;
-  [key: string]: unknown;
-};
 
 // =============================================================================
 // Default implementations for ApiDOM
@@ -154,7 +137,7 @@ const lookup = (record: Record<string, unknown>, type: string): unknown => {
  * @public
  */
 export const getVisitFn = <TNode>(
-  visitor: Visitor<TNode>,
+  visitor: object,
   type: string | undefined,
   isLeaving: boolean,
 ): VisitorFn<TNode> | null => {
@@ -237,7 +220,7 @@ export interface MergedVisitorAsync<TNode> {
  * @public
  */
 export const mergeVisitors = <TNode>(
-  visitors: Visitor<TNode>[],
+  visitors: object[],
   options: MergeVisitorsOptions<TNode> = {},
 ): MergedVisitor<TNode> => {
   const {
@@ -253,13 +236,13 @@ export const mergeVisitors = <TNode>(
   const skipping: (symbol | TNode)[] = new Array(visitors.length).fill(internalSkipSymbol);
 
   return {
-    enter(path: Path<TNode>) {
+    enter(path: Path<TNode>): VisitorResult<TNode> {
       let currentNode = path.node;
       let hasChanged = false;
 
       for (let i = 0; i < visitors.length; i += 1) {
         if (skipping[i] === internalSkipSymbol) {
-          const visitFn = visitFnGetter(visitors[i], nodeTypeGetter(currentNode), false);
+          const visitFn = visitFnGetter<TNode>(visitors[i], nodeTypeGetter(currentNode), false);
 
           if (typeof visitFn === 'function') {
             // Create a proxy path that tracks changes per-visitor
@@ -320,12 +303,12 @@ export const mergeVisitors = <TNode>(
       return undefined;
     },
 
-    leave(path: Path<TNode>) {
+    leave(path: Path<TNode>): VisitorResult<TNode> {
       const currentNode = path.node;
 
       for (let i = 0; i < visitors.length; i += 1) {
         if (skipping[i] === internalSkipSymbol) {
-          const visitFn = visitFnGetter(visitors[i], nodeTypeGetter(currentNode), true);
+          const visitFn = visitFnGetter<TNode>(visitors[i], nodeTypeGetter(currentNode), true);
 
           if (typeof visitFn === 'function') {
             // Create a proxy path for leave phase
@@ -376,7 +359,7 @@ export const mergeVisitors = <TNode>(
  * @public
  */
 export const mergeVisitorsAsync = <TNode>(
-  visitors: Visitor<TNode>[],
+  visitors: object[],
   options: MergeVisitorsOptions<TNode> = {},
 ): MergedVisitorAsync<TNode> => {
   const {
@@ -390,13 +373,13 @@ export const mergeVisitorsAsync = <TNode>(
   const skipping: (symbol | TNode)[] = new Array(visitors.length).fill(internalSkipSymbol);
 
   return {
-    async enter(path: Path<TNode>) {
+    async enter(path: Path<TNode>): Promise<void | TNode | undefined> {
       let currentNode = path.node;
       let hasChanged = false;
 
       for (let i = 0; i < visitors.length; i += 1) {
         if (skipping[i] === internalSkipSymbol) {
-          const visitFn = visitFnGetter(visitors[i], nodeTypeGetter(currentNode), false);
+          const visitFn = visitFnGetter<TNode>(visitors[i], nodeTypeGetter(currentNode), false);
 
           if (typeof visitFn === 'function') {
             const proxyPath = createPathProxy(path, currentNode);
@@ -446,12 +429,12 @@ export const mergeVisitorsAsync = <TNode>(
       return undefined;
     },
 
-    async leave(path: Path<TNode>) {
+    async leave(path: Path<TNode>): Promise<void | TNode | undefined> {
       const currentNode = path.node;
 
       for (let i = 0; i < visitors.length; i += 1) {
         if (skipping[i] === internalSkipSymbol) {
-          const visitFn = visitFnGetter(visitors[i], nodeTypeGetter(currentNode), true);
+          const visitFn = visitFnGetter<TNode>(visitors[i], nodeTypeGetter(currentNode), true);
 
           if (typeof visitFn === 'function') {
             const proxyPath = createPathProxy(path, currentNode);

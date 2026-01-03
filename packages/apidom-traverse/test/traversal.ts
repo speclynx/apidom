@@ -8,7 +8,7 @@ import {
   MemberElement,
 } from '@speclynx/apidom-datamodel';
 
-import { traverse, traverseAsync, Path, Visitor } from '../src/index.ts';
+import { traverse, traverseAsync, Path } from '../src/index.ts';
 
 describe('traverse', function () {
   context('basic traversal', function () {
@@ -261,7 +261,7 @@ describe('traverse', function () {
       const root = new StringElement('test');
       let capturedState: unknown;
 
-      const visitor: Visitor<Element> = {
+      const visitor = {
         StringElement() {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           capturedState = (this as any).count;

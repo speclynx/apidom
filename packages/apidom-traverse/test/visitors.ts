@@ -15,7 +15,6 @@ import {
   cloneNode,
   mutateNode,
   getVisitFn,
-  Visitor,
 } from '../src/index.ts';
 
 describe('visitors', function () {
@@ -254,7 +253,7 @@ describe('visitors', function () {
       specify('should return type-specific function in enter', function () {
         const fn = () => {};
         // Pattern 4 uses { enter: { Type: fn } } format
-        const visitor = { enter: { StringElement: fn } } as unknown as Visitor<Element>;
+        const visitor = { enter: { StringElement: fn } };
 
         assert.strictEqual(getVisitFn(visitor, 'StringElement', false), fn);
       });
@@ -262,7 +261,7 @@ describe('visitors', function () {
       specify('should return type-specific function in leave', function () {
         const fn = () => {};
         // Pattern 4 uses { leave: { Type: fn } } format
-        const visitor = { leave: { StringElement: fn } } as unknown as Visitor<Element>;
+        const visitor = { leave: { StringElement: fn } };
 
         assert.strictEqual(getVisitFn(visitor, 'StringElement', true), fn);
       });
