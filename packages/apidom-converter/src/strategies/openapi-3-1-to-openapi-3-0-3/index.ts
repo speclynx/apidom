@@ -8,8 +8,8 @@ import {
   getNodeType,
   isOpenApi3_1Element,
 } from '@speclynx/apidom-ns-openapi-3-1';
-import { ParseResultElement, AnnotationElement } from '@speclynx/apidom-datamodel';
-import { cloneDeep, dispatchRefractorPlugins as dispatchPlugins } from '@speclynx/apidom-core';
+import { ParseResultElement, AnnotationElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import { dispatchRefractorPlugins as dispatchPlugins } from '@speclynx/apidom-core';
 import { File } from '@speclynx/apidom-reference';
 
 import ConvertStrategy from '../ConvertStrategy.ts';

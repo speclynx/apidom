@@ -1,6 +1,7 @@
 import { pathSatisfies, path, pick } from 'ramda';
 import { isFunction } from 'ramda-adjunct';
-import { visit, cloneDeep } from '@speclynx/apidom-core';
+import { cloneDeep } from '@speclynx/apidom-datamodel';
+import { visit } from '@speclynx/apidom-core';
 
 import Visitor, { VisitorOptions } from './Visitor.ts';
 import FallbackVisitor from './FallbackVisitor.ts';

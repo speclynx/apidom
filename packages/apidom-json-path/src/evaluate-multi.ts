@@ -1,7 +1,7 @@
 import { JSONPath } from 'jsonpath-plus';
 import { evaluate as jsonPointerEvaluate } from '@speclynx/apidom-json-pointer';
-import { Element } from '@speclynx/apidom-datamodel';
-import { toValue, cloneDeep } from '@speclynx/apidom-core';
+import { Element, cloneDeep } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 import MultiEvaluationJsonPathError from './errors/MultiEvaluationJsonPathError.ts';
 

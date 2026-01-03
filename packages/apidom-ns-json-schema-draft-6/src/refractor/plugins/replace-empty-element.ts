@@ -7,8 +7,9 @@ import {
   isMemberElement,
   isStringElement,
   includesClasses,
+  cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { cloneDeep, toValue } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
 import { MediaElement } from '@speclynx/apidom-ns-json-schema-draft-4';
 
 import JSONSchemaElement from '../../elements/JSONSchema.ts';

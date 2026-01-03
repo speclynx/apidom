@@ -3,26 +3,19 @@ import { isUndefined } from 'ramda-adjunct';
 import {
   isPrimitiveElement,
   isStringElement,
-  isMemberElement,
   isElement,
   Element,
   RefElement,
   Namespace,
   ParseResultElement,
-} from '@speclynx/apidom-datamodel';
-import {
-  IdentityManager,
-  visit,
-  find,
   cloneShallow,
   cloneDeep,
-  toValue,
-} from '@speclynx/apidom-core';
+} from '@speclynx/apidom-datamodel';
+import { IdentityManager, find, toValue } from '@speclynx/apidom-core';
 import { ApiDOMError } from '@speclynx/apidom-error';
+import { traverseAsync, Path } from '@speclynx/apidom-traverse';
 import { evaluate, URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
 import {
-  getNodeType,
-  keyMap,
   ReferenceElement,
   ExampleElement,
   LinkElement,
@@ -46,28 +39,8 @@ import ReferenceSet from '../../../ReferenceSet.ts';
 import { AncestorLineage } from '../../util.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 
-// @ts-ignore
-const visitAsync = visit[Symbol.for('nodejs.util.promisify.custom')];
-
 // initialize element identity manager
 const identityManager = new IdentityManager();
-
-/**
- * Custom mutation replacer.
- * @public
- */
-export const mutationReplacer = (
-  newElement: Element,
-  oldElement: Element,
-  key: string | number,
-  parent: Element | undefined,
-) => {
-  if (isMemberElement(parent)) {
-    parent.value = newElement;
-  } else if (Array.isArray(parent)) {
-    (parent as Element[])[key as number] = newElement;
-  }
-};
 
 /**
  * @public
@@ -159,33 +132,28 @@ class OpenAPI3_0DereferenceVisitor {
     return mutableReference;
   }
 
-  protected toAncestorLineage(
-    ancestors: (Element | Element[] | undefined)[],
-  ): [AncestorLineage<Element>, Set<Element>] {
+  protected toAncestorLineage(path: Path<Element>): [AncestorLineage<Element>, Set<Element>] {
     /**
      * Compute full ancestors lineage.
      * Ancestors are flatten to unwrap all Element instances.
      */
-    const directAncestors = new Set<Element>(ancestors.filter(isElement));
+    const ancestorNodes = path.getAncestorNodes();
+    const directAncestors = new Set<Element>(ancestorNodes.filter(isElement));
     const ancestorsLineage = new AncestorLineage(...this.ancestors, directAncestors);
 
     return [ancestorsLineage, directAncestors];
   }
 
-  public async ReferenceElement(
-    referencingElement: ReferenceElement,
-    key: string | number,
-    parent: Element | undefined,
-    path: (string | number)[],
-    ancestors: [Element | Element[]],
-    link: { replaceWith: (element: Element, replacer: typeof mutationReplacer) => void },
-  ) {
+  public async ReferenceElement(path: Path<Element>) {
+    const referencingElement = path.node as ReferenceElement;
+
     // skip current referencing element as it's already been access
     if (this.indirections.includes(referencingElement)) {
-      return false;
+      path.skip();
+      return;
     }
 
-    const [ancestorsLineage, directAncestors] = this.toAncestorLineage([...ancestors, parent]);
+    const [ancestorsLineage, directAncestors] = this.toAncestorLineage(path);
 
     const retrievalURI = this.toBaseURI(toValue(referencingElement.$ref) as string);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
@@ -194,12 +162,14 @@ class OpenAPI3_0DereferenceVisitor {
     // ignore resolving internal Reference Objects
     if (!this.options.resolve.internal && isInternalReference) {
       // skip traversing this reference element
-      return false;
+      path.skip();
+      return;
     }
     // ignore resolving external Reference Objects
     if (!this.options.resolve.external && isExternalReference) {
       // skip traversing this reference element
-      return false;
+      path.skip();
+      return;
     }
 
     const reference = await this.toReference(toValue(referencingElement.$ref) as string);
@@ -268,9 +238,9 @@ class OpenAPI3_0DereferenceVisitor {
           this.options.dereference.circularReplacer;
         const replacement = replacer(refElement);
 
-        link.replaceWith(replacement, mutationReplacer);
-
-        return !parent ? replacement : false;
+        this.indirections.pop();
+        path.replaceWith(replacement);
+        return;
       }
     }
 
@@ -303,10 +273,7 @@ class OpenAPI3_0DereferenceVisitor {
         refractCache: this.refractCache,
         ancestors: ancestorsLineage,
       });
-      referencedElement = await visitAsync(referencedElement, visitor, {
-        keyMap,
-        nodeTypeGetter: getNodeType,
-      });
+      referencedElement = await traverseAsync(referencedElement, visitor, { mutable: true });
 
       // remove referencing reference from ancestors lineage
       directAncestors.delete(referencingElement);
@@ -335,33 +302,24 @@ class OpenAPI3_0DereferenceVisitor {
     /**
      * Transclude referencing element with merged referenced element.
      */
-    link.replaceWith(mergedElement, mutationReplacer);
-
-    /**
-     * We're at the root of the tree, so we're just replacing the entire tree.
-     */
-    return !parent ? mergedElement : false;
+    path.replaceWith(mergedElement);
   }
 
-  public async PathItemElement(
-    referencingElement: PathItemElement,
-    key: string | number,
-    parent: Element | undefined,
-    path: (string | number)[],
-    ancestors: [Element | Element[]],
-    link: { replaceWith: (element: Element, replacer: typeof mutationReplacer) => void },
-  ) {
+  public async PathItemElement(path: Path<Element>) {
+    const referencingElement = path.node as PathItemElement;
+
     // ignore PathItemElement without $ref field
     if (!isStringElement(referencingElement.$ref)) {
-      return undefined;
+      return;
     }
 
     // skip current referencing element as it's already been access
     if (this.indirections.includes(referencingElement)) {
-      return false;
+      path.skip();
+      return;
     }
 
-    const [ancestorsLineage, directAncestors] = this.toAncestorLineage([...ancestors, parent]);
+    const [ancestorsLineage, directAncestors] = this.toAncestorLineage(path);
 
     const retrievalURI = this.toBaseURI(toValue(referencingElement.$ref) as string);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
@@ -370,12 +328,12 @@ class OpenAPI3_0DereferenceVisitor {
     // ignore resolving internal Path Item Objects
     if (!this.options.resolve.internal && isInternalReference) {
       // skip traversing this Path Item element but traverse all it's child elements
-      return undefined;
+      return;
     }
     // ignore resolving external Path Item Objects
     if (!this.options.resolve.external && isExternalReference) {
       // skip traversing this Path Item element but traverse all it's child elements
-      return undefined;
+      return;
     }
 
     const reference = await this.toReference(toValue(referencingElement.$ref) as string);
@@ -435,9 +393,9 @@ class OpenAPI3_0DereferenceVisitor {
           this.options.dereference.circularReplacer;
         const replacement = replacer(refElement);
 
-        link.replaceWith(replacement, mutationReplacer);
-
-        return !parent ? replacement : undefined;
+        this.indirections.pop();
+        path.replaceWith(replacement);
+        return;
       }
     }
 
@@ -470,10 +428,7 @@ class OpenAPI3_0DereferenceVisitor {
         refractCache: this.refractCache,
         ancestors: ancestorsLineage,
       });
-      referencedElement = await visitAsync(referencedElement, visitor, {
-        keyMap,
-        nodeTypeGetter: getNodeType,
-      });
+      referencedElement = await traverseAsync(referencedElement, visitor, { mutable: true });
 
       // remove referencing reference from ancestors lineage
       directAncestors.delete(referencingElement);
@@ -513,25 +468,15 @@ class OpenAPI3_0DereferenceVisitor {
     /**
      * Transclude referencing element with merged referenced element.
      */
-    link.replaceWith(referencedElement, mutationReplacer);
-
-    /**
-     * We're at the root of the tree, so we're just replacing the entire tree.
-     */
-    return !parent ? referencedElement : undefined;
+    path.replaceWith(referencedElement);
   }
 
-  public async LinkElement(
-    linkElement: LinkElement,
-    key: string | number,
-    parent: Element | undefined,
-    path: (string | number)[],
-    ancestors: [Element | Element[]],
-    link: { replaceWith: (element: Element, replacer: typeof mutationReplacer) => void },
-  ) {
+  public async LinkElement(path: Path<Element>) {
+    const linkElement = path.node as LinkElement;
+
     // ignore LinkElement without operationRef or operationId field
     if (!isStringElement(linkElement.operationRef) && !isStringElement(linkElement.operationId)) {
-      return undefined;
+      return;
     }
 
     // operationRef and operationId fields are mutually exclusive
@@ -555,12 +500,12 @@ class OpenAPI3_0DereferenceVisitor {
       // ignore resolving internal Operation Object reference
       if (!this.options.resolve.internal && isInternalReference) {
         // skip traversing this Link element but traverse all it's child elements
-        return undefined;
+        return;
       }
       // ignore resolving external Operation Object reference
       if (!this.options.resolve.external && isExternalReference) {
         // skip traversing this Link element but traverse all it's child elements
-        return undefined;
+        return;
       }
 
       const reference = await this.toReference(toValue(linkElement.operationRef) as string);
@@ -591,12 +536,8 @@ class OpenAPI3_0DereferenceVisitor {
       /**
        * Transclude Link Object containing Operation Object in its meta.
        */
-      link.replaceWith(linkElementCopy, mutationReplacer);
-
-      /**
-       * We're at the root of the tree, so we're just replacing the entire tree.
-       */
-      return !parent ? linkElementCopy : undefined;
+      path.replaceWith(linkElementCopy);
+      return;
     }
 
     if (isStringElement(linkElement.operationId)) {
@@ -618,28 +559,17 @@ class OpenAPI3_0DereferenceVisitor {
       /**
        * Transclude Link Object containing Operation Object in its meta.
        */
-      link.replaceWith(linkElementCopy, mutationReplacer);
-
-      /**
-       * We're at the root of the tree, so we're just replacing the entire tree.
-       */
-      return !parent ? linkElementCopy : undefined;
+      path.replaceWith(linkElementCopy);
+      return;
     }
-
-    return undefined;
   }
 
-  public async ExampleElement(
-    exampleElement: ExampleElement,
-    key: string | number,
-    parent: Element | undefined,
-    path: (string | number)[],
-    ancestors: [Element | Element[]],
-    link: { replaceWith: (element: Element, replacer: typeof mutationReplacer) => void },
-  ) {
+  public async ExampleElement(path: Path<Element>) {
+    const exampleElement = path.node as ExampleElement;
+
     // ignore ExampleElement without externalValue field
     if (!isStringElement(exampleElement.externalValue)) {
-      return undefined;
+      return;
     }
 
     // value and externalValue fields are mutually exclusive
@@ -656,12 +586,12 @@ class OpenAPI3_0DereferenceVisitor {
     // ignore resolving external Example Objects
     if (!this.options.resolve.internal && isInternalReference) {
       // skip traversing this Example element but traverse all it's child elements
-      return undefined;
+      return;
     }
     // ignore resolving external Example Objects
     if (!this.options.resolve.external && isExternalReference) {
       // skip traversing this Example element but traverse all it's child elements
-      return undefined;
+      return;
     }
 
     const reference = await this.toReference(toValue(exampleElement.externalValue) as string);
@@ -677,13 +607,11 @@ class OpenAPI3_0DereferenceVisitor {
     /**
      * Transclude Example Object containing external value.
      */
-    link.replaceWith(exampleElementCopy, mutationReplacer);
-
-    /**
-     * We're at the root of the tree, so we're just replacing the entire tree.
-     */
-    return !parent ? exampleElementCopy : undefined;
+    path.replaceWith(exampleElementCopy);
   }
+
+  // Index signature for Visitor compatibility
+  [key: string]: unknown;
 }
 
 export default OpenAPI3_0DereferenceVisitor;

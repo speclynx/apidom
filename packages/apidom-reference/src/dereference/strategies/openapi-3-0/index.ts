@@ -1,9 +1,7 @@
-import { Element, Namespace } from '@speclynx/apidom-datamodel';
-import { visit, cloneDeep } from '@speclynx/apidom-core';
+import { Element, Namespace, cloneDeep } from '@speclynx/apidom-datamodel';
+import { traverseAsync } from '@speclynx/apidom-traverse';
 import openApi3_0Namespace, {
-  getNodeType,
   isOpenApi3_0Element,
-  keyMap,
   mediaTypes,
 } from '@speclynx/apidom-ns-openapi-3-0';
 
@@ -21,7 +19,7 @@ export type {
 export type { default as File, FileOptions } from '../../../File.ts';
 export type { default as Reference, ReferenceOptions } from '../../../Reference.ts';
 export type { default as ReferenceSet, ReferenceSetOptions } from '../../../ReferenceSet.ts';
-export type { OpenAPI3_0DereferenceVisitorOptions, mutationReplacer } from './visitor.ts';
+export type { OpenAPI3_0DereferenceVisitorOptions } from './visitor.ts';
 export type {
   ReferenceOptions as ApiDOMReferenceOptions,
   ReferenceBundleOptions as ApiDOMReferenceBundleOptions,
@@ -40,9 +38,6 @@ export type {
   BundleStrategyOptions,
 } from '../../../bundle/strategies/BundleStrategy.ts';
 export type { AncestorLineage } from '../../util.ts';
-
-// @ts-ignore
-const visitAsync = visit[Symbol.for('nodejs.util.promisify.custom')];
 
 /**
  * @public
@@ -105,9 +100,8 @@ class OpenAPI3_0DereferenceStrategy extends DereferenceStrategy {
     }
 
     const visitor = new OpenAPI3_0DereferenceVisitor({ reference: reference!, namespace, options });
-    const dereferencedElement = await visitAsync(refSet.rootRef!.value, visitor, {
-      keyMap,
-      nodeTypeGetter: getNodeType,
+    const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
+      mutable: true,
     });
 
     /**

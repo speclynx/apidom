@@ -1,5 +1,5 @@
-import { Element, isElement } from '@speclynx/apidom-datamodel';
-import { cloneDeep, visit } from '@speclynx/apidom-core';
+import { Element, isElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import { traverseAsync } from '@speclynx/apidom-traverse';
 
 import DereferenceStrategy, { DereferenceStrategyOptions } from '../DereferenceStrategy.ts';
 import File from '../../../File.ts';
@@ -33,9 +33,6 @@ export type {
   default as BundleStrategy,
   BundleStrategyOptions,
 } from '../../../bundle/strategies/BundleStrategy.ts';
-
-// @ts-ignore
-const visitAsync = visit[Symbol.for('nodejs.util.promisify.custom')];
 
 /**
  * @public
@@ -93,7 +90,9 @@ class ApiDOMDereferenceStrategy extends DereferenceStrategy {
     }
 
     const visitor = new ApiDOMDereferenceVisitor({ reference: reference!, options });
-    const dereferencedElement = await visitAsync(refSet.rootRef!.value, visitor);
+    const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
+      mutable: true,
+    });
 
     /**
      * If immutable option is set, replay refs from the refSet.

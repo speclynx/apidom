@@ -1,6 +1,5 @@
 import { T as stubTrue, always } from 'ramda';
-import { ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
-import { cloneDeep } from '@speclynx/apidom-core';
+import { ObjectElement, StringElement, cloneDeep } from '@speclynx/apidom-datamodel';
 
 import PathsElement from '../../../../elements/Paths.ts';
 import PathItemElement from '../../../../elements/PathItem.ts';

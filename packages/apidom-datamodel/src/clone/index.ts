@@ -1,11 +1,8 @@
-import {
-  ObjectSlice,
-  KeyValuePair,
-  Element,
-  MemberElement,
-  isElement,
-} from '@speclynx/apidom-datamodel';
-
+import ObjectSlice from '../ObjectSlice.ts';
+import KeyValuePair from '../KeyValuePair.ts';
+import Element from '../primitives/Element.ts';
+import MemberElement from '../primitives/MemberElement.ts';
+import { isElement } from '../predicates/index.ts';
 import DeepCloneError from './errors/DeepCloneError.ts';
 import ShallowCloneError from './errors/ShallowCloneError.ts';
 
@@ -80,6 +77,8 @@ const cloneDeepObjectSlice = (slice: ObjectSlice, options: DeepCloneOptions): Ob
 };
 
 /**
+ * Creates a deep clone of an ApiDOM Element, KeyValuePair, or ObjectSlice.
+ * Handles cycles by memoizing visited objects.
  * @public
  */
 export const cloneDeep = <T extends Element | FinalCloneTypes>(
@@ -153,6 +152,9 @@ const cloneShallowElement = <T extends Element>(element: T): T => {
 };
 
 /**
+ * Creates a shallow clone of an ApiDOM Element, KeyValuePair, or ObjectSlice.
+ * The element itself is cloned, but content references are shared (except for
+ * meta and attributes which are deep cloned to preserve semantic information).
  * @public
  */
 export const cloneShallow = <T extends Element | FinalCloneTypes>(value: T): T => {
@@ -179,3 +181,8 @@ cloneShallow.safe = <T>(value: T): T => {
     return value;
   }
 };
+
+export { default as CloneError } from './errors/CloneError.ts';
+export type { CloneErrorOptions } from './errors/CloneError.ts';
+export { default as DeepCloneError } from './errors/DeepCloneError.ts';
+export { default as ShallowCloneError } from './errors/ShallowCloneError.ts';

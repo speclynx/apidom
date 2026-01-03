@@ -29,13 +29,6 @@ export { transclude, default as Transcluder } from './transcluder/index.ts';
 
 export { resolveSpecification, type ResolvedSpecification } from './specification.ts';
 
-export { cloneShallow, cloneDeep } from './clone/index.ts';
-export { default as CloneError } from './clone/errors/CloneError.ts';
-export type { CloneErrorOptions } from './clone/errors/CloneError.ts';
-export { default as DeepCloneError } from './clone/errors/DeepCloneError.ts';
-export { default as ShallowCloneError } from './clone/errors/ShallowCloneError.ts';
-export type { FinalCloneTypes, DeepCloneOptions } from './clone/index.ts';
-
 export { defaultIdentityManager, IdentityManager } from './identity/index.ts';
 export { default as ElementIdentityError } from './identity/errors/ElementIdentityError.ts';
 export type { ElementIdentityErrorOptions } from './identity/errors/ElementIdentityError.ts';

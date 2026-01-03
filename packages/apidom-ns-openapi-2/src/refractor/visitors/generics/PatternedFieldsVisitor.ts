@@ -1,6 +1,6 @@
 import { F as stubFalse } from 'ramda';
-import { ObjectElement, Element, MemberElement } from '@speclynx/apidom-datamodel';
-import { BREAK, cloneDeep, toValue } from '@speclynx/apidom-core';
+import { ObjectElement, Element, MemberElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import { BREAK, toValue } from '@speclynx/apidom-core';
 
 import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
 import type { SpecPath } from './FixedFieldsVisitor.ts';

@@ -10,6 +10,7 @@ import {
   isObjectElement,
   isNullElement,
   isNumberElement,
+  cloneShallow,
 } from '@speclynx/apidom-datamodel';
 import { F as stubFalse, pipe } from 'ramda';
 import { isString } from 'ramda-adjunct';
@@ -19,8 +20,6 @@ import {
   mergeAllVisitors,
   cloneNode as cloneNodeDefault,
 } from '@speclynx/apidom-ast';
-
-import { cloneShallow } from '../clone/index.ts';
 
 export { BREAK, mergeAllVisitors };
 

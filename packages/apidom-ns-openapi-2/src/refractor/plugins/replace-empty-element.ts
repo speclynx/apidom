@@ -7,8 +7,9 @@ import {
   isMemberElement,
   isArrayElement,
   includesClasses,
+  cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { cloneDeep, toValue } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
 
 /**
  * OpenAPI 2.0 specification elements.

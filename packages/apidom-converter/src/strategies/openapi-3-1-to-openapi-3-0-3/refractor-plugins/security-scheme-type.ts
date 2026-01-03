@@ -13,8 +13,9 @@ import {
   ParseResultElement,
   AnnotationElement,
   isObjectElement,
+  cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { toValue, cloneDeep } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
 import { dereferenceApiDOM, ReferenceSet, Reference, url } from '@speclynx/apidom-reference';
 
 import type { Toolbox } from '../toolbox.ts';

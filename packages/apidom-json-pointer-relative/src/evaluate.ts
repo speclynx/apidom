@@ -6,8 +6,9 @@ import {
   MemberElement,
   ArrayElement,
   NumberElement,
+  cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { visit, cloneDeep, BREAK } from '@speclynx/apidom-core';
+import { visit, BREAK } from '@speclynx/apidom-core';
 import {
   compile as compileJsonPointer,
   evaluate as evaluateJsonPointer,

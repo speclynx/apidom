@@ -1,5 +1,5 @@
-import { ArrayElement } from '@speclynx/apidom-datamodel';
-import { BREAK, cloneDeep } from '@speclynx/apidom-core';
+import { ArrayElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
 import OperationSchemesElement from '../../../../elements/nces/OperationSchemes.ts';
 import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
