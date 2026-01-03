@@ -8,8 +8,9 @@ import {
   isMemberElement,
   isElement,
   includesClasses,
+  cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { cloneDeep, toValue } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
 
 import mediaTypes from '../../media-types.ts';
 /**

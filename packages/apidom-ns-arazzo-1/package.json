@@ -46,6 +46,7 @@
     "@speclynx/apidom-core": "^1.12.2",
     "@speclynx/apidom-datamodel": "^1.12.2",
     "@speclynx/apidom-ns-json-schema-2020-12": "^1.12.2",
+    "@speclynx/apidom-traverse": "^1.12.2",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.0.0",
     "ts-mixer": "^6.0.4"

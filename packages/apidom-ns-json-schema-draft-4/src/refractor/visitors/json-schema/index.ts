@@ -1,7 +1,7 @@
 import { always, defaultTo } from 'ramda';
 import { isNonEmptyString, isUndefined } from 'ramda-adjunct';
-import { ObjectElement, ArrayElement, isStringElement } from '@speclynx/apidom-datamodel';
-import { cloneDeep, toValue } from '@speclynx/apidom-core';
+import { ObjectElement, ArrayElement, isStringElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 import FixedFieldsVisitor, { SpecPath } from '../generics/FixedFieldsVisitor.ts';
 import { FixedFieldsVisitorOptions } from '../generics/FixedFieldsVisitor.ts';

@@ -1,5 +1,5 @@
-import { ArrayElement, Element, isStringElement } from '@speclynx/apidom-datamodel';
-import { BREAK, cloneDeep } from '@speclynx/apidom-core';
+import { ArrayElement, Element, isStringElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
 import ChannelItemServersElement from '../../../../elements/nces/ChannelItemsServers.ts';
 import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from '../bases.ts';

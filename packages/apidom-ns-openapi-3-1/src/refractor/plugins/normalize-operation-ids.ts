@@ -1,6 +1,6 @@
 import { last, defaultTo, groupBy } from 'ramda';
-import { toValue, cloneDeep } from '@speclynx/apidom-core';
-import { Element, StringElement } from '@speclynx/apidom-datamodel';
+import { Element, StringElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 import LinkElement from '../../elements/Link.ts';
 import PathItemElement from '../../elements/PathItem.ts';

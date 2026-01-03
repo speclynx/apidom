@@ -1,6 +1,6 @@
 import { test, always, range } from 'ramda';
-import { Element, ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
-import { cloneDeep, toValue } from '@speclynx/apidom-core';
+import { Element, ObjectElement, StringElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import ResponsesElement from '../../../../elements/Responses.ts';

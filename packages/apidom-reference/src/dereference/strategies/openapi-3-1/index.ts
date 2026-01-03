@@ -1,12 +1,7 @@
 import { propEq } from 'ramda';
-import { Element, Namespace } from '@speclynx/apidom-datamodel';
-import { visit, cloneDeep } from '@speclynx/apidom-core';
-import openApi3_1Namespace, {
-  getNodeType,
-  isOpenApi3_1Element,
-  keyMap,
-  mediaTypes,
-} from '@speclynx/apidom-ns-openapi-3-1';
+import { Element, Namespace, cloneDeep } from '@speclynx/apidom-datamodel';
+import { traverseAsync } from '@speclynx/apidom-traverse';
+import openApi3_1Namespace, { isOpenApi3_1Element, mediaTypes } from '@speclynx/apidom-ns-openapi-3-1';
 
 import DereferenceStrategy, { DereferenceStrategyOptions } from '../DereferenceStrategy.ts';
 import File from '../../../File.ts';
@@ -22,7 +17,7 @@ export type {
 export type { default as File, FileOptions } from '../../../File.ts';
 export type { default as Reference, ReferenceOptions } from '../../../Reference.ts';
 export type { default as ReferenceSet, ReferenceSetOptions } from '../../../ReferenceSet.ts';
-export type { OpenAPI3_1DereferenceVisitorOptions, mutationReplacer } from './visitor.ts';
+export type { OpenAPI3_1DereferenceVisitorOptions } from './visitor.ts';
 export type {
   ReferenceOptions as ApiDOMReferenceOptions,
   ReferenceBundleOptions as ApiDOMReferenceBundleOptions,
@@ -41,9 +36,6 @@ export type {
   BundleStrategyOptions,
 } from '../../../bundle/strategies/BundleStrategy.ts';
 export type { AncestorLineage } from '../../util.ts';
-
-// @ts-ignore
-const visitAsync = visit[Symbol.for('nodejs.util.promisify.custom')];
 
 /**
  * @public
@@ -105,9 +97,8 @@ class OpenAPI3_1DereferenceStrategy extends DereferenceStrategy {
     }
 
     const visitor = new OpenAPI3_1DereferenceVisitor({ reference: reference!, namespace, options });
-    const dereferencedElement = await visitAsync(refSet.rootRef!.value, visitor, {
-      keyMap,
-      nodeTypeGetter: getNodeType,
+    const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
+      mutable: true,
     });
 
     /**

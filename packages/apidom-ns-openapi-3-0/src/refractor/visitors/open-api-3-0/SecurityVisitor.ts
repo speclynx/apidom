@@ -1,5 +1,5 @@
-import { ArrayElement, isObjectElement } from '@speclynx/apidom-datamodel';
-import { BREAK, cloneDeep } from '@speclynx/apidom-core';
+import { ArrayElement, isObjectElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import { BREAK } from '@speclynx/apidom-core';
 
 import SecurityElement from '../../../elements/nces/Security.ts';
 import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from './bases.ts';

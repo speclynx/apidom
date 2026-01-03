@@ -5,8 +5,9 @@ import {
   isElement,
   isMemberElement,
   includesClasses,
+  cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { cloneDeep, toValue } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
 
 /**
  * Arazzo 1.0.1 specification elements.

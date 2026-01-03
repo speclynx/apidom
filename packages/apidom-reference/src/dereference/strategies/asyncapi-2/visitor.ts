@@ -1,7 +1,6 @@
 import { propEq } from 'ramda';
 import {
   isElement,
-  isMemberElement,
   isPrimitiveElement,
   isStringElement,
   Namespace,
@@ -9,18 +8,19 @@ import {
   BooleanElement,
   RefElement,
   ParseResultElement,
+  cloneDeep,
+  cloneShallow,
 } from '@speclynx/apidom-datamodel';
-import { IdentityManager, cloneDeep, cloneShallow, visit, toValue } from '@speclynx/apidom-core';
+import { IdentityManager, toValue } from '@speclynx/apidom-core';
 import { ApiDOMError } from '@speclynx/apidom-error';
+import { traverseAsync, Path } from '@speclynx/apidom-traverse';
 import { evaluate, URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
 import {
   ChannelItemElement,
-  getNodeType,
   isReferenceLikeElement,
   isBooleanJsonSchemaElement,
   isChannelItemElement,
   isReferenceElement,
-  keyMap,
   ReferenceElement,
   refract,
   refractReference,
@@ -36,28 +36,8 @@ import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 
-// @ts-ignore
-const visitAsync = visit[Symbol.for('nodejs.util.promisify.custom')];
-
 // initialize element identity manager
 const identityManager = new IdentityManager();
-
-/**
- * Custom mutation replacer.
- * @public
- */
-export const mutationReplacer = (
-  newElement: Element,
-  oldElement: Element,
-  key: string | number,
-  parent: Element | undefined,
-) => {
-  if (isMemberElement(parent)) {
-    parent.value = newElement;
-  } else if (Array.isArray(parent)) {
-    (parent as Element[])[key as number] = newElement;
-  }
-};
 
 /**
  * @public
@@ -149,33 +129,28 @@ class AsyncAPI2DereferenceVisitor {
     return mutableReference;
   }
 
-  protected toAncestorLineage(
-    ancestors: (Element | Element[] | undefined)[],
-  ): [AncestorLineage<Element>, Set<Element>] {
+  protected toAncestorLineage(path: Path<Element>): [AncestorLineage<Element>, Set<Element>] {
     /**
      * Compute full ancestors lineage.
      * Ancestors are flatten to unwrap all Element instances.
      */
-    const directAncestors = new Set<Element>(ancestors.filter(isElement));
+    const ancestorNodes = path.getAncestorNodes();
+    const directAncestors = new Set<Element>(ancestorNodes.filter(isElement));
     const ancestorsLineage = new AncestorLineage(...this.ancestors, directAncestors);
 
     return [ancestorsLineage, directAncestors];
   }
 
-  public async ReferenceElement(
-    referencingElement: ReferenceElement,
-    key: string | number,
-    parent: Element | undefined,
-    path: (string | number)[],
-    ancestors: [Element | Element[]],
-    link: { replaceWith: (element: Element, replacer: typeof mutationReplacer) => void },
-  ) {
+  public async ReferenceElement(path: Path<Element>) {
+    const referencingElement = path.node as ReferenceElement;
+
     // skip current referencing element as it's already been access
     if (this.indirections.includes(referencingElement)) {
-      return false;
+      path.skip();
+      return;
     }
 
-    const [ancestorsLineage, directAncestors] = this.toAncestorLineage([...ancestors, parent]);
+    const [ancestorsLineage, directAncestors] = this.toAncestorLineage(path);
 
     const retrievalURI = this.toBaseURI(toValue(referencingElement.$ref) as string);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
@@ -184,12 +159,14 @@ class AsyncAPI2DereferenceVisitor {
     // ignore resolving internal Reference Objects
     if (!this.options.resolve.internal && isInternalReference) {
       // skip traversing this reference and all it's child elements
-      return false;
+      path.skip();
+      return;
     }
     // ignore resolving external Reference Objects
     if (!this.options.resolve.external && isExternalReference) {
       // skip traversing this reference and all it's child elements
-      return false;
+      path.skip();
+      return;
     }
 
     const reference = await this.toReference(toValue(referencingElement.$ref) as string);
@@ -260,9 +237,9 @@ class AsyncAPI2DereferenceVisitor {
           this.options.dereference.circularReplacer;
         const replacement = replacer(refElement);
 
-        link.replaceWith(replacement, mutationReplacer);
-
-        return !parent ? replacement : false;
+        this.indirections.pop();
+        path.replaceWith(replacement);
+        return;
       }
     }
 
@@ -295,10 +272,7 @@ class AsyncAPI2DereferenceVisitor {
         refractCache: this.refractCache,
         ancestors: ancestorsLineage,
       });
-      referencedElement = await visitAsync(referencedElement, visitor, {
-        keyMap,
-        nodeTypeGetter: getNodeType,
-      });
+      referencedElement = await traverseAsync(referencedElement, visitor, { mutable: true });
 
       // remove referencing reference from ancestors lineage
       directAncestors.delete(referencingElement);
@@ -323,9 +297,8 @@ class AsyncAPI2DereferenceVisitor {
         cloneDeep(identityManager.identify(referencingElement)),
       );
 
-      link.replaceWith(booleanJsonSchemaElement, mutationReplacer);
-
-      return !parent ? booleanJsonSchemaElement : false;
+      path.replaceWith(booleanJsonSchemaElement);
+      return;
     }
 
     /**
@@ -349,33 +322,24 @@ class AsyncAPI2DereferenceVisitor {
     /**
      * Transclude referencing element with merged referenced element.
      */
-    link.replaceWith(mergedElement, mutationReplacer);
-
-    /**
-     * We're at the root of the tree, so we're just replacing the entire tree.
-     */
-    return !parent ? mergedElement : false;
+    path.replaceWith(mergedElement);
   }
 
-  public async ChannelItemElement(
-    referencingElement: ChannelItemElement,
-    key: string | number,
-    parent: Element | undefined,
-    path: (string | number)[],
-    ancestors: [Element | Element[]],
-    link: { replaceWith: (element: Element, replacer: typeof mutationReplacer) => void },
-  ) {
+  public async ChannelItemElement(path: Path<Element>) {
+    const referencingElement = path.node as ChannelItemElement;
+
     // ignore ChannelItemElement without $ref field
     if (!isStringElement(referencingElement.$ref)) {
-      return undefined;
+      return;
     }
 
     // skip current referencing element as it's already been access
     if (this.indirections.includes(referencingElement)) {
-      return false;
+      path.skip();
+      return;
     }
 
-    const [ancestorsLineage, directAncestors] = this.toAncestorLineage([...ancestors, parent]);
+    const [ancestorsLineage, directAncestors] = this.toAncestorLineage(path);
 
     const retrievalURI = this.toBaseURI(toValue(referencingElement.$ref) as string);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
@@ -384,12 +348,12 @@ class AsyncAPI2DereferenceVisitor {
     // ignore resolving internal Channel Item Objects
     if (!this.options.resolve.internal && isInternalReference) {
       // skip traversing this channel item but traverse all it's child elements
-      return undefined;
+      return;
     }
     // ignore resolving external Channel Item Objects
     if (!this.options.resolve.external && isExternalReference) {
       // skip traversing this channel item but traverse all it's child elements
-      return undefined;
+      return;
     }
 
     const reference = await this.toReference(toValue(referencingElement.$ref) as string);
@@ -449,9 +413,9 @@ class AsyncAPI2DereferenceVisitor {
           this.options.dereference.circularReplacer;
         const replacement = replacer(refElement);
 
-        link.replaceWith(replacement, mutationReplacer);
-
-        return !parent ? replacement : undefined;
+        this.indirections.pop();
+        path.replaceWith(replacement);
+        return;
       }
     }
 
@@ -484,10 +448,7 @@ class AsyncAPI2DereferenceVisitor {
         refractCache: this.refractCache,
         ancestors: ancestorsLineage,
       });
-      referencedElement = await visitAsync(referencedElement, visitor, {
-        keyMap,
-        nodeTypeGetter: getNodeType,
-      });
+      referencedElement = await traverseAsync(referencedElement, visitor, { mutable: true });
 
       // remove referencing reference from ancestors lineage
       directAncestors.delete(referencingElement);
@@ -527,13 +488,11 @@ class AsyncAPI2DereferenceVisitor {
     /**
      * Transclude referencing element with merged referenced element.
      */
-    link.replaceWith(referencedElement, mutationReplacer);
-
-    /**
-     * We're at the root of the tree, so we're just replacing the entire tree.
-     */
-    return !parent ? referencedElement : undefined;
+    path.replaceWith(referencedElement);
   }
+
+  // Index signature for Visitor compatibility
+  [key: string]: unknown;
 }
 
 export default AsyncAPI2DereferenceVisitor;

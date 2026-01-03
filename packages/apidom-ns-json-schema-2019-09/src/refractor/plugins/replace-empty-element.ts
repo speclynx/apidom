@@ -7,8 +7,9 @@ import {
   isMemberElement,
   isStringElement,
   includesClasses,
+  cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { cloneDeep, toValue } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
 /**
  * JSON Schema 2019-09 specification elements.
  */

@@ -10,8 +10,10 @@ import {
   isObjectElement,
   isRefElement,
   refract,
+  cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { toValue, visit, cloneDeep } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
+import { traverseAsync, Path } from '@speclynx/apidom-traverse';
 import { URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
 
 import MaximumResolveDepthError from '../../../errors/MaximumResolveDepthError.ts';
@@ -21,9 +23,6 @@ import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
 import { evaluate } from './selectors/element-id.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
-
-// @ts-ignore
-const visitAsync = visit[Symbol.for('nodejs.util.promisify.custom')];
 
 /**
  * The following rules apply:
@@ -103,13 +102,11 @@ class ApiDOMDereferenceVisitor {
     return mutableReference;
   }
 
-  public async RefElement(
-    refElement: RefElement,
-    key: string | number,
-    parent: Element | undefined,
-    path: (string | number)[],
-    ancestors: [Element | Element[]],
-  ) {
+  public async RefElement(path: Path<Element>) {
+    const refElement = path.node as RefElement;
+    const { parent, key } = path;
+    const ancestors = path.getAncestorNodes();
+
     const refURI = toValue(refElement) as string;
     const refNormalizedURI = refURI.includes('#') ? refURI : `#${refURI}`;
     const retrievalURI = this.toBaseURI(refNormalizedURI);
@@ -119,12 +116,14 @@ class ApiDOMDereferenceVisitor {
     // ignore resolving internal RefElements
     if (!this.options.resolve.internal && isInternalReference) {
       // skip traversing this ref element
-      return false;
+      path.skip();
+      return;
     }
     // ignore resolving external RefElements
     if (!this.options.resolve.external && isExternalReference) {
       // skip traversing this ref element
-      return false;
+      path.skip();
+      return;
     }
 
     const reference = await this.toReference(refNormalizedURI);
@@ -150,7 +149,7 @@ class ApiDOMDereferenceVisitor {
     if (isExternalReference) {
       // dive deep into the fragment
       const visitor = new ApiDOMDereferenceVisitor({ reference, options: this.options });
-      referencedElement = await visitAsync(referencedElement, visitor);
+      referencedElement = await traverseAsync(referencedElement, visitor, { mutable: true });
     }
 
     /**
@@ -169,9 +168,11 @@ class ApiDOMDereferenceVisitor {
     /**
      * Transclusion of a Ref Element SHALL be defined in the if/else block below.
      */
+    // ancestors[0] is the grandparent (nearest ancestor from getAncestorNodes())
+    const grandparent = ancestors[0];
     if (
       isObjectElement(referencedElement) &&
-      isObjectElement(ancestors[ancestors.length - 1]) &&
+      isObjectElement(grandparent) &&
       Array.isArray(parent) &&
       typeof key === 'number'
     ) {
@@ -179,7 +180,7 @@ class ApiDOMDereferenceVisitor {
        * If the Ref Element is held by an Object Element and references an Object Element,
        * its content entries SHALL be inserted in place of the Ref Element.
        */
-      parent.splice(key, 1, ...(referencedElement.content as Element[]));
+      (parent as unknown as Element[]).splice(key, 1, ...(referencedElement.content as Element[]));
     } else if (
       isArrayElement(referencedElement) &&
       Array.isArray(parent) &&
@@ -189,7 +190,7 @@ class ApiDOMDereferenceVisitor {
        * If the Ref Element is held by an Array Element and references an Array Element,
        * its content entries SHALL be inserted in place of the Ref Element.
        */
-      parent.splice(key, 1, ...(referencedElement.content as Element[]));
+      (parent as unknown as Element[]).splice(key, 1, ...(referencedElement.content as Element[]));
     } else if (isMemberElement(parent)) {
       /**
        * The Ref Element is substituted by the Element it references.
@@ -199,11 +200,16 @@ class ApiDOMDereferenceVisitor {
       /**
        * The Ref Element is substituted by the Element it references.
        */
-      (parent as Element[])[key as number] = referencedElement as Element;
+      (parent as unknown as Element[])[key as number] = referencedElement as Element;
     }
 
-    return !parent ? referencedElement : false;
+    if (!parent) {
+      path.replaceWith(referencedElement);
+    }
   }
+
+  // Index signature for Visitor compatibility
+  [key: string]: unknown;
 }
 
 export default ApiDOMDereferenceVisitor;

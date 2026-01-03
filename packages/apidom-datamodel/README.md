@@ -459,3 +459,34 @@ pair.value = new NumberElement(42);
 
 pair.toValue(); // { key: 'name', value: 42 }
 ```
+
+---
+
+## Cloning
+
+Functions for creating shallow and deep copies of ApiDOM elements.
+
+### Shallow cloning
+
+Creates a shallow clone of an ApiDOM element. The element itself is cloned,
+but content references are shared (except for meta and attributes which are deep cloned
+to preserve semantic information).
+
+```js
+import { ObjectElement, cloneShallow } from '@speclynx/apidom-datamodel';
+
+const objectElement = new ObjectElement({ a: 'b' });
+const objectElementShallowClone = cloneShallow(objectElement);
+```
+
+### Deep cloning
+
+Creates a deep clone of an ApiDOM element. All nested elements are recursively cloned.
+Handles cycles by memoizing visited objects.
+
+```js
+import { ObjectElement, cloneDeep } from '@speclynx/apidom-datamodel';
+
+const objectElement = new ObjectElement({ a: 'b' });
+const objectElementDeepClone = cloneDeep(objectElement);
+```

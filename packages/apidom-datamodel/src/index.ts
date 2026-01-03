@@ -1,6 +1,16 @@
 export { default as Namespace } from './Namespace.ts';
 export { default as KeyValuePair } from './KeyValuePair.ts';
 
+// Clone utilities
+export {
+  cloneShallow,
+  cloneDeep,
+  CloneError,
+  DeepCloneError,
+  ShallowCloneError,
+} from './clone/index.ts';
+export type { FinalCloneTypes, DeepCloneOptions, CloneErrorOptions } from './clone/index.ts';
+
 // Re-export elements directly to preserve JSDoc
 export {
   ObjectSlice,

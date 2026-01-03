@@ -5,9 +5,9 @@ import {
   Element,
   isObjectElement,
   isArrayElement,
+  cloneDeep,
+  cloneShallow,
 } from '@speclynx/apidom-datamodel';
-
-import { cloneDeep, cloneShallow } from '../clone/index.ts';
 import toValue from '../transformers/serializers/value/index.ts';
 
 /**
