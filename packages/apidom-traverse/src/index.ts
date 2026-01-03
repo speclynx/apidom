@@ -25,7 +25,6 @@ export {
 } from './visitors.ts';
 export type {
   NodeVisitor,
-  Visitor,
   MergeVisitorsOptions,
   MergedVisitor,
   MergedVisitorAsync,

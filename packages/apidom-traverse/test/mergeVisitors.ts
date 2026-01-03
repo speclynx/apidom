@@ -1,13 +1,12 @@
 import { assert } from 'chai';
 import {
-  Element,
   ObjectElement,
   StringElement,
   NumberElement,
   ArrayElement,
 } from '@speclynx/apidom-datamodel';
 
-import { traverse, mergeVisitors, mergeVisitorsAsync, Path, Visitor } from '../src/index.ts';
+import { traverse, mergeVisitors, mergeVisitorsAsync, Path } from '../src/index.ts';
 
 describe('mergeVisitors', function () {
   context('basic merging', function () {
@@ -16,13 +15,13 @@ describe('mergeVisitors', function () {
       const visitor1Calls: string[] = [];
       const visitor2Calls: string[] = [];
 
-      const visitor1: Visitor<Element> = {
+      const visitor1 = {
         StringElement() {
           visitor1Calls.push('enter');
         },
       };
 
-      const visitor2: Visitor<Element> = {
+      const visitor2 = {
         StringElement() {
           visitor2Calls.push('enter');
         },
@@ -39,7 +38,7 @@ describe('mergeVisitors', function () {
       const root = new StringElement('test');
       const events: string[] = [];
 
-      const visitor1: Visitor<Element> = {
+      const visitor1 = {
         StringElement: {
           enter() {
             events.push('v1:enter');
@@ -50,7 +49,7 @@ describe('mergeVisitors', function () {
         },
       };
 
-      const visitor2: Visitor<Element> = {
+      const visitor2 = {
         StringElement: {
           enter() {
             events.push('v2:enter');
@@ -74,14 +73,14 @@ describe('mergeVisitors', function () {
         const root = new StringElement('test');
         const calls: string[] = [];
 
-        const visitor1: Visitor<Element> = {
+        const visitor1 = {
           StringElement(path: Path) {
             calls.push('v1');
             path.replaceWith(new StringElement('replaced'));
           },
         };
 
-        const visitor2: Visitor<Element> = {
+        const visitor2 = {
           StringElement() {
             calls.push('v2');
           },
@@ -100,14 +99,14 @@ describe('mergeVisitors', function () {
         const root = new StringElement('original');
         const values: string[] = [];
 
-        const visitor1: Visitor<Element> = {
+        const visitor1 = {
           StringElement(path: Path) {
             values.push((path.node as StringElement).toValue() as string);
             path.replaceWith(new StringElement('modified'));
           },
         };
 
-        const visitor2: Visitor<Element> = {
+        const visitor2 = {
           StringElement(path: Path) {
             values.push((path.node as StringElement).toValue() as string);
           },
@@ -126,14 +125,14 @@ describe('mergeVisitors', function () {
       const root = new StringElement('test');
       const calls: string[] = [];
 
-      const visitor1: Visitor<Element> = {
+      const visitor1 = {
         StringElement(path: Path) {
           calls.push('v1');
           path.remove();
         },
       };
 
-      const visitor2: Visitor<Element> = {
+      const visitor2 = {
         StringElement() {
           calls.push('v2');
         },
@@ -152,7 +151,7 @@ describe('mergeVisitors', function () {
       const v1Nodes: string[] = [];
       const v2Nodes: string[] = [];
 
-      const visitor1: Visitor<Element> = {
+      const visitor1 = {
         enter(path: Path) {
           const el = path.node.element;
           v1Nodes.push(el);
@@ -162,7 +161,7 @@ describe('mergeVisitors', function () {
         },
       };
 
-      const visitor2: Visitor<Element> = {
+      const visitor2 = {
         enter(path: Path) {
           v2Nodes.push(path.node.element);
         },
@@ -184,7 +183,7 @@ describe('mergeVisitors', function () {
       const v1Values: number[] = [];
       const v2Values: number[] = [];
 
-      const visitor1: Visitor<Element> = {
+      const visitor1 = {
         NumberElement(path: Path) {
           const val = (path.node as NumberElement).toValue() as number;
           v1Values.push(val);
@@ -194,7 +193,7 @@ describe('mergeVisitors', function () {
         },
       };
 
-      const visitor2: Visitor<Element> = {
+      const visitor2 = {
         NumberElement(path: Path) {
           v2Values.push((path.node as NumberElement).toValue() as number);
         },
@@ -214,13 +213,13 @@ describe('mergeVisitors', function () {
     specify('should support returning replacement value', function () {
       const root = new StringElement('original');
 
-      const visitor1: Visitor<Element> = {
+      const visitor1 = {
         StringElement() {
           return new StringElement('replaced');
         },
       };
 
-      const visitor2: Visitor<Element> = {
+      const visitor2 = {
         StringElement() {
           // Should not be called
           throw new Error('Should not reach visitor2');
@@ -240,14 +239,14 @@ describe('mergeVisitorsAsync', function () {
     const root = new StringElement('test');
     const calls: string[] = [];
 
-    const visitor1: Visitor<Element> = {
+    const visitor1 = {
       async StringElement() {
         await new Promise((resolve) => setTimeout(resolve, 1));
         calls.push('v1');
       },
     };
 
-    const visitor2: Visitor<Element> = {
+    const visitor2 = {
       async StringElement() {
         await new Promise((resolve) => setTimeout(resolve, 1));
         calls.push('v2');
@@ -274,7 +273,7 @@ describe('mergeVisitorsAsync', function () {
     const root = new StringElement('original');
     const values: string[] = [];
 
-    const visitor1: Visitor<Element> = {
+    const visitor1 = {
       async StringElement(path: Path) {
         await new Promise((resolve) => setTimeout(resolve, 1));
         values.push((path.node as StringElement).toValue() as string);
@@ -282,7 +281,7 @@ describe('mergeVisitorsAsync', function () {
       },
     };
 
-    const visitor2: Visitor<Element> = {
+    const visitor2 = {
       async StringElement(path: Path) {
         await new Promise((resolve) => setTimeout(resolve, 1));
         values.push((path.node as StringElement).toValue() as string);

@@ -633,9 +633,6 @@ class OpenAPI2DereferenceVisitor {
     path.replaceWith(mergedElement);
     return;
   }
-
-  // Index signature for Visitor compatibility
-  [key: string]: unknown;
 }
 
 export default OpenAPI2DereferenceVisitor;
