@@ -1,5 +1,10 @@
 import { isEmpty } from 'ramda';
-import { Element, isParseResultElement, ParseResultElement, cloneShallow } from '@speclynx/apidom-datamodel';
+import {
+  Element,
+  isParseResultElement,
+  ParseResultElement,
+  cloneShallow,
+} from '@speclynx/apidom-datamodel';
 
 import { merge as mergeOptions } from '../options/util.ts';
 import parse from '../parse/index.ts';

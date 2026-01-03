@@ -1,6 +1,9 @@
 import { Element, Namespace, cloneDeep } from '@speclynx/apidom-datamodel';
 import { traverseAsync } from '@speclynx/apidom-traverse';
-import openApi3_0Namespace, { isOpenApi3_0Element, mediaTypes } from '@speclynx/apidom-ns-openapi-3-0';
+import openApi3_0Namespace, {
+  isOpenApi3_0Element,
+  mediaTypes,
+} from '@speclynx/apidom-ns-openapi-3-0';
 
 import DereferenceStrategy, { DereferenceStrategyOptions } from '../DereferenceStrategy.ts';
 import File from '../../../File.ts';

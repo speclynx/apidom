@@ -1,7 +1,10 @@
 import { propEq } from 'ramda';
 import { Element, Namespace, cloneDeep } from '@speclynx/apidom-datamodel';
 import { traverseAsync } from '@speclynx/apidom-traverse';
-import openApi3_1Namespace, { isOpenApi3_1Element, mediaTypes } from '@speclynx/apidom-ns-openapi-3-1';
+import openApi3_1Namespace, {
+  isOpenApi3_1Element,
+  mediaTypes,
+} from '@speclynx/apidom-ns-openapi-3-1';
 
 import DereferenceStrategy, { DereferenceStrategyOptions } from '../DereferenceStrategy.ts';
 import File from '../../../File.ts';
