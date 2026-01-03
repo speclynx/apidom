@@ -1,4 +1,10 @@
-import { isStringElement, MemberElement, Element, ObjectElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import {
+  isStringElement,
+  MemberElement,
+  Element,
+  ObjectElement,
+  cloneDeep,
+} from '@speclynx/apidom-datamodel';
 import { BREAK, toValue } from '@speclynx/apidom-core';
 
 import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';

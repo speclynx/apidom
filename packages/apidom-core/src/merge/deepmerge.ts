@@ -8,6 +8,7 @@ import {
   cloneDeep,
   cloneShallow,
 } from '@speclynx/apidom-datamodel';
+
 import toValue from '../transformers/serializers/value/index.ts';
 
 /**

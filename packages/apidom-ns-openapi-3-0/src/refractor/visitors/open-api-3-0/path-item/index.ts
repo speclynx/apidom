@@ -1,5 +1,10 @@
 import { always } from 'ramda';
-import { StringElement, ObjectElement, isStringElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import {
+  StringElement,
+  ObjectElement,
+  isStringElement,
+  cloneDeep,
+} from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 
 import PathItemElement from '../../../../elements/PathItem.ts';
