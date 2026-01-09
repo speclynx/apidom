@@ -19,7 +19,10 @@ class RefElement extends Element {
    * @defaultValue 'element'
    */
   get path(): Element | undefined {
-    return this.attributes.get('path');
+    if (this.hasAttributesProperty('path')) {
+      return this.attributes.get('path');
+    }
+    return undefined;
   }
 
   set path(newValue: string | Element | undefined) {

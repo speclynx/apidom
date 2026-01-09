@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import dedent from 'dedent';
-import { SourceMapElement } from '@speclynx/apidom-datamodel';
+import { includesClasses, SourceMapElement } from '@speclynx/apidom-datamodel';
 import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
@@ -52,9 +52,10 @@ describe('given empty value instead for OpenAPI.components.schemas', function ()
     const openApiElement = refractOpenApi3_1(apiDOM.result, {
       plugins: [refractorPluginReplaceEmptyElement()],
     });
-    const isComponentsSchemas = (openApiElement.get('components') as ComponentsElement)
-      .get('schemas')!
-      .classes.includes('components-schemas');
+    const isComponentsSchemas = includesClasses(
+      (openApiElement.get('components') as ComponentsElement).get('schemas')!,
+      ['components-schemas'],
+    );
 
     expect(sexprs(openApiElement)).toMatchSnapshot();
     expect(isComponentsSchemas).to.be.true;

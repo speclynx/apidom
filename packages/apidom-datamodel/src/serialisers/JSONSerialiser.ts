@@ -75,17 +75,11 @@ class JSONSerialiser {
       element: element.element,
     };
 
-    if (
-      (element as Element & { _meta?: ObjectElement })._meta &&
-      (element as Element & { _meta: ObjectElement })._meta.length > 0
-    ) {
+    if (!element.isMetaEmpty) {
       payload.meta = this.serialiseObject(element.meta as ObjectElement);
     }
 
-    if (
-      (element as Element & { _attributes?: ObjectElement })._attributes &&
-      (element as Element & { _attributes: ObjectElement })._attributes.length > 0
-    ) {
+    if (!element.isAttributesEmpty) {
       payload.attributes = this.serialiseObject(element.attributes as ObjectElement);
     }
 

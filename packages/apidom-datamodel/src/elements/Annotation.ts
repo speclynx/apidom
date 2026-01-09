@@ -21,7 +21,10 @@ class AnnotationElement extends StringElement {
    * The annotation code identifying the type of annotation.
    */
   get code(): Element | undefined {
-    return this.attributes.get('code');
+    if (this.hasAttributesProperty('code')) {
+      return this.attributes.get('code') as Element;
+    }
+    return undefined;
   }
 
   set code(value: unknown) {

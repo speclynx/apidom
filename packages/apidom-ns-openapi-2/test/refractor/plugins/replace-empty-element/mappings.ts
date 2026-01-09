@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import dedent from 'dedent';
-import { SourceMapElement } from '@speclynx/apidom-datamodel';
+import { includesClasses, SourceMapElement } from '@speclynx/apidom-datamodel';
 import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
@@ -54,12 +54,10 @@ describe('given empty value instead for Operation.parameters', function () {
     const swaggerElement = refractSwagger(apiDOM.result!, {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as SwaggerElement;
-    const isOperationParameters = (swaggerElement as any)
-      .get('paths')
-      .get('/path')
-      .get('get')
-      .get('parameters')
-      .classes.includes('operation-parameters');
+    const isOperationParameters = includesClasses(
+      (swaggerElement as any).get('paths').get('/path').get('get').get('parameters'),
+      ['operation-parameters'],
+    );
 
     expect(sexprs(swaggerElement)).toMatchSnapshot();
     expect(isOperationParameters).to.be.true;

@@ -1,5 +1,6 @@
 import ArrayElement from '../primitives/ArrayElement.ts';
 import type Element from '../primitives/Element.ts';
+import { includesClasses } from '../predicates/index.ts';
 import type { Meta, Attributes } from '../primitives/Element.ts';
 
 /**
@@ -20,14 +21,14 @@ class ParseResultElement extends ArrayElement {
    * The main API element from the parse result.
    */
   get api(): Element | undefined {
-    return this.filter((item) => item.classes.includes('api')).first;
+    return this.filter((item) => includesClasses(item, ['api'])).first;
   }
 
   /**
    * All result elements from the parse result.
    */
   get results(): ArrayElement {
-    return this.filter((item) => item.classes.includes('result'));
+    return this.filter((item) => includesClasses(item, ['result']));
   }
 
   /**
@@ -48,14 +49,16 @@ class ParseResultElement extends ArrayElement {
    * All warning annotations.
    */
   get warnings(): ArrayElement {
-    return this.filter((item) => item.element === 'annotation' && item.classes.includes('warning'));
+    return this.filter(
+      (item) => item.element === 'annotation' && includesClasses(item, ['warning']),
+    );
   }
 
   /**
    * All error annotations.
    */
   get errors(): ArrayElement {
-    return this.filter((item) => item.element === 'annotation' && item.classes.includes('error'));
+    return this.filter((item) => item.element === 'annotation' && includesClasses(item, ['error']));
   }
 
   /**

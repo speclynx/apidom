@@ -1,6 +1,7 @@
 import ArrayElement from '../primitives/ArrayElement.ts';
 import type Element from '../primitives/Element.ts';
 import type { Meta, Attributes } from '../types.ts';
+import { includesClasses } from '../predicates/index.ts';
 
 /**
  * Represents a position in the source document.
@@ -39,14 +40,14 @@ class SourceMapElement extends ArrayElement {
    * The start position in the source document.
    */
   get positionStart(): Element | undefined {
-    return this.filter((item) => item.classes.includes('position')).get(0);
+    return this.filter((item) => includesClasses(item, ['position'])).get(0);
   }
 
   /**
    * The end position in the source document.
    */
   get positionEnd(): Element | undefined {
-    return this.filter((item) => item.classes.includes('position')).get(1);
+    return this.filter((item) => includesClasses(item, ['position'])).get(1);
   }
 
   /**

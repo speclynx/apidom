@@ -1,9 +1,8 @@
 import Element from '../primitives/Element.ts';
-import { isArrayElement } from './primitives.ts';
+import { isArrayElement, isElement } from './primitives.ts';
 import { isSourceMapElement } from './elements.ts';
 
 export {
-  isElement,
   isStringElement,
   isNumberElement,
   isNullElement,
@@ -13,6 +12,7 @@ export {
   isMemberElement,
   isPrimitiveElement,
 } from './primitives.ts';
+export { isElement };
 export type { PrimitiveElement } from './primitives.ts';
 
 export {
@@ -27,8 +27,12 @@ export {
 /**
  * @public
  */
-export const hasElementSourceMap = <T extends Element>(element: T): boolean =>
-  isSourceMapElement(element.meta.get('sourceMap'));
+export const hasElementSourceMap = <T extends Element>(element: T): boolean => {
+  if (element.isMetaEmpty) {
+    return false;
+  }
+  return isSourceMapElement(element.meta.get('sourceMap'));
+};
 
 /**
  * @public
@@ -38,7 +42,7 @@ export const includesSymbols = <T extends Element>(element: T, symbols: string[]
     return true;
   }
 
-  if (!(element as unknown as { _attributes?: unknown })._attributes) {
+  if (!element.hasAttributesProperty('symbols')) {
     return false;
   }
 
@@ -58,8 +62,13 @@ export const includesClasses = <T extends Element>(element: T, classes: string[]
   if (classes.length === 0) {
     return true;
   }
-
-  if (!(element as unknown as { _meta?: unknown })._meta) {
+  if (!isElement(element)) {
+    return false;
+  }
+  if (element.isMetaEmpty) {
+    return false;
+  }
+  if (!element.hasMetaProperty('classes')) {
     return false;
   }
 

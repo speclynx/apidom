@@ -1,4 +1,4 @@
-import { BooleanElement, isBooleanElement } from '@speclynx/apidom-datamodel';
+import { BooleanElement, includesClasses, isBooleanElement } from '@speclynx/apidom-datamodel';
 
 import CallbackElement from './elements/Callback.ts';
 import ComponentsElement from './elements/Components.ts';
@@ -153,7 +153,7 @@ export const isSchemaElement = (element: unknown): element is SchemaElement =>
  * @public
  */
 export const isBooleanJsonSchemaElement = (element: unknown): element is BooleanElement => {
-  return isBooleanElement(element) && element.classes.includes('boolean-json-schema');
+  return isBooleanElement(element) && includesClasses(element, ['boolean-json-schema']);
 };
 
 /**

@@ -125,16 +125,12 @@ const cloneShallowElement = <T extends Element>(element: T): T => {
 
   copy.element = element.element;
 
-  // @ts-ignore
-  if (isElement(element._meta)) {
-    // Use type assertion to access protected property for internal cloning
-    (copy as unknown as { _meta: Element })._meta = cloneDeep(element.meta);
+  if (!element.isMetaEmpty) {
+    copy.meta = cloneDeep(element.meta);
   }
 
-  // @ts-ignore
-  if (isElement(element._attributes)) {
-    // Use type assertion to access protected property for internal cloning
-    (copy as unknown as { _attributes: Element })._attributes = cloneDeep(element.attributes);
+  if (!element.isAttributesEmpty) {
+    copy.attributes = cloneDeep(element.attributes);
   }
 
   const { content } = element;
