@@ -39,7 +39,7 @@ describe('refractor', function () {
         });
 
         specify('should deepmerge meta', function () {
-          assert.isTrue(contactElement.classes.includes('example'));
+          assert.isTrue(includesClasses(contactElement, ['example']));
         });
 
         specify('should deepmerge attributes', function () {

@@ -28,7 +28,7 @@ class Visitor<T> {
       return undefined; // dive in
     }
 
-    const sourceMapElement = element.getMetaProperty('sourceMap');
+    const sourceMapElement = element.meta.get('sourceMap');
     const charStart: number = toValue(sourceMapElement.positionStart.get(2)) as number;
     const charEnd: number = toValue(sourceMapElement.positionEnd.get(2)) as number;
     const isWithinOffsetRange =

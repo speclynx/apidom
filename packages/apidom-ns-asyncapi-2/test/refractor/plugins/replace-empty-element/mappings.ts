@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import dedent from 'dedent';
-import { SourceMapElement } from '@speclynx/apidom-datamodel';
+import { includesClasses, SourceMapElement } from '@speclynx/apidom-datamodel';
 import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
@@ -110,9 +110,9 @@ describe('given empty value instead for AsyncAPI.components.schemas', function (
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as AsyncApi2Element;
     const componentsElement = asyncApiElement.get('components') as ComponentsElement;
-    const isComponentsSchemas = componentsElement
-      .get('schemas')
-      ?.classes.includes('components-schemas');
+    const isComponentsSchemas = includesClasses(componentsElement.get('schemas')!, [
+      'components-schemas',
+    ]);
 
     expect(sexprs(asyncApiElement)).toMatchSnapshot();
     expect(isComponentsSchemas).to.be.true;

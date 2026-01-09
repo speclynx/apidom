@@ -21,7 +21,10 @@ class LinkElement extends Element {
    * The relation identifier for the link, as defined in RFC 5988.
    */
   get relation(): Element | undefined {
-    return this.attributes.get('relation');
+    if (this.hasAttributesProperty('relation')) {
+      return this.attributes.get('relation');
+    }
+    return undefined;
   }
 
   set relation(relation: string | Element | undefined) {
@@ -32,7 +35,10 @@ class LinkElement extends Element {
    * The URI for the given link.
    */
   get href(): Element | undefined {
-    return this.attributes.get('href');
+    if (this.hasAttributesProperty('href')) {
+      return this.attributes.get('href');
+    }
+    return undefined;
   }
 
   set href(href: string | Element | undefined) {

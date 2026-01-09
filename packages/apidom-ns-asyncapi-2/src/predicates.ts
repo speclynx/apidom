@@ -1,4 +1,4 @@
-import { BooleanElement, isBooleanElement } from '@speclynx/apidom-datamodel';
+import { BooleanElement, isBooleanElement, includesClasses } from '@speclynx/apidom-datamodel';
 
 import AsyncApi2Element from './elements/AsyncApi2.ts';
 import AsyncApiVersionElement from './elements/AsyncApiVersion.ts';
@@ -115,7 +115,7 @@ export const isSchemaElement = (element: unknown): element is SchemaElement =>
  * @public
  */
 export const isBooleanJsonSchemaElement = (element: unknown): element is BooleanElement =>
-  isBooleanElement(element) && element.classes.includes('boolean-json-schema');
+  isBooleanElement(element) && includesClasses(element, ['json-schema', 'boolean']);
 
 /**
  * @public

@@ -27,9 +27,11 @@ export class IdentityManager {
     }
 
     // use already assigned identity
-    const existingId = element.meta.get('id');
-    if (isStringElement(existingId) && !existingId.equals('')) {
-      return element.id as StringElement;
+    if (element.hasMetaProperty('id')) {
+      const existingId = element.meta.get('id');
+      if (isStringElement(existingId) && !existingId.equals('')) {
+        return element.id as StringElement;
+      }
     }
 
     // assign identity in immutable way

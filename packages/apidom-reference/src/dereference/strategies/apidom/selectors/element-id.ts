@@ -1,10 +1,11 @@
 import { isUndefined } from 'ramda-adjunct';
-import { Element } from '@speclynx/apidom-datamodel';
+import { Element, isStringElement } from '@speclynx/apidom-datamodel';
 import { filter, toValue } from '@speclynx/apidom-core';
 
 import EvaluationElementIdError from '../../../../errors/EvaluationElementIdError.ts';
 
-const hasElementID = (element: Element): boolean => !!element.id;
+const hasElementID = (element: Element): boolean =>
+  element.hasMetaProperty('id') && isStringElement(element.meta.id);
 
 /**
  * Evaluates element ID against ApiDOM fragment.

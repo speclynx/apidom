@@ -400,14 +400,10 @@ class Element implements ToValue, Equatable, Freezable {
     return ref;
   }
 
-  // ============================================================
-  // Protected Helpers
-  // ============================================================
-
   /**
    * Gets a meta property, creating it with default value if not present.
    */
-  protected getMetaProperty(name: string, defaultValue: unknown): Element {
+  public getMetaProperty(name: string, defaultValue: unknown): Element {
     if (!this.meta.hasKey(name)) {
       if (this.isFrozen) {
         const element = this.refract(defaultValue);
@@ -422,8 +418,64 @@ class Element implements ToValue, Equatable, Freezable {
   /**
    * Sets a meta property.
    */
-  protected setMetaProperty(name: string, value: unknown): void {
+  public setMetaProperty(name: string, value: unknown): void {
     this.meta.set(name, value);
+  }
+
+  /**
+   * Has meta property.
+   */
+  public hasMetaProperty(name: string): boolean {
+    if (!this.isMetaEmpty) {
+      return this.meta.hasKey(name);
+    }
+    return false;
+  }
+
+  /**
+   * Checks if meta is empty.
+   */
+  get isMetaEmpty(): boolean {
+    return this._meta === undefined || this.meta.isEmpty;
+  }
+
+  /**
+   * Gets an attribute property, creating it with default value if not present.
+   */
+  public getAttributesProperty(name: string, defaultValue: unknown): Element {
+    if (!this.hasAttributesProperty(name)) {
+      if (this.isFrozen) {
+        const element = this.refract(defaultValue);
+        element.freeze();
+        return element;
+      }
+      this.attributes.set(name, defaultValue);
+    }
+    return this.attributes.get(name)!;
+  }
+
+  /**
+   * Sets an attributes property.
+   */
+  public setAttributesProperty(name: string, value: unknown): void {
+    this.attributes.set(name, value);
+  }
+
+  /**
+   * Has attributes property.
+   */
+  public hasAttributesProperty(name: string): boolean {
+    if (!this.isAttributesEmpty) {
+      return this.attributes.hasKey(name);
+    }
+    return false;
+  }
+
+  /**
+   * Checks if attributes is empty.
+   */
+  get isAttributesEmpty(): boolean {
+    return this._attributes === undefined || this.attributes.isEmpty;
   }
 }
 
