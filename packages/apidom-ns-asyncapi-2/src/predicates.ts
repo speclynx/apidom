@@ -115,7 +115,7 @@ export const isSchemaElement = (element: unknown): element is SchemaElement =>
  * @public
  */
 export const isBooleanJsonSchemaElement = (element: unknown): element is BooleanElement =>
-  isBooleanElement(element) && includesClasses(element, ['json-schema', 'boolean']);
+  isBooleanElement(element) && includesClasses(element, ['boolean-json-schema']);
 
 /**
  * @public
