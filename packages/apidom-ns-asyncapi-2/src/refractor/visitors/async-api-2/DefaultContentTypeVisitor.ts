@@ -1,5 +1,6 @@
 import { StringElement } from '@speclynx/apidom-datamodel';
-import { BREAK, toValue } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import DefaultContentTypeElement from '../../../elements/DefaultContentType.ts';
 import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from './bases.ts';
@@ -15,7 +16,8 @@ export type DefaultContentTypeVisitorOptions = BaseSpecificationVisitorOptions;
 class DefaultContentTypeVisitor extends BaseSpecificationVisitor {
   declare public element: DefaultContentTypeElement;
 
-  StringElement(stringElement: StringElement) {
+  StringElement(path: Path<StringElement>) {
+    const stringElement = path.node;
     const defaultContentTypeElement = new DefaultContentTypeElement(
       toValue(stringElement) as string,
     );
@@ -23,7 +25,7 @@ class DefaultContentTypeVisitor extends BaseSpecificationVisitor {
     this.copyMetaAndAttributes(stringElement, defaultContentTypeElement);
 
     this.element = defaultContentTypeElement;
-    return BREAK;
+    path.stop();
   }
 }
 

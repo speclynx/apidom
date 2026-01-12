@@ -1,5 +1,5 @@
 import { ArrayElement, cloneDeep } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import OperationSchemesElement from '../../../../elements/nces/OperationSchemes.ts';
 import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
@@ -17,10 +17,12 @@ class SchemesVisitor extends FallbackVisitor {
     this.element = new OperationSchemesElement();
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
+  ArrayElement(path: Path<ArrayElement>) {
+    const arrayElement = path.node;
+
     this.element = this.element.concat(cloneDeep(arrayElement));
 
-    return BREAK;
+    path.stop();
   }
 }
 

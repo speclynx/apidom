@@ -5,6 +5,7 @@ import { assert, expect } from 'chai';
 import sinon from 'sinon';
 import { ObjectElement, Namespace } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import {
   refractJSONSchema,
@@ -40,9 +41,9 @@ describe('refractor', function () {
         name: 'plugin1',
         pre() {},
         visitor: {
-          LinkDescriptionElement(element: LinkDescriptionElement) {
+          LinkDescriptionElement(pathArg: Path<LinkDescriptionElement>) {
             // @ts-ignore
-            element.anchor = 'nodes/{thisNodeId}';
+            pathArg.node.anchor = 'nodes/{thisNodeId}';
           },
         },
         post() {},
@@ -51,9 +52,9 @@ describe('refractor', function () {
         name: 'plugin2',
         pre() {},
         visitor: {
-          LinkDescriptionElement(element: LinkDescriptionElement) {
+          LinkDescriptionElement(pathArg: Path<LinkDescriptionElement>) {
             // @ts-ignore
-            element.meta.set('metaKey', 'metaValue');
+            pathArg.node.meta.set('metaKey', 'metaValue');
           },
         },
         post() {},
@@ -231,10 +232,10 @@ describe('refractor', function () {
             plugins: [plugin1],
           });
 
-          assert.lengthOf(plugin1Spec.visitor.LinkDescriptionElement.firstCall.args, 6);
+          assert.lengthOf(plugin1Spec.visitor.LinkDescriptionElement.firstCall.args, 1);
         });
 
-        specify('should receive node as first argument', function () {
+        specify('should receive path as first argument with node property', function () {
           const genericObject = new ObjectElement({
             $id: 'http://x.y.z/rootschema.json#',
             $schema: 'http://json-schema.org/draft-07/schema#',
@@ -244,9 +245,9 @@ describe('refractor', function () {
             plugins: [plugin1],
           });
 
-          assert.isTrue(
-            isLinkDescriptionElement(plugin1Spec.visitor.LinkDescriptionElement.firstCall.args[0]),
-          );
+          const pathArg = plugin1Spec.visitor.LinkDescriptionElement.firstCall.args[0];
+          assert.instanceOf(pathArg, Path);
+          assert.isTrue(isLinkDescriptionElement(pathArg.node));
         });
 
         specify('should augment LinkDescriptionElement.anchor field', function () {
@@ -278,10 +279,10 @@ describe('refractor', function () {
             plugins: [plugin1, plugin2],
           });
 
-          assert.lengthOf(plugin2Spec.visitor.LinkDescriptionElement.firstCall.args, 6);
+          assert.lengthOf(plugin2Spec.visitor.LinkDescriptionElement.firstCall.args, 1);
         });
 
-        specify('should receive node as first argument', function () {
+        specify('should receive path as first argument with node property', function () {
           const genericObject = new ObjectElement({
             $id: 'http://x.y.z/rootschema.json#',
             $schema: 'http://json-schema.org/draft-07/schema#',
@@ -291,9 +292,9 @@ describe('refractor', function () {
             plugins: [plugin1, plugin2],
           });
 
-          assert.isTrue(
-            isLinkDescriptionElement(plugin2Spec.visitor.LinkDescriptionElement.firstCall.args[0]),
-          );
+          const pathArg = plugin2Spec.visitor.LinkDescriptionElement.firstCall.args[0];
+          assert.instanceOf(pathArg, Path);
+          assert.isTrue(isLinkDescriptionElement(pathArg.node));
         });
 
         specify('should append metadata to LinkDescriptionElement', function () {
@@ -307,8 +308,8 @@ describe('refractor', function () {
           });
 
           // Verify the plugin was called and modified the element
-          const visitedElement = plugin2Spec.visitor.LinkDescriptionElement.firstCall.args[0];
-          assert.strictEqual(toValue(visitedElement.meta.get('metaKey')), 'metaValue');
+          const pathArg = plugin2Spec.visitor.LinkDescriptionElement.firstCall.args[0];
+          assert.strictEqual(toValue(pathArg.node.meta.get('metaKey')), 'metaValue');
         });
       });
     });

@@ -130,8 +130,6 @@ export type {
 
 export type { SpecPath } from './refractor/visitors/generics/FixedFieldsVisitor.ts';
 
-export { keyMap, getNodeType } from './traversal/visitor.ts';
-
 /**
  * JSON Schema Draft 4 specification elements.
  */

@@ -57,23 +57,22 @@ isJSONSchemaElement(jsonSchemaElement); // => true
 
 ## Traversal
 
-Traversing ApiDOM in this namespace is possible by using `visit` function from `apidom` package.
-This package comes with its own [keyMap](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-json-schema-draft-4/src/traversal/visitor.ts#L11) and [nodeTypeGetter](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-json-schema-draft-4/src/traversal/visitor.ts#L4).
-To learn more about these `visit` configuration options please refer to [@speclynx/apidom-ast documentation](https://github.com/speclynx/apidom/blob/main/packages/apidom-ast/README.md#visit).
+Traversing ApiDOM in this namespace is possible by using `traverse` function from `@speclynx/apidom-traverse` package.
+To learn more about the `traverse` function, please refer to [@speclynx/apidom-traverse documentation](https://github.com/speclynx/apidom/blob/main/packages/apidom-traverse/README.md).
 
 ```js
-import { visit } from '@speclynx/apidom-core';
-import { JSONSchemaElement, keyMap, getNodeType } from '@speclynx/apidom-ns-json-schema-draft-4';
+import { traverse } from '@speclynx/apidom-traverse';
+import { JSONSchemaElement } from '@speclynx/apidom-ns-json-schema-draft-4';
 
 const element = new JSONSchemaElement();
 
 const visitor = {
-  JSONSchemaDraft4Element(jsonSchemaElement) {
-    console.dir(jsonSchemaElement);
+  JSONSchemaDraft4Element(path) {
+    console.dir(path.node);
   },
 };
 
-visit(element, visitor, { keyMap, nodeTypeGetter: getNodeType });
+traverse(element, visitor);
 ```
 
 ## Refractors
@@ -127,8 +126,8 @@ const plugin = ({ predicates, namespace }) => ({
       console.dir('runs before traversal');
   },
   visitor: {
-    MediaElement(mediaElement) {
-      mediaElement.type = 'image/gif';
+    MediaElement(path) {
+      path.node.type = 'image/gif';
     },
   },
   post() {

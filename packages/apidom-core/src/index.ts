@@ -15,14 +15,6 @@ export { default as MediaTypes } from './media-types.ts';
 
 export { filter, reject, find, findAtOffset, some, traverse, parents } from './traversal/index.ts';
 export type { FindAtOffsetOptions } from './traversal/index.ts';
-export {
-  visit,
-  BREAK,
-  mergeAllVisitors,
-  getNodeType,
-  cloneNode,
-  keyMapDefault as keyMap,
-} from './traversal/visitor.ts';
 export type { Callback, TraverseOptions } from './traversal/traverse.ts';
 
 export { transclude, default as Transcluder } from './transcluder/index.ts';
@@ -43,7 +35,7 @@ export { default as from } from './transformers/from.ts';
  * This POJO would be the result of interpreting the ApiDOM
  * into JavaScript structure.
  */
-export { default as toValue } from './transformers/serializers/value/index.ts';
+export { default as toValue } from './transformers/serializers/value.ts';
 
 /**
  * Transforms the ApiDOM into JSON string.

@@ -1,6 +1,7 @@
 import { always, defaultTo } from 'ramda';
 import { ObjectElement, isObjectElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import mediaTypes from '../../../../media-types.ts';
 import MessageElement from '../../../../elements/Message.ts';
@@ -32,8 +33,9 @@ class MessageVisitor extends BaseFixedFieldsVisitor {
     this.canSupportSpecificationExtensions = true;
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, path);
+    const objectElement = path.node;
     const payload = this.element.get('payload');
     const schemaFormat = defaultTo(
       mediaTypes.latest(),
@@ -54,8 +56,6 @@ class MessageVisitor extends BaseFixedFieldsVisitor {
     ) {
       this.element.payload = this.toRefractedElement(['document', 'objects', 'Schema'], payload);
     }
-
-    return result;
   }
 }
 

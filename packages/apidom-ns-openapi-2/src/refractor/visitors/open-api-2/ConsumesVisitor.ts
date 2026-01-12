@@ -1,5 +1,5 @@
 import { ArrayElement, cloneDeep } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import SwaggerConsumesElement from '../../../elements/nces/SwaggerConsumes.ts';
 import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
@@ -17,10 +17,12 @@ class ConsumesVisitor extends FallbackVisitor {
     this.element = new SwaggerConsumesElement();
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
+  ArrayElement(path: Path<ArrayElement>) {
+    const arrayElement = path.node;
+
     this.element = this.element.concat(cloneDeep(arrayElement));
 
-    return BREAK;
+    path.stop();
   }
 }
 

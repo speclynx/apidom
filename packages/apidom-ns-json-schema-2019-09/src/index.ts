@@ -78,8 +78,6 @@ export type { PatternPropertiesVisitorOptions } from './refractor/visitors/json-
 export { default as PropertiesVisitor } from './refractor/visitors/json-schema/PropertiesVisitor.ts';
 export type { PropertiesVisitorOptions } from './refractor/visitors/json-schema/PropertiesVisitor.ts';
 
-export { keyMap, getNodeType } from './traversal/visitor.ts';
-
 /**
  * JSON Schema 2019-09 specification elements.
  */

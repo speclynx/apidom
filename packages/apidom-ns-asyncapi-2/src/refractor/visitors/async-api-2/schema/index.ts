@@ -1,5 +1,6 @@
 import { always } from 'ramda';
 import { ObjectElement, BooleanElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import SchemaElement from '../../../../elements/Schema.ts';
 import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
@@ -26,17 +27,15 @@ class SchemaVisitor extends BaseFixedFieldsVisitor {
     this.canSupportSpecificationExtensions = true;
   }
 
-  ObjectElement(objectElement: ObjectElement) {
+  ObjectElement(path: Path<ObjectElement>) {
     this.element = new SchemaElement();
 
-    return BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+    BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, path);
   }
 
-  BooleanElement(booleanElement: BooleanElement) {
-    const result = super.enter(booleanElement);
+  BooleanElement(path: Path<BooleanElement>) {
+    super.enter(path);
     this.element.classes.push('boolean-json-schema');
-
-    return result;
   }
 }
 

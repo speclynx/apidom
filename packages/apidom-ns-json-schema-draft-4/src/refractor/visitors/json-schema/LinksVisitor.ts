@@ -1,5 +1,5 @@
 import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { FallbackVisitorOptions } from '../FallbackVisitor.ts';
 import { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
@@ -24,7 +24,8 @@ class LinksVisitor extends LinksVisitorBase {
     this.element.classes.push('json-schema-links');
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
+  ArrayElement(path: Path<ArrayElement>) {
+    const arrayElement = path.node;
     arrayElement.forEach((item: Element): void => {
       const linkDescriptionElement = this.toRefractedElement(
         ['document', 'objects', 'LinkDescription'],
@@ -35,7 +36,7 @@ class LinksVisitor extends LinksVisitorBase {
 
     this.copyMetaAndAttributes(arrayElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

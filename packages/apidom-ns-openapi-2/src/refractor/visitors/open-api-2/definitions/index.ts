@@ -1,4 +1,5 @@
 import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 import {
   isJSONReferenceLikeElement,
   isJSONReferenceElement,
@@ -31,8 +32,8 @@ class DefinitionsVisitor extends BaseMapVisitor {
     };
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = BaseMapVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    BaseMapVisitor.prototype.ObjectElement.call(this, path);
 
     // decorate every JSONReferenceElement with metadata about their referencing type
     this.element
@@ -41,8 +42,6 @@ class DefinitionsVisitor extends BaseMapVisitor {
       .forEach((referenceElement: JSONReferenceElement) => {
         referenceElement.meta.set('referenced-element', 'schema');
       });
-
-    return result;
   }
 }
 

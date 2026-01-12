@@ -1,4 +1,5 @@
 import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 import {
   specificationObj as JSONSchemaDraft7Specification,
   PatternPropertiesVisitorOptions,
@@ -20,18 +21,13 @@ export const JSONSchemaPatternPropertiesVisitor: typeof PatternPropertiesVisitor
  * @public
  */
 class PatternPropertiesVisitor extends JSONSchemaPatternPropertiesVisitor {
-  ObjectElement(objectElement: ObjectElement) {
-    const result = JSONSchemaPatternPropertiesVisitor.prototype.ObjectElement.call(
-      this,
-      objectElement,
-    );
+  ObjectElement(path: Path<ObjectElement>) {
+    JSONSchemaPatternPropertiesVisitor.prototype.ObjectElement.call(this, path);
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
       referenceElement.meta.set('referenced-element', 'schema');
     });
-
-    return result;
   }
 }
 

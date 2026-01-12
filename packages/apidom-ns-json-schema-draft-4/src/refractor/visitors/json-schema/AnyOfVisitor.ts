@@ -1,5 +1,5 @@
 import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { FallbackVisitorOptions } from '../FallbackVisitor.ts';
 import { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
@@ -25,7 +25,8 @@ class AnyOfVisitor extends AnyOfVisitorBase {
     this.element.classes.push('json-schema-anyOf');
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
+  ArrayElement(path: Path<ArrayElement>) {
+    const arrayElement = path.node;
     arrayElement.forEach((item: Element): void => {
       const specPath = isJSONReferenceLikeElement(item)
         ? ['document', 'objects', 'JSONReference']
@@ -36,7 +37,7 @@ class AnyOfVisitor extends AnyOfVisitorBase {
 
     this.copyMetaAndAttributes(arrayElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

@@ -1,5 +1,6 @@
 import { always } from 'ramda';
 import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { SpecPath } from '../generics/FixedFieldsVisitor.ts';
 import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from './bases.ts';
@@ -29,8 +30,8 @@ class OpenApi3_0Visitor extends BaseFixedFieldsVisitor {
     this.canSupportSpecificationExtensions = true;
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    return BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, path);
   }
 }
 

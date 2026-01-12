@@ -5,6 +5,7 @@ import { assert, expect } from 'chai';
 import sinon from 'sinon';
 import { ObjectElement, Namespace } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { refractJSONSchema, MediaElement, isMediaElement } from '../../src/index.ts';
 import * as predicates from '../../src/predicates.ts';
@@ -36,9 +37,9 @@ describe('refractor', function () {
         name: 'plugin1',
         pre() {},
         visitor: {
-          MediaElement(element: MediaElement) {
+          MediaElement(pathArg: Path<MediaElement>) {
             // @ts-ignore
-            element.binaryEncoding = 'base64';
+            pathArg.node.binaryEncoding = 'base64';
           },
         },
         post() {},
@@ -47,9 +48,9 @@ describe('refractor', function () {
         name: 'plugin2',
         pre() {},
         visitor: {
-          MediaElement(element: MediaElement) {
+          MediaElement(pathArg: Path<MediaElement>) {
             // @ts-ignore
-            element.meta.set('metaKey', 'metaValue');
+            pathArg.node.meta.set('metaKey', 'metaValue');
           },
         },
         post() {},
@@ -225,10 +226,10 @@ describe('refractor', function () {
             plugins: [plugin1],
           });
 
-          assert.lengthOf(plugin1Spec.visitor.MediaElement.firstCall.args, 6);
+          assert.lengthOf(plugin1Spec.visitor.MediaElement.firstCall.args, 1);
         });
 
-        specify('should receive node as first argument', function () {
+        specify('should receive path as first argument with node property', function () {
           const genericObject = new ObjectElement({
             $id: 'http://x.y.z/rootschema.json#',
             $schema: 'http://json-schema.org/draft-06/schema#',
@@ -238,7 +239,9 @@ describe('refractor', function () {
             plugins: [plugin1],
           });
 
-          assert.isTrue(isMediaElement(plugin1Spec.visitor.MediaElement.firstCall.args[0]));
+          const pathArg = plugin1Spec.visitor.MediaElement.firstCall.args[0];
+          assert.instanceOf(pathArg, Path);
+          assert.isTrue(isMediaElement(pathArg.node));
         });
 
         specify('should augment MediaElement.binaryEncoding field', function () {
@@ -270,10 +273,10 @@ describe('refractor', function () {
             plugins: [plugin1, plugin2],
           });
 
-          assert.lengthOf(plugin2Spec.visitor.MediaElement.firstCall.args, 6);
+          assert.lengthOf(plugin2Spec.visitor.MediaElement.firstCall.args, 1);
         });
 
-        specify('should receive node as first argument', function () {
+        specify('should receive path as first argument with node property', function () {
           const genericObject = new ObjectElement({
             $id: 'http://x.y.z/rootschema.json#',
             $schema: 'http://json-schema.org/draft-06/schema#',
@@ -283,7 +286,9 @@ describe('refractor', function () {
             plugins: [plugin1, plugin2],
           });
 
-          assert.isTrue(isMediaElement(plugin2Spec.visitor.MediaElement.firstCall.args[0]));
+          const pathArg = plugin2Spec.visitor.MediaElement.firstCall.args[0];
+          assert.instanceOf(pathArg, Path);
+          assert.isTrue(isMediaElement(pathArg.node));
         });
 
         specify('should append metadata to MediaElement', function () {

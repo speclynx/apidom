@@ -1,4 +1,5 @@
 import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 import {
   specificationObj as JSONSchemaDraft4Specification,
   isJSONReferenceElement,
@@ -24,14 +25,12 @@ export const JSONSchemaOrJSONReferenceVisitor: typeof SchemaOrReferenceVisitorTy
 class SchemaOrJSONReferenceVisitor extends JSONSchemaOrJSONReferenceVisitor {
   declare public element: SchemaElement | JSONReferenceElement;
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = JSONSchemaOrJSONReferenceVisitor.prototype.enter.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    JSONSchemaOrJSONReferenceVisitor.prototype.enter.call(this, path);
 
     if (isJSONReferenceElement(this.element)) {
       this.element.meta.set('referenced-element', 'schema');
     }
-
-    return result;
   }
 }
 

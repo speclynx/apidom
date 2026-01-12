@@ -72,8 +72,6 @@ export type {
 export { default as ItemsVisitor } from './refractor/visitors/json-schema/ItemsVisitor.ts';
 export type { ItemsVisitorOptions } from './refractor/visitors/json-schema/ItemsVisitor.ts';
 
-export { keyMap, getNodeType } from './traversal/visitor.ts';
-
 /**
  * JSON Schema Draft 6 specification elements.
  */

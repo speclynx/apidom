@@ -5,6 +5,7 @@ import { assert, expect } from 'chai';
 import sinon from 'sinon';
 import { ObjectElement, Namespace } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import type { Path } from '@speclynx/apidom-traverse';
 
 import * as predicates from '../../src/predicates.ts';
 import {
@@ -118,7 +119,8 @@ describe('refractor', function () {
         name: 'plugin1',
         pre() {},
         visitor: {
-          AsyncApiVersionElement(element: AsyncApiVersionElement) {
+          AsyncApiVersionElement(path: Path<AsyncApiVersionElement>) {
+            const element = path.node;
             // @ts-ignore
             element.content = '2.0.1';
           },
@@ -129,7 +131,8 @@ describe('refractor', function () {
         name: 'plugin2',
         pre() {},
         visitor: {
-          AsyncApiVersionElement(element: AsyncApiVersionElement) {
+          AsyncApiVersionElement(path: Path<AsyncApiVersionElement>) {
+            const element = path.node;
             // @ts-ignore
             element.meta.set('metaKey', 'metaValue');
           },
@@ -292,10 +295,10 @@ describe('refractor', function () {
             plugins: [plugin1],
           });
 
-          assert.lengthOf(plugin1Spec.visitor.AsyncApiVersionElement.firstCall.args, 6);
+          assert.lengthOf(plugin1Spec.visitor.AsyncApiVersionElement.firstCall.args, 1);
         });
 
-        specify('should receive node as first argument', function () {
+        specify('should receive path with node as first argument', function () {
           const genericObject = new ObjectElement({
             asyncapi: '2.6.0',
           });
@@ -304,7 +307,9 @@ describe('refractor', function () {
           });
 
           assert.isTrue(
-            isAsyncApiVersionElement(plugin1Spec.visitor.AsyncApiVersionElement.firstCall.args[0]),
+            isAsyncApiVersionElement(
+              plugin1Spec.visitor.AsyncApiVersionElement.firstCall.args[0].node,
+            ),
           );
         });
 
@@ -329,10 +334,10 @@ describe('refractor', function () {
             plugins: [plugin1, plugin2],
           });
 
-          assert.lengthOf(plugin2Spec.visitor.AsyncApiVersionElement.firstCall.args, 6);
+          assert.lengthOf(plugin2Spec.visitor.AsyncApiVersionElement.firstCall.args, 1);
         });
 
-        specify('should receive node as first argument', function () {
+        specify('should receive path with node as first argument', function () {
           const genericObject = new ObjectElement({
             asyncapi: '2.6.0',
           });
@@ -341,7 +346,9 @@ describe('refractor', function () {
           });
 
           assert.isTrue(
-            isAsyncApiVersionElement(plugin2Spec.visitor.AsyncApiVersionElement.firstCall.args[0]),
+            isAsyncApiVersionElement(
+              plugin2Spec.visitor.AsyncApiVersionElement.firstCall.args[0].node,
+            ),
           );
         });
 

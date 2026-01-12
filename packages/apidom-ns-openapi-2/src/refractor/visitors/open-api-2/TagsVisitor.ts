@@ -1,5 +1,5 @@
 import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import SwaggerTagsElement from '../../../elements/nces/SwaggerTags.ts';
 import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from './bases.ts';
@@ -17,7 +17,9 @@ class TagsVisitor extends BaseSpecificationVisitor {
     this.element = new SwaggerTagsElement();
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
+  ArrayElement(path: Path<ArrayElement>) {
+    const arrayElement = path.node;
+
     arrayElement.forEach((item: Element): void => {
       const specPath = ['document', 'objects', 'Tag'];
       const element = this.toRefractedElement(specPath, item);
@@ -25,7 +27,7 @@ class TagsVisitor extends BaseSpecificationVisitor {
     });
     this.copyMetaAndAttributes(arrayElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

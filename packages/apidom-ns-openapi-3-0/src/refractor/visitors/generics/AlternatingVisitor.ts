@@ -1,7 +1,7 @@
 import { ifElse, always } from 'ramda';
 import { dispatch, stubUndefined } from 'ramda-adjunct';
 import { Element } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
 
@@ -28,7 +28,8 @@ class AlternatingVisitor extends SpecificationVisitor {
     this.alternator = alternator || [];
   }
 
-  enter(element: Element) {
+  enter(path: Path<Element>) {
+    const element = path.node;
     const functions = this.alternator.map(
       ({ predicate, specPath }: { predicate: (element: unknown) => boolean; specPath: string[] }) =>
         ifElse(predicate, always(specPath), stubUndefined),
@@ -37,7 +38,7 @@ class AlternatingVisitor extends SpecificationVisitor {
 
     this.element = this.toRefractedElement(specPath, element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

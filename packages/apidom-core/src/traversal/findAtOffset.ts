@@ -1,48 +1,14 @@
 import { last, pathOr } from 'ramda';
 import { isNumber } from 'ramda-adjunct';
-import { Element, hasElementSourceMap } from '@speclynx/apidom-datamodel';
+import {
+  Element,
+  ArrayElement,
+  SourceMapElement,
+  hasElementSourceMap,
+} from '@speclynx/apidom-datamodel';
+import { traverse, type Path } from '@speclynx/apidom-traverse';
 
-import { visit } from './visitor.ts';
-import toValue from '../transformers/serializers/value/index.ts';
-
-interface VisitorOptions {
-  readonly offset?: number;
-  readonly includeRightBound?: boolean;
-}
-
-class Visitor<T> {
-  public result: T[];
-
-  protected readonly offset: number;
-
-  protected readonly includeRightBound: boolean;
-
-  constructor({ offset = 0, includeRightBound = false }: VisitorOptions = {}) {
-    this.result = [];
-    this.offset = offset;
-    this.includeRightBound = includeRightBound;
-  }
-
-  public enter(element: any): false | undefined {
-    if (!hasElementSourceMap(element)) {
-      return undefined; // dive in
-    }
-
-    const sourceMapElement = element.meta.get('sourceMap');
-    const charStart: number = toValue(sourceMapElement.positionStart.get(2)) as number;
-    const charEnd: number = toValue(sourceMapElement.positionEnd.get(2)) as number;
-    const isWithinOffsetRange =
-      this.offset >= charStart &&
-      (this.offset < charEnd || (this.includeRightBound && this.offset <= charEnd));
-
-    if (isWithinOffsetRange) {
-      this.result.push(element);
-      return undefined; // push to stack and dive in
-    }
-
-    return false; // skip entire sub-tree
-  }
-}
+import toValue from '../transformers/serializers/value.ts';
 
 /**
  * @public
@@ -72,11 +38,34 @@ const findAtOffset = <T extends Element>(
     includeRightBound = pathOr(false, ['includeRightBound'], options);
   }
 
-  const visitor = new Visitor<T>({ offset, includeRightBound });
+  const result: T[] = [];
 
-  visit(element, visitor);
+  traverse(element, {
+    enter(path: Path<Element>) {
+      const node = path.node;
 
-  return last<T>(visitor.result);
+      if (!hasElementSourceMap(node)) {
+        return; // dive in
+      }
+
+      const sourceMapElement = node.meta.get('sourceMap') as SourceMapElement;
+      const positionStart = sourceMapElement.positionStart as ArrayElement | undefined;
+      const positionEnd = sourceMapElement.positionEnd as ArrayElement | undefined;
+      const charStart: number = toValue(positionStart?.get(2)) as number;
+      const charEnd: number = toValue(positionEnd?.get(2)) as number;
+      const isWithinOffsetRange =
+        offset >= charStart && (offset < charEnd || (includeRightBound && offset <= charEnd));
+
+      if (isWithinOffsetRange) {
+        result.push(node as T);
+        return; // push to stack and dive in
+      }
+
+      path.skip(); // skip entire sub-tree
+    },
+  });
+
+  return last<T>(result);
 };
 
 export default findAtOffset;

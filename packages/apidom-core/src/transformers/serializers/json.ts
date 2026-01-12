@@ -1,6 +1,6 @@
 import { Element } from '@speclynx/apidom-datamodel';
 
-import serializeValue from './value/index.ts';
+import serializeValue from './value.ts';
 
 /**
  * @public

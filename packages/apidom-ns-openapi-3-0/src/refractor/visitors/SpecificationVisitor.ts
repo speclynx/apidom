@@ -1,7 +1,7 @@
 import { pathSatisfies, path, pick } from 'ramda';
 import { isFunction } from 'ramda-adjunct';
 import { ObjectElement, cloneDeep } from '@speclynx/apidom-datamodel';
-import { visit } from '@speclynx/apidom-core';
+import { traverse, getNodePrimitiveType } from '@speclynx/apidom-traverse';
 
 import OpenApi3_0Element from '../../elements/OpenApi3-0.ts';
 import Visitor, { VisitorOptions } from './Visitor.ts';
@@ -96,7 +96,7 @@ class SpecificationVisitor extends Visitor {
       return cloneDeep(element);
     }
 
-    visit(element, visitor, options);
+    traverse(element, visitor, { nodeTypeGetter: getNodePrimitiveType });
     return visitor.element;
   }
 }

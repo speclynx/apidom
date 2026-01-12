@@ -29,31 +29,12 @@ Syntactic Analysis will take a stream of tokens and turn it into an ApiDOM repre
 [CST](https://tree-sitter.github.io/tree-sitter/using-parsers#syntax-nodes) produced by lexical analysis is [syntactically analyzed](https://github.com/speclynx/apidom/blob/main/packages/apidom-parser-adapter-json/src/syntactic-analysis)
 and ApiDOM structure using [base ApiDOM namespace](https://github.com/speclynx/apidom/tree/main/packages/apidom#base-namespace) is produced.
 
-#### [Direct Syntactical analysis](https://github.com/speclynx/apidom/blob/main/packages/apidom-parser-adapter-json/src/syntactic-analysis/direct)
-
-This analysis directly turns tree-sitter CST into ApiDOM. Single traversal is required which makes
-it super performant, and it's the default analysis used.
+This analysis directly turns tree-sitter CST into ApiDOM in a single traversal pass, making it highly performant.
 
 ```js
 import { parse } from '@speclynx/apidom-parser-adapter-json';
 
-const parseResult = await parse('{"prop": "value"}', {
-  syntacticAnalysis: 'direct',
-});
-```
-
-#### [Indirect Syntactic analysis]((https://github.com/speclynx/apidom/blob/main/packages/apidom-parser-adapter-json/src/syntactic-analysis/indirect))
-
-This analysis turns trees-sitter CST into [JSON AST](https://github.com/speclynx/apidom/tree/main/packages/apidom-ast#json-ast-nodes) representation.
-Then JSON AST is turned into ApiDOM. Two traversals are required, which makes indirect analysis less performant than direct one.
-Thought less performant, having JSON AST representation allows us to do further complex analysis.
-
-```js
-import { parse } from '@speclynx/apidom-parser-adapter-json';
-
-const parseResult = await parse('{"prop": "value"}', {
-  syntacticAnalysis: 'indirect',
-});
+const parseResult = await parse('{"prop": "value"}');
 ```
 
 ## Parser adapter API
@@ -84,7 +65,6 @@ This adapter exposes an instance of [base ApiDOM namespace](https://github.com/s
 Option | Type | Default | Description
 --- | --- | --- | ---
 <a name="sourceMap"></a>`sourceMap` | `Boolean` | `false` | Indicate whether to generate source maps.
-<a name="syntacticAnalysis"></a>`syntacticAnalysis` | `String` | `direct` | Indicate type of syntactic analysis
 
 All unrecognized arbitrary options will be ignored.
 

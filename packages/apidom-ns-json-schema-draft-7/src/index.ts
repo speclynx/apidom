@@ -67,8 +67,6 @@ export type { JSONSchemaVisitorOptions } from './refractor/visitors/json-schema/
 export { default as LinkDescriptionVisitor } from './refractor/visitors/json-schema/link-description/index.ts';
 export type { LinkDescriptionVisitorOptions } from './refractor/visitors/json-schema/link-description/index.ts';
 
-export { keyMap, getNodeType } from './traversal/visitor.ts';
-
 /**
  * JSON Schema Draft 7 specification elements.
  */

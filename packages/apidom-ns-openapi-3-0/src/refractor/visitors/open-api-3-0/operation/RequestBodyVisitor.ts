@@ -1,5 +1,6 @@
 import { T as stubTrue } from 'ramda';
 import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { isReferenceElement } from '../../../../predicates.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
@@ -26,14 +27,12 @@ class RequestBodyVisitor extends AlternatingVisitor {
     ];
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = AlternatingVisitor.prototype.enter.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    AlternatingVisitor.prototype.enter.call(this, path);
 
     if (isReferenceElement(this.element)) {
       this.element.meta.set('referenced-element', 'requestBody');
     }
-
-    return result;
   }
 }
 

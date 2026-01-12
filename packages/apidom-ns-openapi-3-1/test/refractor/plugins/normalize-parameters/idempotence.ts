@@ -7,8 +7,6 @@ import {
   createToolbox,
   refractOpenApi3_1,
   refractorPluginNormalizeParameters,
-  keyMap,
-  getNodeType,
 } from '../../../../src/index.ts';
 
 describe('refractor', function () {
@@ -33,7 +31,6 @@ describe('refractor', function () {
         const openApiElement = refractOpenApi3_1(apiDOM.result);
         const options = {
           toolboxCreator: createToolbox,
-          visitorOptions: { keyMap, nodeTypeGetter: getNodeType },
         };
 
         dispatchRefractorPlugins(openApiElement, [refractorPluginNormalizeParameters()], options);

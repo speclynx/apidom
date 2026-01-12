@@ -5,7 +5,8 @@ import {
   ObjectElement,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { BREAK, toValue } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
 import { isAsyncApiExtension } from '../../predicates.ts';
@@ -57,7 +58,8 @@ class FixedFieldsVisitor extends SpecificationVisitor {
     }
   }
 
-  ObjectElement(objectElement: ObjectElement) {
+  ObjectElement(path: Path<ObjectElement>) {
+    const objectElement = path.node;
     const specPath = this.specPath(objectElement);
     const fields = this.retrieveFixedFields(specPath);
 
@@ -90,7 +92,7 @@ class FixedFieldsVisitor extends SpecificationVisitor {
 
     this.copyMetaAndAttributes(objectElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

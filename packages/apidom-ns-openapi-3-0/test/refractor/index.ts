@@ -5,6 +5,7 @@ import { assert, expect } from 'chai';
 import sinon from 'sinon';
 import { ObjectElement, Namespace } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import {
   refract,
@@ -58,9 +59,9 @@ describe('refractor', function () {
         name: 'plugin1',
         pre() {},
         visitor: {
-          OpenapiElement(element: OpenapiElement) {
+          OpenapiElement(path: Path<OpenapiElement>) {
             // @ts-ignore
-            element.content = '3.0.5';
+            path.node.content = '3.0.5';
           },
         },
         post() {},
@@ -69,9 +70,9 @@ describe('refractor', function () {
         name: 'plugin2',
         pre() {},
         visitor: {
-          OpenapiElement(element: OpenapiElement) {
+          OpenapiElement(path: Path<OpenapiElement>) {
             // @ts-ignore
-            element.meta.set('metaKey', 'metaValue');
+            path.node.meta.set('metaKey', 'metaValue');
           },
         },
         post() {},
@@ -230,10 +231,10 @@ describe('refractor', function () {
             plugins: [plugin1],
           });
 
-          assert.lengthOf(plugin1Spec.visitor.OpenapiElement.firstCall.args, 6);
+          assert.lengthOf(plugin1Spec.visitor.OpenapiElement.firstCall.args, 1);
         });
 
-        specify('should receive node as first argument', function () {
+        specify('should receive path as first argument', function () {
           const genericObject = new ObjectElement({
             openapi: '3.0.4',
           });
@@ -241,7 +242,8 @@ describe('refractor', function () {
             plugins: [plugin1],
           });
 
-          assert.isTrue(isOpenapiElement(plugin1Spec.visitor.OpenapiElement.firstCall.args[0]));
+          const pathArg = plugin1Spec.visitor.OpenapiElement.firstCall.args[0];
+          assert.isTrue(isOpenapiElement(pathArg.node));
         });
 
         specify('should augment openapi version', function () {
@@ -265,10 +267,10 @@ describe('refractor', function () {
             plugins: [plugin1, plugin2],
           });
 
-          assert.lengthOf(plugin2Spec.visitor.OpenapiElement.firstCall.args, 6);
+          assert.lengthOf(plugin2Spec.visitor.OpenapiElement.firstCall.args, 1);
         });
 
-        specify('should receive node as first argument', function () {
+        specify('should receive path as first argument', function () {
           const genericObject = new ObjectElement({
             openapi: '3.0.4',
           });
@@ -276,7 +278,8 @@ describe('refractor', function () {
             plugins: [plugin1, plugin2],
           });
 
-          assert.isTrue(isOpenapiElement(plugin2Spec.visitor.OpenapiElement.firstCall.args[0]));
+          const pathArg = plugin2Spec.visitor.OpenapiElement.firstCall.args[0];
+          assert.isTrue(isOpenapiElement(pathArg.node));
         });
 
         specify('should append metadata to openapi version', function () {

@@ -1,5 +1,5 @@
 import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from '../bases.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
@@ -21,7 +21,9 @@ class TraitsVisitor extends BaseSpecificationVisitor {
     this.element = new MessageTraitsElement();
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
+  ArrayElement(path: Path<ArrayElement>) {
+    const arrayElement = path.node;
+
     arrayElement.forEach((item: Element) => {
       let element;
 
@@ -37,7 +39,7 @@ class TraitsVisitor extends BaseSpecificationVisitor {
 
     this.copyMetaAndAttributes(arrayElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

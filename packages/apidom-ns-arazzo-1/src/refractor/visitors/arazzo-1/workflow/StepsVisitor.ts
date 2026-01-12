@@ -1,5 +1,5 @@
 import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import WorkflowStepsElement from '../../../../elements/nces/WorkflowSteps.ts';
 import {
@@ -23,7 +23,8 @@ class StepsVisitor extends BaseSpecificationFallbackVisitor {
     this.element = new WorkflowStepsElement();
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
+  ArrayElement(path: Path<ArrayElement>) {
+    const arrayElement = path.node;
     arrayElement.forEach((item: Element): void => {
       const specPath = ['document', 'objects', 'Step'];
       const element = this.toRefractedElement(specPath, item);
@@ -33,7 +34,7 @@ class StepsVisitor extends BaseSpecificationFallbackVisitor {
 
     this.copyMetaAndAttributes(arrayElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

@@ -1,5 +1,5 @@
 import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import WorkflowParametersElement from '../../../../elements/nces/WorkflowParameters.ts';
 import {
@@ -25,7 +25,8 @@ class ParametersActionsVisitor extends BaseSpecificationFallbackVisitor {
     this.element = new WorkflowParametersElement();
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
+  ArrayElement(path: Path<ArrayElement>) {
+    const arrayElement = path.node;
     arrayElement.forEach((item: Element): void => {
       const specPath = isReusableLikeElement(item)
         ? ['document', 'objects', 'Reusable']
@@ -41,7 +42,7 @@ class ParametersActionsVisitor extends BaseSpecificationFallbackVisitor {
 
     this.copyMetaAndAttributes(arrayElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

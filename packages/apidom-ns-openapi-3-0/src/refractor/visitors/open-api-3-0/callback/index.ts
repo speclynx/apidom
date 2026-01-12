@@ -1,6 +1,7 @@
 import { always } from 'ramda';
 import { ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import CallbackElement from '../../../../elements/Callback.ts';
 import PathItemElement from '../../../../elements/PathItem.ts';
@@ -32,8 +33,8 @@ class CallbackVisitor extends BasePatternedFieldsVisitor {
     this.fieldPatternPredicate = (value) => /{(?<expression>[^}]{1,2083})}/.test(String(value)); // 2,083 characters is the maximum length of a URL in Chrome
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = MapVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    MapVisitor.prototype.ObjectElement.call(this, path);
 
     // decorate every PathItemElement with Callback Object expression metadata
     this.element
@@ -42,8 +43,6 @@ class CallbackVisitor extends BasePatternedFieldsVisitor {
       .forEach((pathItemElement: PathItemElement, key: StringElement) => {
         pathItemElement.meta.set('runtime-expression', toValue(key));
       });
-
-    return result;
   }
 }
 

@@ -1,4 +1,5 @@
 import { ObjectElement, BooleanElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 import {
   JSONSchemaVisitor as JSONSchemaDraft4Visitor,
   JSONSchemaVisitorOptions,
@@ -24,11 +25,9 @@ class JSONSchemaVisitor extends JSONSchemaDraft4Visitor {
     return 'http://json-schema.org/draft-06/schema#';
   }
 
-  BooleanElement(booleanElement: BooleanElement) {
-    const result = this.enter(booleanElement);
+  BooleanElement(path: Path<BooleanElement>) {
+    this.enter(path);
     this.element.classes.push('boolean-json-schema');
-
-    return result;
   }
 
   handleSchemaIdentifier(objectElement: ObjectElement, identifierKeyword: string = '$id'): void {

@@ -1,5 +1,6 @@
 import { ReferenceElement } from '@speclynx/apidom-ns-openapi-3-1';
 import { AnnotationElement } from '@speclynx/apidom-datamodel';
+import { type Path } from '@speclynx/apidom-traverse';
 
 type ReferenceDescriptionPluginOptions = {
   annotations: AnnotationElement[];
@@ -16,7 +17,8 @@ const referenceDescriptionRefractorPlugin =
 
     return {
       visitor: {
-        ReferenceElement(element: ReferenceElement) {
+        ReferenceElement(path: Path<ReferenceElement>) {
+          const element = path.node;
           if (element.hasKey('description')) {
             annotations.push(annotation);
             element.remove('description');

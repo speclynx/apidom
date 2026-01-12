@@ -1,11 +1,11 @@
-import { visit, resolveSpecification, dispatchRefractorPlugins } from '@speclynx/apidom-core';
+import { resolveSpecification, dispatchRefractorPlugins } from '@speclynx/apidom-core';
+import { traverse } from '@speclynx/apidom-traverse';
 import { Element, refract as baseRefract } from '@speclynx/apidom-datamodel';
 import { path } from 'ramda';
 import { Visitor as VisitorClass } from '@speclynx/apidom-ns-json-schema-draft-4';
 
 import specification from './specification.ts';
 import createToolbox, { type Toolbox } from './toolbox.ts';
-import { keyMap, getNodeType } from '../traversal/visitor.ts';
 import type JSONSchemaElement from '../elements/JSONSchema.ts';
 import type LinkDescriptionElement from '../elements/LinkDescription.ts';
 
@@ -55,14 +55,13 @@ const refract = <T extends Element>(
   const RootVisitorClass = path(specPath, resolvedSpec) as typeof VisitorClass;
   const rootVisitor = new RootVisitorClass({ specObj: resolvedSpec });
 
-  visit(genericElement, rootVisitor);
+  traverse(genericElement, rootVisitor);
 
   /**
    * Running plugins visitors means extra single traversal === performance hit.
    */
   return dispatchRefractorPlugins(rootVisitor.element, plugins, {
     toolboxCreator: createToolbox,
-    visitorOptions: { keyMap, nodeTypeGetter: getNodeType },
   }) as T;
 };
 

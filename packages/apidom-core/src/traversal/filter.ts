@@ -1,6 +1,5 @@
 import { Element } from '@speclynx/apidom-datamodel';
-
-import { PredicateVisitor, visit } from './visitor.ts';
+import { traverse, type Path } from '@speclynx/apidom-traverse';
 
 /**
  * Finds all elements matching the predicate.
@@ -10,11 +9,17 @@ const filter = <T extends Element>(
   predicate: (element: Element) => boolean,
   element: T,
 ): Element[] => {
-  const visitor = new PredicateVisitor({ predicate });
+  const result: Element[] = [];
 
-  visit(element, visitor);
+  traverse(element, {
+    enter(path: Path<Element>) {
+      if (predicate(path.node)) {
+        result.push(path.node);
+      }
+    },
+  });
 
-  return visitor.result;
+  return result;
 };
 
 export default filter;

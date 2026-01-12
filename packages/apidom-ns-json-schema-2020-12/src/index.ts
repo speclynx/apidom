@@ -76,8 +76,6 @@ export type {
   BaseSchemaMapVisitorOptions,
 } from '@speclynx/apidom-ns-json-schema-2019-09';
 
-export { keyMap, getNodeType } from './traversal/visitor.ts';
-
 /**
  * JSON Schema 2020-12 specification elements.
  */

@@ -1,4 +1,5 @@
-import { Element, ArrayElement } from '@speclynx/apidom-datamodel';
+import { ArrayElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 import { OperationSecurityElement } from '@speclynx/apidom-ns-openapi-3-0';
 
 import OpenApi3_1Element from '../../elements/OpenApi3-1.ts';
@@ -36,7 +37,8 @@ const plugin =
     return {
       visitor: {
         OpenApi3_1Element: {
-          enter(openapiElement: OpenApi3_1Element) {
+          enter(path: Path<OpenApi3_1Element>) {
+            const openapiElement = path.node;
             storage = new NormalizeStorage(openapiElement, storageField, 'security-requirements');
             if (predicates.isArrayElement(openapiElement.security)) {
               topLevelSecurity = openapiElement.security;
@@ -48,13 +50,10 @@ const plugin =
           },
         },
         OperationElement: {
-          leave(
-            operationElement: OperationElement,
-            key: string | number,
-            parent: Element | undefined,
-            path: (string | number)[],
-            ancestors: [Element | Element[]],
-          ) {
+          leave(path: Path<OperationElement>) {
+            const operationElement = path.node;
+            const ancestors = path.getAncestorNodes().reverse(); // root to parent order
+
             // skip visiting this Operation
             if (ancestors.some(predicates.isComponentsElement)) {
               return;
@@ -62,7 +61,6 @@ const plugin =
 
             const operationJSONPointer = ancestorLineageToJSONPointer([
               ...ancestors,
-              parent!,
               operationElement,
             ]);
 

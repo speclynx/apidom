@@ -10,11 +10,11 @@ import {
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import { Path, getNodeType } from '@speclynx/apidom-traverse';
 import { MediaElement } from '@speclynx/apidom-ns-json-schema-draft-4';
 
 import JSONSchemaElement from '../../elements/JSONSchema.ts';
 import LinkDescriptionElement from '../../elements/LinkDescription.ts';
-import { getNodeType } from '../../traversal/visitor.ts';
 
 /**
  * This plugin is specific to YAML 1.2 format, which allows defining key-value pairs
@@ -201,10 +201,13 @@ const findElementFactory = (ancestor: any, keyName: string) => {
  */
 const plugin = () => () => ({
   visitor: {
-    StringElement(element: StringElement, key: any, parent: any, path: any, ancestors: any[]) {
-      if (!isEmptyElement(element)) return undefined;
+    StringElement(path: Path<StringElement>) {
+      const element = path.node;
 
-      const lineage = [...ancestors, parent].filter(isElement);
+      if (!isEmptyElement(element)) return;
+
+      // getAncestorNodes() returns [parent, grandparent, ..., root], so reverse to get [root, ..., parent]
+      const lineage = path.getAncestorNodes().reverse().filter(isElement);
       const parentElement = lineage.at(-1);
       let elementFactory;
       let context;
@@ -218,14 +221,16 @@ const plugin = () => () => ({
       }
 
       // no element factory found
-      if (typeof elementFactory !== 'function') return undefined;
+      if (typeof elementFactory !== 'function') return;
 
-      return elementFactory.call(
+      const replacement = elementFactory.call(
         { context },
         undefined,
         cloneDeep(element.meta),
         cloneDeep(element.attributes),
       );
+
+      path.replaceWith(replacement);
     },
   },
 });

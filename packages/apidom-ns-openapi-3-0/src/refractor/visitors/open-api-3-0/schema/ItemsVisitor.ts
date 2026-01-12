@@ -3,6 +3,7 @@ import {
   ItemsVisitorOptions,
   ItemsVisitor as JSONSchemaItemsVisitor,
 } from '@speclynx/apidom-ns-json-schema-draft-4';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { isReferenceElement } from '../../../../predicates.ts';
 
@@ -14,19 +15,16 @@ export { JSONSchemaItemsVisitor };
  * @public
  */
 class ItemsVisitor extends JSONSchemaItemsVisitor {
-  ObjectElement(objectElement: ObjectElement) {
-    const result = JSONSchemaItemsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    JSONSchemaItemsVisitor.prototype.ObjectElement.call(this, path);
 
     if (isReferenceElement(this.element)) {
       this.element.meta.set('referenced-element', 'schema');
     }
-
-    return result;
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
-    const result = this.enter(arrayElement);
-    return result;
+  ArrayElement(path: Path<ArrayElement>) {
+    this.enter(path);
   }
 }
 

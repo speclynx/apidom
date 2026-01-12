@@ -5,6 +5,7 @@ import { assert, expect } from 'chai';
 import sinon from 'sinon';
 import { ObjectElement, Namespace } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import type { Path } from '@speclynx/apidom-traverse';
 
 import { refractSwagger, SwaggerVersionElement, isSwaggerVersionElement } from '../../src/index.ts';
 import * as predicates from '../../src/predicates.ts';
@@ -36,7 +37,8 @@ describe('refractor', function () {
         name: 'plugin1',
         pre() {},
         visitor: {
-          SwaggerVersionElement(element: SwaggerVersionElement) {
+          SwaggerVersionElement(path: Path<SwaggerVersionElement>) {
+            const element = path.node;
             // @ts-ignore
             element.content = '2.1';
           },
@@ -47,7 +49,8 @@ describe('refractor', function () {
         name: 'plugin2',
         pre() {},
         visitor: {
-          SwaggerVersionElement(element: SwaggerVersionElement) {
+          SwaggerVersionElement(path: Path<SwaggerVersionElement>) {
+            const element = path.node;
             // @ts-ignore
             element.meta.set('metaKey', 'metaValue');
           },
@@ -210,10 +213,10 @@ describe('refractor', function () {
             plugins: [plugin1],
           });
 
-          assert.lengthOf(plugin1Spec.visitor.SwaggerVersionElement.firstCall.args, 6);
+          assert.lengthOf(plugin1Spec.visitor.SwaggerVersionElement.firstCall.args, 1);
         });
 
-        specify('should receive node as first argument', function () {
+        specify('should receive path with node as first argument', function () {
           const genericObject = new ObjectElement({
             swagger: '2.0',
           });
@@ -222,7 +225,9 @@ describe('refractor', function () {
           });
 
           assert.isTrue(
-            isSwaggerVersionElement(plugin1Spec.visitor.SwaggerVersionElement.firstCall.args[0]),
+            isSwaggerVersionElement(
+              plugin1Spec.visitor.SwaggerVersionElement.firstCall.args[0].node,
+            ),
           );
         });
 
@@ -247,10 +252,10 @@ describe('refractor', function () {
             plugins: [plugin1, plugin2],
           });
 
-          assert.lengthOf(plugin2Spec.visitor.SwaggerVersionElement.firstCall.args, 6);
+          assert.lengthOf(plugin2Spec.visitor.SwaggerVersionElement.firstCall.args, 1);
         });
 
-        specify('should receive node as first argument', function () {
+        specify('should receive path with node as first argument', function () {
           const genericObject = new ObjectElement({
             swagger: '2.0',
           });
@@ -259,7 +264,9 @@ describe('refractor', function () {
           });
 
           assert.isTrue(
-            isSwaggerVersionElement(plugin2Spec.visitor.SwaggerVersionElement.firstCall.args[0]),
+            isSwaggerVersionElement(
+              plugin2Spec.visitor.SwaggerVersionElement.firstCall.args[0].node,
+            ),
           );
         });
 

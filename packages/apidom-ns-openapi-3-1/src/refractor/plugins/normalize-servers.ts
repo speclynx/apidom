@@ -1,4 +1,4 @@
-import { Element } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 import {
   PathItemServersElement,
   OperationServersElement,
@@ -43,7 +43,8 @@ const plugin =
     return {
       visitor: {
         OpenApi3_1Element: {
-          enter(openapiElement: OpenApi3_1Element) {
+          enter(path: Path<OpenApi3_1Element>) {
+            const openapiElement = path.node;
             const isServersUndefined = typeof openapiElement.servers === 'undefined';
             const isServersArrayElement = predicates.isArrayElement(openapiElement.servers);
             const isServersEmpty = isServersArrayElement && openapiElement.servers!.length === 0;
@@ -60,22 +61,15 @@ const plugin =
             storage = undefined;
           },
         },
-        PathItemElement(
-          pathItemElement: PathItemElement,
-          key: string | number,
-          parent: Element | undefined,
-          path: (string | number)[],
-          ancestors: [Element | Element[]],
-        ) {
+        PathItemElement(path: Path<PathItemElement>) {
+          const pathItemElement = path.node;
+          const ancestors = path.getAncestorNodes().reverse(); // root to parent order
+
           // skip visiting this Path Item
           if (ancestors.some(predicates.isComponentsElement)) return;
           if (!ancestors.some(predicates.isOpenApi3_1Element)) return;
 
-          const pathItemJSONPointer = ancestorLineageToJSONPointer([
-            ...ancestors,
-            parent!,
-            pathItemElement,
-          ]);
+          const pathItemJSONPointer = ancestorLineageToJSONPointer([...ancestors, pathItemElement]);
 
           // skip visiting this Path Item Object if it's already normalized
           if (storage!.includes(pathItemJSONPointer)) {
@@ -89,8 +83,8 @@ const plugin =
 
           // duplicate OpenAPI.servers into this Path Item object
           if (predicates.isOpenApi3_1Element(parentOpenapiElement)) {
-            const openapiServersContent = (parentOpenapiElement as OpenApi3_1Element).servers
-              ?.content;
+            const openapiServersContent = (parentOpenapiElement as unknown as OpenApi3_1Element)
+              .servers?.content;
             const openapiServers = (openapiServersContent ?? []) as ServerElement[];
 
             if (isServersUndefined || !isServersArrayElement) {
@@ -103,20 +97,16 @@ const plugin =
             storage!.append(pathItemJSONPointer);
           }
         },
-        OperationElement(
-          operationElement: OperationElement,
-          key: string | number,
-          parent: Element | undefined,
-          path: (string | number)[],
-          ancestors: [Element | Element[]],
-        ) {
+        OperationElement(path: Path<OperationElement>) {
+          const operationElement = path.node;
+          const ancestors = path.getAncestorNodes().reverse(); // root to parent order
+
           // skip visiting this Operation
           if (ancestors.some(predicates.isComponentsElement)) return;
           if (!ancestors.some(predicates.isOpenApi3_1Element)) return;
 
           const operationJSONPointer = ancestorLineageToJSONPointer([
             ...ancestors,
-            parent!,
             operationElement,
           ]);
 
@@ -126,14 +116,14 @@ const plugin =
           }
 
           // @TODO(vladimir.gorej@gmail.com): can be replaced by Array.prototype.findLast in future
-          const parentPathItemElement = [...ancestors].reverse().find(predicates.isPathItemElement);
+          const parentPathItemElement = ancestors.findLast(predicates.isPathItemElement);
           const isServersUndefined = typeof operationElement.servers === 'undefined';
           const isServersArrayElement = predicates.isArrayElement(operationElement.servers);
           const isServersEmpty = isServersArrayElement && operationElement.servers!.length === 0;
 
           if (predicates.isPathItemElement(parentPathItemElement)) {
-            const pathItemServersContent = (parentPathItemElement as PathItemElement).servers
-              ?.content;
+            const pathItemServersContent = (parentPathItemElement as unknown as PathItemElement)
+              .servers?.content;
             const pathItemServers = (pathItemServersContent ?? []) as ServerElement[];
 
             if (isServersUndefined || !isServersArrayElement) {

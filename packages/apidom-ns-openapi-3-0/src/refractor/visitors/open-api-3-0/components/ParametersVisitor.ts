@@ -1,4 +1,5 @@
 import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import ComponentsParametersElement from '../../../../elements/nces/ComponentsParameters.ts';
@@ -31,16 +32,14 @@ class ParametersVisitor extends BaseMapVisitor {
         : ['document', 'objects', 'Parameter'];
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = MapVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    MapVisitor.prototype.ObjectElement.call(this, path);
 
     // decorate every ReferenceElement with metadata about their referencing type
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
       referenceElement.meta.set('referenced-element', 'parameter');
     });
-
-    return result;
   }
 }
 

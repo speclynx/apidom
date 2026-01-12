@@ -1,4 +1,5 @@
 import { Element } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { IdentityManager } from '../../identity/index.ts';
 
@@ -17,8 +18,8 @@ const plugin =
         identityManager = new IdentityManager({ length });
       },
       visitor: {
-        enter<T extends Element>(element: T) {
-          element.id = identityManager!.identify(element);
+        enter(path: Path<Element>) {
+          path.node.id = identityManager!.identify(path.node);
         },
       },
       post() {

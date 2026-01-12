@@ -1,5 +1,5 @@
 import { Element, cloneDeep } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import Visitor, { VisitorOptions } from './Visitor.ts';
 
@@ -16,9 +16,9 @@ export type { VisitorOptions as FallbackVisitorOptions };
  * @public
  */
 class FallbackVisitor extends Visitor {
-  enter(element: Element) {
-    this.element = cloneDeep(element);
-    return BREAK;
+  enter(path: Path<Element>) {
+    this.element = cloneDeep(path.node);
+    path.stop();
   }
 }
 

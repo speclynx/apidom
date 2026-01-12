@@ -4,6 +4,7 @@ import {
   AnyOfVisitorOptions,
   AnyOfVisitor as AnyOfVisitorType,
 } from '@speclynx/apidom-ns-json-schema-draft-4';
+import { Path } from '@speclynx/apidom-traverse';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import { isReferenceElement } from '../../../../predicates.ts';
@@ -20,15 +21,13 @@ export const JSONSchemaAnyOfVisitor: typeof AnyOfVisitorType =
  * @public
  */
 class AnyOfVisitor extends JSONSchemaAnyOfVisitor {
-  ArrayElement(arrayElement: ArrayElement) {
-    const result = JSONSchemaAnyOfVisitor.prototype.ArrayElement.call(this, arrayElement);
+  ArrayElement(path: Path<ArrayElement>) {
+    JSONSchemaAnyOfVisitor.prototype.ArrayElement.call(this, path);
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
       referenceElement.meta.set('referenced-element', 'schema');
     });
-
-    return result;
   }
 }
 

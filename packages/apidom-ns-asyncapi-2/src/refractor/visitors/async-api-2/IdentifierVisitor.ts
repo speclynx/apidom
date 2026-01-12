@@ -1,5 +1,6 @@
 import { StringElement } from '@speclynx/apidom-datamodel';
-import { BREAK, toValue } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import IdentifierElement from '../../../elements/Identifier.ts';
 import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from './bases.ts';
@@ -15,13 +16,14 @@ export type IdentifierVisitorOptions = BaseSpecificationVisitorOptions;
 class IdentifierVisitor extends BaseSpecificationVisitor {
   declare public element: IdentifierElement;
 
-  StringElement(stringElement: StringElement) {
+  StringElement(path: Path<StringElement>) {
+    const stringElement = path.node;
     const identifierElement = new IdentifierElement(toValue(stringElement) as string);
 
     this.copyMetaAndAttributes(stringElement, identifierElement);
 
     this.element = identifierElement;
-    return BREAK;
+    path.stop();
   }
 }
 

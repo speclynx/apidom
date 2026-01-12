@@ -1,10 +1,11 @@
 import { ParseResultElement, Namespace } from '@speclynx/apidom-datamodel';
+import type { Tree } from 'web-tree-sitter';
 
 import lexicalAnalysis from './lexical-analysis/index.ts';
-import syntacticAnalysis from './syntactic-analysis/indirect/index.ts';
+import syntacticAnalysis from './syntactic-analysis/index.ts';
 
 export type { YamlMediaTypes } from './media-types.ts';
-export type { Tree } from './syntactic-analysis/indirect/index.ts';
+export type { Tree };
 export { lexicalAnalysis, syntacticAnalysis };
 
 /**
@@ -21,11 +22,14 @@ export const namespace = new Namespace();
  * @public
  */
 export const detect = async (source: string): Promise<boolean> => {
+  let cst: Tree | null = null;
   try {
-    const cst = await lexicalAnalysis(source);
+    cst = await lexicalAnalysis(source);
     return !cst.rootNode.isError;
   } catch {
     return false;
+  } finally {
+    cst?.delete();
   }
 };
 
@@ -49,5 +53,9 @@ export type ParseFunction = (
  */
 export const parse: ParseFunction = async (source, { sourceMap = false } = {}) => {
   const cst = await lexicalAnalysis(source);
-  return syntacticAnalysis(cst, { sourceMap });
+  try {
+    return syntacticAnalysis(cst, { sourceMap });
+  } finally {
+    cst.delete();
+  }
 };

@@ -8,7 +8,7 @@ import {
   NumberElement,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { visit, BREAK } from '@speclynx/apidom-core';
+import { traverse, Path } from '@speclynx/apidom-traverse';
 import {
   compile as compileJsonPointer,
   evaluate as evaluateJsonPointer,
@@ -31,13 +31,12 @@ const evaluate = <T extends Element, U extends Element>(
   let ancestorLineage: Element[] = [];
   let cursor: Element | undefined = currentElement;
 
-  visit(rootElement, {
-    enter(element: Element, key: any, parent: any, path: any, ancestors: any) {
-      if (element === currentElement) {
-        ancestorLineage = [...ancestors, parent].filter(isElement);
-        return BREAK;
+  traverse(rootElement, {
+    enter(path: Path<Element>) {
+      if (path.node === currentElement) {
+        ancestorLineage = path.getAncestorNodes().reverse().filter(isElement);
+        path.stop();
       }
-      return undefined;
     },
   });
 

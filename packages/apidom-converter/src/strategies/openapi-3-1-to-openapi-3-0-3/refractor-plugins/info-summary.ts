@@ -1,5 +1,6 @@
 import { InfoElement } from '@speclynx/apidom-ns-openapi-3-1';
 import { AnnotationElement } from '@speclynx/apidom-datamodel';
+import { type Path } from '@speclynx/apidom-traverse';
 
 type InfoSummaryPluginOptions = {
   annotations: AnnotationElement[];
@@ -16,7 +17,8 @@ const infoSummaryRefractorPlugin =
 
     return {
       visitor: {
-        InfoElement(element: InfoElement) {
+        InfoElement(path: Path<InfoElement>) {
+          const element = path.node;
           if (!element.hasKey('summary')) return undefined;
 
           annotations.push(annotation);

@@ -1,9 +1,14 @@
 import { Element } from '@speclynx/apidom-datamodel';
+import {
+  traverse,
+  traverseAsync,
+  mergeVisitors,
+  mergeVisitorsAsync,
+} from '@speclynx/apidom-traverse';
 import { mergeDeepRight, propOr } from 'ramda';
 import { invokeArgs } from 'ramda-adjunct';
 
 import createToolbox from '../../toolbox.ts';
-import { getNodeType, mergeAllVisitors, visit } from '../../../traversal/visitor.ts';
 
 /**
  * @public
@@ -11,7 +16,6 @@ import { getNodeType, mergeAllVisitors, visit } from '../../../traversal/visitor
 export interface DispatchPluginsOptions {
   toolboxCreator: typeof createToolbox;
   visitorOptions: {
-    nodeTypeGetter: typeof getNodeType;
     exposeEdits: boolean;
   };
 }
@@ -42,7 +46,6 @@ export interface DispatchPluginsAsync {
 const defaultDispatchPluginsOptions: DispatchPluginsOptions = {
   toolboxCreator: createToolbox,
   visitorOptions: {
-    nodeTypeGetter: getNodeType,
     exposeEdits: true,
   },
 };
@@ -60,17 +63,18 @@ export const dispatchPluginsSync: DispatchPluginsSync = ((element, plugins, opti
   const { toolboxCreator, visitorOptions } = mergedOptions;
   const toolbox = toolboxCreator();
   const pluginsSpecs = plugins.map((plugin) => plugin(toolbox));
-  const mergedPluginsVisitor = mergeAllVisitors(pluginsSpecs.map(propOr({}, 'visitor')), {
-    ...visitorOptions,
-  });
+  const mergedPluginsVisitor = mergeVisitors(
+    pluginsSpecs.map(propOr({}, 'visitor')) as object[],
+    visitorOptions,
+  );
 
   pluginsSpecs.forEach(invokeArgs(['pre'], []));
-  const newElement = visit(element, mergedPluginsVisitor, visitorOptions as any);
+  const newElement = traverse(element, mergedPluginsVisitor);
   pluginsSpecs.forEach(invokeArgs(['post'], []));
   return newElement;
 }) as DispatchPluginsSync;
 
-export const dispatchPluginsAsync: DispatchPluginsAsync = async (
+export const dispatchPluginsAsync: DispatchPluginsAsync = (async (
   element,
   plugins,
   options = {},
@@ -84,16 +88,15 @@ export const dispatchPluginsAsync: DispatchPluginsAsync = async (
   const { toolboxCreator, visitorOptions } = mergedOptions;
   const toolbox = toolboxCreator();
   const pluginsSpecs = plugins.map((plugin) => plugin(toolbox));
-  const mergeAllVisitorsAsync = mergeAllVisitors[Symbol.for('nodejs.util.promisify.custom')];
-  const visitAsync = (visit as any)[Symbol.for('nodejs.util.promisify.custom')];
-  const mergedPluginsVisitor = mergeAllVisitorsAsync(pluginsSpecs.map(propOr({}, 'visitor')), {
-    ...visitorOptions,
-  });
+  const mergedPluginsVisitor = mergeVisitorsAsync(
+    pluginsSpecs.map(propOr({}, 'visitor')) as object[],
+    visitorOptions,
+  );
 
   await Promise.allSettled(pluginsSpecs.map(invokeArgs(['pre'], [])));
-  const newElement = await visitAsync(element, mergedPluginsVisitor, visitorOptions as any);
+  const newElement = await traverseAsync(element, mergedPluginsVisitor);
   await Promise.allSettled(pluginsSpecs.map(invokeArgs(['post'], [])));
   return newElement;
-};
+}) as DispatchPluginsAsync;
 
 dispatchPluginsSync[Symbol.for('nodejs.util.promisify.custom')] = dispatchPluginsAsync;

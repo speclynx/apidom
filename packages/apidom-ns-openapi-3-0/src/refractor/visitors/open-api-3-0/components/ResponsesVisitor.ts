@@ -1,5 +1,6 @@
 import { ObjectElement, Element, StringElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import ComponentsResponsesElement from '../../../../elements/nces/ComponentsResponses.ts';
@@ -32,8 +33,8 @@ class ResponsesVisitor extends BaseMapVisitor {
         : ['document', 'objects', 'Response'];
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = MapVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    MapVisitor.prototype.ObjectElement.call(this, path);
 
     // decorate every ReferenceElement with metadata about their referencing type
     // @ts-ignore
@@ -46,8 +47,6 @@ class ResponsesVisitor extends BaseMapVisitor {
     this.element.filter(isResponseElement).forEach((value: Element, key: StringElement) => {
       value.meta.set('http-status-code', toValue(key));
     });
-
-    return result;
   }
 }
 

@@ -4,12 +4,12 @@ import {
   StringElement,
   isStringElement,
   isArrayElement,
-  isElement,
   isMemberElement,
   includesClasses,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import { Path, getNodeType } from '@speclynx/apidom-traverse';
 
 /**
  * OpenAPI 3.0.x specification elements.
@@ -77,7 +77,6 @@ import OAuthFlowScopesElement from '../../elements/nces/OAuthFlowScopes.ts';
 import LinkParametersElement from '../../elements/nces/LinkParameters.ts';
 import HeaderExamplesElement from '../../elements/nces/HeaderExamples.ts';
 import HeaderContentElement from '../../elements/nces/HeaderContent.ts';
-import { getNodeType } from '../../traversal/visitor.ts';
 
 /**
  * This plugin is specific to YAML 1.2 format, which allows defining key-value pairs
@@ -601,14 +600,16 @@ const schema = {
 };
 
 const findElementFactory = (ancestor: any, keyName: string) => {
-  const elementType = getNodeType(ancestor); // @ts-ignore
-  const keyMapping = schema[elementType] || schema[toValue(ancestor.classes.first)];
+  const elementType = getNodeType(ancestor);
+  const keyMapping =
+    (schema as Record<string, unknown>)[elementType] ||
+    (schema as Record<string, unknown>)[toValue(ancestor.classes.first) as string];
 
   return typeof keyMapping === 'undefined'
     ? undefined
-    : Object.hasOwn(keyMapping, '[key: *]')
-      ? keyMapping['[key: *]']
-      : keyMapping[keyName];
+    : Object.hasOwn(keyMapping as object, '[key: *]')
+      ? (keyMapping as Record<string, unknown>)['[key: *]']
+      : (keyMapping as Record<string, unknown>)[keyName];
 };
 
 /**
@@ -616,10 +617,11 @@ const findElementFactory = (ancestor: any, keyName: string) => {
  */
 const plugin = () => () => ({
   visitor: {
-    StringElement(element: StringElement, key: any, parent: any, path: any, ancestors: any[]) {
-      if (!isEmptyElement(element)) return undefined;
+    StringElement(path: Path<StringElement>) {
+      const element = path.node;
+      if (!isEmptyElement(element)) return;
 
-      const lineage = [...ancestors, parent].filter(isElement);
+      const lineage = path.getAncestorNodes().reverse(); // root to parent
       const parentElement = lineage.at(-1);
       let elementFactory;
       let context;
@@ -633,14 +635,15 @@ const plugin = () => () => ({
       }
 
       // no element factory found
-      if (typeof elementFactory !== 'function') return undefined;
+      if (typeof elementFactory !== 'function') return;
 
-      return elementFactory.call(
+      const newElement = elementFactory.call(
         { context },
         undefined,
         cloneDeep(element.meta),
         cloneDeep(element.attributes),
       );
+      path.replaceWith(newElement);
     },
   },
 });

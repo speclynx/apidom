@@ -1,7 +1,5 @@
-import { pathOr } from 'ramda';
 import { Element } from '@speclynx/apidom-datamodel';
-
-import { PredicateVisitor, BREAK, visit } from './visitor.ts';
+import { traverse, type Path } from '@speclynx/apidom-traverse';
 
 /**
  * Find first element that satisfies the provided predicate.
@@ -11,11 +9,18 @@ const find = <T extends Element>(
   predicate: (element: any) => boolean,
   element: T,
 ): T | undefined => {
-  const visitor = new PredicateVisitor({ predicate, returnOnTrue: BREAK });
+  let result: T | undefined;
 
-  visit(element, visitor);
+  traverse(element, {
+    enter(path: Path<Element>) {
+      if (predicate(path.node)) {
+        result = path.node as T;
+        path.stop();
+      }
+    },
+  });
 
-  return pathOr(undefined, [0], visitor.result);
+  return result;
 };
 
 export default find;

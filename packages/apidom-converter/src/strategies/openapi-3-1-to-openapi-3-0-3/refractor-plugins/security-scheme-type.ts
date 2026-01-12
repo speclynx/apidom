@@ -17,6 +17,7 @@ import {
 } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 import { dereferenceApiDOM, ReferenceSet, Reference, url } from '@speclynx/apidom-reference';
+import { type Path } from '@speclynx/apidom-traverse';
 
 import type { Toolbox } from '../toolbox.ts';
 
@@ -41,10 +42,11 @@ const securitySchemeTypeRefractorPlugin =
 
     return {
       visitor: {
-        ParseResultElement(element: ParseResultElement) {
-          parseResultElement = element;
+        ParseResultElement(path: Path<ParseResultElement>) {
+          parseResultElement = path.node;
         },
-        OpenApi3_1Element(element: OpenApi3_1Element) {
+        OpenApi3_1Element(path: Path<OpenApi3_1Element>) {
+          const element = path.node;
           if (!isComponentsElement(element.components)) return undefined;
           if (!isObjectElement(element.components.securitySchemes)) return undefined;
 
@@ -56,7 +58,8 @@ const securitySchemeTypeRefractorPlugin =
 
           return undefined;
         },
-        async ComponentsElement(element: ComponentsElement) {
+        async ComponentsElement(path: Path<ComponentsElement>) {
+          const element = path.node;
           if (!isObjectElement(element.securitySchemes)) return undefined;
 
           /**
@@ -104,7 +107,8 @@ const securitySchemeTypeRefractorPlugin =
 
           return undefined;
         },
-        SecurityRequirementElement(element: SecurityRequirementElement) {
+        SecurityRequirementElement(path: Path<SecurityRequirementElement>) {
+          const element = path.node;
           if (!removedSecuritySchemes.length) return undefined;
 
           const keysToRemove: string[] = [];

@@ -25,7 +25,6 @@ describe('adapter', function () {
 
   it('should parse', async function () {
     const parseResult = await adapter.parse(spec, {
-      syntacticAnalysis: 'direct',
       sourceMap: true,
     });
 
@@ -34,116 +33,46 @@ describe('adapter', function () {
     expect(sexprs(parseResult)).toMatchSnapshot();
   });
 
-  context('given direct syntactic analysis', function () {
-    specify('should parse', async function () {
-      const json = '"line1\\nline2"';
-      const { result } = await adapter.parse(json, {
-        syntacticAnalysis: 'direct',
+  specify('should parse multi-line JSON string', async function () {
+    const json = '"line1\\nline2"';
+    const { result } = await adapter.parse(json);
+
+    assert.strictEqual(toJSON(result!), json);
+  });
+
+  context('given zero byte empty file', function () {
+    specify('should return empty parse result', async function () {
+      const parseResult = await adapter.parse('', {
+        sourceMap: true,
       });
 
-      assert.strictEqual(toJSON(result!), json);
-    });
-
-    context('given zero byte empty file', function () {
-      specify('should return empty parse result', async function () {
-        const parseResult = await adapter.parse('', {
-          sourceMap: true,
-          syntacticAnalysis: 'direct',
-        });
-
-        assert.isTrue(parseResult.isEmpty);
-      });
-    });
-
-    context('given non-zero byte empty file', function () {
-      specify('should return empty parser result', async function () {
-        const parseResult = await adapter.parse('  ', {
-          sourceMap: true,
-          syntacticAnalysis: 'direct',
-        });
-
-        assert.isTrue(parseResult.isEmpty);
-      });
-    });
-
-    context('given invalid json string', function () {
-      specify('should return empty parser result', async function () {
-        const parseResult = await adapter.parse(' a ', {
-          sourceMap: true,
-          syntacticAnalysis: 'direct',
-        });
-
-        assert.isTrue(parseResult.isEmpty);
-      });
-    });
-
-    context('given malformed json string', function () {
-      specify('should parse', async function () {
-        const json = `
-        {
-          "openapi": "3.0.4",
-          "info: {
-            "title": "Swagger Petstore - OpenAPI 3.0",
-          }
-        }`;
-
-        try {
-          await adapter.parse(json, { syntacticAnalysis: 'direct' });
-        } catch {
-          assert.fail('Parsing unexpectedly threw an error.');
-        }
-      });
+      assert.isTrue(parseResult.isEmpty);
     });
   });
 
-  context('given indirect syntactic analysis', function () {
-    context('given multi-line JSON string', function () {
-      specify('should parse', async function () {
-        const json = '"line1\\nline2"';
-        const { result } = await adapter.parse(json, {
-          syntacticAnalysis: 'indirect',
-        });
-
-        assert.strictEqual(toJSON(result!), json);
+  context('given non-zero byte empty file', function () {
+    specify('should return empty parser result', async function () {
+      const parseResult = await adapter.parse('  ', {
+        sourceMap: true,
       });
+
+      assert.isTrue(parseResult.isEmpty);
     });
+  });
 
-    context('given zero byte empty file', function () {
-      specify('should return empty parse result', async function () {
-        const parseResult = await adapter.parse('', {
-          sourceMap: true,
-          syntacticAnalysis: 'indirect',
-        });
-
-        assert.isTrue(parseResult.isEmpty);
+  context('given invalid json string', function () {
+    specify('should return empty parser result', async function () {
+      const parseResult = await adapter.parse(' a ', {
+        sourceMap: true,
       });
+
+      assert.isTrue(parseResult.isEmpty);
     });
+  });
 
-    context('given non-zero byte empty file', function () {
-      specify('should return empty parser result', async function () {
-        const parseResult = await adapter.parse('  ', {
-          sourceMap: true,
-          syntacticAnalysis: 'indirect',
-        });
-
-        assert.isTrue(parseResult.isEmpty);
-      });
-    });
-
-    context('given invalid json file', function () {
-      specify('should return empty parser result', async function () {
-        const parseResult = await adapter.parse(' a ', {
-          sourceMap: true,
-          syntacticAnalysis: 'indirect',
-        });
-
-        assert.isTrue(parseResult.isEmpty);
-      });
-    });
-
-    context('given malformed json string', function () {
-      specify('should parse', async function () {
-        const json = `
+  context('given malformed json string', function () {
+    specify('should parse', async function () {
+      const json = `
         {
           "openapi": "3.0.4",
           "info: {
@@ -151,12 +80,11 @@ describe('adapter', function () {
           }
         }`;
 
-        try {
-          await adapter.parse(json, { syntacticAnalysis: 'indirect' });
-        } catch {
-          assert.fail('Parsing unexpectedly threw an error.');
-        }
-      });
+      try {
+        await adapter.parse(json);
+      } catch {
+        assert.fail('Parsing unexpectedly threw an error.');
+      }
     });
   });
 });

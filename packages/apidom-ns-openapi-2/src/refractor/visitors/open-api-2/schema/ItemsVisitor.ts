@@ -1,4 +1,5 @@
 import { ArrayElement, ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 import {
   JSONReferenceElement,
   isJSONReferenceElement,
@@ -14,18 +15,16 @@ export { JSONSchemaItemsVisitor };
  * @public
  */
 class ItemsVisitor extends JSONSchemaItemsVisitor {
-  ObjectElement(objectElement: ObjectElement) {
-    const result = JSONSchemaItemsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    JSONSchemaItemsVisitor.prototype.ObjectElement.call(this, path);
 
     if (isJSONReferenceElement(this.element)) {
       this.element.meta.set('referenced-element', 'schema');
     }
-
-    return result;
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
-    const result = JSONSchemaItemsVisitor.prototype.ArrayElement.call(this, arrayElement);
+  ArrayElement(path: Path<ArrayElement>) {
+    JSONSchemaItemsVisitor.prototype.ArrayElement.call(this, path);
 
     this.element
       .filter(isJSONReferenceElement)
@@ -33,8 +32,6 @@ class ItemsVisitor extends JSONSchemaItemsVisitor {
       .forEach((referenceElement: JSONReferenceElement) => {
         referenceElement.meta.set('referenced-element', 'schema');
       });
-
-    return result;
   }
 }
 

@@ -1,4 +1,5 @@
 import { ArrayElement, ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 import {
   specificationObj as JSONSchemaDraft7Specification,
   ItemsVisitorOptions,
@@ -21,25 +22,21 @@ export const JSONSchemaItemsVisitor: typeof JSONSchemaDraft4ItemsVisitorType =
  * @public
  */
 class ItemsVisitor extends JSONSchemaItemsVisitor {
-  ObjectElement(objectElement: ObjectElement) {
-    const result = JSONSchemaItemsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    JSONSchemaItemsVisitor.prototype.ObjectElement.call(this, path);
 
     if (isReferenceElement(this.element)) {
       this.element.meta.set('referenced-element', 'schema');
     }
-
-    return result;
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
-    const result = JSONSchemaItemsVisitor.prototype.ArrayElement.call(this, arrayElement);
+  ArrayElement(path: Path<ArrayElement>) {
+    JSONSchemaItemsVisitor.prototype.ArrayElement.call(this, path);
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
       referenceElement.meta.set('referenced-element', 'schema');
     });
-
-    return result;
   }
 }
 

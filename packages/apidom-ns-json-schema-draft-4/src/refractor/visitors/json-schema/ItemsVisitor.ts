@@ -1,5 +1,5 @@
 import { ObjectElement, ArrayElement, Element } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
 import { FallbackVisitorOptions } from '../FallbackVisitor.ts';
@@ -19,16 +19,18 @@ export interface ItemsVisitorOptions
 class ItemsVisitor extends ItemsVisitorBase {
   declare public element: ArrayElement | ObjectElement;
 
-  ObjectElement(objectElement: ObjectElement) {
+  ObjectElement(path: Path<ObjectElement>) {
+    const objectElement = path.node;
     const specPath = isJSONReferenceLikeElement(objectElement)
       ? ['document', 'objects', 'JSONReference']
       : ['document', 'objects', 'JSONSchema'];
     this.element = this.toRefractedElement(specPath, objectElement);
 
-    return BREAK;
+    path.stop();
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
+  ArrayElement(path: Path<ArrayElement>) {
+    const arrayElement = path.node;
     this.element = new ArrayElement();
     this.element.classes.push('json-schema-items');
 
@@ -43,7 +45,7 @@ class ItemsVisitor extends ItemsVisitorBase {
 
     this.copyMetaAndAttributes(arrayElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

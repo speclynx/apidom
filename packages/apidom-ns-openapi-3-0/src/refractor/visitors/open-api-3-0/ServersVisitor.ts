@@ -1,5 +1,5 @@
 import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import ServersElement from '../../../elements/nces/Servers.ts';
 import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from './bases.ts';
@@ -21,7 +21,9 @@ class ServersVisitor extends BaseSpecificationVisitor {
     this.element = new ServersElement();
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
+  ArrayElement(path: Path<ArrayElement>) {
+    const arrayElement = path.node;
+
     arrayElement.forEach((item: Element) => {
       const specPath = isServerLikeElement(item) ? ['document', 'objects', 'Server'] : ['value'];
       const element = this.toRefractedElement(specPath, item);
@@ -31,7 +33,7 @@ class ServersVisitor extends BaseSpecificationVisitor {
 
     this.copyMetaAndAttributes(arrayElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

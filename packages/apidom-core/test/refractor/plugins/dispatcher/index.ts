@@ -2,6 +2,7 @@ import sinon from 'sinon';
 import { assert } from 'chai';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 import { NumberElement, ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { toValue, dispatchRefractorPlugins as dispatchPluginsSync } from '../../../../src/index.ts';
 
@@ -14,7 +15,9 @@ describe('refrator', function () {
         specify('should dispatch plugins synchronously', function () {
           const preSpy = sinon.spy();
           const postSpy = sinon.spy();
-          const NumberElementSpy = sinon.spy(() => new NumberElement(2));
+          const NumberElementSpy = sinon.spy((path: Path<NumberElement>) => {
+            path.replaceWith(new NumberElement(2));
+          });
           const plugin = () => ({
             pre: preSpy,
             visitor: {
@@ -56,7 +59,9 @@ describe('refrator', function () {
         specify('should dispatch plugins asynchronously', async function () {
           const preSpy = sinon.spy();
           const postSpy = sinon.spy();
-          const NumberElementSpy = sinon.spy(async () => new NumberElement(2));
+          const NumberElementSpy = sinon.spy(async (path: Path<NumberElement>) => {
+            path.replaceWith(new NumberElement(2));
+          });
           const plugin = () => ({
             pre: preSpy,
             visitor: {

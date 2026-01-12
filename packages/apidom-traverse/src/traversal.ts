@@ -146,12 +146,22 @@ function* traverseGenerator<TNode>(
       }
 
       if (stack !== undefined) {
+        // Restore parent's state
         index = stack.index;
         keys = stack.keys;
         edits = stack.edits;
-        inArray = stack.inArray;
+        const parentInArray = stack.inArray;
         parentPath = stack.parentPath;
         stack = stack.prev;
+
+        // Push the edited node to parent's edits for propagation up the tree
+        // Use the restored index to get the correct key for this node in its parent
+        // Only needed in immutable mode - mutable mode modifies in place
+        if (isEdited && !mutable) {
+          const editKey = parentInArray ? index : (keys[index] as PropertyKey);
+          edits.push([editKey, node]);
+        }
+        inArray = parentInArray;
       }
     } else if (parent !== undefined) {
       key = inArray ? index : (keys[index] as PropertyKey);

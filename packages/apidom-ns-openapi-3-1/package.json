@@ -49,6 +49,7 @@
     "@speclynx/apidom-ast": "^1.12.2",
     "@speclynx/apidom-core": "^1.12.2",
     "@speclynx/apidom-datamodel": "^1.12.2",
+    "@speclynx/apidom-traverse": "^1.12.2",
     "@speclynx/apidom-json-pointer": "^1.12.2",
     "@speclynx/apidom-ns-json-schema-2020-12": "^1.12.2",
     "@speclynx/apidom-ns-openapi-3-0": "^1.12.2",

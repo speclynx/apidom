@@ -9,7 +9,7 @@ import {
   cloneShallow,
 } from '@speclynx/apidom-datamodel';
 
-import toValue from '../transformers/serializers/value/index.ts';
+import toValue from '../transformers/serializers/value.ts';
 
 /**
  * @public

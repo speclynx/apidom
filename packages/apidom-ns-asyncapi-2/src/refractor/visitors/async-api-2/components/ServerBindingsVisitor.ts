@@ -1,4 +1,5 @@
 import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import ComponentsServerBindingsElement from '../../../../elements/nces/ComponentsServerBindings.ts';
@@ -31,15 +32,13 @@ class ServerBindingsVisitor extends BaseMapVisitor {
         : ['document', 'objects', 'ServerBindings'];
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = BaseMapVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    BaseMapVisitor.prototype.ObjectElement.call(this, path);
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
       referenceElement.meta.set('referenced-element', 'serverBindings');
     });
-
-    return result;
   }
 }
 

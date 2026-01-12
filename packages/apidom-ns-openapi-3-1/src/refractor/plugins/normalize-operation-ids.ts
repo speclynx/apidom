@@ -1,6 +1,7 @@
 import { last, defaultTo, groupBy } from 'ramda';
-import { Element, StringElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import { StringElement, cloneDeep } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import LinkElement from '../../elements/Link.ts';
 import PathItemElement from '../../elements/PathItem.ts';
@@ -75,7 +76,8 @@ const plugin =
     return {
       visitor: {
         OpenApi3_1Element: {
-          enter(element: OpenApi3_1Element) {
+          enter(path: Path<OpenApi3_1Element>) {
+            const element = path.node;
             storage = new NormalizeStorage(element, storageField, 'operation-ids');
           },
           leave() {
@@ -127,7 +129,8 @@ const plugin =
           },
         },
         PathItemElement: {
-          enter(pathItemElement: PathItemElement) {
+          enter(path: Path<PathItemElement>) {
+            const pathItemElement = path.node;
             // `path` meta may not be always available, e.g. in Callback Object or Components Object
             const pathTemplate = defaultTo(
               'path',
@@ -140,19 +143,15 @@ const plugin =
           },
         },
         OperationElement: {
-          enter(
-            operationElement: OperationElement,
-            key: string | number,
-            parent: Element | undefined,
-            path: (string | number)[],
-            ancestors: [Element | Element[]],
-          ) {
+          enter(path: Path<OperationElement>) {
+            const operationElement = path.node;
+            const ancestors = path.getAncestorNodes().reverse(); // root to parent order
+
             // operationId field is undefined, needs no normalization
             if (typeof operationElement.operationId === 'undefined') return;
 
             const operationJSONPointer = ancestorLineageToJSONPointer([
               ...ancestors,
-              parent!,
               operationElement,
             ]);
 
@@ -189,7 +188,8 @@ const plugin =
           },
         },
         LinkElement: {
-          leave(linkElement: LinkElement) {
+          leave(path: Path<LinkElement>) {
+            const linkElement = path.node;
             // make sure this Link elements doesn't come from base namespace
             if (!predicates.isLinkElement(linkElement)) return;
             // ignore Link Objects with undefined operationId
