@@ -1,7 +1,7 @@
 # @speclynx/apidom-core
 
 `apidom-core` is a package that contains tools for manipulating the ApiDOM structures.
-It provides utilities for traversal, transformation, merging, cloning, and refraction of ApiDOM elements.
+It provides utilities for transformation, merging, cloning, and refraction of ApiDOM elements.
 
 ## Installation
 
@@ -13,18 +13,22 @@ You can install this package via [npm CLI](https://docs.npmjs.com/cli) by runnin
 
 ---
 
-## Relationship with @speclynx/apidom-datamodel
+## Relationship with other packages
 
-This package works together with `@speclynx/apidom-datamodel`:
+This package works together with:
 
 - **@speclynx/apidom-datamodel** - Contains the core element primitives (`ObjectElement`, `ArrayElement`, `StringElement`, etc.), predicates, and the `Namespace` class
-- **@speclynx/apidom-core** - Contains utilities for working with elements: traversal, transformers, merging, cloning, and refractor plugins
+- **@speclynx/apidom-traverse** - Contains traversal utilities (`traverse`, `filter`, `find`, `forEach`, etc.)
+- **@speclynx/apidom-core** - Contains utilities for working with elements: transformers, merging, cloning, and refractor plugins
 
 ```js
 // Elements and predicates come from datamodel
 import { ObjectElement, StringElement, isObjectElement } from '@speclynx/apidom-datamodel';
 
-// Utilities come from core
+// Traversal utilities come from traverse
+import { traverse, filter, find } from '@speclynx/apidom-traverse';
+
+// Other utilities come from core
 import { toValue, deepmerge, from } from '@speclynx/apidom-core';
 
 const obj = new ObjectElement({ a: 'b' });
@@ -513,138 +517,6 @@ const objectElement = from({ a: 'b', info: infoElement });
 dispatchRefractorPlugins(objectElement, [refractorPluginSemanticElementIdentity({ length: 36 })]);
 
 objectElement.getMember('info').value.id; // 'OnReGGrO7fMd9ztacvGfwGbOdGKuOFLiQQ1W'
-```
-
----
-
-## Traversal
-
-`apidom-core` provides convenient traversal utility functions built on top of `@speclynx/apidom-traverse`.
-
-For advanced traversal needs (enter/leave visitors, tree modifications, etc.), use `@speclynx/apidom-traverse` directly.
-
-### filter
-
-Finds all elements matching the predicate.
-
-```js
-import { ObjectElement, isNumberElement } from '@speclynx/apidom-datamodel';
-import { filter } from '@speclynx/apidom-core';
-
-const objElement = new ObjectElement({ a: 'b', c: 2 });
-
-filter(isNumberElement, objElement); // => ArraySlice<[NumberElement<2>]>
-```
-
-### find
-
-Find first element that satisfies the provided predicate.
-
-```js
-import { ObjectElement, isNumberElement } from '@speclynx/apidom-datamodel';
-import { find } from '@speclynx/apidom-core';
-
-const objElement = new ObjectElement({ a: 'b', c: 2 });
-
-find(isNumberElement, objElement); // => NumberElement<2>
-```
-
-### findAtOffset
-
-ApiDOM nodes can be associated with source maps. This function finds the most inner node at the given offset.
-If includeRightBound is set, also finds nodes that end at the given offset.
-
-```js
-import { findAtOffset } from '@speclynx/apidom-core';
-
-findAtOffset(3, elementWithSourceMaps); // => returns most inner node at offset 3
-```
-
-### reject
-
-Complement of [filter](#filter).
-
-```js
-import { ArrayElement, isNumberElement } from '@speclynx/apidom-datamodel';
-import { reject } from '@speclynx/apidom-core';
-
-const arrayElement = new ArrayElement([1, 'a']);
-
-reject(isNumberElement, arrayElement); // => ArraySlice<[StringElement<'a'>]>
-```
-
-### some
-
-Tests whether at least one element passes the predicate.
-
-```js
-import { ArrayElement, isNumberElement } from '@speclynx/apidom-datamodel';
-import { some } from '@speclynx/apidom-core';
-
-const arrayElement = new ArrayElement([1, 'a']);
-
-some(isNumberElement, arrayElement); // => true
-```
-
-### traverse
-
-Executes the callback on this element and all descendants.
-
-```js
-import { ArrayElement } from '@speclynx/apidom-datamodel';
-import { traverse } from '@speclynx/apidom-core';
-
-const arrayElement = new ArrayElement([1, 'a']);
-
-traverse(console.dir, arrayElement); // => prints ArrayElement, NumberElement, StringElement in this order
-```
-
-The execution of the callback can be controlled further by providing a predicate.
-
-```js
-import { ArrayElement, isNumberElement } from '@speclynx/apidom-datamodel';
-import { traverse } from '@speclynx/apidom-core';
-
-const arrayElement = new ArrayElement([1, 'a']);
-
-traverse({ callback: console.dir, predicate: isNumberElement }, arrayElement); // => prints NumberElement<1>
-```
-
-### parents
-
-Computes upwards edges from every child to its parent.
-
-#### ObjectElement example
-
-```js
-import { ObjectElement } from '@speclynx/apidom-datamodel';
-import { parents } from '@speclynx/apidom-core';
-
-const objectElement = new ObjectElement({ key: 'value' });
-const memberElement = objectElement.getMember('key');
-const { key: keyElement, value: valueElement } = memberElement;
-
-const parentEdges = parents(objectElement); // => WeakMap<ChildElement, ParentElement>
-
-parentEdges.get(memberElement) === objectElement; // => true
-parentEdges.get(keyElement) === memberElement; // => true
-parentEdges.get(valueElement) === memberElement; // => true
-```
-
-#### ArrayElement example
-
-```js
-import { ArrayElement, StringElement } from '@speclynx/apidom-datamodel';
-import { parents } from '@speclynx/apidom-core';
-
-const itemElement1 = new StringElement('item1');
-const itemElement2 = new StringElement('item2');
-const arrayElement = new ArrayElement([itemElement1, itemElement2]);
-
-const parentEdges = parents(arrayElement); // => WeakMap<ChildElement, ParentElement>
-
-parentEdges.get(itemElement1) === arrayElement; // => true
-parentEdges.get(itemElement2) === arrayElement; // => true
 ```
 
 ---

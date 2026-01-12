@@ -1,6 +1,7 @@
 import { trimCharsStart, isUndefined } from 'ramda-adjunct';
 import { Element } from '@speclynx/apidom-datamodel';
-import { find, toValue } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
+import { find } from '@speclynx/apidom-traverse';
 import { isSchemaElement } from '@speclynx/apidom-ns-openapi-3-1';
 
 import { getHash } from '../../../../util/url.ts';
@@ -47,7 +48,7 @@ export const evaluate = <T extends Element>(anchor: string, element: T): Element
   const token = parse(anchor);
 
   // @ts-ignore
-  const result = find((e) => isSchemaElement(e) && toValue(e.$anchor) === token, element);
+  const result = find(element, (e) => isSchemaElement(e) && toValue(e.$anchor) === token);
 
   if (isUndefined(result)) {
     throw new EvaluationJsonSchema$anchorError(`Evaluation failed on token: "${token}"`);

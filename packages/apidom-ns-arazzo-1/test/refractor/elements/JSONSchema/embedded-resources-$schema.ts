@@ -1,5 +1,6 @@
 import { assert } from 'chai';
-import { find, toValue } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
+import { find } from '@speclynx/apidom-traverse';
 import { isElement } from '@speclynx/apidom-datamodel';
 
 import {
@@ -66,10 +67,10 @@ describe('refractor', function () {
 
           specify('should annotate Schema Object($id=1) with appropriate dialect', function () {
             const foundJsonSchemaElement = find(
-              (e) => isJSONSchemaElement(e) && isElement(e.$id) && e.$id.equals('1'),
               jsonSchemaElement,
-            );
-            const actual = toValue(foundJsonSchemaElement.meta.get('inheritedDialectIdentifier'));
+              (e) => isJSONSchemaElement(e) && isElement(e.$id) && e.$id.equals('1'),
+            ) as JSONSchemaElement | undefined;
+            const actual = toValue(foundJsonSchemaElement?.meta.get('inheritedDialectIdentifier'));
             const expected = 'https://json-schema.org/draft/2020-12/schema';
 
             assert.strictEqual(actual, expected);
@@ -77,9 +78,9 @@ describe('refractor', function () {
 
           specify('should not annotate Schema Object($id=2) with any dialect', function () {
             const foundJsonSchemaElement = find(
-              (e) => isJSONSchemaElement(e) && isElement(e.$id) && e.$id.equals('2'),
               jsonSchemaElement,
-            );
+              (e) => isJSONSchemaElement(e) && isElement(e.$id) && e.$id.equals('2'),
+            ) as JSONSchemaElement | undefined;
             const actual = toValue(foundJsonSchemaElement?.$schema);
             const expected = '$schema1';
 
@@ -89,8 +90,8 @@ describe('refractor', function () {
 
           specify('should annotate Schema Object($id=3) with appropriate dialect', function () {
             const foundJsonSchemaElement = find(
-              (e) => isJSONSchemaElement(e) && isElement(e.$id) && e.$id.equals('3'),
               jsonSchemaElement,
+              (e) => isJSONSchemaElement(e) && isElement(e.$id) && e.$id.equals('3'),
             );
             const actual = toValue(foundJsonSchemaElement?.meta.get('inheritedDialectIdentifier'));
             const expected = '$schema1';
@@ -100,8 +101,8 @@ describe('refractor', function () {
 
           specify('should annotate Schema Object($id=4) with appropriate dialect', function () {
             const foundJsonSchemaElement = find(
-              (e) => isJSONSchemaElement(e) && isElement(e.$id) && e.$id.equals('4'),
               jsonSchemaElement,
+              (e) => isJSONSchemaElement(e) && isElement(e.$id) && e.$id.equals('4'),
             );
             const actual = toValue(foundJsonSchemaElement?.meta.get('inheritedDialectIdentifier'));
             const expected = 'https://json-schema.org/draft/2020-12/schema';

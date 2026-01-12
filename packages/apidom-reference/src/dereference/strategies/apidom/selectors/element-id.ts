@@ -1,6 +1,7 @@
 import { isUndefined } from 'ramda-adjunct';
 import { Element, isStringElement } from '@speclynx/apidom-datamodel';
-import { filter, toValue } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
+import { filter } from '@speclynx/apidom-traverse';
 
 import EvaluationElementIdError from '../../../../errors/EvaluationElementIdError.ts';
 
@@ -15,7 +16,7 @@ export const evaluate = <T extends Element>(elementID: string, element: T): Elem
   const { cache } = evaluate;
   // warm the cache
   if (!cache.has(element)) {
-    const elementsWithID = filter(hasElementID, element);
+    const elementsWithID = filter(element, hasElementID);
     cache.set(element, Array.from(elementsWithID));
   }
 

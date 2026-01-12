@@ -1,6 +1,7 @@
 import { assert } from 'chai';
 import { ObjectElement, isElement } from '@speclynx/apidom-datamodel';
-import { find, toValue } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
+import { find } from '@speclynx/apidom-traverse';
 import { parse } from '@speclynx/apidom-parser-adapter-json';
 
 import {
@@ -28,7 +29,7 @@ describe('refractor', function () {
               },
             });
             const openApiElement = refractOpenApi3_1(genericObjectElement);
-            const schemaElement = find((e) => isSchemaElement(e), openApiElement);
+            const schemaElement = find(openApiElement, (e) => isSchemaElement(e));
             const actual = toValue(schemaElement?.meta.get('inheritedDialectIdentifier'));
             const expected = toValue(JsonSchemaDialectElement.default);
 
@@ -69,7 +70,7 @@ describe('refractor', function () {
               }
             }`);
               const openApiElement = refractOpenApi3_1(genericObjectElement.result);
-              const schemaElement = find((e) => isSchemaElement(e), openApiElement);
+              const schemaElement = find(openApiElement, (e) => isSchemaElement(e));
               const actual = toValue(schemaElement?.meta.get('inheritedDialectIdentifier'));
               const expected = 'https://arbitrary-schema-url.com/';
 
@@ -94,7 +95,7 @@ describe('refractor', function () {
               "jsonSchemaDialect": "https://arbitrary-schema-url.com/"
             }`);
               const openApiElement = refractOpenApi3_1(genericObjectElement.result);
-              const schemaElement = find((e) => isSchemaElement(e), openApiElement);
+              const schemaElement = find(openApiElement, (e) => isSchemaElement(e));
               const actual = toValue(schemaElement?.meta.get('inheritedDialectIdentifier'));
               const expected = 'https://arbitrary-schema-url.com/';
 
@@ -136,8 +137,8 @@ describe('refractor', function () {
 
           specify('should annotate Schema Object($id=1) with appropriate dialect', function () {
             const schemaElement = find(
-              (e) => isSchemaElement(e) && isElement(e.$id) && e.$id.equals('1'),
               openApiElement,
+              (e) => isSchemaElement(e) && isElement(e.$id) && e.$id.equals('1'),
             );
             const actual = toValue(schemaElement?.meta.get('inheritedDialectIdentifier'));
             const expected = toValue(JsonSchemaDialectElement.default);
@@ -147,8 +148,8 @@ describe('refractor', function () {
 
           specify('should not annotate Schema Object($id=2) with any dialect', function () {
             const schemaElement = find(
-              (e) => isSchemaElement(e) && isElement(e.$id) && e.$id.equals('2'),
               openApiElement,
+              (e) => isSchemaElement(e) && isElement(e.$id) && e.$id.equals('2'),
             );
             // @ts-ignore
             const actual = toValue(schemaElement?.$schema);
@@ -160,8 +161,8 @@ describe('refractor', function () {
 
           specify('should annotate Schema Object($id=3) with appropriate dialect', function () {
             const schemaElement = find(
-              (e) => isSchemaElement(e) && isElement(e.$id) && e.$id.equals('3'),
               openApiElement,
+              (e) => isSchemaElement(e) && isElement(e.$id) && e.$id.equals('3'),
             );
             const actual = toValue(schemaElement?.meta.get('inheritedDialectIdentifier'));
             const expected = '$schema1';
@@ -171,8 +172,8 @@ describe('refractor', function () {
 
           specify('should annotate Schema Object($id=4) with appropriate dialect', function () {
             const schemaElement = find(
-              (e) => isSchemaElement(e) && isElement(e.$id) && e.$id.equals('4'),
               openApiElement,
+              (e) => isSchemaElement(e) && isElement(e.$id) && e.$id.equals('4'),
             );
             const actual = toValue(schemaElement?.meta.get('inheritedDialectIdentifier'));
             const expected = toValue(JsonSchemaDialectElement.default);

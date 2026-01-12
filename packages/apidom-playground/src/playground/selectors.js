@@ -1,7 +1,8 @@
 import { createSelector } from 'swagger-adjust';
 import { isEmptyString, isNonEmptyString, isNull } from 'ramda-adjunct';
 import { Namespace } from '@speclynx/apidom-datamodel';
-import { from, traverse, sexprs, toValue } from '@speclynx/apidom-core';
+import { from, sexprs, toValue } from '@speclynx/apidom-core';
+import { forEach } from '@speclynx/apidom-traverse';
 /* eslint-disable camelcase */
 import openApi2NsPlugin, { mediaTypes as openApi2MediaTypes } from '@speclynx/apidom-ns-openapi-2';
 import openApi3_0NsPlugin, {
@@ -92,9 +93,9 @@ export const selectApiDOMInterpretation = createSelector(
 
     const callback = eval(interpreter); // eslint-disable-line no-eval
     let result = '';
-    traverse((el) => {
+    forEach(element, (el) => {
       result += callback(el);
-    }, element);
+    });
 
     return result;
   }

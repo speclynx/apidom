@@ -47,6 +47,7 @@
     "@speclynx/apidom-parser-adapter-arazzo-yaml-1": "*",
     "@speclynx/apidom-parser-adapter-yaml-1-2": "*",
     "@speclynx/apidom-reference": "*",
+    "@speclynx/apidom-traverse": "*",
     "classnames": "^2.3.2",
     "comlink": "^4.3.0",
     "prop-types": "^15.7.2",

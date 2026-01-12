@@ -1,6 +1,6 @@
 import { isUndefined } from 'ramda-adjunct';
 import { Element } from '@speclynx/apidom-datamodel';
-import { filter } from '@speclynx/apidom-core';
+import { filter } from '@speclynx/apidom-traverse';
 import { isSchemaElement, SchemaElement } from '@speclynx/apidom-ns-openapi-3-1';
 import {
   URIFragmentIdentifier,
@@ -23,7 +23,7 @@ export const evaluate = <T extends Element>(uri: string, element: T): Element | 
 
   // warm the cache
   if (!cache.has(element)) {
-    const schemaObjectElements = filter(isSchemaElementWith$id, element);
+    const schemaObjectElements = filter(element, isSchemaElementWith$id);
     cache.set(element, Array.from(schemaObjectElements));
   }
 

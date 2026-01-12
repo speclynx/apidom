@@ -1,6 +1,7 @@
 import { assert, expect } from 'chai';
 import { ObjectElement, isElement } from '@speclynx/apidom-datamodel';
-import { sexprs, toValue, find } from '@speclynx/apidom-core';
+import { sexprs, toValue } from '@speclynx/apidom-core';
+import { find } from '@speclynx/apidom-traverse';
 
 import {
   refractJSONSchema,
@@ -86,8 +87,8 @@ describe('refractor', function () {
           },
         });
         const foundJsonSchemaElement = find(
-          (e) => isJSONSchemaElement(e) && isElement(e.get('id')) && e.get('id')!.equals('id2'),
           jsonSchemaElement,
+          (e) => isJSONSchemaElement(e) && isElement(e.get('id')) && e.get('id')!.equals('id2'),
         );
         const ancestorsSchemaIdentifiers = foundJsonSchemaElement!.meta.get(
           'ancestorsSchemaIdentifiers',

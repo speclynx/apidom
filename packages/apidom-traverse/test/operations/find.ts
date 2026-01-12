@@ -6,7 +6,7 @@ import { find } from '../../src/index.ts';
 
 const namespace = new Namespace();
 
-describe('traversal', function () {
+describe('operations', function () {
   context('find', function () {
     context('given ObjectElement', function () {
       // @ts-ignore
@@ -16,7 +16,7 @@ describe('traversal', function () {
         const predicate = (element: unknown): boolean =>
           isMemberElement(element) && isElement(element.key) && element.key.equals('c');
         // @ts-ignore
-        const found = find(predicate, objElement) as MemberElement;
+        const found = find(objElement, predicate) as MemberElement;
 
         assert.isTrue(isMemberElement(found));
         // @ts-ignore
@@ -27,7 +27,7 @@ describe('traversal', function () {
 
       context('given no match', function () {
         specify('should return undefined', function () {
-          const found = find(stubFalse, objElement);
+          const found = find(objElement, stubFalse);
 
           assert.isUndefined(found);
         });

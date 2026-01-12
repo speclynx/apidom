@@ -1,5 +1,6 @@
 import { assert } from 'chai';
-import { find, toValue } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
+import { find } from '@speclynx/apidom-traverse';
 import { isElement } from '@speclynx/apidom-datamodel';
 
 import { isJSONSchemaElement, refractJSONSchema } from '../../../../src/index.ts';
@@ -61,10 +62,12 @@ describe('refractor', function () {
             'should annotate JSONSchema Object($anchor=1) with ancestorsSchemaIdentifiers',
             function () {
               const foundJsonSchemaElement = find(
-                (e) => isJSONSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('1'),
                 jsonSchemaElement,
+                (e) => isJSONSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('1'),
               );
-              const actual = toValue(foundJsonSchemaElement.meta.get('ancestorsSchemaIdentifiers'));
+              const actual = toValue(
+                foundJsonSchemaElement?.meta.get('ancestorsSchemaIdentifiers'),
+              );
 
               assert.deepEqual(actual, []);
             },
@@ -74,10 +77,12 @@ describe('refractor', function () {
             'should annotate JSONSchema Object($anchor=2) with ancestorsSchemaIdentifiers',
             function () {
               const foundJsonSchemaElement = find(
-                (e) => isJSONSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('2'),
                 jsonSchemaElement,
+                (e) => isJSONSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('2'),
               );
-              const actual = toValue(foundJsonSchemaElement.meta.get('ancestorsSchemaIdentifiers'));
+              const actual = toValue(
+                foundJsonSchemaElement?.meta.get('ancestorsSchemaIdentifiers'),
+              );
 
               assert.deepEqual(actual, ['$id1']);
             },
@@ -87,10 +92,12 @@ describe('refractor', function () {
             'should annotate JSONSchema Object($anchor=3) with ancestorsSchemaIdentifiers',
             function () {
               const foundJsonSchemaElement = find(
-                (e) => isJSONSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('3'),
                 jsonSchemaElement,
+                (e) => isJSONSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('3'),
               );
-              const actual = toValue(foundJsonSchemaElement.meta.get('ancestorsSchemaIdentifiers'));
+              const actual = toValue(
+                foundJsonSchemaElement?.meta.get('ancestorsSchemaIdentifiers'),
+              );
 
               assert.deepEqual(actual, ['$id1', '$id2']);
             },
@@ -100,10 +107,12 @@ describe('refractor', function () {
             'should not annotate JSONSchema Object($anchor=4) with ancestorsSchemaIdentifiers',
             function () {
               const foundJsonSchemaElement = find(
-                (e) => isJSONSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('4'),
                 jsonSchemaElement,
+                (e) => isJSONSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('4'),
               );
-              const actual = toValue(foundJsonSchemaElement.meta.get('ancestorsSchemaIdentifiers'));
+              const actual = toValue(
+                foundJsonSchemaElement?.meta.get('ancestorsSchemaIdentifiers'),
+              );
 
               assert.deepEqual(actual, []);
             },
