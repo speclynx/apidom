@@ -3,7 +3,7 @@ import { ObjectElement, ArrayElement } from '@speclynx/apidom-datamodel';
 
 import { parents } from '../../src/index.ts';
 
-describe('traversal', function () {
+describe('operations', function () {
   context('parents', function () {
     context('given directed acyclic ApiDOM tree', function () {
       let data: ObjectElement;

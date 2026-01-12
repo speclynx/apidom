@@ -35,7 +35,7 @@ const setSourceMap = <T extends { meta: ObjectElement }>(
   return element;
 };
 
-describe('traversal', function () {
+describe('operations', function () {
   context('findAtOffset', function () {
     context('given JSON object', function () {
       let parseResult: ParseResultElement;
@@ -70,26 +70,26 @@ describe('traversal', function () {
       });
 
       specify('should find MemberElement and not dive in', function () {
-        const found = findAtOffset(0, parseResult);
+        const found = findAtOffset(parseResult, 0);
 
         assert.strictEqual(found, parseResult.get(0));
       });
 
       specify('should find key as most inner node', function () {
-        const found = findAtOffset(5, parseResult);
+        const found = findAtOffset(parseResult, 5);
 
         assert.strictEqual(found, (parseResult.get(0) as ObjectElement).getMember('prop')!.key);
       });
 
       specify('should find value as most inner node', function () {
-        const found = findAtOffset(12, parseResult);
+        const found = findAtOffset(parseResult, 12);
 
         assert.strictEqual(found, (parseResult.get(0) as ObjectElement).getMember('prop')!.value);
       });
 
       context('given out of range offset', function () {
         specify('should not find anything', function () {
-          const found = findAtOffset(10000000, parseResult);
+          const found = findAtOffset(parseResult, 10000000);
 
           assert.isUndefined(found);
         });
@@ -97,7 +97,7 @@ describe('traversal', function () {
 
       context('given negative offset', function () {
         specify('should not find anything', function () {
-          const found = findAtOffset(-4, parseResult);
+          const found = findAtOffset(parseResult, -4);
 
           assert.isUndefined(found);
         });

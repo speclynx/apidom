@@ -1,13 +1,15 @@
 import { Element } from '@speclynx/apidom-datamodel';
-import { traverse, type Path } from '@speclynx/apidom-traverse';
+
+import { traverse } from '../traversal.ts';
+import type { Path } from '../Path.ts';
 
 /**
  * Finds all elements matching the predicate.
  * @public
  */
 const filter = <T extends Element>(
-  predicate: (element: Element) => boolean,
   element: T,
+  predicate: (element: Element) => boolean,
 ): Element[] => {
   const result: Element[] = [];
 

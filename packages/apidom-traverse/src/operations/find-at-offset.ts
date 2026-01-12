@@ -1,14 +1,12 @@
-import { last, pathOr } from 'ramda';
-import { isNumber } from 'ramda-adjunct';
 import {
   Element,
   ArrayElement,
   SourceMapElement,
   hasElementSourceMap,
 } from '@speclynx/apidom-datamodel';
-import { traverse, type Path } from '@speclynx/apidom-traverse';
 
-import toValue from '../transformers/serializers/value.ts';
+import { traverse } from '../traversal.ts';
+import type { Path } from '../Path.ts';
 
 /**
  * @public
@@ -24,18 +22,18 @@ export interface FindAtOffsetOptions {
  * @public
  */
 const findAtOffset = <T extends Element>(
-  options: number | FindAtOffsetOptions,
   element: T,
+  options: number | FindAtOffsetOptions,
 ): T | undefined => {
   let offset: number;
   let includeRightBound: boolean;
 
-  if (isNumber(options)) {
+  if (typeof options === 'number') {
     offset = options;
     includeRightBound = false;
   } else {
-    offset = pathOr(0, ['offset'], options);
-    includeRightBound = pathOr(false, ['includeRightBound'], options);
+    offset = options.offset ?? 0;
+    includeRightBound = options.includeRightBound ?? false;
   }
 
   const result: T[] = [];
@@ -51,8 +49,8 @@ const findAtOffset = <T extends Element>(
       const sourceMapElement = node.meta.get('sourceMap') as SourceMapElement;
       const positionStart = sourceMapElement.positionStart as ArrayElement | undefined;
       const positionEnd = sourceMapElement.positionEnd as ArrayElement | undefined;
-      const charStart: number = toValue(positionStart?.get(2)) as number;
-      const charEnd: number = toValue(positionEnd?.get(2)) as number;
+      const charStart: number = (positionStart?.get(2)?.toValue() as number) ?? 0;
+      const charEnd: number = (positionEnd?.get(2)?.toValue() as number) ?? 0;
       const isWithinOffsetRange =
         offset >= charStart && (offset < charEnd || (includeRightBound && offset <= charEnd));
 
@@ -65,7 +63,7 @@ const findAtOffset = <T extends Element>(
     },
   });
 
-  return last<T>(result);
+  return result.at(-1);
 };
 
 export default findAtOffset;

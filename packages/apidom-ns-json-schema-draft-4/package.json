@@ -49,6 +49,9 @@
     "ramda-adjunct": "^6.0.0",
     "ts-mixer": "^6.0.4"
   },
+  "devDependencies": {
+    "@speclynx/apidom-traverse": "^1.12.2"
+  },
   "files": [
     "src/**/*.mjs",
     "src/**/*.cjs",

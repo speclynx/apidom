@@ -1,5 +1,7 @@
 import { Element } from '@speclynx/apidom-datamodel';
-import { traverse, type Path } from '@speclynx/apidom-traverse';
+
+import { traverse } from '../traversal.ts';
+import type { Path } from '../Path.ts';
 
 /**
  * Computes upwards edges from every child to its parent.

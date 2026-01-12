@@ -6,7 +6,7 @@ import { some } from '../../src/index.ts';
 
 const namespace = new Namespace();
 
-describe('traversal', function () {
+describe('operations', function () {
   context('some', function () {
     context('given ObjectElement', function () {
       // @ts-ignore
@@ -14,7 +14,7 @@ describe('traversal', function () {
 
       context('given match', function () {
         specify('should return true', function () {
-          const isFound = some(isMemberElement, objElement);
+          const isFound = some(objElement, isMemberElement);
 
           assert.isTrue(isFound);
         });
@@ -22,7 +22,7 @@ describe('traversal', function () {
 
       context('given no match', function () {
         specify('should return false', function () {
-          const isFound = some(stubFalse, objElement);
+          const isFound = some(objElement, stubFalse);
 
           assert.isFalse(isFound);
         });

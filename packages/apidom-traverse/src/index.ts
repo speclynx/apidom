@@ -31,3 +31,14 @@ export type {
 } from './visitors.ts';
 export { traverse, traverseAsync } from './traversal.ts';
 export type { TraverseOptions } from './traversal.ts';
+
+// Operations
+export { default as filter } from './operations/filter.ts';
+export { default as find } from './operations/find.ts';
+export { default as some } from './operations/some.ts';
+export { default as reject } from './operations/reject.ts';
+export { default as forEach } from './operations/for-each.ts';
+export type { Callback as ForEachCallback, ForEachOptions } from './operations/for-each.ts';
+export { default as parents } from './operations/parents.ts';
+export { default as findAtOffset } from './operations/find-at-offset.ts';
+export type { FindAtOffsetOptions } from './operations/find-at-offset.ts';

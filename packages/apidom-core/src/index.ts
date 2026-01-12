@@ -13,10 +13,6 @@ export { default as refractorPluginSemanticElementIdentity } from './refractor/p
 
 export { default as MediaTypes } from './media-types.ts';
 
-export { filter, reject, find, findAtOffset, some, traverse, parents } from './traversal/index.ts';
-export type { FindAtOffsetOptions } from './traversal/index.ts';
-export type { Callback, TraverseOptions } from './traversal/traverse.ts';
-
 export { transclude, default as Transcluder } from './transcluder/index.ts';
 
 export { resolveSpecification, type ResolvedSpecification } from './specification.ts';

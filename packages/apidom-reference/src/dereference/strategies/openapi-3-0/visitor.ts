@@ -11,9 +11,9 @@ import {
   cloneShallow,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { IdentityManager, find, toValue } from '@speclynx/apidom-core';
+import { IdentityManager, toValue } from '@speclynx/apidom-core';
 import { ApiDOMError } from '@speclynx/apidom-error';
-import { traverseAsync, Path } from '@speclynx/apidom-traverse';
+import { traverseAsync, Path, find } from '@speclynx/apidom-traverse';
 import { evaluate, URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
 import {
   ReferenceElement,
@@ -544,9 +544,9 @@ class OpenAPI3_0DereferenceVisitor {
       const operationId = toValue(linkElement.operationId) as string;
       const reference = await this.toReference(url.unsanitize(this.reference.uri));
       operationElement = find(
+        (reference.value as ParseResultElement).result as Element,
         (e) =>
           isOperationElement(e) && isElement(e.operationId) && e.operationId.equals(operationId),
-        (reference.value as ParseResultElement).result as Element,
       );
       // OperationElement not found by its operationId
       if (isUndefined(operationElement)) {
