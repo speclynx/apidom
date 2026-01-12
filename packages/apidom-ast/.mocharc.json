@@ -1,4 +1,0 @@
-{
-  "recursive": true,
-  "spec": "test/**/*.mjs"
-}

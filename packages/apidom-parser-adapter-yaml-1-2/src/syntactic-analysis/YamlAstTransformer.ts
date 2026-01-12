@@ -1,16 +1,3 @@
-import type {
-  YamlDocument,
-  YamlStream,
-  YamlComment,
-  YamlMapping,
-  YamlKeyValuePair,
-  YamlSequence,
-  YamlScalar,
-  Literal,
-  Error,
-  ParseResult,
-} from '@speclynx/apidom-ast';
-import { YamlStyle } from '@speclynx/apidom-ast';
 import {
   ParseResultElement,
   AnnotationElement,
@@ -23,6 +10,18 @@ import {
   isPrimitiveElement,
   Namespace,
 } from '@speclynx/apidom-datamodel';
+
+import type Error from './ast/Error.ts';
+import type Literal from './ast/Literal.ts';
+import type ParseResult from './ast/ParseResult.ts';
+import type YamlDocument from './ast/nodes/YamlDocument.ts';
+import type YamlStream from './ast/nodes/YamlStream.ts';
+import type YamlComment from './ast/nodes/YamlComment.ts';
+import type YamlMapping from './ast/nodes/YamlMapping.ts';
+import type YamlKeyValuePair from './ast/nodes/YamlKeyValuePair.ts';
+import type YamlSequence from './ast/nodes/YamlSequence.ts';
+import type YamlScalar from './ast/nodes/YamlScalar.ts';
+import { YamlStyle } from './ast/nodes/YamlStyle.ts';
 
 // Transform context passed through transformation
 interface TransformContext {

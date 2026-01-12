@@ -1,27 +1,23 @@
 import { TreeCursor, Point as TreeSitterPoint } from 'web-tree-sitter';
-import {
-  Error,
-  Literal,
-  ParseResult,
-  Point,
-  Position,
-  YamlNode,
-  YamlAlias,
-  YamlAnchor,
-  YamlComment,
-  YamlDirective,
-  YamlDocument,
-  YamlKeyValuePair,
-  YamlMapping,
-  YamlNodeKind,
-  YamlReferenceManager,
-  YamlScalar,
-  YamlSequence,
-  YamlStream,
-  YamlStyle,
-  YamlStyleGroup,
-  YamlTag,
-} from '@speclynx/apidom-ast';
+
+import Error from './ast/Error.ts';
+import Literal from './ast/Literal.ts';
+import ParseResult from './ast/ParseResult.ts';
+import Position, { Point } from './ast/Position.ts';
+import YamlNode from './ast/nodes/YamlNode.ts';
+import YamlAlias from './ast/nodes/YamlAlias.ts';
+import YamlAnchor from './ast/nodes/YamlAnchor.ts';
+import YamlComment from './ast/nodes/YamlComment.ts';
+import YamlDirective from './ast/nodes/YamlDirective.ts';
+import YamlDocument from './ast/nodes/YamlDocument.ts';
+import YamlKeyValuePair from './ast/nodes/YamlKeyValuePair.ts';
+import YamlMapping from './ast/nodes/YamlMapping.ts';
+import YamlScalar from './ast/nodes/YamlScalar.ts';
+import YamlSequence from './ast/nodes/YamlSequence.ts';
+import YamlStream from './ast/nodes/YamlStream.ts';
+import YamlTag, { YamlNodeKind } from './ast/nodes/YamlTag.ts';
+import { YamlStyle, YamlStyleGroup } from './ast/nodes/YamlStyle.ts';
+import YamlReferenceManager from './ast/anchors-aliases/ReferenceManager.ts';
 
 interface CursorInfo {
   type: string;

@@ -13,8 +13,8 @@ Copy of the MIT license can be found in `LICENSES/MIT.txt` file.
 
 graphql-js
 Copyright (c) GraphQL Contributors
-File packages/apidom-ast/src/traversal/visitor.ts (the file) was originally created under MIT license in https://github.com/graphql/graphql-js repository.
-The file has been copied into this project and modified. All modifications are licensed under Apache 2.0 License.
+File packages/apidom-traverse/src/traversal.ts (the file) was originally inspired by https://github.com/graphql/graphql-js repository.
+All modifications are licensed under Apache 2.0 License.
 Copy of the MIT license can be found in `LICENSES/MIT.txt` file.
 
 babel-plugin-add-import-extension

@@ -66,7 +66,6 @@ The monorepo contains 38 packages organized into these categories:
 1. **Core Infrastructure:**
    - `apidom-datamodel` - Foundational data model primitives (elements, namespace, serialization)
    - `apidom-core` - Base namespace, elements, predicates, traversal, transclusion
-   - `apidom-ast` - Abstract Syntax Tree structures
    - `apidom-error` - Error handling utilities
 
 2. **Namespaces (`apidom-ns-*`):** Define semantic elements for each API spec

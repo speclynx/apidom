@@ -57,7 +57,6 @@ ApiDOM npm packages are installable and works with `Node.js >=16.14.2 <=24`.
 You can install ApiDOM packages using [npm CLI](https://docs.npmjs.com/cli):
 
 ```sh
- $ npm install @speclynx/apidom-ast
  $ npm install @speclynx/apidom-converter
  $ npm install @speclynx/apidom-core
  $ npm install @speclynx/apidom-datamodel
@@ -270,13 +269,13 @@ global `node_modules`.
 Now that we have monorepo packages globally linked we can use them in `dependent project`.
 Let's say `dependent project` needs to directly use following packages:
 
-- @speclynx/apidom-ast
+- @speclynx/apidom-traverse
 - @speclynx/apidom-core
 
 Issuing following command from inside the `dependent project` will link these packages:
 
 ```sh
- $ npm link @speclynx/apidom-ast @speclynx/apidom-core
+ $ npm link @speclynx/apidom-traverse @speclynx/apidom-core
 ```
 
 If more packages (or all of them) need to be used in `dependent project`, they need to be explicitly
@@ -289,7 +288,7 @@ multiple package names as argument.
 **Don't ever do this!**
 
 ```sh
- $ npm link @speclynx/apidom-ast
+ $ npm link @speclynx/apidom-traverse
  $ npm link @speclynx/apidom-core
 ```
 
@@ -327,7 +326,7 @@ Running above npm script will unlink all monorepo packages from global `node_mod
 If you want to just unlink particular monorepo packages, you have to enumerate them explicitly:
 
 ```shell
- $ npm unlink --global @speclynx/apidom-ast @speclynx/apidom-core
+ $ npm unlink --global @speclynx/apidom-traverse @speclynx/apidom-core
 ```
 
 ## Documentation
