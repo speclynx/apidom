@@ -7,6 +7,7 @@ import {
 } from '@speclynx/apidom-ns-openapi-3-1';
 import { AnnotationElement, isObjectElement, Element } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import { type Path } from '@speclynx/apidom-traverse';
 
 import type { Toolbox } from '../toolbox.ts';
 
@@ -37,7 +38,8 @@ const securityRequirementsEmptyRolesRefractorPlugin =
 
     return {
       visitor: {
-        OpenApi3_1Element(element: OpenApi3_1Element) {
+        OpenApi3_1Element(path: Path<OpenApi3_1Element>) {
+          const element = path.node;
           if (!isComponentsElement(element.components)) return undefined;
           if (!isObjectElement(element.components.securitySchemes)) return undefined;
 
@@ -54,7 +56,8 @@ const securityRequirementsEmptyRolesRefractorPlugin =
 
           return undefined;
         },
-        SecurityRequirementElement(element: SecurityRequirementElement) {
+        SecurityRequirementElement(path: Path<SecurityRequirementElement>) {
+          const element = path.node;
           if (!relevantSecuritySchemes.length) return undefined;
 
           const keysToEmpty: string[] = [];

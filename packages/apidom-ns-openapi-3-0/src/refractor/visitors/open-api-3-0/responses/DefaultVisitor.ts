@@ -1,5 +1,6 @@
 import { T as stubTrue } from 'ramda';
 import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { isReferenceLikeElement } from '../../../predicates.ts';
 import { isReferenceElement, isResponseElement } from '../../../../predicates.ts';
@@ -23,8 +24,8 @@ class DefaultVisitor extends BaseAlternatingVisitor {
     ];
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = AlternatingVisitor.prototype.enter.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    AlternatingVisitor.prototype.enter.call(this, path);
 
     // decorate ReferenceElement with type of referencing element
     if (isReferenceElement(this.element)) {
@@ -32,8 +33,6 @@ class DefaultVisitor extends BaseAlternatingVisitor {
     } else if (isResponseElement(this.element)) {
       this.element.meta.set('http-status-code', 'default');
     }
-
-    return result;
   }
 }
 

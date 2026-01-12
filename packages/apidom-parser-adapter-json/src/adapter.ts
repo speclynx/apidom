@@ -1,18 +1,13 @@
 import { ParseResultElement, Namespace } from '@speclynx/apidom-datamodel';
+import type { Tree } from 'web-tree-sitter';
 
 import lexicalAnalysis from './lexical-analysis/index.ts';
-import syntacticAnalysisDirect from './syntactic-analysis/direct/index.ts';
-import syntacticAnalysisIndirect from './syntactic-analysis/indirect/index.ts';
+import syntacticAnalysis from './syntactic-analysis/index.ts';
 
 export type { JSONMediaTypes } from './media-types.ts';
-export type { Tree } from './syntactic-analysis/indirect/index.ts';
+export type { Tree };
 
-export {
-  lexicalAnalysis,
-  syntacticAnalysisDirect as syntacticAnalysis,
-  syntacticAnalysisDirect,
-  syntacticAnalysisIndirect,
-};
+export { lexicalAnalysis, syntacticAnalysis };
 
 /**
  * @public
@@ -39,11 +34,14 @@ export const detect = async (source: string): Promise<boolean> => {
     return false;
   }
 
+  let cst: Tree | null = null;
   try {
-    const cst = await lexicalAnalysis(source);
+    cst = await lexicalAnalysis(source);
     return cst.rootNode.type !== 'ERROR';
   } catch {
     return false;
+  } finally {
+    cst?.delete();
   }
 };
 
@@ -52,7 +50,6 @@ export const detect = async (source: string): Promise<boolean> => {
  */
 export interface ParseFunctionOptions {
   sourceMap?: boolean;
-  syntacticAnalysis?: 'direct' | 'indirect';
 }
 
 /**
@@ -66,18 +63,11 @@ export type ParseFunction = (
 /**
  * @public
  */
-export const parse: ParseFunction = async (
-  source,
-  { sourceMap = false, syntacticAnalysis = 'direct' } = {},
-) => {
+export const parse: ParseFunction = async (source, { sourceMap = false } = {}) => {
   const cst = await lexicalAnalysis(source);
-  let apiDOM;
-
-  if (syntacticAnalysis === 'indirect') {
-    apiDOM = syntacticAnalysisIndirect(cst, { sourceMap });
-  } else {
-    apiDOM = syntacticAnalysisDirect(cst, { sourceMap });
+  try {
+    return syntacticAnalysis(cst, { sourceMap });
+  } finally {
+    cst.delete();
   }
-
-  return apiDOM;
 };

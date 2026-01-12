@@ -1,5 +1,6 @@
 import { always } from 'ramda';
 import { ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import ReusableElement from '../../../../elements/Reusable.ts';
 import FixedFieldsVisitor, { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
@@ -27,8 +28,8 @@ class ReusableVisitor extends BaseFixedFieldsFallbackVisitor {
     this.canSupportSpecificationExtensions = false;
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = FixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    const result = FixedFieldsVisitor.prototype.ObjectElement.call(this, path);
 
     // mark this ReusableElement with reference metadata
     if (isStringElement(this.element.reference)) {

@@ -1,4 +1,5 @@
 import { ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 import {
   FixedFieldsVisitor,
   JSONSchemaVisitor as JSONSchemaDraft7Visitor,
@@ -24,21 +25,21 @@ class JSONSchemaVisitor extends JSONSchemaDraft7Visitor {
     return 'https://json-schema.org/draft/2019-09/schema';
   }
 
-  ObjectElement(objectElement: ObjectElement) {
+  ObjectElement(path: Path<ObjectElement>) {
+    const objectElement = path.node;
+
     this.handleDialectIdentifier(objectElement);
     this.handleSchemaIdentifier(objectElement);
 
     // for further processing consider this Schema Element as parent for all embedded Schema Elements
     this.parent = this.element;
-    const result = FixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+    FixedFieldsVisitor.prototype.ObjectElement.call(this, path);
 
     // mark this SchemaElement with reference metadata
     if (isStringElement(this.element.$ref)) {
       this.element.classes.push('reference-element');
       this.element.meta.set('referenced-element', 'schema');
     }
-
-    return result;
   }
 }
 

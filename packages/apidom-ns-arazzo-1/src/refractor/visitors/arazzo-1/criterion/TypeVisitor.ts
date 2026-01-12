@@ -1,4 +1,5 @@
 import { StringElement, ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import CriterionExpressionTypeElement from '../../../../elements/CriterionExpressionType.ts';
 import {
@@ -17,7 +18,8 @@ export interface TypeVisitorOptions extends BaseSpecificationFallbackVisitorOpti
 class TypeVisitor extends BaseSpecificationFallbackVisitor {
   declare public readonly element: StringElement | CriterionExpressionTypeElement;
 
-  ObjectElement(objectElement: ObjectElement): CriterionExpressionTypeElement {
+  ObjectElement(path: Path<ObjectElement>): CriterionExpressionTypeElement {
+    const objectElement = path.node;
     const specPath = ['document', 'objects', 'CriterionExpressionType'];
     return this.toRefractedElement(specPath, objectElement);
   }

@@ -1,5 +1,5 @@
 import { Element, ObjectElement, ArrayElement, isArrayElement } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from '../bases.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
@@ -17,7 +17,9 @@ export type MessageVisitorOptions = BaseSpecificationVisitorOptions;
 class MessageVisitor extends BaseSpecificationVisitor {
   declare public element: OperationMessageMapElement;
 
-  ObjectElement(objectElement: ObjectElement) {
+  ObjectElement(path: Path<ObjectElement>) {
+    const objectElement = path.node;
+
     if (isReferenceLikeElement(objectElement)) {
       this.element = this.toRefractedElement(['document', 'objects', 'Reference'], objectElement);
       this.element.meta.set('referenced-element', 'message');
@@ -47,7 +49,7 @@ class MessageVisitor extends BaseSpecificationVisitor {
 
     this.copyMetaAndAttributes(objectElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

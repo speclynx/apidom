@@ -43,23 +43,23 @@ isOpenApi3_1Element(openApiElement); // => true
 
 ## Traversal
 
-Traversing ApiDOM in this namespace is possible by using `visit` function from `apidom` package.
-This package comes with its own [keyMap](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-openapi-3-1/src/traversal/visitor.ts#L11) and [nodeTypeGetter](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-openapi-3-1/src/traversal/visitor.ts#L4).
-To learn more about these `visit` configuration options please refer to [@speclynx/apidom-ast documentation](https://github.com/speclynx/apidom/blob/main/packages/apidom-ast/README.md#visit).
+Traversing ApiDOM in this namespace is possible by using `traverse` function from `@speclynx/apidom-traverse` package.
+This package comes with its own [nodeTypeGetter](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-openapi-3-1/src/traversal/visitor.ts#L4).
+To learn more about these `traverse` configuration options please refer to [@speclynx/apidom-traverse documentation](https://github.com/speclynx/apidom/blob/main/packages/apidom-traverse/README.md).
 
 ```js
-import { visit } from '@speclynx/apidom-core';
-import { OpenApi3_1Element, keyMap, getNodeType } from '@speclynx/apidom-ns-openapi-3-1';
+import { traverse, getNodePrimitiveType } from '@speclynx/apidom-traverse';
+import { OpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 
 const element = new OpenApi3_1Element();
 
 const visitor = {
-  OpenApi3_1Element(openApiElement) {
-    console.dir(openApiElement);
+  OpenApi3_1Element(path) {
+    console.dir(path.node);
   },
 };
 
-visit(element, visitor, { keyMap, nodeTypeGetter: getNodeType });
+traverse(element, visitor, { nodeTypeGetter: getNodePrimitiveType });
 ```
 
 ## Refractors
@@ -116,8 +116,8 @@ const plugin = ({ predicates, namespace }) => ({
       console.dir('runs before traversal');
   },
   visitor: {
-    InfoElement(infoElement) {
-      infoElement.version = '2.0.0';
+    InfoElement(path) {
+      path.node.version = '2.0.0';
     },
   },
   post() {

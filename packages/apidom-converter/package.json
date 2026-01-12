@@ -43,6 +43,7 @@
     "@speclynx/apidom-error": "*",
     "@speclynx/apidom-core": "*",
     "@speclynx/apidom-datamodel": "*",
+    "@speclynx/apidom-traverse": "*",
     "@speclynx/apidom-ns-openapi-3-0": "*",
     "@speclynx/apidom-ns-openapi-3-1": "*",
     "@speclynx/apidom-reference": "*"

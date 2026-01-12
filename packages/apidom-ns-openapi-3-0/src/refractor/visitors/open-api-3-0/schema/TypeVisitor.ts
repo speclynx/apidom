@@ -4,6 +4,7 @@ import {
   TypeVisitorOptions,
   TypeVisitor as TypeVisitorType,
 } from '@speclynx/apidom-ns-json-schema-draft-4';
+import { Path } from '@speclynx/apidom-traverse';
 
 export type { TypeVisitorOptions };
 
@@ -17,9 +18,8 @@ export const JSONSchemaTypeVisitor: typeof TypeVisitorType =
  * @public
  */
 class TypeVisitor extends JSONSchemaTypeVisitor {
-  ArrayElement(arrayElement: ArrayElement) {
-    const result = this.enter(arrayElement);
-    return result;
+  ArrayElement(path: Path<ArrayElement>) {
+    this.enter(path);
   }
 }
 

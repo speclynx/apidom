@@ -1,5 +1,5 @@
 import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 import {
   BaseSchemaArrayVisitor,
   BaseSchemaArrayVisitorOptions,
@@ -22,7 +22,9 @@ class PrefixItemsVisitor extends BaseSchemaArrayVisitor {
     this.element.classes.push('json-schema-prefixItems');
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
+  ArrayElement(path: Path<ArrayElement>) {
+    const arrayElement = path.node;
+
     arrayElement.forEach((item: Element): void => {
       const element = this.toRefractedElement(['document', 'objects', 'JSONSchema'], item);
 
@@ -31,7 +33,7 @@ class PrefixItemsVisitor extends BaseSchemaArrayVisitor {
 
     this.copyMetaAndAttributes(arrayElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

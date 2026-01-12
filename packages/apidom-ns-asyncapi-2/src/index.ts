@@ -721,8 +721,6 @@ export type {
 
 export type { SpecPath } from './refractor/visitors/generics/FixedFieldsVisitor.ts';
 
-export { keyMap, getNodeType } from './traversal/visitor.ts';
-
 export {
   /**
    * AsyncApi >= 2.0.0 <=2.6.0 specification elements.

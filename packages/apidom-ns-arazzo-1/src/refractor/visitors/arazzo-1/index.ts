@@ -1,5 +1,6 @@
 import { always } from 'ramda';
 import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { SpecPath } from '../generics/FixedFieldsVisitor.ts';
 import FixedFieldsVisitor from '../generics/FixedFieldsVisitor.ts';
@@ -28,8 +29,8 @@ class ArazzoSpecificationVisitor extends BaseFixedFieldsFallbackVisitor {
     this.canSupportSpecificationExtensions = true;
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    return FixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    return FixedFieldsVisitor.prototype.ObjectElement.call(this, path);
   }
 }
 

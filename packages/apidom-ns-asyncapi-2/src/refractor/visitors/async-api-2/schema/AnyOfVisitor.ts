@@ -1,4 +1,5 @@
 import { ArrayElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 import {
   specificationObj as JSONSchemaDraft7Specification,
   AnyOfVisitorOptions,
@@ -20,15 +21,13 @@ export const JSONSchemaAnyOfVisitor: typeof AnyOfVisitorType =
  * @public
  */
 class AnyOfVisitor extends JSONSchemaAnyOfVisitor {
-  ArrayElement(arrayElement: ArrayElement) {
-    const result = JSONSchemaAnyOfVisitor.prototype.ArrayElement.call(this, arrayElement);
+  ArrayElement(path: Path<ArrayElement>) {
+    JSONSchemaAnyOfVisitor.prototype.ArrayElement.call(this, path);
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
       referenceElement.meta.set('referenced-element', 'schema');
     });
-
-    return result;
   }
 }
 

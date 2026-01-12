@@ -1,5 +1,5 @@
 import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from '../bases.ts';
 import MessageTraitExamplesElement from '../../../../elements/nces/MessageTraitExamples.ts';
@@ -20,7 +20,9 @@ class ExamplesVisitor extends BaseSpecificationVisitor {
     this.element = new MessageTraitExamplesElement();
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
+  ArrayElement(path: Path<ArrayElement>) {
+    const arrayElement = path.node;
+
     arrayElement.forEach((item: Element) => {
       const messageExampleElement = this.toRefractedElement(
         ['document', 'objects', 'MessageExample'],
@@ -32,7 +34,7 @@ class ExamplesVisitor extends BaseSpecificationVisitor {
 
     this.copyMetaAndAttributes(arrayElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

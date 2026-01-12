@@ -1,6 +1,7 @@
 import { uniqWith, pathOr, last } from 'ramda';
 import { toValue } from '@speclynx/apidom-core';
-import { Element, StringElement } from '@speclynx/apidom-datamodel';
+import { StringElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 import { OperationParametersElement } from '@speclynx/apidom-ns-openapi-3-0';
 
 import ParameterElement from '../../elements/Parameter.ts';
@@ -59,7 +60,8 @@ const plugin =
     return {
       visitor: {
         OpenApi3_1Element: {
-          enter(element: OpenApi3_1Element) {
+          enter(path: Path<OpenApi3_1Element>) {
+            const element = path.node;
             storage = new NormalizeStorage(element, storageField, 'parameters');
           },
           leave() {
@@ -67,13 +69,10 @@ const plugin =
           },
         },
         PathItemElement: {
-          enter(
-            pathItemElement: PathItemElement,
-            key: string | number,
-            parent: Element | undefined,
-            path: (string | number)[],
-            ancestors: [Element | Element[]],
-          ) {
+          enter(path: Path<PathItemElement>) {
+            const pathItemElement = path.node;
+            const ancestors = path.getAncestorNodes().reverse(); // root to parent order
+
             // skip visiting this Path Item
             if (ancestors.some(predicates.isComponentsElement)) {
               return;
@@ -94,13 +93,9 @@ const plugin =
           },
         },
         OperationElement: {
-          leave(
-            operationElement: OperationElement,
-            key: string | number,
-            parent: Element | undefined,
-            path: (string | number)[],
-            ancestors: [Element | Element[]],
-          ) {
+          leave(path: Path<OperationElement>) {
+            const operationElement = path.node;
+            const ancestors = path.getAncestorNodes().reverse(); // root to parent order
             const parentPathItemParameters = last(pathItemParameters);
 
             // no Path Item Object parameters to inherit from
@@ -110,7 +105,6 @@ const plugin =
 
             const operationJSONPointer = ancestorLineageToJSONPointer([
               ...ancestors,
-              parent!,
               operationElement,
             ]);
 

@@ -40,9 +40,9 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^7.28.4",
-    "@speclynx/apidom-ast": "^1.12.2",
     "@speclynx/apidom-error": "^1.12.2",
     "@speclynx/apidom-datamodel": "^1.12.2",
+    "@speclynx/apidom-traverse": "^1.12.2",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.0.0",
     "short-unique-id": "^5.3.2",

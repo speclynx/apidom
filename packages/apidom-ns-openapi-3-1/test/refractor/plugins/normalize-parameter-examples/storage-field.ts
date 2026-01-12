@@ -33,7 +33,7 @@ describe('refractor', function () {
         });
 
         assert.deepEqual(toValue(openApiElement.get('x-normalized')), {
-          'parameter-examples': ['/paths/~1/get/parameters/0'],
+          'parameter-examples': ['/paths/~1/get/parameters'],
         });
       });
 
@@ -64,7 +64,7 @@ describe('refractor', function () {
           });
 
           assert.deepEqual(toValue(openApiElement.get('$$normalized')), {
-            'parameter-examples': ['/paths/~1/get/parameters/0'],
+            'parameter-examples': ['/paths/~1/get/parameters'],
           });
         });
       });

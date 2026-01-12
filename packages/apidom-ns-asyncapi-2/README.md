@@ -62,23 +62,24 @@ isAsyncApi2Element(asyncApiElement); // => true
 
 ## Traversal
 
-Traversing ApiDOM in this namespace is possible by using `visit` function from `apidom` package.
-This package comes with its own [keyMap](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-asyncapi-2/src/traversal/visitor.ts#L11) and [nodeTypeGetter](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-asyncapi-2/src/traversal/visitor.ts#L4).
-To learn more about these `visit` configuration options please refer to [@speclynx/apidom-ast documentation](https://github.com/speclynx/apidom/blob/main/packages/apidom-ast/README.md#visit).
+Traversing ApiDOM in this namespace is possible by using `traverse` function from `@speclynx/apidom-traverse` package.
+`traverse` uses a Path-based visitor API where visitor methods receive a `Path` object,
+and the actual element is accessed via `path.node`.
 
 ```js
-import { visit } from '@speclynx/apidom-core';
-import { AsyncApi2Element, keyMap, getNodeType } from '@speclynx/apidom-ns-asyncapi-2';
+import { traverse } from '@speclynx/apidom-traverse';
+import { AsyncApi2Element } from '@speclynx/apidom-ns-asyncapi-2';
 
 const element = new AsyncApi2Element();
 
 const visitor = {
-  AsyncApi2Element(asyncApiElement) {
+  AsyncApi2Element(path) {
+    const asyncApiElement = path.node;
     console.dir(asyncApiElement);
   },
 };
 
-visit(element, visitor, { keyMap, nodeTypeGetter: getNodeType });
+traverse(element, visitor);
 ```
 
 ## Refractors
@@ -118,6 +119,8 @@ refractInfo(objectElement); // => InfoElement({ title = 'my title', description 
 ### Refractor plugins
 
 Refractors can accept plugins as a second argument of refract function.
+Plugin visitors use the Path-based API where visitor methods receive a `Path` object,
+and the actual element is accessed via `path.node`.
 
 ```js
 import { ObjectElement } from '@speclynx/apidom-datamodel';
@@ -135,7 +138,8 @@ const plugin = ({ predicates, namespace }) => ({
       console.dir('runs before traversal');
   },
   visitor: {
-    InfoElement(infoElement) {
+    InfoElement(path) {
+      const infoElement = path.node;
       infoElement.version = '2.6.0';
     },
   },

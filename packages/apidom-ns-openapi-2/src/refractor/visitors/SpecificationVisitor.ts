@@ -1,7 +1,7 @@
 import { pathSatisfies, path, pick } from 'ramda';
 import { isFunction } from 'ramda-adjunct';
 import { cloneDeep } from '@speclynx/apidom-datamodel';
-import { visit } from '@speclynx/apidom-core';
+import { traverse } from '@speclynx/apidom-traverse';
 
 import Visitor, { VisitorOptions } from './Visitor.ts';
 import FallbackVisitor from './FallbackVisitor.ts';
@@ -72,7 +72,7 @@ class SpecificationVisitor extends Visitor {
       return cloneDeep(element);
     }
 
-    visit(element, visitor, options);
+    traverse(element, visitor);
     return visitor.element;
   }
 }

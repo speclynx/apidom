@@ -1,5 +1,6 @@
 import { OpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 import { AnnotationElement } from '@speclynx/apidom-datamodel';
+import { type Path } from '@speclynx/apidom-traverse';
 
 type WebhooksRefractorPluginOptions = {
   annotations: AnnotationElement[];
@@ -16,7 +17,8 @@ const webhooksRefractorPlugin =
 
     return {
       visitor: {
-        OpenApi3_1Element(element: OpenApi3_1Element) {
+        OpenApi3_1Element(path: Path<OpenApi3_1Element>) {
+          const element = path.node;
           if (!element.hasKey('webhooks')) return undefined;
 
           annotations.push(annotation);

@@ -1,5 +1,6 @@
 import { LicenseElement } from '@speclynx/apidom-ns-openapi-3-1';
 import { AnnotationElement } from '@speclynx/apidom-datamodel';
+import { type Path } from '@speclynx/apidom-traverse';
 
 type LicenseIdentifierPluginOptions = {
   annotations: AnnotationElement[];
@@ -16,7 +17,8 @@ const licenseIdentifierRefractorPlugin =
 
     return {
       visitor: {
-        LicenseElement(element: LicenseElement) {
+        LicenseElement(path: Path<LicenseElement>) {
+          const element = path.node;
           if (!element.hasKey('identifier')) return undefined;
 
           annotations.push(annotation);

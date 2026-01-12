@@ -1,46 +1,22 @@
-import { Element, ObjectElement, ArrayElement, MemberElement } from '@speclynx/apidom-datamodel';
-
-import { visit } from './visitor.ts';
-
-class Visitor {
-  public parentEdges: WeakMap<Element, Element | undefined>;
-
-  private parent?: Element;
-
-  constructor() {
-    this.parentEdges = new WeakMap();
-  }
-
-  public ObjectElement(objectElement: ObjectElement): void {
-    this.parentEdges.set(objectElement, this.parent);
-    this.parent = objectElement;
-  }
-
-  public ArrayElement(arrayElement: ArrayElement): void {
-    this.parentEdges.set(arrayElement, this.parent);
-    this.parent = arrayElement;
-  }
-
-  public MemberElement(memberElement: MemberElement): void {
-    this.parentEdges.set(memberElement, this.parent);
-    this.parent = memberElement;
-  }
-
-  public enter(element: Element): void {
-    this.parentEdges.set(element, this.parent);
-  }
-}
+import { Element } from '@speclynx/apidom-datamodel';
+import { traverse, type Path } from '@speclynx/apidom-traverse';
 
 /**
  * Computes upwards edges from every child to its parent.
  * @public
  */
 const parents = <T extends Element>(element: T): WeakMap<Element, Element | undefined> => {
-  const visitor = new Visitor();
+  const parentEdges = new WeakMap<Element, Element | undefined>();
 
-  visit(element, visitor);
+  traverse(element, {
+    enter(path: Path<Element>) {
+      // Use parentPath.node to get the actual Element parent.
+      // path.parent could be an array (ArraySlice) when inside ArrayElement/ObjectElement content.
+      parentEdges.set(path.node, path.parentPath?.node);
+    },
+  });
 
-  return visitor.parentEdges;
+  return parentEdges;
 };
 
 export default parents;

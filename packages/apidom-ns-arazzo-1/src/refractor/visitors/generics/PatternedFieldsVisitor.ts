@@ -1,6 +1,7 @@
 import { F as stubFalse } from 'ramda';
 import { ObjectElement, Element, MemberElement, cloneDeep } from '@speclynx/apidom-datamodel';
-import { BREAK, toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
+import { toValue } from '@speclynx/apidom-core';
 
 import type { SpecPath } from './FixedFieldsVisitor.ts';
 import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
@@ -56,7 +57,8 @@ class PatternedFieldsVisitor extends SpecificationVisitor {
     }
   }
 
-  ObjectElement(objectElement: ObjectElement) {
+  ObjectElement(path: Path<ObjectElement>) {
+    const objectElement = path.node;
     // @ts-ignore
     objectElement.forEach((value: Element, key: Element, memberElement: MemberElement) => {
       if (
@@ -82,7 +84,7 @@ class PatternedFieldsVisitor extends SpecificationVisitor {
 
     this.copyMetaAndAttributes(objectElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

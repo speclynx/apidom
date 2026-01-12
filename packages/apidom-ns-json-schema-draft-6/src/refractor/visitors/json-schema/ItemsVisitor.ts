@@ -1,5 +1,5 @@
 import { BooleanElement } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 import {
   ItemsVisitor as JSONSchemaDraft4ItemsVisitor,
   ItemsVisitorOptions,
@@ -11,10 +11,10 @@ export type { ItemsVisitorOptions };
  * @public
  */
 class ItemsVisitor extends JSONSchemaDraft4ItemsVisitor {
-  BooleanElement(booleanElement: BooleanElement) {
-    this.element = this.toRefractedElement(['document', 'objects', 'JSONSchema'], booleanElement);
+  BooleanElement(path: Path<BooleanElement>) {
+    this.element = this.toRefractedElement(['document', 'objects', 'JSONSchema'], path.node);
 
-    return BREAK;
+    path.stop();
   }
 }
 

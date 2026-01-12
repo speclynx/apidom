@@ -1,5 +1,5 @@
 import { ArrayElement, Element, isStringElement, cloneDeep } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import ChannelItemServersElement from '../../../../elements/nces/ChannelItemsServers.ts';
 import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from '../bases.ts';
@@ -20,7 +20,9 @@ class ServersVisitor extends BaseSpecificationVisitor {
     this.element = new ChannelItemServersElement();
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
+  ArrayElement(path: Path<ArrayElement>) {
+    const arrayElement = path.node;
+
     arrayElement.forEach((item: Element) => {
       const element = cloneDeep(item);
 
@@ -33,7 +35,7 @@ class ServersVisitor extends BaseSpecificationVisitor {
 
     this.copyMetaAndAttributes(arrayElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

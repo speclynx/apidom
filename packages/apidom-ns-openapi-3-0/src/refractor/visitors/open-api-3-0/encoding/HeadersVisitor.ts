@@ -1,5 +1,6 @@
 import { Element, ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import MapVisitor, { SpecPath } from '../../generics/MapVisitor.ts';
 import { isReferenceLikeElement } from '../../../predicates.ts';
@@ -32,8 +33,8 @@ class HeadersVisitor extends BaseMapVisitor {
         : ['document', 'objects', 'Header'];
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = MapVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    MapVisitor.prototype.ObjectElement.call(this, path);
 
     // decorate every ReferenceElement with metadata about their referencing type
     // @ts-ignore
@@ -50,8 +51,6 @@ class HeadersVisitor extends BaseMapVisitor {
 
       value.meta.set('headerName', headerName);
     });
-
-    return result;
   }
 }
 

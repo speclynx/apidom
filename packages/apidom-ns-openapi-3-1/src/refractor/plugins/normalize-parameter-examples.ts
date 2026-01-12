@@ -1,4 +1,5 @@
-import { Element, cloneDeep } from '@speclynx/apidom-datamodel';
+import { cloneDeep } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import ParameterElement from '../../elements/Parameter.ts';
 import ExampleElement from '../../elements/Example.ts';
@@ -38,7 +39,8 @@ const plugin =
     return {
       visitor: {
         OpenApi3_1Element: {
-          enter(element: OpenApi3_1Element) {
+          enter(path: Path<OpenApi3_1Element>) {
+            const element = path.node;
             storage = new NormalizeStorage(element, storageField, 'parameter-examples');
           },
           leave() {
@@ -46,13 +48,10 @@ const plugin =
           },
         },
         ParameterElement: {
-          leave(
-            parameterElement: ParameterElement,
-            key: string | number,
-            parent: Element | undefined,
-            path: (string | number)[],
-            ancestors: [Element | Element[]],
-          ) {
+          leave(path: Path<ParameterElement>) {
+            const parameterElement = path.node;
+            const ancestors = path.getAncestorNodes().reverse(); // root to parent order
+
             // skip visiting this Parameter Object
             if (ancestors.some(predicates.isComponentsElement)) {
               return;
@@ -75,7 +74,6 @@ const plugin =
 
             const parameterJSONPointer = ancestorLineageToJSONPointer([
               ...ancestors,
-              parent!,
               parameterElement,
             ]);
 

@@ -1,5 +1,5 @@
 import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import StepOnFailureElement from '../../../../elements/nces/StepOnFailure.ts';
 import {
@@ -25,7 +25,8 @@ class OnFailureVisitor extends BaseSpecificationFallbackVisitor {
     this.element = new StepOnFailureElement();
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
+  ArrayElement(path: Path<ArrayElement>) {
+    const arrayElement = path.node;
     arrayElement.forEach((item: Element): void => {
       const specPath = isReusableLikeElement(item)
         ? ['document', 'objects', 'Reusable']
@@ -41,7 +42,7 @@ class OnFailureVisitor extends BaseSpecificationFallbackVisitor {
 
     this.copyMetaAndAttributes(arrayElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

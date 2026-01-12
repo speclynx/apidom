@@ -45,6 +45,7 @@
     "@babel/runtime-corejs3": "^7.28.4",
     "@speclynx/apidom-core": "^1.12.2",
     "@speclynx/apidom-datamodel": "^1.12.2",
+    "@speclynx/apidom-traverse": "^1.12.2",
     "@speclynx/apidom-ns-json-schema-2020-12": "^1.12.2",
     "@speclynx/apidom-traverse": "^1.12.2",
     "ramda": "~0.32.0",

@@ -1,9 +1,7 @@
 import { Element, isElement } from '@speclynx/apidom-datamodel';
 import { pathOr } from 'ramda';
 import { isFunction, noop } from 'ramda-adjunct';
-
-import { visit, PredicateVisitor } from './visitor.ts';
-import type { PredicateVisitorOptions } from './visitor.ts';
+import { traverse as apidomTraverse, type Path } from '@speclynx/apidom-traverse';
 
 /**
  * @public
@@ -18,34 +16,13 @@ export interface TraverseOptions {
   predicate?: (element: any) => boolean;
 }
 
-interface CallbackVisitorOptions extends PredicateVisitorOptions {
-  readonly callback?: Callback;
-}
-
-export class CallbackVisitor extends PredicateVisitor {
-  protected readonly callback: Callback;
-
-  constructor({ callback = noop, ...rest }: CallbackVisitorOptions = {}) {
-    super({ ...rest });
-    this.callback = callback;
-  }
-
-  public enter(element: Element): unknown {
-    if (this.predicate(element)) {
-      this.callback(element);
-      return this.returnOnTrue;
-    }
-    return this.returnOnFalse;
-  }
-}
-
 /**
  * Executes the callback on this element and all descendants.
  * @public
  */
 const traverse = <T extends Element>(options: Callback | TraverseOptions, element: T): void => {
-  let callback;
-  let predicate;
+  let callback: Callback;
+  let predicate: (element: any) => boolean;
 
   if (isFunction(options)) {
     callback = options;
@@ -55,10 +32,13 @@ const traverse = <T extends Element>(options: Callback | TraverseOptions, elemen
     predicate = pathOr(isElement, ['predicate'], options);
   }
 
-  const visitor = new CallbackVisitor({ callback, predicate });
-
-  // @ts-ignore
-  visit(element, visitor);
+  apidomTraverse(element, {
+    enter(path: Path<Element>) {
+      if (predicate(path.node)) {
+        callback(path.node);
+      }
+    },
+  });
 };
 
 export default traverse;

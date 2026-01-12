@@ -1,5 +1,6 @@
 import { always } from 'ramda';
 import { ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import JSONReferenceElement from '../../../../elements/JSONReference.ts';
 import FixedFieldsVisitor, { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
@@ -27,15 +28,13 @@ class JSONReferenceVisitor extends JSONReferenceVisitorBase {
     this.specPath = always(['document', 'objects', 'JSONReference']);
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = FixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    FixedFieldsVisitor.prototype.ObjectElement.call(this, path);
 
     // mark this JSONReferenceElement with reference metadata
     if (isStringElement(this.element.$ref)) {
       this.element.classes.push('reference-element');
     }
-
-    return result;
   }
 }
 

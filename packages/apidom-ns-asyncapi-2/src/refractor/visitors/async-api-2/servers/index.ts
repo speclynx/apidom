@@ -1,5 +1,6 @@
 import { test } from 'ramda';
 import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { BasePatternedFieldsVisitor, BasePatternedFieldsVisitorOptions } from '../bases.ts';
 import type { SpecPath } from '../../generics/PatternedFieldsVisitor.ts';
@@ -39,15 +40,13 @@ class ServersVisitor extends BasePatternedFieldsVisitor {
     this.fieldPatternPredicate = test(/^[A-Za-z0-9_-]+$/);
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = BasePatternedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    BasePatternedFieldsVisitor.prototype.ObjectElement.call(this, path);
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
       referenceElement.meta.set('referenced-element', 'server');
     });
-
-    return result;
   }
 }
 

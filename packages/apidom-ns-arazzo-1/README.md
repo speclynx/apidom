@@ -55,23 +55,23 @@ isArazzoSpecification1Element(arazzoElement); // => true
 
 ## Traversal
 
-Traversing ApiDOM in this namespace is possible by using `visit` function from `apidom` package.
-This package comes with its own [keyMap](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-arazzo-1/src/traversal/visitor.ts) and [nodeTypeGetter](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-arazzo-1/src/traversal/visitor.ts).
-To learn more about these `visit` configuration options please refer to [@speclynx/apidom-ast documentation](https://github.com/speclynx/apidom/blob/main/packages/apidom-ast/README.md#visit).
+Traversing ApiDOM in this namespace is possible by using `traverse` function from `@speclynx/apidom-traverse` package,
+or by using `visit` function from `@speclynx/apidom-core`. Visitor callbacks receive a [Path](https://github.com/speclynx/apidom/blob/main/packages/apidom-traverse/src/Path.ts) object
+which provides access to the current node via `path.node` along with traversal control methods like `path.replaceWith()`, `path.remove()`, `path.skip()`, and `path.stop()`.
 
 ```js
-import { visit } from '@speclynx/apidom-core';
-import { ArazzoSpecification1Element, keyMap, getNodeType } from '@speclynx/apidom-ns-arazzo-1';
+import { traverse } from '@speclynx/apidom-traverse';
+import { ArazzoSpecification1Element } from '@speclynx/apidom-ns-arazzo-1';
 
 const element = new ArazzoSpecification1Element();
 
 const visitor = {
-  ArazzoSpecification1Element(arazzoElement) {
-    console.dir(arazzoElement);
+  ArazzoSpecification1Element(path) {
+    console.dir(path.node);
   },
 };
 
-visit(element, visitor, { keyMap, nodeTypeGetter: getNodeType });
+traverse(element, visitor);
 ```
 
 ## Refractors
@@ -131,8 +131,8 @@ const plugin = ({ predicates, namespace }) => ({
       console.dir('runs before traversal');
   },
   visitor: {
-    InfoElement(infoElement) {
-      infoElement.version = '2.0.0';
+    InfoElement(path) {
+      path.node.version = '2.0.0';
     },
   },
   post() {

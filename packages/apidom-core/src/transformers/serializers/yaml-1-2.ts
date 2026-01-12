@@ -1,14 +1,7 @@
-import {
-  Element,
-  BooleanElement,
-  NumberElement,
-  StringElement,
-  ArrayElement,
-  ObjectElement,
-} from '@speclynx/apidom-datamodel';
+import { Element, ArrayElement, ObjectElement } from '@speclynx/apidom-datamodel';
+import { traverse, type Path } from '@speclynx/apidom-traverse';
 
-import { visit } from '../../traversal/visitor.ts';
-import serializeValue from './value/index.ts';
+import serializeValue from './value.ts';
 
 interface YamlVisitorOptions {
   readonly directive?: boolean;
@@ -27,48 +20,54 @@ class YamlVisitor {
     this.indent = indent;
   }
 
-  public NumberElement(element: NumberElement): void {
-    this.result += serializeValue(element);
+  public NumberElement(path: Path<Element>): void {
+    this.result += serializeValue(path.node);
   }
 
-  public BooleanElement(element: BooleanElement): void {
-    const value = serializeValue(element);
+  public BooleanElement(path: Path<Element>): void {
+    const value = serializeValue(path.node);
     this.result += value ? 'true' : 'false';
   }
 
-  public StringElement(element: StringElement): void {
+  public StringElement(path: Path<Element>): void {
     // for simplicity and avoiding ambiguity we always wrap strings in quotes
-    this.result += JSON.stringify(serializeValue(element));
+    this.result += JSON.stringify(serializeValue(path.node));
   }
 
   public NullElement(): void {
     this.result += 'null';
   }
 
-  public ArrayElement(element: ArrayElement): false {
+  public ArrayElement(path: Path<Element>): void {
+    const element = path.node as ArrayElement;
+
     if (element.length === 0) {
       this.result += '[]';
-      return false;
+      path.skip();
+      return;
     }
 
     element.forEach((item) => {
       const visitor = new YamlVisitor({ indent: this.indent + 1 });
       const indent = YamlVisitor.indentChar.repeat(this.indent);
 
-      visit(item, visitor);
+      traverse(item, visitor);
 
       const { result } = visitor;
 
       this.result += result.startsWith('\n') ? `\n${indent}-${result}` : `\n${indent}- ${result}`;
     });
 
-    return false;
+    path.skip();
   }
 
-  public ObjectElement(element: ObjectElement): false {
+  public ObjectElement(path: Path<Element>): void {
+    const element = path.node as ObjectElement;
+
     if (element.length === 0) {
       this.result += '{}';
-      return false;
+      path.skip();
+      return;
     }
 
     element.forEach((value, key) => {
@@ -76,8 +75,8 @@ class YamlVisitor {
       const valueVisitor = new YamlVisitor({ indent: this.indent + 1 });
       const indent = YamlVisitor.indentChar.repeat(this.indent);
 
-      visit(key, keyVisitor);
-      visit(value, valueVisitor);
+      traverse(key, keyVisitor);
+      traverse(value, valueVisitor);
 
       const { result: keyResult } = keyVisitor;
       const { result: valueResult } = valueVisitor;
@@ -87,7 +86,7 @@ class YamlVisitor {
         : `\n${indent}${keyResult}: ${valueResult}`;
     });
 
-    return false;
+    path.skip();
   }
 }
 
@@ -97,7 +96,7 @@ class YamlVisitor {
 const serializer = (element: Element, { directive = false } = {}): string => {
   const visitor = new YamlVisitor({ directive });
 
-  visit(element, visitor);
+  traverse(element, visitor);
 
   return visitor.result;
 };

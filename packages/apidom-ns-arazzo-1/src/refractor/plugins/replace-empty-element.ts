@@ -1,5 +1,7 @@
 import {
-  StringElement,
+  Element,
+  type Meta,
+  type Attributes,
   isStringElement,
   isArrayElement,
   isElement,
@@ -7,13 +9,13 @@ import {
   includesClasses,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
+import { Path, getNodeType } from '@speclynx/apidom-traverse';
 import { toValue } from '@speclynx/apidom-core';
 
 /**
  * Arazzo 1.0.1 specification elements.
  */
 import InfoElement from '../../elements/Info.ts';
-import { getNodeType } from '../../traversal/visitor.ts';
 
 /**
  * This plugin is specific to YAML 1.2 format, which allows defining key-value pairs
@@ -49,27 +51,30 @@ import { getNodeType } from '../../traversal/visitor.ts';
  *      (InfoElement))
  */
 
+type ElementFactory = (
+  content?: Record<string, unknown>,
+  meta?: Meta,
+  attributes?: Attributes,
+) => Element;
+
 const isEmptyElement = (element: unknown) =>
   isStringElement(element) && includesClasses(element, ['yaml-e-node', 'yaml-e-scalar']);
 
-const schema = {
+const schema: Record<string, Record<string, ElementFactory>> = {
   // concrete types handling (CTs)
   ArazzoSpecification1Element: {
-    info(...args: any[]) {
-      return new InfoElement(...args);
-    },
+    info: (content, meta, attributes) => new InfoElement(content, meta, attributes),
   },
 };
 
-const findElementFactory = (ancestor: any, keyName: string) => {
-  const elementType = getNodeType(ancestor); // @ts-ignore
-  const keyMapping = schema[elementType] || schema[toValue(ancestor.classes.first)];
+const findElementFactory = (ancestor: Element, keyName: string): ElementFactory | undefined => {
+  const elementType = getNodeType(ancestor);
+  const keyMapping =
+    schema[elementType as string] || schema[toValue(ancestor.classes.first) as string];
 
-  return typeof keyMapping === 'undefined'
-    ? undefined
-    : Object.hasOwn(keyMapping, '[key: *]')
-      ? keyMapping['[key: *]']
-      : keyMapping[keyName];
+  if (typeof keyMapping === 'undefined') return undefined;
+
+  return Object.hasOwn(keyMapping, '[key: *]') ? keyMapping['[key: *]'] : keyMapping[keyName];
 };
 
 /**
@@ -77,11 +82,12 @@ const findElementFactory = (ancestor: any, keyName: string) => {
  */
 const plugin = () => () => ({
   visitor: {
-    StringElement(element: StringElement, key: any, parent: any, path: any, ancestors: any[]) {
-      if (!isEmptyElement(element)) return undefined;
+    StringElement(path: Path<Element>) {
+      const element = path.node;
+      if (!isEmptyElement(element)) return;
 
-      const lineage = [...ancestors, parent].filter(isElement);
-      const parentElement = lineage.at(-1);
+      const ancestors = path.getAncestorNodes().filter(isElement);
+      const parentElement = ancestors.at(0); // immediate parent first
       let elementFactory;
       let context;
 
@@ -89,19 +95,19 @@ const plugin = () => () => ({
         context = element;
         elementFactory = findElementFactory(parentElement, '<*>');
       } else if (isMemberElement(parentElement)) {
-        context = lineage.at(-2);
-        elementFactory = findElementFactory(context, toValue(parentElement.key) as string);
+        context = ancestors.at(1); // grandparent
+        elementFactory = findElementFactory(context!, toValue(parentElement.key) as string);
       }
 
       // no element factory found
-      if (typeof elementFactory !== 'function') return undefined;
+      if (typeof elementFactory !== 'function') return;
 
-      return elementFactory.call(
-        { context },
+      const replacement = elementFactory(
         undefined,
         cloneDeep(element.meta),
         cloneDeep(element.attributes),
       );
+      path.replaceWith(replacement);
     },
   },
 });

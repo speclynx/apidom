@@ -45,24 +45,33 @@ isOpenApi3_0Element(openApiElement); // => true
 
 ## Traversal
 
-Traversing ApiDOM in this namespace is possible by using `visit` function from `apidom` package.
-This package comes with its own [keyMap](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-openapi-3-0/src/traversal/visitor.ts#L11) and [nodeTypeGetter](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-openapi-3-0/src/traversal/visitor.ts#L4).
-To learn more about these `visit` configuration options please refer to [@speclynx/apidom-ast documentation](https://github.com/speclynx/apidom/blob/main/packages/apidom-ast/README.md#visit).
+Traversing ApiDOM in this namespace is possible by using `traverse` function from `@speclynx/apidom-traverse` package.
+Visitor methods receive a `Path` object that provides access to the current node and traversal control.
 
 ```js
-import { visit } from '@speclynx/apidom-core';
-import { OpenApi3_0Element, keyMap, getNodeType } from '@speclynx/apidom-ns-openapi-3-0';
+import { traverse } from '@speclynx/apidom-traverse';
+import { OpenApi3_0Element } from '@speclynx/apidom-ns-openapi-3-0';
 
 const element = new OpenApi3_0Element();
 
 const visitor = {
-  OpenApi3_0Element(openApiElement) {
+  OpenApi3_0Element(path) {
+    const openApiElement = path.node;
     console.dir(openApiElement);
+    path.stop(); // stop traversal
   },
 };
 
-visit(element, visitor, { keyMap, nodeTypeGetter: getNodeType });
+traverse(element, visitor);
 ```
+
+The `Path` object provides several useful methods:
+- `path.node` - the current element being visited
+- `path.stop()` - stop traversal completely
+- `path.skip()` - skip visiting children of the current node
+- `path.remove()` - remove the current node from its parent
+- `path.replaceWith(newNode)` - replace the current node with a new node
+- `path.getAncestorNodes()` - get all ancestor nodes (parent to root order)
 
 ## Refractors
 
@@ -118,8 +127,8 @@ const plugin = ({ predicates, namespace }) => ({
       console.dir('runs before traversal');
   },
   visitor: {
-    InfoElement(infoElement) {
-      infoElement.version = '2.0.0';
+    InfoElement(path) {
+      path.node.version = '2.0.0';
     },
   },
   post() {

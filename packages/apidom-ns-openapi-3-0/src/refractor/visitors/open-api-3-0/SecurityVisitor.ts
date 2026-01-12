@@ -1,5 +1,5 @@
 import { ArrayElement, isObjectElement, cloneDeep } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import SecurityElement from '../../../elements/nces/Security.ts';
 import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from './bases.ts';
@@ -20,7 +20,9 @@ class SecurityVisitor extends BaseSpecificationVisitor {
     this.element = new SecurityElement();
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
+  ArrayElement(path: Path<ArrayElement>) {
+    const arrayElement = path.node;
+
     arrayElement.forEach((item) => {
       if (isObjectElement(item)) {
         const element = this.toRefractedElement(
@@ -35,7 +37,7 @@ class SecurityVisitor extends BaseSpecificationVisitor {
 
     this.copyMetaAndAttributes(arrayElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 }
 

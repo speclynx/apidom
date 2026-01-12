@@ -322,8 +322,6 @@ export type {
   BaseMixedFieldsVisitorOptions,
 } from './refractor/visitors/open-api-2/bases.ts';
 
-export { keyMap, getNodeType } from './traversal/visitor.ts';
-
 // OpenAPI 2.0 elements
 export {
   SwaggerElement,

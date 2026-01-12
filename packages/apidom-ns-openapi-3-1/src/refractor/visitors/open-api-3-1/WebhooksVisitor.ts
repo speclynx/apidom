@@ -1,5 +1,6 @@
 import { ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 import { isReferenceLikeElement, MapVisitor, SpecPath } from '@speclynx/apidom-ns-openapi-3-0';
 
 import ReferenceElement from '../../../elements/Reference.ts';
@@ -32,8 +33,8 @@ class WebhooksVisitor extends BaseMapVisitor {
         : ['document', 'objects', 'PathItem'];
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = MapVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    MapVisitor.prototype.ObjectElement.call(this, path);
 
     // decorate every ReferenceElement with metadata about their referencing type
     // @ts-ignore
@@ -50,8 +51,6 @@ class WebhooksVisitor extends BaseMapVisitor {
         // @ts-ignore
         pathItemElement.setMetaProperty('webhook-name', toValue(key));
       });
-
-    return result;
   }
 }
 

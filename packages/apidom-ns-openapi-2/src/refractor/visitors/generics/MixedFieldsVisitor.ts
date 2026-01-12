@@ -1,7 +1,8 @@
 import { Mixin } from 'ts-mixer';
 import { difference } from 'ramda';
 import { ObjectElement, MemberElement, Element } from '@speclynx/apidom-datamodel';
-import { BREAK, toValue } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import FixedFieldsVisitor, { SpecPath } from './FixedFieldsVisitor.ts';
 import PatternedFieldsVisitor, { PatternedFieldsVisitorOptions } from './PatternedFieldsVisitor.ts';
@@ -40,7 +41,8 @@ class MixedFieldsVisitor extends MixedFieldsVisitorBase {
     this.specPathPatternedFields = specPathPatternedFields;
   }
 
-  ObjectElement(objectElement: ObjectElement) {
+  ObjectElement(path: Path<ObjectElement>) {
+    const objectElement = path.node;
     const { specPath, ignoredFields } = this;
 
     try {
@@ -49,11 +51,11 @@ class MixedFieldsVisitor extends MixedFieldsVisitorBase {
       // let FixedFieldsVisitor only process fixed fields and leave rest to PatternedFieldsVisitor
       // @ts-ignore
       this.ignoredFields = [...ignoredFields, ...difference(objectElement.keys(), fixedFields)];
-      FixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+      FixedFieldsVisitor.prototype.ObjectElement.call(this, path);
 
       this.specPath = this.specPathPatternedFields;
       this.ignoredFields = fixedFields;
-      PatternedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+      PatternedFieldsVisitor.prototype.ObjectElement.call(this, path);
 
       // reorder this.element members by original objectElement keys
       const objectElementKeys = objectElement.keys() as string[];
@@ -68,7 +70,7 @@ class MixedFieldsVisitor extends MixedFieldsVisitorBase {
       throw e;
     }
 
-    return BREAK;
+    path.stop();
   }
 }
 

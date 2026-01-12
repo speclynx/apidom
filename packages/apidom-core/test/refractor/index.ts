@@ -1,7 +1,8 @@
 import { assert, expect } from 'chai';
 import sinon from 'sinon';
-import { Namespace, ObjectElement, isObjectElement } from '@speclynx/apidom-datamodel';
+import { Element, Namespace, ObjectElement, isObjectElement } from '@speclynx/apidom-datamodel';
 import * as predicates from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { toValue, dispatchRefractorPlugins, from } from '../../src/index.ts';
 
@@ -26,7 +27,8 @@ describe('refractor', function () {
         name: 'plugin1',
         pre() {},
         visitor: {
-          ObjectElement(element: ObjectElement) {
+          ObjectElement(path: Path<Element>) {
+            const element = path.node as ObjectElement;
             element.getMember('a')!.value = 'c';
           },
         },
@@ -36,7 +38,8 @@ describe('refractor', function () {
         name: 'plugin2',
         pre() {},
         visitor: {
-          ObjectElement(element: ObjectElement) {
+          ObjectElement(path: Path<Element>) {
+            const element = path.node as ObjectElement;
             element.meta.set('metaKey', 'metaValue');
           },
         },
@@ -144,18 +147,20 @@ describe('refractor', function () {
       });
 
       context('first plugin', function () {
-        specify('should receive arguments', function () {
+        specify('should receive Path as argument', function () {
           const objectElement = new ObjectElement({ a: 'b' });
           dispatchRefractorPlugins(objectElement, [plugin1]);
 
-          assert.lengthOf(plugin1Spec.visitor.ObjectElement.firstCall.args, 6);
+          assert.lengthOf(plugin1Spec.visitor.ObjectElement.firstCall.args, 1);
+          assert.instanceOf(plugin1Spec.visitor.ObjectElement.firstCall.args[0], Path);
         });
 
-        specify('should receive node as first argument', function () {
+        specify('should receive node via Path', function () {
           const objectElement = new ObjectElement({ a: 'b' });
           dispatchRefractorPlugins(objectElement, [plugin1]);
 
-          assert.isTrue(isObjectElement(plugin1Spec.visitor.ObjectElement.firstCall.args[0]));
+          const path = plugin1Spec.visitor.ObjectElement.firstCall.args[0];
+          assert.isTrue(isObjectElement(path.node));
         });
 
         specify('should augment object element data', function () {
@@ -167,18 +172,20 @@ describe('refractor', function () {
       });
 
       context('second plugin', function () {
-        specify('should receive arguments', function () {
+        specify('should receive Path as argument', function () {
           const objectElement = new ObjectElement({ a: 'b' });
           dispatchRefractorPlugins(objectElement, [plugin1, plugin2]);
 
-          assert.lengthOf(plugin2Spec.visitor.ObjectElement.firstCall.args, 6);
+          assert.lengthOf(plugin2Spec.visitor.ObjectElement.firstCall.args, 1);
+          assert.instanceOf(plugin2Spec.visitor.ObjectElement.firstCall.args[0], Path);
         });
 
-        specify('should receive node as first argument', function () {
+        specify('should receive node via Path', function () {
           const objectElement = new ObjectElement({ a: 'b' });
           dispatchRefractorPlugins(objectElement, [plugin1, plugin2]);
 
-          assert.isTrue(isObjectElement(plugin2Spec.visitor.ObjectElement.firstCall.args[0]));
+          const path = plugin2Spec.visitor.ObjectElement.firstCall.args[0];
+          assert.isTrue(isObjectElement(path.node));
         });
 
         specify('should append metadata', function () {

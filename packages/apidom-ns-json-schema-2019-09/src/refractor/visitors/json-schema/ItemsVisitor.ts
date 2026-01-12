@@ -1,5 +1,5 @@
 import { ObjectElement, ArrayElement, BooleanElement, Element } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { BaseSchemaArrayVisitor, BaseSchemaArrayVisitorOptions } from './bases.ts';
 
@@ -14,13 +14,15 @@ export type ItemsVisitorOptions = BaseSchemaArrayVisitorOptions;
 class ItemsVisitor extends BaseSchemaArrayVisitor {
   declare public element: ObjectElement | ArrayElement;
 
-  ObjectElement(objectElement: ObjectElement) {
-    this.element = this.toRefractedElement(['document', 'objects', 'JSONSchema'], objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    this.element = this.toRefractedElement(['document', 'objects', 'JSONSchema'], path.node);
 
-    return BREAK;
+    path.stop();
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
+  ArrayElement(path: Path<ArrayElement>) {
+    const arrayElement = path.node;
+
     this.element = new ArrayElement();
     this.element.classes.push('json-schema-items');
 
@@ -32,13 +34,13 @@ class ItemsVisitor extends BaseSchemaArrayVisitor {
 
     this.copyMetaAndAttributes(arrayElement, this.element);
 
-    return BREAK;
+    path.stop();
   }
 
-  BooleanElement(booleanElement: BooleanElement) {
-    this.element = this.toRefractedElement(['document', 'objects', 'JSONSchema'], booleanElement);
+  BooleanElement(path: Path<BooleanElement>) {
+    this.element = this.toRefractedElement(['document', 'objects', 'JSONSchema'], path.node);
 
-    return BREAK;
+    path.stop();
   }
 }
 

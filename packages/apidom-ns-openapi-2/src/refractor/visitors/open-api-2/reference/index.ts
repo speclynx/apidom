@@ -1,5 +1,6 @@
 import { always } from 'ramda';
 import { ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import { SpecPath } from '../../generics/FixedFieldsVisitor.ts';
@@ -24,15 +25,13 @@ class ReferenceVisitor extends BaseFixedFieldsVisitor {
     this.canSupportSpecificationExtensions = false;
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, path);
 
     // mark this ReferenceElement with reference metadata
     if (isStringElement(this.element.$ref)) {
       this.element.classes.push('reference-element');
     }
-
-    return result;
   }
 }
 

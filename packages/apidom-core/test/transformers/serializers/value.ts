@@ -10,7 +10,7 @@ import {
   LinkElement,
 } from '@speclynx/apidom-datamodel';
 
-import serializer from '../../../src/transformers/serializers/value/index.ts';
+import serializer from '../../../src/transformers/serializers/value.ts';
 
 describe('serializers', function () {
   context('value', function () {

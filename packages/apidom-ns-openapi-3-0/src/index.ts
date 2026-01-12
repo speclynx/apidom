@@ -480,8 +480,6 @@ export type {
   BaseMixedFieldsVisitorOptions,
 } from './refractor/visitors/open-api-3-0/bases.ts';
 
-export { keyMap, getNodeType } from './traversal/visitor.ts';
-
 // OpenAPI 3.0.x elements
 export {
   CallbackElement,

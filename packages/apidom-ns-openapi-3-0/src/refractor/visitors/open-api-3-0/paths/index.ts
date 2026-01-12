@@ -1,5 +1,6 @@
 import { T as stubTrue, always } from 'ramda';
 import { ObjectElement, StringElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import PathsElement from '../../../../elements/Paths.ts';
 import PathItemElement from '../../../../elements/PathItem.ts';
@@ -30,8 +31,8 @@ class PathsVisitor extends BasePatternedFieldsVisitor {
     this.fieldPatternPredicate = stubTrue;
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = BasePatternedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    BasePatternedFieldsVisitor.prototype.ObjectElement.call(this, path);
 
     // decorate every PathItemElement with path metadata
     this.element
@@ -42,8 +43,6 @@ class PathsVisitor extends BasePatternedFieldsVisitor {
         key.classes.push('path-template');
         pathItemElement.meta.set('path', cloneDeep(key));
       });
-
-    return result;
   }
 }
 

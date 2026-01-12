@@ -1,4 +1,5 @@
 import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import ComponentsServerVariablesElement from '../../../../elements/nces/ComponentsServerVariables.ts';
@@ -31,15 +32,13 @@ class ServerVariablesVisitor extends BaseMapVisitor {
         : ['document', 'objects', 'ServerVariable'];
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = BaseMapVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    BaseMapVisitor.prototype.ObjectElement.call(this, path);
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
       referenceElement.meta.set('referenced-element', 'serverVariable');
     });
-
-    return result;
   }
 }
 

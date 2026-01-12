@@ -4,8 +4,6 @@ import {
 } from '@speclynx/apidom-ns-openapi-3-0';
 import {
   mediaTypes as openAPI3_1MediaTypes,
-  keyMap,
-  getNodeType,
   isOpenApi3_1Element,
 } from '@speclynx/apidom-ns-openapi-3-1';
 import { ParseResultElement, AnnotationElement, cloneDeep } from '@speclynx/apidom-datamodel';
@@ -71,7 +69,6 @@ class OpenAPI31ToOpenAPI30ConvertStrategy extends ConvertStrategy {
       ],
       {
         toolboxCreator: createToolbox,
-        visitorOptions: { keyMap, nodeTypeGetter: getNodeType },
       },
     );
 

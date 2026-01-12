@@ -1,4 +1,5 @@
 import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 import {
   specificationObj as JSONSchemaDraft7Specification,
   DefinitionsVisitorOptions,
@@ -20,15 +21,13 @@ export const JSONSchemaDefinitionsVisitor: typeof DefinitionsVisitorType =
  * @public
  */
 class DefinitionsVisitor extends JSONSchemaDefinitionsVisitor {
-  ObjectElement(objectElement: ObjectElement) {
-    const result = JSONSchemaDefinitionsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    JSONSchemaDefinitionsVisitor.prototype.ObjectElement.call(this, path);
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
       referenceElement.meta.set('referenced-element', 'schema');
     });
-
-    return result;
   }
 }
 

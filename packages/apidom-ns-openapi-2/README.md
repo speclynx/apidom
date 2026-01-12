@@ -55,23 +55,24 @@ isSwaggerElement(swaggerElement); // => true
 
 ## Traversal
 
-Traversing ApiDOM in this namespace is possible by using `visit` function from `apidom` package.
-This package comes with its own [keyMap](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-openapi-2/src/traversal/visitor.ts#L11) and [nodeTypeGetter](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-openapi-2/src/traversal/visitor.ts#L4).
-To learn more about these `visit` configuration options please refer to [@speclynx/apidom-ast documentation](https://github.com/speclynx/apidom/blob/main/packages/apidom-ast/README.md#visit).
+Traversing ApiDOM in this namespace is possible by using `traverse` function from `@speclynx/apidom-traverse` package.
+`traverse` uses a Path-based visitor API where visitor methods receive a `Path` object,
+and the actual element is accessed via `path.node`.
 
 ```js
-import { visit } from '@speclynx/apidom-core';
-import { SwaggerElement, keyMap, getNodeType } from '@speclynx/apidom-ns-openapi-2';
+import { traverse } from '@speclynx/apidom-traverse';
+import { SwaggerElement } from '@speclynx/apidom-ns-openapi-2';
 
 const element = new SwaggerElement();
 
 const visitor = {
-  SwaggerElement(swaggerElement) {
+  SwaggerElement(path) {
+    const swaggerElement = path.node;
     console.dir(swaggerElement);
   },
 };
 
-visit(element, visitor, { keyMap, nodeTypeGetter: getNodeType });
+traverse(element, visitor);
 ```
 
 ## Refractors
@@ -111,6 +112,8 @@ InfoElement.refract(objectElement); // => InfoElement({ title = 'my title', desc
 ### Refractor plugins
 
 Refractors can accept plugins as a second argument of refract static method.
+Plugin visitors use the Path-based API where visitor methods receive a `Path` object,
+and the actual element is accessed via `path.node`.
 
 ```js
 import { ObjectElement } from '@speclynx/apidom-core';
@@ -128,7 +131,8 @@ const plugin = ({ predicates, namespace }) => ({
       console.dir('runs before traversal');
   },
   visitor: {
-    InfoElement(infoElement) {
+    InfoElement(path) {
+      const infoElement = path.node;
       infoElement.version = '2.0.0';
     },
   },

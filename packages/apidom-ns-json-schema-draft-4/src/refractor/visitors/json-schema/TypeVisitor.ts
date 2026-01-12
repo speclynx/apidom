@@ -1,4 +1,5 @@
 import { StringElement, ArrayElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
 
@@ -10,18 +11,14 @@ export type { FallbackVisitorOptions as TypeVisitorOptions };
 class TypeVisitor extends FallbackVisitor {
   declare public readonly element: StringElement | ArrayElement;
 
-  StringElement(stringElement: StringElement) {
-    const result = this.enter(stringElement);
+  StringElement(path: Path<StringElement>) {
+    super.enter(path);
     this.element.classes.push('json-schema-type');
-
-    return result;
   }
 
-  ArrayElement(arrayElement: ArrayElement) {
-    const result = this.enter(arrayElement);
+  ArrayElement(path: Path<ArrayElement>) {
+    super.enter(path);
     this.element.classes.push('json-schema-type');
-
-    return result;
   }
 }
 

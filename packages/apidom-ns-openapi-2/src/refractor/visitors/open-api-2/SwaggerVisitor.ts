@@ -1,5 +1,6 @@
 import { StringElement } from '@speclynx/apidom-datamodel';
-import { BREAK, toValue } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import SwaggerVersionElement from '../../../elements/SwaggerVersion.ts';
 import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from './bases.ts';
@@ -12,7 +13,8 @@ export type { BaseSpecificationVisitorOptions as SwaggerVisitorOptions };
 class SwaggerVisitor extends BaseSpecificationVisitor {
   declare public element: SwaggerVersionElement;
 
-  StringElement(stringElement: StringElement) {
+  StringElement(path: Path<StringElement>) {
+    const stringElement = path.node;
     const swaggerVersionElement = new SwaggerVersionElement(
       toValue(stringElement) as string | undefined,
     );
@@ -20,7 +22,7 @@ class SwaggerVisitor extends BaseSpecificationVisitor {
     this.copyMetaAndAttributes(stringElement, swaggerVersionElement);
 
     this.element = swaggerVersionElement;
-    return BREAK;
+    path.stop();
   }
 }
 

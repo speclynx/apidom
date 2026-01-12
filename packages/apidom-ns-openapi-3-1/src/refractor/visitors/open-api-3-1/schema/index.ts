@@ -1,6 +1,7 @@
 import { always } from 'ramda';
 import { ObjectElement, BooleanElement, isStringElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 import { FixedFieldsVisitor } from '@speclynx/apidom-ns-openapi-3-0';
 import { JSONSchemaVisitor } from '@speclynx/apidom-ns-json-schema-2020-12';
 
@@ -31,25 +32,24 @@ class SchemaVisitor extends BaseSchemaVisitor {
     this.passingOptionsNames.push('parent');
   }
 
-  ObjectElement(objectElement: ObjectElement) {
+  ObjectElement(path: Path<ObjectElement>) {
+    const objectElement = path.node;
     this.handleDialectIdentifier(objectElement);
     this.handleSchemaIdentifier(objectElement);
 
     // for further processing consider this Schema Element as parent for all embedded Schema Elements
     this.parent = this.element;
-    const result = FixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+    FixedFieldsVisitor.prototype.ObjectElement.call(this, path);
 
     // mark this SchemaElement with reference metadata
     if (isStringElement(this.element.$ref)) {
       this.element.classes.push('reference-element');
       this.element.meta.set('referenced-element', 'schema');
     }
-
-    return result;
   }
 
-  BooleanElement(booleanElement: BooleanElement) {
-    return JSONSchemaVisitor.prototype.BooleanElement.call(this, booleanElement);
+  BooleanElement(path: Path<BooleanElement>) {
+    JSONSchemaVisitor.prototype.BooleanElement.call(this, path);
   }
 
   /**

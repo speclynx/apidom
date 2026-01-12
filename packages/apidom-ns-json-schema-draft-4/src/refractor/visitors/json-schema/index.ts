@@ -6,6 +6,7 @@ import {
   isStringElement,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 import { toValue } from '@speclynx/apidom-core';
 
 import FixedFieldsVisitor, { SpecPath } from '../generics/FixedFieldsVisitor.ts';
@@ -40,14 +41,15 @@ class JSONSchemaVisitor extends JSONSchemaVisitorBase {
     return 'http://json-schema.org/draft-04/schema#';
   }
 
-  ObjectElement(objectElement: ObjectElement) {
+  ObjectElement(path: Path<ObjectElement>) {
+    const objectElement = path.node;
     this.handleDialectIdentifier(objectElement);
     this.handleSchemaIdentifier(objectElement);
 
     // for further processing consider this JSONSchema Element as parent for all sub-schemas
     this.parent = this.element;
 
-    return FixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+    return FixedFieldsVisitor.prototype.ObjectElement.call(this, path);
   }
 
   handleDialectIdentifier(objectElement: ObjectElement): void {

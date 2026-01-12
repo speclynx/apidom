@@ -5,6 +5,7 @@ import {
   SchemaOrReferenceVisitorOptions,
   SchemaOrReferenceVisitor as JSONSchemaOrJSONReferenceVisitorType,
 } from '@speclynx/apidom-ns-json-schema-draft-4';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { isReferenceElement } from '../../../../predicates.ts';
 import SchemaElement from '../../../../elements/Schema.ts';
@@ -23,14 +24,12 @@ export const JSONSchemaOrJSONReferenceVisitor: typeof JSONSchemaOrJSONReferenceV
 class SchemaOrReferenceVisitor extends JSONSchemaOrJSONReferenceVisitor {
   declare public element: SchemaElement | JSONReferenceElement;
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = JSONSchemaOrJSONReferenceVisitor.prototype.enter.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    JSONSchemaOrJSONReferenceVisitor.prototype.enter.call(this, path);
 
     if (isReferenceElement(this.element)) {
       this.element.meta.set('referenced-element', 'schema');
     }
-
-    return result;
   }
 }
 

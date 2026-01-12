@@ -1,4 +1,5 @@
 import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import { SpecPath } from '../../generics/PatternedFieldsVisitor.ts';
 import ParametersElement from '../../../../elements/Parameters.ts';
@@ -36,15 +37,13 @@ class ParametersVisitor extends BasePatternedFieldsVisitor {
       typeof value === 'string' && /^[A-Za-z0-9_-]+$/.test(value);
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = BasePatternedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    BasePatternedFieldsVisitor.prototype.ObjectElement.call(this, path);
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
       referenceElement.meta.set('referenced-element', 'parameter');
     });
-
-    return result;
   }
 }
 

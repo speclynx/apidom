@@ -1,6 +1,7 @@
 import { test, always, range } from 'ramda';
 import { Element, ObjectElement, StringElement, cloneDeep } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import ResponsesElement from '../../../../elements/Responses.ts';
@@ -41,8 +42,8 @@ class ResponsesVisitor extends BaseMixedFieldsVisitor {
     );
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = BaseMixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    BaseMixedFieldsVisitor.prototype.ObjectElement.call(this, path);
 
     // decorate every ReferenceElement with metadata about their referencing type
     // @ts-ignore
@@ -57,8 +58,6 @@ class ResponsesVisitor extends BaseMixedFieldsVisitor {
       if (!this.fieldPatternPredicate(toValue(httpStatusCode))) return;
       value.meta.set('http-status-code', httpStatusCode);
     });
-
-    return result;
   }
 }
 

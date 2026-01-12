@@ -6,6 +6,7 @@ import {
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import PathItemElement from '../../../../elements/PathItem.ts';
 import OperationElement from '../../../../elements/Operation.ts';
@@ -32,8 +33,8 @@ class PathItemVisitor extends BaseFixedFieldsVisitor {
     this.specPath = always(['document', 'objects', 'PathItem']);
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, path);
 
     // decorate Operation elements with HTTP method
     this.element
@@ -49,8 +50,6 @@ class PathItemVisitor extends BaseFixedFieldsVisitor {
     if (isStringElement(this.element.$ref)) {
       this.element.classes.push('reference-element');
     }
-
-    return result;
   }
 }
 

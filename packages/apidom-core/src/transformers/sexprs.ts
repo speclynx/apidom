@@ -1,35 +1,30 @@
 import { Element } from '@speclynx/apidom-datamodel';
-
-import { visit } from '../traversal/visitor.ts';
-
-class SymbolicExpressionsVisitor {
-  public result: string = '';
-
-  protected nestingLevel: number = 0;
-
-  public enter(element: Element): void {
-    const { element: elementName } = element;
-    const capitalizedElementName = elementName.charAt(0).toUpperCase() + elementName.slice(1);
-    const indent = '  '.repeat(this.nestingLevel);
-    this.result += this.nestingLevel > 0 ? '\n' : '';
-    this.result += `${indent}(${capitalizedElementName}Element`;
-    this.nestingLevel += 1;
-  }
-
-  public leave(): void {
-    this.nestingLevel -= 1;
-    this.result += ')';
-  }
-}
+import { traverse, type Path } from '@speclynx/apidom-traverse';
 
 /**
  * Transforms ApiDOM into S-expressions (Symbolic Expressions).
  * @public
  */
 const sexprs = (element: Element): string => {
-  const visitor = new SymbolicExpressionsVisitor();
-  visit(element, visitor);
-  return visitor.result;
+  let result = '';
+  let nestingLevel = 0;
+
+  traverse(element, {
+    enter(path: Path<Element>) {
+      const { element: elementName } = path.node;
+      const capitalizedElementName = elementName.charAt(0).toUpperCase() + elementName.slice(1);
+      const indent = '  '.repeat(nestingLevel);
+      result += nestingLevel > 0 ? '\n' : '';
+      result += `${indent}(${capitalizedElementName}Element`;
+      nestingLevel += 1;
+    },
+    leave() {
+      nestingLevel -= 1;
+      result += ')';
+    },
+  });
+
+  return result;
 };
 
 export default sexprs;

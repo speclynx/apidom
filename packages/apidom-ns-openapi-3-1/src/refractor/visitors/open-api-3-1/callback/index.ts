@@ -1,4 +1,5 @@
 import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 import {
   isReferenceLikeElement,
   specificationObj as OpenApi3_1Specification,
@@ -40,8 +41,8 @@ class CallbackVisitor extends BaseCallbackVisitor {
     };
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = BaseCallbackVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    BaseCallbackVisitor.prototype.ObjectElement.call(this, path);
 
     // decorate every ReferenceElement with metadata about their referencing type
     // @ts-ignore
@@ -49,8 +50,6 @@ class CallbackVisitor extends BaseCallbackVisitor {
       // @ts-ignore
       referenceElement.setMetaProperty('referenced-element', 'pathItem');
     });
-
-    return result;
   }
 }
 

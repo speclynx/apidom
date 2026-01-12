@@ -1,5 +1,5 @@
 import { MemberElement, cloneDeep } from '@speclynx/apidom-datamodel';
-import { BREAK } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import SpecificationVisitor, { SpecificationVisitorOptions } from './SpecificationVisitor.ts';
 
@@ -11,11 +11,11 @@ export type { SpecificationVisitorOptions as SpecificationExtensionVisitorOption
 class SpecificationExtensionVisitor extends SpecificationVisitor {
   declare public element: MemberElement;
 
-  MemberElement(memberElement: MemberElement) {
-    this.element = cloneDeep(memberElement);
+  MemberElement(path: Path<MemberElement>) {
+    this.element = cloneDeep(path.node);
     this.element.classes.push('specification-extension');
 
-    return BREAK;
+    path.stop();
   }
 }
 

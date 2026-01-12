@@ -28,10 +28,9 @@
     "typescript:check-types": "tsc --noEmit && tsc -p ./test/tsconfig.json --noEmit",
     "typescript:declaration": "tsc -p tsconfig.declaration.json && api-extractor run -l -c ./config/api-extractor/api-extractor.json",
     "test": "npm run build:es && cross-env BABEL_ENV=es babel test --out-dir test --extensions '.ts' --out-file-extension '.mjs' --root-mode 'upward' && cross-env NODE_ENV=test NODE_NO_WARNINGS=1 mocha",
-    "perf": "cross-env BABEL_ENV=es babel ./test/perf/index.ts --out-file ./test/perf/index.mjs --root-mode 'upward' && cross-env NODE_ENV=test node ./test/perf/index.mjs",
+    "perf": "cross-env BABEL_ENV=es babel ./test/perf --out-dir ./test/perf --extensions '.ts' --out-file-extension '.mjs' --root-mode 'upward' && cross-env NODE_ENV=test node ./test/perf/index.mjs",
     "perf:lexical-analysis": "cross-env BABEL_ENV=es babel ./test/perf/lexical-analysis.ts --out-file ./test/perf/lexical-analysis.mjs --root-mode 'upward' && cross-env NODE_ENV=test node ./test/perf/lexical-analysis.mjs",
-    "perf:parse-syntactic-analysis-direct": "cross-env BABEL_ENV=es babel ./test/perf/parse-syntactic-analysis-direct.ts --out-file ./test/perf/parse-syntactic-analysis-direct.mjs --root-mode 'upward' && cross-env NODE_ENV=test node ./test/perf/parse-syntactic-analysis-direct.mjs",
-    "perf:parse-syntactic-analysis-indirect": "cross-env BABEL_ENV=es babel ./test/perf/parse-syntactic-analysis-indirect.ts --out-file ./test/perf/parse-syntactic-analysis-indirect.mjs --root-mode 'upward' && cross-env NODE_ENV=test node ./test/perf/parse-syntactic-analysis-indirect.mjs",
+    "perf:syntactic-analysis": "cross-env BABEL_ENV=es babel ./test/perf/syntactic-analysis.ts --out-file ./test/perf/syntactic-analysis.mjs --root-mode 'upward' && cross-env NODE_ENV=test node ./test/perf/syntactic-analysis.mjs",
     "prepack": "copyfiles -u 3 ../../LICENSES/* LICENSES && copyfiles -u 2 ../../NOTICE .",
     "postpack": "rimraf NOTICE LICENSES"
   },
@@ -43,12 +42,9 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^7.28.4",
-    "@speclynx/apidom-ast": "^1.12.2",
     "@speclynx/apidom-core": "^1.12.2",
     "@speclynx/apidom-datamodel": "^1.12.2",
     "@speclynx/apidom-error": "^1.12.2",
-    "ramda": "~0.32.0",
-    "ramda-adjunct": "^6.0.0",
     "web-tree-sitter": "=0.25.10"
   },
   "devDependencies": {

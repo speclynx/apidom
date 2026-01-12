@@ -1,6 +1,7 @@
 import { always } from 'ramda';
 import { StringElement, ObjectElement, isObjectElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
+import { Path } from '@speclynx/apidom-traverse';
 
 import RequestBodyElement from '../../../../elements/RequestBody.ts';
 import MediaTypeElement from '../../../../elements/MediaType.ts';
@@ -27,8 +28,8 @@ class RequestBodyVisitor extends BaseFixedFieldsVisitor {
     this.specPath = always(['document', 'objects', 'RequestBody']);
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = FixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    FixedFieldsVisitor.prototype.ObjectElement.call(this, path);
 
     // decorate every MediaTypeElement with media type metadata
     if (isObjectElement(this.element.contentField)) {
@@ -39,8 +40,6 @@ class RequestBodyVisitor extends BaseFixedFieldsVisitor {
           mediaTypeElement.meta.set('media-type', toValue(key));
         });
     }
-
-    return result;
   }
 }
 

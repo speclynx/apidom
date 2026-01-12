@@ -1,5 +1,6 @@
 import { always } from 'ramda';
 import { ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
 
 import ChannelItemElement from '../../../../elements/ChannelItem.ts';
 import { BaseFixedFieldsVisitor, BaseFixedFieldsVisitorOptions } from '../bases.ts';
@@ -27,16 +28,14 @@ class ChannelItemVisitor extends BaseFixedFieldsVisitor {
     this.canSupportSpecificationExtensions = true;
   }
 
-  ObjectElement(objectElement: ObjectElement) {
-    const result = BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    BaseFixedFieldsVisitor.prototype.ObjectElement.call(this, path);
 
     // mark this ChannelItemElement with reference metadata
     if (isStringElement(this.element.$ref)) {
       this.element.classes.push('reference-element');
       this.element.meta.set('referenced-element', 'channelItem');
     }
-
-    return result;
   }
 }
 

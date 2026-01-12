@@ -4,6 +4,7 @@ import {
   PropertiesVisitorOptions,
   PropertiesVisitor as PropertiesVisitorType,
 } from '@speclynx/apidom-ns-json-schema-draft-4';
+import { Path } from '@speclynx/apidom-traverse';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
 import { isReferenceElement } from '../../../../predicates.ts';
@@ -20,15 +21,13 @@ export const JSONSchemaPropertiesVisitor: typeof PropertiesVisitorType =
  * @public
  */
 class PropertiesVisitor extends JSONSchemaPropertiesVisitor {
-  ObjectElement(objectElement: ObjectElement) {
-    const result = JSONSchemaPropertiesVisitor.prototype.ObjectElement.call(this, objectElement);
+  ObjectElement(path: Path<ObjectElement>) {
+    JSONSchemaPropertiesVisitor.prototype.ObjectElement.call(this, path);
 
     // @ts-ignore
     this.element.filter(isReferenceElement).forEach((referenceElement: ReferenceElement) => {
       referenceElement.meta.set('referenced-element', 'schema');
     });
-
-    return result;
   }
 }
 

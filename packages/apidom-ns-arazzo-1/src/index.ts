@@ -268,8 +268,6 @@ export {
 
 export { isArazzoSpecificationExtension } from './refractor/predicates.ts';
 
-export { keyMap, getNodeType } from './traversal/visitor.ts';
-
 // Arazzo 1.0.1 elements
 export {
   ArazzoElement,

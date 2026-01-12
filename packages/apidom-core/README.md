@@ -25,7 +25,7 @@ This package works together with `@speclynx/apidom-datamodel`:
 import { ObjectElement, StringElement, isObjectElement } from '@speclynx/apidom-datamodel';
 
 // Utilities come from core
-import { toValue, deepmerge, visit, from } from '@speclynx/apidom-core';
+import { toValue, deepmerge, from } from '@speclynx/apidom-core';
 
 const obj = new ObjectElement({ a: 'b' });
 toValue(obj); // => { a: 'b' }
@@ -519,42 +519,9 @@ objectElement.getMember('info').value.id; // 'OnReGGrO7fMd9ztacvGfwGbOdGKuOFLiQQ
 
 ## Traversal
 
-`apidom-core` comes with its own traversal algorithm along with couple of convenient abstractions on top of it.
+`apidom-core` provides convenient traversal utility functions built on top of `@speclynx/apidom-traverse`.
 
-### visit
-
-[visit](https://github.com/speclynx/apidom/blob/main/packages/apidom-core/src/traversal/visitor.ts) will walk through an AST using a depth first traversal, calling
-the visitor's enter function at each node in the traversal, and calling the
-leave function after visiting that node and all of its child nodes.
-
-By returning different values from the enter and leave functions, the
-behavior of the visitor can be altered, including skipping over a sub-tree of
-the ApiDOM (by returning false), editing the ApiDOM by returning a value or null
-to remove the value, or to stop the whole traversal by returning [BREAK](https://github.com/speclynx/apidom/blob/main/packages/apidom-core/src/traversal/visitor.ts).
-
-When using `visit` to edit an ApiDOM, the original ApiDOM will not be modified, and
-a new version of the ApiDOM with the changes applied will be returned from the
-visit function.
-
-```js
-import { ObjectElement, NumberElement } from '@speclynx/apidom-datamodel';
-import { visit } from '@speclynx/apidom-core';
-
-const visitor = {
-    NumberElement(numberElement) {
-        return new NumberElement(2);
-    },
-};
-const element = new ObjectElement({ a: 1 });
-
-const newElement = visit(element, visitor); // => ObjectElement<{a: 2}>
-```
-
-This function originally comes from [@speclynx/apidom-ast package](https://github.com/speclynx/apidom/blob/main/packages/apidom-ast/src/visitor.ts)
-and is originally designed to work with [CST](https://en.wikipedia.org/wiki/Parse_tree). `apidom-core` package
-imports it, specializes it to work with ApiDOM and re-export it.
-
-All following algorithms are based on `visit` function.
+For advanced traversal needs (enter/leave visitors, tree modifications, etc.), use `@speclynx/apidom-traverse` directly.
 
 ### filter
 
