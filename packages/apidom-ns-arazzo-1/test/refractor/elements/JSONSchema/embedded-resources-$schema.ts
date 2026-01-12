@@ -69,8 +69,8 @@ describe('refractor', function () {
             const foundJsonSchemaElement = find(
               jsonSchemaElement,
               (e) => isJSONSchemaElement(e) && isElement(e.$id) && e.$id.equals('1'),
-            );
-            const actual = toValue(foundJsonSchemaElement.meta.get('inheritedDialectIdentifier'));
+            ) as JSONSchemaElement | undefined;
+            const actual = toValue(foundJsonSchemaElement?.meta.get('inheritedDialectIdentifier'));
             const expected = 'https://json-schema.org/draft/2020-12/schema';
 
             assert.strictEqual(actual, expected);
@@ -80,7 +80,7 @@ describe('refractor', function () {
             const foundJsonSchemaElement = find(
               jsonSchemaElement,
               (e) => isJSONSchemaElement(e) && isElement(e.$id) && e.$id.equals('2'),
-            );
+            ) as JSONSchemaElement | undefined;
             const actual = toValue(foundJsonSchemaElement?.$schema);
             const expected = '$schema1';
 

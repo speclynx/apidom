@@ -65,7 +65,7 @@ describe('refractor', function () {
                 jsonSchemaElement,
                 (e) => isJSONSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('1'),
               );
-              const actual = toValue(foundJsonSchemaElement.meta.get('ancestorsSchemaIdentifiers'));
+              const actual = toValue(foundJsonSchemaElement?.meta.get('ancestorsSchemaIdentifiers'));
 
               assert.deepEqual(actual, []);
             },
@@ -78,7 +78,7 @@ describe('refractor', function () {
                 jsonSchemaElement,
                 (e) => isJSONSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('2'),
               );
-              const actual = toValue(foundJsonSchemaElement.meta.get('ancestorsSchemaIdentifiers'));
+              const actual = toValue(foundJsonSchemaElement?.meta.get('ancestorsSchemaIdentifiers'));
 
               assert.deepEqual(actual, ['$id1']);
             },
@@ -91,7 +91,7 @@ describe('refractor', function () {
                 jsonSchemaElement,
                 (e) => isJSONSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('3'),
               );
-              const actual = toValue(foundJsonSchemaElement.meta.get('ancestorsSchemaIdentifiers'));
+              const actual = toValue(foundJsonSchemaElement?.meta.get('ancestorsSchemaIdentifiers'));
 
               assert.deepEqual(actual, ['$id1', '$id2']);
             },
@@ -104,7 +104,7 @@ describe('refractor', function () {
                 jsonSchemaElement,
                 (e) => isJSONSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('4'),
               );
-              const actual = toValue(foundJsonSchemaElement.meta.get('ancestorsSchemaIdentifiers'));
+              const actual = toValue(foundJsonSchemaElement?.meta.get('ancestorsSchemaIdentifiers'));
 
               assert.deepEqual(actual, []);
             },
