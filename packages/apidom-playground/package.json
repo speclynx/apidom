@@ -26,7 +26,6 @@
     "@emotion/styled": "=11.14.0",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
-    "@speclynx/apidom-ast": "*",
     "@speclynx/apidom-core": "*",
     "@speclynx/apidom-datamodel": "*",
     "@speclynx/apidom-ns-asyncapi-2": "*",

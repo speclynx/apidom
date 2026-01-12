@@ -1,7 +1,8 @@
 import { Tree } from 'web-tree-sitter';
 import { ParseResultElement } from '@speclynx/apidom-datamodel';
-import { YamlJsonSchema as JsonSchema, YamlReferenceManager } from '@speclynx/apidom-ast';
 
+import JsonSchema from './ast/schemas/json/index.ts';
+import YamlReferenceManager from './ast/anchors-aliases/ReferenceManager.ts';
 import transformCstToYamlAst from './CstTransformer.ts';
 import { transformYamlAstToApiDOM } from './YamlAstTransformer.ts';
 

@@ -2,8 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
-import { YamlTagError } from '@speclynx/apidom-ast';
 import { isObjectElement, isParseResultElement, isStringElement } from '@speclynx/apidom-datamodel';
+
+import YamlTagError from '../../src/syntactic-analysis/ast/errors/YamlTagError.ts';
 import { toValue, sexprs } from '@speclynx/apidom-core';
 
 import * as adapter from '../../src/adapter.ts';

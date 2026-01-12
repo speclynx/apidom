@@ -46,7 +46,6 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^7.28.4",
-    "@speclynx/apidom-ast": "^1.12.2",
     "@speclynx/apidom-core": "^1.12.2",
     "@speclynx/apidom-datamodel": "^1.12.2",
     "@speclynx/apidom-traverse": "^1.12.2",
