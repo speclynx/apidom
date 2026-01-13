@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import Benchmark from 'benchmark';
 import type { Deferred } from 'benchmark';
 
-import analyze from '../../src/lexical-analysis/index.ts';
+import analyze from '../../src/tree-sitter/lexical-analysis/index.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturePath = path.join(__dirname, 'fixtures/data.json');

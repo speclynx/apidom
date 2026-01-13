@@ -48,7 +48,8 @@
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.0.0",
     "unraw": "^3.0.0",
-    "web-tree-sitter": "=0.25.10"
+    "web-tree-sitter": "=0.25.10",
+    "yaml": "^2.8.2"
   },
   "devDependencies": {
     "@tree-sitter-grammars/tree-sitter-yaml": "=0.7.1",

@@ -1,12 +1,13 @@
 import { ParseResultElement, Namespace } from '@speclynx/apidom-datamodel';
-import type { Tree } from 'web-tree-sitter';
+import { ApiDOMError } from '@speclynx/apidom-error';
 
-import lexicalAnalysis from './lexical-analysis/index.ts';
-import syntacticAnalysis from './syntactic-analysis/index.ts';
+import * as yaml from './yaml/index.ts';
+import * as treeSitter from './tree-sitter/index.ts';
 
 export type { YamlMediaTypes } from './media-types.ts';
-export type { Tree };
-export { lexicalAnalysis, syntacticAnalysis };
+export type { Tree } from './tree-sitter/index.ts';
+
+export { lexicalAnalysis, syntacticAnalysis } from './tree-sitter/index.ts';
 
 /**
  * @public
@@ -21,16 +22,21 @@ export const namespace = new Namespace();
 /**
  * @public
  */
-export const detect = async (source: string): Promise<boolean> => {
-  let cst: Tree | null = null;
-  try {
-    cst = await lexicalAnalysis(source);
-    return !cst.rootNode.isError;
-  } catch {
-    return false;
-  } finally {
-    cst?.delete();
+export interface DetectOptions {
+  strict?: boolean;
+}
+
+/**
+ * @public
+ */
+export const detect = async (
+  source: string,
+  { strict = false }: DetectOptions = {},
+): Promise<boolean> => {
+  if (strict) {
+    return yaml.detect(source);
   }
+  return treeSitter.detect(source);
 };
 
 /**
@@ -38,6 +44,7 @@ export const detect = async (source: string): Promise<boolean> => {
  */
 export interface ParseFunctionOptions {
   sourceMap?: boolean;
+  strict?: boolean;
 }
 
 /**
@@ -51,11 +58,16 @@ export type ParseFunction = (
 /**
  * @public
  */
-export const parse: ParseFunction = async (source, { sourceMap = false } = {}) => {
-  const cst = await lexicalAnalysis(source);
-  try {
-    return syntacticAnalysis(cst, { sourceMap });
-  } finally {
-    cst.delete();
+export const parse: ParseFunction = async (source, { sourceMap = false, strict = false } = {}) => {
+  if (strict && sourceMap) {
+    throw new ApiDOMError(
+      'Cannot use sourceMap with strict parsing. Strict parsing does not support source maps.',
+    );
   }
+
+  if (strict) {
+    return yaml.parse(source);
+  }
+
+  return treeSitter.parse(source, { sourceMap });
 };

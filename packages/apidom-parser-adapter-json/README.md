@@ -52,7 +52,14 @@ Defines list of media types that this parser adapter recognizes.
 
 ### detect
 
-[Detection](https://github.com/speclynx/apidom/blob/main/packages/apidom-parser-adapter-json/src/adapter.ts#L3) is based on using [JSON.parse](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse) to indicate whether the provided source string is or isn't JSON string.
+Detection indicates whether the provided source string is valid JSON.
+
+Option | Type | Default | Description
+--- | --- | --- | ---
+<a name="detect-strict"></a>`strict` | `Boolean` | `false` | Use strict detection mode (native `JSON.parse`).
+
+In default mode, detection uses tree-sitter for parsing with error recovery.
+In strict mode, detection uses native `JSON.parse` which is faster but requires valid JSON.
 
 ### namespace
 
@@ -65,8 +72,25 @@ This adapter exposes an instance of [base ApiDOM namespace](https://github.com/s
 Option | Type | Default | Description
 --- | --- | --- | ---
 <a name="sourceMap"></a>`sourceMap` | `Boolean` | `false` | Indicate whether to generate source maps.
+<a name="strict"></a>`strict` | `Boolean` | `false` | Use strict parsing mode (native `JSON.parse`). When `true`, parsing is faster but throws on invalid JSON and doesn't support source maps.
 
 All unrecognized arbitrary options will be ignored.
+
+#### Parsing modes
+
+This adapter supports two parsing modes:
+
+**Tree-sitter mode** (default, `strict: false`):
+- Uses [web-tree-sitter](https://www.npmjs.com/package/web-tree-sitter) for parsing
+- Provides error recovery for malformed JSON
+- Supports source map generation
+- Slightly slower but more resilient
+
+**Strict mode** (`strict: true`):
+- Uses native `JSON.parse` for parsing
+- Faster performance
+- Throws `SyntaxError` on invalid JSON
+- Does not support source maps (throws error if both `strict` and `sourceMap` are `true`)
 
 ## Usage
 
@@ -80,12 +104,19 @@ with [supported media types](#mediatypes).
 ```js
 import { parse, detect } from '@speclynx/apidom-parser-adapter-json';
 
-// detecting
+// detecting (tree-sitter mode - default)
 await detect('{"prop": "value"}'); // => true
 await detect('test'); // => false
 
-// parsing
+// detecting (strict mode)
+await detect('{"prop": "value"}', { strict: true }); // => true
+await detect('{invalid}', { strict: true }); // => false
+
+// parsing (tree-sitter mode - default, with source maps)
 const parseResult = await parse('{"prop": "value"}', { sourceMap: true });
+
+// parsing (strict mode - faster, no source maps)
+const parseResultStrict = await parse('{"prop": "value"}', { strict: true });
 ```
 
 ### Indirect usage
