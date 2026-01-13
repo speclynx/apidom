@@ -5,7 +5,6 @@ import {
   NumberElement,
   ParseResultElement,
   Element,
-  SourceMapElement,
   MemberElement,
   ObjectElement,
   ArrayElement,
@@ -45,30 +44,17 @@ const getCursorInfo = (cursor: TreeCursor): CursorInfo => ({
   fieldName: cursor.currentFieldName,
 });
 
-const toPosition = (info: CursorInfo): [ArrayElement, ArrayElement] => {
-  const start = new ArrayElement([
-    info.startPosition.row,
-    info.startPosition.column,
-    info.startIndex,
-  ]);
-  const end = new ArrayElement([info.endPosition.row, info.endPosition.column, info.endIndex]);
-
-  start.classes.push('position');
-  end.classes.push('position');
-
-  return [start, end];
-};
-
 const maybeAddSourceMap = (info: CursorInfo, element: Element, ctx: TransformContext): void => {
   if (!ctx.sourceMap) {
     return;
   }
 
-  const sourceMap = new SourceMapElement();
-  const [start, end] = toPosition(info);
-  sourceMap.push(start);
-  sourceMap.push(end);
-  element.meta.set('sourceMap', sourceMap);
+  element.startLine = info.startPosition.row;
+  element.startCharacter = info.startPosition.column;
+  element.startOffset = info.startIndex;
+  element.endLine = info.endPosition.row;
+  element.endCharacter = info.endPosition.column;
+  element.endOffset = info.endIndex;
 };
 
 type Transformer = (cursor: TreeCursor, ctx: TransformContext) => Element | null;

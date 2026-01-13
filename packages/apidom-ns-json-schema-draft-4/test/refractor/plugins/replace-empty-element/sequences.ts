@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import dedent from 'dedent';
-import { SourceMapElement } from '@speclynx/apidom-datamodel';
+import { hasElementSourceMap } from '@speclynx/apidom-datamodel';
 import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
@@ -89,12 +89,15 @@ describe('given JSON Schema definition with empty values', function () {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as JSONSchemaElement;
     const { oneOf: oneOfValue } = jsonSchemaElement;
-    const sourceMap = oneOfValue?.get(0)?.meta.get('sourceMap') as SourceMapElement;
-    const { positionStart, positionEnd } = sourceMap;
-    const expectedPosition = [2, 2, 60];
+    const firstItem = oneOfValue?.get(0);
 
-    expect(oneOfValue?.meta.get('sourceMap')).to.be.an.instanceof(SourceMapElement);
-    expect(positionStart!.equals(expectedPosition)).to.be.true;
-    expect(positionEnd!.equals(expectedPosition)).to.be.true;
+    expect(hasElementSourceMap(oneOfValue!)).to.be.true;
+    expect(hasElementSourceMap(firstItem!)).to.be.true;
+    expect(firstItem!.startLine).to.equal(2);
+    expect(firstItem!.startCharacter).to.equal(2);
+    expect(firstItem!.startOffset).to.equal(60);
+    expect(firstItem!.endLine).to.equal(2);
+    expect(firstItem!.endCharacter).to.equal(2);
+    expect(firstItem!.endOffset).to.equal(60);
   });
 });

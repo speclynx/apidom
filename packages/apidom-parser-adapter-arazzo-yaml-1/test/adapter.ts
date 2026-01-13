@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import dedent from 'dedent';
-import { isParseResultElement, SourceMapElement } from '@speclynx/apidom-datamodel';
+import { isParseResultElement, hasElementSourceMap } from '@speclynx/apidom-datamodel';
 import { sexprs } from '@speclynx/apidom-core';
 import { isArazzoSpecification1Element } from '@speclynx/apidom-ns-arazzo-1';
 
@@ -90,13 +90,14 @@ describe('adapter', function () {
       const { result } = await adapter.parse(yamlSource, { sourceMap: true });
       // @ts-ignore
       const infoValue = result.get('info');
-      const sourceMap = infoValue.meta.get('sourceMap');
-      const { positionStart, positionEnd } = sourceMap;
-      const expectedEmptyPosition = [1, 5, 19];
 
-      assert.instanceOf(sourceMap, SourceMapElement);
-      assert.isTrue(positionStart.equals(expectedEmptyPosition));
-      assert.isTrue(positionEnd.equals(expectedEmptyPosition));
+      assert.isTrue(hasElementSourceMap(infoValue));
+      assert.equal(infoValue.startLine, 1);
+      assert.equal(infoValue.startCharacter, 5);
+      assert.equal(infoValue.startOffset, 19);
+      assert.equal(infoValue.endLine, 1);
+      assert.equal(infoValue.endCharacter, 5);
+      assert.equal(infoValue.endOffset, 19);
     });
   });
 

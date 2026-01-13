@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer';
 import path from 'node:path';
 import { assert } from 'chai';
-import { isParseResultElement } from '@speclynx/apidom-datamodel';
+import { isParseResultElement, hasElementSourceMap } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 import { mediaTypes } from '@speclynx/apidom-ns-openapi-3-1';
 import { fileURLToPath } from 'node:url';
@@ -41,7 +41,7 @@ describe('parse', function () {
       const parseResult = await parse(uri, options);
       const { api } = parseResult;
 
-      assert.isTrue(api?.meta.hasKey('sourceMap'));
+      assert.isTrue(hasElementSourceMap(api!));
     });
 
     specify('should respect parserOpts during parsing; sourceMap = off', async function () {
@@ -55,7 +55,7 @@ describe('parse', function () {
       const parseResult = await parse(uri, options);
       const { api } = parseResult;
 
-      assert.isFalse(api?.meta.hasKey('sourceMap'));
+      assert.isFalse(hasElementSourceMap(api!));
     });
   });
 

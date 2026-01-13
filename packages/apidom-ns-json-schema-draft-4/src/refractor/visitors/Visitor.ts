@@ -1,5 +1,5 @@
 import { deepmerge } from '@speclynx/apidom-core';
-import { Element, ObjectElement, hasElementSourceMap } from '@speclynx/apidom-datamodel';
+import { Element, ObjectElement, SourceMapElement } from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -17,16 +17,17 @@ class Visitor {
   }
 
   public copyMetaAndAttributes(from: Element, to: Element) {
-    if (from.meta.length > 0 || to.meta.length > 0) {
-      to.meta = deepmerge(to.meta, from.meta) as ObjectElement;
-      if (hasElementSourceMap(from)) {
-        // avoid deep merging of source maps
-        to.meta.set('sourceMap', from.meta.get('sourceMap'));
-      }
+    if (!from.isMetaEmpty || !to.isMetaEmpty) {
+      const target = to.isMetaEmpty ? new ObjectElement() : to.meta;
+      const source = from.isMetaEmpty ? new ObjectElement() : from.meta;
+      to.meta = deepmerge(target, source) as ObjectElement;
     }
-    if (from.attributes.length > 0 || from.meta.length > 0) {
-      to.attributes = deepmerge(to.attributes, from.attributes) as ObjectElement;
+    if (!from.isAttributesEmpty || !to.isAttributesEmpty) {
+      const target = to.isAttributesEmpty ? new ObjectElement() : to.attributes;
+      const source = from.isAttributesEmpty ? new ObjectElement() : from.attributes;
+      to.attributes = deepmerge(target, source) as ObjectElement;
     }
+    SourceMapElement.transfer(from, to);
   }
 }
 

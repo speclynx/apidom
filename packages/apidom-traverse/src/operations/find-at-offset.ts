@@ -1,9 +1,4 @@
-import {
-  Element,
-  ArrayElement,
-  SourceMapElement,
-  hasElementSourceMap,
-} from '@speclynx/apidom-datamodel';
+import { Element, hasElementSourceMap } from '@speclynx/apidom-datamodel';
 
 import { traverse } from '../traversal.ts';
 import type { Path } from '../Path.ts';
@@ -46,13 +41,10 @@ const findAtOffset = <T extends Element>(
         return; // dive in
       }
 
-      const sourceMapElement = node.meta.get('sourceMap') as SourceMapElement;
-      const positionStart = sourceMapElement.positionStart as ArrayElement | undefined;
-      const positionEnd = sourceMapElement.positionEnd as ArrayElement | undefined;
-      const charStart: number = (positionStart?.get(2)?.toValue() as number) ?? 0;
-      const charEnd: number = (positionEnd?.get(2)?.toValue() as number) ?? 0;
+      const startOffset: number = node.startOffset!;
+      const endOffset: number = node.endOffset!;
       const isWithinOffsetRange =
-        offset >= charStart && (offset < charEnd || (includeRightBound && offset <= charEnd));
+        offset >= startOffset && (offset < endOffset || (includeRightBound && offset <= endOffset));
 
       if (isWithinOffsetRange) {
         result.push(node as T);

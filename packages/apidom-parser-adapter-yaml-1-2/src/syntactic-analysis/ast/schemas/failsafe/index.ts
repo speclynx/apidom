@@ -1,5 +1,3 @@
-import { clone } from 'ramda';
-
 import YamlTagError from '../../errors/YamlTagError.ts';
 import YamlDirective from '../../nodes/YamlDirective.ts';
 import { YamlNodeKind } from '../../nodes/YamlTag.ts';
@@ -94,7 +92,12 @@ class FailsafeSchema {
         specificTagName,
         explicitTagName: node.tag.explicitName,
         tagKind: node.tag.kind,
-        tagPosition: clone(node.tag.position),
+        tagStartLine: node.tag.startLine,
+        tagStartCharacter: node.tag.startCharacter,
+        tagStartOffset: node.tag.startOffset,
+        tagEndLine: node.tag.endLine,
+        tagEndCharacter: node.tag.endCharacter,
+        tagEndOffset: node.tag.endOffset,
         node: node.clone(),
       });
     }
@@ -105,7 +108,12 @@ class FailsafeSchema {
         specificTagName,
         explicitTagName: node.tag.explicitName,
         tagKind: node.tag.kind,
-        tagPosition: clone(node.tag.position),
+        tagStartLine: node.tag.startLine,
+        tagStartCharacter: node.tag.startCharacter,
+        tagStartOffset: node.tag.startOffset,
+        tagEndLine: node.tag.endLine,
+        tagEndCharacter: node.tag.endCharacter,
+        tagEndOffset: node.tag.endOffset,
         nodeCanonicalContent: canonicalNode.content,
         node: node.clone(),
       });

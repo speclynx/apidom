@@ -1,7 +1,6 @@
 import { assert } from 'chai';
 import dedent from 'dedent';
-import { includesClasses, SourceMapElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
+import { includesClasses, hasElementSourceMap } from '@speclynx/apidom-datamodel';
 
 import * as adapter from '../../../../../src/adapter.ts';
 
@@ -17,7 +16,7 @@ const setupMemberElement = async (): Promise<any> => {
 const setupEmptyKeyElement = async () => (await setupMemberElement()).key;
 const setupEmptyValueElement = async () => (await setupMemberElement()).value;
 
-describe('given block mapping pair specified as optional “?” mapping key indicator', function () {
+describe('given block mapping pair specified as optional "?" mapping key indicator', function () {
   it('should create empty key element', async function () {
     const emptyElement = await setupEmptyKeyElement();
 
@@ -26,18 +25,16 @@ describe('given block mapping pair specified as optional “?” mapping key ind
 
   it('should generate source maps for empty key', async function () {
     const emptyElement = await setupEmptyKeyElement();
-    const sourceMapElement = emptyElement.meta.get('sourceMap');
 
-    assert.instanceOf(sourceMapElement, SourceMapElement);
+    assert.isTrue(hasElementSourceMap(emptyElement));
   });
 
   it('should generate proper source map start position for empty key', async function () {
     const emptyElement = await setupEmptyKeyElement();
-    const sourceMapElement = emptyElement.meta.get('sourceMap');
     const [row, column, char] = [
-      toValue(sourceMapElement.positionStart.get(0)),
-      toValue(sourceMapElement.positionStart.get(1)),
-      toValue(sourceMapElement.positionStart.get(2)),
+      emptyElement.startLine,
+      emptyElement.startCharacter,
+      emptyElement.startOffset,
     ];
 
     assert.strictEqual(row, 1);
@@ -47,11 +44,10 @@ describe('given block mapping pair specified as optional “?” mapping key ind
 
   it('should generate proper source map end position for empty key', async function () {
     const emptyElement = await setupEmptyKeyElement();
-    const sourceMapElement = emptyElement.meta.get('sourceMap');
     const [row, column, char] = [
-      toValue(sourceMapElement.positionEnd.get(0)),
-      toValue(sourceMapElement.positionEnd.get(1)),
-      toValue(sourceMapElement.positionEnd.get(2)),
+      emptyElement.endLine,
+      emptyElement.endCharacter,
+      emptyElement.endOffset,
     ];
 
     assert.strictEqual(row, 1);
@@ -67,18 +63,16 @@ describe('given block mapping pair specified as optional “?” mapping key ind
 
   it('should generate source maps for empty value', async function () {
     const emptyElement = await setupEmptyValueElement();
-    const sourceMapElement = emptyElement.meta.get('sourceMap');
 
-    assert.instanceOf(sourceMapElement, SourceMapElement);
+    assert.isTrue(hasElementSourceMap(emptyElement));
   });
 
   it('should generate proper source map start position for empty value', async function () {
     const emptyElement = await setupEmptyValueElement();
-    const sourceMapElement = emptyElement.meta.get('sourceMap');
     const [row, column, char] = [
-      toValue(sourceMapElement.positionStart.get(0)),
-      toValue(sourceMapElement.positionStart.get(1)),
-      toValue(sourceMapElement.positionStart.get(2)),
+      emptyElement.startLine,
+      emptyElement.startCharacter,
+      emptyElement.startOffset,
     ];
 
     assert.strictEqual(row, 1);
@@ -88,11 +82,10 @@ describe('given block mapping pair specified as optional “?” mapping key ind
 
   it('should generate proper source map end position for empty value', async function () {
     const emptyElement = await setupEmptyValueElement();
-    const sourceMapElement = emptyElement.meta.get('sourceMap');
     const [row, column, char] = [
-      toValue(sourceMapElement.positionEnd.get(0)),
-      toValue(sourceMapElement.positionEnd.get(1)),
-      toValue(sourceMapElement.positionEnd.get(2)),
+      emptyElement.endLine,
+      emptyElement.endCharacter,
+      emptyElement.endOffset,
     ];
 
     assert.strictEqual(row, 1);

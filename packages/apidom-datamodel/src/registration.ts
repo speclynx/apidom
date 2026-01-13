@@ -102,4 +102,4 @@ export {
 export type { FindCondition, FindOptions } from './primitives/CollectionElement.ts';
 export type { ObjectElementCallback } from './primitives/ObjectElement.ts';
 export type { ObjectSliceCallback, ObjectSliceForEachCallback } from './ObjectSlice.ts';
-export type { Position, PositionRange } from './elements/SourceMap.ts';
+export type { Span6, SourceMapShape } from './elements/SourceMap.ts';

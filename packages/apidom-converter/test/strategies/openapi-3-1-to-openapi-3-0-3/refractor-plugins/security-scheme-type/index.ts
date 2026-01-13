@@ -2,8 +2,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mediaTypes as openAPI31MediaTypes } from '@speclynx/apidom-parser-adapter-openapi-json-3-1';
 import { mediaTypes as openAPI30MediaTypes } from '@speclynx/apidom-parser-adapter-openapi-json-3-0';
-import { AnnotationElement, SourceMapElement, includesClasses } from '@speclynx/apidom-datamodel';
-import { toJSON, toValue } from '@speclynx/apidom-core';
+import {
+  AnnotationElement,
+  includesClasses,
+  hasElementSourceMap,
+} from '@speclynx/apidom-datamodel';
+import { toJSON } from '@speclynx/apidom-core';
 import { assert, expect } from 'chai';
 
 import convert from '../../../../../src/index.ts';
@@ -58,20 +62,16 @@ describe('converter', function () {
           });
           const annotations = Array.from(convertedParseResult.annotations) as AnnotationElement[];
           const annotation = annotations.find((a) => a.code?.equals('mutualTLS'))!;
-          const sourceMap = annotation.meta.get('sourceMap') as SourceMapElement;
-          const { positionStart, positionEnd } = sourceMap;
-          const [startRow, startColumn, startChar] = toValue(positionStart) as number[];
-          const [endRow, endColumn, endChar] = toValue(positionEnd) as number[];
 
-          assert.isDefined(sourceMap);
+          assert.isTrue(hasElementSourceMap(annotation));
 
-          assert.strictEqual(startRow, 9);
-          assert.strictEqual(startColumn, 32);
-          assert.strictEqual(startChar, 188);
+          assert.strictEqual(annotation.startLine, 9);
+          assert.strictEqual(annotation.startCharacter, 32);
+          assert.strictEqual(annotation.startOffset, 188);
 
-          assert.strictEqual(endRow, 12);
-          assert.strictEqual(endColumn, 13);
-          assert.strictEqual(endChar, 247);
+          assert.strictEqual(annotation.endLine, 12);
+          assert.strictEqual(annotation.endCharacter, 13);
+          assert.strictEqual(annotation.endOffset, 247);
         });
 
         specify(

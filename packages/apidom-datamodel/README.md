@@ -182,6 +182,125 @@ link.href = 'https://example.com';
 
 ---
 
+## Source Maps
+
+Source maps track the original source position of each element in the parsed document.
+Position properties are stored directly on elements (not nested in a separate object):
+
+- `startLine` - Zero-based line number where the element begins
+- `startCharacter` - Zero-based column number where the element begins
+- `startOffset` - Zero-based character offset from the start of the document
+- `endLine` - Zero-based line number where the element ends
+- `endCharacter` - Zero-based column number where the element ends
+- `endOffset` - Zero-based character offset where the element ends
+
+All position values use **UTF-16 code units**, making them compatible with:
+- [Language Server Protocol (LSP)](https://microsoft.github.io/language-server-protocol/)
+- JavaScript string indexing
+- TextDocument APIs
+
+### Accessing Source Positions
+
+```js
+import { StringElement } from '@speclynx/apidom-datamodel';
+
+const element = new StringElement('hello');
+element.startLine = 0;
+element.startCharacter = 5;
+element.startOffset = 5;
+element.endLine = 0;
+element.endCharacter = 12;
+element.endOffset = 12;
+
+console.log(element.startLine); // => 0
+console.log(element.startOffset); // => 5
+```
+
+### SourceMapElement
+
+`SourceMapElement` is a transitive element that stores source positions as a compact
+VLQ-encoded string. It provides utilities for transferring and serializing source positions.
+
+#### Transferring Source Positions
+
+Use `SourceMapElement.transfer()` to copy position properties between any compatible shapes
+(elements, AST nodes, or plain objects with position properties):
+
+```js
+import { SourceMapElement, StringElement } from '@speclynx/apidom-datamodel';
+
+const source = new StringElement('source');
+source.startLine = 1;
+source.startCharacter = 2;
+source.startOffset = 10;
+source.endLine = 1;
+source.endCharacter = 8;
+source.endOffset = 16;
+
+const target = new StringElement('target');
+SourceMapElement.transfer(source, target);
+
+console.log(target.startLine); // => 1
+console.log(target.startOffset); // => 10
+```
+
+#### Creating from Source
+
+Use `SourceMapElement.from()` to create a source map from any object with position properties.
+Returns `undefined` if any position property is not a number:
+
+```js
+import { SourceMapElement, StringElement } from '@speclynx/apidom-datamodel';
+
+const element = new StringElement('hello');
+element.startLine = 0;
+element.startCharacter = 0;
+element.startOffset = 0;
+element.endLine = 0;
+element.endCharacter = 5;
+element.endOffset = 5;
+
+const sourceMap = SourceMapElement.from(element);
+// sourceMap.content => 'sm1:AAAAKA' (VLQ-encoded positions)
+```
+
+#### Applying to Target
+
+Use `sourceMap.applyTo()` to decode VLQ content and apply position properties to any target object:
+
+```js
+import { SourceMapElement, StringElement } from '@speclynx/apidom-datamodel';
+
+const sourceMap = new SourceMapElement('sm1:AAAAKA');
+const target = new StringElement('target');
+
+sourceMap.applyTo(target);
+
+console.log(target.startLine); // => 0
+console.log(target.endOffset); // => 5
+```
+
+### SourceMapShape Interface
+
+The `SourceMapShape` interface defines the shape for objects with source position properties:
+
+```ts
+import type { SourceMapShape } from '@speclynx/apidom-datamodel';
+
+interface SourceMapShape {
+  startLine?: number;
+  startCharacter?: number;
+  startOffset?: number;
+  endLine?: number;
+  endCharacter?: number;
+  endOffset?: number;
+}
+```
+
+This enables `SourceMapElement.transfer()` to work with any compatible object, not just elements.
+
+---
+
 ## Extending Elements
 
 You can create custom element types by extending the primitive elements.

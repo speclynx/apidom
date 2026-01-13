@@ -2,7 +2,8 @@ import ObjectSlice from '../ObjectSlice.ts';
 import KeyValuePair from '../KeyValuePair.ts';
 import Element from '../primitives/Element.ts';
 import MemberElement from '../primitives/MemberElement.ts';
-import { isElement } from '../predicates/index.ts';
+import { isElement, hasElementSourceMap } from '../predicates/index.ts';
+import SourceMapElement from '../elements/SourceMap.ts';
 import DeepCloneError from './errors/DeepCloneError.ts';
 import ShallowCloneError from './errors/ShallowCloneError.ts';
 
@@ -131,6 +132,10 @@ const cloneShallowElement = <T extends Element>(element: T): T => {
 
   if (!element.isAttributesEmpty) {
     copy.attributes = cloneDeep(element.attributes);
+  }
+
+  if (hasElementSourceMap(element)) {
+    SourceMapElement.transfer(element, copy);
   }
 
   const { content } = element;

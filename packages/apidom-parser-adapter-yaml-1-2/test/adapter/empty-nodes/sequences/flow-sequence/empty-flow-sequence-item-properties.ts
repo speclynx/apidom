@@ -1,6 +1,5 @@
 import { assert } from 'chai';
-import { includesClasses, SourceMapElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
+import { includesClasses, hasElementSourceMap } from '@speclynx/apidom-datamodel';
 
 import * as adapter from '../../../../../src/adapter.ts';
 
@@ -20,36 +19,23 @@ describe('given empty node with tag and anchor as flow sequence item', function 
 
   it('should generate source maps', async function () {
     const emptyElement = await setupEmptyElement();
-    const sourceMapElement = emptyElement.meta.get('sourceMap');
 
-    assert.instanceOf(sourceMapElement, SourceMapElement);
+    assert.isTrue(hasElementSourceMap(emptyElement));
   });
 
   it('should generate proper source map start position', async function () {
     const emptyElement = await setupEmptyElement();
-    const sourceMapElement = emptyElement.meta.get('sourceMap');
-    const [row, column, char] = [
-      toValue(sourceMapElement.positionStart.get(0)),
-      toValue(sourceMapElement.positionStart.get(1)),
-      toValue(sourceMapElement.positionStart.get(2)),
-    ];
 
-    assert.strictEqual(row, 0);
-    assert.strictEqual(column, 16);
-    assert.strictEqual(char, 16);
+    assert.strictEqual(emptyElement.startLine, 0);
+    assert.strictEqual(emptyElement.startCharacter, 16);
+    assert.strictEqual(emptyElement.startOffset, 16);
   });
 
   it('should generate proper source map end position', async function () {
     const emptyElement = await setupEmptyElement();
-    const sourceMapElement = emptyElement.meta.get('sourceMap');
-    const [row, column, char] = [
-      toValue(sourceMapElement.positionEnd.get(0)),
-      toValue(sourceMapElement.positionEnd.get(1)),
-      toValue(sourceMapElement.positionEnd.get(2)),
-    ];
 
-    assert.strictEqual(row, 0);
-    assert.strictEqual(column, 16);
-    assert.strictEqual(char, 16);
+    assert.strictEqual(emptyElement.endLine, 0);
+    assert.strictEqual(emptyElement.endCharacter, 16);
+    assert.strictEqual(emptyElement.endOffset, 16);
   });
 });

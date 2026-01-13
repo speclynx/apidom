@@ -1,6 +1,5 @@
 import Element from '../primitives/Element.ts';
 import { isArrayElement, isElement } from './primitives.ts';
-import { isSourceMapElement } from './elements.ts';
 
 export {
   isStringElement,
@@ -25,13 +24,19 @@ export {
 } from './elements.ts';
 
 /**
+ * Checks if an element has complete source position information.
+ * Returns true only if all 6 position properties are numbers.
  * @public
  */
 export const hasElementSourceMap = <T extends Element>(element: T): boolean => {
-  if (element.isMetaEmpty) {
-    return false;
-  }
-  return isSourceMapElement(element.meta.get('sourceMap'));
+  return (
+    typeof element.startLine === 'number' &&
+    typeof element.startCharacter === 'number' &&
+    typeof element.startOffset === 'number' &&
+    typeof element.endLine === 'number' &&
+    typeof element.endCharacter === 'number' &&
+    typeof element.endOffset === 'number'
+  );
 };
 
 /**
