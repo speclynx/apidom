@@ -22,8 +22,6 @@ export interface AsyncAPIJSON2ParserOptions extends Omit<ParserOptions, 'name'> 
  * @public
  */
 class AsyncAPIJSON2Parser extends Parser {
-  public syntacticAnalysis?: 'direct' | 'indirect';
-
   public refractorOpts!: object;
 
   constructor(options?: AsyncAPIJSON2ParserOptions) {
@@ -49,7 +47,7 @@ class AsyncAPIJSON2Parser extends Parser {
     const source = file.toString();
 
     try {
-      const parserOpts = pick(['sourceMap', 'syntacticAnalysis', 'refractorOpts'], this);
+      const parserOpts = pick(['sourceMap', 'refractorOpts'], this);
       return await parse(source, parserOpts);
     } catch (error: unknown) {
       throw new ParserError(`Error parsing "${file.uri}"`, { cause: error });
