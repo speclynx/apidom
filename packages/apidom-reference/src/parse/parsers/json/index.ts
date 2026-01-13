@@ -18,8 +18,6 @@ export interface JSONParserOptions extends Omit<ParserOptions, 'name'> {}
  * @public
  */
 class JSONParser extends Parser {
-  public syntacticAnalysis?: 'direct' | 'indirect';
-
   constructor(options?: JSONParserOptions) {
     const { fileExtensions = [], mediaTypes = JSONMediaTypes, ...rest } = options ?? {};
 
@@ -43,7 +41,7 @@ class JSONParser extends Parser {
     const source = file.toString();
 
     try {
-      const parserOpts = pick(['sourceMap', 'syntacticAnalysis'], this);
+      const parserOpts = pick(['sourceMap'], this);
       return await parse(source, parserOpts);
     } catch (error: unknown) {
       throw new ParserError(`Error parsing "${file.uri}"`, { cause: error });

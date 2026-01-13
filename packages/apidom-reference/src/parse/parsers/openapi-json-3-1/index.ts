@@ -23,8 +23,6 @@ export interface OpenAPIJSON3_1ParserOptions extends Omit<ParserOptions, 'name'>
  * @public
  */
 class OpenAPIJSON3_1Parser extends Parser {
-  public syntacticAnalysis?: 'direct' | 'indirect';
-
   public refractorOpts!: object;
 
   constructor(options?: OpenAPIJSON3_1ParserOptions) {
@@ -50,7 +48,7 @@ class OpenAPIJSON3_1Parser extends Parser {
     const source = file.toString();
 
     try {
-      const parserOpts = pick(['sourceMap', 'syntacticAnalysis', 'refractorOpts'], this);
+      const parserOpts = pick(['sourceMap', 'refractorOpts'], this);
       return await parse(source, parserOpts);
     } catch (error: unknown) {
       throw new ParserError(`Error parsing "${file.uri}"`, { cause: error });
