@@ -219,6 +219,10 @@ describe('adapter', function () {
       specify('should detect valid YAML object', async function () {
         assert.isTrue(await adapter.detect(spec, { strict: true }));
       });
+
+      specify('should not detect invalid YAML', async function () {
+        assert.isFalse(await adapter.detect('key: value: invalid', { strict: true }));
+      });
     });
 
     context('parse', function () {
@@ -235,6 +239,17 @@ describe('adapter', function () {
         assert.isTrue(isParseResultElement(parseResult));
         assert.isTrue(isObjectElement(parseResult.result));
         assert.deepEqual(toValue(parseResult.result), { key: 'value' });
+      });
+
+      specify('should throw on invalid YAML', async function () {
+        const invalidYaml = 'key: value: invalid';
+
+        try {
+          await adapter.parse(invalidYaml, { strict: true });
+          assert.fail('Should have thrown an error');
+        } catch (error) {
+          assert.instanceOf(error, Error);
+        }
       });
 
       specify('should throw when strict and sourceMap are both true', async function () {

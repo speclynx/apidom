@@ -51,7 +51,7 @@ Option | Type | Default | Description
 <a name="detect-strict"></a>`strict` | `Boolean` | `false` | Use strict detection mode ([yaml](https://www.npmjs.com/package/yaml) library).
 
 In default mode, detection uses tree-sitter for parsing with error recovery.
-In strict mode, detection uses the [yaml](https://www.npmjs.com/package/yaml) library's lexer which is faster.
+In strict mode, detection uses the [yaml](https://www.npmjs.com/package/yaml) library which is faster.
 
 ### namespace
 
@@ -97,7 +97,7 @@ import { parse, detect } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
 // detecting (tree-sitter mode - default)
 await detect('prop: value'); // => true
-await detect('!!invalid'); // => false
+await detect('{invalid:'); // => false
 
 // detecting (strict mode)
 await detect('prop: value', { strict: true }); // => true

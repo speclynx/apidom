@@ -1,4 +1,4 @@
-import { parse as parseYaml, Lexer } from 'yaml';
+import { parse as parseYaml } from 'yaml';
 import { ParseResultElement, refract } from '@speclynx/apidom-datamodel';
 
 /**
@@ -6,9 +6,7 @@ import { ParseResultElement, refract } from '@speclynx/apidom-datamodel';
  */
 export const detect = async (source: string): Promise<boolean> => {
   try {
-    const lexer = new Lexer();
-    // Consume all tokens - faster than full parse
-    Array.from(lexer.lex(source));
+    parseYaml(source);
     return true;
   } catch {
     return false;
