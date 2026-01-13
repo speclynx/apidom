@@ -100,21 +100,9 @@ class SourceMapElement extends StringElement {
 
 const BASE64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
-function toVLQSigned(value: number): number {
-  // ZigZag: maps signed ints to unsigned
-  //  0 -> 0, -1 -> 1, 1 -> 2, -2 -> 3, 2 -> 4, ...
-  return value < 0 ? (-value << 1) + 1 : value << 1;
-}
-
-function fromVLQSigned(value: number): number {
-  const isNeg = (value & 1) === 1;
-  const shifted = value >> 1;
-  return isNeg ? -shifted : shifted;
-}
-
-// Encode one signed integer to Base64-VLQ
+// Encode one unsigned integer to Base64-VLQ
 function vlqEncodeInt(value: number): string {
-  let vlq = toVLQSigned(value | 0); // treat as 32-bit signed
+  let vlq = value >>> 0; // ensure unsigned 32-bit
   let out = '';
 
   do {
@@ -127,7 +115,7 @@ function vlqEncodeInt(value: number): string {
   return out;
 }
 
-// Decode one signed integer from Base64-VLQ, starting at `index`
+// Decode one unsigned integer from Base64-VLQ, starting at `index`
 function vlqDecodeInt(str: string, index = 0): { value: number; next: number } {
   let result = 0;
   let shift = 0;
@@ -135,19 +123,17 @@ function vlqDecodeInt(str: string, index = 0): { value: number; next: number } {
 
   while (true) {
     const ch = str[i++];
-    const digit0 = BASE64.indexOf(ch);
-    if (digit0 === -1) throw new Error(`Invalid Base64 VLQ char: ${ch}`);
+    const digit = BASE64.indexOf(ch);
+    if (digit === -1) throw new Error(`Invalid Base64 VLQ char: ${ch}`);
 
-    const cont = (digit0 & 32) !== 0;
-    const digit = digit0 & 31;
-
-    result |= digit << shift;
+    const cont = (digit & 32) !== 0;
+    result |= (digit & 31) << shift;
     shift += 5;
 
     if (!cont) break;
   }
 
-  return { value: fromVLQSigned(result), next: i };
+  return { value: result >>> 0, next: i };
 }
 
 /**
@@ -174,7 +160,7 @@ function unpackSourceMap(packed: string): Span6 {
   let i = 0;
   for (let k = 0; k < 6; k++) {
     const r = vlqDecodeInt(s, i);
-    out.push(r.value >>> 0);
+    out.push(r.value);
     i = r.next;
   }
   return out as Span6;
