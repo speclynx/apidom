@@ -64,7 +64,17 @@ export default tseslint.config(
           ignorePackages: true,
         },
       ],
-      'import/no-extraneous-dependencies': 'off',
+      'import/no-extraneous-dependencies': ['error', {
+        devDependencies: [
+          'packages/*/test/**/*.ts',
+          'packages/*/test/**/*.tsx',
+          '**/config/**',
+          '**/*.config.js',
+          '**/*.config.ts',
+        ],
+        peerDependencies: true,
+        optionalDependencies: false,
+      }],
       'import/no-mutable-exports': 'off',
       'import/order': [
         'error',
@@ -230,6 +240,20 @@ export default tseslint.config(
     rules: {
       'class-methods-use-this': 'off',
       '@typescript-eslint/naming-convention': 'off',
+    },
+  },
+
+  // Parser adapters - tree-sitter grammars are bundled during build
+  {
+    files: [
+      'packages/apidom-parser-adapter-json/src/lexical-analysis/**/*.ts',
+      'packages/apidom-parser-adapter-yaml-1-2/src/lexical-analysis/**/*.ts',
+    ],
+    plugins: {
+      import: eslintPluginImportX,
+    },
+    rules: {
+      'import/no-extraneous-dependencies': 'off',
     },
   },
 
