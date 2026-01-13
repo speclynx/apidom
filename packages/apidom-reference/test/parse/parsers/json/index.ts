@@ -4,7 +4,7 @@ import {
   NumberElement,
   ObjectElement,
   isParseResultElement,
-  isSourceMapElement,
+  hasElementSourceMap,
 } from '@speclynx/apidom-datamodel';
 
 import File from '../../../../src/File.ts';
@@ -126,7 +126,7 @@ describe('parsers', function () {
             const result = await parser.parse(file);
             const objElement = result.get(0) as ObjectElement;
 
-            assert.isTrue(isSourceMapElement(objElement.meta.get('sourceMap')));
+            assert.isTrue(hasElementSourceMap(objElement));
           });
         });
 
@@ -137,7 +137,7 @@ describe('parsers', function () {
             const result = await parser.parse(file);
             const objElement = result.get(0) as ObjectElement;
 
-            assert.isUndefined(objElement.meta.get('sourceMap'));
+            assert.isFalse(hasElementSourceMap(objElement));
           });
         });
       });

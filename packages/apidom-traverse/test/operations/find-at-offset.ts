@@ -4,34 +4,35 @@ import {
   StringElement,
   MemberElement,
   ParseResultElement,
-  SourceMapElement,
 } from '@speclynx/apidom-datamodel';
 
 import { findAtOffset } from '../../src/index.ts';
 
 /**
- * Helper to create a SourceMapElement with the given character positions.
+ * Helper to set source map properties on an element.
  * Simulates parsing of: {"prop": "val"}
  *                       0123456789...
  */
-const createSourceMap = (startChar: number, endChar: number): SourceMapElement => {
-  const sourceMap = new SourceMapElement();
-  sourceMap.position = {
-    start: { row: 0, column: startChar, char: startChar },
-    end: { row: 0, column: endChar, char: endChar },
-  };
-  return sourceMap;
-};
-
-/**
- * Helper to set sourceMap on an element's meta.
- */
-const setSourceMap = <T extends { meta: ObjectElement }>(
+const setSourceMap = <
+  T extends {
+    startLine?: number;
+    startCharacter?: number;
+    startOffset?: number;
+    endLine?: number;
+    endCharacter?: number;
+    endOffset?: number;
+  },
+>(
   element: T,
   startChar: number,
   endChar: number,
 ): T => {
-  element.meta.set('sourceMap', createSourceMap(startChar, endChar));
+  element.startLine = 0;
+  element.startCharacter = startChar;
+  element.startOffset = startChar;
+  element.endLine = 0;
+  element.endCharacter = endChar;
+  element.endOffset = endChar;
   return element;
 };
 

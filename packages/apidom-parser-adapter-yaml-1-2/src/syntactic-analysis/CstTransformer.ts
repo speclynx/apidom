@@ -3,7 +3,6 @@ import { TreeCursor, Point as TreeSitterPoint } from 'web-tree-sitter';
 import Error from './ast/Error.ts';
 import Literal from './ast/Literal.ts';
 import ParseResult from './ast/ParseResult.ts';
-import Position, { Point } from './ast/Position.ts';
 import YamlNode from './ast/nodes/YamlNode.ts';
 import YamlAlias from './ast/nodes/YamlAlias.ts';
 import YamlAnchor from './ast/nodes/YamlAnchor.ts';
@@ -57,24 +56,29 @@ const getCursorInfo = (cursor: TreeCursor): CursorInfo => ({
   fieldName: cursor.currentFieldName,
 });
 
-const toPosition = (info: CursorInfo): Position => {
-  const start = new Point({
-    row: info.startPosition.row,
-    column: info.startPosition.column,
-    char: info.startIndex,
-  });
-  const end = new Point({
-    row: info.endPosition.row,
-    column: info.endPosition.column,
-    char: info.endIndex,
-  });
-  return new Position({ start, end });
-};
+// Flat position properties extracted from CursorInfo
+interface PositionProps {
+  startLine: number;
+  startCharacter: number;
+  startOffset: number;
+  endLine: number;
+  endCharacter: number;
+  endOffset: number;
+}
+
+const toPositionProps = (info: CursorInfo): PositionProps => ({
+  startLine: info.startPosition.row,
+  startCharacter: info.startPosition.column,
+  startOffset: info.startIndex,
+  endLine: info.endPosition.row,
+  endCharacter: info.endPosition.column,
+  endOffset: info.endIndex,
+});
 
 const toYamlAnchor = (info: CursorInfo): YamlAnchor => {
   return new YamlAnchor({
     name: info.text,
-    position: toPosition(info),
+    ...toPositionProps(info),
   });
 };
 
@@ -85,9 +89,9 @@ const toYamlTag = (info: CursorInfo, tagInfo: CursorInfo | undefined): YamlTag =
     : info.type.endsWith('sequence')
       ? YamlNodeKind.Sequence
       : YamlNodeKind.Scalar;
-  const position = tagInfo ? toPosition(tagInfo) : undefined;
+  const positionProps = tagInfo ? toPositionProps(tagInfo) : undefined;
 
-  return new YamlTag({ explicitName, kind, position });
+  return new YamlTag({ explicitName, kind, ...positionProps });
 };
 
 const registerAnchor = <T extends YamlNode>(node: T, ctx: TransformContext): void => {
@@ -212,9 +216,8 @@ const transform = (
   }
 
   if (!info.isNamed && info.isMissing) {
-    const position = toPosition(info);
     const nodeValue = info.type || info.text;
-    return new Literal({ value: nodeValue, position, isMissing: true });
+    return new Literal({ value: nodeValue, ...toPositionProps(info), isMissing: true });
   }
 
   const transformer = transformerMap[info.type];
@@ -228,13 +231,12 @@ const transform = (
 const createTransformers = (transformerMap: TransformerMap): TransformerMap => ({
   stream(cursor: TreeCursor, ctx: TransformContext): ParseResult {
     const info = getCursorInfo(cursor);
-    const position = toPosition(info);
 
     const children = processChildren(cursor, ctx, transformerMap);
 
     const stream = new YamlStream({
       children: children.filter((c) => c !== null),
-      position,
+      ...toPositionProps(info),
       isMissing: info.isMissing,
     });
 
@@ -243,7 +245,6 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
   yaml_directive(cursor: TreeCursor, _ctx: TransformContext): YamlDirective {
     const info = getCursorInfo(cursor);
-    const position = toPosition(info);
 
     // Get version from first named child
     let version: string | undefined;
@@ -258,7 +259,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
     }
 
     return new YamlDirective({
-      position,
+      ...toPositionProps(info),
       name: '%YAML',
       parameters: { version },
     });
@@ -266,7 +267,6 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
   tag_directive(cursor: TreeCursor, ctx: TransformContext): YamlDirective {
     const info = getCursorInfo(cursor);
-    const position = toPosition(info);
 
     const children: string[] = [];
     if (cursor.gotoFirstChild()) {
@@ -279,7 +279,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
     }
 
     const tagDirective = new YamlDirective({
-      position,
+      ...toPositionProps(info),
       name: '%TAG',
       parameters: {
         handle: children[0],
@@ -294,7 +294,6 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
   reserved_directive(cursor: TreeCursor, _ctx: TransformContext): YamlDirective {
     const info = getCursorInfo(cursor);
-    const position = toPosition(info);
 
     const children: string[] = [];
     if (cursor.gotoFirstChild()) {
@@ -307,7 +306,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
     }
 
     return new YamlDirective({
-      position,
+      ...toPositionProps(info),
       name: children[0],
       parameters: {
         handle: children[1],
@@ -318,13 +317,12 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
   document(cursor: TreeCursor, ctx: TransformContext): YamlDocument {
     const info = getCursorInfo(cursor);
-    const position = toPosition(info);
 
     const children = processChildren(cursor, ctx, transformerMap);
 
     return new YamlDocument({
       children: children.flat().filter((c) => c !== null),
-      position,
+      ...toPositionProps(info),
       isMissing: info.isMissing,
     });
   },
@@ -370,16 +368,16 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
     // No kind node - create empty scalar
     if (lastChildInfo) {
-      const emptyPoint = new Point({
-        row: lastChildInfo.endPosition.row,
-        column: lastChildInfo.endPosition.column,
-        char: lastChildInfo.endIndex,
-      });
       const emptyScalarNode = new YamlScalar({
         content: '',
         anchor: siblings.anchor ? toYamlAnchor(siblings.anchor) : undefined,
         tag: toYamlTag(lastChildInfo, siblings.tag),
-        position: new Position({ start: emptyPoint, end: emptyPoint }),
+        startLine: lastChildInfo.endPosition.row,
+        startCharacter: lastChildInfo.endPosition.column,
+        startOffset: lastChildInfo.endIndex,
+        endLine: lastChildInfo.endPosition.row,
+        endCharacter: lastChildInfo.endPosition.column,
+        endOffset: lastChildInfo.endIndex,
         styleGroup: YamlStyleGroup.Flow,
         style: YamlStyle.Plain,
       });
@@ -394,7 +392,6 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
   block_mapping(cursor: TreeCursor, ctx: TransformContext, siblings: SiblingContext): YamlMapping {
     const info = getCursorInfo(cursor);
-    const position = toPosition(info);
     const tag = toYamlTag(info, siblings.tag);
     const anchor = siblings.anchor ? toYamlAnchor(siblings.anchor) : undefined;
 
@@ -402,7 +399,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
     const mappingNode = new YamlMapping({
       children: children.filter((c) => c !== null),
-      position,
+      ...toPositionProps(info),
       anchor,
       tag,
       styleGroup: YamlStyleGroup.Block,
@@ -417,7 +414,6 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
   block_mapping_pair(cursor: TreeCursor, ctx: TransformContext): YamlKeyValuePair {
     const info = getCursorInfo(cursor);
-    const position = toPosition(info);
 
     const { key, value, errors } = processKeyValuePairChildren(cursor, ctx, transformerMap);
 
@@ -425,14 +421,14 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
     // Handle empty key
     if (key === null) {
-      const emptyPoint = new Point({
-        row: info.startPosition.row,
-        column: info.startPosition.column,
-        char: info.startIndex,
-      });
       const emptyKey = new YamlScalar({
         content: '',
-        position: new Position({ start: emptyPoint, end: emptyPoint }),
+        startLine: info.startPosition.row,
+        startCharacter: info.startPosition.column,
+        startOffset: info.startIndex,
+        endLine: info.startPosition.row,
+        endCharacter: info.startPosition.column,
+        endOffset: info.startIndex,
         tag: new YamlTag({ explicitName: '?', kind: YamlNodeKind.Scalar }),
         styleGroup: YamlStyleGroup.Flow,
         style: YamlStyle.Plain,
@@ -444,14 +440,14 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
     // Handle empty value
     if (value === null) {
-      const emptyPoint = new Point({
-        row: info.endPosition.row,
-        column: info.endPosition.column,
-        char: info.endIndex,
-      });
       const emptyValue = new YamlScalar({
         content: '',
-        position: new Position({ start: emptyPoint, end: emptyPoint }),
+        startLine: info.endPosition.row,
+        startCharacter: info.endPosition.column,
+        startOffset: info.endIndex,
+        endLine: info.endPosition.row,
+        endCharacter: info.endPosition.column,
+        endOffset: info.endIndex,
         tag: new YamlTag({ explicitName: '?', kind: YamlNodeKind.Scalar }),
         styleGroup: YamlStyleGroup.Flow,
         style: YamlStyle.Plain,
@@ -465,7 +461,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
     return new YamlKeyValuePair({
       children: children.flat().filter((c) => c !== null),
-      position,
+      ...toPositionProps(info),
       styleGroup: YamlStyleGroup.Block,
       isMissing: info.isMissing,
     });
@@ -473,7 +469,6 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
   flow_mapping(cursor: TreeCursor, ctx: TransformContext, siblings: SiblingContext): YamlMapping {
     const info = getCursorInfo(cursor);
-    const position = toPosition(info);
     const tag = toYamlTag(info, siblings.tag);
     const anchor = siblings.anchor ? toYamlAnchor(siblings.anchor) : undefined;
 
@@ -481,7 +476,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
     const mappingNode = new YamlMapping({
       children: children.flat().filter((c) => c !== null),
-      position,
+      ...toPositionProps(info),
       anchor,
       tag,
       styleGroup: YamlStyleGroup.Flow,
@@ -496,7 +491,6 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
   flow_pair(cursor: TreeCursor, ctx: TransformContext): YamlKeyValuePair {
     const info = getCursorInfo(cursor);
-    const position = toPosition(info);
 
     const { key, value, errors } = processKeyValuePairChildren(cursor, ctx, transformerMap);
 
@@ -504,14 +498,14 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
     // Handle empty key
     if (key === null) {
-      const emptyPoint = new Point({
-        row: info.startPosition.row,
-        column: info.startPosition.column,
-        char: info.startIndex,
-      });
       const emptyKey = new YamlScalar({
         content: '',
-        position: new Position({ start: emptyPoint, end: emptyPoint }),
+        startLine: info.startPosition.row,
+        startCharacter: info.startPosition.column,
+        startOffset: info.startIndex,
+        endLine: info.startPosition.row,
+        endCharacter: info.startPosition.column,
+        endOffset: info.startIndex,
         tag: new YamlTag({ explicitName: '?', kind: YamlNodeKind.Scalar }),
         styleGroup: YamlStyleGroup.Flow,
         style: YamlStyle.Plain,
@@ -523,14 +517,14 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
     // Handle empty value
     if (value === null) {
-      const emptyPoint = new Point({
-        row: info.endPosition.row,
-        column: info.endPosition.column,
-        char: info.endIndex,
-      });
       const emptyValue = new YamlScalar({
         content: '',
-        position: new Position({ start: emptyPoint, end: emptyPoint }),
+        startLine: info.endPosition.row,
+        startCharacter: info.endPosition.column,
+        startOffset: info.endIndex,
+        endLine: info.endPosition.row,
+        endCharacter: info.endPosition.column,
+        endOffset: info.endIndex,
         tag: new YamlTag({ explicitName: '?', kind: YamlNodeKind.Scalar }),
         styleGroup: YamlStyleGroup.Flow,
         style: YamlStyle.Plain,
@@ -544,7 +538,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
     return new YamlKeyValuePair({
       children: children.flat().filter((c) => c !== null),
-      position,
+      ...toPositionProps(info),
       styleGroup: YamlStyleGroup.Flow,
       isMissing: info.isMissing,
     });
@@ -556,7 +550,6 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
     siblings: SiblingContext,
   ): YamlSequence {
     const info = getCursorInfo(cursor);
-    const position = toPosition(info);
     const tag = toYamlTag(info, siblings.tag);
     const anchor = siblings.anchor ? toYamlAnchor(siblings.anchor) : undefined;
 
@@ -564,7 +557,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
     const sequenceNode = new YamlSequence({
       children: children.flat(Infinity).filter((c) => c !== null),
-      position,
+      ...toPositionProps(info),
       anchor,
       tag,
       styleGroup: YamlStyleGroup.Block,
@@ -582,15 +575,15 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
     // If only one child (the "-" literal), create empty node
     if (children.length === 0) {
-      const emptyPoint = new Point({
-        row: info.endPosition.row,
-        column: info.endPosition.column,
-        char: info.endIndex,
-      });
       const emptyScalarNode = new YamlScalar({
         content: '',
         tag: new YamlTag({ explicitName: '?', kind: YamlNodeKind.Scalar }),
-        position: new Position({ start: emptyPoint, end: emptyPoint }),
+        startLine: info.endPosition.row,
+        startCharacter: info.endPosition.column,
+        startOffset: info.endIndex,
+        endLine: info.endPosition.row,
+        endCharacter: info.endPosition.column,
+        endOffset: info.endIndex,
         styleGroup: YamlStyleGroup.Flow,
         style: YamlStyle.Plain,
       });
@@ -602,7 +595,6 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
   flow_sequence(cursor: TreeCursor, ctx: TransformContext, siblings: SiblingContext): YamlSequence {
     const info = getCursorInfo(cursor);
-    const position = toPosition(info);
     const tag = toYamlTag(info, siblings.tag);
     const anchor = siblings.anchor ? toYamlAnchor(siblings.anchor) : undefined;
 
@@ -610,7 +602,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
     const sequenceNode = new YamlSequence({
       children: children.flat().filter((c) => c !== null),
-      position,
+      ...toPositionProps(info),
       anchor,
       tag,
       styleGroup: YamlStyleGroup.Flow,
@@ -624,7 +616,6 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
   plain_scalar(cursor: TreeCursor, ctx: TransformContext, siblings: SiblingContext): YamlScalar {
     const info = getCursorInfo(cursor);
-    const position = toPosition(info);
     const tag = toYamlTag(info, siblings.tag);
     const anchor = siblings.anchor ? toYamlAnchor(siblings.anchor) : undefined;
 
@@ -632,7 +623,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       content: info.text,
       anchor,
       tag,
-      position,
+      ...toPositionProps(info),
       styleGroup: YamlStyleGroup.Flow,
       style: YamlStyle.Plain,
     });
@@ -648,7 +639,6 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
     siblings: SiblingContext,
   ): YamlScalar {
     const info = getCursorInfo(cursor);
-    const position = toPosition(info);
     const tag = toYamlTag(info, siblings.tag);
     const anchor = siblings.anchor ? toYamlAnchor(siblings.anchor) : undefined;
 
@@ -656,7 +646,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       content: info.text,
       anchor,
       tag,
-      position,
+      ...toPositionProps(info),
       styleGroup: YamlStyleGroup.Flow,
       style: YamlStyle.SingleQuoted,
     });
@@ -672,7 +662,6 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
     siblings: SiblingContext,
   ): YamlScalar {
     const info = getCursorInfo(cursor);
-    const position = toPosition(info);
     const tag = toYamlTag(info, siblings.tag);
     const anchor = siblings.anchor ? toYamlAnchor(siblings.anchor) : undefined;
 
@@ -680,7 +669,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       content: info.text,
       anchor,
       tag,
-      position,
+      ...toPositionProps(info),
       styleGroup: YamlStyleGroup.Flow,
       style: YamlStyle.DoubleQuoted,
     });
@@ -692,7 +681,6 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
   block_scalar(cursor: TreeCursor, ctx: TransformContext, siblings: SiblingContext): YamlScalar {
     const info = getCursorInfo(cursor);
-    const position = toPosition(info);
     const tag = toYamlTag(info, siblings.tag);
     const anchor = siblings.anchor ? toYamlAnchor(siblings.anchor) : undefined;
     const style = info.text.startsWith('|')
@@ -705,7 +693,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       content: info.text,
       anchor,
       tag,
-      position,
+      ...toPositionProps(info),
       styleGroup: YamlStyleGroup.Block,
       style,
     });
@@ -728,13 +716,12 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
   ERROR(cursor: TreeCursor, ctx: TransformContext): Error | ParseResult {
     const info = getCursorInfo(cursor);
-    const position = toPosition(info);
 
     const children = processChildren(cursor, ctx, transformerMap);
 
     const errorNode = new Error({
       children: children.filter((c) => c !== null),
-      position,
+      ...toPositionProps(info),
       isUnexpected: !info.hasError,
       isMissing: info.isMissing,
       value: info.text,

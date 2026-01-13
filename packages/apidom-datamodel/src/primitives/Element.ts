@@ -34,6 +34,60 @@ export type ElementContent =
  * @public
  */
 class Element implements ToValue, Equatable, Freezable {
+  // ============================================================
+  // Public Properties
+  // ============================================================
+
+  /**
+   * Parent element reference (set when tree is frozen).
+   */
+  public parent?: Element;
+
+  // ============================================================================
+  // Source Position (LSP-compatible, TextDocument-compatible, UTF-16 code units)
+  // web-tree-sitter automatically provides position data in UTF-16 code units.
+  // ============================================================================
+
+  /**
+   * Starting line number (0-based).
+   * Compatible with LSP Position.line.
+   */
+  public startLine?: number;
+
+  /**
+   * Starting character offset within the line (0-based, UTF-16 code units).
+   * Compatible with LSP Position.character.
+   */
+  public startCharacter?: number;
+
+  /**
+   * Starting offset from beginning of document (UTF-16 code units).
+   * Can be used directly as JavaScript string index.
+   */
+  public startOffset?: number;
+
+  /**
+   * Ending line number (0-based).
+   * Compatible with LSP Position.line.
+   */
+  public endLine?: number;
+
+  /**
+   * Ending character offset within the line (0-based, UTF-16 code units).
+   * Compatible with LSP Position.character.
+   */
+  public endCharacter?: number;
+
+  /**
+   * Ending offset from beginning of document (UTF-16 code units).
+   * Can be used directly as JavaScript string index.
+   */
+  public endOffset?: number;
+
+  // ============================================================
+  // Protected Properties
+  // ============================================================
+
   /**
    * The element type identifier.
    * @internal
@@ -57,11 +111,6 @@ class Element implements ToValue, Equatable, Freezable {
    * @internal
    */
   protected _attributes?: Element;
-
-  /**
-   * Parent element reference (set when tree is frozen).
-   */
-  public parent?: Element;
 
   // ============================================================
   // Prototype-assigned properties (set in elements.ts)

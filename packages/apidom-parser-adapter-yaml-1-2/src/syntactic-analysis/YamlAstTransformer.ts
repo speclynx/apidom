@@ -2,13 +2,13 @@ import {
   ParseResultElement,
   AnnotationElement,
   CommentElement,
-  SourceMapElement,
   Element,
   MemberElement,
   ObjectElement,
   ArrayElement,
   isPrimitiveElement,
   Namespace,
+  SourceMapElement,
 } from '@speclynx/apidom-datamodel';
 
 import type Error from './ast/Error.ts';
@@ -31,10 +31,15 @@ interface TransformContext {
   processedDocumentCount: number;
 }
 
-// Node with type property
+// Node with type property and flat position properties
 interface TypedNode {
   type: string;
-  position?: unknown;
+  startLine?: number;
+  startCharacter?: number;
+  startOffset?: number;
+  endLine?: number;
+  endCharacter?: number;
+  endOffset?: number;
   children?: unknown[];
 }
 
@@ -43,12 +48,8 @@ const maybeAddSourceMap = (node: TypedNode, element: Element, ctx: TransformCont
   if (!ctx.sourceMap) {
     return;
   }
-  const sourceMap = new SourceMapElement();
-  // @ts-ignore
-  sourceMap.position = node.position;
-  // @ts-ignore
-  sourceMap.astNode = node;
-  element.meta.set('sourceMap', sourceMap);
+
+  SourceMapElement.transfer(node, element);
 };
 
 // Transform a single node based on its type

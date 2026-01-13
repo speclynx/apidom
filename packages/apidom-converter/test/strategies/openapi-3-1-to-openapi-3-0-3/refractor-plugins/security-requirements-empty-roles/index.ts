@@ -2,8 +2,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mediaTypes as openAPI31MediaTypes } from '@speclynx/apidom-parser-adapter-openapi-json-3-1';
 import { mediaTypes as openAPI30MediaTypes } from '@speclynx/apidom-parser-adapter-openapi-json-3-0';
-import { AnnotationElement, SourceMapElement, includesClasses } from '@speclynx/apidom-datamodel';
-import { toJSON, toValue } from '@speclynx/apidom-core';
+import {
+  AnnotationElement,
+  includesClasses,
+  hasElementSourceMap,
+} from '@speclynx/apidom-datamodel';
+import { toJSON } from '@speclynx/apidom-core';
 import { assert, expect } from 'chai';
 
 import convert from '../../../../../src/index.ts';
@@ -74,20 +78,16 @@ describe('converter', function () {
           const annotation = annotations.find((a) =>
             a.code?.equals('security-requirements-empty-roles'),
           )!;
-          const sourceMap = annotation.meta.get('sourceMap') as SourceMapElement;
-          const { positionStart, positionEnd } = sourceMap;
-          const [startRow, startColumn, startChar] = toValue(positionStart) as number[];
-          const [endRow, endColumn, endChar] = toValue(positionEnd) as number[];
 
-          assert.isDefined(sourceMap);
+          assert.isTrue(hasElementSourceMap(annotation));
 
-          assert.strictEqual(startRow, 15);
-          assert.strictEqual(startColumn, 29);
-          assert.strictEqual(startChar, 299);
+          assert.strictEqual(annotation.startLine, 15);
+          assert.strictEqual(annotation.startCharacter, 29);
+          assert.strictEqual(annotation.startOffset, 299);
 
-          assert.strictEqual(endRow, 18);
-          assert.strictEqual(endColumn, 13);
-          assert.strictEqual(endChar, 358);
+          assert.strictEqual(annotation.endLine, 18);
+          assert.strictEqual(annotation.endCharacter, 13);
+          assert.strictEqual(annotation.endOffset, 358);
         });
       });
     });

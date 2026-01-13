@@ -2,6 +2,7 @@ import type Namespace from '../Namespace.ts';
 import type Element from '../primitives/Element.ts';
 import type KeyValuePair from '../KeyValuePair.ts';
 import type ObjectElement from '../primitives/ObjectElement.ts';
+import SourceMapElement from '../elements/SourceMap.ts';
 
 /**
  * Serialized representation of an Element in JSON Refract format.
@@ -83,6 +84,17 @@ class JSONSerialiser {
       payload.attributes = this.serialiseObject(element.attributes as ObjectElement);
     }
 
+    // Serialize source position as __mappings__ in meta (skip for SourceMapElement itself)
+    if (!(element instanceof SourceMapElement)) {
+      const sourceMap = SourceMapElement.from(element);
+      if (sourceMap) {
+        if (!payload.meta) {
+          payload.meta = {};
+        }
+        payload.meta.__mappings__ = this.serialise(sourceMap);
+      }
+    }
+
     const content = this.serialiseContent(element.content);
 
     if (content !== undefined) {
@@ -107,11 +119,27 @@ class JSONSerialiser {
       element.element = value.element;
     }
 
-    if (value.meta) {
+    // Extract __mappings__ without mutating input, filter remaining meta
+    let mappingsDoc: RefractDocument | undefined;
+    let metaToDeserialize = value.meta;
+
+    if (value.meta?.__mappings__) {
+      const { __mappings__, ...rest } = value.meta;
+      mappingsDoc = __mappings__ as RefractDocument;
+      metaToDeserialize = Object.keys(rest).length > 0 ? rest : undefined;
+    }
+
+    if (metaToDeserialize) {
       this.deserialiseObject(
-        value.meta as Record<string, RefractDocument>,
+        metaToDeserialize as Record<string, RefractDocument>,
         element.meta as ObjectElement,
       );
+    }
+
+    // Restore source position from __mappings__
+    if (mappingsDoc) {
+      const sourceMap = this.deserialise(mappingsDoc) as SourceMapElement;
+      sourceMap.applyTo(element);
     }
 
     if (value.attributes) {

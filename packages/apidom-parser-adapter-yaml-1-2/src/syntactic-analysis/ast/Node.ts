@@ -1,11 +1,14 @@
-import Position from './Position.ts';
-
 /**
  * @public
  */
 export interface NodeOptions {
   readonly children?: unknown[];
-  readonly position?: Position;
+  readonly startLine?: number;
+  readonly startCharacter?: number;
+  readonly startOffset?: number;
+  readonly endLine?: number;
+  readonly endCharacter?: number;
+  readonly endOffset?: number;
   readonly isMissing?: boolean;
 }
 
@@ -21,13 +24,37 @@ class Node {
 
   public children: unknown[];
 
-  public position?: Position;
+  public startLine?: number;
 
-  constructor({ children = [], position, isMissing = false }: NodeOptions = {}) {
+  public startCharacter?: number;
+
+  public startOffset?: number;
+
+  public endLine?: number;
+
+  public endCharacter?: number;
+
+  public endOffset?: number;
+
+  constructor({
+    children = [],
+    startLine,
+    startCharacter,
+    startOffset,
+    endLine,
+    endCharacter,
+    endOffset,
+    isMissing = false,
+  }: NodeOptions = {}) {
     this.type = (this.constructor as typeof Node).type;
     this.isMissing = isMissing;
     this.children = children;
-    this.position = position;
+    this.startLine = startLine;
+    this.startCharacter = startCharacter;
+    this.startOffset = startOffset;
+    this.endLine = endLine;
+    this.endCharacter = endCharacter;
+    this.endOffset = endOffset;
   }
 
   // creates shallow clone of node

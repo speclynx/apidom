@@ -1,6 +1,5 @@
 import { assert } from 'chai';
-import { includesClasses, SourceMapElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
+import { includesClasses, hasElementSourceMap } from '@speclynx/apidom-datamodel';
 
 import * as adapter from '../../../../../src/adapter.ts';
 
@@ -20,18 +19,16 @@ describe('given empty node as block mapping value', function () {
 
   it('should generate source maps', async function () {
     const emptyElement = await setupEmptyElement();
-    const sourceMapElement = emptyElement.meta.get('sourceMap');
 
-    assert.instanceOf(sourceMapElement, SourceMapElement);
+    assert.isTrue(hasElementSourceMap(emptyElement));
   });
 
   it('should generate proper source map start position', async function () {
     const emptyElement = await setupEmptyElement();
-    const sourceMapElement = emptyElement.meta.get('sourceMap');
     const [row, column, char] = [
-      toValue(sourceMapElement.positionStart.get(0)),
-      toValue(sourceMapElement.positionStart.get(1)),
-      toValue(sourceMapElement.positionStart.get(2)),
+      emptyElement.startLine,
+      emptyElement.startCharacter,
+      emptyElement.startOffset,
     ];
 
     assert.strictEqual(row, 0);
@@ -41,11 +38,10 @@ describe('given empty node as block mapping value', function () {
 
   it('should generate proper source map end position', async function () {
     const emptyElement = await setupEmptyElement();
-    const sourceMapElement = emptyElement.meta.get('sourceMap');
     const [row, column, char] = [
-      toValue(sourceMapElement.positionEnd.get(0)),
-      toValue(sourceMapElement.positionEnd.get(1)),
-      toValue(sourceMapElement.positionEnd.get(2)),
+      emptyElement.endLine,
+      emptyElement.endCharacter,
+      emptyElement.endOffset,
     ];
 
     assert.strictEqual(row, 0);

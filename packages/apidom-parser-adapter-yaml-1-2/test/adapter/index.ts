@@ -150,9 +150,13 @@ describe('adapter', function () {
           explicitTagName: '!!unknowntag',
           tagKind: 'Scalar',
           nodeCanonicalContent: undefined,
+          tagStartLine: 0,
+          tagStartCharacter: 6,
+          tagStartOffset: 6,
+          tagEndLine: 0,
+          tagEndCharacter: 18,
+          tagEndOffset: 18,
         });
-        assert.include(error.tagPosition?.start, { type: 'point', row: 0, column: 6, char: 6 });
-        assert.include(error.tagPosition?.end, { type: 'point', row: 0, column: 18, char: 18 });
       }
     });
   });
@@ -172,9 +176,13 @@ describe('adapter', function () {
           explicitTagName: '!!int',
           tagKind: 'Scalar',
           nodeCanonicalContent: 'value',
+          tagStartLine: 0,
+          tagStartCharacter: 6,
+          tagStartOffset: 6,
+          tagEndLine: 0,
+          tagEndCharacter: 11,
+          tagEndOffset: 11,
         });
-        assert.include(error.tagPosition?.start, { type: 'point', row: 0, column: 6, char: 6 });
-        assert.include(error.tagPosition?.end, { type: 'point', row: 0, column: 11, char: 11 });
       }
     });
   });

@@ -96,8 +96,8 @@ export type DeepMergeOptions = DeepMergeUserOptions & {
 };
 
 export const emptyElement = (element: ObjectElement | ArrayElement) => {
-  const meta = element.meta.length > 0 ? cloneDeep(element.meta) : undefined;
-  const attributes = element.attributes.length > 0 ? cloneDeep(element.attributes) : undefined;
+  const meta = !element.isMetaEmpty ? cloneDeep(element.meta) : undefined;
+  const attributes = !element.isAttributesEmpty ? cloneDeep(element.attributes) : undefined;
 
   // @ts-ignore
   return new element.constructor(undefined, meta, attributes);

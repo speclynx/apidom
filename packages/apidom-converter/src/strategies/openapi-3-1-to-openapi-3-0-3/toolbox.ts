@@ -3,18 +3,12 @@ import {
   Meta,
   Attributes,
   AnnotationElement,
-  hasElementSourceMap,
+  SourceMapElement,
 } from '@speclynx/apidom-datamodel';
 import { createToolbox as createToolboxOpenAPI31 } from '@speclynx/apidom-ns-openapi-3-1';
 
 const createToolbox = () => {
   const openAPI31Toolbox = createToolboxOpenAPI31();
-
-  const copySourceMap = <T extends Element, U extends Element>(from: T, to: U): void => {
-    if (hasElementSourceMap(from)) {
-      to.meta.set('sourceMap', from.meta.get('sourceMap'));
-    }
-  };
 
   const createAnnotation = (content?: string, meta?: Meta, attributes?: Attributes) => {
     return new AnnotationElement(content, meta, attributes);
@@ -26,13 +20,13 @@ const createToolbox = () => {
     attributes?: Attributes,
   ) => {
     const annotation = createAnnotation(content, meta, attributes);
-    copySourceMap(element, annotation);
+    SourceMapElement.transfer(element, annotation);
     return annotation;
   };
 
   return {
     ...openAPI31Toolbox,
-    copySourceMap,
+    copySourceMap: SourceMapElement.transfer,
     createAnnotation,
   };
 };

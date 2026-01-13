@@ -4,7 +4,7 @@ import { assert } from 'chai';
 import {
   NumberElement,
   isParseResultElement,
-  isSourceMapElement,
+  hasElementSourceMap,
 } from '@speclynx/apidom-datamodel';
 import { mediaTypes } from '@speclynx/apidom-parser-adapter-asyncapi-yaml-2';
 import { fileURLToPath } from 'node:url';
@@ -201,7 +201,7 @@ describe('parsers', function () {
             const parser = new AsyncAPIYAML2Parser({ sourceMap: true });
             const parseResult = await parser.parse(file);
 
-            assert.isTrue(isSourceMapElement(parseResult.api?.meta.get('sourceMap')));
+            assert.isTrue(hasElementSourceMap(parseResult.api!));
           });
         });
 
@@ -217,7 +217,7 @@ describe('parsers', function () {
             const parser = new AsyncAPIYAML2Parser({ sourceMap: false });
             const parseResult = await parser.parse(file);
 
-            assert.isUndefined(parseResult.api?.meta.get('sourceMap'));
+            assert.isFalse(hasElementSourceMap(parseResult.api!));
           });
         });
       });

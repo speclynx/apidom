@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import dedent from 'dedent';
-import { isParseResultElement, SourceMapElement } from '@speclynx/apidom-datamodel';
+import { isParseResultElement, hasElementSourceMap } from '@speclynx/apidom-datamodel';
 import { sexprs } from '@speclynx/apidom-core';
 import { isJSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2020-12';
 
@@ -79,7 +79,7 @@ describe('adapter', function () {
       // @ts-ignore
       const subMappingValue = result.get('mapping').get('sub-mapping');
 
-      assert.instanceOf(subMappingValue.meta.get('sourceMap'), SourceMapElement);
+      assert.isTrue(hasElementSourceMap(subMappingValue));
     });
   });
 

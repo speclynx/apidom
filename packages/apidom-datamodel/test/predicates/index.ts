@@ -453,29 +453,35 @@ describe('predicates', function () {
   });
 
   context('hasElementSourceMap', function () {
-    context('given element has sourcemap', function () {
+    context('given element has all source position properties', function () {
       specify('should return true', function () {
         const element = new ObjectElement({ prop: 'val' });
-        const sourceMap = new SourceMapElement();
-        element.meta.set('sourceMap', sourceMap);
+        element.startLine = 0;
+        element.startCharacter = 0;
+        element.startOffset = 0;
+        element.endLine = 1;
+        element.endCharacter = 10;
+        element.endOffset = 20;
 
         assert.isTrue(hasElementSourceMap(element));
       });
+    });
 
-      context('and sourcemap is not SourceMapElement', function () {
-        specify('should return false', function () {
-          const element = new ObjectElement({ prop: 'val' });
-          element.meta.set('sourceMap', null);
+    context('given element has partial source position properties', function () {
+      specify('should return false', function () {
+        const element = new ObjectElement({ prop: 'val' });
+        element.startLine = 0;
+        element.startCharacter = 0;
+        // missing other properties
 
-          assert.isFalse(hasElementSourceMap(element));
-        });
+        assert.isFalse(hasElementSourceMap(element));
       });
     });
 
-    context("given element hasn't sourcemap", function () {
-      const element = new ObjectElement({ prop: 'val' });
-
+    context('given element has no source position properties', function () {
       specify('should return false', function () {
+        const element = new ObjectElement({ prop: 'val' });
+
         assert.isFalse(hasElementSourceMap(element));
       });
     });

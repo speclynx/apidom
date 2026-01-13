@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import dedent from 'dedent';
 import { sexprs } from '@speclynx/apidom-core';
-import { SourceMapElement } from '@speclynx/apidom-datamodel';
+import { hasElementSourceMap } from '@speclynx/apidom-datamodel';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
 import {
@@ -36,13 +36,13 @@ describe('given Workflows definition with empty values', function () {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as ArazzoSpecification1Element;
     const { info: infoValue } = workflowsSpecificationElement;
-    const sourceMap = infoValue?.meta.get('sourceMap') as SourceMapElement | undefined;
-    const positionStart = sourceMap?.positionStart;
-    const positionEnd = sourceMap?.positionEnd;
-    const expectedPosition = [1, 5, 19];
 
-    expect(infoValue?.meta.get('sourceMap')).to.be.an.instanceof(SourceMapElement);
-    expect(positionStart?.equals(expectedPosition)).to.be.true;
-    expect(positionEnd?.equals(expectedPosition)).to.be.true;
+    expect(hasElementSourceMap(infoValue!)).to.be.true;
+    expect(infoValue!.startLine).to.equal(1);
+    expect(infoValue!.startCharacter).to.equal(5);
+    expect(infoValue!.startOffset).to.equal(19);
+    expect(infoValue!.endLine).to.equal(1);
+    expect(infoValue!.endCharacter).to.equal(5);
+    expect(infoValue!.endOffset).to.equal(19);
   });
 });

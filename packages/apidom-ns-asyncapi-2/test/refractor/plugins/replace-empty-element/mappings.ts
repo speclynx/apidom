@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import dedent from 'dedent';
-import { includesClasses, SourceMapElement } from '@speclynx/apidom-datamodel';
+import { includesClasses, hasElementSourceMap } from '@speclynx/apidom-datamodel';
 import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
@@ -181,11 +181,13 @@ describe('given AsyncAPI definition with empty values', function () {
       plugins: [refractorPluginReplaceEmptyElement()],
     }) as AsyncApi2Element;
     const { info: infoValue } = asyncApiElement;
-    const sourceMap = infoValue?.meta.get('sourceMap') as SourceMapElement | undefined;
-    const expectedPosition = [1, 5, 21];
 
-    expect(infoValue?.meta.get('sourceMap')).to.be.an.instanceof(SourceMapElement);
-    expect(sourceMap?.positionStart?.equals(expectedPosition)).to.be.true;
-    expect(sourceMap?.positionEnd?.equals(expectedPosition)).to.be.true;
+    expect(hasElementSourceMap(infoValue!)).to.be.true;
+    expect(infoValue!.startLine).to.equal(1);
+    expect(infoValue!.startCharacter).to.equal(5);
+    expect(infoValue!.startOffset).to.equal(21);
+    expect(infoValue!.endLine).to.equal(1);
+    expect(infoValue!.endCharacter).to.equal(5);
+    expect(infoValue!.endOffset).to.equal(21);
   });
 });
