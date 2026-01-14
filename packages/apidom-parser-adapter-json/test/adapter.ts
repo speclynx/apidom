@@ -87,4 +87,46 @@ describe('adapter', function () {
       }
     });
   });
+
+  context('strict mode', function () {
+    context('detect', function () {
+      specify('should detect valid JSON', async function () {
+        assert.isTrue(await adapter.detect('{"key": "value"}', { strict: true }));
+      });
+
+      specify('should not detect invalid JSON', async function () {
+        assert.isFalse(await adapter.detect('{key: value}', { strict: true }));
+      });
+    });
+
+    context('parse', function () {
+      specify('should parse valid JSON', async function () {
+        const parseResult = await adapter.parse(spec, { strict: true });
+
+        assert.isTrue(isParseResultElement(parseResult));
+        assert.isTrue(isObjectElement(parseResult.result));
+      });
+
+      specify('should throw on invalid JSON', async function () {
+        const invalidJson = '{key: value}';
+
+        try {
+          await adapter.parse(invalidJson, { strict: true });
+          assert.fail('Should have thrown an error');
+        } catch (error) {
+          assert.instanceOf(error, SyntaxError);
+        }
+      });
+
+      specify('should throw when strict and sourceMap are both true', async function () {
+        try {
+          await adapter.parse(spec, { strict: true, sourceMap: true });
+          assert.fail('Should have thrown an error');
+        } catch (error) {
+          assert.instanceOf(error, Error);
+          assert.include((error as Error).message, 'Cannot use sourceMap with strict parsing');
+        }
+      });
+    });
+  });
 });

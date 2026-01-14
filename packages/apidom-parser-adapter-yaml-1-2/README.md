@@ -44,9 +44,14 @@ Defines list of media types that this parser adapter recognizes.
 
 ### detect
 
-[Detection](https://github.com/speclynx/apidom/blob/main/packages/apidom-parser-adapter-yaml-1-2/src/adapter.ts#L3) of this parser adapter
-always returns `false`. The reason is that it's almost impossible to detect if a source string is YAML without actually parsing it.
-Don't rely on this function, rather use `mediaType` instead and please read [Word on detect vs mediaTypes](https://github.com/speclynx/apidom/tree/main/packages/apidom-parser#word-on-detect-vs-mediatypes).
+Detection indicates whether the provided source string is valid YAML.
+
+Option | Type | Default | Description
+--- | --- | --- | ---
+<a name="detect-strict"></a>`strict` | `Boolean` | `false` | Use strict detection mode ([yaml](https://www.npmjs.com/package/yaml) library).
+
+In default mode, detection uses tree-sitter for parsing with error recovery.
+In strict mode, detection uses the [yaml](https://www.npmjs.com/package/yaml) library which is faster.
 
 ### namespace
 
@@ -59,8 +64,24 @@ This adapter exposes an instance of [base ApiDOM namespace](https://github.com/s
 Option | Type | Default | Description
 --- | --- | --- | ---
 <a name="sourceMap"></a>`sourceMap` | `Boolean` | `false` | Indicate whether to generate source maps.
+<a name="strict"></a>`strict` | `Boolean` | `false` | Use strict parsing mode ([yaml](https://www.npmjs.com/package/yaml) library). When `true`, parsing is faster but doesn't support source maps.
 
 All unrecognized arbitrary options will be ignored.
+
+#### Parsing modes
+
+This adapter supports two parsing modes:
+
+**Tree-sitter mode** (default, `strict: false`):
+- Uses [web-tree-sitter](https://www.npmjs.com/package/web-tree-sitter) for parsing
+- Provides error recovery for malformed YAML
+- Supports source map generation
+- Full YAML 1.2 spec compliance with custom AST
+
+**Strict mode** (`strict: true`):
+- Uses [yaml](https://www.npmjs.com/package/yaml) library for parsing
+- Faster performance
+- Does not support source maps (throws error if both `strict` and `sourceMap` are `true`)
 
 ## Usage
 
@@ -74,12 +95,18 @@ with [supported media types](#mediatypes).
 ```js
 import { parse, detect } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
-// always detecting false in this parser adapter
-await detect('prop: value'); // => false
-await detect('test'); // => false
+// detecting (tree-sitter mode - default)
+await detect('prop: value'); // => true
+await detect('{invalid:'); // => false
 
-// parsing
+// detecting (strict mode)
+await detect('prop: value', { strict: true }); // => true
+
+// parsing (tree-sitter mode - default, with source maps)
 const parseResult = await parse('prop: value', { sourceMap: true });
+
+// parsing (strict mode - faster, no source maps)
+const parseResultStrict = await parse('prop: value', { strict: true });
 ```
 
 ### Indirect usage

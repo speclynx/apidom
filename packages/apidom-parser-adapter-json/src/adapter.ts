@@ -1,13 +1,13 @@
 import { ParseResultElement, Namespace } from '@speclynx/apidom-datamodel';
-import type { Tree } from 'web-tree-sitter';
+import { ApiDOMError } from '@speclynx/apidom-error';
 
-import lexicalAnalysis from './lexical-analysis/index.ts';
-import syntacticAnalysis from './syntactic-analysis/index.ts';
+import * as native from './native/index.ts';
+import * as treeSitter from './tree-sitter/index.ts';
 
 export type { JSONMediaTypes } from './media-types.ts';
-export type { Tree };
+export type { Tree } from './tree-sitter/index.ts';
 
-export { lexicalAnalysis, syntacticAnalysis };
+export { lexicalAnalysis, syntacticAnalysis } from './tree-sitter/index.ts';
 
 /**
  * @public
@@ -22,27 +22,26 @@ export const namespace = new Namespace();
 /**
  * @public
  */
-export const detectionRegExp =
-  // eslint-disable-next-line no-control-regex
-  /(?<true>^\s*true\s*$)|(?<false>^\s*false\s*$)|(?<null>^\s*null\s*$)|(?<number>^\s*\d+\s*$)|(?<object>^\s*{\s*)|(?<array>^\s*\[\s*)|(?<string>^\s*"(((?=\\)\\(["\\/bfnrt]|u[0-9a-fA-F]{4}))|[^"\\\x00-\x1F\x7F])*"\s*$)/;
+export const detectionRegExp = treeSitter.detectionRegExp;
 
 /**
  * @public
  */
-export const detect = async (source: string): Promise<boolean> => {
-  if (!detectionRegExp.test(source)) {
-    return false;
-  }
+export interface DetectOptions {
+  strict?: boolean;
+}
 
-  let cst: Tree | null = null;
-  try {
-    cst = await lexicalAnalysis(source);
-    return cst.rootNode.type !== 'ERROR';
-  } catch {
-    return false;
-  } finally {
-    cst?.delete();
+/**
+ * @public
+ */
+export const detect = async (
+  source: string,
+  { strict = false }: DetectOptions = {},
+): Promise<boolean> => {
+  if (strict) {
+    return native.detect(source);
   }
+  return treeSitter.detect(source);
 };
 
 /**
@@ -50,6 +49,7 @@ export const detect = async (source: string): Promise<boolean> => {
  */
 export interface ParseFunctionOptions {
   sourceMap?: boolean;
+  strict?: boolean;
 }
 
 /**
@@ -63,11 +63,16 @@ export type ParseFunction = (
 /**
  * @public
  */
-export const parse: ParseFunction = async (source, { sourceMap = false } = {}) => {
-  const cst = await lexicalAnalysis(source);
-  try {
-    return syntacticAnalysis(cst, { sourceMap });
-  } finally {
-    cst.delete();
+export const parse: ParseFunction = async (source, { sourceMap = false, strict = false } = {}) => {
+  if (strict && sourceMap) {
+    throw new ApiDOMError(
+      'Cannot use sourceMap with strict parsing. Strict parsing does not support source maps.',
+    );
   }
+
+  if (strict) {
+    return native.parse(source);
+  }
+
+  return treeSitter.parse(source, { sourceMap });
 };

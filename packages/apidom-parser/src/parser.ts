@@ -14,6 +14,7 @@ export { ParserError };
 export interface ApiDOMParserOptions {
   readonly mediaType?: string;
   readonly sourceMap?: boolean;
+  readonly strict?: boolean;
   [key: string]: unknown;
 }
 

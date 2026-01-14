@@ -1,5 +1,6 @@
 import { Tree, Parser, Language } from 'web-tree-sitter';
 import treeSitter from 'web-tree-sitter/tree-sitter.wasm';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import treeSitterJson from 'tree-sitter-json/tree-sitter-json.wasm';
 import { ApiDOMError } from '@speclynx/apidom-error';
 

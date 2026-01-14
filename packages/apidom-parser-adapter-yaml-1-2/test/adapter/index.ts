@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import { isObjectElement, isParseResultElement, isStringElement } from '@speclynx/apidom-datamodel';
 
-import YamlTagError from '../../src/syntactic-analysis/ast/errors/YamlTagError.ts';
+import YamlTagError from '../../src/tree-sitter/syntactic-analysis/ast/errors/YamlTagError.ts';
 import { toValue, sexprs } from '@speclynx/apidom-core';
 
 import * as adapter from '../../src/adapter.ts';
@@ -207,6 +207,60 @@ describe('adapter', function () {
       const result = await adapter.parse('" "');
       const expected = toValue(result) as string[];
       assert.strictEqual(expected[0], ' ');
+    });
+  });
+
+  context('strict mode', function () {
+    context('detect', function () {
+      specify('should detect valid YAML', async function () {
+        assert.isTrue(await adapter.detect('key: value', { strict: true }));
+      });
+
+      specify('should detect valid YAML object', async function () {
+        assert.isTrue(await adapter.detect(spec, { strict: true }));
+      });
+
+      specify('should not detect invalid YAML', async function () {
+        assert.isFalse(await adapter.detect('key: value: invalid', { strict: true }));
+      });
+    });
+
+    context('parse', function () {
+      specify('should parse valid YAML', async function () {
+        const parseResult = await adapter.parse(spec, { strict: true });
+
+        assert.isTrue(isParseResultElement(parseResult));
+        assert.isTrue(isObjectElement(parseResult.result));
+      });
+
+      specify('should parse simple key-value', async function () {
+        const parseResult = await adapter.parse('key: value', { strict: true });
+
+        assert.isTrue(isParseResultElement(parseResult));
+        assert.isTrue(isObjectElement(parseResult.result));
+        assert.deepEqual(toValue(parseResult.result), { key: 'value' });
+      });
+
+      specify('should throw on invalid YAML', async function () {
+        const invalidYaml = 'key: value: invalid';
+
+        try {
+          await adapter.parse(invalidYaml, { strict: true });
+          assert.fail('Should have thrown an error');
+        } catch (error) {
+          assert.instanceOf(error, Error);
+        }
+      });
+
+      specify('should throw when strict and sourceMap are both true', async function () {
+        try {
+          await adapter.parse(spec, { strict: true, sourceMap: true });
+          assert.fail('Should have thrown an error');
+        } catch (error) {
+          assert.instanceOf(error, Error);
+          assert.include((error as Error).message, 'Cannot use sourceMap with strict parsing');
+        }
+      });
     });
   });
 });
