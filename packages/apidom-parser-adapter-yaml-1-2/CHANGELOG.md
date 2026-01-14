@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0](https://github.com/speclynx/apidom/compare/v1.12.2...v2.0.0) (2026-01-14)
+
+### Bug Fixes
+
+- limit source maps memory consuption ([#20](https://github.com/speclynx/apidom/issues/20)) ([4a0574f](https://github.com/speclynx/apidom/commit/4a0574fd6d466be7c33c8a5871baacd384918d22))
+
+### Features
+
+- add support for strict mode in JSON/YAML parser adapters ([#22](https://github.com/speclynx/apidom/issues/22)) ([a9c5f11](https://github.com/speclynx/apidom/commit/a9c5f11e8748135e7ba578b61d2f1807e11d34aa))
+- apply innovations learned during last 3 years ([#11](https://github.com/speclynx/apidom/issues/11)) ([cfdbbfc](https://github.com/speclynx/apidom/commit/cfdbbfc2721b0dadc77eeba31dd4e8768c078d22))
+
+### BREAKING CHANGES
+
+- source maps have been completely rewritten
+- breaking changes introduced to every package public API
+
 ## [1.12.2](https://github.com/speclynx/apidom/compare/v1.12.1...v1.12.2) (2025-12-23)
 
 **Note:** Version bump only for package @speclynx/apidom-parser-adapter-yaml-1-2
