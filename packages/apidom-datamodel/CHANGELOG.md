@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1](https://github.com/speclynx/apidom/compare/v2.0.0...v2.0.1) (2026-01-14)
+
+**Note:** Version bump only for package @speclynx/apidom-datamodel
+
 # [2.0.0](https://github.com/speclynx/apidom/compare/v1.12.2...v2.0.0) (2026-01-14)
 
 ### Bug Fixes

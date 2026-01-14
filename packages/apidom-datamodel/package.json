@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-datamodel",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Data model primitives for ApiDOM.",
   "publishConfig": {
     "access": "public",
@@ -39,7 +39,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^7.28.4",
-    "@speclynx/apidom-error": "^2.0.0",
+    "@speclynx/apidom-error": "^2.0.1",
     "ramda": "~0.32.0"
   },
   "files": [

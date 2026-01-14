@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1](https://github.com/speclynx/apidom/compare/v2.0.0...v2.0.1) (2026-01-14)
+
+### Bug Fixes
+
+- **traverse:** fix package publishing ([67e28eb](https://github.com/speclynx/apidom/commit/67e28ebfc6c801fa9b7ef949f22082c47460163c))
+
 # [2.0.0](https://github.com/speclynx/apidom/compare/v1.12.2...v2.0.0) (2026-01-14)
 
 ### Bug Fixes
