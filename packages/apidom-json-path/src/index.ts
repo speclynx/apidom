@@ -7,3 +7,4 @@ export { default as evaluate } from './evaluate.ts';
 export type { Evaluate } from './evaluate.ts';
 export { default as evaluateMulti } from './evaluate-multi.ts';
 export type { EvaluateMulti, JSONPathEvalTuple } from './evaluate-multi.ts';
+export { compile } from './compile.ts';
