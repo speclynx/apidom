@@ -461,6 +461,26 @@ describe('Path', function () {
         assert.strictEqual(childPath.formatPath('jsonpath'), "$['key\\'with\\'quotes']");
       });
 
+      specify('should escape backslashes', function () {
+        const root = new StringElement('root');
+        const rootPath = new Path(root, undefined, null, undefined, false);
+
+        const child = new StringElement('child');
+        const childPath = new Path(child, root, rootPath, 'key\\with\\backslash', false);
+
+        assert.strictEqual(childPath.formatPath('jsonpath'), "$['key\\\\with\\\\backslash']");
+      });
+
+      specify('should escape both backslashes and single quotes', function () {
+        const root = new StringElement('root');
+        const rootPath = new Path(root, undefined, null, undefined, false);
+
+        const child = new StringElement('child');
+        const childPath = new Path(child, root, rootPath, "key\\'with'both", false);
+
+        assert.strictEqual(childPath.formatPath('jsonpath'), "$['key\\\\\\'with\\'both']");
+      });
+
       specify('should handle array indices', function () {
         const root = new StringElement('root');
         const rootPath = new Path(root, undefined, null, undefined, false);

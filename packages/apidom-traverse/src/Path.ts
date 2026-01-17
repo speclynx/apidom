@@ -1,6 +1,6 @@
 import type { Element } from '@speclynx/apidom-datamodel';
 import { compile as compileJSONPointer } from '@speclynx/apidom-json-pointer';
-import { compile as compileJSONPath } from '@speclynx/apidom-json-path';
+import { compile as compileJSONPath } from '@swaggerexpert/jsonpath';
 
 /**
  * Possible return values from a visitor function.
@@ -196,7 +196,7 @@ export class Path<TNode = Element> {
 
     if (pathFormat === 'jsonpath') {
       // RFC 9535 Normalized JSONPath
-      return compileJSONPath(parts);
+      return compileJSONPath(parts as string[]);
     }
 
     // RFC 6901 JSON Pointer
