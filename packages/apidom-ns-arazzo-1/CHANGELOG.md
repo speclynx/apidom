@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/speclynx/apidom/compare/v2.0.1...v2.1.0) (2026-01-17)
+
+**Note:** Version bump only for package @speclynx/apidom-ns-arazzo-1
+
 ## [2.0.1](https://github.com/speclynx/apidom/compare/v2.0.0...v2.0.1) (2026-01-14)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-arazzo-1
