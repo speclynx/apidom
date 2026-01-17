@@ -1,4 +1,6 @@
 import type { Element } from '@speclynx/apidom-datamodel';
+import { compile as compileJSONPointer } from '@speclynx/apidom-json-pointer';
+import { compile as compileJSONPath } from '@swaggerexpert/jsonpath';
 
 /**
  * Possible return values from a visitor function.
@@ -161,6 +163,44 @@ export class Path<TNode = Element> {
       current = current.parentPath;
     }
     return keys;
+  }
+
+  /**
+   * Format path as RFC 6901 JSON Pointer or RFC 9535 Normalized JSONPath.
+   *
+   * @param pathFormat - Output format: "jsonpointer" (default) or "jsonpath"
+   * @returns JSONPointer string like "/paths/~1pets/get/responses/200"
+   *          or Normalized JSONPath like "$['paths']['/pets']['get']['responses']['200']"
+   *
+   * @example
+   * // JSON Pointer examples:
+   * path.formatPath(); // "" (root)
+   * path.formatPath(); // "/info"
+   * path.formatPath(); // "/paths/~1pets/get"
+   * path.formatPath(); // "/paths/~1users~1{id}/parameters/0"
+   *
+   * @example
+   * // JSONPath examples:
+   * path.formatPath('jsonpath'); // "$" (root)
+   * path.formatPath('jsonpath'); // "$['info']"
+   * path.formatPath('jsonpath'); // "$['paths']['/pets']['get']"
+   * path.formatPath('jsonpath'); // "$['paths']['/users/{id}']['parameters'][0]"
+   */
+  formatPath(pathFormat: 'jsonpointer' | 'jsonpath' = 'jsonpointer'): string {
+    const parts = this.getPathKeys();
+
+    // Root node
+    if (parts.length === 0) {
+      return pathFormat === 'jsonpath' ? '$' : '';
+    }
+
+    if (pathFormat === 'jsonpath') {
+      // RFC 9535 Normalized JSONPath
+      return compileJSONPath(parts as string[]);
+    }
+
+    // RFC 6901 JSON Pointer
+    return compileJSONPointer(parts as string[]);
   }
 
   /**
