@@ -167,15 +167,13 @@ export class Path<TNode = Element> {
 
     while (current !== null && current.key !== undefined) {
       const { key, parent, node, inList } = current;
+      const isInternalMemberKey = key === 'key' && isMemberElement(parent);
+      const isInternalContentIndex = typeof key === 'number' && inList && isMemberElement(node);
 
       if (key === 'value' && isMemberElement(parent)) {
         // Accessing MemberElement's value → use the member's key as semantic key
         keys.unshift((parent as MemberElement).key!.toValue() as PropertyKey);
-      } else if (key === 'key' && isMemberElement(parent)) {
-        // Accessing MemberElement's key → skip (internal structure)
-      } else if (typeof key === 'number' && inList && isMemberElement(node)) {
-        // Numeric index to MemberElement → skip (ObjectElement.content index)
-      } else {
+      } else if (!isInternalMemberKey && !isInternalContentIndex) {
         // Pass through: array indices, or already semantic keys (non-ApiDOM paths)
         keys.unshift(key);
       }
