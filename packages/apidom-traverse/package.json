@@ -45,7 +45,7 @@
     "@speclynx/apidom-datamodel": "^2.1.0",
     "@speclynx/apidom-error": "^2.1.0",
     "@speclynx/apidom-json-pointer": "^2.1.0",
-    "@swaggerexpert/jsonpath": "^3.2.5",
+    "@speclynx/apidom-json-path": "^2.1.0",
     "ramda-adjunct": "^6.0.0"
   },
   "files": [

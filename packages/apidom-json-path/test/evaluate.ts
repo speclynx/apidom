@@ -12,35 +12,40 @@ describe('apidom-json-path', function () {
             b: [100, 1, 2],
           },
         });
-        const result = evaluate('$.a.b[?(@ < 10)]', objectElement);
+        const result = evaluate(objectElement, '$.a.b[?(@ < 10)]');
 
         assert.deepEqual(result, [new NumberElement(1), new NumberElement(2)]);
       });
     });
 
-    context('given JSONPath expression as list', function () {
-      specify('should retrieve end point values', function () {
+    context('given wildcard expression', function () {
+      specify('should retrieve all values', function () {
         const objectElement = new ObjectElement({
           a: {
-            b: [100, 1, 2],
+            b: [1, 2, 3],
           },
         });
-        const result = evaluate(['$', 'a', 'b', '?(@ < 10)'], objectElement);
+        const result = evaluate(objectElement, '$.a.b[*]');
 
-        assert.deepEqual(result, [new NumberElement(1), new NumberElement(2)]);
+        assert.deepEqual(result, [
+          new NumberElement(1),
+          new NumberElement(2),
+          new NumberElement(3),
+        ]);
       });
     });
 
     context('given invalid JSONPath expression', function () {
-      specify('should return empty list', function () {
+      specify('should throw error', function () {
         const objectElement = new ObjectElement({
           a: {
             b: [100, 1, 2],
           },
         });
-        const result = evaluate('%~!@U@IU$@', objectElement);
 
-        assert.lengthOf(result, 0);
+        assert.throws(() => {
+          evaluate(objectElement, '%~!@U@IU$@');
+        });
       });
     });
   });

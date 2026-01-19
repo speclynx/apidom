@@ -49,6 +49,10 @@ export {
 
 import ApiDOMEvaluationRealm from './realm.ts';
 
+export { ApiDOMEvaluationRealm };
+
+const realm = new ApiDOMEvaluationRealm();
+
 /**
  * @public
  */
@@ -62,7 +66,7 @@ export const evaluate = <T = unknown>(
   jsonPointer: JSONPointer,
   options: ApiDOMRealmEvaluationOptions = {},
 ): T => {
-  return baseEvaluate(value, jsonPointer, { ...options, realm: new ApiDOMEvaluationRealm() });
+  return baseEvaluate(value, jsonPointer, { ...options, realm });
 };
 
 /**

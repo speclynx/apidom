@@ -241,6 +241,24 @@ describe('Element', function () {
       assert.isTrue(el.equals({ foo: 'bar' }));
       assert.isFalse(el.equals({ foo: 'baz' }));
     });
+
+    specify('compares element to another element', function () {
+      const el1 = new StringElement('hello');
+      const el2 = new StringElement('hello');
+      const el3 = new StringElement('world');
+
+      assert.isTrue(el1.equals(el2));
+      assert.isFalse(el1.equals(el3));
+    });
+
+    specify('compares complex element to another complex element', function () {
+      const el1 = new ObjectElement({ foo: 'bar', nested: { a: 1 } });
+      const el2 = new ObjectElement({ foo: 'bar', nested: { a: 1 } });
+      const el3 = new ObjectElement({ foo: 'bar', nested: { a: 2 } });
+
+      assert.isTrue(el1.equals(el2));
+      assert.isFalse(el1.equals(el3));
+    });
   });
 
   describe('convenience methods', function () {
