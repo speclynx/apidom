@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.2.0](https://github.com/speclynx/apidom/compare/v2.1.0...v2.2.0) (2026-01-19)
+
+### Features
+
+- **json-path:** integrate @swaggerexpert/jsonpath as JSONPath engine ([#25](https://github.com/speclynx/apidom/issues/25)) ([40f9279](https://github.com/speclynx/apidom/commit/40f92793ab9d2ab82ba5a4431f82c186031b661f))
+
 # [2.1.0](https://github.com/speclynx/apidom/compare/v2.0.1...v2.1.0) (2026-01-17)
 
 ### Features
