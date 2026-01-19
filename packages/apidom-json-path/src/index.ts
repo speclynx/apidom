@@ -40,6 +40,8 @@ import ApiDOMEvaluationRealm from './realm.ts';
 
 export { ApiDOMEvaluationRealm };
 
+const realm = new ApiDOMEvaluationRealm();
+
 /**
  * Options for ApiDOM JSONPath evaluation.
  * @public
@@ -83,10 +85,7 @@ export const evaluate = <T = unknown>(
   expression: string,
   options: ApiDOMEvaluateOptions = {},
 ): T[] => {
-  return baseEvaluate(value, expression, {
-    ...options,
-    realm: new ApiDOMEvaluationRealm(),
-  });
+  return baseEvaluate(value, expression, { ...options, realm });
 };
 
 /**

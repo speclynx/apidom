@@ -157,19 +157,15 @@ class ApiDOMEvaluationRealm extends EvaluationRealm {
       }
     }
 
-    // For other types (booleans, nulls), use element-based deep equality
-    const areEqual = refract(left).equals(right);
-
-    switch (operator) {
-      case '==':
-      case '<=':
-      case '>=':
-        return areEqual;
-      case '!=':
-        return !areEqual;
-      default:
-        return false;
+    // For other types (booleans, nulls), only equality operators are defined (RFC 9535)
+    if (operator === '==') {
+      return refract(left).equals(right);
     }
+    if (operator === '!=') {
+      return !refract(left).equals(right);
+    }
+    // Comparison operators (<, >, <=, >=) are not defined for non-numeric, non-string types
+    return false;
   }
 }
 
