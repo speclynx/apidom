@@ -49,6 +49,8 @@ export {
 
 import ApiDOMEvaluationRealm from './realm.ts';
 
+export { ApiDOMEvaluationRealm };
+
 /**
  * @public
  */

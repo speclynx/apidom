@@ -43,7 +43,7 @@
     "@speclynx/apidom-datamodel": "^2.1.0",
     "@speclynx/apidom-error": "^2.1.0",
     "@speclynx/apidom-json-pointer": "^2.1.0",
-    "jsonpath-plus": "^10.3.0"
+    "@swaggerexpert/jsonpath": "^4.0.1"
   },
   "files": [
     "src/**/*.mjs",
