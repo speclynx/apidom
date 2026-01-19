@@ -398,7 +398,8 @@ class Element implements ToValue, Equatable, Freezable {
    * Checks deep equality with another value.
    */
   equals(value: unknown): boolean {
-    return equals(this.toValue(), value);
+    const compareTo: unknown = value instanceof Element ? value.toValue() : value;
+    return equals(this.toValue(), compareTo);
   }
 
   // ============================================================

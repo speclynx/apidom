@@ -9,7 +9,6 @@ import {
   isNullElement,
   refract,
 } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { EvaluationRealm } from '@swaggerexpert/jsonpath';
 
 /**
@@ -44,7 +43,7 @@ class ApiDOMEvaluationRealm extends EvaluationRealm {
   }
 
   override getString(value: unknown): string | undefined {
-    if (isStringElement(value)) return toValue(value) as string;
+    if (isStringElement(value)) return value.toValue() as string;
     if (typeof value === 'string') return value;
     return undefined;
   }
@@ -72,7 +71,7 @@ class ApiDOMEvaluationRealm extends EvaluationRealm {
   }
 
   override getLength(value: unknown): number {
-    if (isStringElement(value)) return [...(toValue(value) as string)].length;
+    if (isStringElement(value)) return [...(value.toValue() as string)].length;
     if (isArrayElement(value)) return value.length;
     if (isObjectElement(value)) return value.length;
     if (typeof value === 'string') return [...value].length;
@@ -89,7 +88,7 @@ class ApiDOMEvaluationRealm extends EvaluationRealm {
       }
     } else if (isObjectElement(value)) {
       for (const member of value) {
-        yield [toValue(member.key) as string, member.value];
+        yield [member.key!.toValue() as string, member.value];
       }
     }
   }
@@ -108,8 +107,8 @@ class ApiDOMEvaluationRealm extends EvaluationRealm {
 
     // For numeric values, use primitive comparison with -0 normalization (RFC 9535)
     if (leftIsNumber && rightIsNumber) {
-      const leftPrimitive = toValue(left) as number;
-      const rightPrimitive = toValue(right) as number;
+      const leftPrimitive = (isNumberElement(left) ? left.toValue() : left) as number;
+      const rightPrimitive = (isNumberElement(right) ? right.toValue() : right) as number;
       const leftVal = Object.is(leftPrimitive, -0) ? 0 : leftPrimitive;
       const rightVal = Object.is(rightPrimitive, -0) ? 0 : rightPrimitive;
 
@@ -137,8 +136,8 @@ class ApiDOMEvaluationRealm extends EvaluationRealm {
 
     // For string values, use primitive comparison
     if (leftIsString && rightIsString) {
-      const leftVal = toValue(left) as string;
-      const rightVal = toValue(right) as string;
+      const leftVal = (isStringElement(left) ? left.toValue() : left) as string;
+      const rightVal = (isStringElement(right) ? right.toValue() : right) as string;
 
       switch (operator) {
         case '==':
@@ -158,18 +157,16 @@ class ApiDOMEvaluationRealm extends EvaluationRealm {
       }
     }
 
-    // For other types, use element-based deep equality
-    const equals = () => refract(toValue(left)).equals(toValue(right));
+    // For other types (booleans, nulls), use element-based deep equality
+    const areEqual = refract(left).equals(right);
 
     switch (operator) {
       case '==':
-        return equals();
-      case '!=':
-        return !equals();
       case '<=':
-        return equals();
       case '>=':
-        return equals();
+        return areEqual;
+      case '!=':
+        return !areEqual;
       default:
         return false;
     }
