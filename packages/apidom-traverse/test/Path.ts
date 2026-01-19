@@ -1,7 +1,7 @@
 import { assert } from 'chai';
-import { StringElement } from '@speclynx/apidom-datamodel';
+import { StringElement, ObjectElement } from '@speclynx/apidom-datamodel';
 
-import { Path } from '../src/index.ts';
+import { Path, traverse } from '../src/index.ts';
 
 describe('Path', function () {
   context('constructor', function () {
@@ -175,6 +175,85 @@ describe('Path', function () {
       const level2Path = new Path(level2, level1, level1Path, 'b', false);
 
       assert.deepEqual(level2Path.getPathKeys(), ['a', 'b']);
+    });
+
+    context('ApiDOM semantic path extraction', function () {
+      specify('should extract semantic paths during traversal', function () {
+        // Create an OpenAPI-like structure
+        const doc = new ObjectElement({
+          openapi: '3.1.0',
+          info: {
+            title: 'Test API',
+            version: '1.0.0',
+          },
+          paths: {
+            '/pets': {
+              get: {
+                summary: 'List pets',
+              },
+            },
+          },
+        });
+
+        const collectedPaths: { keys: PropertyKey[]; pointer: string; jsonpath: string }[] = [];
+
+        traverse(doc, {
+          StringElement(path: Path) {
+            collectedPaths.push({
+              keys: path.getPathKeys(),
+              pointer: path.formatPath('jsonpointer'),
+              jsonpath: path.formatPath('jsonpath'),
+            });
+          },
+        });
+
+        // Check specific paths
+        const openapiPath = collectedPaths.find((p) => p.keys[0] === 'openapi');
+        assert.deepEqual(openapiPath?.keys, ['openapi']);
+        assert.strictEqual(openapiPath?.pointer, '/openapi');
+        assert.strictEqual(openapiPath?.jsonpath, "$['openapi']");
+
+        const titlePath = collectedPaths.find((p) => p.keys.includes('title'));
+        assert.deepEqual(titlePath?.keys, ['info', 'title']);
+        assert.strictEqual(titlePath?.pointer, '/info/title');
+        assert.strictEqual(titlePath?.jsonpath, "$['info']['title']");
+
+        const summaryPath = collectedPaths.find((p) => p.keys.includes('summary'));
+        assert.deepEqual(summaryPath?.keys, ['paths', '/pets', 'get', 'summary']);
+        assert.strictEqual(summaryPath?.pointer, '/paths/~1pets/get/summary');
+        assert.strictEqual(summaryPath?.jsonpath, "$['paths']['/pets']['get']['summary']");
+      });
+
+      specify('should handle array indices in paths', function () {
+        const doc = new ObjectElement({
+          tags: ['pet', 'store', 'user'],
+          parameters: [{ name: 'id' }, { name: 'limit' }],
+        });
+
+        const collectedPaths: { keys: PropertyKey[]; pointer: string }[] = [];
+
+        traverse(doc, {
+          StringElement(path: Path) {
+            collectedPaths.push({
+              keys: path.getPathKeys(),
+              pointer: path.formatPath('jsonpointer'),
+            });
+          },
+        });
+
+        // Check array item paths
+        const petPath = collectedPaths.find((p) => p.pointer === '/tags/0');
+        assert.deepEqual(petPath?.keys, ['tags', 0]);
+
+        const storePath = collectedPaths.find((p) => p.pointer === '/tags/1');
+        assert.deepEqual(storePath?.keys, ['tags', 1]);
+
+        const idPath = collectedPaths.find((p) => p.pointer === '/parameters/0/name');
+        assert.deepEqual(idPath?.keys, ['parameters', 0, 'name']);
+
+        const limitPath = collectedPaths.find((p) => p.pointer === '/parameters/1/name');
+        assert.deepEqual(limitPath?.keys, ['parameters', 1, 'name']);
+      });
     });
   });
 
