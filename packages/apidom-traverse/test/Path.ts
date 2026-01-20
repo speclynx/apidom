@@ -372,5 +372,4 @@ describe('Path', function () {
       assert.isUndefined(path._getReplacementNode());
     });
   });
-
 });
