@@ -1,7 +1,7 @@
 import { assert } from 'chai';
-import { StringElement } from '@speclynx/apidom-datamodel';
+import { StringElement, ObjectElement } from '@speclynx/apidom-datamodel';
 
-import { Path } from '../src/index.ts';
+import { Path, traverse } from '../src/index.ts';
 
 describe('Path', function () {
   context('constructor', function () {
@@ -164,17 +164,151 @@ describe('Path', function () {
       assert.deepEqual(path.getPathKeys(), []);
     });
 
-    specify('should return path keys from root to current', function () {
-      const root = new StringElement('root');
-      const rootPath = new Path(root, undefined, null, undefined, false);
+    context('ApiDOM semantic path extraction', function () {
+      specify('should extract semantic paths during traversal', function () {
+        // Create an OpenAPI-like structure
+        const doc = new ObjectElement({
+          openapi: '3.1.0',
+          info: {
+            title: 'Test API',
+            version: '1.0.0',
+          },
+          paths: {
+            '/pets': {
+              get: {
+                summary: 'List pets',
+              },
+            },
+          },
+        });
 
-      const level1 = new StringElement('level1');
-      const level1Path = new Path(level1, root, rootPath, 'a', false);
+        const collectedPaths: { keys: PropertyKey[]; pointer: string; jsonpath: string }[] = [];
 
-      const level2 = new StringElement('level2');
-      const level2Path = new Path(level2, level1, level1Path, 'b', false);
+        traverse(doc, {
+          StringElement(path: Path) {
+            collectedPaths.push({
+              keys: path.getPathKeys(),
+              pointer: path.formatPath('jsonpointer'),
+              jsonpath: path.formatPath('jsonpath'),
+            });
+          },
+        });
 
-      assert.deepEqual(level2Path.getPathKeys(), ['a', 'b']);
+        // Check specific paths
+        const openapiPath = collectedPaths.find((p) => p.keys[0] === 'openapi');
+        assert.deepEqual(openapiPath?.keys, ['openapi']);
+        assert.strictEqual(openapiPath?.pointer, '/openapi');
+        assert.strictEqual(openapiPath?.jsonpath, "$['openapi']");
+
+        const titlePath = collectedPaths.find((p) => p.keys.includes('title'));
+        assert.deepEqual(titlePath?.keys, ['info', 'title']);
+        assert.strictEqual(titlePath?.pointer, '/info/title');
+        assert.strictEqual(titlePath?.jsonpath, "$['info']['title']");
+
+        const summaryPath = collectedPaths.find((p) => p.keys.includes('summary'));
+        assert.deepEqual(summaryPath?.keys, ['paths', '/pets', 'get', 'summary']);
+        assert.strictEqual(summaryPath?.pointer, '/paths/~1pets/get/summary');
+        assert.strictEqual(summaryPath?.jsonpath, "$['paths']['/pets']['get']['summary']");
+      });
+
+      specify('should handle array indices in paths', function () {
+        const doc = new ObjectElement({
+          tags: ['pet', 'store', 'user'],
+          parameters: [{ name: 'id' }, { name: 'limit' }],
+        });
+
+        const collectedPaths: { keys: PropertyKey[]; pointer: string }[] = [];
+
+        traverse(doc, {
+          StringElement(path: Path) {
+            collectedPaths.push({
+              keys: path.getPathKeys(),
+              pointer: path.formatPath('jsonpointer'),
+            });
+          },
+        });
+
+        // Check array item paths
+        const petPath = collectedPaths.find((p) => p.pointer === '/tags/0');
+        assert.deepEqual(petPath?.keys, ['tags', 0]);
+
+        const storePath = collectedPaths.find((p) => p.pointer === '/tags/1');
+        assert.deepEqual(storePath?.keys, ['tags', 1]);
+
+        const idPath = collectedPaths.find((p) => p.pointer === '/parameters/0/name');
+        assert.deepEqual(idPath?.keys, ['parameters', 0, 'name']);
+
+        const limitPath = collectedPaths.find((p) => p.pointer === '/parameters/1/name');
+        assert.deepEqual(limitPath?.keys, ['parameters', 1, 'name']);
+      });
+
+      specify('should escape special characters in JSON Pointer format', function () {
+        const doc = new ObjectElement({
+          paths: {
+            '/pets': { get: { summary: 'List pets' } },
+            '/users/{id}': { get: { summary: 'Get user' } },
+          },
+          'key~with~tilde': 'tilde value',
+        });
+
+        const collectedPaths: { keys: PropertyKey[]; pointer: string; value: string }[] = [];
+
+        traverse(doc, {
+          StringElement(path: Path) {
+            collectedPaths.push({
+              keys: path.getPathKeys(),
+              pointer: path.formatPath('jsonpointer'),
+              value: path.node.toValue() as string,
+            });
+          },
+        });
+
+        // / should be escaped as ~1
+        const petsPath = collectedPaths.find((p) => p.value === 'List pets');
+        assert.strictEqual(petsPath?.pointer, '/paths/~1pets/get/summary');
+
+        // Multiple / and {} should be escaped
+        const usersPath = collectedPaths.find((p) => p.value === 'Get user');
+        assert.strictEqual(usersPath?.pointer, '/paths/~1users~1{id}/get/summary');
+
+        // ~ should be escaped as ~0
+        const tildePath = collectedPaths.find((p) => p.value === 'tilde value');
+        assert.strictEqual(tildePath?.pointer, '/key~0with~0tilde');
+      });
+
+      specify('should escape special characters in JSONPath format', function () {
+        const doc = new ObjectElement({
+          paths: {
+            '/pets': { get: { summary: 'List pets' } },
+          },
+          "key'with'quotes": 'quotes value',
+          'key\\with\\backslash': 'backslash value',
+        });
+
+        const collectedPaths: { keys: PropertyKey[]; jsonpath: string; value: string }[] = [];
+
+        traverse(doc, {
+          StringElement(path: Path) {
+            collectedPaths.push({
+              keys: path.getPathKeys(),
+              jsonpath: path.formatPath('jsonpath'),
+              value: path.node.toValue() as string,
+            });
+          },
+        });
+
+        // Forward slashes don't need escaping in JSONPath
+        const petsPath = collectedPaths.find((p) => p.value === 'List pets');
+        assert.strictEqual(petsPath?.jsonpath, "$['paths']['/pets']['get']['summary']");
+
+        // Single quotes should be escaped
+        const quotesPath = collectedPaths.find((p) => p.value === 'quotes value');
+        assert.strictEqual(quotesPath?.jsonpath, "$['key\\'with\\'quotes']");
+
+        // Backslashes should be escaped
+        const backslashPath = collectedPaths.find((p) => p.value === 'backslash value');
+        assert.strictEqual(backslashPath?.jsonpath, "$['key\\\\with\\\\backslash']");
+      });
     });
   });
 
@@ -304,217 +438,6 @@ describe('Path', function () {
       assert.isFalse(path.removed);
       assert.isFalse(path._wasReplaced());
       assert.isUndefined(path._getReplacementNode());
-    });
-  });
-
-  context('formatPath()', function () {
-    context('JSON Pointer format (default)', function () {
-      specify('should return empty string for root', function () {
-        const node = new StringElement('root');
-        const path = new Path(node, undefined, null, undefined, false);
-
-        assert.strictEqual(path.formatPath(), '');
-      });
-
-      specify('should format simple path', function () {
-        const root = new StringElement('root');
-        const rootPath = new Path(root, undefined, null, undefined, false);
-
-        const level1 = new StringElement('level1');
-        const level1Path = new Path(level1, root, rootPath, 'info', false);
-
-        assert.strictEqual(level1Path.formatPath(), '/info');
-      });
-
-      specify('should format nested path', function () {
-        const root = new StringElement('root');
-        const rootPath = new Path(root, undefined, null, undefined, false);
-
-        const level1 = new StringElement('level1');
-        const level1Path = new Path(level1, root, rootPath, 'paths', false);
-
-        const level2 = new StringElement('level2');
-        const level2Path = new Path(level2, level1, level1Path, 'get', false);
-
-        const level3 = new StringElement('level3');
-        const level3Path = new Path(level3, level2, level2Path, 'responses', false);
-
-        assert.strictEqual(level3Path.formatPath(), '/paths/get/responses');
-      });
-
-      specify('should escape ~ as ~0', function () {
-        const root = new StringElement('root');
-        const rootPath = new Path(root, undefined, null, undefined, false);
-
-        const child = new StringElement('child');
-        const childPath = new Path(child, root, rootPath, 'key~with~tilde', false);
-
-        assert.strictEqual(childPath.formatPath(), '/key~0with~0tilde');
-      });
-
-      specify('should escape / as ~1', function () {
-        const root = new StringElement('root');
-        const rootPath = new Path(root, undefined, null, undefined, false);
-
-        const level1 = new StringElement('level1');
-        const level1Path = new Path(level1, root, rootPath, 'paths', false);
-
-        const level2 = new StringElement('level2');
-        const level2Path = new Path(level2, level1, level1Path, '/pets', false);
-
-        const level3 = new StringElement('level3');
-        const level3Path = new Path(level3, level2, level2Path, 'get', false);
-
-        assert.strictEqual(level3Path.formatPath(), '/paths/~1pets/get');
-      });
-
-      specify('should handle array indices', function () {
-        const root = new StringElement('root');
-        const rootPath = new Path(root, undefined, null, undefined, false);
-
-        const level1 = new StringElement('level1');
-        const level1Path = new Path(level1, root, rootPath, 'parameters', false);
-
-        const level2 = new StringElement('level2');
-        const level2Path = new Path(level2, level1, level1Path, 0, true);
-
-        assert.strictEqual(level2Path.formatPath(), '/parameters/0');
-      });
-
-      specify('should handle complex path with special chars', function () {
-        const root = new StringElement('root');
-        const rootPath = new Path(root, undefined, null, undefined, false);
-
-        const level1 = new StringElement('level1');
-        const level1Path = new Path(level1, root, rootPath, 'paths', false);
-
-        const level2 = new StringElement('level2');
-        const level2Path = new Path(level2, level1, level1Path, '/users/{id}', false);
-
-        const level3 = new StringElement('level3');
-        const level3Path = new Path(level3, level2, level2Path, 'parameters', false);
-
-        const level4 = new StringElement('level4');
-        const level4Path = new Path(level4, level3, level3Path, 0, true);
-
-        assert.strictEqual(level4Path.formatPath(), '/paths/~1users~1{id}/parameters/0');
-      });
-    });
-
-    context('JSONPath format', function () {
-      specify('should return $ for root', function () {
-        const node = new StringElement('root');
-        const path = new Path(node, undefined, null, undefined, false);
-
-        assert.strictEqual(path.formatPath('jsonpath'), '$');
-      });
-
-      specify('should format simple path', function () {
-        const root = new StringElement('root');
-        const rootPath = new Path(root, undefined, null, undefined, false);
-
-        const level1 = new StringElement('level1');
-        const level1Path = new Path(level1, root, rootPath, 'info', false);
-
-        assert.strictEqual(level1Path.formatPath('jsonpath'), "$['info']");
-      });
-
-      specify('should format nested path', function () {
-        const root = new StringElement('root');
-        const rootPath = new Path(root, undefined, null, undefined, false);
-
-        const level1 = new StringElement('level1');
-        const level1Path = new Path(level1, root, rootPath, 'paths', false);
-
-        const level2 = new StringElement('level2');
-        const level2Path = new Path(level2, level1, level1Path, 'get', false);
-
-        const level3 = new StringElement('level3');
-        const level3Path = new Path(level3, level2, level2Path, 'responses', false);
-
-        assert.strictEqual(level3Path.formatPath('jsonpath'), "$['paths']['get']['responses']");
-      });
-
-      specify('should handle keys with forward slashes', function () {
-        const root = new StringElement('root');
-        const rootPath = new Path(root, undefined, null, undefined, false);
-
-        const level1 = new StringElement('level1');
-        const level1Path = new Path(level1, root, rootPath, 'paths', false);
-
-        const level2 = new StringElement('level2');
-        const level2Path = new Path(level2, level1, level1Path, '/pets', false);
-
-        const level3 = new StringElement('level3');
-        const level3Path = new Path(level3, level2, level2Path, 'get', false);
-
-        assert.strictEqual(level3Path.formatPath('jsonpath'), "$['paths']['/pets']['get']");
-      });
-
-      specify('should escape single quotes', function () {
-        const root = new StringElement('root');
-        const rootPath = new Path(root, undefined, null, undefined, false);
-
-        const child = new StringElement('child');
-        const childPath = new Path(child, root, rootPath, "key'with'quotes", false);
-
-        assert.strictEqual(childPath.formatPath('jsonpath'), "$['key\\'with\\'quotes']");
-      });
-
-      specify('should escape backslashes', function () {
-        const root = new StringElement('root');
-        const rootPath = new Path(root, undefined, null, undefined, false);
-
-        const child = new StringElement('child');
-        const childPath = new Path(child, root, rootPath, 'key\\with\\backslash', false);
-
-        assert.strictEqual(childPath.formatPath('jsonpath'), "$['key\\\\with\\\\backslash']");
-      });
-
-      specify('should escape both backslashes and single quotes', function () {
-        const root = new StringElement('root');
-        const rootPath = new Path(root, undefined, null, undefined, false);
-
-        const child = new StringElement('child');
-        const childPath = new Path(child, root, rootPath, "key\\'with'both", false);
-
-        assert.strictEqual(childPath.formatPath('jsonpath'), "$['key\\\\\\'with\\'both']");
-      });
-
-      specify('should handle array indices', function () {
-        const root = new StringElement('root');
-        const rootPath = new Path(root, undefined, null, undefined, false);
-
-        const level1 = new StringElement('level1');
-        const level1Path = new Path(level1, root, rootPath, 'parameters', false);
-
-        const level2 = new StringElement('level2');
-        const level2Path = new Path(level2, level1, level1Path, 0, true);
-
-        assert.strictEqual(level2Path.formatPath('jsonpath'), "$['parameters'][0]");
-      });
-
-      specify('should handle complex path', function () {
-        const root = new StringElement('root');
-        const rootPath = new Path(root, undefined, null, undefined, false);
-
-        const level1 = new StringElement('level1');
-        const level1Path = new Path(level1, root, rootPath, 'paths', false);
-
-        const level2 = new StringElement('level2');
-        const level2Path = new Path(level2, level1, level1Path, '/users/{id}', false);
-
-        const level3 = new StringElement('level3');
-        const level3Path = new Path(level3, level2, level2Path, 'parameters', false);
-
-        const level4 = new StringElement('level4');
-        const level4Path = new Path(level4, level3, level3Path, 0, true);
-
-        assert.strictEqual(
-          level4Path.formatPath('jsonpath'),
-          "$['paths']['/users/{id}']['parameters'][0]",
-        );
-      });
     });
   });
 });

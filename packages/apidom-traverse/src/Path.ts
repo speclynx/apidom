@@ -1,4 +1,9 @@
-import type { Element } from '@speclynx/apidom-datamodel';
+import {
+  isMemberElement,
+  isArrayElement,
+  isStringElement,
+  type Element,
+} from '@speclynx/apidom-datamodel';
 import { compile as compileJSONPointer } from '@speclynx/apidom-json-pointer';
 import { NormalizedPath } from '@speclynx/apidom-json-path';
 
@@ -152,16 +157,36 @@ export class Path<TNode = Element> {
   }
 
   /**
-   * Get the path from root as an array of keys.
+   * Get the semantic path from root as an array of keys.
+   * Returns logical document keys (property names, array indices) rather than
+   * internal ApiDOM structure keys.
+   *
+   * @example
+   * // For a path to $.paths['/pets'].get in an OpenAPI document:
+   * path.getPathKeys(); // => ['paths', '/pets', 'get']
    */
   getPathKeys(): PropertyKey[] {
     const keys: PropertyKey[] = [];
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let current: Path<TNode> | null = this;
+
     while (current !== null && current.key !== undefined) {
-      keys.unshift(current.key);
+      const { key, parent, parentPath } = current;
+
+      if (isMemberElement(parent) && key === 'value') {
+        // Inside MemberElement.value → push the member's key
+        if (!isStringElement(parent.key)) {
+          throw new TypeError('MemberElement.key must be a StringElement');
+        }
+        keys.unshift(parent.key.toValue() as PropertyKey);
+      } else if (isArrayElement(parentPath?.node) && typeof key === 'number') {
+        // Inside ArrayElement → push the numeric index
+        keys.unshift(key);
+      }
+
       current = current.parentPath;
     }
+
     return keys;
   }
 
