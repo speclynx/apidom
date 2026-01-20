@@ -241,6 +241,74 @@ describe('Path', function () {
         const limitPath = collectedPaths.find((p) => p.pointer === '/parameters/1/name');
         assert.deepEqual(limitPath?.keys, ['parameters', 1, 'name']);
       });
+
+      specify('should escape special characters in JSON Pointer format', function () {
+        const doc = new ObjectElement({
+          paths: {
+            '/pets': { get: { summary: 'List pets' } },
+            '/users/{id}': { get: { summary: 'Get user' } },
+          },
+          'key~with~tilde': 'tilde value',
+        });
+
+        const collectedPaths: { keys: PropertyKey[]; pointer: string; value: string }[] = [];
+
+        traverse(doc, {
+          StringElement(path: Path) {
+            collectedPaths.push({
+              keys: path.getPathKeys(),
+              pointer: path.formatPath('jsonpointer'),
+              value: path.node.toValue() as string,
+            });
+          },
+        });
+
+        // / should be escaped as ~1
+        const petsPath = collectedPaths.find((p) => p.value === 'List pets');
+        assert.strictEqual(petsPath?.pointer, '/paths/~1pets/get/summary');
+
+        // Multiple / and {} should be escaped
+        const usersPath = collectedPaths.find((p) => p.value === 'Get user');
+        assert.strictEqual(usersPath?.pointer, '/paths/~1users~1{id}/get/summary');
+
+        // ~ should be escaped as ~0
+        const tildePath = collectedPaths.find((p) => p.value === 'tilde value');
+        assert.strictEqual(tildePath?.pointer, '/key~0with~0tilde');
+      });
+
+      specify('should escape special characters in JSONPath format', function () {
+        const doc = new ObjectElement({
+          paths: {
+            '/pets': { get: { summary: 'List pets' } },
+          },
+          "key'with'quotes": 'quotes value',
+          'key\\with\\backslash': 'backslash value',
+        });
+
+        const collectedPaths: { keys: PropertyKey[]; jsonpath: string; value: string }[] = [];
+
+        traverse(doc, {
+          StringElement(path: Path) {
+            collectedPaths.push({
+              keys: path.getPathKeys(),
+              jsonpath: path.formatPath('jsonpath'),
+              value: path.node.toValue() as string,
+            });
+          },
+        });
+
+        // Forward slashes don't need escaping in JSONPath
+        const petsPath = collectedPaths.find((p) => p.value === 'List pets');
+        assert.strictEqual(petsPath?.jsonpath, "$['paths']['/pets']['get']['summary']");
+
+        // Single quotes should be escaped
+        const quotesPath = collectedPaths.find((p) => p.value === 'quotes value');
+        assert.strictEqual(quotesPath?.jsonpath, "$['key\\'with\\'quotes']");
+
+        // Backslashes should be escaped
+        const backslashPath = collectedPaths.find((p) => p.value === 'backslash value');
+        assert.strictEqual(backslashPath?.jsonpath, "$['key\\\\with\\\\backslash']");
+      });
     });
   });
 
