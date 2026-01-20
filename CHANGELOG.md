@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.1](https://github.com/speclynx/apidom/compare/v2.2.0...v2.2.1) (2026-01-20)
+
+### Bug Fixes
+
+- **traverse:** fix Path.getPathKeys() method ([#26](https://github.com/speclynx/apidom/issues/26)) ([f55014f](https://github.com/speclynx/apidom/commit/f55014fc58e436cfd2b02b371dca4b04b14032be))
+
 # [2.2.0](https://github.com/speclynx/apidom/compare/v2.1.0...v2.2.0) (2026-01-19)
 
 ### Features
