@@ -1,4 +1,9 @@
-import { isMemberElement, type Element, type MemberElement } from '@speclynx/apidom-datamodel';
+import {
+  isMemberElement,
+  isArrayElement,
+  isStringElement,
+  type Element,
+} from '@speclynx/apidom-datamodel';
 import { compile as compileJSONPointer } from '@speclynx/apidom-json-pointer';
 import { NormalizedPath } from '@speclynx/apidom-json-path';
 
@@ -166,15 +171,16 @@ export class Path<TNode = Element> {
     let current: Path<TNode> | null = this;
 
     while (current !== null && current.key !== undefined) {
-      const { key, parent, node, inList } = current;
-      const isInternalMemberKey = key === 'key' && isMemberElement(parent);
-      const isInternalContentIndex = typeof key === 'number' && inList && isMemberElement(node);
+      const { key, parent, parentPath } = current;
 
-      if (key === 'value' && isMemberElement(parent)) {
-        // Accessing MemberElement's value → use the member's key as semantic key
-        keys.unshift((parent as MemberElement).key!.toValue() as PropertyKey);
-      } else if (!isInternalMemberKey && !isInternalContentIndex) {
-        // Pass through: array indices, or already semantic keys (non-ApiDOM paths)
+      if (isMemberElement(parent) && key === 'value') {
+        // Inside MemberElement.value → push the member's key
+        if (!isStringElement(parent.key)) {
+          throw new TypeError('MemberElement.key must be a StringElement');
+        }
+        keys.unshift(parent.key.toValue() as PropertyKey);
+      } else if (isArrayElement(parentPath?.node) && typeof key === 'number') {
+        // Inside ArrayElement → push the numeric index
         keys.unshift(key);
       }
 
