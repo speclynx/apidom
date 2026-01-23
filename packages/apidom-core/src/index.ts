@@ -41,7 +41,10 @@ export { default as toJSON } from './transformers/serializers/json.ts';
 /**
  * Transforms the ApiDOM into YAML string.
  */
-export { default as toYAML } from './transformers/serializers/yaml-1-2.ts';
+export {
+  default as toYAML,
+  type YamlSerializerOptions,
+} from './transformers/serializers/yaml-1-2.ts';
 
 /**
  * Creates a refract representation of an Element.

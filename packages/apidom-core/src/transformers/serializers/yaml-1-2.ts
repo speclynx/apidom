@@ -1,104 +1,43 @@
-import { Element, ArrayElement, ObjectElement } from '@speclynx/apidom-datamodel';
-import { traverse, type Path } from '@speclynx/apidom-traverse';
+import {
+  Document,
+  stringify,
+  type CreateNodeOptions,
+  type DocumentOptions,
+  type SchemaOptions,
+  type ToStringOptions,
+} from 'yaml';
+import { Element } from '@speclynx/apidom-datamodel';
 
-import serializeValue from './value.ts';
+import toValue from './value.ts';
 
-interface YamlVisitorOptions {
-  readonly directive?: boolean;
-  readonly indent?: number;
-}
-
-class YamlVisitor {
-  protected static readonly indentChar = '  ';
-
-  public result: string;
-
-  protected readonly indent: number;
-
-  constructor({ directive = false, indent = 0 }: YamlVisitorOptions = {}) {
-    this.result = directive ? '%YAML 1.2\n---\n' : '';
-    this.indent = indent;
-  }
-
-  public NumberElement(path: Path<Element>): void {
-    this.result += serializeValue(path.node);
-  }
-
-  public BooleanElement(path: Path<Element>): void {
-    const value = serializeValue(path.node);
-    this.result += value ? 'true' : 'false';
-  }
-
-  public StringElement(path: Path<Element>): void {
-    // for simplicity and avoiding ambiguity we always wrap strings in quotes
-    this.result += JSON.stringify(serializeValue(path.node));
-  }
-
-  public NullElement(): void {
-    this.result += 'null';
-  }
-
-  public ArrayElement(path: Path<Element>): void {
-    const element = path.node as ArrayElement;
-
-    if (element.length === 0) {
-      this.result += '[]';
-      path.skip();
-      return;
-    }
-
-    element.forEach((item) => {
-      const visitor = new YamlVisitor({ indent: this.indent + 1 });
-      const indent = YamlVisitor.indentChar.repeat(this.indent);
-
-      traverse(item, visitor);
-
-      const { result } = visitor;
-
-      this.result += result.startsWith('\n') ? `\n${indent}-${result}` : `\n${indent}- ${result}`;
-    });
-
-    path.skip();
-  }
-
-  public ObjectElement(path: Path<Element>): void {
-    const element = path.node as ObjectElement;
-
-    if (element.length === 0) {
-      this.result += '{}';
-      path.skip();
-      return;
-    }
-
-    element.forEach((value, key) => {
-      const keyVisitor = new YamlVisitor({ indent: this.indent + 1 });
-      const valueVisitor = new YamlVisitor({ indent: this.indent + 1 });
-      const indent = YamlVisitor.indentChar.repeat(this.indent);
-
-      traverse(key, keyVisitor);
-      traverse(value, valueVisitor);
-
-      const { result: keyResult } = keyVisitor;
-      const { result: valueResult } = valueVisitor;
-
-      this.result += valueResult.startsWith('\n')
-        ? `\n${indent}${keyResult}:${valueResult}`
-        : `\n${indent}${keyResult}: ${valueResult}`;
-    });
-
-    path.skip();
-  }
+/**
+ * @public
+ */
+export interface YamlSerializerOptions
+  extends
+    DocumentOptions,
+    Pick<CreateNodeOptions, 'aliasDuplicateObjects'>,
+    Pick<SchemaOptions, 'sortMapEntries'>,
+    ToStringOptions {
+  /** Include %YAML directive and document marker */
+  directive?: boolean;
 }
 
 /**
  * @public
  */
-const serializer = (element: Element, { directive = false } = {}): string => {
-  const visitor = new YamlVisitor({ directive });
+const serializer = (
+  element: Element,
+  { directive = false, aliasDuplicateObjects = false, ...options }: YamlSerializerOptions = {},
+): string => {
+  const allOptions = { aliasDuplicateObjects, ...options };
 
-  traverse(element, visitor);
-
-  return visitor.result;
+  if (directive) {
+    const doc = new Document(toValue(element), allOptions);
+    doc.directives!.yaml.explicit = true;
+    return doc.toString(allOptions);
+  }
+  return stringify(toValue(element), allOptions);
 };
 
 export default serializer;
