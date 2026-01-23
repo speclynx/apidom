@@ -35,7 +35,7 @@ const serializer = (
   if (directive) {
     const doc = new Document(toValue(element), allOptions);
     doc.directives!.yaml.explicit = true;
-    return doc.toString(options);
+    return doc.toString(allOptions);
   }
   return stringify(toValue(element), allOptions);
 };
