@@ -500,9 +500,9 @@ and it's the default analysis used.
 
 ###### Indirect Syntactic analysis
 
-This analysis turns trees-sitter CST into JSON AST representation. Then JSON AST is turned into ApiDOM.
+This analysis turns trees-sitter CST into YAML AST representation. Then YAML AST is turned into ApiDOM.
 Two traversals are required, which makes the indirect analysis less performant than the direct one.
-Though less performant, having JSON AST representation allows us to do further complex analysis.
+Though less performant, having YAML AST representation allows us to do further complex AST analysis.
 
 #### Refract stage
 
