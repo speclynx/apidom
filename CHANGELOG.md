@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.2](https://github.com/speclynx/apidom/compare/v2.2.1...v2.2.2) (2026-01-23)
+
+### Bug Fixes
+
+- **core:** utilize proper YAML 1.2 serialization ([#27](https://github.com/speclynx/apidom/issues/27)) ([b5316be](https://github.com/speclynx/apidom/commit/b5316be91be98299cddc71925f95e5224ed46a9d))
+
 ## [2.2.1](https://github.com/speclynx/apidom/compare/v2.2.0...v2.2.1) (2026-01-20)
 
 ### Bug Fixes
