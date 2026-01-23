@@ -1,4 +1,3 @@
-import dedent from 'dedent';
 import { assert } from 'chai';
 
 import { from } from '../../../src/index.ts';
@@ -10,11 +9,8 @@ describe('serializers', function () {
       specify('should serialize to YAML 1.2', function () {
         const apidom = from(true)!;
         const serialized = serialize(apidom);
-        const expected = dedent`
-          true
-        `;
 
-        assert.strictEqual(serialized, expected);
+        assert.strictEqual(serialized, 'true\n');
       });
     });
 
@@ -22,11 +18,8 @@ describe('serializers', function () {
       specify('should serialize to YAML 1.2', function () {
         const apidom = from(1)!;
         const serialized = serialize(apidom);
-        const expected = dedent`
-          1
-        `;
 
-        assert.strictEqual(serialized, expected);
+        assert.strictEqual(serialized, '1\n');
       });
     });
 
@@ -34,20 +27,16 @@ describe('serializers', function () {
       specify('should serialize to YAML 1.2', function () {
         const apidom = from('test')!;
         const serialized = serialize(apidom);
-        const expected = dedent`
-          "test"
-        `;
 
-        assert.strictEqual(serialized, expected);
+        assert.strictEqual(serialized, 'test\n');
       });
 
       context('and is multiline', function () {
         specify('should serialize to YAML 1.2', function () {
           const apidom = from('test\n\ntest\n')!;
           const serialized = serialize(apidom);
-          const expected = String.raw`"test\n\ntest\n"`;
 
-          assert.strictEqual(serialized, expected);
+          assert.strictEqual(serialized, '|\ntest\n\ntest\n');
         });
       });
     });
@@ -56,11 +45,8 @@ describe('serializers', function () {
       specify('should serialize to YAML 1.2', function () {
         const apidom = from(null)!;
         const serialized = serialize(apidom);
-        const expected = dedent`
-          null
-        `;
 
-        assert.strictEqual(serialized, expected);
+        assert.strictEqual(serialized, 'null\n');
       });
     });
 
@@ -68,11 +54,8 @@ describe('serializers', function () {
       specify('should serialize to YAML 1.2', function () {
         const apidom = from([])!;
         const serialized = serialize(apidom);
-        const expected = dedent`
-          []
-        `;
 
-        assert.strictEqual(serialized, expected);
+        assert.strictEqual(serialized, '[]\n');
       });
     });
 
@@ -80,17 +63,8 @@ describe('serializers', function () {
       specify('should serialize to YAML 1.2', function () {
         const apidom = from([1, true, 'test', null])!;
         const serialized = serialize(apidom, { directive: true });
-        const expected = dedent`
-          %YAML 1.2
-          ---
 
-          - 1
-          - true
-          - "test"
-          - null
-        `;
-
-        assert.strictEqual(serialized, expected);
+        assert.strictEqual(serialized, '%YAML 1.2\n---\n- 1\n- true\n- test\n- null\n');
       });
     });
 
@@ -98,18 +72,8 @@ describe('serializers', function () {
       specify('should serialize to YAML 1.2', function () {
         const apidom = from([1, [true, 'test', null]])!;
         const serialized = serialize(apidom, { directive: true });
-        const expected = dedent`
-          %YAML 1.2
-          ---
 
-          - 1
-          -
-            - true
-            - "test"
-            - null
-        `;
-
-        assert.strictEqual(serialized, expected);
+        assert.strictEqual(serialized, '%YAML 1.2\n---\n- 1\n- - true\n  - test\n  - null\n');
       });
     });
 
@@ -117,15 +81,8 @@ describe('serializers', function () {
       specify('should serialize to YAML 1.2', function () {
         const apidom = from({ a: [1] })!;
         const serialized = serialize(apidom, { directive: true });
-        const expected = dedent`
-          %YAML 1.2
-          ---
 
-          "a":
-            - 1
-        `;
-
-        assert.strictEqual(serialized, expected);
+        assert.strictEqual(serialized, '%YAML 1.2\n---\na:\n  - 1\n');
       });
     });
 
@@ -133,11 +90,8 @@ describe('serializers', function () {
       specify('should serialize to YAML 1.2', function () {
         const apidom = from({})!;
         const serialized = serialize(apidom);
-        const expected = dedent`
-          {}
-        `;
 
-        assert.strictEqual(serialized, expected);
+        assert.strictEqual(serialized, '{}\n');
       });
     });
 
@@ -145,15 +99,8 @@ describe('serializers', function () {
       specify('should serialize to YAML 1.2', function () {
         const apidom = from({ a: 1, b: true })!;
         const serialized = serialize(apidom, { directive: true });
-        const expected = dedent`
-          %YAML 1.2
-          ---
 
-          "a": 1
-          "b": true
-        `;
-
-        assert.strictEqual(serialized, expected);
+        assert.strictEqual(serialized, '%YAML 1.2\n---\na: 1\nb: true\n');
       });
     });
 
@@ -161,16 +108,8 @@ describe('serializers', function () {
       specify('should serialize to YAML 1.2', function () {
         const apidom = from({ a: 1, b: { c: true } })!;
         const serialized = serialize(apidom, { directive: true });
-        const expected = dedent`
-          %YAML 1.2
-          ---
 
-          "a": 1
-          "b":
-            "c": true
-        `;
-
-        assert.strictEqual(serialized, expected);
+        assert.strictEqual(serialized, '%YAML 1.2\n---\na: 1\nb:\n  c: true\n');
       });
     });
 
@@ -178,15 +117,8 @@ describe('serializers', function () {
       specify('should serialize to YAML 1.2', function () {
         const apidom = from([{ a: true }])!;
         const serialized = serialize(apidom, { directive: true });
-        const expected = dedent`
-          %YAML 1.2
-          ---
 
-          -
-            "a": true
-        `;
-
-        assert.strictEqual(serialized, expected);
+        assert.strictEqual(serialized, '%YAML 1.2\n---\n- a: true\n');
       });
     });
   });
