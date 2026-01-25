@@ -27,8 +27,10 @@ const browser = {
     rules: [
       {
         test: /\.wasm$/,
-        loader: 'file-loader',
-        type: 'javascript/auto',
+        type: 'asset/inline',
+        generator: {
+          dataUrl: () => '',
+        },
       },
       {
         test: /\.(ts|js)?$/,
@@ -68,8 +70,10 @@ const browserMin = {
     rules: [
       {
         test: /\.wasm$/,
-        loader: 'file-loader',
-        type: 'javascript/auto',
+        type: 'asset/inline',
+        generator: {
+          dataUrl: () => '',
+        },
       },
       {
         test: /\.(ts|js)?$/,

@@ -42,7 +42,7 @@ const browserMin = {
   target: 'web',
   output: {
     path: path.resolve('./dist'),
-    filename: 'apidom-ns-json-schema-draft-6.browser.js',
+    filename: 'apidom-ns-json-schema-draft-6.browser.min.js',
     libraryTarget: 'umd',
     library: 'apidomNsJSONSchemaDraft6',
   },
