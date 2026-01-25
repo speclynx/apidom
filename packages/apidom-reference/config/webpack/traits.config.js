@@ -12,8 +12,8 @@ export const nonMinimizeTrait = {
 
 export const minimizeTrait = {
   plugins: [
-    new webpack.LoaderOptionsPlugin({
-      minimize: true,
+    new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks: 1,
     }),
   ],
   optimization: {
