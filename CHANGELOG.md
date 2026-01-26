@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.3](https://github.com/speclynx/apidom/compare/v2.2.2...v2.2.3) (2026-01-26)
+
+### Bug Fixes
+
+- fix build artifacts ([4c9caa1](https://github.com/speclynx/apidom/commit/4c9caa14e73facb4c0e034d901c43c1613bb90ba))
+
 ## [2.2.2](https://github.com/speclynx/apidom/compare/v2.2.1...v2.2.2) (2026-01-23)
 
 ### Bug Fixes
