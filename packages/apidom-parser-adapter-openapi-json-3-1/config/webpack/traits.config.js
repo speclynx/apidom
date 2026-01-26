@@ -21,13 +21,13 @@ export const minimizeTrait = {
     }),
   ],
   optimization: {
+    minimize: true,
     minimizer: [
       new TerserPlugin({
+        extractComments: false,
         terserOptions: {
-          compress: {
-            warnings: false,
-          },
-          output: {
+          compress: true,
+          format: {
             comments: false,
           },
         },
