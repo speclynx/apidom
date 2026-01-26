@@ -2,6 +2,11 @@ import webpack from 'webpack';
 import TerserPlugin from 'terser-webpack-plugin';
 
 export const nonMinimizeTrait = {
+  plugins: [
+    new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks: 1,
+    }),
+  ],
   optimization: {
     minimize: false,
     usedExports: false,
