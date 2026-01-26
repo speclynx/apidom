@@ -8,7 +8,7 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-    open-pull-requests-limit: 0
+    open-pull-requests-limit: 3
     groups:
       deps-dev:
         dependency-type: "development"
@@ -24,6 +24,6 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-    open-pull-requests-limit: 0
+    open-pull-requests-limit: 3
 
 
