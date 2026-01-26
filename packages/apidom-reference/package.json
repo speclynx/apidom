@@ -249,7 +249,7 @@
     "@speclynx/apidom-parser-adapter-yaml-1-2": "^2.2.2",
     "@speclynx/apidom-traverse": "^2.2.2",
     "axios": "^1.13.0",
-    "minimatch": "^7.4.6",
+    "minimatch": "^10.1.1",
     "process": "^0.11.10",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.0.0"

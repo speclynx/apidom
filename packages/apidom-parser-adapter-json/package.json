@@ -45,7 +45,7 @@
     "@speclynx/apidom-core": "^2.2.2",
     "@speclynx/apidom-datamodel": "^2.2.2",
     "@speclynx/apidom-error": "^2.2.2",
-    "web-tree-sitter": "=0.25.10"
+    "web-tree-sitter": "=0.26.3"
   },
   "devDependencies": {
     "@types/emscripten": "^1.41.2",
