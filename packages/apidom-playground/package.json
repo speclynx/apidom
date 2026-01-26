@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@emotion/react": "=11.14.0",
-    "@emotion/styled": "=11.14.0",
+    "@emotion/styled": "=11.14.1",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
     "@speclynx/apidom-core": "*",
@@ -53,8 +53,8 @@
     "prop-types": "^15.7.2",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "react-redux": "^9.0.4",
     "swagger-adjust": "^0.7.1",
     "web-vitals": "^5.0.1"
