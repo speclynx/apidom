@@ -5,9 +5,9 @@ name: ApiDOM Monorepo Build
 
 on:
   push:
-    branches: [ main, 1.x ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, 1.x ]
+    branches: [ main ]
 
 env:
   CPU_CORES: 2

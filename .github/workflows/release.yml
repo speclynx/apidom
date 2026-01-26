@@ -1,8 +1,6 @@
 name: Release monorepo packages
 on:
   workflow_dispatch:
-    branches:
-      - main
 
 env:
   CPU_CORES: 2
@@ -11,6 +9,7 @@ env:
 jobs:
   release:
     name: Release
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: npm-release
