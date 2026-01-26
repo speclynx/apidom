@@ -16,6 +16,7 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
+    "preview": "vite preview",
     "test": "echo 'no tests defined for ApiDOM Playground'",
     "lint": "eslint ./",
     "lint:fix": "eslint ./ --fix",

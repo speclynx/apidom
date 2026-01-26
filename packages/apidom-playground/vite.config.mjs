@@ -9,7 +9,9 @@ export default defineConfig({
     sourcemap: false,
     sourcemapExcludeSources: true,
   },
-  assetsInclude: ['**/*.wasm'],
+  worker: {
+    format: 'es',
+  },
   build: {
     sourcemap: false,
     sourcemapExcludeSources: true,
@@ -17,12 +19,11 @@ export default defineConfig({
     outDir: 'build',
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
-      output: { format: 'umd' },
-      external: ['fs', 'path'],
+      output: { format: 'es' },
+      external: ['fs', 'fs/promises', 'path', 'module'],
       onwarn(warning, warn) {
         if (warning.message.includes('Use of eval')) return;
-        if (warning.message.includes('Module "fs" has been externalized')) return;
-        if (warning.message.includes('Module "path" has been externalized')) return;
+        if (warning.message.includes('has been externalized for browser compatibility')) return;
         warn(warning);
       },
     },
