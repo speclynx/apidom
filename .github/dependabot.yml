@@ -12,6 +12,10 @@ updates:
     ignore:
       - dependency-name: "minimatch"
         update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
     groups:
       deps-dev:
         dependency-type: "development"
