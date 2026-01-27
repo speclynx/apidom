@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.3.0](https://github.com/speclynx/apidom/compare/v2.2.3...v2.3.0) (2026-01-27)
+
+### Features
+
+- support strict parsing mode through out the packages ([#46](https://github.com/speclynx/apidom/issues/46)) ([e6b47d9](https://github.com/speclynx/apidom/commit/e6b47d9cfdede7103cada67362b316fd8e5b787f)), closes [#23](https://github.com/speclynx/apidom/issues/23)
+
 ## [2.2.3](https://github.com/speclynx/apidom/compare/v2.2.2...v2.2.3) (2026-01-26)
 
 **Note:** Version bump only for package @speclynx/apidom-parser-adapter-json
