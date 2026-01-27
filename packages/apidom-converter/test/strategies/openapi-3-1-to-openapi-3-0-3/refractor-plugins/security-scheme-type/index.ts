@@ -53,7 +53,7 @@ describe('converter', function () {
           const fixturePath = path.join(__dirname, 'fixtures', 'security-scheme-type.json');
           const convertedParseResult = await convert(fixturePath, {
             parse: {
-              parserOpts: { sourceMap: true },
+              parserOpts: { sourceMap: true, strict: false },
             },
             convert: {
               sourceMediaType: openAPI31MediaTypes.findBy('3.1.0', 'json'),
