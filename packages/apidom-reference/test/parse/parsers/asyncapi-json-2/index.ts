@@ -175,7 +175,7 @@ describe('parsers', function () {
               data,
               mediaType: mediaTypes.latest(),
             });
-            const parser = new AsyncAPIJSON2Parser({ sourceMap: true });
+            const parser = new AsyncAPIJSON2Parser({ sourceMap: true, strict: false });
             const parseResult = await parser.parse(file);
 
             assert.isTrue(hasElementSourceMap(parseResult.api!));

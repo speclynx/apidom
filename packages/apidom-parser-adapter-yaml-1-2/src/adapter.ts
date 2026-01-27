@@ -1,5 +1,5 @@
 import { ParseResultElement, Namespace } from '@speclynx/apidom-datamodel';
-import { ApiDOMError } from '@speclynx/apidom-error';
+import { UnsupportedOperationError } from '@speclynx/apidom-error';
 
 import * as yaml from './yaml/index.ts';
 import * as treeSitter from './tree-sitter/index.ts';
@@ -22,7 +22,7 @@ export const namespace = new Namespace();
 /**
  * @public
  */
-export interface DetectOptions {
+export interface ParseDetectOptions {
   strict?: boolean;
 }
 
@@ -31,7 +31,7 @@ export interface DetectOptions {
  */
 export const detect = async (
   source: string,
-  { strict = false }: DetectOptions = {},
+  { strict = false }: ParseDetectOptions = {},
 ): Promise<boolean> => {
   if (strict) {
     return yaml.detect(source);
@@ -42,7 +42,7 @@ export const detect = async (
 /**
  * @public
  */
-export interface ParseFunctionOptions {
+export interface ParseOptions {
   sourceMap?: boolean;
   strict?: boolean;
 }
@@ -50,17 +50,12 @@ export interface ParseFunctionOptions {
 /**
  * @public
  */
-export type ParseFunction = (
+export const parse = async (
   source: string,
-  options?: ParseFunctionOptions,
-) => Promise<ParseResultElement>;
-
-/**
- * @public
- */
-export const parse: ParseFunction = async (source, { sourceMap = false, strict = false } = {}) => {
+  { sourceMap = false, strict = false }: ParseOptions = {},
+): Promise<ParseResultElement> => {
   if (strict && sourceMap) {
-    throw new ApiDOMError(
+    throw new UnsupportedOperationError(
       'Cannot use sourceMap with strict parsing. Strict parsing does not support source maps.',
     );
   }

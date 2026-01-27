@@ -35,7 +35,7 @@ describe('parse', function () {
       const options = mergeOptions(defaultOptions, {
         parse: {
           mediaType: mediaTypes.latest('json'),
-          parserOpts: { sourceMap: true },
+          parserOpts: { sourceMap: true, strict: false },
         },
       });
       const parseResult = await parse(uri, options);

@@ -41,7 +41,7 @@ class JSONParser extends Parser {
     const source = file.toString();
 
     try {
-      const parserOpts = pick(['sourceMap'], this);
+      const parserOpts = pick(['sourceMap', 'strict'], this);
       return await parse(source, parserOpts);
     } catch (error: unknown) {
       throw new ParserError(`Error parsing "${file.uri}"`, { cause: error });

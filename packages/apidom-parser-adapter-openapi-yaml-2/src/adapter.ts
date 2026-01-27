@@ -1,7 +1,12 @@
 import { propOr, omit } from 'ramda';
 import { isNotUndefined } from 'ramda-adjunct';
 import { ParseResultElement, Namespace } from '@speclynx/apidom-datamodel';
-import { parse as parseYAML, detect as detectYAML } from '@speclynx/apidom-parser-adapter-yaml-1-2';
+import {
+  parse as parseYAML,
+  detect as detectYAML,
+  type ParseDetectOptions,
+  type ParseOptions as ParseOptionsYAML,
+} from '@speclynx/apidom-parser-adapter-yaml-1-2';
 import openApiNamespace, { refractSwagger } from '@speclynx/apidom-ns-openapi-2';
 
 export { default as mediaTypes } from './media-types.ts';
@@ -15,15 +20,24 @@ export const detectionRegExp =
 /**
  * @public
  */
-export const detect = async (source: string): Promise<boolean> =>
-  detectionRegExp.test(source) && (await detectYAML(source));
+export const detect: typeof detectYAML = async (
+  source: string,
+  options: ParseDetectOptions = {},
+): Promise<boolean> => detectionRegExp.test(source) && (await detectYAML(source, options));
 
 /**
  * @public
  */
-export const parse = async (
+export interface ParseOptions extends ParseOptionsYAML {
+  refractorOpts?: Record<string, unknown>;
+}
+
+/**
+ * @public
+ */
+export const parse: typeof parseYAML = async (
   source: string,
-  options: Record<string, unknown> = {},
+  options: ParseOptions = {},
 ): Promise<ParseResultElement> => {
   const refractorOpts: Record<string, unknown> = propOr({}, 'refractorOpts', options);
   const parserOpts = omit(['refractorOpts'], options);

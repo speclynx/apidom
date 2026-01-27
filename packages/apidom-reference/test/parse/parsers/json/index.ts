@@ -122,7 +122,7 @@ describe('parsers', function () {
         context('given sourceMap enabled', function () {
           specify('should decorate ApiDOM with source maps', async function () {
             const file = new File({ uri: '/path/to/file.json', data: '{"prop": "val"}' });
-            const parser = new JSONParser({ sourceMap: true });
+            const parser = new JSONParser({ sourceMap: true, strict: false });
             const result = await parser.parse(file);
             const objElement = result.get(0) as ObjectElement;
 

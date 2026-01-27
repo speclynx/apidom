@@ -128,7 +128,7 @@ describe('parsers', function () {
         context('given sourceMap enabled', function () {
           specify('should decorate ApiDOM with source maps', async function () {
             const file = new File({ uri: '/path/to/file.yaml', data: 'prop: val' });
-            const parser = new YAMLParser({ sourceMap: true });
+            const parser = new YAMLParser({ sourceMap: true, strict: false });
             const result = await parser.parse(file);
             const objElement = result.get(0) as ObjectElement;
 

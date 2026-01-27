@@ -206,7 +206,7 @@ describe('parsers', function () {
               data,
               mediaType: mediaTypes.latest('yaml'),
             });
-            const parser = new OpenAPIYAML3_0Parser({ sourceMap: true });
+            const parser = new OpenAPIYAML3_0Parser({ sourceMap: true, strict: false });
             const parseResult = await parser.parse(file);
 
             assert.isTrue(hasElementSourceMap(parseResult.api!));
