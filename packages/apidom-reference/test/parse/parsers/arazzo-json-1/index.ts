@@ -175,7 +175,7 @@ describe('parsers', function () {
               data,
               mediaType: mediaTypes.latest('json'),
             });
-            const parser = new ArazzoJSON1Parser({ sourceMap: true });
+            const parser = new ArazzoJSON1Parser({ sourceMap: true, strict: false });
             const parseResult = await parser.parse(file);
 
             assert.isTrue(hasElementSourceMap(parseResult.api!));

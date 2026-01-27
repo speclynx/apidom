@@ -9,6 +9,7 @@ export interface ParserOptions {
   readonly name: string;
   readonly allowEmpty?: boolean;
   readonly sourceMap?: boolean;
+  readonly strict?: boolean;
   readonly fileExtensions?: string[];
   readonly mediaTypes?: string[];
 }
@@ -30,6 +31,11 @@ abstract class Parser {
   public sourceMap: boolean;
 
   /**
+   * Whether to use strict parsing (native JSON.parse/YAML instead of tree-sitter).
+   */
+  public strict: boolean;
+
+  /**
    * List of supported file extensions.
    */
   public fileExtensions: string[];
@@ -43,12 +49,14 @@ abstract class Parser {
     name,
     allowEmpty = true,
     sourceMap = false,
+    strict = true,
     fileExtensions = [],
     mediaTypes = [],
   }: ParserOptions) {
     this.name = name;
     this.allowEmpty = allowEmpty;
     this.sourceMap = sourceMap;
+    this.strict = strict;
     this.fileExtensions = fileExtensions;
     this.mediaTypes = mediaTypes;
   }

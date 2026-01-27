@@ -21,7 +21,7 @@ export interface ApiDOMParserOptions {
 /**
  * @public
  */
-export type Detect = (source: string) => boolean | Promise<boolean>;
+export type Detect = (source: string, options?: ApiDOMParserOptions) => boolean | Promise<boolean>;
 
 /**
  * @public
@@ -45,11 +45,14 @@ export interface ApiDOMParserAdapter {
 class ApiDOMParser {
   private adapters: ApiDOMParserAdapter[] = [];
 
-  protected async detectAdapterCandidates(source: string): Promise<ApiDOMParserAdapter[]> {
+  protected async detectAdapterCandidates(
+    source: string,
+    options: ApiDOMParserOptions = {},
+  ): Promise<ApiDOMParserAdapter[]> {
     const candidates = [];
 
     for (const adapter of this.adapters) {
-      if (isFunction(adapter.detect) && (await adapter.detect(source))) {
+      if (isFunction(adapter.detect) && (await adapter.detect(source, options))) {
         candidates.push(adapter);
       }
     }
@@ -59,17 +62,17 @@ class ApiDOMParser {
 
   protected async findAdapter(
     source: string,
-    mediaType: string | undefined,
+    options: ApiDOMParserOptions = {},
   ): Promise<ApiDOMParserAdapter | undefined> {
-    if (isString(mediaType)) {
+    if (isString(options.mediaType)) {
       return this.adapters.find((adapter) => {
         if (!isArray(adapter.mediaTypes)) return false;
 
-        return adapter.mediaTypes.includes(mediaType);
+        return adapter.mediaTypes.includes(options.mediaType!);
       });
     }
 
-    const candidates = await this.detectAdapterCandidates(source);
+    const candidates = await this.detectAdapterCandidates(source, options);
 
     return head(candidates);
   }
@@ -83,13 +86,13 @@ class ApiDOMParser {
     source: string,
     options: ApiDOMParserOptions = {},
   ): Promise<Namespace | undefined> {
-    const adapter = await this.findAdapter(source, options.mediaType);
+    const adapter = await this.findAdapter(source, options);
 
     return adapter?.namespace;
   }
 
   async findMediaType(source: string): Promise<string | void> {
-    const adapter = await this.findAdapter(source, undefined);
+    const adapter = await this.findAdapter(source, {});
 
     if (typeof adapter === 'undefined') {
       return new MediaTypes().unknownMediaType;
@@ -126,7 +129,7 @@ class ApiDOMParser {
     let adapter;
 
     try {
-      adapter = await this.findAdapter(source, options.mediaType);
+      adapter = await this.findAdapter(source, options);
     } catch (error: unknown) {
       throw new ParserError(
         'Encountered an unexpected error while matching parser adapters against the source.',

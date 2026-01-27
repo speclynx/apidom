@@ -48,7 +48,7 @@ class OpenAPIJSON3_1Parser extends Parser {
     const source = file.toString();
 
     try {
-      const parserOpts = pick(['sourceMap', 'refractorOpts'], this);
+      const parserOpts = pick(['sourceMap', 'strict', 'refractorOpts'], this);
       return await parse(source, parserOpts);
     } catch (error: unknown) {
       throw new ParserError(`Error parsing "${file.uri}"`, { cause: error });
