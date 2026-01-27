@@ -51,7 +51,7 @@ const parser = new ApiDOMParser();
 parser.use(jsonParserAdapter);
 parser.use(yamlParserAdapter);
 
-const namespace = await parser.findNamespace('{"prop", "value"}', { mediaType: 'application/json' });
+const namespace = await parser.findNamespace('{"prop": "value"}', { mediaType: 'application/json' });
 ```
 
 ## Finding an appropriate media type
@@ -87,7 +87,7 @@ const parser = new ApiDOMParser();
 parser.use(jsonParserAdapter);
 parser.use(yamlParserAdapter);
 
-const parseResult = await parser.parse('{"prop", "value"}', { mediaType: 'application/json' });
+const parseResult = await parser.parse('{"prop": "value"}', { mediaType: 'application/json' });
 ```
 
 `parse` method consumes various options as a second argument. Here is a list of options recognized by all parser adapters:
@@ -107,7 +107,7 @@ If no parser adapter was mounted before the parsing, calling `parse` method will
 import ApiDOMParser from '@speclynx/apidom-parser';
 
 const parser = new ApiDOMParser();
-const parseResult = await parser.parse('{"prop", "value"}', { mediaType: 'application/json' });
+const parseResult = await parser.parse('{"prop": "value"}', { mediaType: 'application/json' });
 // => ParserError('Source did not match any registered parsers')
 ```
 
