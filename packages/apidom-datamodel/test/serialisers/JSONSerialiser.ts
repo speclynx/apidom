@@ -16,16 +16,16 @@ import type { RefractDocument } from '../../src/index.ts';
 
 describe('JSON Serialiser', function () {
   let serialiser: JSONSerialiser;
-  let minim: Namespace;
+  let namespace: Namespace;
 
   beforeEach(function () {
-    minim = new Namespace();
-    serialiser = new JSONSerialiser(minim);
+    namespace = new Namespace();
+    serialiser = new JSONSerialiser(namespace);
   });
 
   describe('initialisation', function () {
     specify('uses given namespace', function () {
-      assert.strictEqual(serialiser.namespace, minim);
+      assert.strictEqual(serialiser.namespace, namespace);
     });
 
     specify('creates a default namespace when no namespace is given', function () {

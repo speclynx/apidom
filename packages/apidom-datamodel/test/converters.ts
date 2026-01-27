@@ -2,14 +2,14 @@ import { assert } from 'chai';
 
 import { Namespace, Element } from '../src/index.ts';
 
-const minim = new Namespace();
+const namespace = new Namespace();
 
-describe('Minim Converters', function () {
+describe('Converters', function () {
   describe('convertToElement', function () {
     function elementCheck(name: string, val: unknown) {
       context(`when given ${name}`, function () {
         specify(`returns ${name}`, function () {
-          const returnedElement = minim.toElement(val)!;
+          const returnedElement = namespace.toElement(val)!;
           assert.strictEqual(returnedElement.element, name);
         });
       });
@@ -31,7 +31,7 @@ describe('Minim Converters', function () {
         let returnedElement: Element;
 
         before(function () {
-          returnedElement = minim.fromRefract(el);
+          returnedElement = namespace.fromRefract(el);
         });
 
         specify(`returns ${name} element`, function () {
@@ -81,7 +81,7 @@ describe('Minim Converters', function () {
       let returnedElement: Element;
 
       before(function () {
-        returnedElement = minim.fromRefract(el);
+        returnedElement = namespace.fromRefract(el);
       });
 
       specify('returns array element', function () {
@@ -140,7 +140,7 @@ describe('Minim Converters', function () {
       let returnedElement: Element;
 
       before(function () {
-        returnedElement = minim.fromRefract(el);
+        returnedElement = namespace.fromRefract(el);
       });
 
       specify('returns object element', function () {
