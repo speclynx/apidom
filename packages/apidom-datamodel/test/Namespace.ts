@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import { Namespace, JSONSerialiser, StringElement, Element } from '../src/index.ts';
 
-describe('Minim namespace', function () {
+describe('Namespace', function () {
   let namespace: Namespace;
   let NullElementClass: typeof Element;
   let ObjectElementClass: typeof Element;
