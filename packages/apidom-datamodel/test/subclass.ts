@@ -9,9 +9,9 @@ import {
   type Attributes,
 } from '../src/index.ts';
 
-const minim = new Namespace();
+const namespace = new Namespace();
 
-describe('Minim subclasses', function () {
+describe('Subclasses', function () {
   class MyElement extends StringElement {
     constructor(content?: string, meta?: Meta, attributes?: Attributes) {
       super(content, meta, attributes);
@@ -22,7 +22,7 @@ describe('Minim subclasses', function () {
       return 'It works!';
     }
   }
-  minim.register('myElement', MyElement);
+  namespace.register('myElement', MyElement);
 
   specify('can extend the base element with its own method', function () {
     const myElement = new MyElement();
@@ -42,7 +42,7 @@ describe('Minim subclasses', function () {
   });
 
   describe('deserializing attributes', function () {
-    const myElement = minim.fromRefract({
+    const myElement = namespace.fromRefract({
       element: 'myElement',
       attributes: {
         headers: {
@@ -108,7 +108,7 @@ describe('Minim subclasses', function () {
     myElement.attributes.set('sourceMap', ['string1', 'string2']);
 
     specify('should serialize element to JSON', function () {
-      const serialiser = new JSONSerialiser(minim);
+      const serialiser = new JSONSerialiser(namespace);
       const refracted = serialiser.serialise(myElement);
 
       assert.deepEqual(refracted, {
@@ -147,7 +147,7 @@ describe('Minim subclasses', function () {
     });
 
     specify('should round-trip using JSON serialiser', function () {
-      const serialiser = new JSONSerialiser(minim);
+      const serialiser = new JSONSerialiser(namespace);
       const object = serialiser.serialise(myElement);
       const element = serialiser.deserialise(object);
       const serialised = serialiser.serialise(element);
