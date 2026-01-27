@@ -11,7 +11,8 @@ export const detect = async (source: string): Promise<boolean> => {
 
   try {
     const document = parseDocument(source, { version: '1.2' });
-    return document.errors.length === 0;
+    // Filter out MULTIPLE_DOCS errors (handled as warning in parse)
+    return document.errors.filter((e) => e.code !== 'MULTIPLE_DOCS').length === 0;
   } catch {
     return false;
   }
