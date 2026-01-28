@@ -180,6 +180,55 @@ link.relation = 'self';
 link.href = 'https://example.com';
 ```
 
+### ParseResultElement
+
+Represents the result of parsing a document. It contains the parsed API element and any annotations (errors, warnings) produced during parsing.
+
+```js
+import { ParseResultElement, ObjectElement, AnnotationElement } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
+
+const parseResult = new ParseResultElement();
+
+// Add the parsed result
+const api = new ObjectElement({ openapi: '3.1.0' });
+api.classes.push('result');
+parseResult.push(api);
+
+// Add annotations
+const warning = new AnnotationElement('Deprecated feature used');
+warning.classes.push('warning');
+parseResult.push(warning);
+
+// Access the result
+parseResult.result; // => ObjectElement
+parseResult.isEmpty; // => false
+
+// Iterate over annotations
+for (const annotation of parseResult.annotations) {
+  console.log(toValue(annotation));
+}
+```
+
+### AnnotationElement
+
+Represents metadata about the parsing process, such as errors, warnings, or informational messages.
+
+```js
+import { AnnotationElement } from '@speclynx/apidom-datamodel';
+
+// Create a warning annotation
+const warning = new AnnotationElement('Multiple documents found, using first');
+warning.classes.push('warning');
+
+// Create an error annotation
+const error = new AnnotationElement('Invalid syntax at line 10');
+error.classes.push('error');
+
+// Annotations can have a code for programmatic identification
+error.code = 'INVALID_SYNTAX';
+```
+
 ---
 
 ## Source Maps
