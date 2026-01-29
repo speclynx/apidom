@@ -4,9 +4,13 @@
     "test/**/*"
   ],
   "compilerOptions": {
+    "rootDir": "src",
     "declaration": true,
     "declarationDir": "types",
     "noEmit": false,
     "emitDeclarationOnly": true
-  }
+  },
+  "include": [
+    "src/**/*"
+  ]
 }
