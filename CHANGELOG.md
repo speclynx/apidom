@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.4.0](https://github.com/speclynx/apidom/compare/v2.3.0...v2.4.0) (2026-01-29)
+
+### Features
+
+- **core:** use standardized field inspection ([#52](https://github.com/speclynx/apidom/issues/52)) ([cc4506c](https://github.com/speclynx/apidom/commit/cc4506c5cbd4bd03943e271ef93a7ab5574ac978))
+
 # [2.3.0](https://github.com/speclynx/apidom/compare/v2.2.3...v2.3.0) (2026-01-27)
 
 ### Features
