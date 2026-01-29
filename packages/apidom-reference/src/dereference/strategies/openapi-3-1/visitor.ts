@@ -13,7 +13,7 @@ import {
   cloneShallow,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { IdentityManager, toValue } from '@speclynx/apidom-core';
+import { IdentityManager, toValue, fixedFields } from '@speclynx/apidom-core';
 import { ApiDOMError } from '@speclynx/apidom-error';
 import { traverseAsync, Path, find } from '@speclynx/apidom-traverse';
 import {
@@ -318,11 +318,13 @@ class OpenAPI3_1DereferenceVisitor {
 
     // override description and summary (outer has higher priority then inner)
     if (isObjectElement(referencedElement) && isObjectElement(mergedElement)) {
-      if (referencingElement.hasKey('description') && 'description' in referencedElement) {
+      const fields = fixedFields(referencedElement, { indexed: true });
+
+      if (referencingElement.hasKey('description') && Object.hasOwn(fields, 'description')) {
         mergedElement.remove('description');
         mergedElement.set('description', referencingElement.get('description'));
       }
-      if (referencingElement.hasKey('summary') && 'summary' in referencedElement) {
+      if (referencingElement.hasKey('summary') && Object.hasOwn(fields, 'summary')) {
         mergedElement.remove('summary');
         mergedElement.set('summary', referencingElement.get('summary'));
       }
