@@ -53,7 +53,7 @@ class Arazzo1DereferenceVisitor {
   public ReusableElement(path: Path<Element>) {
     const referencingElement = path.node as ReusableElement;
 
-    // skip current referencing schema as $ref keyword was not defined
+    // skip current Reusable Object if reference field is not defined as a string
     if (!isStringElement(referencingElement.reference)) {
       path.skip();
       return;
