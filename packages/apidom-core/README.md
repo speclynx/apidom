@@ -651,3 +651,44 @@ const numberElement = new NumberElement(1);
 
 toString(numberElement); // => '{"element":"number","content":1}'
 ```
+
+---
+
+## Field introspection
+
+### fixedFields
+
+Returns the fixed fields for an Element class or instance.
+This is useful for introspecting which fields an element type supports.
+
+```js
+import { fixedFields } from '@speclynx/apidom-core';
+import { InfoElement } from '@speclynx/apidom-ns-openapi-3-1';
+
+// Get fixed fields as array
+const fields = fixedFields(InfoElement);
+// => [{ name: 'title', ... }, { name: 'description', ... }, { name: 'termsOfService', ... }, ...]
+
+// Get fixed fields from an instance
+const infoElement = new InfoElement({ title: 'My API' });
+const fieldsFromInstance = fixedFields(infoElement);
+// => [{ name: 'title', ... }, { name: 'description', ... }, { name: 'termsOfService', ... }, ...]
+```
+
+#### indexed option
+
+Use the `indexed` option for O(1) lookups by field name:
+
+```js
+import { fixedFields } from '@speclynx/apidom-core';
+import { InfoElement } from '@speclynx/apidom-ns-openapi-3-1';
+
+// Get fixed fields as indexed object for O(1) lookups
+const fieldsIndex = fixedFields(InfoElement, { indexed: true });
+// => { title: { name: 'title', ... }, description: { name: 'description', ... }, ... }
+
+// Check if a field exists
+if (Object.hasOwn(fieldsIndex, 'description')) {
+  // field exists
+}
+```

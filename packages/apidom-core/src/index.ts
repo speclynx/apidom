@@ -76,3 +76,6 @@ export { default as mergeRight } from './merge/merge-right.ts';
 export type { MergeRightOptions } from './merge/merge-right.ts';
 export { default as mergeLeft } from './merge/merge-left.ts';
 export type { MergeRightOptions as MergeLeftOptions } from './merge/merge-right.ts';
+
+export { fixedFields } from './fields/index.ts';
+export type { FixedField } from './fields/index.ts';
