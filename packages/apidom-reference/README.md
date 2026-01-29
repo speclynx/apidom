@@ -1481,7 +1481,7 @@ const dereferenced = await dereferenceApiDOM(apidom, {
 #### [Dereference strategies](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/dereference/strategies)
 
 Dereference strategy determines how a document is internally or externally dereferenced. Depending on document `mediaType` option,
-every strategy differs significantly. `Dereference component` comes with four (4) default dereference strategies.
+every strategy differs significantly. `Dereference component` comes with six (6) default dereference strategies.
 
 #### [apidom](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/dereference/strategies/apidom)
 
@@ -1527,6 +1527,23 @@ Supported media types:
   'application/vnd.aai.asyncapi;version=2.6.0',
   'application/vnd.aai.asyncapi+json;version=2.6.0',
   'application/vnd.aai.asyncapi+yaml;version=2.6.0',
+]
+```
+
+##### [arazzo-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/dereference/strategies/arazzo-1)
+
+Dereference strategy for dereferencing [Arazzo 1.x](https://spec.openapis.org/arazzo/latest.html) definitions.
+
+Supported media types:
+
+```js
+[
+  'application/vnd.oai.workflows;version=1.0.0',
+  'application/vnd.oai.workflows+json;version=1.0.0',
+  'application/vnd.oai.workflows+yaml;version=1.0.0',
+  'application/vnd.oai.workflows;version=1.0.1',
+  'application/vnd.oai.workflows+json;version=1.0.1',
+  'application/vnd.oai.workflows+yaml;version=1.0.1',
 ]
 ```
 
@@ -1606,6 +1623,7 @@ returns `true` or until entire list of strategies is exhausted (throws error).
   new OpenAPI3_0DereferenceStrategy(),
   new OpenAPI3_1DereferenceStrategy(),
   new AsyncAPI2DereferenceStrategy(),
+  new Arazzo1DereferenceStrategy(),
   new ApiDOMDereferenceStrategy(),
 ]
 ```
@@ -1616,6 +1634,7 @@ It's possible to **change** strategies **order globally** by mutating global `de
 ```js
 import { options } from '@speclynx/apidom-reference';
 import AsyncAPI2DereferenceStrategy from '@speclynx/apidom-reference/dereference/strategies/asyncapi-2';
+import Arazzo1DereferenceStrategy from '@speclynx/apidom-reference/dereference/strategies/arazzo-1';
 import OpenAPI2DereferenceStrategy from '@speclynx/apidom-reference/dereference/strategies/openapi-2';
 import OpenAPI3_0DereferenceStrategy from '@speclynx/apidom-reference/dereference/strategies/openapi-3-0';
 import OpenAPI3_1DereferenceStrategy from '@speclynx/apidom-reference/dereference/strategies/openapi-3-1';
@@ -1626,6 +1645,7 @@ options.dereference.strategies = [
   new OpenAPI3_0DereferenceStrategy(),
   new OpenAPI3_1DereferenceStrategy(),
   new AsyncAPI2DereferenceStrategy(),
+  new Arazzo1DereferenceStrategy(),
   new ApiDOMDereferenceStrategy(),
 ];
 ```
@@ -1635,6 +1655,7 @@ To **change** the strategies **order** on ad-hoc basis:
 ```js
 import { dereference } from '@speclynx/apidom-reference';
 import AsyncAPI2DereferenceStrategy from '@speclynx/apidom-reference/dereference/strategies/asyncapi-2';
+import Arazzo1DereferenceStrategy from '@speclynx/apidom-reference/dereference/strategies/arazzo-1';
 import OpenAPI2DereferenceStrategy from '@speclynx/apidom-reference/dereference/strategies/openapi-2';
 import OpenAPI3_0DereferenceStrategy from '@speclynx/apidom-reference/dereference/strategies/openapi-3-0';
 import OpenAPI3_1DereferenceStrategy from '@speclynx/apidom-reference/dereference/strategies/openapi-3-1';
@@ -1648,6 +1669,7 @@ await dereference('/home/user/oas.json', {
   dereference: {
     strategies: [
       new AsyncAPI2DereferenceStrategy(),
+      new Arazzo1DereferenceStrategy(),
       new OpenAPI2DereferenceStrategy(),
       new OpenAPI3_0DereferenceStrategy(),
       new OpenAPI3_1DereferenceStrategy(),

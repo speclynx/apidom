@@ -171,6 +171,11 @@
       "require": "./src/dereference/strategies/asyncapi-2/index.cjs",
       "types": "./types/dereference/strategies/asyncapi-2/index.d.ts"
     },
+    "./dereference/strategies/arazzo-1": {
+      "import": "./src/dereference/strategies/arazzo-1/index.mjs",
+      "require": "./src/dereference/strategies/arazzo-1/index.cjs",
+      "types": "./types/dereference/strategies/arazzo-1/index.d.ts"
+    },
     "./dereference/strategies/openapi-2": {
       "import": "./src/dereference/strategies/openapi-2/index.mjs",
       "require": "./src/dereference/strategies/openapi-2/index.cjs",
@@ -248,6 +253,7 @@
     "@speclynx/apidom-parser-adapter-openapi-yaml-3-1": "^2.4.0",
     "@speclynx/apidom-parser-adapter-yaml-1-2": "^2.4.0",
     "@speclynx/apidom-traverse": "^2.4.0",
+    "@swaggerexpert/arazzo-runtime-expression": "^2.0.2",
     "axios": "^1.13.0",
     "minimatch": "^7.4.6",
     "process": "^0.11.10",
