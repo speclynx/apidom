@@ -9,17 +9,6 @@ export interface FixedField {
   [key: string]: unknown;
 }
 
-/**
- * Options for the fixedFields function.
- * @public
- */
-export interface FixedFieldsOptions {
-  /**
-   * When true, returns an object indexed by field name for O(1) lookups.
-   */
-  indexed?: boolean;
-}
-
 type ElementClass = typeof Element & {
   fixedFields?: FixedField[];
 };
@@ -40,25 +29,17 @@ type ElementClass = typeof Element & {
  *
  * // Get fixed fields as indexed object for O(1) lookups
  * const fieldsIndex = fixedFields(ParameterElement, { indexed: true });
- * if ('description' in fieldsIndex) {
+ * if (Object.hasOwn(fieldsIndex, 'description')) {
  *   // field exists
  * }
  * ```
  *
  * @public
  */
-export function fixedFields(
+export function fixedFields<T extends boolean = false>(
   elementOrClass: Element | ElementClass,
-  options: { indexed: true },
-): Record<string, FixedField>;
-export function fixedFields(
-  elementOrClass: Element | ElementClass,
-  options?: { indexed?: false },
-): FixedField[];
-export function fixedFields(
-  elementOrClass: Element | ElementClass,
-  options?: FixedFieldsOptions,
-): FixedField[] | Record<string, FixedField> {
+  options?: { indexed?: T },
+): T extends true ? Record<string, FixedField> : FixedField[] {
   const constructor = (
     elementOrClass instanceof Element ? elementOrClass.constructor : elementOrClass
   ) as ElementClass;
@@ -66,10 +47,12 @@ export function fixedFields(
   const fields = constructor.fixedFields ?? [];
 
   if (options?.indexed) {
-    return Object.fromEntries(fields.map((f) => [f.name, f]));
+    return Object.fromEntries(fields.map((f) => [f.name, f])) as T extends true
+      ? Record<string, FixedField>
+      : FixedField[];
   }
 
-  return fields;
+  return fields as T extends true ? Record<string, FixedField> : FixedField[];
 }
 
 export default fixedFields;
