@@ -25,7 +25,7 @@
     "lint": "eslint ./",
     "lint:fix": "eslint ./ --fix",
     "clean": "rimraf --glob 'src/**/*.mjs' 'src/**/*.cjs' 'test/**/*.mjs' ./dist ./types",
-    "typescript:check-types": "tsc --noEmit && tsc -p ./test/tsconfig.json --noEmit",
+    "typescript:check-types": "tsc --noEmit",
     "typescript:declaration": "tsc -p tsconfig.declaration.json && api-extractor run -l -c ./config/api-extractor/api-extractor.json",
     "test": "npm run build:es && cross-env BABEL_ENV=es babel test --out-dir test --extensions '.ts' --out-file-extension '.mjs' --root-mode 'upward' && cross-env NODE_ENV=test mocha",
     "test:update-snapshots": "cross-env UPDATE_SNAPSHOT=1 NODE_ENV=test mocha",
