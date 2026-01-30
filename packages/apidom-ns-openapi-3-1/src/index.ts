@@ -495,7 +495,7 @@ export {
   isResponseElement,
   isResponsesElement,
   isSchemaElement,
-  isBooleanJsonSchemaElement,
+  isBooleanJSONSchemaElement,
   isMediaTypeElement,
   isServerElement,
   isSecurityRequirementElement,

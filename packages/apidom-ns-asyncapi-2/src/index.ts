@@ -23,7 +23,7 @@ export {
   isParametersElement,
   isReferenceElement,
   isSchemaElement,
-  isBooleanJsonSchemaElement,
+  isBooleanJSONSchemaElement,
   isSecurityRequirementElement,
   isServerElement,
   isServerBindingsElement,

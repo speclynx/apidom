@@ -1,5 +1,3 @@
-import { BooleanElement, isBooleanElement, includesClasses } from '@speclynx/apidom-datamodel';
-
 import AsyncApi2Element from './elements/AsyncApi2.ts';
 import AsyncApiVersionElement from './elements/AsyncApiVersion.ts';
 import ChannelBindingsElement from './elements/ChannelBindings.ts';
@@ -20,6 +18,8 @@ import ServerElement from './elements/Server.ts';
 import ServerBindingsElement from './elements/ServerBindings.ts';
 import ServersElement from './elements/Servers.ts';
 import ServerVariableElement from './elements/ServerVariable.ts';
+
+export { isBooleanJSONSchemaElement } from '@speclynx/apidom-ns-json-schema-draft-7';
 
 /**
  * @public
@@ -110,12 +110,6 @@ export const isReferenceElement = (element: unknown): element is ReferenceElemen
  */
 export const isSchemaElement = (element: unknown): element is SchemaElement =>
   element instanceof SchemaElement;
-
-/**
- * @public
- */
-export const isBooleanJsonSchemaElement = (element: unknown): element is BooleanElement =>
-  isBooleanElement(element) && includesClasses(element, ['boolean-json-schema']);
 
 /**
  * @public

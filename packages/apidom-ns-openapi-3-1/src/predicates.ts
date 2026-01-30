@@ -1,9 +1,4 @@
-import {
-  BooleanElement,
-  includesClasses,
-  isBooleanElement,
-  isStringElement,
-} from '@speclynx/apidom-datamodel';
+import { isStringElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 
 import CallbackElement from './elements/Callback.ts';
@@ -32,6 +27,8 @@ import SecuritySchemeElement from './elements/SecurityScheme.ts';
 import ServerElement from './elements/Server.ts';
 import ServerVariableElement from './elements/ServerVariable.ts';
 import MediaTypeElement from './elements/MediaType.ts';
+
+export { isBooleanJSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2020-12';
 
 /**
  * @public
@@ -199,13 +196,6 @@ export const isResponsesElement = (element: unknown): element is ResponsesElemen
  */
 export const isSchemaElement = (element: unknown): element is SchemaElement =>
   element instanceof SchemaElement;
-
-/**
- * @public
- */
-export const isBooleanJsonSchemaElement = (element: unknown): element is BooleanElement => {
-  return isBooleanElement(element) && includesClasses(element, ['boolean-json-schema']);
-};
 
 /**
  * @public
