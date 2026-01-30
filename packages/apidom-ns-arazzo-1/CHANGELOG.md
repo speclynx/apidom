@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.5.0](https://github.com/speclynx/apidom/compare/v2.4.0...v2.5.0) (2026-01-30)
+
+### Features
+
+- **reference:** add JSON Schema dereferencing for Arazzo ([#56](https://github.com/speclynx/apidom/issues/56)) ([03bbd2c](https://github.com/speclynx/apidom/commit/03bbd2cc6a30a252c7e15d21abb687ba6888a60f))
+
 # [2.4.0](https://github.com/speclynx/apidom/compare/v2.3.0...v2.4.0) (2026-01-29)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-arazzo-1
