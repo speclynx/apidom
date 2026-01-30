@@ -720,7 +720,7 @@ class OpenAPI3_1DereferenceVisitor {
       }
     } catch (error) {
       /**
-       * No SchemaElement($id=URL) was not found, so we're going to try to resolve
+       * SchemaElement($id=URL) was not found, so we're going to try to resolve
        * the URL and assume the returned response is a JSON Schema.
        */
       if (isURL && error instanceof EvaluationJsonSchemaUriError) {
