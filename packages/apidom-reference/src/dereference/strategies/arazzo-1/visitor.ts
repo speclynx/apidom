@@ -244,8 +244,6 @@ class Arazzo1DereferenceVisitor {
     let isInternalReference = url.stripHash(this.reference.uri) === $refBaseURI;
     let isExternalReference = !isInternalReference;
 
-    this.indirections.push(referencingElement);
-
     // determining reference, proper evaluation and selection mechanism
     let referencedElement: Element;
 
@@ -357,6 +355,8 @@ class Arazzo1DereferenceVisitor {
         throw error;
       }
     }
+
+    this.indirections.push(referencingElement);
 
     // detect direct or indirect reference
     if (referencingElement === referencedElement) {
