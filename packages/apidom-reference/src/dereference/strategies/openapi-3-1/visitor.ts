@@ -32,7 +32,7 @@ import {
   isReferenceElement,
   isSchemaElement,
   isOperationElement,
-  isBooleanJsonSchemaElement,
+  isBooleanJSONSchemaElement,
   refract,
   refractReference,
   refractPathItem,
@@ -854,7 +854,7 @@ class OpenAPI3_1DereferenceVisitor {
     this.indirections.pop();
 
     // Boolean JSON Schemas
-    if (isBooleanJsonSchemaElement(referencedElement)) {
+    if (isBooleanJSONSchemaElement(referencedElement)) {
       const booleanJsonSchemaElement = cloneDeep<BooleanElement>(referencedElement);
       // assign unique id to merged element
       booleanJsonSchemaElement.meta.set('id', identityManager.generateId());

@@ -240,6 +240,7 @@ export {
   isFailureActionCriteriaElement,
   isInfoElement,
   isJSONSchemaElement,
+  isBooleanJSONSchemaElement,
   isParameterElement,
   isPayloadReplacementElement,
   isRequestBodyElement,

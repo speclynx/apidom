@@ -1,7 +1,10 @@
 import JSONSchemaElement from './elements/JSONSchema.ts';
 import LinkDescriptionElement from './elements/LinkDescription.ts';
 
-export { isJSONReferenceElement } from '@speclynx/apidom-ns-json-schema-draft-7';
+export {
+  isJSONReferenceElement,
+  isBooleanJSONSchemaElement,
+} from '@speclynx/apidom-ns-json-schema-draft-7';
 export { isMediaElement } from '@speclynx/apidom-ns-json-schema-draft-6';
 
 /**

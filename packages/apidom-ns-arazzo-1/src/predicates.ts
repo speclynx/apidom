@@ -1,5 +1,3 @@
-import { isJSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2020-12';
-
 // Arazzo 1.0.1 elements
 import ArazzoElement from './elements/Arazzo.ts';
 import ArazzoSpecification1Element from './elements/ArazzoSpecification1.ts';
@@ -39,7 +37,10 @@ import WorkflowsElement from './elements/nces/Workflows.ts';
 import WorkflowStepsElement from './elements/nces/WorkflowSteps.ts';
 import WorkflowSuccessActionsElement from './elements/nces/WorkflowSuccessActions.ts';
 
-export { isJSONSchemaElement };
+export {
+  isJSONSchemaElement,
+  isBooleanJSONSchemaElement,
+} from '@speclynx/apidom-ns-json-schema-2020-12';
 
 /**
  * @public

@@ -15,6 +15,7 @@ export type { Toolbox } from './refractor/toolbox.ts';
 export { default as specificationObj } from './refractor/specification.ts';
 
 export {
+  isBooleanJSONSchemaElement,
   isJSONReferenceElement,
   isMediaElement,
   isJSONSchemaElement,

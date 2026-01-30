@@ -18,7 +18,7 @@ import { evaluate, URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
 import {
   ChannelItemElement,
   isReferenceLikeElement,
-  isBooleanJsonSchemaElement,
+  isBooleanJSONSchemaElement,
   isChannelItemElement,
   isReferenceElement,
   ReferenceElement,
@@ -281,7 +281,7 @@ class AsyncAPI2DereferenceVisitor {
     this.indirections.pop();
 
     // Boolean JSON Schemas
-    if (isBooleanJsonSchemaElement(referencedElement as unknown)) {
+    if (isBooleanJSONSchemaElement(referencedElement as unknown)) {
       const booleanJsonSchemaElement = cloneDeep(referencedElement) as BooleanElement;
       // assign unique id to merged element
       booleanJsonSchemaElement.meta.set('id', identityManager.generateId());

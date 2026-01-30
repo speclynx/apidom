@@ -14,7 +14,11 @@ export type { RefractorOptions, RefractorPlugin } from './refractor/index.ts';
 export type { Toolbox } from './refractor/toolbox.ts';
 export { default as specificationObj } from './refractor/specification.ts';
 
-export { isJSONSchemaElement, isLinkDescriptionElement } from './predicates.ts';
+export {
+  isBooleanJSONSchemaElement,
+  isJSONSchemaElement,
+  isLinkDescriptionElement,
+} from './predicates.ts';
 
 export {
   SpecificationVisitor,
