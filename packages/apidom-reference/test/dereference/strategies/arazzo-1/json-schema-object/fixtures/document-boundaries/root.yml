@@ -1,0 +1,19 @@
+arazzo: "1.0.1"
+info:
+  title: Test Workflow
+  version: "1.0.0"
+sourceDescriptions:
+  - name: petStore
+    url: https://example.com/openapi.json
+    type: openapi
+workflows:
+  - workflowId: testWorkflow
+    inputs:
+      $ref: "./schemas/input.yml"
+    steps:
+      - stepId: step1
+        operationId: petStore.getPet
+components:
+  inputs:
+    User:
+      $ref: "./schemas/user.yml#/$defs/User"

@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`refractor elements JSONSchemaElement given Boolean JSON Schemas should refract to semantic ApiDOM tree 1`] = `
-(JSONSchema202012Element
+(JSONSchemaElement
   (MemberElement
     (StringElement)
     (ObjectElement
       (MemberElement
         (StringElement)
-        (JSONSchema202012Element
+        (JSONSchemaElement
           (MemberElement
             (StringElement)
             (BooleanElement))))))
@@ -21,27 +21,27 @@ exports[`refractor elements JSONSchemaElement given Boolean JSON Schemas should 
     (ObjectElement
       (MemberElement
         (StringElement)
-        (JSONSchema202012Element
+        (JSONSchemaElement
           (MemberElement
             (StringElement)
             (BooleanElement)))))))
 `;
 
 exports[`refractor elements JSONSchemaElement given embedded JSONSchemaElements should refract to semantic ApiDOM tree 1`] = `
-(JSONSchema202012Element
+(JSONSchemaElement
   (MemberElement
     (StringElement)
     (ObjectElement
       (MemberElement
         (StringElement)
-        (JSONSchema202012Element
+        (JSONSchemaElement
           (MemberElement
             (StringElement)
             (JSONSchema202012Element))))))
   (MemberElement
     (StringElement)
     (ArrayElement
-      (JSONSchema202012Element
+      (JSONSchemaElement
         (MemberElement
           (StringElement)
           (JSONSchema202012Element)))))
@@ -50,7 +50,7 @@ exports[`refractor elements JSONSchemaElement given embedded JSONSchemaElements 
     (ObjectElement
       (MemberElement
         (StringElement)
-        (JSONSchema202012Element
+        (JSONSchemaElement
           (MemberElement
             (StringElement)
             (JSONSchema202012Element))))))
@@ -63,7 +63,7 @@ exports[`refractor elements JSONSchemaElement given embedded JSONSchemaElements 
 `;
 
 exports[`refractor elements JSONSchemaElement should refract to semantic ApiDOM tree 1`] = `
-(JSONSchema202012Element
+(JSONSchemaElement
   (MemberElement
     (StringElement)
     (StringElement))
@@ -93,22 +93,22 @@ exports[`refractor elements JSONSchemaElement should refract to semantic ApiDOM 
     (ObjectElement
       (MemberElement
         (StringElement)
-        (JSONSchema202012Element))))
+        (JSONSchemaElement))))
   (MemberElement
     (StringElement)
     (StringElement))
   (MemberElement
     (StringElement)
     (ArrayElement
-      (JSONSchema202012Element)))
+      (JSONSchemaElement)))
   (MemberElement
     (StringElement)
     (ArrayElement
-      (JSONSchema202012Element)))
+      (JSONSchemaElement)))
   (MemberElement
     (StringElement)
     (ArrayElement
-      (JSONSchema202012Element)))
+      (JSONSchemaElement)))
   (MemberElement
     (StringElement)
     (JSONSchema202012Element))
@@ -126,11 +126,11 @@ exports[`refractor elements JSONSchemaElement should refract to semantic ApiDOM 
     (ObjectElement
       (MemberElement
         (StringElement)
-        (JSONSchema202012Element))))
+        (JSONSchemaElement))))
   (MemberElement
     (StringElement)
     (ArrayElement
-      (JSONSchema202012Element)))
+      (JSONSchemaElement)))
   (MemberElement
     (StringElement)
     (JSONSchema202012Element))
@@ -142,13 +142,13 @@ exports[`refractor elements JSONSchemaElement should refract to semantic ApiDOM 
     (ObjectElement
       (MemberElement
         (StringElement)
-        (JSONSchema202012Element))))
+        (JSONSchemaElement))))
   (MemberElement
     (StringElement)
     (ObjectElement
       (MemberElement
         (StringElement)
-        (JSONSchema202012Element))))
+        (JSONSchemaElement))))
   (MemberElement
     (StringElement)
     (JSONSchema202012Element))

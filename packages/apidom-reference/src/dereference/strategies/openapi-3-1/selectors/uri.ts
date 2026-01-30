@@ -1,7 +1,7 @@
 import { isUndefined } from 'ramda-adjunct';
 import { Element } from '@speclynx/apidom-datamodel';
 import { filter } from '@speclynx/apidom-traverse';
-import { isSchemaElement, SchemaElement } from '@speclynx/apidom-ns-openapi-3-1';
+import { isJSONSchemaElement, JSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2020-12';
 import {
   URIFragmentIdentifier,
   evaluate as jsonPointerEvaluate,
@@ -19,16 +19,17 @@ import { resolveSchema$idField } from '../util.ts';
 export const evaluate = <T extends Element>(uri: string, element: T): Element | undefined => {
   const { cache } = evaluate;
   const uriStrippedHash = url.stripHash(uri);
-  const isSchemaElementWith$id = (e: any) => isSchemaElement(e) && typeof e.$id !== 'undefined';
+  const isJSONSchemaElementWith$id = (e: any) =>
+    isJSONSchemaElement(e) && typeof e.$id !== 'undefined';
 
   // warm the cache
   if (!cache.has(element)) {
-    const schemaObjectElements = filter(element, isSchemaElementWith$id);
+    const schemaObjectElements = filter(element, isJSONSchemaElementWith$id);
     cache.set(element, Array.from(schemaObjectElements));
   }
 
   // search for the matching schema
-  const result = cache.get(element).find((e: SchemaElement) => {
+  const result = cache.get(element).find((e: JSONSchemaElement) => {
     const $idBaseURI = resolveSchema$idField(uriStrippedHash, e);
     return $idBaseURI === uriStrippedHash;
   });

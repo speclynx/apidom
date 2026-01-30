@@ -667,8 +667,6 @@ class OpenAPI3_1DereferenceVisitor {
     let isInternalReference = url.stripHash(this.reference.uri) === $refBaseURI;
     let isExternalReference = !isInternalReference;
 
-    this.indirections.push(referencingElement);
-
     // determining reference, proper evaluation and selection mechanism
     let referencedElement: Element;
 
@@ -722,7 +720,7 @@ class OpenAPI3_1DereferenceVisitor {
       }
     } catch (error) {
       /**
-       * No SchemaElement($id=URL) was not found, so we're going to try to resolve
+       * SchemaElement($id=URL) was not found, so we're going to try to resolve
        * the URL and assume the returned response is a JSON Schema.
        */
       if (isURL && error instanceof EvaluationJsonSchemaUriError) {
@@ -780,6 +778,8 @@ class OpenAPI3_1DereferenceVisitor {
         throw error;
       }
     }
+
+    this.indirections.push(referencingElement);
 
     // detect direct or indirect reference
     if (referencingElement === referencedElement) {

@@ -13,7 +13,7 @@ exports[`refractor elements WorkflowElement should refract to semantic ApiDOM tr
     (StringElement))
   (MemberElement
     (StringElement)
-    (JSONSchema202012Element
+    (JSONSchemaElement
       (MemberElement
         (StringElement)
         (StringElement))
@@ -22,7 +22,7 @@ exports[`refractor elements WorkflowElement should refract to semantic ApiDOM tr
         (ObjectElement
           (MemberElement
             (StringElement)
-            (JSONSchema202012Element
+            (JSONSchemaElement
               (MemberElement
                 (StringElement)
                 (StringElement))))))))

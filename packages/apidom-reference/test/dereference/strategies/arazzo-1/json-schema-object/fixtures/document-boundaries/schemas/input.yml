@@ -1,0 +1,6 @@
+type: object
+properties:
+  petId:
+    type: string
+  profile:
+    $ref: "./profile.yml"

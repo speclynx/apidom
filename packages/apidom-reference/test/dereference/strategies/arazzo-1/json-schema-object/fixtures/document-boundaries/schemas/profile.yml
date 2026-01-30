@@ -1,0 +1,4 @@
+type: object
+properties:
+  avatar:
+    type: string
