@@ -1,14 +1,15 @@
 import { reduce } from 'ramda';
 import { Element, isPrimitiveElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
-import { SchemaElement, refractSchema } from '@speclynx/apidom-ns-openapi-3-1';
+import { JSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2020-12';
+import { refractSchema } from '@speclynx/apidom-ns-openapi-3-1';
 
 import * as url from '../../../util/url.ts';
 
 /**
  * @public
  */
-export const resolveSchema$refField = (retrievalURI: string, schemaElement: SchemaElement) => {
+export const resolveSchema$refField = (retrievalURI: string, schemaElement: JSONSchemaElement) => {
   if (typeof schemaElement.$ref === 'undefined') {
     return undefined;
   }
@@ -33,7 +34,7 @@ export const resolveSchema$refField = (retrievalURI: string, schemaElement: Sche
  */
 export const resolveSchema$idField = (
   retrievalURI: string,
-  schemaElement: SchemaElement,
+  schemaElement: JSONSchemaElement,
 ): string | undefined => {
   if (typeof schemaElement.$id === 'undefined') {
     return undefined;

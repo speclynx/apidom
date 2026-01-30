@@ -141,7 +141,7 @@ export const refractInfo = <T extends Element = InfoElement>(
 export const refractJSONSchema = <T extends Element = JSONSchemaElement>(
   value: unknown,
   options: Omit<RefractorOptions, 'element'> = {},
-): T => refract(value, { ...options, element: 'jSONSchema202012' });
+): T => refract(value, { ...options, element: 'jSONSchema' });
 
 /**
  * @public

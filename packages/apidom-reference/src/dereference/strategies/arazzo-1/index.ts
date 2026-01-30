@@ -37,6 +37,7 @@ export type {
   default as BundleStrategy,
   BundleStrategyOptions,
 } from '../../../bundle/strategies/BundleStrategy.ts';
+export type { AncestorLineage } from '../../util.ts';
 
 /**
  * @public
@@ -133,4 +134,10 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
 }
 
 export { Arazzo1DereferenceVisitor };
+export {
+  resolveSchema$refField,
+  resolveSchema$idField,
+  maybeRefractToJSONSchemaElement,
+} from './util.ts';
+
 export default Arazzo1DereferenceStrategy;

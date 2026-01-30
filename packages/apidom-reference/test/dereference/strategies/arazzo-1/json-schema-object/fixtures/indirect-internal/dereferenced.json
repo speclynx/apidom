@@ -1,0 +1,55 @@
+[
+  {
+    "arazzo": "1.0.1",
+    "info": {
+      "title": "Test Workflow",
+      "version": "1.0.0"
+    },
+    "sourceDescriptions": [
+      {
+        "name": "petStore",
+        "url": "https://example.com/openapi.json",
+        "type": "openapi"
+      }
+    ],
+    "workflows": [
+      {
+        "workflowId": "testWorkflow",
+        "inputs": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "stepId": "step1",
+            "operationId": "petStore.getPet"
+          }
+        ]
+      }
+    ],
+    "components": {
+      "inputs": {
+        "Indirection1": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "Indirection2": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+]

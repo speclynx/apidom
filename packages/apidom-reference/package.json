@@ -237,6 +237,7 @@
     "@speclynx/apidom-json-pointer": "^2.4.0",
     "@speclynx/apidom-ns-arazzo-1": "^2.4.0",
     "@speclynx/apidom-ns-asyncapi-2": "^2.4.0",
+    "@speclynx/apidom-ns-json-schema-2020-12": "^2.4.0",
     "@speclynx/apidom-ns-openapi-2": "^2.4.0",
     "@speclynx/apidom-ns-openapi-3-0": "^2.4.0",
     "@speclynx/apidom-ns-openapi-3-1": "^2.4.0",
