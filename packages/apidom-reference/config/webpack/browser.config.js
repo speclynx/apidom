@@ -29,10 +29,8 @@ const browser = {
     rules: [
       {
         test: /\.wasm$/,
-        type: 'asset/inline',
-        generator: {
-          dataUrl: () => '',
-        },
+        type: 'javascript/auto',
+        use: 'null-loader',
       },
       {
         test: /\.(ts|js)?$/,
@@ -76,10 +74,8 @@ const browserMin = {
     rules: [
       {
         test: /\.wasm$/,
-        type: 'asset/inline',
-        generator: {
-          dataUrl: () => '',
-        },
+        type: 'javascript/auto',
+        use: 'null-loader',
       },
       {
         test: /\.(ts|js)?$/,
