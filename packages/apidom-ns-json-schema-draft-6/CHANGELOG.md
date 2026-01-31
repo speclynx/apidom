@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.1](https://github.com/speclynx/apidom/compare/v2.5.0...v2.5.1) (2026-01-31)
+
+**Note:** Version bump only for package @speclynx/apidom-ns-json-schema-draft-6
+
 # [2.5.0](https://github.com/speclynx/apidom/compare/v2.4.0...v2.5.0) (2026-01-30)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-json-schema-draft-6

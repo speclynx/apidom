@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.1](https://github.com/speclynx/apidom/compare/v2.5.0...v2.5.1) (2026-01-31)
+
+### Bug Fixes
+
+- **reference:** make accessing parse result consistent ([#58](https://github.com/speclynx/apidom/issues/58)) ([8789ed7](https://github.com/speclynx/apidom/commit/8789ed77051082036838d2d51ef9f8ae29ae02e4))
+
 # [2.5.0](https://github.com/speclynx/apidom/compare/v2.4.0...v2.5.0) (2026-01-30)
 
 ### Features
