@@ -62,7 +62,7 @@ class OpenAPI3_0DereferenceStrategy extends DereferenceStrategy {
     }
 
     // assert by inspecting ApiDOM
-    return isOpenApi3_0Element(file.parseResult?.api);
+    return isOpenApi3_0Element(file.parseResult?.result);
   }
 
   async dereference(file: File, options: ReferenceOptions): Promise<Element> {

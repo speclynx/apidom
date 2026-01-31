@@ -62,7 +62,7 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
     }
 
     // assert by inspecting ApiDOM
-    return isArazzoSpecification1Element(file.parseResult?.api);
+    return isArazzoSpecification1Element(file.parseResult?.result);
   }
 
   async dereference(file: File, options: ReferenceOptions): Promise<Element> {

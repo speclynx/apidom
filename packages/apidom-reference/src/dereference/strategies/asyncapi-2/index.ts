@@ -59,7 +59,7 @@ class AsyncAPI2DereferenceStrategy extends DereferenceStrategy {
     }
 
     // assert by inspecting ApiDOM
-    return isAsyncApi2Element(file.parseResult?.api);
+    return isAsyncApi2Element(file.parseResult?.result);
   }
 
   async dereference(file: File, options: ReferenceOptions): Promise<Element> {
