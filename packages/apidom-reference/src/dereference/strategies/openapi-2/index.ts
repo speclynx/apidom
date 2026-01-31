@@ -60,7 +60,7 @@ class OpenAPI2DereferenceStrategy extends DereferenceStrategy {
     }
 
     // assert by inspecting ApiDOM
-    return isSwaggerElement(file.parseResult?.api);
+    return isSwaggerElement(file.parseResult?.result);
   }
 
   async dereference(file: File, options: ReferenceOptions): Promise<Element> {
