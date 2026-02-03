@@ -29,7 +29,7 @@ export const readFile = async (file: File, options: ReferenceOptions): Promise<B
   }
 
   try {
-    const { result } = await plugins.run('read', [file], resolvers);
+    const { result } = await plugins.run('read', [file, options], resolvers);
     return result;
   } catch (error: any) {
     throw new ResolveError(`Error while reading file "${file.uri}"`, { cause: error });
