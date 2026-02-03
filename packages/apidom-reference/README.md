@@ -292,6 +292,84 @@ Supported media types are:
 ]
 ```
 
+##### Constructor options
+
+In addition to standard parser plugin options (`allowEmpty`, `sourceMap`, etc.), this parser accepts:
+
+- **parseFn** - A function used to parse source descriptions. When provided, enables the `sourceDescriptions` feature.
+In saturated configuration, this is automatically set to the `parse` function.
+
+```js
+import { parse } from '@speclynx/apidom-reference';
+import ArazzoJSON1Parser from '@speclynx/apidom-reference/parse/parsers/arazzo-json-1';
+
+// Create parser with parseFn to enable source descriptions feature
+const parser = new ArazzoJSON1Parser({
+  allowEmpty: true,
+  sourceMap: false,
+  parseFn: parse, // pass the parse function to enable recursive parsing
+});
+```
+
+##### Parser options
+
+The following options can be passed via `parse.parserOpts` (globally) or `parse.parserOpts['arazzo-json-1']` (parser-specific).
+Parser-specific options take precedence over global options.
+
+- **sourceDescriptions** - Controls which external source descriptions are parsed and included in the `ParseResultElement`.
+  - `true` - parse all source descriptions
+  - `string[]` - parse only source descriptions with matching names (e.g., `['petStore', 'paymentApi']`)
+
+  Each parsed source description is added with a `'source-description'` class and metadata (`name`, `type`).
+  Only OpenAPI 2.0, OpenAPI 3.0.x, OpenAPI 3.1.x, and Arazzo 1.x documents are accepted as source descriptions.
+- **sourceDescriptionsMaxDepth** - Maximum recursion depth for parsing nested Arazzo source descriptions.
+  Defaults to `+Infinity`. Circular references are automatically detected and skipped.
+
+##### Error handling
+
+The source descriptions parsing uses annotations instead of throwing errors, allowing parsing to continue
+even when individual source descriptions fail. Errors are reported as `AnnotationElement` instances
+with an `'error'` class within the parse result:
+
+- **Max depth exceeded** - When `sourceDescriptionsMaxDepth` is reached, an error annotation is returned
+  instead of the nested source descriptions
+- **Parse failures** - If a source description file cannot be parsed (e.g., file not found, invalid syntax),
+  an error annotation is returned for that specific source description while other source descriptions
+  continue to be processed
+- **Validation warnings** - Warning annotations (with `'warning'` class) are returned when prerequisites
+  for parsing are not met (e.g., API is not an Arazzo specification, `parseFn` not configured)
+
+```js
+import { parse } from '@speclynx/apidom-reference';
+
+// Parse all source descriptions
+const parseResult = await parse('/path/to/arazzo.json', {
+  parse: {
+    parserOpts: {
+      sourceDescriptions: true,
+      sourceDescriptionsMaxDepth: 10,
+    },
+  },
+});
+
+// Parse only specific source descriptions by name
+const parseResultFiltered = await parse('/path/to/arazzo.json', {
+  parse: {
+    parserOpts: {
+      sourceDescriptions: ['petStore', 'paymentApi'],
+    },
+  },
+});
+
+// Access parsed source descriptions
+for (const element of parseResult) {
+  if (element.classes.includes('source-description')) {
+    console.log(element.meta.get('name').toValue()); // e.g., 'petStore'
+    console.log(element.meta.get('type').toValue()); // e.g., 'openapi'
+  }
+}
+```
+
 #### [arazzo-yaml-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/parse/parsers/arazzo-yaml-1)
 
 Wraps [@speclynx/apidom-parser-adapter-arazzo-yaml-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-parser-adapter-arazzo-yaml-1) package
@@ -307,6 +385,31 @@ Supported media types are:
   'application/vnd.oai.workflows+yaml;version=1.0.1',
 ]
 ```
+
+##### Constructor options
+
+In addition to standard parser plugin options (`allowEmpty`, `sourceMap`, etc.), this parser accepts:
+
+- **parseFn** - A function used to parse source descriptions. When provided, enables the `sourceDescriptions` feature.
+  In saturated configuration, this is automatically set to the `parse` function.
+
+##### Parser options
+
+The following options can be passed via `parse.parserOpts` (globally) or `parse.parserOpts['arazzo-yaml-1']` (parser-specific).
+Parser-specific options take precedence over global options. See [arazzo-json-1](#arazzo-json-1) for usage examples.
+
+- **sourceDescriptions** - Controls which external source descriptions are parsed and included in the `ParseResultElement`.
+  - `true` - parse all source descriptions
+  - `string[]` - parse only source descriptions with matching names (e.g., `['petStore', 'paymentApi']`)
+
+  Each parsed source description is added with a `'source-description'` class and metadata (`name`, `type`).
+  Only OpenAPI 2.0, OpenAPI 3.0.x, OpenAPI 3.1.x, and Arazzo 1.x documents are accepted as source descriptions.
+- **sourceDescriptionsMaxDepth** - Maximum recursion depth for parsing nested Arazzo source descriptions.
+  Defaults to `+Infinity`. Circular references are automatically detected and skipped.
+
+##### Error handling
+
+See [arazzo-json-1 Error handling](#error-handling) - the behavior is identical for both JSON and YAML parsers.
 
 #### [json](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/parse/parsers/json)
 
@@ -365,8 +468,8 @@ returns `true` or until entire list of parser plugins is exhausted (throws error
   new OpenAPIYAML3_1Parser({ allowEmpty: true, sourceMap: false }),
   new AsyncAPIJSON2Parser({ allowEmpty: true, sourceMap: false }),
   new AsyncAPIYAML2Parser({ allowEmpty: true, sourceMap: false }),
-  new ArazzoJSON1Parser({ allowEmpty: true, sourceMap: false }),
-  new ArazzoYAML1Parser({ allowEmpty: true, sourceMap: false }),
+  new ArazzoJSON1Parser({ allowEmpty: true, sourceMap: false, parseFn: parse }),
+  new ArazzoYAML1Parser({ allowEmpty: true, sourceMap: false, parseFn: parse }),
   new APIDesignSystemsJSONParser({ allowEmpty: true, sourceMap: false }),
   new APIDesignSystemsYAMLParser({ allowEmpty: true, sourceMap: false }),
   new APIDOMJSONParser({ allowEmpty: true, sourceMap: false }),
@@ -406,8 +509,8 @@ options.parse.parsers = [
   new OpenAPIYAML3_1Parser({ allowEmpty: true, sourceMap: false }),
   new AsyncAPIJSON2Parser({ allowEmpty: true, sourceMap: false }),
   new AsyncAPIYAML2Parser({ allowEmpty: true, sourceMap: false }),
-  new ArazzoJSON1Parser({ allowEmpty: true, sourceMap: false }),
-  new ArazzoYAML1Parser({ allowEmpty: true, sourceMap: false }),
+  new ArazzoJSON1Parser({ allowEmpty: true, sourceMap: false, parseFn: parse }),
+  new ArazzoYAML1Parser({ allowEmpty: true, sourceMap: false, parseFn: parse }),
   new APIDesignSystemsJSONParser({ allowEmpty: true, sourceMap: false }),
   new APIDesignSystemsYAMLParser({ allowEmpty: true, sourceMap: false }),
   new APIDOMJSONParser({ allowEmpty: true, sourceMap: false }),
@@ -448,8 +551,8 @@ await parse('/home/user/oas.json', {
       new OpenAPIYAML3_1Parser({ allowEmpty: true, sourceMap: false }),
       new AsyncAPIJSON2Parser({ allowEmpty: true, sourceMap: false }),
       new AsyncAPIYAML2Parser({ allowEmpty: true, sourceMap: false }),
-      new ArazzoJSON1Parser({ allowEmpty: true, sourceMap: false }),
-      new ArazzoYAML1Parser({ allowEmpty: true, sourceMap: false }),
+      new ArazzoJSON1Parser({ allowEmpty: true, sourceMap: false, parseFn: parse }),
+      new ArazzoYAML1Parser({ allowEmpty: true, sourceMap: false, parseFn: parse }),
       new APIDesignSystemsJSONParser({ allowEmpty: true, sourceMap: false }),
       new APIDesignSystemsYAMLParser({ allowEmpty: true, sourceMap: false }),
       new APIDOMJSONParser({ allowEmpty: true, sourceMap: false }),

@@ -1,0 +1,16 @@
+arazzo: "1.0.1"
+info:
+  title: Test Workflow with Type Mismatch
+  version: "1.0.0"
+sourceDescriptions:
+  - name: declaredOpenApiActualArazzo
+    url: "./arazzo.yaml"
+    type: openapi
+  - name: declaredArazzoActualOpenApi
+    url: "./openapi.yaml"
+    type: arazzo
+workflows:
+  - workflowId: testWorkflow
+    steps:
+      - stepId: testStep
+        operationId: test

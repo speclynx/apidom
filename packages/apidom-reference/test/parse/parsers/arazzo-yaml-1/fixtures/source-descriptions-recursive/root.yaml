@@ -1,0 +1,13 @@
+arazzo: "1.0.1"
+info:
+  title: Root Workflow
+  version: "1.0.0"
+sourceDescriptions:
+  - name: nestedWorkflow
+    url: "./nested.yaml"
+    type: arazzo
+workflows:
+  - workflowId: rootWorkflow
+    steps:
+      - stepId: rootStep
+        operationId: nestedWorkflow.petStore.getPets

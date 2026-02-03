@@ -146,6 +146,8 @@ npm run test:update-snapshots
 - ESLint + Prettier for formatting
 - Conventional Commits for commit messages
 - Branch naming: `feature/description` or `fix/issue-number-description`
+- Line comments (`//`) start with lowercase
+- Block comments (`/** */`) start with uppercase
 
 ## Dependencies
 

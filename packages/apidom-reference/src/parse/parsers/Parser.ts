@@ -1,6 +1,7 @@
 import { ParseResultElement } from '@speclynx/apidom-datamodel';
 
 import File from '../../File.ts';
+import type { ReferenceOptions } from '../../options/index.ts';
 
 /**
  * @public
@@ -61,8 +62,11 @@ abstract class Parser {
     this.mediaTypes = mediaTypes;
   }
 
-  abstract canParse(file: File): boolean | Promise<boolean>;
-  abstract parse(file: File): ParseResultElement | Promise<ParseResultElement>;
+  abstract canParse(file: File, options?: ReferenceOptions): boolean | Promise<boolean>;
+  abstract parse(
+    file: File,
+    options?: ReferenceOptions,
+  ): ParseResultElement | Promise<ParseResultElement>;
 }
 
 export default Parser;
