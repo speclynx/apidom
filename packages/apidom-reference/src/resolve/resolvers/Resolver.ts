@@ -1,4 +1,5 @@
 import File from '../../File.ts';
+import type { ReferenceOptions } from '../../options/index.ts';
 
 /**
  * @public
@@ -17,8 +18,8 @@ abstract class Resolver {
     this.name = name;
   }
 
-  public abstract canRead(file: File): boolean;
-  public abstract read(file: File): Promise<Buffer>;
+  public abstract canRead(file: File, options?: ReferenceOptions): boolean;
+  public abstract read(file: File, options?: ReferenceOptions): Promise<Buffer>;
 }
 
 export default Resolver;
