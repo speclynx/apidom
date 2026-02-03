@@ -1,0 +1,13 @@
+arazzo: "1.0.1"
+info:
+  title: Workflow B
+  version: "1.0.0"
+sourceDescriptions:
+  - name: workflowA
+    url: "./a.yaml"
+    type: arazzo
+workflows:
+  - workflowId: workflowB
+    steps:
+      - stepId: stepB
+        operationId: test

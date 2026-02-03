@@ -1,0 +1,25 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "Workflow A",
+    "version": "1.0.0"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "workflowB",
+      "url": "./b.json",
+      "type": "arazzo"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "workflowA",
+      "steps": [
+        {
+          "stepId": "stepA",
+          "operationId": "test"
+        }
+      ]
+    }
+  ]
+}
