@@ -62,10 +62,10 @@ abstract class Parser {
     this.mediaTypes = mediaTypes;
   }
 
-  abstract canParse(file: File, options: ReferenceOptions): boolean | Promise<boolean>;
+  abstract canParse(file: File, options?: ReferenceOptions): boolean | Promise<boolean>;
   abstract parse(
     file: File,
-    options: ReferenceOptions,
+    options?: ReferenceOptions,
   ): ParseResultElement | Promise<ParseResultElement>;
 }
 
