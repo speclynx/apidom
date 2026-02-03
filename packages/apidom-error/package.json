@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-error",
-  "version": "2.5.1",
+  "version": "2.6.0",
   "description": "Backward compatible custom ApiDOM errors with causes.",
   "publishConfig": {
     "access": "public",

@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.6.0](https://github.com/speclynx/apidom/compare/v2.5.1...v2.6.0) (2026-02-03)
+
+### Features
+
+- **reference:** add support for Arazzo Source Description parsing ([#63](https://github.com/speclynx/apidom/issues/63)) ([6df480a](https://github.com/speclynx/apidom/commit/6df480a10bb72b2207d37e0239d2ef9b73e49d08))
+- **reference:** pass options objects to resolve methods ([#64](https://github.com/speclynx/apidom/issues/64)) ([be9ca2d](https://github.com/speclynx/apidom/commit/be9ca2de33ae7a2fa9b677a8521873bcdd6781be))
+
 ## [2.5.1](https://github.com/speclynx/apidom/compare/v2.5.0...v2.5.1) (2026-01-31)
 
 ### Bug Fixes
