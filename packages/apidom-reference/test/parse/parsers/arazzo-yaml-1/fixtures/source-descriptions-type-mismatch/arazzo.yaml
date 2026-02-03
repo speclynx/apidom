@@ -1,0 +1,10 @@
+arazzo: "1.0.1"
+info:
+  title: Arazzo Document
+  version: "1.0.0"
+sourceDescriptions: []
+workflows:
+  - workflowId: testWorkflow
+    steps:
+      - stepId: testStep
+        operationId: test

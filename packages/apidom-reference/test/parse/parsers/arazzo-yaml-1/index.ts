@@ -388,6 +388,72 @@ describe('parsers', function () {
           });
         });
 
+        context('given type mismatch between declared and actual type', function () {
+          specify(
+            'should add warning when declared openapi but actual is arazzo',
+            async function () {
+              const uri = path.join(
+                __dirname,
+                'fixtures',
+                'source-descriptions-type-mismatch',
+                'root.yaml',
+              );
+              const parseResult = await parse(uri, {
+                parse: {
+                  parserOpts: {
+                    'arazzo-yaml-1': { sourceDescriptions: ['declaredOpenApiActualArazzo'] },
+                  },
+                },
+              });
+
+              assert.isTrue(isParseResultElement(parseResult));
+              assert.strictEqual(parseResult.length, 2);
+
+              const sdParseResult = parseResult.get(1)! as ParseResultElement;
+              assert.isTrue(isParseResultElement(sdParseResult));
+              // should have arazzo API + warning annotation
+              assert.strictEqual(sdParseResult.length, 2);
+
+              const annotation = sdParseResult.get(1);
+              assert.strictEqual(annotation?.element, 'annotation');
+              assert.isTrue(annotation?.classes.includes('warning'));
+              assert.include(annotation?.toValue(), 'declared as "openapi" but parsed as Arazzo');
+            },
+          );
+
+          specify(
+            'should add warning when declared arazzo but actual is openapi',
+            async function () {
+              const uri = path.join(
+                __dirname,
+                'fixtures',
+                'source-descriptions-type-mismatch',
+                'root.yaml',
+              );
+              const parseResult = await parse(uri, {
+                parse: {
+                  parserOpts: {
+                    'arazzo-yaml-1': { sourceDescriptions: ['declaredArazzoActualOpenApi'] },
+                  },
+                },
+              });
+
+              assert.isTrue(isParseResultElement(parseResult));
+              assert.strictEqual(parseResult.length, 2);
+
+              const sdParseResult = parseResult.get(1)! as ParseResultElement;
+              assert.isTrue(isParseResultElement(sdParseResult));
+              // should have openapi API + warning annotation
+              assert.strictEqual(sdParseResult.length, 2);
+
+              const annotation = sdParseResult.get(1);
+              assert.strictEqual(annotation?.element, 'annotation');
+              assert.isTrue(annotation?.classes.includes('warning'));
+              assert.include(annotation?.toValue(), 'declared as "arazzo" but parsed as OpenAPI');
+            },
+          );
+        });
+
         context('given sourceDescriptions as array of names', function () {
           specify('should parse only specified source descriptions', async function () {
             const uri = path.join(__dirname, 'fixtures', 'source-descriptions-filter', 'root.yaml');

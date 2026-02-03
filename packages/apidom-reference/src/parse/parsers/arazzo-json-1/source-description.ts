@@ -113,17 +113,37 @@ async function parseSourceDescription(
 
   // only allow OpenAPI and Arazzo as source descriptions
   const { api: sourceDescriptionAPI } = parseResult;
-  if (
-    !isSwaggerElement(sourceDescriptionAPI) &&
-    !isOpenApi3_0Element(sourceDescriptionAPI) &&
-    !isOpenApi3_1Element(sourceDescriptionAPI) &&
-    !isArazzoSpecification1Element(sourceDescriptionAPI)
-  ) {
+  const isOpenApi =
+    isSwaggerElement(sourceDescriptionAPI) ||
+    isOpenApi3_0Element(sourceDescriptionAPI) ||
+    isOpenApi3_1Element(sourceDescriptionAPI);
+  const isArazzo = isArazzoSpecification1Element(sourceDescriptionAPI);
+
+  if (!isOpenApi && !isArazzo) {
     const annotation = new AnnotationElement(
       `Source description "${retrievalURI}" is not an OpenAPI or Arazzo document. Skipping.`,
     );
     annotation.classes.push('warning');
     parseResult.push(annotation);
+    return parseResult;
+  }
+
+  // validate declared type matches actual parsed type
+  const declaredType = toValue(sourceDescription.type);
+  if (typeof declaredType === 'string') {
+    if (declaredType === 'openapi' && !isOpenApi) {
+      const annotation = new AnnotationElement(
+        `Source description "${retrievalURI}" declared as "openapi" but parsed as Arazzo document.`,
+      );
+      annotation.classes.push('warning');
+      parseResult.push(annotation);
+    } else if (declaredType === 'arazzo' && !isArazzo) {
+      const annotation = new AnnotationElement(
+        `Source description "${retrievalURI}" declared as "arazzo" but parsed as OpenAPI document.`,
+      );
+      annotation.classes.push('warning');
+      parseResult.push(annotation);
+    }
   }
 
   return parseResult;
