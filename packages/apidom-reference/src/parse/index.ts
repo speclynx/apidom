@@ -6,7 +6,7 @@ import File from '../File.ts';
 import * as plugins from '../util/plugins.ts';
 import Parser from './parsers/Parser.ts';
 import ParseError from '../errors/ParseError.ts';
-import UnmatchedResolverError from '../errors/UnmatchedResolverError.ts';
+import UnmatchedParserError from '../errors/UnmatchedParserError.ts';
 import { readFile } from '../resolve/util.ts';
 import type { ReferenceOptions } from '../options/index.ts';
 
@@ -23,7 +23,7 @@ const parseFile = async (file: File, options: ReferenceOptions): Promise<ParseRe
 
   // we couldn't find any parser for this File
   if (isEmpty(parsers)) {
-    throw new UnmatchedResolverError(file.uri);
+    throw new UnmatchedParserError(file.uri);
   }
 
   try {
