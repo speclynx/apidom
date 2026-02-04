@@ -47,9 +47,11 @@ export const resolveApiDOM = async <T extends Element>(
     options.resolve.strategies,
   );
 
-  // we couldn't find any resolver for this File
+  // we couldn't find any resolve strategy for this File
   if (isEmpty(resolveStrategies)) {
-    throw new UnmatchedResolveStrategyError(file.uri);
+    throw new UnmatchedResolveStrategyError(
+      `Could not find a resolve strategy that can resolve the file "${file.uri}"`,
+    );
   }
 
   try {

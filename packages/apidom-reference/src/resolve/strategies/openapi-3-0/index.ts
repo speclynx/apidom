@@ -59,7 +59,7 @@ class OpenAPI3_0ResolveStrategy extends ResolveStrategy {
 
     if (dereferenceStrategy === undefined) {
       throw new UnmatchedDereferenceStrategyError(
-        '"openapi-3-0" dereference strategy is not available.',
+        `"openapi-3-0" resolve strategy requires "openapi-3-0" dereference strategy to be configured for file "${file.uri}"`,
       );
     }
 

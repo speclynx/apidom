@@ -41,7 +41,9 @@ const bundle = async (uri: string, options: ReferenceOptions): Promise<ParseResu
 
   // we couldn't find any bundle strategy for this File
   if (isEmpty(bundleStrategies)) {
-    throw new UnmatchedBundleStrategyError(file.uri);
+    throw new UnmatchedBundleStrategyError(
+      `Could not find a bundle strategy that can bundle the file "${file.uri}"`,
+    );
   }
 
   try {

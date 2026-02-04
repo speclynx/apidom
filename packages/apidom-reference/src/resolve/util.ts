@@ -25,7 +25,9 @@ export const readFile = async (file: File, options: ReferenceOptions): Promise<B
 
   // we couldn't find any resolver for this File
   if (isEmpty(resolvers)) {
-    throw new UnmatchedResolverError(file.uri);
+    throw new UnmatchedResolverError(
+      `Could not find a resolver that can read the file "${file.uri}"`,
+    );
   }
 
   try {
