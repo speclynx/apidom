@@ -59,7 +59,7 @@ class ApiDOMResolveStrategy extends ResolveStrategy {
 
     if (dereferenceStrategy === undefined) {
       throw new UnmatchedDereferenceStrategyError(
-        '"apidom" dereference strategy is not available.',
+        `"apidom" resolve strategy requires "apidom" dereference strategy to be configured for file "${file.uri}"`,
       );
     }
 

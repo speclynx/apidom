@@ -59,7 +59,7 @@ class AsyncAPI2ResolveStrategy extends ResolveStrategy {
 
     if (dereferenceStrategy === undefined) {
       throw new UnmatchedDereferenceStrategyError(
-        '"asyncapi-2" dereference strategy is not available.',
+        `"asyncapi-2" resolve strategy requires "asyncapi-2" dereference strategy to be configured for file "${file.uri}"`,
       );
     }
 

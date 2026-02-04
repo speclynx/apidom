@@ -48,7 +48,9 @@ export const dereferenceApiDOM = async <T extends Element>(
 
   // we couldn't find any dereference strategy for this File
   if (isEmpty(dereferenceStrategies)) {
-    throw new UnmatchedDereferenceStrategyError(file.uri);
+    throw new UnmatchedDereferenceStrategyError(
+      `Could not find a dereference strategy that can dereference the file "${file.uri}"`,
+    );
   }
 
   try {

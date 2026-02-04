@@ -59,7 +59,7 @@ class OpenAPI2ResolveStrategy extends ResolveStrategy {
 
     if (dereferenceStrategy === undefined) {
       throw new UnmatchedDereferenceStrategyError(
-        '"openapi-2" dereference strategy is not available.',
+        `"openapi-2" resolve strategy requires "openapi-2" dereference strategy to be configured for file "${file.uri}"`,
       );
     }
 

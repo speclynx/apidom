@@ -581,7 +581,7 @@ class OpenAPI3_1DereferenceVisitor {
       );
       // OperationElement not found by its operationId
       if (isUndefined(operationElement)) {
-        throw new ApiDOMError(`OperationElement(operationId=${operationId}) not found.`);
+        throw new ApiDOMError(`OperationElement(operationId=${operationId}) not found`);
       }
 
       const linkElementCopy = cloneShallow(linkElement);

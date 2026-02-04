@@ -23,7 +23,7 @@ const parseFile = async (file: File, options: ReferenceOptions): Promise<ParseRe
 
   // we couldn't find any parser for this File
   if (isEmpty(parsers)) {
-    throw new UnmatchedParserError(file.uri);
+    throw new UnmatchedParserError(`Could not find a parser that can parse the file "${file.uri}"`);
   }
 
   try {
@@ -32,7 +32,7 @@ const parseFile = async (file: File, options: ReferenceOptions): Promise<ParseRe
     // empty files handling
     if (!plugin.allowEmpty && result.isEmpty) {
       return Promise.reject(
-        new ParseError(`Error while parsing file "${file.uri}". File is empty.`),
+        new ParseError(`Error while parsing file "${file.uri}": file is empty`),
       );
     }
 
