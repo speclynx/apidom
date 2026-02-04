@@ -11,7 +11,7 @@ import { merge as mergeOptions } from '../../src/options/util.ts';
 import parse from '../../src/parse/index.ts';
 import ParseError from '../../src/errors/ParseError.ts';
 import ResolveError from '../../src/errors/ResolveError.ts';
-import UnmatchedResolverError from '../../src/errors/UnmatchedResolverError.ts';
+import UnmatchedParserError from '../../src/errors/UnmatchedParserError.ts';
 import OpenAPIJSON3_1Parser from '../../src/parse/parsers/openapi-json-3-1/index.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -83,9 +83,9 @@ describe('parse', function () {
 
       try {
         await parse(uri, options);
-        assert.fail('Should throw UnmatchedResolverError');
+        assert.fail('Should throw UnmatchedParserError');
       } catch (error) {
-        assert.instanceOf(error, UnmatchedResolverError);
+        assert.instanceOf(error, UnmatchedParserError);
       }
     });
   });

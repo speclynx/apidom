@@ -67,6 +67,7 @@ export { default as ResolverError } from './errors/ResolverError.ts';
 export { default as UnmatchedDereferenceStrategyError } from './errors/UnmatchedDereferenceStrategyError.ts';
 export { default as UnmatchedResolveStrategyError } from './errors/UnmatchedResolveStrategyError.ts';
 export { default as UnmatchedResolverError } from './errors/UnmatchedResolverError.ts';
+export { default as UnmatchedParserError } from './errors/UnmatchedParserError.ts';
 
 /**
  * @public
