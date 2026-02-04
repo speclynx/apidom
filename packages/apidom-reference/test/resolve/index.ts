@@ -183,7 +183,7 @@ describe('resolve', function () {
         assert.fail('Should throw ParseError');
       } catch (error: any) {
         assert.instanceOf(error, ParseError);
-        assert.match(error.message, /File is empty\.$/);
+        assert.match(error.message, /file is empty$/);
       }
     });
   });
