@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.6.1](https://github.com/speclynx/apidom/compare/v2.6.0...v2.6.1) (2026-02-04)
+
+### Bug Fixes
+
+- **reference:** enhance error messages ([#67](https://github.com/speclynx/apidom/issues/67)) ([4d73e5f](https://github.com/speclynx/apidom/commit/4d73e5fd4dbff6bfd222d4ba821c004250e82662))
+- **reference:** throw UnmatchedParserError on empty parser match ([#66](https://github.com/speclynx/apidom/issues/66)) ([ce99b42](https://github.com/speclynx/apidom/commit/ce99b421fb8dfc91541ca74aefb06cd3bcfd777c))
+
 # [2.6.0](https://github.com/speclynx/apidom/compare/v2.5.1...v2.6.0) (2026-02-03)
 
 ### Features

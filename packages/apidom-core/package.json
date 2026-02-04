@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-core",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "Tools for manipulating ApiDOM structures.",
   "publishConfig": {
     "access": "public",
@@ -40,9 +40,9 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^7.28.4",
-    "@speclynx/apidom-datamodel": "^2.6.0",
-    "@speclynx/apidom-error": "^2.6.0",
-    "@speclynx/apidom-traverse": "^2.6.0",
+    "@speclynx/apidom-datamodel": "^2.6.1",
+    "@speclynx/apidom-error": "^2.6.1",
+    "@speclynx/apidom-traverse": "^2.6.1",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.0.0",
     "short-unique-id": "^5.3.2",
