@@ -513,7 +513,7 @@ class OpenAPI3_1DereferenceVisitor {
     // operationRef and operationId fields are mutually exclusive
     if (isStringElement(linkElement.operationRef) && isStringElement(linkElement.operationId)) {
       throw new ApiDOMError(
-        'LinkElement operationRef and operationId fields are mutually exclusive.',
+        'LinkElement operationRef and operationId fields are mutually exclusive',
       );
     }
 
@@ -604,9 +604,7 @@ class OpenAPI3_1DereferenceVisitor {
 
     // value and externalValue fields are mutually exclusive
     if (exampleElement.hasKey('value') && isStringElement(exampleElement.externalValue)) {
-      throw new ApiDOMError(
-        'ExampleElement value and externalValue fields are mutually exclusive.',
-      );
+      throw new ApiDOMError('ExampleElement value and externalValue fields are mutually exclusive');
     }
 
     const retrievalURI = this.toBaseURI(toValue(exampleElement.externalValue) as string);
