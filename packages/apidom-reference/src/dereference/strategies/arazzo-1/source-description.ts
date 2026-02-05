@@ -126,6 +126,7 @@ async function dereferenceSourceDescription(
     );
     annotation.classes.push('warning');
     parseResult.push(annotation);
+    return parseResult;
   }
 
   // validate declared type matches actual dereferenced type
