@@ -81,7 +81,7 @@ async function parseSourceDescription(
   ctx.visitedUrls.add(retrievalURI);
 
   try {
-    const sdParseResult = await parse(
+    const sourceDescriptionParseResult = await parse(
       retrievalURI,
       mergeOptions(ctx.options, {
         parse: {
@@ -96,7 +96,7 @@ async function parseSourceDescription(
       }),
     );
     // merge parsed result into our parse result
-    for (const item of sdParseResult) {
+    for (const item of sourceDescriptionParseResult) {
       parseResult.push(item);
     }
   } catch (error: unknown) {
