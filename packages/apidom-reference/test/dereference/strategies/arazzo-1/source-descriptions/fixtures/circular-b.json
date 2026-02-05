@@ -1,0 +1,25 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "Circular B",
+    "version": "1.0.0"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "circularA",
+      "url": "./circular-a.json",
+      "type": "arazzo"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "workflowB",
+      "steps": [
+        {
+          "stepId": "stepB",
+          "operationId": "circularA.stepA"
+        }
+      ]
+    }
+  ]
+}

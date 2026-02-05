@@ -10,7 +10,6 @@ import ParserError from '../../../errors/ParserError.ts';
 import Parser, { ParserOptions } from '../Parser.ts';
 import File from '../../../File.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
-import type ParseFn from '../../index.ts';
 import { parseSourceDescriptions } from './source-description.ts';
 export type { default as Parser, ParserOptions } from '../Parser.ts';
 export type { default as File, FileOptions } from '../../../File.ts';
@@ -18,9 +17,7 @@ export type { default as File, FileOptions } from '../../../File.ts';
 /**
  * @public
  */
-export interface ArazzoJSON1ParserOptions extends Omit<ParserOptions, 'name'> {
-  readonly parseFn?: typeof ParseFn;
-}
+export interface ArazzoJSON1ParserOptions extends Omit<ParserOptions, 'name'> {}
 
 /**
  * @public
@@ -28,18 +25,10 @@ export interface ArazzoJSON1ParserOptions extends Omit<ParserOptions, 'name'> {
 class ArazzoJSON1Parser extends Parser {
   public refractorOpts!: object;
 
-  public parseFn?: typeof ParseFn;
-
   constructor(options?: ArazzoJSON1ParserOptions) {
-    const {
-      parseFn,
-      fileExtensions = [],
-      mediaTypes = ArazzoJSON1MediaTypes,
-      ...rest
-    } = options ?? {};
+    const { fileExtensions = [], mediaTypes = ArazzoJSON1MediaTypes, ...rest } = options ?? {};
 
     super({ ...rest, name: 'arazzo-json-1', fileExtensions, mediaTypes });
-    this.parseFn = parseFn;
   }
 
   async canParse(file: File): Promise<boolean> {
@@ -66,8 +55,8 @@ class ArazzoJSON1Parser extends Parser {
         options?.parse?.parserOpts?.[this.name]?.sourceDescriptions ??
         options?.parse?.parserOpts?.sourceDescriptions;
       if (shouldParseSourceDescriptions) {
-        const sourceDescriptions = await parseSourceDescriptions.call(
-          this,
+        const sourceDescriptions = await parseSourceDescriptions(
+          this.name,
           parseResult.api,
           file,
           options!,

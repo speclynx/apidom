@@ -1,4 +1,4 @@
-import { Element, Namespace, cloneDeep } from '@speclynx/apidom-datamodel';
+import { Element, Namespace, cloneDeep, ParseResultElement } from '@speclynx/apidom-datamodel';
 import { traverseAsync } from '@speclynx/apidom-traverse';
 import arazzo1Namespace, {
   isArazzoSpecification1Element,
@@ -10,6 +10,7 @@ import File from '../../../File.ts';
 import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
 import Arazzo1DereferenceVisitor from './visitor.ts';
+import { dereferenceSourceDescriptions } from './source-description.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 
 export type {
@@ -102,6 +103,22 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
     const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
       mutable: true,
     });
+
+    /**
+     * Dereference source descriptions if option is enabled.
+     */
+    const shouldDereferenceSourceDescriptions =
+      options?.dereference?.strategyOpts?.[this.name]?.sourceDescriptions ??
+      options?.dereference?.strategyOpts?.sourceDescriptions;
+
+    if (shouldDereferenceSourceDescriptions) {
+      const sourceDescriptions = await dereferenceSourceDescriptions(
+        dereferencedElement as ParseResultElement,
+        reference,
+        options,
+      );
+      (dereferencedElement as ParseResultElement).push(...sourceDescriptions);
+    }
 
     /**
      * If immutable option is set, replay refs from the refSet.

@@ -26,7 +26,7 @@ import OpenAPI3_1DereferenceStrategy from '../dereference/strategies/openapi-3-1
 import AsyncAPI2DereferenceStrategy from '../dereference/strategies/asyncapi-2/index.ts';
 import Arazzo1DereferenceStrategy from '../dereference/strategies/arazzo-1/index.ts';
 import OpenAPI3_1BundleStrategy from '../bundle/strategies/openapi-3-1/index.ts';
-import { options, parse } from '../index.ts';
+import { options } from '../index.ts';
 
 options.parse.parsers = [
   new OpenAPIJSON2Parser({ allowEmpty: true, sourceMap: false }),
@@ -37,8 +37,8 @@ options.parse.parsers = [
   new OpenAPIYAML3_1Parser({ allowEmpty: true, sourceMap: false }),
   new AsyncAPIJSON2Parser({ allowEmpty: true, sourceMap: false }),
   new AsyncAPIYAML2Parser({ allowEmpty: true, sourceMap: false }),
-  new ArazzoJSON1Parser({ allowEmpty: true, sourceMap: false, parseFn: parse }),
-  new ArazzoYAML1Parser({ allowEmpty: true, sourceMap: false, parseFn: parse }),
+  new ArazzoJSON1Parser({ allowEmpty: true, sourceMap: false }),
+  new ArazzoYAML1Parser({ allowEmpty: true, sourceMap: false }),
   new APIDOMJSONParser({ allowEmpty: true, sourceMap: false }),
   new JSONParser({ allowEmpty: true, sourceMap: false }),
   new YAMLParser({ allowEmpty: true, sourceMap: false }),

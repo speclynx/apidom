@@ -15,16 +15,16 @@ import { isOpenApi3_0Element } from '@speclynx/apidom-ns-openapi-3-0';
 import { isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 import { toValue } from '@speclynx/apidom-core';
 
-import File from '../../../File.ts';
+import Reference from '../../../Reference.ts';
 import * as url from '../../../util/url.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 import { merge as mergeOptions } from '../../../options/util.ts';
-import parse from '../../index.ts';
+import dereference from '../../index.ts';
 
-// shared key for recursion state (works across JSON/YAML parsers)
-const ARAZZO_RECURSION_KEY = 'arazzo-1';
+// shared key for recursion state (works across JSON/YAML documents)
+const ARAZZO_DEREFERENCE_RECURSION_KEY = 'arazzo-1';
 
-interface ParseSourceDescriptionContext {
+interface DereferenceSourceDescriptionContext {
   baseURI: string;
   options: ReferenceOptions;
   currentDepth: number;
@@ -32,18 +32,18 @@ interface ParseSourceDescriptionContext {
 }
 
 /**
- * Parses a single source description element.
- * Returns ParseResultElement on success, or undefined if skipped.
+ * Dereferences a single source description element.
+ * Returns ParseResultElement on success, or with annotation if skipped.
  */
-async function parseSourceDescription(
+async function dereferenceSourceDescription(
   sourceDescription: Element,
-  ctx: ParseSourceDescriptionContext,
+  ctx: DereferenceSourceDescriptionContext,
 ): Promise<ParseResultElement> {
   const parseResult = new ParseResultElement();
 
   if (!isSourceDescriptionElement(sourceDescription)) {
     const annotation = new AnnotationElement(
-      'Element is not a valid SourceDescriptionElement. Skipping.',
+      'Element is not a valid SourceDescriptionElement. Skipping',
     );
     annotation.classes.push('warning');
     parseResult.push(annotation);
@@ -60,7 +60,7 @@ async function parseSourceDescription(
   const sourceDescriptionURI = toValue(sourceDescription.url);
   if (typeof sourceDescriptionURI !== 'string') {
     const annotation = new AnnotationElement(
-      'Source description URL is missing or not a string. Skipping.',
+      'Source description URL is missing or not a string. Skipping',
     );
     annotation.classes.push('warning');
     parseResult.push(annotation);
@@ -72,7 +72,7 @@ async function parseSourceDescription(
   // skip if already visited (cycle detection)
   if (ctx.visitedUrls.has(retrievalURI)) {
     const annotation = new AnnotationElement(
-      `Source description "${retrievalURI}" has already been visited. Skipping to prevent cycle.`,
+      `Source description "${retrievalURI}" has already been visited. Skipping to prevent cycle`,
     );
     annotation.classes.push('warning');
     parseResult.push(annotation);
@@ -81,13 +81,15 @@ async function parseSourceDescription(
   ctx.visitedUrls.add(retrievalURI);
 
   try {
-    const sdParseResult = await parse(
+    const sourceDescriptionDereferenced = await dereference(
       retrievalURI,
       mergeOptions(ctx.options, {
         parse: {
           mediaType: 'text/plain', // allow parser plugin detection
-          parserOpts: {
-            [ARAZZO_RECURSION_KEY]: {
+        },
+        dereference: {
+          strategyOpts: {
+            [ARAZZO_DEREFERENCE_RECURSION_KEY]: {
               sourceDescriptionsDepth: ctx.currentDepth + 1,
               sourceDescriptionsVisitedUrls: ctx.visitedUrls,
             },
@@ -95,15 +97,15 @@ async function parseSourceDescription(
         },
       }),
     );
-    // merge parsed result into our parse result
-    for (const item of sdParseResult) {
+    // merge dereferenced result into our parse result
+    for (const item of sourceDescriptionDereferenced) {
       parseResult.push(item);
     }
   } catch (error: unknown) {
-    // create error annotation instead of failing entire parse
+    // create error annotation instead of failing entire dereference
     const message = error instanceof Error ? error.message : String(error);
     const annotation = new AnnotationElement(
-      `Error parsing source description "${retrievalURI}": ${message}`,
+      `Error dereferencing source description "${retrievalURI}": ${message}`,
     );
     annotation.classes.push('error');
     parseResult.push(annotation);
@@ -120,25 +122,24 @@ async function parseSourceDescription(
 
   if (!isOpenApi && !isArazzo) {
     const annotation = new AnnotationElement(
-      `Source description "${retrievalURI}" is not an OpenAPI or Arazzo document.`,
+      `Source description "${retrievalURI}" is not an OpenAPI or Arazzo document`,
     );
     annotation.classes.push('warning');
     parseResult.push(annotation);
-    return parseResult;
   }
 
-  // validate declared type matches actual parsed type
+  // validate declared type matches actual dereferenced type
   const declaredType = toValue(sourceDescription.type);
   if (typeof declaredType === 'string') {
     if (declaredType === 'openapi' && !isOpenApi) {
       const annotation = new AnnotationElement(
-        `Source description "${retrievalURI}" declared as "openapi" but parsed as Arazzo document.`,
+        `Source description "${retrievalURI}" declared as "openapi" but dereferenced as Arazzo document`,
       );
       annotation.classes.push('warning');
       parseResult.push(annotation);
     } else if (declaredType === 'arazzo' && !isArazzo) {
       const annotation = new AnnotationElement(
-        `Source description "${retrievalURI}" declared as "arazzo" but parsed as OpenAPI document.`,
+        `Source description "${retrievalURI}" declared as "arazzo" but dereferenced as OpenAPI document`,
       );
       annotation.classes.push('warning');
       parseResult.push(annotation);
@@ -149,53 +150,56 @@ async function parseSourceDescription(
 }
 
 /**
- * Shared function for parsing source descriptions.
+ * Dereferences source descriptions from an Arazzo document.
  * @public
  */
-export async function parseSourceDescriptions(
-  parserName: string,
-  api: Element | undefined,
-  file: File,
+export async function dereferenceSourceDescriptions(
+  parseResult: ParseResultElement,
+  reference: Reference,
   options: ReferenceOptions,
 ): Promise<ParseResultElement[]> {
   const results: ParseResultElement[] = [];
+  const strategyName = 'arazzo-1';
+
+  // get API from dereferenced parse result
+  const { api } = parseResult;
 
   /**
-   * Validate prerequisites for parsing source descriptions.
+   * Validate prerequisites for dereferencing source descriptions.
    * Return warning annotations if validation fails.
    */
   if (!isArazzoSpecification1Element(api)) {
     const annotation = new AnnotationElement(
-      'Cannot parse source descriptions: API is not an Arazzo specification',
+      'Cannot dereference source descriptions: API is not an Arazzo specification',
     );
     annotation.classes.push('warning');
     return [new ParseResultElement([annotation])];
   }
   if (!isArrayElement(api.sourceDescriptions)) {
     const annotation = new AnnotationElement(
-      'Cannot parse source descriptions: sourceDescriptions field is missing or not an array',
+      'Cannot dereference source descriptions: sourceDescriptions field is missing or not an array',
     );
     annotation.classes.push('warning');
     return [new ParseResultElement([annotation])];
   }
 
-  // user config: parser-specific options take precedence over global parserOpts
+  // user config: strategy-specific options take precedence over global strategyOpts
   const maxDepth =
-    options?.parse?.parserOpts?.[parserName]?.sourceDescriptionsMaxDepth ??
-    options?.parse?.parserOpts?.sourceDescriptionsMaxDepth ??
+    options?.dereference?.strategyOpts?.[strategyName]?.sourceDescriptionsMaxDepth ??
+    options?.dereference?.strategyOpts?.sourceDescriptionsMaxDepth ??
     +Infinity;
 
   // recursion state comes from shared key (works across JSON/YAML)
-  const sharedOpts = options?.parse?.parserOpts?.[ARAZZO_RECURSION_KEY] ?? {};
+  const sharedOpts = options?.dereference?.strategyOpts?.[ARAZZO_DEREFERENCE_RECURSION_KEY] ?? {};
   const currentDepth = sharedOpts.sourceDescriptionsDepth ?? 0;
   const visitedUrls: Set<string> = sharedOpts.sourceDescriptionsVisitedUrls ?? new Set();
 
   // add current file to visited URLs to prevent cycles
-  visitedUrls.add(file.uri);
+  visitedUrls.add(reference.uri);
 
   if (currentDepth >= maxDepth) {
     const annotation = new AnnotationElement(
-      `Maximum parse depth of ${maxDepth} has been exceeded by file "${file.uri}"`,
+      `Maximum dereference depth of ${maxDepth} has been exceeded by file "${reference.uri}"`,
     );
     annotation.classes.push('error');
     const parseResult = new ParseResultElement([annotation]);
@@ -203,19 +207,19 @@ export async function parseSourceDescriptions(
     return [parseResult];
   }
 
-  const ctx: ParseSourceDescriptionContext = {
-    baseURI: file.uri,
+  const ctx: DereferenceSourceDescriptionContext = {
+    baseURI: reference.uri,
     options,
     currentDepth,
     visitedUrls,
   };
 
-  // determine which source descriptions to parse
+  // determine which source descriptions to dereference
   const sourceDescriptionsOption =
-    options?.parse?.parserOpts?.[parserName]?.sourceDescriptions ??
-    options?.parse?.parserOpts?.sourceDescriptions;
+    options?.dereference?.strategyOpts?.[strategyName]?.sourceDescriptions ??
+    options?.dereference?.strategyOpts?.sourceDescriptions;
 
-  // handle false or other falsy values - no source descriptions should be parsed
+  // handle false or other falsy values - no source descriptions should be dereferenced
   if (!sourceDescriptionsOption) {
     return results;
   }
@@ -230,8 +234,11 @@ export async function parseSourceDescriptions(
 
   // process sequentially to ensure proper cycle detection with shared visitedUrls
   for (const sourceDescription of sourceDescriptions) {
-    const sourceDescriptionParseResult = await parseSourceDescription(sourceDescription, ctx);
-    results.push(sourceDescriptionParseResult);
+    const sourceDescriptionDereferenceResult = await dereferenceSourceDescription(
+      sourceDescription,
+      ctx,
+    );
+    results.push(sourceDescriptionDereferenceResult);
   }
 
   return results;
