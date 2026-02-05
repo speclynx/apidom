@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-ns-json-schema-2019-09",
-  "version": "2.6.1",
+  "version": "2.7.0",
   "description": "JSON Schema 2019-09 namespace for ApiDOM.",
   "publishConfig": {
     "access": "public",
@@ -43,12 +43,12 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^7.28.4",
-    "@speclynx/apidom-core": "^2.6.1",
-    "@speclynx/apidom-datamodel": "^2.6.1",
-    "@speclynx/apidom-error": "^2.6.1",
-    "@speclynx/apidom-ns-json-schema-draft-6": "^2.6.1",
-    "@speclynx/apidom-ns-json-schema-draft-7": "^2.6.1",
-    "@speclynx/apidom-traverse": "^2.6.1",
+    "@speclynx/apidom-core": "^2.7.0",
+    "@speclynx/apidom-datamodel": "^2.7.0",
+    "@speclynx/apidom-error": "^2.7.0",
+    "@speclynx/apidom-ns-json-schema-draft-6": "^2.7.0",
+    "@speclynx/apidom-ns-json-schema-draft-7": "^2.7.0",
+    "@speclynx/apidom-traverse": "^2.7.0",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.0.0",
     "ts-mixer": "^6.0.4"

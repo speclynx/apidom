@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-json-path",
-  "version": "2.6.1",
+  "version": "2.7.0",
   "description": "Evaluate JSONPath expressions against ApiDOM.",
   "publishConfig": {
     "access": "public",
@@ -39,8 +39,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^7.28.4",
-    "@speclynx/apidom-datamodel": "^2.6.1",
-    "@speclynx/apidom-error": "^2.6.1",
+    "@speclynx/apidom-datamodel": "^2.7.0",
+    "@speclynx/apidom-error": "^2.7.0",
     "@swaggerexpert/jsonpath": "^4.0.3"
   },
   "files": [

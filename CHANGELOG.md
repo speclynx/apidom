@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.7.0](https://github.com/speclynx/apidom/compare/v2.6.1...v2.7.0) (2026-02-05)
+
+### Features
+
+- **reference:** add support for Arazzo Source Description dereferencing ([#69](https://github.com/speclynx/apidom/issues/69)) ([87efee9](https://github.com/speclynx/apidom/commit/87efee95b86ab6f947ef908db6225b9bb60d7a40))
+
 ## [2.6.1](https://github.com/speclynx/apidom/compare/v2.6.0...v2.6.1) (2026-02-04)
 
 ### Bug Fixes
