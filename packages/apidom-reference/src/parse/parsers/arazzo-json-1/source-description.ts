@@ -43,7 +43,7 @@ async function parseSourceDescription(
 
   if (!isSourceDescriptionElement(sourceDescription)) {
     const annotation = new AnnotationElement(
-      'Element is not a valid SourceDescriptionElement. Skipping.',
+      'Element is not a valid SourceDescriptionElement. Skipping',
     );
     annotation.classes.push('warning');
     parseResult.push(annotation);
@@ -60,7 +60,7 @@ async function parseSourceDescription(
   const sourceDescriptionURI = toValue(sourceDescription.url);
   if (typeof sourceDescriptionURI !== 'string') {
     const annotation = new AnnotationElement(
-      'Source description URL is missing or not a string. Skipping.',
+      'Source description URL is missing or not a string. Skipping',
     );
     annotation.classes.push('warning');
     parseResult.push(annotation);
@@ -72,7 +72,7 @@ async function parseSourceDescription(
   // skip if already visited (cycle detection)
   if (ctx.visitedUrls.has(retrievalURI)) {
     const annotation = new AnnotationElement(
-      `Source description "${retrievalURI}" has already been visited. Skipping to prevent cycle.`,
+      `Source description "${retrievalURI}" has already been visited. Skipping to prevent cycle`,
     );
     annotation.classes.push('warning');
     parseResult.push(annotation);
@@ -120,7 +120,7 @@ async function parseSourceDescription(
 
   if (!isOpenApi && !isArazzo) {
     const annotation = new AnnotationElement(
-      `Source description "${retrievalURI}" is not an OpenAPI or Arazzo document.`,
+      `Source description "${retrievalURI}" is not an OpenAPI or Arazzo document`,
     );
     annotation.classes.push('warning');
     parseResult.push(annotation);
@@ -132,13 +132,13 @@ async function parseSourceDescription(
   if (typeof declaredType === 'string') {
     if (declaredType === 'openapi' && !isOpenApi) {
       const annotation = new AnnotationElement(
-        `Source description "${retrievalURI}" declared as "openapi" but parsed as Arazzo document.`,
+        `Source description "${retrievalURI}" declared as "openapi" but parsed as Arazzo document`,
       );
       annotation.classes.push('warning');
       parseResult.push(annotation);
     } else if (declaredType === 'arazzo' && !isArazzo) {
       const annotation = new AnnotationElement(
-        `Source description "${retrievalURI}" declared as "arazzo" but parsed as OpenAPI document.`,
+        `Source description "${retrievalURI}" declared as "arazzo" but parsed as OpenAPI document`,
       );
       annotation.classes.push('warning');
       parseResult.push(annotation);

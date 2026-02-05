@@ -17,7 +17,7 @@ class FileResolver extends Resolver {
   }
 
   read(): Promise<Buffer> {
-    throw new ResolverError('FileResolver is not intended to be used in browser context.');
+    throw new ResolverError('FileResolver is not intended to be used in browser context');
   }
 }
 

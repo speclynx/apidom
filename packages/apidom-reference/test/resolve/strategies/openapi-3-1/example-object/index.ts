@@ -124,7 +124,7 @@ describe('resolve', function () {
               } catch (error: any) {
                 assert.strictEqual(
                   error.cause.cause.message,
-                  'ExampleElement value and externalValue fields are mutually exclusive.',
+                  'ExampleElement value and externalValue fields are mutually exclusive',
                 );
                 assert.instanceOf(error, ResolverError);
               }
