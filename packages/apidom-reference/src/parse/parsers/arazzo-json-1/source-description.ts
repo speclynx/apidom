@@ -177,7 +177,7 @@ export async function parseSourceDescriptions(
   parserName: string = 'arazzo-json-1',
 ): Promise<ParseResultElement[]> {
   const { api } = parseResult;
-  const file = new File({ uri: url.sanitize(parseResultRetrievalURI) });
+  const file = new File({ uri: url.sanitize(url.stripHash(parseResultRetrievalURI)) });
   const results: ParseResultElement[] = [];
 
   /**
