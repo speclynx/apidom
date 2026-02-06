@@ -155,7 +155,13 @@ async function parseSourceDescription(
  * @param parseResultRetrievalURI - URI from which the parseResult was retrieved
  * @param options - Full ReferenceOptions (caller responsibility to construct)
  * @param parserName - Parser name for options lookup (defaults to 'arazzo-json-1')
- * @returns Array of ParseResultElements for each source description
+ * @returns Array of ParseResultElements. On success, returns one ParseResultElement per
+ *   source description (each with class 'source-description' and name/type metadata).
+ *   May return early with a single-element array containing a warning annotation when:
+ *   - The API is not an Arazzo specification
+ *   - The sourceDescriptions field is missing or not an array
+ *   - Maximum parse depth is exceeded (error annotation)
+ *   Returns an empty array when sourceDescriptions option is disabled or no names match.
  *
  * @example
  * ```typescript
