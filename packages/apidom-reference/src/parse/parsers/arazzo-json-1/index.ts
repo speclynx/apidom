@@ -11,6 +11,7 @@ import Parser, { ParserOptions } from '../Parser.ts';
 import File from '../../../File.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 import { parseSourceDescriptions } from './source-description.ts';
+export { parseSourceDescriptions } from './source-description.ts';
 export type { default as Parser, ParserOptions } from '../Parser.ts';
 export type { default as File, FileOptions } from '../../../File.ts';
 
@@ -56,10 +57,10 @@ class ArazzoJSON1Parser extends Parser {
         options?.parse?.parserOpts?.sourceDescriptions;
       if (shouldParseSourceDescriptions) {
         const sourceDescriptions = await parseSourceDescriptions(
-          this.name,
-          parseResult.api,
-          file,
+          parseResult,
+          file.uri,
           options!,
+          this.name,
         );
         parseResult.push(...sourceDescriptions);
       }
