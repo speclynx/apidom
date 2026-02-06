@@ -49,6 +49,7 @@ jobs:
         run: npm ci --engine-strict=false
       - name: Generate typescript declarations
         run: npm run typescript:declaration
+        working-directory: ./packages/apidom-error
       - name: Lint code
         run: npm run lint
 
