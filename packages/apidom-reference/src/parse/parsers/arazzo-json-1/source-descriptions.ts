@@ -149,15 +149,41 @@ async function parseSourceDescription(
 }
 
 /**
- * Shared function for parsing source descriptions.
+ * Parses source descriptions from an Arazzo document's ParseResult.
+ *
+ * @param parseResult - ParseResult containing an Arazzo specification
+ * @param parseResultRetrievalURI - URI from which the parseResult was retrieved
+ * @param options - Full ReferenceOptions (caller responsibility to construct)
+ * @param parserName - Parser name for options lookup (defaults to 'arazzo-json-1')
+ * @returns Array of ParseResultElements. On success, returns one ParseResultElement per
+ *   source description (each with class 'source-description' and name/type metadata).
+ *   May return early with a single-element array containing a warning annotation when:
+ *   - The API is not an Arazzo specification
+ *   - The sourceDescriptions field is missing or not an array
+ *   - Maximum parse depth is exceeded (error annotation)
+ *   Returns an empty array when sourceDescriptions option is disabled or no names match.
+ *
+ * @example
+ * ```typescript
+ * import { options, mergeOptions } from '@speclynx/apidom-reference';
+ * import { parseSourceDescriptions } from '@speclynx/apidom-reference/parse/parsers/arazzo-json-1';
+ *
+ * const fullOptions = mergeOptions(options, {
+ *   parse: { parserOpts: { sourceDescriptions: true } }
+ * });
+ * const results = await parseSourceDescriptions(parseResult, uri, fullOptions);
+ * ```
+ *
  * @public
  */
 export async function parseSourceDescriptions(
-  parserName: string,
-  api: Element | undefined,
-  file: File,
+  parseResult: ParseResultElement,
+  parseResultRetrievalURI: string,
   options: ReferenceOptions,
+  parserName: string = 'arazzo-json-1',
 ): Promise<ParseResultElement[]> {
+  const { api } = parseResult;
+  const file = new File({ uri: url.sanitize(url.stripHash(parseResultRetrievalURI)) });
   const results: ParseResultElement[] = [];
 
   /**

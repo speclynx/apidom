@@ -10,7 +10,8 @@ import ParserError from '../../../errors/ParserError.ts';
 import Parser, { ParserOptions } from '../Parser.ts';
 import File from '../../../File.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
-import { parseSourceDescriptions } from '../arazzo-json-1/source-description.ts';
+import { parseSourceDescriptions } from './source-descriptions.ts';
+
 export type { default as Parser, ParserOptions } from '../Parser.ts';
 export type { default as File, FileOptions } from '../../../File.ts';
 
@@ -56,10 +57,10 @@ class ArazzoYAML1Parser extends Parser {
         options?.parse?.parserOpts?.sourceDescriptions;
       if (shouldParseSourceDescriptions) {
         const sourceDescriptions = await parseSourceDescriptions(
-          this.name,
-          parseResult.api,
-          file,
+          parseResult,
+          file.uri,
           options!,
+          this.name,
         );
         parseResult.push(...sourceDescriptions);
       }
@@ -70,5 +71,7 @@ class ArazzoYAML1Parser extends Parser {
     }
   }
 }
+
+export { parseSourceDescriptions } from './source-descriptions.ts';
 
 export default ArazzoYAML1Parser;
