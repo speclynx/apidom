@@ -11,7 +11,7 @@ import Parser, { ParserOptions } from '../Parser.ts';
 import File from '../../../File.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 import { parseSourceDescriptions } from './source-description.ts';
-export { parseSourceDescriptions } from './source-description.ts';
+export { parseSourceDescriptions };
 export type { default as Parser, ParserOptions } from '../Parser.ts';
 export type { default as File, FileOptions } from '../../../File.ts';
 
