@@ -1,4 +1,4 @@
-import { pick } from 'ramda';
+import { pick, partialRight } from 'ramda';
 import { ParseResultElement } from '@speclynx/apidom-datamodel';
 import {
   parse,
@@ -10,8 +10,8 @@ import ParserError from '../../../errors/ParserError.ts';
 import Parser, { ParserOptions } from '../Parser.ts';
 import File from '../../../File.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
-import { parseSourceDescriptions } from '../arazzo-json-1/source-description.ts';
-export { parseSourceDescriptions };
+import { parseSourceDescriptions as parseSourceDescriptionsBase } from '../arazzo-json-1/source-description.ts';
+
 export type { default as Parser, ParserOptions } from '../Parser.ts';
 export type { default as File, FileOptions } from '../../../File.ts';
 
@@ -56,7 +56,7 @@ class ArazzoYAML1Parser extends Parser {
         options?.parse?.parserOpts?.[this.name]?.sourceDescriptions ??
         options?.parse?.parserOpts?.sourceDescriptions;
       if (shouldParseSourceDescriptions) {
-        const sourceDescriptions = await parseSourceDescriptions(
+        const sourceDescriptions = await parseSourceDescriptionsBase(
           parseResult,
           file.uri,
           options!,
@@ -71,5 +71,7 @@ class ArazzoYAML1Parser extends Parser {
     }
   }
 }
+
+export const parseSourceDescriptions = partialRight(parseSourceDescriptionsBase, ['arazzo-yaml-1']);
 
 export default ArazzoYAML1Parser;
