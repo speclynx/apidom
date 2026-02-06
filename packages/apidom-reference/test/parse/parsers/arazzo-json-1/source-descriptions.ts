@@ -121,6 +121,28 @@ describe('parsers', function () {
         assert.strictEqual(sourceDescriptions.length, 1);
         assert.isTrue(isParseResultElement(sourceDescriptions[0]));
       });
+
+      specify('should default to arazzo-json-1 parserName for options lookup', async function () {
+        const uri = path.join(__dirname, 'fixtures', 'source-descriptions', 'root.json');
+        const data = fs.readFileSync(uri).toString();
+        const parseResult = await parse(data);
+
+        // only set parser-specific option, no global sourceDescriptions
+        const sourceDescriptions = await parseSourceDescriptions(
+          parseResult,
+          uri,
+          mergeOptions(options, {
+            parse: { parserOpts: { 'arazzo-json-1': { sourceDescriptions: true } } },
+          }),
+        );
+
+        assert.strictEqual(sourceDescriptions.length, 1);
+
+        const sdParseResult = sourceDescriptions[0]!;
+        assert.isTrue(isParseResultElement(sdParseResult));
+        assert.isTrue(sdParseResult.classes.includes('source-description'));
+        assert.strictEqual(sdParseResult.meta.get('name')!.toValue(), 'petStore');
+      });
     });
   });
 });
