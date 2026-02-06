@@ -71,6 +71,9 @@ class ArazzoJSON1Parser extends Parser {
   }
 }
 
+/**
+ * @public
+ */
 export const parseSourceDescriptions = partialRight(parseSourceDescriptionsBase, ['arazzo-json-1']);
 
 export default ArazzoJSON1Parser;

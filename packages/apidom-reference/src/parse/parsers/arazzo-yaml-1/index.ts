@@ -72,6 +72,9 @@ class ArazzoYAML1Parser extends Parser {
   }
 }
 
+/**
+ * @public
+ */
 export const parseSourceDescriptions = partialRight(parseSourceDescriptionsBase, ['arazzo-yaml-1']);
 
 export default ArazzoYAML1Parser;
