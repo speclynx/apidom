@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.8.0](https://github.com/speclynx/apidom/compare/v2.7.0...v2.8.0) (2026-02-06)
+
+### Features
+
+- **reference:** expose low level API for parsing Arazzo source descriptions ([#73](https://github.com/speclynx/apidom/issues/73)) ([1f0d771](https://github.com/speclynx/apidom/commit/1f0d7713f864924e03c601113c0270aeed6e9f81))
+
 # [2.7.0](https://github.com/speclynx/apidom/compare/v2.6.1...v2.7.0) (2026-02-05)
 
 ### Features
