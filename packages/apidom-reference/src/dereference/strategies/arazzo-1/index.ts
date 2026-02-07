@@ -10,7 +10,7 @@ import File from '../../../File.ts';
 import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
 import Arazzo1DereferenceVisitor from './visitor.ts';
-import { dereferenceSourceDescriptions } from './source-description.ts';
+import { dereferenceSourceDescriptions } from './source-descriptions.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 
 export type {
@@ -114,8 +114,9 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
     if (shouldDereferenceSourceDescriptions) {
       const sourceDescriptions = await dereferenceSourceDescriptions(
         dereferencedElement as ParseResultElement,
-        reference,
+        reference.uri,
         options,
+        this.name,
       );
       (dereferencedElement as ParseResultElement).push(...sourceDescriptions);
     }
@@ -156,5 +157,6 @@ export {
   resolveSchema$idField,
   maybeRefractToJSONSchemaElement,
 } from './util.ts';
+export { dereferenceSourceDescriptions } from './source-descriptions.ts';
 
 export default Arazzo1DereferenceStrategy;
