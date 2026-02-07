@@ -383,7 +383,10 @@ if (parsedDoc.errors.length > 0) {
 ##### Low-level API
 
 For advanced use cases where you need to parse source descriptions from an already-parsed Arazzo document
-(e.g., when using naked parser adapters directly), the `parseSourceDescriptions` function is exported:
+(e.g., when using naked parser adapters directly), the `parseSourceDescriptions` function is exported.
+
+When called directly, this function always parses source descriptions (no need to pass `sourceDescriptions: true`).
+Use an array to filter by name:
 
 ```js
 import { parse } from '@speclynx/apidom-parser-adapter-arazzo-json-1';
@@ -393,11 +396,18 @@ import { options, mergeOptions } from '@speclynx/apidom-reference';
 // Parse using naked parser adapter
 const parseResult = await parse(arazzoJsonString);
 
-// Parse source descriptions separately
+// Parse all source descriptions
 const sourceDescriptions = await parseSourceDescriptions(
   parseResult,
   '/path/to/arazzo.json',
-  mergeOptions(options, { parse: { parserOpts: { sourceDescriptions: true } } }),
+  options,
+);
+
+// Or filter by name
+const filtered = await parseSourceDescriptions(
+  parseResult,
+  '/path/to/arazzo.json',
+  mergeOptions(options, { parse: { parserOpts: { sourceDescriptions: ['petStore'] } } }),
 );
 
 // Access parsed document from source description element
@@ -456,7 +466,10 @@ See [arazzo-json-1 Accessing parsed documents](#accessing-parsed-documents-via-s
 ##### Low-level API
 
 For advanced use cases where you need to parse source descriptions from an already-parsed Arazzo document
-(e.g., when using naked parser adapters directly), the `parseSourceDescriptions` function is exported:
+(e.g., when using naked parser adapters directly), the `parseSourceDescriptions` function is exported.
+
+When called directly, this function always parses source descriptions (no need to pass `sourceDescriptions: true`).
+Use an array to filter by name:
 
 ```js
 import { parse } from '@speclynx/apidom-parser-adapter-arazzo-yaml-1';
@@ -466,11 +479,18 @@ import { options, mergeOptions } from '@speclynx/apidom-reference';
 // Parse using naked parser adapter
 const parseResult = await parse(arazzoYamlString);
 
-// Parse source descriptions separately
+// Parse all source descriptions
 const sourceDescriptions = await parseSourceDescriptions(
   parseResult,
   '/path/to/arazzo.yaml',
-  mergeOptions(options, { parse: { parserOpts: { sourceDescriptions: true } } }),
+  options,
+);
+
+// Or filter by name
+const filtered = await parseSourceDescriptions(
+  parseResult,
+  '/path/to/arazzo.yaml',
+  mergeOptions(options, { parse: { parserOpts: { sourceDescriptions: ['petStore'] } } }),
 );
 
 // Access parsed document from source description element
@@ -1812,7 +1832,10 @@ if (dereferencedDoc.errors.length > 0) {
 ###### Low-level API
 
 For advanced use cases where you need to dereference source descriptions from an already-parsed (optionally dereferenced)
-Arazzo document (e.g., when using naked parser adapters directly), the `dereferenceSourceDescriptions` function is exported:
+Arazzo document (e.g., when using naked parser adapters directly), the `dereferenceSourceDescriptions` function is exported.
+
+When called directly, this function always dereferences source descriptions (no need to pass `sourceDescriptions: true`).
+Use an array to filter by name:
 
 ```js
 import { parse } from '@speclynx/apidom-parser-adapter-arazzo-json-1';
@@ -1822,11 +1845,18 @@ import { options, mergeOptions } from '@speclynx/apidom-reference';
 // Parse using naked parser adapter
 const parseResult = await parse(arazzoJsonString);
 
-// Dereference source descriptions separately
+// Dereference all source descriptions
 const sourceDescriptions = await dereferenceSourceDescriptions(
   parseResult,
   '/path/to/arazzo.json',
-  mergeOptions(options, { dereference: { strategyOpts: { sourceDescriptions: true } } }),
+  options,
+);
+
+// Or filter by name
+const filtered = await dereferenceSourceDescriptions(
+  parseResult,
+  '/path/to/arazzo.json',
+  mergeOptions(options, { dereference: { strategyOpts: { sourceDescriptions: ['petStore'] } } }),
 );
 
 // Access dereferenced document from source description element

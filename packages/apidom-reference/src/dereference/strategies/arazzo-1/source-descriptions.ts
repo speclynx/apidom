@@ -91,9 +91,15 @@ async function dereferenceSourceDescription(
       sourceDescriptionDereferenced = await dereferenceApiDOM(
         existingParseResult,
         mergeOptions(ctx.options, {
+          parse: {
+            mediaType: 'text/plain', // allow dereference strategy detection via ApiDOM inspection
+          },
           resolve: { baseURI: retrievalURI },
           dereference: {
             strategyOpts: {
+              // nested documents should dereference all their source descriptions
+              // (parent's name filter doesn't apply to nested documents)
+              sourceDescriptions: true,
               [ARAZZO_DEREFERENCE_RECURSION_KEY]: {
                 sourceDescriptionsDepth: ctx.currentDepth + 1,
                 sourceDescriptionsVisitedUrls: ctx.visitedUrls,
@@ -112,6 +118,9 @@ async function dereferenceSourceDescription(
           },
           dereference: {
             strategyOpts: {
+              // nested documents should dereference all their source descriptions
+              // (parent's name filter doesn't apply to nested documents)
+              sourceDescriptions: true,
               [ARAZZO_DEREFERENCE_RECURSION_KEY]: {
                 sourceDescriptionsDepth: ctx.currentDepth + 1,
                 sourceDescriptionsVisitedUrls: ctx.visitedUrls,
@@ -185,18 +194,27 @@ async function dereferenceSourceDescription(
  *
  * @param parseResult - ParseResult containing a parsed (optionally dereferenced) Arazzo specification
  * @param parseResultRetrievalURI - URI from which the parseResult was retrieved
- * @param options - Full ReferenceOptions (caller responsibility to construct)
+ * @param options - Full ReferenceOptions. Pass `sourceDescriptions` as an array of names
+ *   in `dereference.strategyOpts` to filter which source descriptions to process.
  * @param strategyName - Strategy name for options lookup (defaults to 'arazzo-1')
- * @returns Array of ParseResultElements. On success, returns one ParseResultElement per
- *   source description (each with class 'source-description' and name/type metadata).
+ * @returns Array of ParseResultElements. Returns one ParseResultElement per source description
+ *   (each with class 'source-description' and name/type metadata).
  *   May return early with a single-element array containing a warning annotation when:
  *   - The API is not an Arazzo specification
  *   - The sourceDescriptions field is missing or not an array
  *   - Maximum dereference depth is exceeded (error annotation)
- *   Returns an empty array when sourceDescriptions option is disabled or no names match.
+ *   Returns an empty array when no source description names match the filter.
  *
  * @example
  * ```typescript
+ * // Dereference all source descriptions
+ * await dereferenceSourceDescriptions(parseResult, uri, options);
+ *
+ * // Filter by name
+ * await dereferenceSourceDescriptions(parseResult, uri, mergeOptions(options, {
+ *   dereference: { strategyOpts: { sourceDescriptions: ['petStore'] } },
+ * }));
+ *
  * // Access dereferenced document from source description element
  * const sourceDesc = parseResult.api.sourceDescriptions.get(0);
  * const dereferencedDoc = sourceDesc.meta.get('parseResult');
@@ -266,15 +284,10 @@ export async function dereferenceSourceDescriptions(
     visitedUrls,
   };
 
-  // determine which source descriptions to dereference
+  // determine which source descriptions to dereference (array filters by name)
   const sourceDescriptionsOption =
     options?.dereference?.strategyOpts?.[strategyName]?.sourceDescriptions ??
     options?.dereference?.strategyOpts?.sourceDescriptions;
-
-  // handle false or other falsy values - no source descriptions should be dereferenced
-  if (!sourceDescriptionsOption) {
-    return results;
-  }
 
   const sourceDescriptions = Array.isArray(sourceDescriptionsOption)
     ? api.sourceDescriptions.filter((sd) => {

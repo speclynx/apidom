@@ -87,6 +87,9 @@ async function parseSourceDescription(
         parse: {
           mediaType: 'text/plain', // allow parser plugin detection
           parserOpts: {
+            // nested documents should parse all their source descriptions
+            // (parent's name filter doesn't apply to nested documents)
+            sourceDescriptions: true,
             [ARAZZO_RECURSION_KEY]: {
               sourceDescriptionsDepth: ctx.currentDepth + 1,
               sourceDescriptionsVisitedUrls: ctx.visitedUrls,
@@ -158,25 +161,29 @@ async function parseSourceDescription(
  *
  * @param parseResult - ParseResult containing an Arazzo specification
  * @param parseResultRetrievalURI - URI from which the parseResult was retrieved
- * @param options - Full ReferenceOptions (caller responsibility to construct)
+ * @param options - Full ReferenceOptions. Pass `sourceDescriptions` as an array of names
+ *   in `parse.parserOpts` to filter which source descriptions to process.
  * @param parserName - Parser name for options lookup (defaults to 'arazzo-json-1')
- * @returns Array of ParseResultElements. On success, returns one ParseResultElement per
- *   source description (each with class 'source-description' and name/type metadata).
+ * @returns Array of ParseResultElements. Returns one ParseResultElement per source description
+ *   (each with class 'source-description' and name/type metadata).
  *   May return early with a single-element array containing a warning annotation when:
  *   - The API is not an Arazzo specification
  *   - The sourceDescriptions field is missing or not an array
  *   - Maximum parse depth is exceeded (error annotation)
- *   Returns an empty array when sourceDescriptions option is disabled or no names match.
+ *   Returns an empty array when no source description names match the filter.
  *
  * @example
  * ```typescript
  * import { options, mergeOptions } from '@speclynx/apidom-reference';
  * import { parseSourceDescriptions } from '@speclynx/apidom-reference/parse/parsers/arazzo-json-1';
  *
- * const fullOptions = mergeOptions(options, {
- *   parse: { parserOpts: { sourceDescriptions: true } }
- * });
- * const results = await parseSourceDescriptions(parseResult, uri, fullOptions);
+ * // Parse all source descriptions
+ * const results = await parseSourceDescriptions(parseResult, uri, options);
+ *
+ * // Filter by name
+ * const filtered = await parseSourceDescriptions(parseResult, uri, mergeOptions(options, {
+ *   parse: { parserOpts: { sourceDescriptions: ['petStore'] } }
+ * }));
  *
  * // Access parsed document from source description element
  * const sourceDesc = parseResult.api.sourceDescriptions.get(0);
@@ -245,15 +252,10 @@ export async function parseSourceDescriptions(
     visitedUrls,
   };
 
-  // determine which source descriptions to parse
+  // determine which source descriptions to parse (array filters by name)
   const sourceDescriptionsOption =
     options?.parse?.parserOpts?.[parserName]?.sourceDescriptions ??
     options?.parse?.parserOpts?.sourceDescriptions;
-
-  // handle false or other falsy values - no source descriptions should be parsed
-  if (!sourceDescriptionsOption) {
-    return results;
-  }
 
   const sourceDescriptions = Array.isArray(sourceDescriptionsOption)
     ? api.sourceDescriptions.filter((sd) => {
