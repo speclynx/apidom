@@ -21,11 +21,7 @@ describe('parsers', function () {
         const parseResult = await parse(data);
 
         // use exported parseSourceDescriptions function
-        const sourceDescriptions = await parseSourceDescriptions(
-          parseResult,
-          uri,
-          mergeOptions(options, { parse: { parserOpts: { sourceDescriptions: true } } }),
-        );
+        const sourceDescriptions = await parseSourceDescriptions(parseResult, uri, options);
 
         assert.strictEqual(sourceDescriptions.length, 1);
 
@@ -69,7 +65,7 @@ describe('parsers', function () {
           parseResult,
           uri,
           mergeOptions(options, {
-            parse: { parserOpts: { sourceDescriptions: true, sourceDescriptionsMaxDepth: 1 } },
+            parse: { parserOpts: { sourceDescriptionsMaxDepth: 1 } },
           }),
         );
 
@@ -89,50 +85,37 @@ describe('parsers', function () {
         assert.include(annotation?.toValue(), 'Maximum parse depth of 1 has been exceeded');
       });
 
-      specify('should return empty array when sourceDescriptions is false', async function () {
-        const uri = path.join(__dirname, 'fixtures', 'source-descriptions', 'root.json');
+      specify('should allow overriding parserName parameter for filtering', async function () {
+        const uri = path.join(__dirname, 'fixtures', 'source-descriptions-filter', 'root.json');
         const data = fs.readFileSync(uri).toString();
         const parseResult = await parse(data);
 
-        const sourceDescriptions = await parseSourceDescriptions(
-          parseResult,
-          uri,
-          mergeOptions(options, { parse: { parserOpts: { sourceDescriptions: false } } }),
-        );
-
-        assert.strictEqual(sourceDescriptions.length, 0);
-      });
-
-      specify('should allow overriding parserName parameter', async function () {
-        const uri = path.join(__dirname, 'fixtures', 'source-descriptions', 'root.json');
-        const data = fs.readFileSync(uri).toString();
-        const parseResult = await parse(data);
-
-        // use custom parser name for options lookup
+        // use custom parser name for options lookup with filtering
         const sourceDescriptions = await parseSourceDescriptions(
           parseResult,
           uri,
           mergeOptions(options, {
-            parse: { parserOpts: { 'custom-parser': { sourceDescriptions: true } } },
+            parse: { parserOpts: { 'custom-parser': { sourceDescriptions: ['petStore'] } } },
           }),
           'custom-parser',
         );
 
         assert.strictEqual(sourceDescriptions.length, 1);
         assert.isTrue(isParseResultElement(sourceDescriptions[0]));
+        assert.strictEqual(sourceDescriptions[0]!.meta.get('name')!.toValue(), 'petStore');
       });
 
-      specify('should default to arazzo-json-1 parserName for options lookup', async function () {
-        const uri = path.join(__dirname, 'fixtures', 'source-descriptions', 'root.json');
+      specify('should default to arazzo-json-1 parserName for filtering lookup', async function () {
+        const uri = path.join(__dirname, 'fixtures', 'source-descriptions-filter', 'root.json');
         const data = fs.readFileSync(uri).toString();
         const parseResult = await parse(data);
 
-        // only set parser-specific option, no global sourceDescriptions
+        // only set parser-specific option for filtering
         const sourceDescriptions = await parseSourceDescriptions(
           parseResult,
           uri,
           mergeOptions(options, {
-            parse: { parserOpts: { 'arazzo-json-1': { sourceDescriptions: true } } },
+            parse: { parserOpts: { 'arazzo-json-1': { sourceDescriptions: ['petStore'] } } },
           }),
         );
 
@@ -149,11 +132,7 @@ describe('parsers', function () {
         const data = fs.readFileSync(uri).toString();
         const parseResult = await parse(data);
 
-        await parseSourceDescriptions(
-          parseResult,
-          uri,
-          mergeOptions(options, { parse: { parserOpts: { sourceDescriptions: true } } }),
-        );
+        await parseSourceDescriptions(parseResult, uri, options);
 
         // verify meta is set on source description element
         const api: any = parseResult.api!;
