@@ -146,17 +146,16 @@ async function dereferenceSourceDescription(
     }
   }
 
-  // attach dereferenced result to source description element for easy access
-  sourceDescription.meta.set('parseResult', parseResult);
-
   return parseResult;
 }
 
 /**
  * Dereferences source descriptions from an Arazzo document.
  *
- * Each successfully dereferenced source description is attached to its corresponding
- * SourceDescriptionElement's meta as 'parseResult' for easy access.
+ * Each source description result is attached to its corresponding
+ * SourceDescriptionElement's meta as 'parseResult' for easy access,
+ * regardless of success or failure. On failure, the ParseResultElement
+ * contains annotations explaining what went wrong.
  *
  * @param parseResult - ParseResult containing a parsed (optionally dereferenced) Arazzo specification
  * @param parseResultRetrievalURI - URI from which the parseResult was retrieved
@@ -265,6 +264,8 @@ export async function dereferenceSourceDescriptions(
       sourceDescription,
       ctx,
     );
+    // always attach result (even on failure - contains annotations)
+    sourceDescription.meta.set('parseResult', sourceDescriptionDereferenceResult);
     results.push(sourceDescriptionDereferenceResult);
   }
 

@@ -156,9 +156,10 @@ describe('parsers', function () {
         );
 
         // verify meta is set on source description element
-        const api = parseResult.api!;
-        const sourceDesc = api.get('sourceDescriptions')!.get(0);
-        const attachedParseResult = sourceDesc.meta.get('parseResult');
+        const api: any = parseResult.api!;
+        const sourceDescriptions = api.get('sourceDescriptions');
+        const sourceDesc = sourceDescriptions.get(0);
+        const attachedParseResult = sourceDesc.meta.get('parseResult') as ParseResultElement;
 
         assert.isTrue(isParseResultElement(attachedParseResult));
         assert.strictEqual(attachedParseResult.api?.element, 'openApi3_1');

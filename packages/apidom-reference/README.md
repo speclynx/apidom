@@ -353,9 +353,12 @@ for (const element of parseResult) {
 
 ##### Accessing parsed documents via SourceDescriptionElement
 
-When source descriptions are parsed, the resulting `ParseResultElement` is attached to the corresponding
-`SourceDescriptionElement`'s meta as `'parseResult'`. This provides direct access to the parsed document
-from the source description element:
+When source descriptions parsing is enabled, a `ParseResultElement` is attached to each
+`SourceDescriptionElement`'s meta as `'parseResult'`. This attachment always happens,
+regardless of success or failure:
+
+- **On success**: The parseResult contains the parsed API document
+- **On failure**: The parseResult contains error/warning annotations explaining what went wrong
 
 ```js
 import { parse } from '@speclynx/apidom-reference';
@@ -364,11 +367,17 @@ const parseResult = await parse('/path/to/arazzo.json', {
   parse: { parserOpts: { sourceDescriptions: true } },
 });
 
-// Access parsed document directly from source description element
+// Access parsed document from source description element
 const api = parseResult.api;
 const sourceDesc = api.sourceDescriptions.get(0);
 const parsedDoc = sourceDesc.meta.get('parseResult');
-console.log(parsedDoc.api.element); // e.g., 'openApi3_1'
+
+// Check for errors before using
+if (parsedDoc.annotations.some(a => a.classes.includes('error'))) {
+  console.log('Parsing failed:', parsedDoc.annotations);
+} else {
+  console.log(parsedDoc.api.element); // e.g., 'openApi3_1'
+}
 ```
 
 ##### Low-level API
@@ -1773,9 +1782,12 @@ const resultFiltered = await dereference('/path/to/arazzo.json', {
 
 ###### Accessing dereferenced documents via SourceDescriptionElement
 
-When source descriptions are dereferenced, the resulting `ParseResultElement` is attached to the corresponding
-`SourceDescriptionElement`'s meta as `'parseResult'`. This provides direct access to the dereferenced document
-from the source description element:
+When source descriptions dereferencing is enabled, a `ParseResultElement` is attached to each
+`SourceDescriptionElement`'s meta as `'parseResult'`. This attachment always happens,
+regardless of success or failure:
+
+- **On success**: The parseResult contains the dereferenced API document
+- **On failure**: The parseResult contains error/warning annotations explaining what went wrong
 
 ```js
 import { dereference } from '@speclynx/apidom-reference';
@@ -1784,11 +1796,17 @@ const parseResult = await dereference('/path/to/arazzo.json', {
   dereference: { strategyOpts: { sourceDescriptions: true } },
 });
 
-// Access dereferenced document directly from source description element
+// Access dereferenced document from source description element
 const api = parseResult.api;
 const sourceDesc = api.sourceDescriptions.get(0);
 const dereferencedDoc = sourceDesc.meta.get('parseResult');
-console.log(dereferencedDoc.api.element); // e.g., 'openApi3_1'
+
+// Check for errors before using
+if (dereferencedDoc.annotations.some(a => a.classes.includes('error'))) {
+  console.log('Dereferencing failed:', dereferencedDoc.annotations);
+} else {
+  console.log(dereferencedDoc.api.element); // e.g., 'openApi3_1'
+}
 ```
 
 ###### Low-level API

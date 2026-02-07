@@ -145,17 +145,16 @@ async function parseSourceDescription(
     }
   }
 
-  // attach parsed result to source description element for easy access
-  sourceDescription.meta.set('parseResult', parseResult);
-
   return parseResult;
 }
 
 /**
  * Parses source descriptions from an Arazzo document's ParseResult.
  *
- * Each successfully parsed source description is attached to its corresponding
- * SourceDescriptionElement's meta as 'parseResult' for easy access.
+ * Each source description result is attached to its corresponding
+ * SourceDescriptionElement's meta as 'parseResult' for easy access,
+ * regardless of success or failure. On failure, the ParseResultElement
+ * contains annotations explaining what went wrong.
  *
  * @param parseResult - ParseResult containing an Arazzo specification
  * @param parseResultRetrievalURI - URI from which the parseResult was retrieved
@@ -267,6 +266,8 @@ export async function parseSourceDescriptions(
   // process sequentially to ensure proper cycle detection with shared visitedUrls
   for (const sourceDescription of sourceDescriptions) {
     const sourceDescriptionParseResult = await parseSourceDescription(sourceDescription, ctx);
+    // always attach result (even on failure - contains annotations)
+    sourceDescription.meta.set('parseResult', sourceDescriptionParseResult);
     results.push(sourceDescriptionParseResult);
   }
 
