@@ -145,11 +145,17 @@ async function parseSourceDescription(
     }
   }
 
+  // attach parsed result to source description element for easy access
+  sourceDescription.meta.set('parseResult', parseResult);
+
   return parseResult;
 }
 
 /**
  * Parses source descriptions from an Arazzo document's ParseResult.
+ *
+ * Each successfully parsed source description is attached to its corresponding
+ * SourceDescriptionElement's meta as 'parseResult' for easy access.
  *
  * @param parseResult - ParseResult containing an Arazzo specification
  * @param parseResultRetrievalURI - URI from which the parseResult was retrieved
@@ -172,6 +178,10 @@ async function parseSourceDescription(
  *   parse: { parserOpts: { sourceDescriptions: true } }
  * });
  * const results = await parseSourceDescriptions(parseResult, uri, fullOptions);
+ *
+ * // Access parsed document from source description element
+ * const sourceDesc = parseResult.api.sourceDescriptions.get(0);
+ * const parsedDoc = sourceDesc.meta.get('parseResult');
  * ```
  *
  * @public

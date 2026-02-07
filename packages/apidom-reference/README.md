@@ -351,6 +351,61 @@ for (const element of parseResult) {
 }
 ```
 
+##### Accessing parsed documents via SourceDescriptionElement
+
+When source descriptions are parsed, the resulting `ParseResultElement` is attached to the corresponding
+`SourceDescriptionElement`'s meta as `'parseResult'`. This provides direct access to the parsed document
+from the source description element:
+
+```js
+import { parse } from '@speclynx/apidom-reference';
+
+const parseResult = await parse('/path/to/arazzo.json', {
+  parse: { parserOpts: { sourceDescriptions: true } },
+});
+
+// Access parsed document directly from source description element
+const api = parseResult.api;
+const sourceDesc = api.sourceDescriptions.get(0);
+const parsedDoc = sourceDesc.meta.get('parseResult');
+console.log(parsedDoc.api.element); // e.g., 'openApi3_1'
+```
+
+##### Low-level API
+
+For advanced use cases where you need to parse source descriptions from an already-parsed Arazzo document
+(e.g., when using naked parser adapters directly), the `parseSourceDescriptions` function is exported:
+
+```js
+import { parse } from '@speclynx/apidom-parser-adapter-arazzo-json-1';
+import { parseSourceDescriptions } from '@speclynx/apidom-reference/parse/parsers/arazzo-json-1';
+import { options, mergeOptions } from '@speclynx/apidom-reference';
+
+// Parse using naked parser adapter
+const parseResult = await parse(arazzoJsonString);
+
+// Parse source descriptions separately
+const sourceDescriptions = await parseSourceDescriptions(
+  parseResult,
+  '/path/to/arazzo.json',
+  mergeOptions(options, { parse: { parserOpts: { sourceDescriptions: true } } }),
+);
+
+// Access parsed document from source description element
+const sourceDesc = parseResult.api.sourceDescriptions.get(0);
+const parsedDoc = sourceDesc.meta.get('parseResult');
+```
+
+The function signature is:
+```typescript
+parseSourceDescriptions(
+  parseResult: ParseResultElement,
+  parseResultRetrievalURI: string,
+  options: ReferenceOptions,
+  parserName?: string, // defaults to 'arazzo-json-1'
+): Promise<ParseResultElement[]>
+```
+
 #### [arazzo-yaml-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/parse/parsers/arazzo-yaml-1)
 
 Wraps [@speclynx/apidom-parser-adapter-arazzo-yaml-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-parser-adapter-arazzo-yaml-1) package
@@ -384,6 +439,45 @@ Parser-specific options take precedence over global options. See [arazzo-json-1]
 ##### Error handling
 
 See [arazzo-json-1 Error handling](#error-handling) - the behavior is identical for both JSON and YAML parsers.
+
+##### Accessing parsed documents via SourceDescriptionElement
+
+See [arazzo-json-1 Accessing parsed documents](#accessing-parsed-documents-via-sourcedescriptionelement) - the behavior is identical for both JSON and YAML parsers.
+
+##### Low-level API
+
+For advanced use cases where you need to parse source descriptions from an already-parsed Arazzo document
+(e.g., when using naked parser adapters directly), the `parseSourceDescriptions` function is exported:
+
+```js
+import { parse } from '@speclynx/apidom-parser-adapter-arazzo-yaml-1';
+import { parseSourceDescriptions } from '@speclynx/apidom-reference/parse/parsers/arazzo-yaml-1';
+import { options, mergeOptions } from '@speclynx/apidom-reference';
+
+// Parse using naked parser adapter
+const parseResult = await parse(arazzoYamlString);
+
+// Parse source descriptions separately
+const sourceDescriptions = await parseSourceDescriptions(
+  parseResult,
+  '/path/to/arazzo.yaml',
+  mergeOptions(options, { parse: { parserOpts: { sourceDescriptions: true } } }),
+);
+
+// Access parsed document from source description element
+const sourceDesc = parseResult.api.sourceDescriptions.get(0);
+const parsedDoc = sourceDesc.meta.get('parseResult');
+```
+
+The function signature is:
+```typescript
+parseSourceDescriptions(
+  parseResult: ParseResultElement,
+  parseResultRetrievalURI: string,
+  options: ReferenceOptions,
+  parserName?: string, // defaults to 'arazzo-yaml-1'
+): Promise<ParseResultElement[]>
+```
 
 #### [json](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/parse/parsers/json)
 
@@ -1675,6 +1769,61 @@ const resultFiltered = await dereference('/path/to/arazzo.json', {
     },
   },
 });
+```
+
+###### Accessing dereferenced documents via SourceDescriptionElement
+
+When source descriptions are dereferenced, the resulting `ParseResultElement` is attached to the corresponding
+`SourceDescriptionElement`'s meta as `'parseResult'`. This provides direct access to the dereferenced document
+from the source description element:
+
+```js
+import { dereference } from '@speclynx/apidom-reference';
+
+const parseResult = await dereference('/path/to/arazzo.json', {
+  dereference: { strategyOpts: { sourceDescriptions: true } },
+});
+
+// Access dereferenced document directly from source description element
+const api = parseResult.api;
+const sourceDesc = api.sourceDescriptions.get(0);
+const dereferencedDoc = sourceDesc.meta.get('parseResult');
+console.log(dereferencedDoc.api.element); // e.g., 'openApi3_1'
+```
+
+###### Low-level API
+
+For advanced use cases where you need to dereference source descriptions from an already-parsed (optionally dereferenced)
+Arazzo document (e.g., when using naked parser adapters directly), the `dereferenceSourceDescriptions` function is exported:
+
+```js
+import { parse } from '@speclynx/apidom-parser-adapter-arazzo-json-1';
+import { dereferenceSourceDescriptions } from '@speclynx/apidom-reference/dereference/strategies/arazzo-1';
+import { options, mergeOptions } from '@speclynx/apidom-reference';
+
+// Parse using naked parser adapter
+const parseResult = await parse(arazzoJsonString);
+
+// Dereference source descriptions separately
+const sourceDescriptions = await dereferenceSourceDescriptions(
+  parseResult,
+  '/path/to/arazzo.json',
+  mergeOptions(options, { dereference: { strategyOpts: { sourceDescriptions: true } } }),
+);
+
+// Access dereferenced document from source description element
+const sourceDesc = parseResult.api.sourceDescriptions.get(0);
+const dereferencedDoc = sourceDesc.meta.get('parseResult');
+```
+
+The function signature is:
+```typescript
+dereferenceSourceDescriptions(
+  parseResult: ParseResultElement,
+  parseResultRetrievalURI: string,
+  options: ReferenceOptions,
+  strategyName?: string, // defaults to 'arazzo-1'
+): Promise<ParseResultElement[]>
 ```
 
 ##### [openapi-2](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/dereference/strategies/openapi-2)
