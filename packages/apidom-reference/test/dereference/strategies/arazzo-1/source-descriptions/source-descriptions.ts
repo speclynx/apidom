@@ -145,6 +145,29 @@ describe('dereference', function () {
         assert.isTrue(sdParseResult.classes.includes('source-description'));
         assert.strictEqual(sdParseResult.meta.get('name')!.toValue(), 'petStore');
       });
+
+      specify('should attach parseResult to source description element meta', async function () {
+        const uri = path.join(__dirname, 'fixtures', 'root.json');
+        const data = fs.readFileSync(uri).toString();
+        const parseResult = await parse(data);
+
+        await dereferenceSourceDescriptions(
+          parseResult,
+          uri,
+          mergeOptions(options, {
+            dereference: { strategyOpts: { sourceDescriptions: true } },
+          }),
+        );
+
+        // verify meta is set on source description element
+        const api: any = parseResult.api!;
+        const sourceDescriptions = api.get('sourceDescriptions');
+        const sourceDesc = sourceDescriptions.get(0);
+        const attachedParseResult = sourceDesc.meta.get('parseResult') as ParseResultElement;
+
+        assert.isTrue(isParseResultElement(attachedParseResult));
+        assert.strictEqual(attachedParseResult.api?.element, 'openApi3_1');
+      });
     });
   });
 });
