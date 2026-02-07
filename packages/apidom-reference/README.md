@@ -373,8 +373,8 @@ const sourceDesc = api.sourceDescriptions.get(0);
 const parsedDoc = sourceDesc.meta.get('parseResult');
 
 // Check for errors before using
-if (parsedDoc.annotations.some(a => a.classes.includes('error'))) {
-  console.log('Parsing failed:', parsedDoc.annotations);
+if (parsedDoc.errors.length > 0) {
+  console.log('Parsing failed:', parsedDoc.errors);
 } else {
   console.log(parsedDoc.api.element); // e.g., 'openApi3_1'
 }
@@ -1802,8 +1802,8 @@ const sourceDesc = api.sourceDescriptions.get(0);
 const dereferencedDoc = sourceDesc.meta.get('parseResult');
 
 // Check for errors before using
-if (dereferencedDoc.annotations.some(a => a.classes.includes('error'))) {
-  console.log('Dereferencing failed:', dereferencedDoc.annotations);
+if (dereferencedDoc.errors.length > 0) {
+  console.log('Dereferencing failed:', dereferencedDoc.errors);
 } else {
   console.log(dereferencedDoc.api.element); // e.g., 'openApi3_1'
 }
