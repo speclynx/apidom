@@ -152,7 +152,7 @@ async function dereferenceSourceDescription(
 /**
  * Dereferences source descriptions from an Arazzo document.
  *
- * @param parseResult - ParseResult containing a dereferenced Arazzo specification
+ * @param parseResult - ParseResult containing a parsed (optionally dereferenced) Arazzo specification
  * @param parseResultRetrievalURI - URI from which the parseResult was retrieved
  * @param options - Full ReferenceOptions (caller responsibility to construct)
  * @param strategyName - Strategy name for options lookup (defaults to 'arazzo-1')
