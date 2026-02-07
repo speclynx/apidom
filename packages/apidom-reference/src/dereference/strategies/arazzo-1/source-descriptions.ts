@@ -67,7 +67,8 @@ async function dereferenceSourceDescription(
     return parseResult;
   }
 
-  const retrievalURI = url.resolve(ctx.baseURI, sourceDescriptionURI);
+  // normalize URI for consistent cycle detection and refSet cache key matching
+  const retrievalURI = url.sanitize(url.stripHash(url.resolve(ctx.baseURI, sourceDescriptionURI)));
 
   // skip if already visited (cycle detection)
   if (ctx.visitedUrls.has(retrievalURI)) {
