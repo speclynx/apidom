@@ -6,6 +6,7 @@ import { parse } from '@speclynx/apidom-parser-adapter-arazzo-json-1';
 import { fileURLToPath } from 'node:url';
 
 import { dereferenceSourceDescriptions } from '../../../../../src/dereference/strategies/arazzo-1/index.ts';
+import { parseSourceDescriptions } from '../../../../../src/parse/parsers/arazzo-json-1/index.ts';
 import { options, mergeOptions } from '../../../../../src/configuration/saturated.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -167,6 +168,42 @@ describe('dereference', function () {
 
         assert.isTrue(isParseResultElement(attachedParseResult));
         assert.strictEqual(attachedParseResult.api?.element, 'openApi3_1');
+      });
+
+      specify('should reuse already-parsed source descriptions from meta', async function () {
+        const uri = path.join(__dirname, 'fixtures', 'root.json');
+        const data = fs.readFileSync(uri).toString();
+
+        // first parse with sourceDescriptions: true (using low-level API)
+        const parseResult = await parse(data);
+        await parseSourceDescriptions(
+          parseResult,
+          uri,
+          mergeOptions(options, { parse: { parserOpts: { sourceDescriptions: true } } }),
+        );
+
+        // verify parse result is attached to source description element
+        const api: any = parseResult.api!;
+        const sourceDescriptions = api.get('sourceDescriptions');
+        const sourceDesc = sourceDescriptions.get(0);
+        const parsedDoc = sourceDesc.meta.get('parseResult');
+        assert.isTrue(isParseResultElement(parsedDoc));
+
+        // now dereference - should reuse the already-parsed source description (no re-fetch)
+        const dereferencedResults = await dereferenceSourceDescriptions(
+          parseResult,
+          uri,
+          mergeOptions(options, {
+            dereference: { strategyOpts: { sourceDescriptions: true } },
+          }),
+        );
+
+        assert.strictEqual(dereferencedResults.length, 1);
+
+        // the dereferenced result should be attached (overwrites parsed result)
+        const dereferencedDoc = sourceDesc.meta.get('parseResult') as ParseResultElement;
+        assert.isTrue(isParseResultElement(dereferencedDoc));
+        assert.strictEqual(dereferencedDoc.api?.element, 'openApi3_1');
       });
     });
   });

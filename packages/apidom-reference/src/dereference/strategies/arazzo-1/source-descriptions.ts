@@ -4,6 +4,7 @@ import {
   AnnotationElement,
   isArrayElement,
   isStringElement,
+  isParseResultElement,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
 import {
@@ -18,7 +19,7 @@ import { toValue } from '@speclynx/apidom-core';
 import * as url from '../../../util/url.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 import { merge as mergeOptions } from '../../../options/util.ts';
-import dereference from '../../index.ts';
+import dereference, { dereferenceApiDOM } from '../../index.ts';
 
 // shared key for recursion state (works across JSON/YAML documents)
 const ARAZZO_DEREFERENCE_RECURSION_KEY = 'arazzo-1';
@@ -79,23 +80,48 @@ async function dereferenceSourceDescription(
   }
   ctx.visitedUrls.add(retrievalURI);
 
+  // check if source description was already parsed (e.g., during parse phase with sourceDescriptions: true)
+  const existingParseResult = sourceDescription.meta.get('parseResult');
+
   try {
-    const sourceDescriptionDereferenced = await dereference(
-      retrievalURI,
-      mergeOptions(ctx.options, {
-        parse: {
-          mediaType: 'text/plain', // allow parser plugin detection
-        },
-        dereference: {
-          strategyOpts: {
-            [ARAZZO_DEREFERENCE_RECURSION_KEY]: {
-              sourceDescriptionsDepth: ctx.currentDepth + 1,
-              sourceDescriptionsVisitedUrls: ctx.visitedUrls,
+    let sourceDescriptionDereferenced: ParseResultElement;
+
+    if (isParseResultElement(existingParseResult)) {
+      // use existing parsed result - just dereference it (no re-fetch/re-parse)
+      sourceDescriptionDereferenced = await dereferenceApiDOM(
+        existingParseResult,
+        mergeOptions(ctx.options, {
+          resolve: { baseURI: retrievalURI },
+          dereference: {
+            strategyOpts: {
+              [ARAZZO_DEREFERENCE_RECURSION_KEY]: {
+                sourceDescriptionsDepth: ctx.currentDepth + 1,
+                sourceDescriptionsVisitedUrls: ctx.visitedUrls,
+              },
             },
           },
-        },
-      }),
-    );
+        }),
+      );
+    } else {
+      // no existing parse result - fetch, parse, and dereference
+      sourceDescriptionDereferenced = await dereference(
+        retrievalURI,
+        mergeOptions(ctx.options, {
+          parse: {
+            mediaType: 'text/plain', // allow parser plugin detection
+          },
+          dereference: {
+            strategyOpts: {
+              [ARAZZO_DEREFERENCE_RECURSION_KEY]: {
+                sourceDescriptionsDepth: ctx.currentDepth + 1,
+                sourceDescriptionsVisitedUrls: ctx.visitedUrls,
+              },
+            },
+          },
+        }),
+      );
+    }
+
     // merge dereferenced result into our parse result
     for (const item of sourceDescriptionDereferenced) {
       parseResult.push(item);
