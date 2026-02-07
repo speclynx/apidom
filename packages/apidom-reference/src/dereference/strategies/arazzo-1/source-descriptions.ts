@@ -15,7 +15,6 @@ import { isOpenApi3_0Element } from '@speclynx/apidom-ns-openapi-3-0';
 import { isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 import { toValue } from '@speclynx/apidom-core';
 
-import Reference from '../../../Reference.ts';
 import * as url from '../../../util/url.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 import { merge as mergeOptions } from '../../../options/util.ts';
@@ -152,15 +151,29 @@ async function dereferenceSourceDescription(
 
 /**
  * Dereferences source descriptions from an Arazzo document.
+ *
+ * @param parseResult - ParseResult containing a dereferenced Arazzo specification
+ * @param parseResultRetrievalURI - URI from which the parseResult was retrieved
+ * @param options - Full ReferenceOptions (caller responsibility to construct)
+ * @param strategyName - Strategy name for options lookup (defaults to 'arazzo-1')
+ * @returns Array of ParseResultElements. On success, returns one ParseResultElement per
+ *   source description (each with class 'source-description' and name/type metadata).
+ *   May return early with a single-element array containing a warning annotation when:
+ *   - The API is not an Arazzo specification
+ *   - The sourceDescriptions field is missing or not an array
+ *   - Maximum dereference depth is exceeded (error annotation)
+ *   Returns an empty array when sourceDescriptions option is disabled or no names match.
+ *
  * @public
  */
 export async function dereferenceSourceDescriptions(
   parseResult: ParseResultElement,
-  reference: Reference,
+  parseResultRetrievalURI: string,
   options: ReferenceOptions,
+  strategyName: string = 'arazzo-1',
 ): Promise<ParseResultElement[]> {
+  const baseURI = url.sanitize(url.stripHash(parseResultRetrievalURI));
   const results: ParseResultElement[] = [];
-  const strategyName = 'arazzo-1';
 
   // get API from dereferenced parse result
   const { api } = parseResult;
@@ -196,11 +209,11 @@ export async function dereferenceSourceDescriptions(
   const visitedUrls: Set<string> = sharedOpts.sourceDescriptionsVisitedUrls ?? new Set();
 
   // add current file to visited URLs to prevent cycles
-  visitedUrls.add(reference.uri);
+  visitedUrls.add(baseURI);
 
   if (currentDepth >= maxDepth) {
     const annotation = new AnnotationElement(
-      `Maximum dereference depth of ${maxDepth} has been exceeded by file "${reference.uri}"`,
+      `Maximum dereference depth of ${maxDepth} has been exceeded by file "${baseURI}"`,
     );
     annotation.classes.push('error');
     const parseResult = new ParseResultElement([annotation]);
@@ -209,7 +222,7 @@ export async function dereferenceSourceDescriptions(
   }
 
   const ctx: DereferenceSourceDescriptionContext = {
-    baseURI: reference.uri,
+    baseURI,
     options,
     currentDepth,
     visitedUrls,
