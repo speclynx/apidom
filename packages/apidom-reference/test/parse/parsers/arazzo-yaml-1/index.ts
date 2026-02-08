@@ -251,7 +251,7 @@ describe('parsers', function () {
           });
 
           specify(
-            'should set retrievalURI metadata on source description parse result',
+            'should set retrievalURI metadata on source description result',
             async function () {
               const uri = path.join(__dirname, 'fixtures', 'source-descriptions', 'root.yaml');
               const parseResult = await parse(uri, {

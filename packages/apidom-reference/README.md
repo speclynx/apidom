@@ -301,7 +301,7 @@ Parser-specific options take precedence over global options.
   - `true` - parse all source descriptions
   - `string[]` - parse only source descriptions with matching names (e.g., `['petStore', 'paymentApi']`)
 
-  Each parsed source description is added with a `'source-description'` class and metadata (`name`, `type`).
+  Each parsed source description is added with a `'source-description'` class and metadata (`name`, `type`, `retrievalURI`).
   Only OpenAPI 2.0, OpenAPI 3.0.x, OpenAPI 3.1.x, and Arazzo 1.x documents are accepted as source descriptions.
 - **sourceDescriptionsMaxDepth** - Maximum recursion depth for parsing nested Arazzo source descriptions.
   Defaults to `+Infinity`. Circular references are automatically detected and skipped.
@@ -321,6 +321,7 @@ with an `'error'` class within the parse result:
   for parsing are not met (e.g., API is not an Arazzo specification)
 
 ```js
+import { toValue } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-reference';
 
 // Parse all source descriptions
@@ -362,6 +363,7 @@ regardless of success or failure:
 - **On failure**: The parseResult contains error/warning annotations explaining what went wrong
 
 ```js
+import { toValue } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-reference';
 
 const parseResult = await parse('/path/to/arazzo.json', {
@@ -452,7 +454,7 @@ Parser-specific options take precedence over global options. See [arazzo-json-1]
   - `true` - parse all source descriptions
   - `string[]` - parse only source descriptions with matching names (e.g., `['petStore', 'paymentApi']`)
 
-  Each parsed source description is added with a `'source-description'` class and metadata (`name`, `type`).
+  Each parsed source description is added with a `'source-description'` class and metadata (`name`, `type`, `retrievalURI`).
   Only OpenAPI 2.0, OpenAPI 3.0.x, OpenAPI 3.1.x, and Arazzo 1.x documents are accepted as source descriptions.
 - **sourceDescriptionsMaxDepth** - Maximum recursion depth for parsing nested Arazzo source descriptions.
   Defaults to `+Infinity`. Circular references are automatically detected and skipped.
@@ -1758,7 +1760,7 @@ Strategy-specific options take precedence over global options.
   - `true` - dereference all source descriptions
   - `string[]` - dereference only source descriptions with matching names (e.g., `['petStore', 'paymentApi']`)
 
-  Each dereferenced source description is added with a `'source-description'` class and metadata (`name`, `type`).
+  Each dereferenced source description is added with a `'source-description'` class and metadata (`name`, `type`, `retrievalURI`).
   Only OpenAPI 2.0, OpenAPI 3.0.x, OpenAPI 3.1.x, and Arazzo 1.x documents are accepted as source descriptions.
 - **sourceDescriptionsMaxDepth** - Maximum recursion depth for dereferencing nested Arazzo source descriptions.
   Defaults to `+Infinity`. Circular references are automatically detected and skipped.
@@ -1812,6 +1814,7 @@ regardless of success or failure:
 - **On failure**: The parseResult contains error/warning annotations explaining what went wrong
 
 ```js
+import { toValue } from '@speclynx/apidom-core';
 import { dereference } from '@speclynx/apidom-reference';
 
 const parseResult = await dereference('/path/to/arazzo.json', {
