@@ -4,6 +4,7 @@ import {
   AnnotationElement,
   isArrayElement,
   isStringElement,
+  isParseResultElement,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
 import {
@@ -18,14 +19,12 @@ import { toValue } from '@speclynx/apidom-core';
 import * as url from '../../../util/url.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 import { merge as mergeOptions } from '../../../options/util.ts';
-import dereference from '../../index.ts';
-
-// shared key for recursion state (works across JSON/YAML documents)
-const ARAZZO_DEREFERENCE_RECURSION_KEY = 'arazzo-1';
+import dereference, { dereferenceApiDOM } from '../../index.ts';
 
 interface DereferenceSourceDescriptionContext {
   baseURI: string;
   options: ReferenceOptions;
+  strategyName: string;
   currentDepth: number;
   visitedUrls: Set<string>;
 }
@@ -66,7 +65,8 @@ async function dereferenceSourceDescription(
     return parseResult;
   }
 
-  const retrievalURI = url.resolve(ctx.baseURI, sourceDescriptionURI);
+  // normalize URI for consistent cycle detection and refSet cache key matching
+  const retrievalURI = url.sanitize(url.stripHash(url.resolve(ctx.baseURI, sourceDescriptionURI)));
 
   // skip if already visited (cycle detection)
   if (ctx.visitedUrls.has(retrievalURI)) {
@@ -79,23 +79,59 @@ async function dereferenceSourceDescription(
   }
   ctx.visitedUrls.add(retrievalURI);
 
+  // check if source description was already parsed (e.g., during parse phase with sourceDescriptions: true)
+  const existingParseResult = sourceDescription.meta.get('parseResult');
+
   try {
-    const sourceDescriptionDereferenced = await dereference(
-      retrievalURI,
-      mergeOptions(ctx.options, {
-        parse: {
-          mediaType: 'text/plain', // allow parser plugin detection
-        },
-        dereference: {
-          strategyOpts: {
-            [ARAZZO_DEREFERENCE_RECURSION_KEY]: {
-              sourceDescriptionsDepth: ctx.currentDepth + 1,
-              sourceDescriptionsVisitedUrls: ctx.visitedUrls,
+    let sourceDescriptionDereferenced: ParseResultElement;
+
+    if (isParseResultElement(existingParseResult)) {
+      // use existing parsed result - just dereference it (no re-fetch/re-parse)
+      sourceDescriptionDereferenced = await dereferenceApiDOM(
+        existingParseResult,
+        mergeOptions(ctx.options, {
+          parse: {
+            mediaType: 'text/plain', // allow dereference strategy detection via ApiDOM inspection
+          },
+          resolve: { baseURI: retrievalURI },
+          dereference: {
+            strategyOpts: {
+              // nested documents should dereference all their source descriptions
+              // (parent's name filter doesn't apply to nested documents)
+              // set at strategy-specific level to override any inherited filters
+              [ctx.strategyName]: {
+                sourceDescriptions: true,
+                sourceDescriptionsDepth: ctx.currentDepth + 1,
+                sourceDescriptionsVisitedUrls: ctx.visitedUrls,
+              },
             },
           },
-        },
-      }),
-    );
+        }),
+      );
+    } else {
+      // no existing parse result - fetch, parse, and dereference
+      sourceDescriptionDereferenced = await dereference(
+        retrievalURI,
+        mergeOptions(ctx.options, {
+          parse: {
+            mediaType: 'text/plain', // allow parser plugin detection
+          },
+          dereference: {
+            strategyOpts: {
+              // nested documents should dereference all their source descriptions
+              // (parent's name filter doesn't apply to nested documents)
+              // set at strategy-specific level to override any inherited filters
+              [ctx.strategyName]: {
+                sourceDescriptions: true,
+                sourceDescriptionsDepth: ctx.currentDepth + 1,
+                sourceDescriptionsVisitedUrls: ctx.visitedUrls,
+              },
+            },
+          },
+        }),
+      );
+    }
+
     // merge dereferenced result into our parse result
     for (const item of sourceDescriptionDereferenced) {
       parseResult.push(item);
@@ -159,18 +195,27 @@ async function dereferenceSourceDescription(
  *
  * @param parseResult - ParseResult containing a parsed (optionally dereferenced) Arazzo specification
  * @param parseResultRetrievalURI - URI from which the parseResult was retrieved
- * @param options - Full ReferenceOptions (caller responsibility to construct)
+ * @param options - Full ReferenceOptions. Pass `sourceDescriptions` as an array of names
+ *   in `dereference.strategyOpts` to filter which source descriptions to process.
  * @param strategyName - Strategy name for options lookup (defaults to 'arazzo-1')
- * @returns Array of ParseResultElements. On success, returns one ParseResultElement per
- *   source description (each with class 'source-description' and name/type metadata).
+ * @returns Array of ParseResultElements. Returns one ParseResultElement per source description
+ *   (each with class 'source-description' and name/type metadata).
  *   May return early with a single-element array containing a warning annotation when:
  *   - The API is not an Arazzo specification
  *   - The sourceDescriptions field is missing or not an array
  *   - Maximum dereference depth is exceeded (error annotation)
- *   Returns an empty array when sourceDescriptions option is disabled or no names match.
+ *   Returns an empty array when no source description names match the filter.
  *
  * @example
  * ```typescript
+ * // Dereference all source descriptions
+ * await dereferenceSourceDescriptions(parseResult, uri, options);
+ *
+ * // Filter by name
+ * await dereferenceSourceDescriptions(parseResult, uri, mergeOptions(options, {
+ *   dereference: { strategyOpts: { sourceDescriptions: ['petStore'] } },
+ * }));
+ *
  * // Access dereferenced document from source description element
  * const sourceDesc = parseResult.api.sourceDescriptions.get(0);
  * const dereferencedDoc = sourceDesc.meta.get('parseResult');
@@ -215,8 +260,8 @@ export async function dereferenceSourceDescriptions(
     options?.dereference?.strategyOpts?.sourceDescriptionsMaxDepth ??
     +Infinity;
 
-  // recursion state comes from shared key (works across JSON/YAML)
-  const sharedOpts = options?.dereference?.strategyOpts?.[ARAZZO_DEREFERENCE_RECURSION_KEY] ?? {};
+  // recursion state comes from strategy-specific options
+  const sharedOpts = options?.dereference?.strategyOpts?.[strategyName] ?? {};
   const currentDepth = sharedOpts.sourceDescriptionsDepth ?? 0;
   const visitedUrls: Set<string> = sharedOpts.sourceDescriptionsVisitedUrls ?? new Set();
 
@@ -236,19 +281,15 @@ export async function dereferenceSourceDescriptions(
   const ctx: DereferenceSourceDescriptionContext = {
     baseURI,
     options,
+    strategyName,
     currentDepth,
     visitedUrls,
   };
 
-  // determine which source descriptions to dereference
+  // determine which source descriptions to dereference (array filters by name)
   const sourceDescriptionsOption =
     options?.dereference?.strategyOpts?.[strategyName]?.sourceDescriptions ??
     options?.dereference?.strategyOpts?.sourceDescriptions;
-
-  // handle false or other falsy values - no source descriptions should be dereferenced
-  if (!sourceDescriptionsOption) {
-    return results;
-  }
 
   const sourceDescriptions = Array.isArray(sourceDescriptionsOption)
     ? api.sourceDescriptions.filter((sd) => {
