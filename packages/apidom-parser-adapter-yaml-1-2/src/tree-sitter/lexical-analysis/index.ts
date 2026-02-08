@@ -19,7 +19,10 @@ let parserInitLock: Promise<Parser> | null = null;
 const analyze = async (source: string): Promise<Tree> => {
   if (parser === null && parserInitLock === null) {
     // acquire lock
-    parserInitLock = Parser.init({ wasmBinary: treeSitter } as unknown as EmscriptenModule)
+    parserInitLock = Parser.init({
+      wasmBinary: treeSitter,
+      locateFile: (scriptName: string) => scriptName,
+    } as unknown as EmscriptenModule)
       .then(() => Language.load(treeSitterYaml))
       .then((yamlLanguage) => {
         const parserInstance = new Parser();
