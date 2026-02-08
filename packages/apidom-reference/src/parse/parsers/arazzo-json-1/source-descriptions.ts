@@ -176,6 +176,7 @@ async function parseSourceDescription(
  *
  * @example
  * ```typescript
+ * import { toValue } from '@speclynx/apidom-core';
  * import { options, mergeOptions } from '@speclynx/apidom-reference';
  * import { parseSourceDescriptions } from '@speclynx/apidom-reference/parse/parsers/arazzo-json-1';
  *
@@ -190,7 +191,7 @@ async function parseSourceDescription(
  * // Access parsed document from source description element
  * const sourceDesc = parseResult.api.sourceDescriptions.get(0);
  * const parsedDoc = sourceDesc.meta.get('parseResult');
- * const uri = toValue(parsedDoc.meta.get('retrievalURI'));
+ * const retrievalURI = toValue(parsedDoc.meta.get('retrievalURI'));
  * ```
  *
  * @public

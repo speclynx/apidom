@@ -209,6 +209,8 @@ async function dereferenceSourceDescription(
  *
  * @example
  * ```typescript
+ * import { toValue } from '@speclynx/apidom-core';
+ *
  * // Dereference all source descriptions
  * await dereferenceSourceDescriptions(parseResult, uri, options);
  *
@@ -220,7 +222,7 @@ async function dereferenceSourceDescription(
  * // Access dereferenced document from source description element
  * const sourceDesc = parseResult.api.sourceDescriptions.get(0);
  * const dereferencedDoc = sourceDesc.meta.get('parseResult');
- * const uri = toValue(dereferencedDoc.meta.get('retrievalURI'));
+ * const retrievalURI = toValue(dereferencedDoc.meta.get('retrievalURI'));
  * ```
  *
  * @public
