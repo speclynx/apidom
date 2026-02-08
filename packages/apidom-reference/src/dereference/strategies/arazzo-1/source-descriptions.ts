@@ -21,12 +21,10 @@ import type { ReferenceOptions } from '../../../options/index.ts';
 import { merge as mergeOptions } from '../../../options/util.ts';
 import dereference, { dereferenceApiDOM } from '../../index.ts';
 
-// shared key for recursion state (works across JSON/YAML documents)
-const ARAZZO_DEREFERENCE_RECURSION_KEY = 'arazzo-1';
-
 interface DereferenceSourceDescriptionContext {
   baseURI: string;
   options: ReferenceOptions;
+  strategyName: string;
   currentDepth: number;
   visitedUrls: Set<string>;
 }
@@ -100,8 +98,9 @@ async function dereferenceSourceDescription(
             strategyOpts: {
               // nested documents should dereference all their source descriptions
               // (parent's name filter doesn't apply to nested documents)
-              sourceDescriptions: true,
-              [ARAZZO_DEREFERENCE_RECURSION_KEY]: {
+              // set at strategy-specific level to override any inherited filters
+              [ctx.strategyName]: {
+                sourceDescriptions: true,
                 sourceDescriptionsDepth: ctx.currentDepth + 1,
                 sourceDescriptionsVisitedUrls: ctx.visitedUrls,
               },
@@ -121,8 +120,9 @@ async function dereferenceSourceDescription(
             strategyOpts: {
               // nested documents should dereference all their source descriptions
               // (parent's name filter doesn't apply to nested documents)
-              sourceDescriptions: true,
-              [ARAZZO_DEREFERENCE_RECURSION_KEY]: {
+              // set at strategy-specific level to override any inherited filters
+              [ctx.strategyName]: {
+                sourceDescriptions: true,
                 sourceDescriptionsDepth: ctx.currentDepth + 1,
                 sourceDescriptionsVisitedUrls: ctx.visitedUrls,
               },
@@ -260,8 +260,8 @@ export async function dereferenceSourceDescriptions(
     options?.dereference?.strategyOpts?.sourceDescriptionsMaxDepth ??
     +Infinity;
 
-  // recursion state comes from shared key (works across JSON/YAML)
-  const sharedOpts = options?.dereference?.strategyOpts?.[ARAZZO_DEREFERENCE_RECURSION_KEY] ?? {};
+  // recursion state comes from strategy-specific options
+  const sharedOpts = options?.dereference?.strategyOpts?.[strategyName] ?? {};
   const currentDepth = sharedOpts.sourceDescriptionsDepth ?? 0;
   const visitedUrls: Set<string> = sharedOpts.sourceDescriptionsVisitedUrls ?? new Set();
 
@@ -281,6 +281,7 @@ export async function dereferenceSourceDescriptions(
   const ctx: DereferenceSourceDescriptionContext = {
     baseURI,
     options,
+    strategyName,
     currentDepth,
     visitedUrls,
   };
