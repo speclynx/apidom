@@ -69,6 +69,7 @@ async function parseSourceDescription(
 
   // normalize URI for consistent cycle detection and cache key matching
   const retrievalURI = url.sanitize(url.stripHash(url.resolve(ctx.baseURI, sourceDescriptionURI)));
+  parseResult.setMetaProperty('retrievalURI', retrievalURI);
 
   // skip if already visited (cycle detection)
   if (ctx.visitedUrls.has(retrievalURI)) {
@@ -166,7 +167,7 @@ async function parseSourceDescription(
  *   in `parse.parserOpts` to filter which source descriptions to process.
  * @param parserName - Parser name for options lookup (defaults to 'arazzo-json-1')
  * @returns Array of ParseResultElements. Returns one ParseResultElement per source description
- *   (each with class 'source-description' and name/type metadata).
+ *   (each with class 'source-description' and metadata: name, type, retrievalURI).
  *   May return early with a single-element array containing a warning annotation when:
  *   - The API is not an Arazzo specification
  *   - The sourceDescriptions field is missing or not an array
@@ -189,6 +190,7 @@ async function parseSourceDescription(
  * // Access parsed document from source description element
  * const sourceDesc = parseResult.api.sourceDescriptions.get(0);
  * const parsedDoc = sourceDesc.meta.get('parseResult');
+ * const uri = toValue(parsedDoc.meta.get('retrievalURI'));
  * ```
  *
  * @public

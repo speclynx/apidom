@@ -34,6 +34,27 @@ describe('dereference', function () {
             assert.strictEqual(sdResult.meta.get('name')!.toValue(), 'petStore');
             assert.strictEqual(sdResult.meta.get('type')!.toValue(), 'openapi');
           });
+
+          specify(
+            'should set retrievalURI metadata on source description result',
+            async function () {
+              const uri = path.join(rootFixturePath, 'root.json');
+              const dereferenceResult = await dereference(uri, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                dereference: {
+                  strategyOpts: {
+                    'arazzo-1': { sourceDescriptions: true },
+                  },
+                },
+              });
+
+              const sdResult = dereferenceResult.get(1)!;
+              const retrievalURI = sdResult.meta.get('retrievalURI')?.toValue();
+
+              assert.isString(retrievalURI);
+              assert.include(retrievalURI, 'openapi.json');
+            },
+          );
         });
 
         context('given sourceDescriptions disabled', function () {
