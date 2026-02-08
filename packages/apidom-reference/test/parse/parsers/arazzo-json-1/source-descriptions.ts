@@ -143,6 +143,20 @@ describe('parsers', function () {
         assert.isTrue(isParseResultElement(attachedParseResult));
         assert.strictEqual(attachedParseResult.api?.element, 'openApi3_1');
       });
+
+      specify('should set retrievalURI metadata on source description result', async function () {
+        const uri = path.join(__dirname, 'fixtures', 'source-descriptions', 'root.json');
+        const data = fs.readFileSync(uri).toString();
+        const parseResult = await parse(data);
+
+        const sourceDescriptions = await parseSourceDescriptions(parseResult, uri, options);
+
+        const sdParseResult = sourceDescriptions[0]!;
+        const retrievalURI = sdParseResult.meta.get('retrievalURI')?.toValue();
+
+        assert.isString(retrievalURI);
+        assert.include(retrievalURI, 'openapi.json');
+      });
     });
   });
 });

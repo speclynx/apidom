@@ -67,6 +67,7 @@ async function dereferenceSourceDescription(
 
   // normalize URI for consistent cycle detection and refSet cache key matching
   const retrievalURI = url.sanitize(url.stripHash(url.resolve(ctx.baseURI, sourceDescriptionURI)));
+  parseResult.setMetaProperty('retrievalURI', retrievalURI);
 
   // skip if already visited (cycle detection)
   if (ctx.visitedUrls.has(retrievalURI)) {
@@ -199,7 +200,7 @@ async function dereferenceSourceDescription(
  *   in `dereference.strategyOpts` to filter which source descriptions to process.
  * @param strategyName - Strategy name for options lookup (defaults to 'arazzo-1')
  * @returns Array of ParseResultElements. Returns one ParseResultElement per source description
- *   (each with class 'source-description' and name/type metadata).
+ *   (each with class 'source-description' and metadata: name, type, retrievalURI).
  *   May return early with a single-element array containing a warning annotation when:
  *   - The API is not an Arazzo specification
  *   - The sourceDescriptions field is missing or not an array
@@ -208,6 +209,8 @@ async function dereferenceSourceDescription(
  *
  * @example
  * ```typescript
+ * import { toValue } from '@speclynx/apidom-core';
+ *
  * // Dereference all source descriptions
  * await dereferenceSourceDescriptions(parseResult, uri, options);
  *
@@ -219,6 +222,7 @@ async function dereferenceSourceDescription(
  * // Access dereferenced document from source description element
  * const sourceDesc = parseResult.api.sourceDescriptions.get(0);
  * const dereferencedDoc = sourceDesc.meta.get('parseResult');
+ * const retrievalURI = toValue(dereferencedDoc.meta.get('retrievalURI'));
  * ```
  *
  * @public

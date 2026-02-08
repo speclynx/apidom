@@ -222,6 +222,26 @@ describe('parsers', function () {
             assert.strictEqual(sdParseResult.meta.get('name')!.toValue(), 'petStore');
             assert.strictEqual(sdParseResult.meta.get('type')!.toValue(), 'openapi');
           });
+
+          specify(
+            'should set retrievalURI metadata on source description result',
+            async function () {
+              const uri = path.join(__dirname, 'fixtures', 'source-descriptions', 'root.json');
+              const parseResult = await parse(uri, {
+                parse: {
+                  parserOpts: {
+                    'arazzo-json-1': { sourceDescriptions: true },
+                  },
+                },
+              });
+
+              const sdParseResult = parseResult.get(1)!;
+              const retrievalURI = sdParseResult.meta.get('retrievalURI')?.toValue();
+
+              assert.isString(retrievalURI);
+              assert.include(retrievalURI, 'openapi.json');
+            },
+          );
         });
 
         context('given sourceDescriptions disabled', function () {
