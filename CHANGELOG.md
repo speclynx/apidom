@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.9.0](https://github.com/speclynx/apidom/compare/v2.8.0...v2.9.0) (2026-02-08)
+
+### Features
+
+- **reference:** attach parse result as meta to Arazzo source descriptions ([#76](https://github.com/speclynx/apidom/issues/76)) ([448a099](https://github.com/speclynx/apidom/commit/448a099fc6af8189302346efdcc117c95c9b6e3b))
+- **reference:** avoid re-resolving Arazzo source descriptions during dereferencing ([#77](https://github.com/speclynx/apidom/issues/77)) ([0ad63e8](https://github.com/speclynx/apidom/commit/0ad63e8d204d991a0de47b486ad391d506eb66dc))
+- **reference:** expose low level API for dereferencing Arazzo source descriptions ([#75](https://github.com/speclynx/apidom/issues/75)) ([3b1e343](https://github.com/speclynx/apidom/commit/3b1e343c58ff983201ac0509bf841845bbf7eb83))
+
 # [2.8.0](https://github.com/speclynx/apidom/compare/v2.7.0...v2.8.0) (2026-02-06)
 
 ### Features
