@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.10.1](https://github.com/speclynx/apidom/compare/v2.10.0...v2.10.1) (2026-02-08)
+
+### Bug Fixes
+
+- **adapter-json:** supress loading wasm file ([#80](https://github.com/speclynx/apidom/issues/80)) ([2a5aa92](https://github.com/speclynx/apidom/commit/2a5aa927346ea4359fc7f3f395aaf20332c21756))
+- **adapter-yaml-1-2:** supress loading wasm file ([#81](https://github.com/speclynx/apidom/issues/81)) ([b05beb8](https://github.com/speclynx/apidom/commit/b05beb8edea8945c9cf41c96430ae5fe2098f9f2))
+
 # [2.10.0](https://github.com/speclynx/apidom/compare/v2.9.0...v2.10.0) (2026-02-08)
 
 ### Features

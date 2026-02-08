@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.10.1](https://github.com/speclynx/apidom/compare/v2.10.0...v2.10.1) (2026-02-08)
+
+**Note:** Version bump only for package @speclynx/apidom-parser-adapter-openapi-json-2
+
 # [2.10.0](https://github.com/speclynx/apidom/compare/v2.9.0...v2.10.0) (2026-02-08)
 
 **Note:** Version bump only for package @speclynx/apidom-parser-adapter-openapi-json-2
