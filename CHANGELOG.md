@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.10.2](https://github.com/speclynx/apidom/compare/v2.10.1...v2.10.2) (2026-02-08)
+
+### Bug Fixes
+
+- **reference:** pin broken arazzo runtime parser to fix version ([f9db9b0](https://github.com/speclynx/apidom/commit/f9db9b020b3753703703acea67629f020a4bc3de))
+
 ## [2.10.1](https://github.com/speclynx/apidom/compare/v2.10.0...v2.10.1) (2026-02-08)
 
 ### Bug Fixes
