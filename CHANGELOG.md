@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.10.0](https://github.com/speclynx/apidom/compare/v2.9.0...v2.10.0) (2026-02-08)
+
+### Features
+
+- **reference:** add retrievalURI metadata for Arazzo Source Descriptions ([#79](https://github.com/speclynx/apidom/issues/79)) ([df78cb3](https://github.com/speclynx/apidom/commit/df78cb3226521e6f7097b85cccdbc6b0b39e7a7b))
+
 # [2.9.0](https://github.com/speclynx/apidom/compare/v2.8.0...v2.9.0) (2026-02-08)
 
 ### Features
