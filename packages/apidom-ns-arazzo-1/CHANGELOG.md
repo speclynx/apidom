@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.10.3](https://github.com/speclynx/apidom/compare/v2.10.2...v2.10.3) (2026-02-10)
+
+### Bug Fixes
+
+- **ns-arazzo-1:** remove arazzo class from ArazzoSpecification element ([#84](https://github.com/speclynx/apidom/issues/84)) ([2fc5d6d](https://github.com/speclynx/apidom/commit/2fc5d6d6108db8724352986b02252edd5528d173))
+
 ## [2.10.2](https://github.com/speclynx/apidom/compare/v2.10.1...v2.10.2) (2026-02-08)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-arazzo-1
