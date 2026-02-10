@@ -14,7 +14,6 @@ class ArazzoSpecification1 extends ObjectElement {
     super(content, meta, attributes);
     this.element = 'arazzoSpecification1';
     this.classes.push('api');
-    this.classes.push('arazzo');
   }
 
   get arazzo(): ArazzoElement | undefined {
