@@ -657,6 +657,76 @@ describe('Element', function () {
     });
   });
 
+  describe('#getMetaProperty', function () {
+    context('when property exists', function () {
+      specify('should return the stored element', function () {
+        const element = new Element();
+        element.meta.set('title', 'Hello');
+
+        const result = element.getMetaProperty('title', '');
+
+        assert.strictEqual(result, element.meta.get('title'));
+      });
+    });
+
+    context('when property does not exist', function () {
+      context('with default value', function () {
+        specify('should return a new refracted element', function () {
+          const element = new Element();
+
+          const result = element.getMetaProperty('title', 'default');
+
+          assert.strictEqual(result!.toValue(), 'default');
+        });
+
+        specify('should not populate meta', function () {
+          const element = new Element();
+
+          element.getMetaProperty('title', 'default');
+
+          assert.isFalse(element.hasMetaProperty('title'));
+        });
+
+        specify('should return different instances on each call', function () {
+          const element = new Element();
+
+          const result1 = element.getMetaProperty('title', 'default');
+          const result2 = element.getMetaProperty('title', 'default');
+
+          assert.notStrictEqual(result1, result2);
+        });
+      });
+
+      context('without default value', function () {
+        specify('should return undefined', function () {
+          const element = new Element();
+
+          const result = element.getMetaProperty('title');
+
+          assert.isUndefined(result);
+        });
+      });
+    });
+
+    context('on frozen element', function () {
+      specify('should return a frozen element when property does not exist', function () {
+        const element = new Element();
+        element.freeze();
+
+        const result = element.getMetaProperty('title', '');
+
+        assert.isTrue(result!.isFrozen);
+      });
+
+      specify('should not throw when property does not exist', function () {
+        const element = new Element();
+        element.freeze();
+
+        assert.doesNotThrow(() => element.getMetaProperty('title', ''));
+      });
+    });
+  });
+
   describe('#toRef', function () {
     specify('can create ref element for an element', function () {
       const element = new Element();

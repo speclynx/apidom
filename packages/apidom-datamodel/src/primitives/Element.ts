@@ -273,7 +273,13 @@ class Element implements ToValue, Equatable, Freezable {
 
   /** Unique identifier for this element. */
   get id(): Element {
-    return this.getMetaProperty('id', '');
+    if (this.isFrozen) {
+      return this.getMetaProperty('id', '') as Element;
+    }
+    if (!this.hasMetaProperty('id')) {
+      this.setMetaProperty('id', '');
+    }
+    return this.meta.get('id') as Element;
   }
 
   set id(value: Element | string) {
@@ -282,7 +288,13 @@ class Element implements ToValue, Equatable, Freezable {
 
   /** CSS-like class names. */
   get classes(): ArrayElement {
-    return this.getMetaProperty('classes', []) as ArrayElement;
+    if (this.isFrozen) {
+      return this.getMetaProperty('classes', []) as ArrayElement;
+    }
+    if (!this.hasMetaProperty('classes')) {
+      this.setMetaProperty('classes', []);
+    }
+    return this.meta.get('classes') as ArrayElement;
   }
 
   set classes(value: ArrayElement | unknown[]) {
@@ -291,7 +303,13 @@ class Element implements ToValue, Equatable, Freezable {
 
   /** Hyperlinks associated with this element. */
   get links(): ArrayElement {
-    return this.getMetaProperty('links', []) as ArrayElement;
+    if (this.isFrozen) {
+      return this.getMetaProperty('links', []) as ArrayElement;
+    }
+    if (!this.hasMetaProperty('links')) {
+      this.setMetaProperty('links', []);
+    }
+    return this.meta.get('links') as ArrayElement;
   }
 
   set links(value: ArrayElement | unknown[]) {
@@ -451,16 +469,27 @@ class Element implements ToValue, Equatable, Freezable {
   }
 
   /**
-   * Gets a meta property, creating it with default value if not present.
+   * Gets a meta property.
+   *
+   * When the property doesn't exist:
+   * - With defaultValue: returns a new refracted element instance (not cached)
+   * - Without defaultValue: returns undefined
+   *
+   * Note: Each call with a default creates a new instance. Use setMetaProperty
+   * first if you need reference equality across multiple accesses.
    */
-  public getMetaProperty(name: string, defaultValue: unknown): Element {
-    if (!this.meta.hasKey(name)) {
-      if (this.isFrozen) {
-        const element = this.refract(defaultValue);
-        element.freeze();
-        return element;
+  public getMetaProperty(name: string, defaultValue: unknown): Element;
+  public getMetaProperty(name: string): Element | undefined;
+  public getMetaProperty(name: string, defaultValue?: unknown): Element | undefined {
+    if (!this.hasMetaProperty(name)) {
+      if (defaultValue === undefined) {
+        return undefined;
       }
-      this.meta.set(name, defaultValue);
+      const element = this.refract(defaultValue);
+      if (element && this.isFrozen) {
+        element.freeze();
+      }
+      return element;
     }
     return this.meta.get(name)!;
   }
