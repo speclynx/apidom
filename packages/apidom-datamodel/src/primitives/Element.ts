@@ -273,7 +273,10 @@ class Element implements ToValue, Equatable, Freezable {
 
   /** Unique identifier for this element. */
   get id(): Element {
-    return this.getMetaProperty('id', '');
+    if (!this.hasMetaProperty('id')) {
+      this.setMetaProperty('id', '');
+    }
+    return this.meta.get('id') as Element;
   }
 
   set id(value: Element | string) {
@@ -282,7 +285,10 @@ class Element implements ToValue, Equatable, Freezable {
 
   /** CSS-like class names. */
   get classes(): ArrayElement {
-    return this.getMetaProperty('classes', []) as ArrayElement;
+    if (!this.hasMetaProperty('classes')) {
+      this.setMetaProperty('classes', []);
+    }
+    return this.meta.get('classes') as ArrayElement;
   }
 
   set classes(value: ArrayElement | unknown[]) {
@@ -291,7 +297,10 @@ class Element implements ToValue, Equatable, Freezable {
 
   /** Hyperlinks associated with this element. */
   get links(): ArrayElement {
-    return this.getMetaProperty('links', []) as ArrayElement;
+    if (!this.hasMetaProperty('links')) {
+      this.setMetaProperty('links', []);
+    }
+    return this.meta.get('links') as ArrayElement;
   }
 
   set links(value: ArrayElement | unknown[]) {
@@ -451,16 +460,15 @@ class Element implements ToValue, Equatable, Freezable {
   }
 
   /**
-   * Gets a meta property, creating it with default value if not present.
+   * Gets a meta property, returning default value if not present.
    */
   public getMetaProperty(name: string, defaultValue: unknown): Element {
-    if (!this.meta.hasKey(name)) {
-      if (this.isFrozen) {
-        const element = this.refract(defaultValue);
+    if (!this.hasMetaProperty(name)) {
+      const element = this.refract(defaultValue);
+      if (element && this.isFrozen) {
         element.freeze();
-        return element;
       }
-      this.meta.set(name, defaultValue);
+      return element;
     }
     return this.meta.get(name)!;
   }
