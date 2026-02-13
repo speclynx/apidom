@@ -16,11 +16,6 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "react-dom"
         update-types: ["version-update:semver-major"]
-    groups:
-      deps-dev:
-        dependency-type: "development"
-      deps-prod:
-        dependency-type: "production"
 
   - package-ecosystem: "github-actions"
     target-branch: "main"
