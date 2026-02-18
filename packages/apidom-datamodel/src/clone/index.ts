@@ -1,3 +1,5 @@
+import { clone } from 'ramda';
+
 import ObjectSlice from '../ObjectSlice.ts';
 import KeyValuePair from '../KeyValuePair.ts';
 import Element from '../primitives/Element.ts';
@@ -139,7 +141,7 @@ const cloneShallowElement = <T extends Element>(element: T): T => {
   }
 
   if (element.style !== undefined) {
-    copy.style = structuredClone(element.style);
+    copy.style = clone(element.style);
   }
 
   const { content } = element;
