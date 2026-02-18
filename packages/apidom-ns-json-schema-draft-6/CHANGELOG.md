@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.12.0](https://github.com/speclynx/apidom/compare/v2.11.0...v2.12.0) (2026-02-18)
+
+### Features
+
+- add support for lossless JSON/YAML roundtrips ([#97](https://github.com/speclynx/apidom/issues/97)) ([dc17c9a](https://github.com/speclynx/apidom/commit/dc17c9a78fbc7df07a91e8f35b12be6409117d91))
+
 # [2.11.0](https://github.com/speclynx/apidom/compare/v2.10.3...v2.11.0) (2026-02-12)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-json-schema-draft-6
