@@ -27,6 +27,7 @@ export const detect = async (source: string): Promise<boolean> => {
  */
 export interface ParseOptions {
   sourceMap?: boolean;
+  style?: boolean;
 }
 
 /**
@@ -34,11 +35,11 @@ export interface ParseOptions {
  */
 export const parse = async (
   source: string,
-  { sourceMap = false }: ParseOptions = {},
+  { sourceMap = false, style = false }: ParseOptions = {},
 ): Promise<ParseResultElement> => {
   const cst = await lexicalAnalysis(source);
   try {
-    return syntacticAnalysis(cst, { sourceMap });
+    return syntacticAnalysis(cst, { sourceMap, style });
   } finally {
     cst.delete();
   }

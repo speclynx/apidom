@@ -221,6 +221,9 @@ const plugin = () => () => ({
       );
 
       SourceMapElement.transfer(element, replacement);
+      if (element.style !== undefined) {
+        replacement.style = element.style;
+      }
 
       path.replaceWith(replacement);
     },

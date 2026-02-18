@@ -17,7 +17,7 @@ export type { Tree };
  * Two traversals passes are needed to get from CST to ApiDOM.
  * @public
  */
-const analyze = (cst: Tree, { sourceMap = false } = {}): ParseResultElement => {
+const analyze = (cst: Tree, { sourceMap = false, style = false } = {}): ParseResultElement => {
   const cursor = cst.walk();
   const schema = new JsonSchema();
   const referenceManager = new YamlReferenceManager();
@@ -30,7 +30,7 @@ const analyze = (cst: Tree, { sourceMap = false } = {}): ParseResultElement => {
   });
 
   // Pass 2: YAML AST -> ApiDOM (direct transformation)
-  return transformYamlAstToApiDOM(yamlAst, { sourceMap });
+  return transformYamlAstToApiDOM(yamlAst, { sourceMap, style });
 };
 
 export default analyze;

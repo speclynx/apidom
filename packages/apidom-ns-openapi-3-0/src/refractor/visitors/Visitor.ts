@@ -28,6 +28,9 @@ class Visitor {
       to.attributes = deepmerge(target, source) as ObjectElement;
     }
     SourceMapElement.transfer(from, to);
+    if (from.style !== undefined) {
+      to.style = from.style;
+    }
   }
 }
 

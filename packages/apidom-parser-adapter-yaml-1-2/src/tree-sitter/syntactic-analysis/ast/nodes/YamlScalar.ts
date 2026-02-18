@@ -16,6 +16,8 @@ class YamlScalar extends YamlNode {
 
   public readonly content: string;
 
+  public rawContent?: string;
+
   constructor({ content, ...rest }: YamlScalarOptions) {
     super({ ...rest });
     this.content = content;

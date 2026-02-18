@@ -31,11 +31,11 @@ class Encoding extends ObjectElement {
     this.set('headers', headers);
   }
 
-  get style(): StringElement | undefined {
+  get styleField(): StringElement | undefined {
     return this.get('style') as StringElement | undefined;
   }
 
-  set style(style: StringElement | undefined) {
+  set styleField(style: StringElement | undefined) {
     this.set('style', style);
   }
 

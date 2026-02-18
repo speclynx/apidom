@@ -15,6 +15,8 @@ import {
 
 interface TransformContext {
   sourceMap: boolean;
+  style: boolean;
+  indent: number;
   annotations: AnnotationElement[];
 }
 
@@ -55,6 +57,23 @@ const maybeAddSourceMap = (info: CursorInfo, element: Element, ctx: TransformCon
   element.endLine = info.endPosition.row;
   element.endCharacter = info.endPosition.column;
   element.endOffset = info.endIndex;
+};
+
+// build json style object for an element
+const buildJsonStyle = (
+  ctx: TransformContext,
+  extras?: Record<string, unknown>,
+): Record<string, unknown> => {
+  const jsonStyle: Record<string, unknown> = { indent: ctx.indent };
+  if (extras) Object.assign(jsonStyle, extras);
+  return { json: jsonStyle };
+};
+
+// detect indent from an object's first pair child position
+// called during transformChildren when we encounter the first pair
+const detectIndent = (objectColumn: number, firstPairColumn: number): number => {
+  const diff = firstPairColumn - objectColumn;
+  return diff > 0 ? diff : 2;
 };
 
 type Transformer = (cursor: TreeCursor, ctx: TransformContext) => Element | null;
@@ -139,10 +158,27 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
     const element = new ObjectElement();
     maybeAddSourceMap(info, element, ctx);
 
+    // Detect indent from first pair if style is enabled and not yet detected
+    if (ctx.style && ctx.indent === 0) {
+      if (cursor.gotoFirstChild()) {
+        do {
+          if (cursor.nodeType === 'pair') {
+            ctx.indent = detectIndent(info.startPosition.column, cursor.startPosition.column);
+            break;
+          }
+        } while (cursor.gotoNextSibling());
+        cursor.gotoParent();
+      }
+    }
+
     // Transform children (pairs)
     const children = transformChildren(cursor, transformerMap, ctx);
     for (const child of children) {
       element.push(child);
+    }
+
+    if (ctx.style) {
+      element.style = buildJsonStyle(ctx);
     }
 
     return element;
@@ -157,6 +193,10 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
     const children = transformChildren(cursor, transformerMap, ctx);
     for (const child of children) {
       element.push(child);
+    }
+
+    if (ctx.style) {
+      element.style = buildJsonStyle(ctx);
     }
 
     return element;
@@ -207,6 +247,9 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       }
     }
 
+    if (ctx.style) {
+      element.style = buildJsonStyle(ctx);
+    }
     maybeAddSourceMap(info, element, ctx);
     return element;
   },
@@ -214,6 +257,9 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
   number(cursor: TreeCursor, ctx: TransformContext): NumberElement {
     const info = getCursorInfo(cursor);
     const element = new NumberElement(Number(info.text));
+    if (ctx.style) {
+      element.style = buildJsonStyle(ctx, { rawContent: info.text });
+    }
     maybeAddSourceMap(info, element, ctx);
     return element;
   },
@@ -221,6 +267,9 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
   null(cursor: TreeCursor, ctx: TransformContext): NullElement {
     const info = getCursorInfo(cursor);
     const element = new NullElement();
+    if (ctx.style) {
+      element.style = buildJsonStyle(ctx);
+    }
     maybeAddSourceMap(info, element, ctx);
     return element;
   },
@@ -228,6 +277,9 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
   true(cursor: TreeCursor, ctx: TransformContext): BooleanElement {
     const info = getCursorInfo(cursor);
     const element = new BooleanElement(true);
+    if (ctx.style) {
+      element.style = buildJsonStyle(ctx);
+    }
     maybeAddSourceMap(info, element, ctx);
     return element;
   },
@@ -235,6 +287,9 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
   false(cursor: TreeCursor, ctx: TransformContext): BooleanElement {
     const info = getCursorInfo(cursor);
     const element = new BooleanElement(false);
+    if (ctx.style) {
+      element.style = buildJsonStyle(ctx);
+    }
     maybeAddSourceMap(info, element, ctx);
     return element;
   },
@@ -268,11 +323,13 @@ Object.assign(transformers, createTransformers(transformers));
  * Single pass transformation from CST to ApiDOM.
  * @public
  */
-const analyze = (cst: Tree, { sourceMap = false } = {}): ParseResultElement => {
+const analyze = (cst: Tree, { sourceMap = false, style = false } = {}): ParseResultElement => {
   const cursor = cst.walk();
 
   const ctx: TransformContext = {
     sourceMap,
+    style,
+    indent: 0,
     annotations: [],
   };
 

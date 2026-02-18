@@ -156,16 +156,46 @@ const processChildren = (
   return results;
 };
 
+// strip leading '#' from comment text; the yaml library adds '#' during stringification
+const stripCommentHash = (text: string): string =>
+  text
+    .split('\n')
+    .map((line) => line.replace(/^#/, ''))
+    .join('\n');
+
+// find the first YamlNode in a TransformResult (which may be an array from block_node)
+const findYamlNode = (result: TransformResult): YamlNode | null => {
+  if (result instanceof YamlNode) return result;
+  if (Array.isArray(result)) {
+    for (const item of result.flat()) {
+      if (item instanceof YamlNode) return item;
+    }
+  }
+  return null;
+};
+
+interface KeyValuePairResult {
+  key: TransformResult | null;
+  value: TransformResult | null;
+  errors: TransformResult[];
+  commentsBetweenKeyValue: string[];
+  commentsAfterValue: string[];
+}
+
 // Helper to process key-value pair children
 const processKeyValuePairChildren = (
   cursor: TreeCursor,
   ctx: TransformContext,
   transformerMap: TransformerMap,
-): { key: TransformResult | null; value: TransformResult | null; errors: TransformResult[] } => {
+): KeyValuePairResult => {
   let key: TransformResult | null = null;
   let value: TransformResult | null = null;
   const errors: TransformResult[] = [];
+  const commentsBetweenKeyValue: string[] = [];
+  const commentsAfterValue: string[] = [];
   let siblings: SiblingContext = {};
+  let seenKey = false;
+  let seenValue = false;
 
   if (cursor.gotoFirstChild()) {
     do {
@@ -182,12 +212,25 @@ const processKeyValuePairChildren = (
         continue;
       }
 
+      // collect comment nodes (extras placed by tree-sitter between key/value)
+      if (info.type === 'comment') {
+        const commentText = stripCommentHash(info.text);
+        if (seenValue) {
+          commentsAfterValue.push(commentText);
+        } else if (seenKey) {
+          commentsBetweenKeyValue.push(commentText);
+        }
+        continue;
+      }
+
       if (fieldName === 'key') {
         key = transform(cursor, ctx, transformerMap, siblings);
         siblings = {};
+        seenKey = true;
       } else if (fieldName === 'value') {
         value = transform(cursor, ctx, transformerMap, siblings);
         siblings = {};
+        seenValue = true;
       } else if (info.type === 'ERROR') {
         const errorResult = transform(cursor, ctx, transformerMap, siblings);
         if (errorResult !== null) {
@@ -198,7 +241,7 @@ const processKeyValuePairChildren = (
     cursor.gotoParent();
   }
 
-  return { key, value, errors };
+  return { key, value, errors, commentsBetweenKeyValue, commentsAfterValue };
 };
 
 const transform = (
@@ -415,7 +458,8 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
   block_mapping_pair(cursor: TreeCursor, ctx: TransformContext): YamlKeyValuePair {
     const info = getCursorInfo(cursor);
 
-    const { key, value, errors } = processKeyValuePairChildren(cursor, ctx, transformerMap);
+    const { key, value, errors, commentsBetweenKeyValue, commentsAfterValue } =
+      processKeyValuePairChildren(cursor, ctx, transformerMap);
 
     const children: TransformResult[] = [];
 
@@ -455,6 +499,21 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       children.push(emptyValue);
     } else {
       children.push(value);
+    }
+
+    // attach comments found between key and value to the value node
+    if (commentsBetweenKeyValue.length > 0) {
+      const valueNode = findYamlNode(value);
+      if (valueNode) {
+        valueNode.commentBefore = commentsBetweenKeyValue.join('\n');
+      }
+    }
+    // attach comments found after value to the value node
+    if (commentsAfterValue.length > 0) {
+      const valueNode = findYamlNode(value);
+      if (valueNode) {
+        valueNode.comment = commentsAfterValue.join('\n');
+      }
     }
 
     children.push(...errors);
@@ -492,7 +551,8 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
   flow_pair(cursor: TreeCursor, ctx: TransformContext): YamlKeyValuePair {
     const info = getCursorInfo(cursor);
 
-    const { key, value, errors } = processKeyValuePairChildren(cursor, ctx, transformerMap);
+    const { key, value, errors, commentsBetweenKeyValue, commentsAfterValue } =
+      processKeyValuePairChildren(cursor, ctx, transformerMap);
 
     const children: TransformResult[] = [];
 
@@ -532,6 +592,21 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       children.push(emptyValue);
     } else {
       children.push(value);
+    }
+
+    // attach comments found between key and value to the value node
+    if (commentsBetweenKeyValue.length > 0) {
+      const valueNode = findYamlNode(value);
+      if (valueNode) {
+        valueNode.commentBefore = commentsBetweenKeyValue.join('\n');
+      }
+    }
+    // attach comments found after value to the value node
+    if (commentsAfterValue.length > 0) {
+      const valueNode = findYamlNode(value);
+      if (valueNode) {
+        valueNode.comment = commentsAfterValue.join('\n');
+      }
     }
 
     children.push(...errors);
@@ -627,6 +702,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       styleGroup: YamlStyleGroup.Flow,
       style: YamlStyle.Plain,
     });
+    scalarNode.rawContent = info.text;
 
     registerAnchor(scalarNode, ctx);
 
@@ -650,6 +726,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       styleGroup: YamlStyleGroup.Flow,
       style: YamlStyle.SingleQuoted,
     });
+    scalarNode.rawContent = info.text;
 
     registerAnchor(scalarNode, ctx);
 
@@ -673,6 +750,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       styleGroup: YamlStyleGroup.Flow,
       style: YamlStyle.DoubleQuoted,
     });
+    scalarNode.rawContent = info.text;
 
     registerAnchor(scalarNode, ctx);
 
@@ -697,6 +775,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       styleGroup: YamlStyleGroup.Block,
       style,
     });
+    scalarNode.rawContent = info.text;
 
     registerAnchor(scalarNode, ctx);
 
@@ -705,7 +784,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
   comment(cursor: TreeCursor): YamlComment {
     const info = getCursorInfo(cursor);
-    return new YamlComment({ content: info.text });
+    return new YamlComment({ content: info.text, ...toPositionProps(info) });
   },
 
   alias(cursor: TreeCursor, ctx: TransformContext): YamlScalar {

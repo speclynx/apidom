@@ -46,7 +46,11 @@ class YAML1Parser extends Parser {
     const source = file.toString();
 
     try {
-      return await parse(source, { sourceMap: this.sourceMap, strict: this.strict });
+      return await parse(source, {
+        sourceMap: this.sourceMap,
+        style: this.style,
+        strict: this.strict,
+      });
     } catch (error: unknown) {
       throw new ParserError(`Error parsing "${file.uri}"`, { cause: error });
     }

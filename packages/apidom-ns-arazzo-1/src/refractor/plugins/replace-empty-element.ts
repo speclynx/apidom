@@ -109,6 +109,9 @@ const plugin = () => () => ({
         cloneDeep(element.attributes),
       );
       SourceMapElement.transfer(element, replacement);
+      if (element.style !== undefined) {
+        replacement.style = element.style;
+      }
       path.replaceWith(replacement);
     },
   },

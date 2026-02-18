@@ -138,6 +138,10 @@ const cloneShallowElement = <T extends Element>(element: T): T => {
     SourceMapElement.transfer(element, copy);
   }
 
+  if (element.style !== undefined) {
+    copy.style = structuredClone(element.style);
+  }
+
   const { content } = element;
   if (isElement(content)) {
     copy.content = cloneShallowElement(content as Element);
