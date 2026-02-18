@@ -72,7 +72,8 @@ This adapter exposes an instance of [base ApiDOM namespace](https://github.com/s
 Option | Type | Default | Description
 --- | --- | --- | ---
 <a name="sourceMap"></a>`sourceMap` | `Boolean` | `false` | Indicate whether to generate source maps.
-<a name="strict"></a>`strict` | `Boolean` | `false` | Use strict parsing mode (native `JSON.parse`). When `true`, parsing is faster but throws on invalid JSON and doesn't support source maps.
+<a name="style"></a>`style` | `Boolean` | `false` | Indicate whether to capture format-specific style information for round-trip preservation.
+<a name="strict"></a>`strict` | `Boolean` | `false` | Use strict parsing mode (native `JSON.parse`). When `true`, parsing is faster but throws on invalid JSON and doesn't support source maps or style preservation.
 
 All unrecognized arbitrary options will be ignored.
 
@@ -84,6 +85,7 @@ This adapter supports two parsing modes:
 - Uses [web-tree-sitter](https://www.npmjs.com/package/web-tree-sitter) for parsing
 - Provides error recovery for malformed JSON
 - Supports source map generation
+- Supports style preservation (indentation, raw number representation)
 - Slightly slower but more resilient
 
 **Strict mode** (`strict: true`):
@@ -91,6 +93,7 @@ This adapter supports two parsing modes:
 - Faster performance
 - Throws `SyntaxError` on invalid JSON
 - Does not support source maps (throws error if both `strict` and `sourceMap` are `true`)
+- Does not support style preservation (throws error if both `strict` and `style` are `true`)
 
 ## Usage
 
@@ -115,7 +118,10 @@ await detect('{invalid}', { strict: true }); // => false
 // parsing (tree-sitter mode - default, with source maps)
 const parseResult = await parse('{"prop": "value"}', { sourceMap: true });
 
-// parsing (strict mode - faster, no source maps)
+// parsing (tree-sitter mode, with style preservation)
+const parseResultStyled = await parse('{"prop": "value"}', { style: true });
+
+// parsing (strict mode - faster, no source maps or style)
 const parseResultStrict = await parse('{"prop": "value"}', { strict: true });
 ```
 

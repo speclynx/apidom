@@ -36,7 +36,7 @@ export { default as toValue } from './transformers/serializers/value.ts';
 /**
  * Transforms the ApiDOM into JSON string.
  */
-export { default as toJSON } from './transformers/serializers/json.ts';
+export { default as toJSON, type JsonSerializerOptions } from './transformers/serializers/json.ts';
 
 /**
  * Transforms the ApiDOM into YAML string.
