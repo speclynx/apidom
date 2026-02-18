@@ -66,6 +66,12 @@ export const parse = async (
     );
   }
 
+  if (strict && style) {
+    throw new UnsupportedOperationError(
+      'Cannot use style with strict parsing. Strict parsing does not support style preservation.',
+    );
+  }
+
   if (strict) {
     return native.parse(source);
   }
