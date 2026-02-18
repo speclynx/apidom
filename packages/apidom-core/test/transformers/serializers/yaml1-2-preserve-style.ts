@@ -72,6 +72,8 @@ describe('serializers', function () {
     });
 
     context('given NumberElement with exponential rawContent', function () {
+      // the yaml library normalizes exponential notation (e.g. 1.0e10 -> 1e+10);
+      // we preserve the exponential form but not the exact original representation
       specify('should preserve exponential format', function () {
         const element = new ObjectElement({});
         const numElement = new NumberElement(10000000000);

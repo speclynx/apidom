@@ -122,7 +122,9 @@ const toYamlNode = (element: unknown, visited: WeakSet<object>): unknown => {
   }
 
   // use rawContent to infer yaml library format hints for plain scalars that resolved to numbers;
-  // only applies to Plain style — quoted scalars are always strings in YAML
+  // only applies to Plain style — quoted scalars are always strings in YAML.
+  // note: the yaml library may normalize the representation (e.g. 1.0e10 -> 1e+10, 0x1A -> 0x1a)
+  // while preserving the format category (exponential, hex, octal, fractional digits)
   if (rawContent && scalarStyle === 'Plain' && typeof scalar.value === 'number') {
     if (/[eE]/.test(rawContent)) {
       scalar.format = 'EXP';
