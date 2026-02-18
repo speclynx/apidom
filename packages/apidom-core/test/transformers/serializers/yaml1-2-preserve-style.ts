@@ -166,7 +166,7 @@ describe('serializers', function () {
 
         const result = serialize(element, { preserveStyle: true });
 
-        assert.include(result, '#my comment');
+        assert.include(result, '# my comment');
       });
     });
 
@@ -179,7 +179,7 @@ describe('serializers', function () {
 
         const result = serialize(element, { preserveStyle: true });
 
-        assert.include(result, '#before comment');
+        assert.include(result, '# before comment');
       });
     });
 

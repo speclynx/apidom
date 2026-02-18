@@ -59,40 +59,36 @@ const maybeAddSourceMap = (node: TypedNode, element: Element, ctx: TransformCont
   SourceMapElement.transfer(node, element);
 };
 
-// detect indent from first nested block mapping
+// find the first descendant matching a type path through the AST
+const findFirst = (node: TypedNode, path: string[]): TypedNode | undefined => {
+  if (path.length === 0) return node;
+  const [type, ...rest] = path;
+  for (const child of (node.children || []) as TypedNode[]) {
+    if (child.type !== type) continue;
+    const found = findFirst(child, rest);
+    if (found) return found;
+  }
+  return undefined;
+};
+
+// detect indent from first nested block mapping (stream > document > mapping > keyValuePair > mapping)
 const detectIndent = (node: YamlStream): number => {
-  const defaultIndent = 2;
-  const children = node.children || [];
+  const nested = findFirst(node as unknown as TypedNode, [
+    'document',
+    'mapping',
+    'keyValuePair',
+    'mapping',
+  ]) as (TypedNode & { styleGroup?: string }) | undefined;
 
-  for (const child of children) {
-    const typedChild = child as TypedNode;
-    if (typedChild.type !== 'document') continue;
-
-    for (const docChild of typedChild.children || []) {
-      const typedDocChild = docChild as TypedNode & { styleGroup?: string };
-      if (typedDocChild.type !== 'mapping') continue;
-
-      // look for first key-value pair with a nested mapping
-      for (const kvpChild of typedDocChild.children || []) {
-        const kvp = kvpChild as TypedNode;
-        if (kvp.type !== 'keyValuePair') continue;
-
-        for (const kvpInner of kvp.children || []) {
-          const inner = kvpInner as TypedNode & { styleGroup?: string };
-          if (
-            inner.type === 'mapping' &&
-            inner.styleGroup === YamlStyleGroup.Block &&
-            typeof inner.startCharacter === 'number' &&
-            inner.startCharacter > 0
-          ) {
-            return inner.startCharacter;
-          }
-        }
-      }
-    }
+  if (
+    nested?.styleGroup === YamlStyleGroup.Block &&
+    typeof nested.startCharacter === 'number' &&
+    nested.startCharacter > 0
+  ) {
+    return nested.startCharacter;
   }
 
-  return defaultIndent;
+  return 2;
 };
 
 // strip leading '#' from each line of comment text; yaml library adds '#' during stringification
@@ -116,6 +112,15 @@ interface PendingComment {
   startCharacter?: number;
 }
 
+// is the comment on the same line as the previous non-comment sibling?
+const isInlineComment = (
+  child: TypedNode,
+  lastEndLine: number | undefined,
+  pending: PendingComment[],
+): boolean => {
+  return pending.length === 0 && lastEndLine !== undefined && child.startLine === lastEndLine;
+};
+
 /**
  * @param children - raw AST children of a mapping/sequence
  * @param containerStartCol - the start column of the container node;
@@ -125,95 +130,73 @@ interface PendingComment {
 const collectComments = (children: unknown[], containerStartCol?: number): CommentAssociations => {
   const before = new Map<number, string>();
   const after = new Map<number, string>();
-
-  const pendingComments: PendingComment[] = [];
+  const pending: PendingComment[] = [];
   let lastNonCommentEndLine: number | undefined;
+  let elementIdx = 0;
 
-  let ncIdx = 0;
-  for (let i = 0; i < children.length; i++) {
-    const child = children[i] as TypedNode & { content?: string };
+  for (const child of children as (TypedNode & { content?: string })[]) {
     if (child?.type === 'comment') {
-      // check if this comment is an inline comment (same line as previous sibling)
-      if (
-        ncIdx > 0 &&
-        pendingComments.length === 0 &&
-        lastNonCommentEndLine !== undefined &&
-        child.startLine !== undefined &&
-        child.startLine === lastNonCommentEndLine
-      ) {
-        // inline comment on same line as previous sibling
-        after.set(ncIdx - 1, stripCommentHash(child.content || ''));
+      const text = stripCommentHash(child.content || '');
+      if (elementIdx > 0 && isInlineComment(child, lastNonCommentEndLine, pending)) {
+        after.set(elementIdx - 1, text);
       } else {
-        pendingComments.push({
-          text: stripCommentHash(child.content || ''),
-          startLine: child.startLine,
-          startCharacter: child.startCharacter,
-        });
+        pending.push({ text, startLine: child.startLine, startCharacter: child.startCharacter });
       }
       continue;
     }
 
     // non-comment node: attach any pending comments as commentBefore
-    if (pendingComments.length > 0) {
-      before.set(ncIdx, pendingComments.map((c) => c.text).join('\n'));
-      pendingComments.length = 0;
+    if (pending.length > 0) {
+      before.set(elementIdx, pending.map((c) => c.text).join('\n'));
+      pending.length = 0;
     }
     lastNonCommentEndLine = child.endLine;
-    ncIdx++;
+    elementIdx++;
   }
 
-  // trailing comments (after last non-comment child) belong to the container
-  // but exclude comments at a lower indentation — those belong to a parent scope
+  // remaining pending comments are trailing — split into in-scope and out-of-scope
   let trailing: string | null = null;
   const outOfScope: string[] = [];
-  if (pendingComments.length > 0) {
-    for (const c of pendingComments) {
-      if (
-        containerStartCol !== undefined &&
-        c.startCharacter !== undefined &&
-        c.startCharacter < containerStartCol
-      ) {
-        outOfScope.push(c.text);
-      } else {
-        // in scope — part of trailing
-        trailing = trailing ? `${trailing}\n${c.text}` : c.text;
-      }
+  for (const c of pending) {
+    if (
+      containerStartCol !== undefined &&
+      c.startCharacter !== undefined &&
+      c.startCharacter < containerStartCol
+    ) {
+      outOfScope.push(c.text);
+    } else {
+      trailing = trailing ? `${trailing}\n${c.text}` : c.text;
     }
   }
 
   return { before, after, trailing, outOfScope };
 };
 
+// set a yaml style property on an element, initializing style.yaml if needed
+const setYamlStyleProp = (element: Element, key: string, value: string): void => {
+  if (!element.style) element.style = {};
+  const yaml = (element.style.yaml ?? {}) as Record<string, unknown>;
+  yaml[key] = value;
+  element.style.yaml = yaml;
+};
+
 // apply collected comments to transformed ApiDOM elements
 const applyComments = (elements: Element[], comments: CommentAssociations): void => {
   comments.before.forEach((text, idx) => {
-    const element = elements[idx];
-    if (element) {
-      if (!element.style) element.style = {};
-      const yaml = (element.style.yaml ?? {}) as Record<string, unknown>;
-      yaml.commentBefore = text;
-      element.style.yaml = yaml;
-    }
+    if (elements[idx]) setYamlStyleProp(elements[idx], 'commentBefore', text);
   });
-
-  // inline comments (same line as the element)
   comments.after.forEach((text, idx) => {
-    const element = elements[idx];
-    if (element) {
-      if (!element.style) element.style = {};
-      const yaml = (element.style.yaml ?? {}) as Record<string, unknown>;
-      yaml.comment = text;
-      element.style.yaml = yaml;
-    }
+    if (elements[idx]) setYamlStyleProp(elements[idx], 'comment', text);
   });
 };
 
 // detect flow collection padding from node positions
 // gap of 1 between container start and first child start → no padding: [x
 // gap of 2+ → padding: [ x
+// gap of 1 between container start and first child start → no padding: {x
+// gap of 2+ → padding: { x
 const detectFlowPadding = (node: TypedNode): boolean => {
-  const children = (node.children || []) as TypedNode[];
-  const firstChild = children[0];
+  const firstChild = ((node.children || []) as TypedNode[])[0];
   if (
     firstChild &&
     typeof node.startCharacter === 'number' &&
@@ -221,7 +204,7 @@ const detectFlowPadding = (node: TypedNode): boolean => {
   ) {
     return firstChild.startCharacter - node.startCharacter > 1;
   }
-  return true; // default to yaml library default
+  return true;
 };
 
 // build yaml style object for an element
@@ -247,7 +230,9 @@ const buildYamlStyle = (
   }
 
   if (extras) {
-    Object.assign(yamlStyle, extras);
+    for (const [key, value] of Object.entries(extras)) {
+      if (value !== undefined) yamlStyle[key] = value;
+    }
   }
 
   return { yaml: yamlStyle };
@@ -395,39 +380,41 @@ const transformDocument = (node: YamlDocument, ctx: TransformContext): Element[]
   return transformChildren(node.children || [], ctx);
 };
 
-// Mapping: Transforms to ObjectElement
-const transformMapping = (node: YamlMapping, ctx: TransformContext): ObjectElement => {
-  const typedMapping = node as unknown as TypedNode;
-  const element = new ObjectElement();
+// shared logic for transformMapping and transformSequence
+const transformCollection = (
+  element: ObjectElement | ArrayElement,
+  node: YamlMapping | YamlSequence,
+  ctx: TransformContext,
+): void => {
+  const typedNode = node as unknown as TypedNode;
+  const children = node.children || [];
 
   if (ctx.style) {
-    // detect flow collection padding from first flow collection encountered
     if (ctx.flowCollectionPadding === null && node.styleGroup === YamlStyleGroup.Flow) {
-      ctx.flowCollectionPadding = detectFlowPadding(typedMapping);
+      ctx.flowCollectionPadding = detectFlowPadding(typedNode);
     }
-    const comments = collectComments(node.children || [], typedMapping.startCharacter);
-    const childElements = transformChildren(node.children || [], ctx);
-    // @ts-ignore
-    element._content = childElements;
+    const comments = collectComments(children, typedNode.startCharacter);
+    const childElements = transformChildren(children, ctx);
+    // bypass content setter to avoid re-refracting already-transformed elements
+    (element as any)._content = childElements; // eslint-disable-line @typescript-eslint/no-explicit-any
     applyComments(childElements, comments);
-    element.style = buildYamlStyle(node as unknown as YamlNode, ctx);
-    // trailing comments at end of block belong to the container
-    if (comments.trailing) {
-      const yaml = (element.style!.yaml ?? {}) as Record<string, unknown>;
-      yaml.comment = comments.trailing;
-      element.style!.yaml = yaml;
-    }
-    // promote out-of-scope comments to parent scope
+    element.style = buildYamlStyle(node as unknown as YamlNode, ctx, {
+      comment: comments.trailing,
+    });
     if (comments.outOfScope.length > 0) {
       ctx.promotedComments.push(...comments.outOfScope);
     }
   } else {
-    const childElements = transformChildren(node.children || [], ctx);
-    // @ts-ignore
-    element._content = childElements;
+    (element as any)._content = transformChildren(children, ctx); // eslint-disable-line @typescript-eslint/no-explicit-any
   }
 
-  maybeAddSourceMap(node as unknown as TypedNode, element, ctx);
+  maybeAddSourceMap(typedNode, element, ctx);
+};
+
+// Mapping: Transforms to ObjectElement
+const transformMapping = (node: YamlMapping, ctx: TransformContext): ObjectElement => {
+  const element = new ObjectElement();
+  transformCollection(element, node, ctx);
   return element;
 };
 
@@ -462,37 +449,8 @@ const transformKeyValuePair = (node: YamlKeyValuePair, ctx: TransformContext): M
 
 // Sequence: Transforms to ArrayElement
 const transformSequence = (node: YamlSequence, ctx: TransformContext): ArrayElement => {
-  const typedSequence = node as unknown as TypedNode;
   const element = new ArrayElement();
-
-  if (ctx.style) {
-    // detect flow collection padding from first flow collection encountered
-    if (ctx.flowCollectionPadding === null && node.styleGroup === YamlStyleGroup.Flow) {
-      ctx.flowCollectionPadding = detectFlowPadding(typedSequence);
-    }
-    const comments = collectComments(node.children || [], typedSequence.startCharacter);
-    const childElements = transformChildren(node.children || [], ctx);
-    // @ts-ignore
-    element._content = childElements;
-    applyComments(childElements, comments);
-    element.style = buildYamlStyle(node as unknown as YamlNode, ctx);
-    // trailing comments at end of block belong to the container
-    if (comments.trailing) {
-      const yaml = (element.style!.yaml ?? {}) as Record<string, unknown>;
-      yaml.comment = comments.trailing;
-      element.style!.yaml = yaml;
-    }
-    // promote out-of-scope comments to parent scope
-    if (comments.outOfScope.length > 0) {
-      ctx.promotedComments.push(...comments.outOfScope);
-    }
-  } else {
-    const childElements = transformChildren(node.children || [], ctx);
-    // @ts-ignore
-    element._content = childElements;
-  }
-
-  maybeAddSourceMap(node as unknown as TypedNode, element, ctx);
+  transformCollection(element, node, ctx);
   return element;
 };
 

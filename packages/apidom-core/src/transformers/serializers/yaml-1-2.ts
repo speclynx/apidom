@@ -48,9 +48,10 @@ const scalarStyleMap: Record<string, Scalar.Type> = {
   Folded: Scalar.BLOCK_FOLDED,
 };
 
+// the YAML library prefixes comments with '#' only (no space), so we add ' ' to get '# comment'
 const applyComments = (node: YAMLNode, style: YAMLElementStyle): void => {
-  if (style.comment) node.comment = style.comment;
-  if (style.commentBefore) node.commentBefore = style.commentBefore;
+  if (style.comment) node.comment = ` ${style.comment}`;
+  if (style.commentBefore) node.commentBefore = ` ${style.commentBefore}`;
 };
 
 /**
@@ -95,10 +96,10 @@ const toYAMLNode = (element: unknown, visited: WeakSet<object>): unknown => {
       const pair = new Pair(keyNode, valueNode);
 
       if (memberStyle.commentBefore && isNode(keyNode)) {
-        keyNode.commentBefore = memberStyle.commentBefore;
+        keyNode.commentBefore = ` ${memberStyle.commentBefore}`;
       }
       if (memberStyle.comment && isNode(valueNode)) {
-        valueNode.comment = memberStyle.comment;
+        valueNode.comment = ` ${memberStyle.comment}`;
       }
 
       map.items.push(pair);

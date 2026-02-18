@@ -156,11 +156,11 @@ const processChildren = (
   return results;
 };
 
-// strip leading '#' from comment text; the yaml library adds '#' during stringification
+// strip leading '# ' (or bare '#') from comment text, keeping only the content
 const stripCommentHash = (text: string): string =>
   text
     .split('\n')
-    .map((line) => line.replace(/^#/, ''))
+    .map((line) => line.replace(/^#\s?/, ''))
     .join('\n');
 
 // find the first YamlNode in a TransformResult (which may be an array from block_node)
