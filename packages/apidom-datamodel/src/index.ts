@@ -70,6 +70,7 @@ export {
   isParseResultElement,
   isSourceMapElement,
   isPrimitiveElement,
+  hasElementStyle,
   hasElementSourceMap,
   includesSymbols,
   includesClasses,

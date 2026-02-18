@@ -15,6 +15,7 @@ import {
   isCommentElement,
   isParseResultElement,
   isSourceMapElement,
+  hasElementStyle,
   hasElementSourceMap,
   includesSymbols,
   includesClasses,
@@ -41,6 +42,7 @@ export interface Predicates {
   isCommentElement: typeof isCommentElement;
   isParseResultElement: typeof isParseResultElement;
   isSourceMapElement: typeof isSourceMapElement;
+  hasElementStyle: typeof hasElementStyle;
   hasElementSourceMap: typeof hasElementSourceMap;
   includesSymbols: typeof includesSymbols;
   includesClasses: typeof includesClasses;
@@ -62,6 +64,7 @@ const predicates: Predicates = {
   isCommentElement,
   isParseResultElement,
   isSourceMapElement,
+  hasElementStyle,
   hasElementSourceMap,
   includesSymbols,
   includesClasses,
