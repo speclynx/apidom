@@ -1432,7 +1432,7 @@ const specification = {
                   $ref: '#/visitors/value',
                 },
                 attributes: {
-                  $visitor: FallbackVisitor,
+                  $ref: '#/visitors/value',
                   alias: 'attributesField',
                 },
                 orderingKey: {
