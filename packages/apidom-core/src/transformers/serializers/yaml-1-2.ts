@@ -1,10 +1,12 @@
 import {
   Document,
   stringify,
+  isNode,
   Scalar,
   YAMLMap,
   YAMLSeq,
   Pair,
+  type Node as YAMLNode,
   type CreateNodeOptions,
   type DocumentOptions,
   type SchemaOptions,
@@ -23,7 +25,21 @@ import {
 
 import toValue from './value.ts';
 
-// map our scalarStyle strings to yaml library Scalar.Type constants
+interface YAMLElementStyle {
+  scalarStyle?: string;
+  styleGroup?: string;
+  rawContent?: string;
+  indent?: number;
+  flowCollectionPadding?: boolean;
+  comment?: string;
+  commentBefore?: string;
+}
+
+const getStyle = (element: Element): YAMLElementStyle => {
+  return (element.style?.yaml ?? {}) as YAMLElementStyle;
+};
+
+// map our scalarStyle strings to YAML library Scalar.Type constants
 const scalarStyleMap: Record<string, Scalar.Type> = {
   Plain: Scalar.PLAIN,
   SingleQuoted: Scalar.QUOTE_SINGLE,
@@ -32,10 +48,15 @@ const scalarStyleMap: Record<string, Scalar.Type> = {
   Folded: Scalar.BLOCK_FOLDED,
 };
 
+const applyComments = (node: YAMLNode, style: YAMLElementStyle): void => {
+  if (style.comment) node.comment = style.comment;
+  if (style.commentBefore) node.commentBefore = style.commentBefore;
+};
+
 /**
  * @public
  */
-export interface YamlSerializerOptions
+export interface YAMLSerializerOptions
   extends
     DocumentOptions,
     Pick<CreateNodeOptions, 'aliasDuplicateObjects'>,
@@ -43,44 +64,41 @@ export interface YamlSerializerOptions
     ToStringOptions {
   /** Include %YAML directive and document marker */
   directive?: boolean;
-  /** Preserve original formatting styles from element.style.yaml */
+  /** Preserve original formatting styles from `element.style.yaml` */
   preserveStyle?: boolean;
+  /** Padding inside flow collections (e.g. `{ a: 1 }` vs `{a: 1}`) */
+  flowCollectionPadding?: boolean;
 }
 
 /**
- * Converts an ApiDOM element tree to yaml library AST nodes,
- * preserving style information from element.style.yaml.
+ * Converts an ApiDOM element tree to YAML library AST nodes,
+ * preserving style information from `element.style.yaml`.
  */
-const toYamlNode = (element: unknown, visited: WeakSet<object>): unknown => {
+const toYAMLNode = (element: unknown, visited: WeakSet<object>): unknown => {
   if (!isElement(element)) return element;
 
   // cycle detection
   if (visited.has(element as object)) return undefined;
   visited.add(element as object);
 
-  const yamlStyle = (element.style?.yaml ?? {}) as Record<string, unknown>;
+  const style = getStyle(element);
 
   if (isObjectElement(element)) {
     const map = new YAMLMap();
-    map.flow = yamlStyle.styleGroup === 'Flow';
-
-    if (yamlStyle.comment) map.comment = yamlStyle.comment as string;
-    if (yamlStyle.commentBefore) map.commentBefore = yamlStyle.commentBefore as string;
+    map.flow = style.styleGroup === 'Flow';
+    applyComments(map, style);
 
     element.forEach((value, key, member) => {
-      const memberStyle = (isMemberElement(member) ? (member.style?.yaml ?? {}) : {}) as Record<
-        string,
-        unknown
-      >;
-      const keyNode = toYamlNode(key, visited);
-      const valueNode = toYamlNode(value, visited);
+      const memberStyle = isMemberElement(member) ? getStyle(member) : {};
+      const keyNode = toYAMLNode(key, visited);
+      const valueNode = toYAMLNode(value, visited);
       const pair = new Pair(keyNode, valueNode);
 
-      if (memberStyle.commentBefore && keyNode != null && typeof keyNode === 'object') {
-        (keyNode as { commentBefore?: string }).commentBefore = memberStyle.commentBefore as string;
+      if (memberStyle.commentBefore && isNode(keyNode)) {
+        keyNode.commentBefore = memberStyle.commentBefore;
       }
-      if (memberStyle.comment && valueNode != null && typeof valueNode === 'object') {
-        (valueNode as { comment?: string }).comment = memberStyle.comment as string;
+      if (memberStyle.comment && isNode(valueNode)) {
+        valueNode.comment = memberStyle.comment;
       }
 
       map.items.push(pair);
@@ -91,56 +109,51 @@ const toYamlNode = (element: unknown, visited: WeakSet<object>): unknown => {
 
   if (isArrayElement(element)) {
     const seq = new YAMLSeq();
-    seq.flow = yamlStyle.styleGroup === 'Flow';
-
-    if (yamlStyle.comment) seq.comment = yamlStyle.comment as string;
-    if (yamlStyle.commentBefore) seq.commentBefore = yamlStyle.commentBefore as string;
+    seq.flow = style.styleGroup === 'Flow';
+    applyComments(seq, style);
 
     element.forEach((item) => {
-      seq.items.push(toYamlNode(item, visited));
+      seq.items.push(toYAMLNode(item, visited));
     });
 
     return seq;
   }
 
   if (isRefElement(element)) {
-    return new Scalar(String(element.toValue()));
+    return new Scalar(String(toValue(element)));
   }
 
   if (isLinkElement(element)) {
-    return new Scalar(isStringElement(element.href) ? element.href.toValue() : '');
+    return new Scalar(isStringElement(element.href) ? toValue(element.href) : '');
   }
 
   // scalar element (string, number, boolean, null)
-  const scalarStyle = yamlStyle.scalarStyle as string | undefined;
-  const scalarType = scalarStyle ? scalarStyleMap[scalarStyle] : undefined;
-  const rawContent = yamlStyle.rawContent as string | undefined;
+  const scalarType = style.scalarStyle ? scalarStyleMap[style.scalarStyle] : undefined;
 
-  const scalar = new Scalar(element.toValue());
+  const scalar = new Scalar(toValue(element));
   if (scalarType) {
     scalar.type = scalarType;
   }
 
-  // use rawContent to infer yaml library format hints for plain scalars that resolved to numbers;
+  // use rawContent to infer YAML library format hints for plain scalars that resolved to numbers;
   // only applies to Plain style — quoted scalars are always strings in YAML.
-  // note: the yaml library may normalize the representation (e.g. 1.0e10 -> 1e+10, 0x1A -> 0x1a)
+  // note: the YAML library may normalize the representation (e.g. 1.0e10 -> 1e+10, 0x1A -> 0x1a)
   // while preserving the format category (exponential, hex, octal, fractional digits)
-  if (rawContent && scalarStyle === 'Plain' && typeof scalar.value === 'number') {
-    if (/[eE]/.test(rawContent)) {
+  if (style.rawContent && style.scalarStyle === 'Plain' && typeof scalar.value === 'number') {
+    if (/[eE]/.test(style.rawContent)) {
       scalar.format = 'EXP';
-    } else if (/^0x/i.test(rawContent)) {
+    } else if (/^0x/i.test(style.rawContent)) {
       scalar.format = 'HEX';
-    } else if (/^0o/i.test(rawContent)) {
+    } else if (/^0o/i.test(style.rawContent)) {
       scalar.format = 'OCT';
     }
-    const dotMatch = rawContent.match(/\.(\d+)/);
+    const dotMatch = style.rawContent.match(/\.(\d+)/);
     if (dotMatch) {
       scalar.minFractionDigits = dotMatch[1].length;
     }
   }
 
-  if (yamlStyle.comment) scalar.comment = yamlStyle.comment as string;
-  if (yamlStyle.commentBefore) scalar.commentBefore = yamlStyle.commentBefore as string;
+  applyComments(scalar, style);
 
   return scalar;
 };
@@ -155,25 +168,22 @@ const serializer = (
     preserveStyle = false,
     aliasDuplicateObjects = false,
     ...options
-  }: YamlSerializerOptions = {},
+  }: YAMLSerializerOptions = {},
 ): string => {
-  const allOptions = { aliasDuplicateObjects, ...options };
+  const allOptions: YAMLSerializerOptions = { aliasDuplicateObjects, ...options };
 
   if (preserveStyle) {
-    // read style options from element if not explicitly provided
-    const yamlStyle = (element.style?.yaml ?? {}) as Record<string, unknown>;
-    if (options.indent === undefined && typeof yamlStyle.indent === 'number') {
-      allOptions.indent = yamlStyle.indent;
+    const style = getStyle(element);
+    if (options.indent === undefined && typeof style.indent === 'number') {
+      allOptions.indent = style.indent;
     }
-    if (typeof yamlStyle.flowCollectionPadding === 'boolean') {
-      (allOptions as Record<string, unknown>).flowCollectionPadding =
-        yamlStyle.flowCollectionPadding;
+    if (typeof style.flowCollectionPadding === 'boolean') {
+      allOptions.flowCollectionPadding = style.flowCollectionPadding;
     }
 
-    const rootNode = toYamlNode(element, new WeakSet());
+    const rootNode = toYAMLNode(element, new WeakSet());
     const doc = new Document(undefined, allOptions);
-    // @ts-ignore - set contents directly to our custom AST
-    doc.contents = rootNode;
+    doc.contents = rootNode as YAMLNode;
 
     if (directive) {
       doc.directives!.yaml.explicit = true;
@@ -187,6 +197,7 @@ const serializer = (
     doc.directives!.yaml.explicit = true;
     return doc.toString(allOptions);
   }
+
   return stringify(toValue(element), allOptions);
 };
 

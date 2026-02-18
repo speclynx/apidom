@@ -9,7 +9,10 @@ export interface FixedField {
   [key: string]: unknown;
 }
 
-type ElementClass = typeof Element & {
+/**
+ * @public
+ */
+export type FixedFieldsElementClass = typeof Element & {
   fixedFields?: FixedField[];
 };
 
@@ -37,12 +40,12 @@ type ElementClass = typeof Element & {
  * @public
  */
 export function fixedFields<T extends boolean = false>(
-  elementOrClass: Element | ElementClass,
+  elementOrClass: Element | FixedFieldsElementClass,
   options?: { indexed?: T },
 ): T extends true ? Record<string, FixedField> : FixedField[] {
   const constructor = (
     elementOrClass instanceof Element ? elementOrClass.constructor : elementOrClass
-  ) as ElementClass;
+  ) as FixedFieldsElementClass;
 
   const fields = constructor.fixedFields ?? [];
 

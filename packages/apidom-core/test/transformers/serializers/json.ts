@@ -12,19 +12,10 @@ import serialize from '../../../src/transformers/serializers/json.ts';
 
 describe('serializers', function () {
   context('json', function () {
-    context('given legacy positional signature', function () {
+    context('given positional signature', function () {
       specify('should serialize with replacer and space', function () {
         const element = new ObjectElement({ a: 'b' });
         const result = serialize(element, undefined, 2);
-
-        assert.strictEqual(result, '{\n  "a": "b"\n}');
-      });
-    });
-
-    context('given options object signature', function () {
-      specify('should serialize with space option', function () {
-        const element = new ObjectElement({ a: 'b' });
-        const result = serialize(element, { space: 2 });
 
         assert.strictEqual(result, '{\n  "a": "b"\n}');
       });
@@ -36,7 +27,7 @@ describe('serializers', function () {
           const element = new ObjectElement({ a: 1, b: 'hello' });
           element.style = { json: { indent: 4 } };
 
-          const result = serialize(element, { preserveStyle: true });
+          const result = serialize(element, undefined, undefined, { preserveStyle: true });
 
           assert.strictEqual(result, '{\n    "a": 1,\n    "b": "hello"\n}');
         });
@@ -50,7 +41,7 @@ describe('serializers', function () {
           element.set('value', numElement);
           element.style = { json: { indent: 2 } };
 
-          const result = serialize(element, { preserveStyle: true });
+          const result = serialize(element, undefined, undefined, { preserveStyle: true });
 
           assert.strictEqual(result, '{\n  "value": 1.5e10\n}');
         });
@@ -66,7 +57,7 @@ describe('serializers', function () {
           outer.set('b', inner);
           outer.style = { json: { indent: 2 } };
 
-          const result = serialize(outer, { preserveStyle: true });
+          const result = serialize(outer, undefined, undefined, { preserveStyle: true });
 
           assert.strictEqual(result, '{\n  "a": 1,\n  "b": {\n    "c": true\n  }\n}');
         });
@@ -77,7 +68,7 @@ describe('serializers', function () {
           const element = new ArrayElement([1, 'two', true, null]);
           element.style = { json: { indent: 2 } };
 
-          const result = serialize(element, { preserveStyle: true });
+          const result = serialize(element, undefined, undefined, { preserveStyle: true });
 
           assert.strictEqual(result, '[\n  1,\n  "two",\n  true,\n  null\n]');
         });
@@ -88,7 +79,7 @@ describe('serializers', function () {
           const element = new ObjectElement({});
           element.style = { json: { indent: 2 } };
 
-          const result = serialize(element, { preserveStyle: true });
+          const result = serialize(element, undefined, undefined, { preserveStyle: true });
 
           assert.strictEqual(result, '{}');
         });
@@ -99,7 +90,7 @@ describe('serializers', function () {
           const element = new ArrayElement([]);
           element.style = { json: { indent: 2 } };
 
-          const result = serialize(element, { preserveStyle: true });
+          const result = serialize(element, undefined, undefined, { preserveStyle: true });
 
           assert.strictEqual(result, '[]');
         });
@@ -109,18 +100,18 @@ describe('serializers', function () {
         specify('should serialize without indentation', function () {
           const element = new ObjectElement({ a: 'b' });
 
-          const result = serialize(element, { preserveStyle: true });
+          const result = serialize(element, undefined, undefined, { preserveStyle: true });
 
           assert.strictEqual(result, '{"a":"b"}');
         });
       });
 
-      context('given space option overrides element style indent', function () {
-        specify('should use space option', function () {
+      context('given space argument overrides element style indent', function () {
+        specify('should use space argument', function () {
           const element = new ObjectElement({ a: 'b' });
           element.style = { json: { indent: 4 } };
 
-          const result = serialize(element, { preserveStyle: true, space: 2 });
+          const result = serialize(element, undefined, 2, { preserveStyle: true });
 
           assert.strictEqual(result, '{\n  "a": "b"\n}');
         });
@@ -130,7 +121,7 @@ describe('serializers', function () {
         specify('should serialize StringElement', function () {
           const element = new StringElement('hello');
 
-          const result = serialize(element, { preserveStyle: true });
+          const result = serialize(element, undefined, undefined, { preserveStyle: true });
 
           assert.strictEqual(result, '"hello"');
         });
@@ -138,7 +129,7 @@ describe('serializers', function () {
         specify('should serialize BooleanElement', function () {
           const element = new BooleanElement(true);
 
-          const result = serialize(element, { preserveStyle: true });
+          const result = serialize(element, undefined, undefined, { preserveStyle: true });
 
           assert.strictEqual(result, 'true');
         });
@@ -146,7 +137,7 @@ describe('serializers', function () {
         specify('should serialize NullElement', function () {
           const element = new NullElement();
 
-          const result = serialize(element, { preserveStyle: true });
+          const result = serialize(element, undefined, undefined, { preserveStyle: true });
 
           assert.strictEqual(result, 'null');
         });
@@ -154,7 +145,7 @@ describe('serializers', function () {
         specify('should serialize NumberElement without rawContent', function () {
           const element = new NumberElement(42);
 
-          const result = serialize(element, { preserveStyle: true });
+          const result = serialize(element, undefined, undefined, { preserveStyle: true });
 
           assert.strictEqual(result, '42');
         });
