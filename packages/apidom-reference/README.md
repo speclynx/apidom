@@ -667,7 +667,7 @@ await parse('/home/user/oas.json', {
 
 #### Parser plugin options
 
-Parser plugins accept additional options like `allowEmpty` or `sourceMap`. It's possible to **change** parser plugin
+Parser plugins accept additional options like `allowEmpty`, `sourceMap`, or `style`. It's possible to **change** parser plugin
 **options globally** by mutating global `parse` options:
 
 ```js
@@ -676,6 +676,7 @@ import { options, parse } from '@speclynx/apidom-reference';
 options.parser.parserOpts = {
   allowEmpty: false,
   sourceMap: true,
+  style: true,
 };
 
 await parse('/home/user/oas.json', {
@@ -691,7 +692,7 @@ import { parse } from '@speclynx/apidom-reference';
 await parse('/home/user/oas.json', {
   parse: {
     mediaType: 'application/vnd.oai.openapi+json;version=3.1.2',
-    parserOpts: { allowEmpty: false, sourceMap: true },
+    parserOpts: { allowEmpty: false, sourceMap: true, style: true },
   },
 });
 ```
@@ -707,6 +708,7 @@ interface ParserPlugin {
   readonly name: string;
   allowEmpty: boolean;
   sourceMap: boolean;
+  style: boolean;
   fileExtensions: string[];
   mediaTypes: string[];
 

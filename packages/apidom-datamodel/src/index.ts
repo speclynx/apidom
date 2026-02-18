@@ -29,6 +29,7 @@ export {
   CommentElement,
   ParseResultElement,
   SourceMapElement,
+  StyleElement,
   refract,
 } from './registration.ts';
 
@@ -50,6 +51,7 @@ export type { ToValue, Equatable, Freezable } from './types.ts';
 export type { ObjectElementCallback } from './primitives/ObjectElement.ts';
 export type { SerializedContent, SerializedKeyValuePair } from './serialisers/JSONSerialiser.ts';
 export type { Span6, SourceMapShape } from './elements/SourceMap.ts';
+export type { StyleShape } from './elements/Style.ts';
 
 // Re-export predicates
 export {
@@ -68,6 +70,7 @@ export {
   isParseResultElement,
   isSourceMapElement,
   isPrimitiveElement,
+  hasElementStyle,
   hasElementSourceMap,
   includesSymbols,
   includesClasses,

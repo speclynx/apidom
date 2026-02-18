@@ -24,6 +24,7 @@ Primitive elements are the building blocks of ApiDOM. Each element has:
 - `content` - The element's value
 - `meta` - Metadata (id, classes, title, description, links)
 - `attributes` - Element-specific properties
+- `style` - Optional format-specific style information for round-trip preservation (e.g., `{ yaml: { scalarStyle: 'DoubleQuoted' } }`)
 
 ### Element
 

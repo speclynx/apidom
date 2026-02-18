@@ -49,6 +49,7 @@ export const detect = async (
  */
 export interface ParseOptions {
   sourceMap?: boolean;
+  style?: boolean;
   strict?: boolean;
 }
 
@@ -57,7 +58,7 @@ export interface ParseOptions {
  */
 export const parse = async (
   source: string,
-  { sourceMap = false, strict = false }: ParseOptions = {},
+  { sourceMap = false, style = false, strict = false }: ParseOptions = {},
 ): Promise<ParseResultElement> => {
   if (strict && sourceMap) {
     throw new UnsupportedOperationError(
@@ -65,9 +66,15 @@ export const parse = async (
     );
   }
 
+  if (strict && style) {
+    throw new UnsupportedOperationError(
+      'Cannot use style with strict parsing. Strict parsing does not support style preservation.',
+    );
+  }
+
   if (strict) {
     return native.parse(source);
   }
 
-  return treeSitter.parse(source, { sourceMap });
+  return treeSitter.parse(source, { sourceMap, style });
 };

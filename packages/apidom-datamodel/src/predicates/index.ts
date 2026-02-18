@@ -24,6 +24,14 @@ export {
 } from './elements.ts';
 
 /**
+ * Checks if an element has format-specific style information.
+ * @public
+ */
+export const hasElementStyle = <T extends Element>(element: T): boolean => {
+  return element.style !== undefined;
+};
+
+/**
  * Checks if an element has complete source position information.
  * Returns true only if all 6 position properties are numbers.
  * @public

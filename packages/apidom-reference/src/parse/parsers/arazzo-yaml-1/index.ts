@@ -49,7 +49,7 @@ class ArazzoYAML1Parser extends Parser {
     const source = file.toString();
 
     try {
-      const parserOpts = pick(['sourceMap', 'strict', 'refractorOpts'], this);
+      const parserOpts = pick(['sourceMap', 'style', 'strict', 'refractorOpts'], this);
       const parseResult = await parse(source, parserOpts);
 
       const shouldParseSourceDescriptions =

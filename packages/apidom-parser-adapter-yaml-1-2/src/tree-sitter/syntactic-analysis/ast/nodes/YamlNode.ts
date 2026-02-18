@@ -26,6 +26,10 @@ class YamlNode extends Node {
 
   public readonly styleGroup: YamlStyleGroup;
 
+  public comment?: string;
+
+  public commentBefore?: string;
+
   constructor({ anchor, tag, style, styleGroup, ...rest }: YamlNodeOptions) {
     super({ ...rest });
     this.anchor = anchor;

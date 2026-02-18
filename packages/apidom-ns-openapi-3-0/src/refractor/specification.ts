@@ -278,7 +278,10 @@ const specification = {
             required: { $ref: '#/visitors/value' },
             deprecated: { $ref: '#/visitors/value' },
             allowEmptyValue: { $ref: '#/visitors/value' },
-            style: { $ref: '#/visitors/value' },
+            style: {
+              $ref: '#/visitors/value',
+              alias: 'styleField',
+            },
             explode: { $ref: '#/visitors/value' },
             allowReserved: { $ref: '#/visitors/value' },
             schema: ParameterSchemaVisitor,
@@ -318,7 +321,10 @@ const specification = {
           fixedFields: {
             contentType: { $ref: '#/visitors/value' },
             headers: EncodingHeadersVisitor,
-            style: { $ref: '#/visitors/value' },
+            style: {
+              $ref: '#/visitors/value',
+              alias: 'styleField',
+            },
             explode: { $ref: '#/visitors/value' },
             allowReserved: { $ref: '#/visitors/value' },
           },
@@ -382,7 +388,10 @@ const specification = {
             required: { $ref: '#/visitors/value' },
             deprecated: { $ref: '#/visitors/value' },
             allowEmptyValue: { $ref: '#/visitors/value' },
-            style: { $ref: '#/visitors/value' },
+            style: {
+              $ref: '#/visitors/value',
+              alias: 'styleField',
+            },
             explode: { $ref: '#/visitors/value' },
             allowReserved: { $ref: '#/visitors/value' },
             schema: HeaderSchemaVisitor,

@@ -36,14 +36,14 @@ export { default as toValue } from './transformers/serializers/value.ts';
 /**
  * Transforms the ApiDOM into JSON string.
  */
-export { default as toJSON } from './transformers/serializers/json.ts';
+export { default as toJSON, type JSONSerializerOptions } from './transformers/serializers/json.ts';
 
 /**
  * Transforms the ApiDOM into YAML string.
  */
 export {
   default as toYAML,
-  type YamlSerializerOptions,
+  type YAMLSerializerOptions,
 } from './transformers/serializers/yaml-1-2.ts';
 
 /**
@@ -78,4 +78,4 @@ export { default as mergeLeft } from './merge/merge-left.ts';
 export type { MergeRightOptions as MergeLeftOptions } from './merge/merge-right.ts';
 
 export { fixedFields } from './fields/index.ts';
-export type { FixedField } from './fields/index.ts';
+export type { FixedField, FixedFieldsElementClass } from './fields/index.ts';

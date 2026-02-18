@@ -8,6 +8,7 @@ import {
   includesClasses,
   cloneDeep,
   SourceMapElement,
+  StyleElement,
 } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 import { Path, getNodeType } from '@speclynx/apidom-traverse';
@@ -714,6 +715,7 @@ const plugin = () => () => {
           cloneDeep(element.attributes),
         );
         SourceMapElement.transfer(element, newElement);
+        StyleElement.transfer(element, newElement);
         path.replaceWith(newElement);
       },
     },

@@ -587,6 +587,21 @@ const objElement = new ObjectElement({ a: 'b' });
 toJSON(objElement); // => '{"a":"b"}'
 ```
 
+`toJSON` also accepts an options object as the second argument. When `preserveStyle` is `true`,
+the serializer uses style information from `element.style.json` (captured during parsing with `style: true`)
+to preserve original formatting such as indentation and raw number representation.
+
+```js
+import { toJSON } from '@speclynx/apidom-core';
+import { parse } from '@speclynx/apidom-parser-adapter-json';
+
+const parseResult = await parse(jsonString, { style: true });
+// ... modify elements ...
+toJSON(parseResult.result, { preserveStyle: true });
+```
+
+`toJSON` also supports the positional signature `toJSON(element, replacer?, space?)` matching [JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify).
+
 ### toYAML
 
 Transforms the ApiDOM into YAML string.
@@ -604,6 +619,22 @@ toYAML(objElement);
  *
  * "a": "b"
  */
+```
+
+`toYAML` accepts an optional second argument with serialization options. When `preserveStyle` is `true`,
+the serializer uses style information from `element.style.yaml` (captured during parsing with `style: true`)
+to preserve original formatting such as quoting styles, flow/block collections, comments, and indentation.
+Number format categories (exponential, hex, octal, fractional digits) are also preserved, though the
+underlying yaml library may normalize the exact representation (e.g., `1.0e10` becomes `1e+10`,
+`0x1A` becomes `0x1a`).
+
+```js
+import { toYAML } from '@speclynx/apidom-core';
+import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
+
+const parseResult = await parse(yamlString, { style: true });
+// ... modify elements ...
+toYAML(parseResult.result, { preserveStyle: true });
 ```
 
 ### dehydrate

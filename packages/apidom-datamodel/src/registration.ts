@@ -13,6 +13,7 @@ import AnnotationElement from './elements/Annotation.ts';
 import CommentElement from './elements/Comment.ts';
 import ParseResultElement from './elements/ParseResult.ts';
 import SourceMapElement from './elements/SourceMap.ts';
+import StyleElement from './elements/Style.ts';
 import ObjectSlice from './ObjectSlice.ts';
 import KeyValuePair from './KeyValuePair.ts';
 
@@ -93,6 +94,7 @@ export {
   CommentElement,
   ParseResultElement,
   SourceMapElement,
+  StyleElement,
   refract,
   ObjectSlice,
   KeyValuePair,

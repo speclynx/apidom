@@ -21,14 +21,21 @@ import type YamlMapping from './ast/nodes/YamlMapping.ts';
 import type YamlKeyValuePair from './ast/nodes/YamlKeyValuePair.ts';
 import type YamlSequence from './ast/nodes/YamlSequence.ts';
 import type YamlScalar from './ast/nodes/YamlScalar.ts';
-import { YamlStyle } from './ast/nodes/YamlStyle.ts';
+import type YamlNode from './ast/nodes/YamlNode.ts';
+import { YamlStyle, YamlStyleGroup } from './ast/nodes/YamlStyle.ts';
 
 // Transform context passed through transformation
 interface TransformContext {
   sourceMap: boolean;
+  style: boolean;
   namespace: Namespace;
   annotations: AnnotationElement[];
   processedDocumentCount: number;
+  indent: number;
+  flowCollectionPadding: boolean | null; // detected from first flow collection; null = not yet detected
+  // comments that were out-of-scope for a nested block and need to be
+  // applied as commentBefore on the next sibling in the parent scope
+  promotedComments: string[];
 }
 
 // Node with type property and flat position properties
@@ -50,6 +57,185 @@ const maybeAddSourceMap = (node: TypedNode, element: Element, ctx: TransformCont
   }
 
   SourceMapElement.transfer(node, element);
+};
+
+// find the first descendant matching a type path through the AST
+const findFirst = (node: TypedNode, path: string[]): TypedNode | undefined => {
+  if (path.length === 0) return node;
+  const [type, ...rest] = path;
+  for (const child of (node.children || []) as TypedNode[]) {
+    if (child.type !== type) continue;
+    const found = findFirst(child, rest);
+    if (found) return found;
+  }
+  return undefined;
+};
+
+// detect indent from first nested block mapping (stream > document > mapping > keyValuePair > mapping)
+const detectIndent = (node: YamlStream): number => {
+  const nested = findFirst(node as unknown as TypedNode, [
+    'document',
+    'mapping',
+    'keyValuePair',
+    'mapping',
+  ]) as (TypedNode & { styleGroup?: string }) | undefined;
+
+  if (
+    nested?.styleGroup === YamlStyleGroup.Block &&
+    typeof nested.startCharacter === 'number' &&
+    nested.startCharacter > 0
+  ) {
+    return nested.startCharacter;
+  }
+
+  return 2;
+};
+
+// strip leading '#' from each line of comment text; yaml library adds '#' during stringification
+const stripCommentHash = (text: string): string =>
+  text
+    .split('\n')
+    .map((line) => line.replace(/^#/, ''))
+    .join('\n');
+
+// collect comment texts from raw AST children, indexed by position relative to non-comment siblings
+interface CommentAssociations {
+  before: Map<number, string>; // index of non-comment child → commentBefore text
+  after: Map<number, string>; // index of non-comment child → inline comment (same line)
+  trailing: string | null; // comments after the last non-comment child (belong to container)
+  outOfScope: string[]; // trailing comments at a lower indentation (belong to parent scope)
+}
+
+interface PendingComment {
+  text: string;
+  startLine?: number;
+  startCharacter?: number;
+}
+
+// is the comment on the same line as the previous non-comment sibling?
+const isInlineComment = (
+  child: TypedNode,
+  lastEndLine: number | undefined,
+  pending: PendingComment[],
+): boolean => {
+  return pending.length === 0 && lastEndLine !== undefined && child.startLine === lastEndLine;
+};
+
+/**
+ * @param children - raw AST children of a mapping/sequence
+ * @param containerStartCol - the start column of the container node;
+ *   trailing comments whose startCharacter is less than this are out-of-scope
+ *   (tree-sitter may place them inside a nested block they don't belong to)
+ */
+const collectComments = (children: unknown[], containerStartCol?: number): CommentAssociations => {
+  const before = new Map<number, string>();
+  const after = new Map<number, string>();
+  const pending: PendingComment[] = [];
+  let lastNonCommentEndLine: number | undefined;
+  let elementIdx = 0;
+
+  for (const child of children as (TypedNode & { content?: string })[]) {
+    if (child?.type === 'comment') {
+      const text = stripCommentHash(child.content || '');
+      if (elementIdx > 0 && isInlineComment(child, lastNonCommentEndLine, pending)) {
+        after.set(elementIdx - 1, text);
+      } else {
+        pending.push({ text, startLine: child.startLine, startCharacter: child.startCharacter });
+      }
+      continue;
+    }
+
+    // non-comment node: attach any pending comments as commentBefore
+    if (pending.length > 0) {
+      before.set(elementIdx, pending.map((c) => c.text).join('\n'));
+      pending.length = 0;
+    }
+    lastNonCommentEndLine = child.endLine;
+    elementIdx++;
+  }
+
+  // remaining pending comments are trailing — split into in-scope and out-of-scope
+  let trailing: string | null = null;
+  const outOfScope: string[] = [];
+  for (const c of pending) {
+    if (
+      containerStartCol !== undefined &&
+      c.startCharacter !== undefined &&
+      c.startCharacter < containerStartCol
+    ) {
+      outOfScope.push(c.text);
+    } else {
+      trailing = trailing ? `${trailing}\n${c.text}` : c.text;
+    }
+  }
+
+  return { before, after, trailing, outOfScope };
+};
+
+// set a yaml style property on an element, initializing style.yaml if needed
+const setYamlStyleProp = (element: Element, key: string, value: string): void => {
+  if (!element.style) element.style = {};
+  const yaml = (element.style.yaml ?? {}) as Record<string, unknown>;
+  yaml[key] = value;
+  element.style.yaml = yaml;
+};
+
+// apply collected comments to transformed ApiDOM elements
+const applyComments = (elements: Element[], comments: CommentAssociations): void => {
+  comments.before.forEach((text, idx) => {
+    if (elements[idx]) setYamlStyleProp(elements[idx], 'commentBefore', text);
+  });
+  comments.after.forEach((text, idx) => {
+    if (elements[idx]) setYamlStyleProp(elements[idx], 'comment', text);
+  });
+};
+
+// detect flow collection padding from node positions
+// gap of 1 between container start and first child start → no padding: [x
+// gap of 2+ → padding: [ x
+// gap of 1 between container start and first child start → no padding: {x
+// gap of 2+ → padding: { x
+const detectFlowPadding = (node: TypedNode): boolean => {
+  const firstChild = ((node.children || []) as TypedNode[])[0];
+  if (
+    firstChild &&
+    typeof node.startCharacter === 'number' &&
+    typeof firstChild.startCharacter === 'number'
+  ) {
+    return firstChild.startCharacter - node.startCharacter > 1;
+  }
+  return true;
+};
+
+// build yaml style object for an element
+const buildYamlStyle = (
+  node: YamlNode,
+  ctx: TransformContext,
+  extras?: Record<string, unknown>,
+): Record<string, unknown> => {
+  const yamlStyle: Record<string, unknown> = {
+    styleGroup: node.styleGroup,
+    indent: ctx.indent,
+  };
+
+  if (ctx.flowCollectionPadding !== null) {
+    yamlStyle.flowCollectionPadding = ctx.flowCollectionPadding;
+  }
+
+  if (node.comment) {
+    yamlStyle.comment = node.comment;
+  }
+  if (node.commentBefore) {
+    yamlStyle.commentBefore = node.commentBefore;
+  }
+
+  if (extras) {
+    for (const [key, value] of Object.entries(extras)) {
+      if (value !== undefined) yamlStyle[key] = value;
+    }
+  }
+
+  return { yaml: yamlStyle };
 };
 
 // Transform a single node based on its type
@@ -89,12 +275,40 @@ const transform = (node: unknown, ctx: TransformContext): Element | Element[] | 
 // Transform children array and flatten results
 const transformChildren = (children: unknown[], ctx: TransformContext): Element[] => {
   const results: Element[] = [];
+  let pendingPromoted: string[] = [];
 
   for (const child of children) {
     const result = transform(child, ctx);
     if (result === null) {
+      // collect any promoted comments generated during this null transform
+      if (ctx.style && ctx.promotedComments.length > 0) {
+        pendingPromoted.push(...ctx.promotedComments);
+        ctx.promotedComments = [];
+      }
       continue;
     }
+
+    // apply promoted comments from PREVIOUS children as commentBefore on this element
+    if (ctx.style && pendingPromoted.length > 0) {
+      const target = Array.isArray(result) ? result[0] : result;
+      if (target) {
+        if (!target.style) target.style = {};
+        const yaml = (target.style.yaml ?? {}) as Record<string, unknown>;
+        const existing = yaml.commentBefore as string | undefined;
+        const promoted = pendingPromoted.join('\n');
+        yaml.commentBefore = existing ? `${promoted}\n${existing}` : promoted;
+        target.style.yaml = yaml;
+      }
+      pendingPromoted = [];
+    }
+
+    // collect any promoted comments generated by this child's transform
+    // (these will be applied to the NEXT sibling)
+    if (ctx.style && ctx.promotedComments.length > 0) {
+      pendingPromoted.push(...ctx.promotedComments);
+      ctx.promotedComments = [];
+    }
+
     if (Array.isArray(result)) {
       results.push(...result);
     } else {
@@ -102,11 +316,21 @@ const transformChildren = (children: unknown[], ctx: TransformContext): Element[
     }
   }
 
+  // if promoted comments remain after all children, propagate up to parent scope
+  if (pendingPromoted.length > 0) {
+    ctx.promotedComments.push(...pendingPromoted);
+  }
+
   return results;
 };
 
 // Stream: Wraps transformed children in ParseResultElement
 const transformStream = (node: YamlStream, ctx: TransformContext): ParseResultElement => {
+  // detect indent from the stream structure (only needed for style preservation)
+  if (ctx.style) {
+    ctx.indent = detectIndent(node);
+  }
+
   const element = new ParseResultElement();
 
   // Transform all children
@@ -156,12 +380,41 @@ const transformDocument = (node: YamlDocument, ctx: TransformContext): Element[]
   return transformChildren(node.children || [], ctx);
 };
 
+// shared logic for transformMapping and transformSequence
+const transformCollection = (
+  element: ObjectElement | ArrayElement,
+  node: YamlMapping | YamlSequence,
+  ctx: TransformContext,
+): void => {
+  const typedNode = node as unknown as TypedNode;
+  const children = node.children || [];
+
+  if (ctx.style) {
+    if (ctx.flowCollectionPadding === null && node.styleGroup === YamlStyleGroup.Flow) {
+      ctx.flowCollectionPadding = detectFlowPadding(typedNode);
+    }
+    const comments = collectComments(children, typedNode.startCharacter);
+    const childElements = transformChildren(children, ctx);
+    // bypass content setter to avoid re-refracting already-transformed elements
+    (element as any)._content = childElements; // eslint-disable-line @typescript-eslint/no-explicit-any
+    applyComments(childElements, comments);
+    element.style = buildYamlStyle(node as unknown as YamlNode, ctx, {
+      comment: comments.trailing,
+    });
+    if (comments.outOfScope.length > 0) {
+      ctx.promotedComments.push(...comments.outOfScope);
+    }
+  } else {
+    (element as any)._content = transformChildren(children, ctx); // eslint-disable-line @typescript-eslint/no-explicit-any
+  }
+
+  maybeAddSourceMap(typedNode, element, ctx);
+};
+
 // Mapping: Transforms to ObjectElement
 const transformMapping = (node: YamlMapping, ctx: TransformContext): ObjectElement => {
   const element = new ObjectElement();
-  // @ts-ignore
-  element._content = transformChildren(node.children || [], ctx);
-  maybeAddSourceMap(node as unknown as TypedNode, element, ctx);
+  transformCollection(element, node, ctx);
   return element;
 };
 
@@ -197,9 +450,7 @@ const transformKeyValuePair = (node: YamlKeyValuePair, ctx: TransformContext): M
 // Sequence: Transforms to ArrayElement
 const transformSequence = (node: YamlSequence, ctx: TransformContext): ArrayElement => {
   const element = new ArrayElement();
-  // @ts-ignore
-  element._content = transformChildren(node.children || [], ctx);
-  maybeAddSourceMap(node as unknown as TypedNode, element, ctx);
+  transformCollection(element, node, ctx);
   return element;
 };
 
@@ -211,6 +462,16 @@ const transformScalar = (node: YamlScalar, ctx: TransformContext): Element => {
   if (node.content === '' && node.style === YamlStyle.Plain) {
     element.classes.push('yaml-e-node');
     element.classes.push('yaml-e-scalar');
+  }
+
+  if (ctx.style) {
+    const extras: Record<string, unknown> = {
+      scalarStyle: node.style,
+    };
+    if (node.rawContent !== undefined) {
+      extras.rawContent = node.rawContent;
+    }
+    element.style = buildYamlStyle(node as unknown as YamlNode, ctx, extras);
   }
 
   maybeAddSourceMap(node as unknown as TypedNode, element, ctx);
@@ -285,6 +546,7 @@ const transformRootError = (node: Error, ctx: TransformContext): ParseResultElem
 
 export interface TransformOptions {
   sourceMap?: boolean;
+  style?: boolean;
 }
 
 /**
@@ -293,13 +555,17 @@ export interface TransformOptions {
  */
 export const transformYamlAstToApiDOM = (
   yamlAst: ParseResult,
-  { sourceMap = false }: TransformOptions = {},
+  { sourceMap = false, style = false }: TransformOptions = {},
 ): ParseResultElement => {
   const ctx: TransformContext = {
     sourceMap,
+    style,
     namespace: new Namespace(),
     annotations: [],
     processedDocumentCount: 0,
+    indent: 2,
+    flowCollectionPadding: null,
+    promotedComments: [],
   };
 
   const rootNode = yamlAst.rootNode as TypedNode | undefined;

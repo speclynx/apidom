@@ -45,7 +45,13 @@ export const resolveSpecification = <T extends ResolvedSpecification = ResolvedS
       if (isPlainObject(val) && has('$ref', val) && propSatisfies(isString, '$ref', val)) {
         const $ref = path(['$ref'], val);
         const pointer = trimCharsStart('#/', $ref as string);
-        return path(pointer.split('/'), root);
+        const resolved = path(pointer.split('/'), root);
+        // merge extra properties (e.g. alias) from the $ref object into the resolved value
+        const { $ref: _, ...rest } = val as Record<string, unknown>;
+        if (Object.keys(rest).length > 0 && isPlainObject(resolved)) {
+          return { ...(resolved as Record<string, unknown>), ...rest };
+        }
+        return resolved;
       }
       if (isPlainObject(val)) {
         return traverse(val as Record<string, unknown>, root, newPath);

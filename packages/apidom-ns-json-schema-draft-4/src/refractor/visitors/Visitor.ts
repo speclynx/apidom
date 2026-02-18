@@ -1,5 +1,5 @@
 import { deepmerge } from '@speclynx/apidom-core';
-import { Element, ObjectElement, SourceMapElement } from '@speclynx/apidom-datamodel';
+import { Element, ObjectElement, SourceMapElement, StyleElement } from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -28,6 +28,7 @@ class Visitor {
       to.attributes = deepmerge(target, source) as ObjectElement;
     }
     SourceMapElement.transfer(from, to);
+    StyleElement.transfer(from, to);
   }
 }
 

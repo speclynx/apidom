@@ -1,8 +1,10 @@
+import { clone } from 'ramda';
+
 import ObjectSlice from '../ObjectSlice.ts';
 import KeyValuePair from '../KeyValuePair.ts';
 import Element from '../primitives/Element.ts';
 import MemberElement from '../primitives/MemberElement.ts';
-import { isElement, hasElementSourceMap } from '../predicates/index.ts';
+import { isElement, hasElementSourceMap, hasElementStyle } from '../predicates/index.ts';
 import SourceMapElement from '../elements/SourceMap.ts';
 import DeepCloneError from './errors/DeepCloneError.ts';
 import ShallowCloneError from './errors/ShallowCloneError.ts';
@@ -136,6 +138,10 @@ const cloneShallowElement = <T extends Element>(element: T): T => {
 
   if (hasElementSourceMap(element)) {
     SourceMapElement.transfer(element, copy);
+  }
+
+  if (hasElementStyle(element)) {
+    copy.style = clone(element.style);
   }
 
   const { content } = element;

@@ -3,6 +3,7 @@ import type Element from '../primitives/Element.ts';
 import type KeyValuePair from '../KeyValuePair.ts';
 import type ObjectElement from '../primitives/ObjectElement.ts';
 import SourceMapElement from '../elements/SourceMap.ts';
+import StyleElement from '../elements/Style.ts';
 
 /**
  * Serialized representation of an Element in JSON Refract format.
@@ -95,6 +96,17 @@ class JSONSerialiser {
       }
     }
 
+    // Serialize style as __styles__ in meta (skip for StyleElement itself)
+    if (!(element instanceof StyleElement)) {
+      const styleElement = StyleElement.from(element);
+      if (styleElement) {
+        if (!payload.meta) {
+          payload.meta = {};
+        }
+        payload.meta.__styles__ = this.serialise(styleElement);
+      }
+    }
+
     const content = this.serialiseContent(element.content);
 
     if (content !== undefined) {
@@ -119,13 +131,15 @@ class JSONSerialiser {
       element.element = value.element;
     }
 
-    // Extract __mappings__ without mutating input, filter remaining meta
+    // Extract __mappings__ and __styles__ without mutating input, filter remaining meta
     let mappingsDoc: RefractDocument | undefined;
+    let stylesDoc: RefractDocument | undefined;
     let metaToDeserialize = value.meta;
 
-    if (value.meta?.__mappings__) {
-      const { __mappings__, ...rest } = value.meta;
-      mappingsDoc = __mappings__ as RefractDocument;
+    if (value.meta?.__mappings__ || value.meta?.__styles__) {
+      const { __mappings__, __styles__, ...rest } = value.meta as Record<string, unknown>;
+      mappingsDoc = __mappings__ as RefractDocument | undefined;
+      stylesDoc = __styles__ as RefractDocument | undefined;
       metaToDeserialize = Object.keys(rest).length > 0 ? rest : undefined;
     }
 
@@ -140,6 +154,12 @@ class JSONSerialiser {
     if (mappingsDoc) {
       const sourceMap = this.deserialise(mappingsDoc) as SourceMapElement;
       sourceMap.applyTo(element);
+    }
+
+    // Restore style from __styles__
+    if (stylesDoc) {
+      const styleElement = this.deserialise(stylesDoc) as StyleElement;
+      styleElement.applyTo(element);
     }
 
     if (value.attributes) {

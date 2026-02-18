@@ -43,6 +43,12 @@ class Element implements ToValue, Equatable, Freezable {
    */
   public parent?: Element;
 
+  /**
+   * Format-specific style information for round-trip preservation.
+   * Each format owns its own namespace (e.g., `yaml`, `json`).
+   */
+  public style?: Record<string, unknown>;
+
   // ============================================================================
   // Source Position (LSP-compatible, TextDocument-compatible, UTF-16 code units)
   // web-tree-sitter automatically provides position data in UTF-16 code units.

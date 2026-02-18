@@ -65,11 +65,11 @@ class Parameter extends ObjectElement {
     this.set('allowEmptyValue', allowEmptyValue);
   }
 
-  get style(): StringElement | undefined {
+  get styleField(): StringElement | undefined {
     return this.get('style') as StringElement | undefined;
   }
 
-  set style(style: StringElement | undefined) {
+  set styleField(style: StringElement | undefined) {
     this.set('style', style);
   }
 

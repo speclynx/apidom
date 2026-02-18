@@ -39,7 +39,7 @@ const specification = {
           fixedFields: {
             // core vocabulary
             id: {
-              $visitor: FallbackVisitor,
+              $ref: '#/visitors/value',
               alias: 'idField',
             },
             $schema: { $ref: '#/visitors/value' },
