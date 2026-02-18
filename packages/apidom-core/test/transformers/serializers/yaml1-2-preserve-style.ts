@@ -71,7 +71,63 @@ describe('serializers', function () {
       });
     });
 
-    context('given NumberElement with rawContent (not used by yaml serializer)', function () {
+    context('given NumberElement with exponential rawContent', function () {
+      specify('should preserve exponential format', function () {
+        const element = new ObjectElement({});
+        const numElement = new NumberElement(10000000000);
+        numElement.style = { yaml: { scalarStyle: 'Plain', indent: 2, rawContent: '1.0e10' } };
+        element.set('key', numElement);
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'key: 1e+10\n');
+      });
+    });
+
+    context('given NumberElement with hex rawContent', function () {
+      specify('should preserve hex format', function () {
+        const element = new ObjectElement({});
+        const numElement = new NumberElement(26);
+        numElement.style = { yaml: { scalarStyle: 'Plain', indent: 2, rawContent: '0x1A' } };
+        element.set('key', numElement);
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'key: 0x1a\n');
+      });
+    });
+
+    context('given NumberElement with octal rawContent', function () {
+      specify('should preserve octal format', function () {
+        const element = new ObjectElement({});
+        const numElement = new NumberElement(15);
+        numElement.style = { yaml: { scalarStyle: 'Plain', indent: 2, rawContent: '0o17' } };
+        element.set('key', numElement);
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'key: 0o17\n');
+      });
+    });
+
+    context('given NumberElement with fractional digits', function () {
+      specify('should preserve fraction digits', function () {
+        const element = new ObjectElement({});
+        const numElement = new NumberElement(1);
+        numElement.style = { yaml: { scalarStyle: 'Plain', indent: 2, rawContent: '1.0' } };
+        element.set('key', numElement);
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'key: 1.0\n');
+      });
+    });
+
+    context('given NumberElement without rawContent', function () {
       specify('should serialize number', function () {
         const element = new ObjectElement({});
         const numElement = new NumberElement(42);

@@ -114,11 +114,29 @@ const toYamlNode = (element: unknown, visited: WeakSet<object>): unknown => {
   // scalar element (string, number, boolean, null)
   const scalarStyle = yamlStyle.scalarStyle as string | undefined;
   const scalarType = scalarStyle ? scalarStyleMap[scalarStyle] : undefined;
+  const rawContent = yamlStyle.rawContent as string | undefined;
 
   const scalar = new Scalar(element.toValue());
   if (scalarType) {
     scalar.type = scalarType;
   }
+
+  // use rawContent to infer yaml library format hints for plain scalars that resolved to numbers;
+  // only applies to Plain style — quoted scalars are always strings in YAML
+  if (rawContent && scalarStyle === 'Plain' && typeof scalar.value === 'number') {
+    if (/[eE]/.test(rawContent)) {
+      scalar.format = 'EXP';
+    } else if (/^0x/i.test(rawContent)) {
+      scalar.format = 'HEX';
+    } else if (/^0o/i.test(rawContent)) {
+      scalar.format = 'OCT';
+    }
+    const dotMatch = rawContent.match(/\.(\d+)/);
+    if (dotMatch) {
+      scalar.minFractionDigits = dotMatch[1].length;
+    }
+  }
+
   if (yamlStyle.comment) scalar.comment = yamlStyle.comment as string;
   if (yamlStyle.commentBefore) scalar.commentBefore = yamlStyle.commentBefore as string;
 
