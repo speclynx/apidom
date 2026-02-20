@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.12.2](https://github.com/speclynx/apidom/compare/v2.12.1...v2.12.2) (2026-02-20)
+
+### Bug Fixes
+
+- **security:** replace vulnerabe minimatch with picomatch ([#102](https://github.com/speclynx/apidom/issues/102)) ([678e593](https://github.com/speclynx/apidom/commit/678e5938fd15b13655bbd9324306ecfc247c73c1))
+
 ## [2.12.1](https://github.com/speclynx/apidom/compare/v2.12.0...v2.12.1) (2026-02-18)
 
 ### Bug Fixes
