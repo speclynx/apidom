@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs';
 import { promisify } from 'node:util';
-import minimatch from 'minimatch';
+import picomatch from 'picomatch';
 
 import File from '../../../File.ts';
 import Resolver, { ResolverOptions } from '../Resolver.ts';
@@ -35,7 +35,7 @@ class FileResolver extends Resolver {
       url.isFileSystemPath(file.uri) &&
       this.fileAllowList.some((pattern) => {
         return typeof pattern === 'string'
-          ? minimatch(file.uri, pattern, { matchBase: true })
+          ? picomatch.isMatch(file.uri, pattern, { matchBase: true })
           : pattern.test(file.uri);
       })
     );
