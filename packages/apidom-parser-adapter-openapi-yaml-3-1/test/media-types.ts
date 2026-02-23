@@ -10,7 +10,7 @@ describe('given adapter is used in parser', function () {
     specify('should find appropriate media type', async function () {
       const mediaType = await parser.findMediaType('openapi: "3.1.0"');
 
-      assert.strictEqual(mediaType, 'application/vnd.oai.openapi+yaml;version=3.1.0');
+      assert.strictEqual(mediaType, 'application/openapi+yaml;version=3.1.0');
     });
   });
 
@@ -18,7 +18,7 @@ describe('given adapter is used in parser', function () {
     specify('should find appropriate media type', async function () {
       const mediaType = await parser.findMediaType('openapi: "3.1.1"');
 
-      assert.strictEqual(mediaType, 'application/vnd.oai.openapi+yaml;version=3.1.1');
+      assert.strictEqual(mediaType, 'application/openapi+yaml;version=3.1.1');
     });
   });
 
@@ -26,7 +26,7 @@ describe('given adapter is used in parser', function () {
     specify('should find appropriate media type', async function () {
       const mediaType = await parser.findMediaType('openapi: "3.1.2"');
 
-      assert.strictEqual(mediaType, 'application/vnd.oai.openapi+yaml;version=3.1.2');
+      assert.strictEqual(mediaType, 'application/openapi+yaml;version=3.1.2');
     });
   });
 });

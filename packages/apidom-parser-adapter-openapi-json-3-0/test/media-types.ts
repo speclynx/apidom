@@ -10,7 +10,7 @@ describe('given adapter is used in parser', function () {
     specify('should find appropriate media type', async function () {
       const mediaType = await parser.findMediaType('{"openapi": "3.0.4"}');
 
-      assert.strictEqual(mediaType, 'application/vnd.oai.openapi+json;version=3.0.4');
+      assert.strictEqual(mediaType, 'application/openapi+json;version=3.0.4');
     });
   });
 
@@ -18,7 +18,7 @@ describe('given adapter is used in parser', function () {
     specify('should find appropriate media type', async function () {
       const mediaType = await parser.findMediaType('{"openapi": "3.0.3"}');
 
-      assert.strictEqual(mediaType, 'application/vnd.oai.openapi+json;version=3.0.3');
+      assert.strictEqual(mediaType, 'application/openapi+json;version=3.0.3');
     });
   });
 
@@ -26,7 +26,7 @@ describe('given adapter is used in parser', function () {
     specify('should find appropriate media type', async function () {
       const mediaType = await parser.findMediaType('{"openapi": "3.0.2"}');
 
-      assert.strictEqual(mediaType, 'application/vnd.oai.openapi+json;version=3.0.2');
+      assert.strictEqual(mediaType, 'application/openapi+json;version=3.0.2');
     });
   });
 
@@ -34,7 +34,7 @@ describe('given adapter is used in parser', function () {
     specify('should find appropriate media type', async function () {
       const mediaType = await parser.findMediaType('{"openapi": "3.0.1"}');
 
-      assert.strictEqual(mediaType, 'application/vnd.oai.openapi+json;version=3.0.1');
+      assert.strictEqual(mediaType, 'application/openapi+json;version=3.0.1');
     });
   });
 
@@ -42,7 +42,7 @@ describe('given adapter is used in parser', function () {
     specify('should find appropriate media type', async function () {
       const mediaType = await parser.findMediaType('{"openapi": "3.0.0"}');
 
-      assert.strictEqual(mediaType, 'application/vnd.oai.openapi+json;version=3.0.0');
+      assert.strictEqual(mediaType, 'application/openapi+json;version=3.0.0');
     });
   });
 
