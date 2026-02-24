@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.12.4](https://github.com/speclynx/apidom/compare/v2.12.3...v2.12.4) (2026-02-24)
+
+### Bug Fixes
+
+- **parser-adapter-yaml-1-2:** parse document larger than 32768 lines ([#110](https://github.com/speclynx/apidom/issues/110)) ([d745fb8](https://github.com/speclynx/apidom/commit/d745fb85ec5f92790e1aaf8ece23ab54acab2703))
+
 ## [2.12.3](https://github.com/speclynx/apidom/compare/v2.12.2...v2.12.3) (2026-02-24)
 
 ### Bug Fixes
