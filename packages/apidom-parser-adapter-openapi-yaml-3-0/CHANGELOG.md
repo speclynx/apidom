@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.12.3](https://github.com/speclynx/apidom/compare/v2.12.2...v2.12.3) (2026-02-24)
+
+### Bug Fixes
+
+- **openapi:** use official OpenAPI media type ([#109](https://github.com/speclynx/apidom/issues/109)) ([ce41698](https://github.com/speclynx/apidom/commit/ce416981bc104ebd6150298a365a6f489a480d58))
+
 ## [2.12.2](https://github.com/speclynx/apidom/compare/v2.12.1...v2.12.2) (2026-02-20)
 
 **Note:** Version bump only for package @speclynx/apidom-parser-adapter-openapi-yaml-3-0
