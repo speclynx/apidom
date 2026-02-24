@@ -2,7 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
-import { isObjectElement, isParseResultElement, isStringElement } from '@speclynx/apidom-datamodel';
+import {
+  ObjectElement,
+  isObjectElement,
+  isParseResultElement,
+  isStringElement,
+} from '@speclynx/apidom-datamodel';
 
 import YamlTagError from '../../src/tree-sitter/syntactic-analysis/ast/errors/YamlTagError.ts';
 import { toValue, sexprs } from '@speclynx/apidom-core';
@@ -207,6 +212,23 @@ describe('adapter', function () {
       const result = await adapter.parse('" "');
       const expected = toValue(result) as string[];
       assert.strictEqual(expected[0], ' ');
+    });
+  });
+
+  // https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35
+  context('given YAML 1.2 with more than 32768 lines', function () {
+    specify('should parse', async function () {
+      const lines = ['root:'];
+      for (let i = 0; i < 33000; i += 1) {
+        lines.push(`  key${i}: value${i}`);
+      }
+      const yaml = lines.join('\n');
+      const parseResult = await adapter.parse(yaml);
+      const root = (parseResult.result as ObjectElement).get('root') as ObjectElement;
+
+      assert.isTrue(isParseResultElement(parseResult));
+      assert.isTrue(isObjectElement(parseResult.result));
+      assert.strictEqual(root.length, 33000);
     });
   });
 
