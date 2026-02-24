@@ -1,8 +1,8 @@
 import { Parser, Tree, Language } from 'web-tree-sitter';
 import treeSitter from 'web-tree-sitter/web-tree-sitter.wasm';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import treeSitterYaml from '@tree-sitter-grammars/tree-sitter-yaml/tree-sitter-yaml.wasm';
 import { ApiDOMError } from '@speclynx/apidom-error';
+
+import treeSitterYaml from './tree-sitter-yaml.wasm';
 
 let parser: Parser | null = null;
 let parserInitLock: Promise<Parser> | null = null;
