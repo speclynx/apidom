@@ -31,12 +31,12 @@ Defines list of media types that this parser adapter recognizes.
 
 ```js
 [
-  'application/vnd.oai.openapi;version=3.1.0',
-  'application/vnd.oai.openapi+yaml;version=3.1.0',
-  'application/vnd.oai.openapi;version=3.1.1',
-  'application/vnd.oai.openapi+yaml;version=3.1.1',
-  'application/vnd.oai.openapi;version=3.1.2',
-  'application/vnd.oai.openapi+yaml;version=3.1.2',
+  'application/openapi;version=3.1.0',
+  'application/openapi+yaml;version=3.1.0',
+  'application/openapi;version=3.1.1',
+  'application/openapi+yaml;version=3.1.1',
+  'application/openapi;version=3.1.2',
+  'application/openapi+yaml;version=3.1.2',
 ]
 ```
 
