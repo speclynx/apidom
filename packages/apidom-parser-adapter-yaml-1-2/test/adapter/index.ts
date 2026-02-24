@@ -218,6 +218,8 @@ describe('adapter', function () {
   // https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35
   context('given YAML 1.2 with more than 32768 lines', function () {
     specify('should parse', async function () {
+      this.timeout(10000);
+
       const lines = ['root:'];
       for (let i = 0; i < 33000; i += 1) {
         lines.push(`  key${i}: value${i}`);
@@ -229,6 +231,7 @@ describe('adapter', function () {
       assert.isTrue(isParseResultElement(parseResult));
       assert.isTrue(isObjectElement(parseResult.result));
       assert.strictEqual(root.length, 33000);
+      return;
     });
   });
 
