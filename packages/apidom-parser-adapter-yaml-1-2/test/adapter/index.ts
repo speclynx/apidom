@@ -231,7 +231,6 @@ describe('adapter', function () {
       assert.isTrue(isParseResultElement(parseResult));
       assert.isTrue(isObjectElement(parseResult.result));
       assert.strictEqual(root.length, 33000);
-      return;
     });
   });
 
