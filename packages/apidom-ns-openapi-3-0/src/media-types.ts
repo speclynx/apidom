@@ -17,9 +17,7 @@ export class OpenAPIMediaTypes extends MediaTypes<string> {
 
   findBy(version = '3.0.4', format: Format = 'generic') {
     const search =
-      format === 'generic'
-        ? `vnd.oai.openapi;version=${version}`
-        : `vnd.oai.openapi+${format};version=${version}`;
+      format === 'generic' ? `openapi;version=${version}` : `openapi+${format};version=${version}`;
     const found = this.find((mediaType) => mediaType.includes(search));
 
     return found || this.unknownMediaType;
@@ -34,21 +32,21 @@ export class OpenAPIMediaTypes extends MediaTypes<string> {
  * @public
  */
 const mediaTypes = new OpenAPIMediaTypes(
-  'application/vnd.oai.openapi;version=3.0.0',
-  'application/vnd.oai.openapi+json;version=3.0.0',
-  'application/vnd.oai.openapi+yaml;version=3.0.0',
-  'application/vnd.oai.openapi;version=3.0.1',
-  'application/vnd.oai.openapi+json;version=3.0.1',
-  'application/vnd.oai.openapi+yaml;version=3.0.1',
-  'application/vnd.oai.openapi;version=3.0.2',
-  'application/vnd.oai.openapi+json;version=3.0.2',
-  'application/vnd.oai.openapi+yaml;version=3.0.2',
-  'application/vnd.oai.openapi;version=3.0.3',
-  'application/vnd.oai.openapi+json;version=3.0.3',
-  'application/vnd.oai.openapi+yaml;version=3.0.3',
-  'application/vnd.oai.openapi;version=3.0.4',
-  'application/vnd.oai.openapi+json;version=3.0.4',
-  'application/vnd.oai.openapi+yaml;version=3.0.4',
+  'application/openapi;version=3.0.0',
+  'application/openapi+json;version=3.0.0',
+  'application/openapi+yaml;version=3.0.0',
+  'application/openapi;version=3.0.1',
+  'application/openapi+json;version=3.0.1',
+  'application/openapi+yaml;version=3.0.1',
+  'application/openapi;version=3.0.2',
+  'application/openapi+json;version=3.0.2',
+  'application/openapi+yaml;version=3.0.2',
+  'application/openapi;version=3.0.3',
+  'application/openapi+json;version=3.0.3',
+  'application/openapi+yaml;version=3.0.3',
+  'application/openapi;version=3.0.4',
+  'application/openapi+json;version=3.0.4',
+  'application/openapi+yaml;version=3.0.4',
 );
 
 export default mediaTypes;

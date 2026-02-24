@@ -24,16 +24,16 @@ Defines list of media types that this parser adapter recognizes.
 
 ```js
 [
-  'application/vnd.oai.openapi;version=3.0.0',
-  'application/vnd.oai.openapi+json;version=3.0.0',
-  'application/vnd.oai.openapi;version=3.0.1',
-  'application/vnd.oai.openapi+json;version=3.0.1',
-  'application/vnd.oai.openapi;version=3.0.2',
-  'application/vnd.oai.openapi+json;version=3.0.2',
-  'application/vnd.oai.openapi;version=3.0.3',
-  'application/vnd.oai.openapi+json;version=3.0.3',
-  'application/vnd.oai.openapi;version=3.0.4',
-  'application/vnd.oai.openapi+json;version=3.0.4',
+  'application/openapi;version=3.0.0',
+  'application/openapi+json;version=3.0.0',
+  'application/openapi;version=3.0.1',
+  'application/openapi+json;version=3.0.1',
+  'application/openapi;version=3.0.2',
+  'application/openapi+json;version=3.0.2',
+  'application/openapi;version=3.0.3',
+  'application/openapi+json;version=3.0.3',
+  'application/openapi;version=3.0.4',
+  'application/openapi+json;version=3.0.4',
 ]
 ```
 
