@@ -36,7 +36,7 @@ class MemoryCache<T> {
     this.maxEntries = maxEntries;
     this.maxStaleAge = maxStaleAge;
 
-    if (this.cleanupInterval !== false && this.cleanupInterval > 0) {
+    if (this.maxStaleAge !== false && this.cleanupInterval !== false && this.cleanupInterval > 0) {
       this.cleanupTimer = setInterval(() => this.evictStale(), this.cleanupInterval);
       // allow the process to exit even if the timer is running
       if (typeof this.cleanupTimer === 'object' && 'unref' in this.cleanupTimer) {
