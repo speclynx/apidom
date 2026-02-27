@@ -999,53 +999,23 @@ a new HTTP request. Caching is disabled by default.
 Enabling cache with default options:
 
 ```js
-import { resolve } from '@speclynx/apidom-reference';
+import HTTPResolverAxios from '@speclynx/apidom-reference/resolve/resolvers/http-axios';
 
-await resolve('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.1/webhook-example.json', {
-  resolve: {
-    resolverOpts: {
-      cache: true,
-    },
-  },
+const resolver = new HTTPResolverAxios({
+  cache: true,
 });
 ```
 
 Enabling cache with custom options:
 
 ```js
-import { resolve } from '@speclynx/apidom-reference';
-
-await resolve('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.1/webhook-example.json', {
-  resolve: {
-    resolverOpts: {
-      cache: {
-        maxEntries: 512,      // maximum number of entries (default: 1024, false to disable)
-        maxStaleAge: 600_000, // maximum age in ms before eviction (default: 3_600_000, false to disable)
-      },
-    },
-  },
-});
-```
-
-Cache can also be configured when constructing the resolver directly:
-
-```js
 import HTTPResolverAxios from '@speclynx/apidom-reference/resolve/resolvers/http-axios';
 
-// enabled with defaults
 const resolver = new HTTPResolverAxios({
-  timeout: 5000,
-  redirects: 5,
-  withCredentials: false,
-  cache: true,
-});
-
-// enabled with custom options
-const resolver = new HTTPResolverAxios({
-  timeout: 5000,
-  redirects: 5,
-  withCredentials: false,
-  cache: { maxEntries: 512 },
+  cache: {
+    maxEntries: 512,      // maximum number of entries (default: 1024, false to disable)
+    maxStaleAge: 600_000, // maximum age in ms before eviction (default: 3_600_000, false to disable)
+  },
 });
 ```
 

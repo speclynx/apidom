@@ -47,6 +47,10 @@ class HTTPResolverAxios extends HTTPResolver {
 
     super({ ...rest, name: 'http-axios' });
     this.axiosConfig = axiosConfig;
+
+    if (this.cache !== false) {
+      this.memoryCache = new MemoryCache(this.cache === true ? {} : this.cache);
+    }
   }
 
   getHttpClient(): AxiosInstance {
@@ -84,14 +88,6 @@ class HTTPResolverAxios extends HTTPResolver {
 
   async read(file: File): Promise<Buffer> {
     const uri = url.stripHash(file.uri);
-
-    // lazily initialize or clear cache based on current cache setting;
-    // handles cache toggled via resolverOpts after construction
-    if (this.cache !== false && this.memoryCache === undefined) {
-      this.memoryCache = new MemoryCache(this.cache === true ? {} : this.cache);
-    } else if (this.cache === false && this.memoryCache !== undefined) {
-      this.memoryCache = undefined;
-    }
 
     // serve from cache if available
     const cached = this.memoryCache?.get(uri);
