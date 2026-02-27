@@ -257,6 +257,33 @@ describe('resolve', function () {
                 assert.strictEqual(callCount1, 2);
               });
             });
+
+            context('given cache is enabled with custom maxStaleAge', function () {
+              specify('should evict stale entries on read', async function () {
+                resolver = new HttpResolverAxios({ cache: { maxStaleAge: 1 } });
+                axiosInstance = resolver.getHttpClient();
+                axiosMock = new MockAdapter(axiosInstance);
+                const url = 'https://httpbin.org/anything';
+                let callCount = 0;
+
+                axiosMock.onGet(url).reply(() => {
+                  callCount += 1;
+                  return [200, Buffer.from('data')];
+                });
+
+                await resolver.read(new File({ uri: url }));
+                assert.strictEqual(callCount, 1);
+
+                // wait for entry to become stale
+                await new Promise((resolve) => {
+                  setTimeout(resolve, 5);
+                });
+
+                // stale entry should be evicted, triggering a new fetch
+                await resolver.read(new File({ uri: url }));
+                assert.strictEqual(callCount, 2);
+              });
+            });
           });
         });
       });

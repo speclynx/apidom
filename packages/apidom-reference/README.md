@@ -1022,7 +1022,6 @@ await resolve('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/
         maxEntries: 512,         // maximum number of entries (default: 1024, false to disable)
         maxStaleAge: 600_000,    // maximum age in ms before eviction (default: 3_600_000, false to disable)
         cleanupInterval: 60_000, // interval in ms for stale entry cleanup (default: 300_000, false to disable)
-        cloneData: true,         // clone cached data on read (default: false, 'double' to also clone on write)
       },
     },
   },

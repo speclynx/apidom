@@ -1,5 +1,3 @@
-import { clone } from 'ramda';
-
 import type { CacheOptions } from '../../HTTPResolver.ts';
 
 interface CacheEntry<T> {
@@ -11,8 +9,6 @@ interface CacheEntry<T> {
  * @public
  */
 class MemoryCache<T> {
-  protected readonly cloneData: boolean | 'double';
-
   protected readonly cleanupInterval: number | false;
 
   protected readonly maxEntries: number | false;
@@ -24,14 +20,8 @@ class MemoryCache<T> {
   protected cleanupTimer: ReturnType<typeof setInterval> | undefined;
 
   constructor(options: CacheOptions = {}) {
-    const {
-      cloneData = false,
-      cleanupInterval = 300_000,
-      maxEntries = 1024,
-      maxStaleAge = 3_600_000,
-    } = options;
+    const { cleanupInterval = 300_000, maxEntries = 1024, maxStaleAge = 3_600_000 } = options;
 
-    this.cloneData = cloneData;
     this.cleanupInterval = cleanupInterval;
     this.maxEntries = maxEntries;
     this.maxStaleAge = maxStaleAge;
@@ -49,19 +39,17 @@ class MemoryCache<T> {
     const entry = this.store.get(key);
     if (entry === undefined) return undefined;
 
-    // check if entry has exceeded maxStaleAge
+    // evict if entry has exceeded maxStaleAge
     if (this.maxStaleAge !== false && Date.now() - entry.createdAt > this.maxStaleAge) {
       this.store.delete(key);
       return undefined;
     }
 
-    return this.cloneOnRead(entry.value);
+    return entry.value;
   }
 
   set(key: string, value: T): void {
-    const storedValue = this.cloneOnWrite(value);
-
-    this.store.set(key, { value: storedValue, createdAt: Date.now() });
+    this.store.set(key, { value, createdAt: Date.now() });
 
     // evict oldest entries if maxEntries exceeded
     if (this.maxEntries !== false && this.store.size > this.maxEntries) {
@@ -87,29 +75,6 @@ class MemoryCache<T> {
         this.store.delete(key);
       }
     }
-  }
-
-  protected cloneOnRead(value: T): T {
-    if (this.cloneData === false) return value;
-    return this.clone(value);
-  }
-
-  protected cloneOnWrite(value: T): T {
-    if (this.cloneData !== 'double') return value;
-    return this.clone(value);
-  }
-
-  protected clone(value: T): T {
-    if (Buffer.isBuffer(value)) {
-      return Buffer.from(value) as T;
-    }
-    if (value instanceof Uint8Array) {
-      return value.slice() as T;
-    }
-    if (value instanceof ArrayBuffer) {
-      return value.slice(0) as T;
-    }
-    return clone(value);
   }
 }
 

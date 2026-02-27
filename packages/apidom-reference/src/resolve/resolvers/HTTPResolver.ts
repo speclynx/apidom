@@ -6,7 +6,6 @@ import File from '../../File.ts';
  * @public
  */
 export interface CacheOptions {
-  readonly cloneData?: boolean | 'double';
   readonly cleanupInterval?: number | false;
   readonly maxEntries?: number | false;
   readonly maxStaleAge?: number | false;
