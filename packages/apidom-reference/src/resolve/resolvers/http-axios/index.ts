@@ -6,6 +6,7 @@ import HTTPResolver, { HTTPResolverOptions } from '../HTTPResolver.ts';
 import MemoryCache from './cache/MemoryCache.ts';
 import File from '../../../File.ts';
 import ResolverError from '../../../errors/ResolverError.ts';
+import * as url from '../../../util/url.ts';
 
 export type {
   default as HTTPResolver,
@@ -86,9 +87,19 @@ class HTTPResolverAxios extends HTTPResolver {
   }
 
   async read(file: File): Promise<Buffer> {
+    const uri = url.stripHash(file.uri);
+
+    // lazily initialize or clear cache based on current cache setting;
+    // handles cache toggled via resolverOpts after construction
+    if (this.cache !== false && this.memoryCache === undefined) {
+      this.memoryCache = new MemoryCache(this.cache === true ? {} : this.cache);
+    } else if (this.cache === false && this.memoryCache !== undefined) {
+      this.memoryCache = undefined;
+    }
+
     // serve from cache if available
     if (this.memoryCache !== undefined) {
-      const cached = this.memoryCache.get(file.uri);
+      const cached = this.memoryCache.get(uri);
       if (cached !== undefined) {
         return cached;
       }
@@ -97,11 +108,11 @@ class HTTPResolverAxios extends HTTPResolver {
     const client: AxiosInstance = this.getHttpClient();
 
     try {
-      const response = await client.get<Buffer>(file.uri);
+      const response = await client.get<Buffer>(uri);
 
       // store in cache if caching is enabled
       if (this.memoryCache !== undefined) {
-        this.memoryCache.set(file.uri, response.data);
+        this.memoryCache.set(uri, response.data);
       }
 
       return response.data;

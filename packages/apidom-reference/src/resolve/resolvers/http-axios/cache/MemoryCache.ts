@@ -9,30 +9,17 @@ interface CacheEntry<T> {
  * @public
  */
 class MemoryCache<T> {
-  protected readonly cleanupInterval: number | false;
-
   protected readonly maxEntries: number | false;
 
   protected readonly maxStaleAge: number | false;
 
   protected readonly store: Map<string, CacheEntry<T>> = new Map();
 
-  protected cleanupTimer: ReturnType<typeof setInterval> | undefined;
-
   constructor(options: CacheOptions = {}) {
-    const { cleanupInterval = 300_000, maxEntries = 1024, maxStaleAge = 3_600_000 } = options;
+    const { maxEntries = 1024, maxStaleAge = 3_600_000 } = options;
 
-    this.cleanupInterval = cleanupInterval;
     this.maxEntries = maxEntries;
     this.maxStaleAge = maxStaleAge;
-
-    if (this.maxStaleAge !== false && this.cleanupInterval !== false && this.cleanupInterval > 0) {
-      this.cleanupTimer = setInterval(() => this.evictStale(), this.cleanupInterval);
-      // allow the process to exit even if the timer is running
-      if (typeof this.cleanupTimer === 'object' && 'unref' in this.cleanupTimer) {
-        this.cleanupTimer.unref();
-      }
-    }
   }
 
   get(key: string): T | undefined {
@@ -55,25 +42,6 @@ class MemoryCache<T> {
     if (this.maxEntries !== false && this.store.size > this.maxEntries) {
       const firstKey = this.store.keys().next().value as string;
       this.store.delete(firstKey);
-    }
-  }
-
-  dispose(): void {
-    if (this.cleanupTimer !== undefined) {
-      clearInterval(this.cleanupTimer);
-      this.cleanupTimer = undefined;
-    }
-    this.store.clear();
-  }
-
-  protected evictStale(): void {
-    if (this.maxStaleAge === false) return;
-
-    const now = Date.now();
-    for (const [key, entry] of this.store) {
-      if (now - entry.createdAt > this.maxStaleAge) {
-        this.store.delete(key);
-      }
     }
   }
 }

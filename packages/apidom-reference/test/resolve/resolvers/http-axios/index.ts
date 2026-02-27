@@ -284,6 +284,58 @@ describe('resolve', function () {
                 assert.strictEqual(callCount, 2);
               });
             });
+
+            context('given cache is enabled via resolverOpts', function () {
+              specify('should activate caching', async function () {
+                resolver = new HttpResolverAxios();
+
+                // simulate resolverOpts applied via Object.create + Object.assign
+                const clonedResolver = Object.create(resolver);
+                Object.assign(clonedResolver, { cache: true });
+
+                axiosInstance = clonedResolver.getHttpClient();
+                axiosMock = new MockAdapter(axiosInstance);
+                const url = 'https://httpbin.org/anything';
+                let callCount = 0;
+
+                axiosMock.onGet(url).reply(() => {
+                  callCount += 1;
+                  return [200, Buffer.from('data')];
+                });
+
+                const first = await clonedResolver.read(new File({ uri: url }));
+                const second = await clonedResolver.read(new File({ uri: url }));
+
+                assert.strictEqual(callCount, 1);
+                assert.strictEqual(first.toString(), 'data');
+                assert.strictEqual(second.toString(), 'data');
+              });
+            });
+
+            context('given cache is disabled via resolverOpts after being enabled', function () {
+              specify('should deactivate caching', async function () {
+                resolver = new HttpResolverAxios({ cache: true });
+
+                // simulate resolverOpts applied via Object.create + Object.assign
+                const clonedResolver = Object.create(resolver);
+                Object.assign(clonedResolver, { cache: false });
+
+                axiosInstance = clonedResolver.getHttpClient();
+                axiosMock = new MockAdapter(axiosInstance);
+                const url = 'https://httpbin.org/anything';
+                let callCount = 0;
+
+                axiosMock.onGet(url).reply(() => {
+                  callCount += 1;
+                  return [200, Buffer.from('data')];
+                });
+
+                await clonedResolver.read(new File({ uri: url }));
+                await clonedResolver.read(new File({ uri: url }));
+
+                assert.strictEqual(callCount, 2);
+              });
+            });
           });
         });
       });
