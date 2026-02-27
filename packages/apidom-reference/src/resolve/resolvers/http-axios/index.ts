@@ -3,10 +3,15 @@ import { ensureArray } from 'ramda-adjunct';
 import axios, { Axios, AxiosInstance, CreateAxiosDefaults } from 'axios';
 
 import HTTPResolver, { HTTPResolverOptions } from '../HTTPResolver.ts';
+import MemoryCache from './cache/MemoryCache.ts';
 import File from '../../../File.ts';
 import ResolverError from '../../../errors/ResolverError.ts';
 
-export type { default as HTTPResolver, HTTPResolverOptions } from '../HTTPResolver.ts';
+export type {
+  default as HTTPResolver,
+  HTTPResolverOptions,
+  CacheOptions,
+} from '../HTTPResolver.ts';
 export type { default as Resolver, ResolverOptions } from '../Resolver.ts';
 export type { default as File, FileOptions } from '../../../File.ts';
 
@@ -34,11 +39,17 @@ class HTTPResolverAxios extends HTTPResolver {
 
   protected previousAxiosConfig!: HTTPResolverAxiosConfig;
 
+  protected memoryCache: MemoryCache<Buffer> | undefined;
+
   constructor(options?: HTTPResolverAxiosOptions) {
     const { axiosConfig = {}, ...rest } = options ?? {};
 
     super({ ...rest, name: 'http-axios' });
     this.axiosConfig = axiosConfig;
+
+    if (this.cache !== false) {
+      this.memoryCache = new MemoryCache(this.cache);
+    }
   }
 
   getHttpClient(): AxiosInstance {
@@ -75,10 +86,24 @@ class HTTPResolverAxios extends HTTPResolver {
   }
 
   async read(file: File): Promise<Buffer> {
+    // serve from cache if available
+    if (this.memoryCache !== undefined) {
+      const cached = this.memoryCache.get(file.uri);
+      if (cached !== undefined) {
+        return cached;
+      }
+    }
+
     const client: AxiosInstance = this.getHttpClient();
 
     try {
       const response = await client.get<Buffer>(file.uri);
+
+      // store in cache if caching is enabled
+      if (this.memoryCache !== undefined) {
+        this.memoryCache.set(file.uri, response.data);
+      }
+
       return response.data;
     } catch (error: unknown) {
       throw new ResolverError(`Error downloading "${file.uri}"`, { cause: error });

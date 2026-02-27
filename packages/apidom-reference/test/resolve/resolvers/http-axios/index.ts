@@ -160,6 +160,82 @@ describe('resolve', function () {
               });
             });
           });
+
+          context('given cache option', function () {
+            context('given cache is false (default)', function () {
+              specify('should not cache responses', async function () {
+                resolver = new HttpResolverAxios();
+                axiosInstance = resolver.getHttpClient();
+                axiosMock = new MockAdapter(axiosInstance);
+                const url = 'https://httpbin.org/anything';
+                let callCount = 0;
+
+                axiosMock.onGet(url).reply(() => {
+                  callCount += 1;
+                  return [200, Buffer.from('data')];
+                });
+
+                await resolver.read(new File({ uri: url }));
+                await resolver.read(new File({ uri: url }));
+
+                assert.strictEqual(callCount, 2);
+              });
+            });
+
+            context('given cache is enabled with defaults', function () {
+              specify('should cache responses', async function () {
+                resolver = new HttpResolverAxios({ cache: {} });
+                axiosInstance = resolver.getHttpClient();
+                axiosMock = new MockAdapter(axiosInstance);
+                const url = 'https://httpbin.org/anything';
+                let callCount = 0;
+
+                axiosMock.onGet(url).reply(() => {
+                  callCount += 1;
+                  return [200, Buffer.from('data')];
+                });
+
+                const first = await resolver.read(new File({ uri: url }));
+                const second = await resolver.read(new File({ uri: url }));
+
+                assert.strictEqual(callCount, 1);
+                assert.strictEqual(first.toString(), 'data');
+                assert.strictEqual(second.toString(), 'data');
+              });
+            });
+
+            context('given cache is enabled with custom maxEntries', function () {
+              specify('should evict oldest entry when maxEntries is exceeded', async function () {
+                resolver = new HttpResolverAxios({ cache: { maxEntries: 1 } });
+                axiosInstance = resolver.getHttpClient();
+                axiosMock = new MockAdapter(axiosInstance);
+                const url1 = 'https://httpbin.org/anything/1';
+                const url2 = 'https://httpbin.org/anything/2';
+                let callCount1 = 0;
+                let callCount2 = 0;
+
+                axiosMock.onGet(url1).reply(() => {
+                  callCount1 += 1;
+                  return [200, Buffer.from('data1')];
+                });
+                axiosMock.onGet(url2).reply(() => {
+                  callCount2 += 1;
+                  return [200, Buffer.from('data2')];
+                });
+
+                await resolver.read(new File({ uri: url1 }));
+                assert.strictEqual(callCount1, 1);
+
+                // this should evict url1 since maxEntries is 1
+                await resolver.read(new File({ uri: url2 }));
+                assert.strictEqual(callCount2, 1);
+
+                // url1 should require a new fetch
+                await resolver.read(new File({ uri: url1 }));
+                assert.strictEqual(callCount1, 2);
+              });
+            });
+          });
         });
       });
     });

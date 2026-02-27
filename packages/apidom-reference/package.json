@@ -255,7 +255,7 @@
     "@speclynx/apidom-parser-adapter-yaml-1-2": "2.12.4",
     "@speclynx/apidom-traverse": "2.12.4",
     "@swaggerexpert/arazzo-runtime-expression": "^2.0.3",
-    "axios": "^1.13.0",
+    "axios": "^1.13.5",
     "picomatch": "^4.0.3",
     "process": "^0.11.10",
     "ramda": "~0.32.0",
