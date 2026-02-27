@@ -19,7 +19,7 @@ export interface HTTPResolverOptions extends ResolverOptions {
   readonly timeout?: number;
   readonly redirects?: number;
   readonly withCredentials?: boolean;
-  readonly cache?: false | CacheOptions;
+  readonly cache?: boolean | CacheOptions;
 }
 
 /**
@@ -32,7 +32,7 @@ abstract class HTTPResolver extends Resolver {
 
   protected readonly withCredentials: boolean;
 
-  protected readonly cache: false | CacheOptions;
+  protected readonly cache: boolean | CacheOptions;
 
   constructor(options?: HTTPResolverOptions) {
     const {

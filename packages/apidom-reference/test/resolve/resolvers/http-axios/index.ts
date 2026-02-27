@@ -182,6 +182,28 @@ describe('resolve', function () {
               });
             });
 
+            context('given cache is true', function () {
+              specify('should cache responses', async function () {
+                resolver = new HttpResolverAxios({ cache: true });
+                axiosInstance = resolver.getHttpClient();
+                axiosMock = new MockAdapter(axiosInstance);
+                const url = 'https://httpbin.org/anything';
+                let callCount = 0;
+
+                axiosMock.onGet(url).reply(() => {
+                  callCount += 1;
+                  return [200, Buffer.from('data')];
+                });
+
+                const first = await resolver.read(new File({ uri: url }));
+                const second = await resolver.read(new File({ uri: url }));
+
+                assert.strictEqual(callCount, 1);
+                assert.strictEqual(first.toString(), 'data');
+                assert.strictEqual(second.toString(), 'data');
+              });
+            });
+
             context('given cache is enabled with defaults', function () {
               specify('should cache responses', async function () {
                 resolver = new HttpResolverAxios({ cache: {} });

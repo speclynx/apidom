@@ -1,3 +1,5 @@
+import { clone } from 'ramda';
+
 import type { CacheOptions } from '../../HTTPResolver.ts';
 
 interface CacheEntry<T> {
@@ -68,10 +70,6 @@ class MemoryCache<T> {
     }
   }
 
-  clear(): void {
-    this.store.clear();
-  }
-
   dispose(): void {
     if (this.cleanupTimer !== undefined) {
       clearInterval(this.cleanupTimer);
@@ -102,19 +100,16 @@ class MemoryCache<T> {
   }
 
   protected clone(value: T): T {
+    if (Buffer.isBuffer(value)) {
+      return Buffer.from(value) as T;
+    }
+    if (value instanceof Uint8Array) {
+      return value.slice() as T;
+    }
     if (value instanceof ArrayBuffer) {
       return value.slice(0) as T;
     }
-    if (ArrayBuffer.isView(value)) {
-      const buffer = value.buffer.slice(
-        value.byteOffset,
-        value.byteOffset + value.byteLength,
-      ) as ArrayBuffer;
-      const TypedArrayConstructor = value.constructor as new (buffer: ArrayBuffer) => T;
-      return new TypedArrayConstructor(buffer);
-    }
-    // fallback: structuredClone for other types
-    return structuredClone(value);
+    return clone(value);
   }
 }
 

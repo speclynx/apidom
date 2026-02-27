@@ -48,7 +48,7 @@ class HTTPResolverAxios extends HTTPResolver {
     this.axiosConfig = axiosConfig;
 
     if (this.cache !== false) {
-      this.memoryCache = new MemoryCache(this.cache);
+      this.memoryCache = new MemoryCache(this.cache === true ? {} : this.cache);
     }
   }
 
