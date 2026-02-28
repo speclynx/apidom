@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.13.0](https://github.com/speclynx/apidom/compare/v2.12.4...v2.13.0) (2026-02-28)
+
+### Features
+
+- **reference:** add cache support for Axios resolver ([#117](https://github.com/speclynx/apidom/issues/117)) ([372c58d](https://github.com/speclynx/apidom/commit/372c58df1649c82092851ac6e0d89e53d8e9bbd8))
+
 ## [2.12.4](https://github.com/speclynx/apidom/compare/v2.12.3...v2.12.4) (2026-02-24)
 
 ### Bug Fixes
