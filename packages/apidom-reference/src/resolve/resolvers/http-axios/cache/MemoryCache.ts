@@ -5,9 +5,6 @@ interface CacheEntry<T> {
   createdAt: number;
 }
 
-/**
- * @public
- */
 class MemoryCache<T> {
   protected maxEntries: number | false;
 

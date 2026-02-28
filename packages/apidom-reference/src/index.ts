@@ -18,7 +18,7 @@ export type { ParserOptions } from './parse/parsers/Parser.ts';
 
 export { default as Resolver } from './resolve/resolvers/Resolver.ts';
 export { default as HTTPResolver } from './resolve/resolvers/HTTPResolver.ts';
-export type { HTTPResolverOptions } from './resolve/resolvers/HTTPResolver.ts';
+export type { HTTPResolverOptions, CacheOptions } from './resolve/resolvers/HTTPResolver.ts';
 export { default as ResolveStrategy } from './resolve/strategies/ResolveStrategy.ts';
 export type { ResolverOptions } from './resolve/resolvers/Resolver.ts';
 export type { ResolveStrategyOptions } from './resolve/strategies/ResolveStrategy.ts';
