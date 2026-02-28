@@ -992,7 +992,7 @@ await resolve('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/
 
 ###### Response caching support
 
-HttpResolverAxios plugin supports in-memory response caching. When enabled, responses are cached
+HTTPResolverAxios plugin supports in-memory response caching. When enabled, responses are cached
 by URL, and subsequent requests for the same URL are served from cache instead of making
 a new HTTP request. Caching is disabled by default.
 

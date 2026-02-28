@@ -9,9 +9,9 @@ interface CacheEntry<T> {
  * @public
  */
 class MemoryCache<T> {
-  protected readonly maxEntries: number | false;
+  protected maxEntries: number | false;
 
-  protected readonly maxStaleAge: number | false;
+  protected maxStaleAge: number | false;
 
   protected readonly store: Map<string, CacheEntry<T>> = new Map();
 
