@@ -1019,6 +1019,33 @@ const resolver = new HTTPResolverAxios({
 });
 ```
 
+Caching can also be configured via `resolverOpts`:
+
+```js
+import { resolve } from '@speclynx/apidom-reference';
+
+// enable with defaults
+await resolve('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.1/webhook-example.json', {
+  resolve: {
+    resolverOpts: {
+      cache: true,
+    },
+  },
+});
+
+// enable with custom options
+await resolve('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.1/webhook-example.json', {
+  resolve: {
+    resolverOpts: {
+      cache: {
+        maxEntries: 512,
+        maxStaleAge: 600_000,
+      },
+    },
+  },
+});
+```
+
 **File resolution on local filesystem path**:
 
 ```js

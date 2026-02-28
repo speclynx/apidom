@@ -289,6 +289,88 @@ describe('resolve', function () {
                 }
               });
             });
+
+            context('given cache is enabled via resolverOpts', function () {
+              specify('should activate caching', async function () {
+                resolver = new HttpResolverAxios();
+
+                // simulate resolverOpts applied via Object.create + Object.assign
+                const clonedResolver = Object.create(resolver);
+                Object.assign(clonedResolver, { cache: true });
+
+                axiosInstance = clonedResolver.getHttpClient();
+                axiosMock = new MockAdapter(axiosInstance);
+                const url = 'https://httpbin.org/anything';
+                let callCount = 0;
+
+                axiosMock.onGet(url).reply(() => {
+                  callCount += 1;
+                  return [200, Buffer.from('data')];
+                });
+
+                const first = await clonedResolver.read(new File({ uri: url }));
+                const second = await clonedResolver.read(new File({ uri: url }));
+
+                assert.strictEqual(callCount, 1);
+                assert.strictEqual(first.toString(), 'data');
+                assert.strictEqual(second.toString(), 'data');
+              });
+
+              specify('should share cache across clones', async function () {
+                resolver = new HttpResolverAxios();
+                const url = 'https://httpbin.org/anything';
+                let callCount = 0;
+
+                // first clone: fetches and caches
+                const clone1 = Object.create(resolver);
+                Object.assign(clone1, { cache: true });
+                axiosInstance = clone1.getHttpClient();
+                axiosMock = new MockAdapter(axiosInstance);
+
+                axiosMock.onGet(url).reply(() => {
+                  callCount += 1;
+                  return [200, Buffer.from('data')];
+                });
+
+                await clone1.read(new File({ uri: url }));
+                assert.strictEqual(callCount, 1);
+
+                // second clone: should serve from shared cache on base resolver
+                const clone2 = Object.create(resolver);
+                Object.assign(clone2, { cache: true });
+                await clone2.read(new File({ uri: url }));
+                assert.strictEqual(callCount, 1);
+              });
+
+              specify('should override maxEntries from resolverOpts', async function () {
+                resolver = new HttpResolverAxios({ cache: true });
+
+                const clone = Object.create(resolver);
+                Object.assign(clone, { cache: { maxEntries: 1 } });
+
+                axiosInstance = clone.getHttpClient();
+                axiosMock = new MockAdapter(axiosInstance);
+                const url1 = 'https://httpbin.org/anything/1';
+                const url2 = 'https://httpbin.org/anything/2';
+                let callCount1 = 0;
+
+                axiosMock.onGet(url1).reply(() => {
+                  callCount1 += 1;
+                  return [200, Buffer.from('data1')];
+                });
+                axiosMock.onGet(url2).reply(() => [200, Buffer.from('data2')]);
+
+                await clone.read(new File({ uri: url1 }));
+                assert.strictEqual(callCount1, 1);
+
+                // evicts url1 since maxEntries is 1
+                await clone.read(new File({ uri: url2 }));
+
+                // url1 should require a new fetch
+                await clone.read(new File({ uri: url1 }));
+                assert.strictEqual(callCount1, 2);
+              });
+            });
           });
         });
       });
