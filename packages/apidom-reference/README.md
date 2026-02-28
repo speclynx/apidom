@@ -990,6 +990,62 @@ await resolve('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/
 });
 ```
 
+###### Response caching support
+
+HTTPResolverAxios plugin supports in-memory response caching. When enabled, responses are cached
+by URL, and subsequent requests for the same URL are served from cache instead of making
+a new HTTP request. Caching is disabled by default.
+
+Enabling cache with default options:
+
+```js
+import HTTPResolverAxios from '@speclynx/apidom-reference/resolve/resolvers/http-axios';
+
+const resolver = new HTTPResolverAxios({
+  cache: true,
+});
+```
+
+Enabling cache with custom options:
+
+```js
+import HTTPResolverAxios from '@speclynx/apidom-reference/resolve/resolvers/http-axios';
+
+const resolver = new HTTPResolverAxios({
+  cache: {
+    maxEntries: 512,      // maximum number of entries (default: 1024, false to disable)
+    maxStaleAge: 600_000, // maximum age in ms before eviction (default: 3_600_000, false to disable)
+  },
+});
+```
+
+Caching can also be configured via `resolverOpts`:
+
+```js
+import { resolve } from '@speclynx/apidom-reference';
+
+// enable with defaults
+await resolve('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.1/webhook-example.json', {
+  resolve: {
+    resolverOpts: {
+      cache: true,
+    },
+  },
+});
+
+// enable with custom options
+await resolve('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.1/webhook-example.json', {
+  resolve: {
+    resolverOpts: {
+      cache: {
+        maxEntries: 512,
+        maxStaleAge: 600_000,
+      },
+    },
+  },
+});
+```
+
 **File resolution on local filesystem path**:
 
 ```js
