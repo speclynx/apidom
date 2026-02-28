@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.1](https://github.com/speclynx/apidom/compare/v2.13.0...v2.13.1) (2026-02-28)
+
+### Bug Fixes
+
+- **reference:** fix types for cached HTTP resolver ([e862887](https://github.com/speclynx/apidom/commit/e86288710f881bde742da02f04ae28b51076fe98))
+
 # [2.13.0](https://github.com/speclynx/apidom/compare/v2.12.4...v2.13.0) (2026-02-28)
 
 ### Features
