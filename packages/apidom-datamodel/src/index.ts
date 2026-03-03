@@ -1,5 +1,6 @@
 export { default as Namespace } from './Namespace.ts';
 export { default as KeyValuePair } from './KeyValuePair.ts';
+export { default as Metadata } from './Metadata.ts';
 
 // Clone utilities
 export {

@@ -10,6 +10,9 @@ import {
   JSONPointerKeyError,
 } from '@swaggerexpert/json-pointer';
 
+/**
+ * @public
+ */
 class ApiDOMEvaluationRealm extends EvaluationRealm {
   name = 'apidom';
 
