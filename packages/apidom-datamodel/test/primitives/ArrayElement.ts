@@ -338,6 +338,7 @@ describe('ArrayElement', function () {
                       content: 'nested-id',
                     },
                   },
+                  __meta_raw__: ['id'],
                   content: 'bar',
                 },
                 {

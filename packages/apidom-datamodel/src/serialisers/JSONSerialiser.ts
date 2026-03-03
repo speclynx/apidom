@@ -14,6 +14,7 @@ interface SerializedElement {
   meta?: Record<string, SerializedElement>;
   attributes?: Record<string, SerializedElement>;
   content?: SerializedContent;
+  __meta_raw__?: string[];
 }
 
 /**
@@ -48,6 +49,7 @@ interface RefractDocument {
   meta?: Record<string, unknown>;
   attributes?: Record<string, unknown>;
   content?: unknown;
+  __meta_raw__?: string[];
 }
 
 /**
@@ -78,7 +80,13 @@ class JSONSerialiser {
     };
 
     if (!element.isMetaEmpty) {
-      payload.meta = this.serialiseMeta(element);
+      const serialisedMeta = this.serialiseMeta(element);
+      if (serialisedMeta) {
+        payload.meta = serialisedMeta.meta;
+        if (serialisedMeta.rawKeys.length > 0) {
+          payload.__meta_raw__ = serialisedMeta.rawKeys;
+        }
+      }
     }
 
     if (!element.isAttributesEmpty) {
@@ -131,7 +139,7 @@ class JSONSerialiser {
       element.element = value.element;
     }
 
-    // Extract __mappings__ and __styles__ without mutating input, filter remaining meta
+    // Extract special meta keys without mutating input, filter remaining meta
     let mappingsDoc: RefractDocument | undefined;
     let stylesDoc: RefractDocument | undefined;
     let metaToDeserialize = value.meta;
@@ -143,15 +151,14 @@ class JSONSerialiser {
       metaToDeserialize = Object.keys(rest).length > 0 ? rest : undefined;
     }
 
+    // determine which meta keys were raw primitives before serialization
+    const rawKeys = value.__meta_raw__ ? new Set(value.__meta_raw__) : undefined;
+
     if (metaToDeserialize) {
-      const primitiveMetaKeys = new Set(['id', 'title', 'description', 'classes']);
       for (const [key, doc] of Object.entries(metaToDeserialize)) {
         const deserialized = this.deserialise(doc as RefractDocument);
-        // unwrap known primitive meta keys to raw values
-        element.setMetaProperty(
-          key,
-          primitiveMetaKeys.has(key) ? deserialized.toValue() : deserialized,
-        );
+        // unwrap keys that were raw primitives before serialization
+        element.setMetaProperty(key, rawKeys?.has(key) ? deserialized.toValue() : deserialized);
       }
     }
 
@@ -237,23 +244,27 @@ class JSONSerialiser {
     return content;
   }
 
-  protected serialiseMeta(element: Element): Record<string, SerializedElement> | undefined {
-    const result: Record<string, SerializedElement> = {};
+  protected serialiseMeta(
+    element: Element,
+  ): { meta: Record<string, SerializedElement>; rawKeys: string[] } | undefined {
+    const meta: Record<string, SerializedElement> = {};
+    const rawKeys: string[] = [];
     let hasEntries = false;
 
     for (const [key, value] of Object.entries(element.meta)) {
       if (value instanceof this.namespace.elements.Element) {
-        result[key] = this.serialise(value as Element);
+        meta[key] = this.serialise(value as Element);
         hasEntries = true;
       } else if (value !== undefined) {
         // refract primitives to maintain JSON Refract spec compatibility
         const refracted = element.refract(value);
-        result[key] = this.serialise(refracted);
+        meta[key] = this.serialise(refracted);
+        rawKeys.push(key);
         hasEntries = true;
       }
     }
 
-    return hasEntries ? result : undefined;
+    return hasEntries ? { meta, rawKeys } : undefined;
   }
 
   protected serialiseObject(obj: ObjectElement): Record<string, SerializedElement> | undefined {
