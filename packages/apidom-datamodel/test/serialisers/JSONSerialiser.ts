@@ -380,8 +380,7 @@ describe('JSON Serialiser', function () {
       });
 
       const title = element.meta.get('title');
-      assert.instanceOf(title, StringElement);
-      assert.strictEqual((title as StringElement).content, 'hello');
+      assert.strictEqual(title, 'hello');
     });
 
     specify('deserialise attributes', function () {

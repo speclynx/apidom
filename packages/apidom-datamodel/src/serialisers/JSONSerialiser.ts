@@ -78,7 +78,7 @@ class JSONSerialiser {
     };
 
     if (!element.isMetaEmpty) {
-      payload.meta = this.serialiseObject(element.meta as ObjectElement);
+      payload.meta = this.serialiseMeta(element);
     }
 
     if (!element.isAttributesEmpty) {
@@ -144,10 +144,15 @@ class JSONSerialiser {
     }
 
     if (metaToDeserialize) {
-      this.deserialiseObject(
-        metaToDeserialize as Record<string, RefractDocument>,
-        element.meta as ObjectElement,
-      );
+      const primitiveMetaKeys = new Set(['id', 'title', 'description', 'classes']);
+      for (const [key, doc] of Object.entries(metaToDeserialize)) {
+        const deserialized = this.deserialise(doc as RefractDocument);
+        // unwrap known primitive meta keys to raw values
+        element.setMetaProperty(
+          key,
+          primitiveMetaKeys.has(key) ? deserialized.toValue() : deserialized,
+        );
+      }
     }
 
     // Restore source position from __mappings__
@@ -230,6 +235,25 @@ class JSONSerialiser {
     }
 
     return content;
+  }
+
+  protected serialiseMeta(element: Element): Record<string, SerializedElement> | undefined {
+    const result: Record<string, SerializedElement> = {};
+    let hasEntries = false;
+
+    for (const [key, value] of Object.entries(element.meta)) {
+      if (value instanceof this.namespace.elements.Element) {
+        result[key] = this.serialise(value as Element);
+        hasEntries = true;
+      } else if (value !== undefined) {
+        // refract primitives to maintain JSON Refract spec compatibility
+        const refracted = element.refract(value);
+        result[key] = this.serialise(refracted);
+        hasEntries = true;
+      }
+    }
+
+    return hasEntries ? result : undefined;
   }
 
   protected serialiseObject(obj: ObjectElement): Record<string, SerializedElement> | undefined {

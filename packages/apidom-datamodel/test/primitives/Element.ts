@@ -27,18 +27,16 @@ describe('Element', function () {
         },
       );
 
-      assert.strictEqual(element.meta.get('id')!.toValue(), 'foobar');
-      assert.deepEqual(element.meta.get('classes')!.toValue(), ['a', 'b']);
-      assert.strictEqual(element.meta.get('title')!.toValue(), 'Title');
-      assert.strictEqual(element.meta.get('description')!.toValue(), 'Description');
+      assert.strictEqual(element.meta.get('id'), 'foobar');
+      assert.deepEqual(element.meta.get('classes'), ['a', 'b']);
+      assert.strictEqual(element.meta.get('title'), 'Title');
+      assert.strictEqual(element.meta.get('description'), 'Description');
     });
 
     specify('should allow initialising with meta object', function () {
-      const meta = new ObjectElement();
-      meta.set('id', 'foobar');
-      const element = new Element(null, meta);
+      const element = new Element(null, { id: 'foobar' });
 
-      assert.strictEqual(element.meta.get('id')!.toValue(), 'foobar');
+      assert.strictEqual(element.meta.get('id'), 'foobar');
     });
 
     specify('should allow initialising with attributes object', function () {
@@ -88,12 +86,12 @@ describe('Element', function () {
     });
 
     specify('retains the correct values', function () {
-      assert.strictEqual(element.meta.getValue('title'), 'test');
+      assert.strictEqual(element.meta.get('title'), 'test');
     });
 
     specify('allows setting new attributes', function () {
       element.meta = { title: 'test2' };
-      assert.strictEqual(element.meta.getValue('title'), 'test2');
+      assert.strictEqual(element.meta.get('title'), 'test2');
     });
   });
 
@@ -230,11 +228,11 @@ describe('Element', function () {
     });
 
     specify('returns true when they are equal', function () {
-      assert.isTrue(el.meta.get('id')!.equals('foobar'));
+      assert.strictEqual(el.meta.get('id'), 'foobar');
     });
 
     specify('returns false when they are not equal', function () {
-      assert.isFalse(el.meta.get('id')!.equals('not-equal'));
+      assert.notStrictEqual(el.meta.get('id'), 'not-equal');
     });
 
     specify('does a deep equality check', function () {
@@ -273,7 +271,7 @@ describe('Element', function () {
       Object.keys(meta).forEach((key) => {
         specify(`provides a convenience method for ${key}`, function () {
           assert.deepEqual(
-            (el as unknown as Record<string, Element>)[key].toValue(),
+            (el as unknown as Record<string, unknown>)[key],
             (meta as Record<string, unknown>)[key],
           );
         });
@@ -288,13 +286,13 @@ describe('Element', function () {
 
         specify(`works for getters and setters for ${key}`, function () {
           assert.deepEqual(
-            (el as unknown as Record<string, Element>)[key].toValue(),
+            (el as unknown as Record<string, unknown>)[key],
             (meta as Record<string, unknown>)[key],
           );
         });
 
         specify(`stores the correct data in meta for ${key}`, function () {
-          assert.deepEqual(el.meta.get(key)!.toValue(), (meta as Record<string, unknown>)[key]);
+          assert.deepEqual(el.meta.get(key), (meta as Record<string, unknown>)[key]);
         });
       });
     });
@@ -579,13 +577,12 @@ describe('Element', function () {
       assert.strictEqual((element.content as Element[])[0].parent, element);
     });
 
-    specify('sets the parent of meta elements', function () {
+    specify('freezes meta when freezing element', function () {
       const element = new Element();
       element.meta.set('title', 'Example');
       element.freeze();
 
-      assert.strictEqual(element.meta.parent, element);
-      assert.strictEqual((element.meta.content as Element[])[0].parent, element.meta);
+      assert.isTrue(element.meta.isFrozen);
     });
 
     specify("doesn't allow modification of content array once frozen", function () {
@@ -633,13 +630,8 @@ describe('Element', function () {
       });
 
       specify('getMetaProperty', function () {
-        assert.isTrue(
-          (
-            element as unknown as {
-              getMetaProperty: (name: string, defaultValue: unknown) => Element;
-            }
-          ).getMetaProperty('title', '').isFrozen,
-        );
+        const result = element.getMetaProperty('title', '');
+        assert.strictEqual(result, '');
       });
     });
 
@@ -671,12 +663,12 @@ describe('Element', function () {
 
     context('when property does not exist', function () {
       context('with default value', function () {
-        specify('should return a new refracted element', function () {
+        specify('should return the default value', function () {
           const element = new Element();
 
           const result = element.getMetaProperty('title', 'default');
 
-          assert.strictEqual(result!.toValue(), 'default');
+          assert.strictEqual(result, 'default');
         });
 
         specify('should not populate meta', function () {
@@ -687,13 +679,13 @@ describe('Element', function () {
           assert.isFalse(element.hasMetaProperty('title'));
         });
 
-        specify('should return different instances on each call', function () {
+        specify('should return the same default value on each call', function () {
           const element = new Element();
 
           const result1 = element.getMetaProperty('title', 'default');
           const result2 = element.getMetaProperty('title', 'default');
 
-          assert.notStrictEqual(result1, result2);
+          assert.strictEqual(result1, result2);
         });
       });
 
@@ -709,13 +701,13 @@ describe('Element', function () {
     });
 
     context('on frozen element', function () {
-      specify('should return a frozen element when property does not exist', function () {
+      specify('should return default value when property does not exist', function () {
         const element = new Element();
         element.freeze();
 
         const result = element.getMetaProperty('title', '');
 
-        assert.isTrue(result!.isFrozen);
+        assert.strictEqual(result, '');
       });
 
       specify('should not throw when property does not exist', function () {

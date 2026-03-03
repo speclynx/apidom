@@ -4,14 +4,15 @@
  */
 
 import type ObjectElement from './primitives/ObjectElement.ts';
+import type Metadata from './Metadata.ts';
 
 /**
- * Metadata associated with an element.
- * Can be a plain object or an ObjectElement.
+ * Metadata input for an element constructor/setter.
+ * Can be a Metadata instance or a plain object.
  * Common meta properties include: id, classes, title, description, links.
  * @public
  */
-export type Meta = Record<string, unknown> | ObjectElement;
+export type Meta = Metadata | Record<string, unknown>;
 
 /**
  * Attributes associated with an element.

@@ -166,7 +166,7 @@ abstract class CollectionElement<T extends Element = Element> extends Element {
    * Search the tree recursively and find the element with the matching ID.
    */
   getById(id: string): Element | undefined {
-    return this.find((item) => item.id.toValue() === id).first;
+    return this.find((item) => item.id === id).first;
   }
 
   /**
