@@ -1,3 +1,5 @@
+import { clone } from 'ramda';
+
 import type Element from './primitives/Element.ts';
 
 /**
@@ -11,6 +13,7 @@ import type Element from './primitives/Element.ts';
 class Metadata {
   // Set via prototype assignment in registration.ts to avoid circular dependency
   declare Element: typeof Element;
+  declare cloneDeepElement: (element: Element) => Element;
 
   get(name: string): unknown {
     return (this as Record<string, unknown>)[name];
@@ -47,6 +50,31 @@ class Metadata {
       }
     }
     Object.freeze(this);
+  }
+
+  /**
+   * Creates a shallow clone. Same references, new container.
+   */
+  cloneShallow(): Metadata {
+    const clone = new Metadata();
+    Object.assign(clone, this);
+    return clone;
+  }
+
+  /**
+   * Creates a deep clone. Elements are deep cloned,
+   * all other values are deep cloned via ramda clone.
+   */
+  cloneDeep(): Metadata {
+    const copy = new Metadata();
+    for (const [key, value] of Object.entries(this)) {
+      if (value instanceof this.Element) {
+        copy.set(key, this.cloneDeepElement(value));
+      } else {
+        copy.set(key, clone(value));
+      }
+    }
+    return copy;
   }
 }
 

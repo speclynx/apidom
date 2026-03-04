@@ -17,6 +17,7 @@ import StyleElement from './elements/Style.ts';
 import ObjectSlice from './ObjectSlice.ts';
 import KeyValuePair from './KeyValuePair.ts';
 import Metadata from './Metadata.ts';
+import { cloneDeep } from './clone/index.ts';
 
 /**
  * Refracts an array item to ApiDOM element.
@@ -75,6 +76,7 @@ Element.prototype.RefElement = RefElement;
 Element.prototype.MemberElement = MemberElement;
 Element.prototype.refract = refract;
 Metadata.prototype.Element = Element;
+Metadata.prototype.cloneDeepElement = (element: Element) => cloneDeep(element);
 
 /**
  * Contains all of the element classes, and related structures and methods

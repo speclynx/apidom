@@ -5,6 +5,7 @@ import {
   ObjectElement,
   ArrayElement,
   StringElement,
+  Metadata,
   isObjectElement,
 } from '@speclynx/apidom-datamodel';
 
@@ -390,7 +391,7 @@ describe('deepmerge', function () {
     const source = new ObjectElement({}, { metaKey: false }, { attributeKey: false });
     const merged = deepmerge(target, source);
 
-    assert.deepEqual(toValue(merged.meta), { metaKey: true });
+    assert.strictEqual(merged.meta.get('metaKey'), true);
     assert.deepEqual(toValue(merged.attributes), { attributeKey: true });
     assert.notStrictEqual(merged.meta, target.meta);
     assert.notStrictEqual(merged.attributes, target.attributes);
@@ -416,16 +417,17 @@ describe('deepmerge', function () {
 
   context('given customMetaMerge option', function () {
     specify('should allow custom merging of meta', function () {
-      const customMetaMerge = (
-        targetMeta: ObjectElement,
-        sourceMeta: ObjectElement,
-      ): ObjectElement => deepmerge(targetMeta, sourceMeta) as ObjectElement;
+      const customMetaMerge = (): Metadata => {
+        const result = new Metadata();
+        result.set('metaKey', false);
+        return result;
+      };
       const target = new ObjectElement({}, { metaKey: true });
       const source = new ObjectElement({}, { metaKey: false });
 
       const merged = deepmerge(target, source, { customMetaMerge });
 
-      assert.deepEqual(toValue(merged.meta), { metaKey: false });
+      assert.strictEqual(merged.meta.get('metaKey'), false);
     });
   });
 

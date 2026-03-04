@@ -7,6 +7,9 @@ import type ArrayElement from './ArrayElement.ts';
 import KeyValuePair from '../KeyValuePair.ts';
 import ObjectSlice from '../ObjectSlice.ts';
 
+// shared singleton for frozen elements with no meta — avoids allocation on every access
+const FROZEN_EMPTY_METADATA = Object.freeze(new Metadata());
+
 /**
  * Valid content types for an Element.
  * @public
@@ -232,11 +235,7 @@ class Element implements ToValue, Equatable, Freezable {
    */
   get meta(): Metadata {
     if (!this._meta) {
-      if (this.isFrozen) {
-        const meta = new Metadata();
-        meta.freeze();
-        return meta;
-      }
+      if (this.isFrozen) return FROZEN_EMPTY_METADATA;
       this._meta = new Metadata();
     }
     return this._meta;
@@ -310,7 +309,9 @@ class Element implements ToValue, Equatable, Freezable {
   get links(): ArrayElement {
     if (!this.hasMetaProperty('links')) {
       if (this.isFrozen) {
-        return this.refract([]) as ArrayElement;
+        const empty = new this.ArrayElement();
+        empty.freeze();
+        return empty;
       }
       this.setMetaProperty('links', new this.ArrayElement());
     }
