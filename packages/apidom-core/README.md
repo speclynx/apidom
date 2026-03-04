@@ -384,7 +384,7 @@ const alex = new ObjectElement({ name: { first: 'Alex' } }, { metaKey: true });
 const tony = new ObjectElement({ name: { first: 'Tony' } }, { metaKey: false });
 
 const customMetaMerge = (targetMeta, sourceMeta) => {
-  const merged = new Metadta();
+  const merged = new Metadata();
   Object.assign(merged, targetMeta, sourceMeta);
   return merged;
 };

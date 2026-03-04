@@ -638,9 +638,8 @@ Functions for creating shallow and deep copies of ApiDOM elements.
 ### Shallow cloning
 
 Creates a shallow clone of an ApiDOM element. The element itself is cloned,
-but content references are shared. Meta entries are cloned per-value
-(Elements deep cloned, arrays shallow-copied, primitives copied).
-Attributes are deep cloned to preserve semantic information.
+but content references are shared.
+Meta and attributes are deep cloned to preserve semantic information.
 
 ```js
 import { ObjectElement, cloneShallow } from '@speclynx/apidom-datamodel';

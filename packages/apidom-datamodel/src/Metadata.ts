@@ -47,6 +47,8 @@ class Metadata {
     for (const value of Object.values(this)) {
       if (value instanceof this.Element) {
         value.freeze();
+      } else if (Array.isArray(value) || (value !== null && typeof value === 'object')) {
+        Object.freeze(value);
       }
     }
     Object.freeze(this);
@@ -59,6 +61,23 @@ class Metadata {
     const clone = new Metadata();
     Object.assign(clone, this);
     return clone;
+  }
+
+  /**
+   * Merges another Metadata into a new instance.
+   * Arrays are concatenated, all other values are overwritten by source.
+   */
+  merge(source: Metadata): Metadata {
+    const result = this.cloneShallow();
+    for (const [key, value] of Object.entries(source)) {
+      const existing = result.get(key);
+      if (Array.isArray(existing) && Array.isArray(value)) {
+        result.set(key, [...existing, ...value]);
+      } else {
+        result.set(key, value);
+      }
+    }
+    return result;
   }
 
   /**

@@ -1,5 +1,11 @@
 import { deepmerge } from '@speclynx/apidom-core';
-import { Element, ObjectElement, SourceMapElement, StyleElement } from '@speclynx/apidom-datamodel';
+import {
+  Element,
+  ObjectElement,
+  SourceMapElement,
+  StyleElement,
+  cloneDeep,
+} from '@speclynx/apidom-datamodel';
 
 /**
  * @public
@@ -17,16 +23,18 @@ class Visitor {
   }
 
   public copyMetaAndAttributes(from: Element, to: Element) {
-    if (!from.isMetaEmpty || !to.isMetaEmpty) {
-      const target = to.isMetaEmpty ? new ObjectElement() : to.meta;
-      const source = from.isMetaEmpty ? new ObjectElement() : from.meta;
-      to.meta = deepmerge(target, source) as ObjectElement;
+    if (!from.isMetaEmpty && !to.isMetaEmpty) {
+      to.meta = to.meta.merge(from.meta);
+    } else if (!from.isMetaEmpty) {
+      to.meta = from.meta.cloneDeep();
     }
-    if (!from.isAttributesEmpty || !to.isAttributesEmpty) {
-      const target = to.isAttributesEmpty ? new ObjectElement() : to.attributes;
-      const source = from.isAttributesEmpty ? new ObjectElement() : from.attributes;
-      to.attributes = deepmerge(target, source) as ObjectElement;
+
+    if (!from.isAttributesEmpty && !to.isAttributesEmpty) {
+      to.attributes = deepmerge(to.attributes, from.attributes) as ObjectElement;
+    } else if (!from.isAttributesEmpty) {
+      to.attributes = cloneDeep(from.attributes);
     }
+
     SourceMapElement.transfer(from, to);
     StyleElement.transfer(from, to);
   }

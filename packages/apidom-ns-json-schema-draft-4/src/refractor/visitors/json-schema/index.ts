@@ -1,11 +1,6 @@
 import { always, defaultTo } from 'ramda';
 import { isNonEmptyString, isUndefined } from 'ramda-adjunct';
-import {
-  ObjectElement,
-  ArrayElement,
-  isStringElement,
-  cloneDeep,
-} from '@speclynx/apidom-datamodel';
+import { ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
 import { toValue } from '@speclynx/apidom-core';
 
@@ -60,7 +55,7 @@ class JSONSchemaVisitor extends JSONSchemaVisitorBase {
     } else if (isJSONSchemaElement(this.parent) && !isStringElement(objectElement.get('$schema'))) {
       // parent is available and no $schema is defined, set parent $schema
       const inheritedDialectIdentifier = defaultTo(
-        toValue(this.parent.meta.get('inheritedDialectIdentifier')),
+        this.parent.meta.get('inheritedDialectIdentifier') as string,
         toValue(this.parent.$schema),
       );
       this.element.meta.set('inheritedDialectIdentifier', inheritedDialectIdentifier);
@@ -69,19 +64,17 @@ class JSONSchemaVisitor extends JSONSchemaVisitorBase {
 
   handleSchemaIdentifier(objectElement: ObjectElement, identifierKeyword: string = 'id'): void {
     // handle schema identifier in embedded resources
-    // fetch parent's ancestorsSchemaIdentifiers
-    const ancestorsSchemaIdentifiers: ArrayElement =
+    // fetch parent's ancestorsSchemaIdentifiers (stored as plain string[])
+    const ancestorsSchemaIdentifiers: string[] =
       this.parent !== undefined
-        ? (cloneDeep(
-            this.parent.meta.get('ancestorsSchemaIdentifiers') ?? new ArrayElement(),
-          ) as ArrayElement)
-        : new ArrayElement();
+        ? [...((this.parent.meta.get('ancestorsSchemaIdentifiers') as string[]) ?? [])]
+        : [];
     // get current schema identifier
     const schemaIdentifier = toValue(objectElement.get(identifierKeyword));
 
-    // remember schema identifier if it's a non-empty strings
+    // remember schema identifier if it's a non-empty string
     if (isNonEmptyString(schemaIdentifier)) {
-      ancestorsSchemaIdentifiers.push(schemaIdentifier);
+      ancestorsSchemaIdentifiers.push(schemaIdentifier as string);
     }
 
     this.element.meta.set('ancestorsSchemaIdentifiers', ancestorsSchemaIdentifiers);
