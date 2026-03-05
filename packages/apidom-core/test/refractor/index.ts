@@ -192,7 +192,7 @@ describe('refractor', function () {
           const objectElement = new ObjectElement({ a: 'b' });
           const result = dispatchRefractorPlugins(objectElement, [plugin1, plugin2]);
 
-          assert.strictEqual(toValue(result.meta.get('metaKey')), 'metaValue');
+          assert.strictEqual(result.meta.get('metaKey'), 'metaValue');
         });
       });
     });

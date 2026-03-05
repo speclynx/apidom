@@ -1,6 +1,6 @@
 import { assert, expect } from 'chai';
 import { ObjectElement, isElement } from '@speclynx/apidom-datamodel';
-import { sexprs, toValue } from '@speclynx/apidom-core';
+import { sexprs } from '@speclynx/apidom-core';
 import { find } from '@speclynx/apidom-traverse';
 
 import {
@@ -121,7 +121,7 @@ describe('refractor', function () {
           'ancestorsSchemaIdentifiers',
         );
 
-        assert.deepEqual(toValue(ancestorsSchemaIdentifiers), ['$id1', '$id2']);
+        assert.deepEqual(ancestorsSchemaIdentifiers, ['$id1', '$id2']);
       });
     });
 
@@ -142,22 +142,18 @@ describe('refractor', function () {
         }) as JSONSchemaElement;
 
         assert.strictEqual(
-          toValue(jsonSchemaElement.meta.get('inheritedDialectIdentifier')),
+          jsonSchemaElement.meta.get('inheritedDialectIdentifier'),
           'http://json-schema.org/draft-06/schema#',
         );
         assert.strictEqual(
-          toValue(
-            (jsonSchemaElement.itemsField as JSONSchemaElement).meta.get(
-              'inheritedDialectIdentifier',
-            ),
+          (jsonSchemaElement.itemsField as JSONSchemaElement).meta.get(
+            'inheritedDialectIdentifier',
           ),
           'http://json-schema.org/draft-06/schema#',
         );
         assert.strictEqual(
-          toValue(
-            (jsonSchemaElement.oneOf!.get(0) as JSONSchemaElement).itemsField!.meta.get(
-              'inheritedDialectIdentifier',
-            ),
+          (jsonSchemaElement.oneOf!.get(0) as JSONSchemaElement).itemsField!.meta.get(
+            'inheritedDialectIdentifier',
           ),
           'schema1',
         );
@@ -201,9 +197,10 @@ describe('refractor', function () {
       });
 
       specify('should deepmerge meta', function () {
-        assert.deepEqual(toValue(jsonSchemaElement.properties!.meta), {
-          classes: ['json-schema-properties', 'example'],
-        });
+        assert.deepEqual(jsonSchemaElement.properties!.classes, [
+          'json-schema-properties',
+          'example',
+        ]);
       });
 
       specify('should deepmerge attributes', function () {

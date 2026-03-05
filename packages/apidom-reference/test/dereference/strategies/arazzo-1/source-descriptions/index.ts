@@ -31,8 +31,8 @@ describe('dereference', function () {
             const sdResult = dereferenceResult.get(1)!;
             assert.isTrue(isParseResultElement(sdResult));
             assert.isTrue(sdResult.classes.includes('source-description'));
-            assert.strictEqual(sdResult.meta.get('name')!.toValue(), 'petStore');
-            assert.strictEqual(sdResult.meta.get('type')!.toValue(), 'openapi');
+            assert.strictEqual(sdResult.meta.get('name'), 'petStore');
+            assert.strictEqual(sdResult.meta.get('type'), 'openapi');
           });
 
           specify(
@@ -49,7 +49,7 @@ describe('dereference', function () {
               });
 
               const sdResult = dereferenceResult.get(1)!;
-              const retrievalURI = sdResult.meta.get('retrievalURI')?.toValue();
+              const retrievalURI = sdResult.meta.get('retrievalURI');
 
               assert.isString(retrievalURI);
               assert.include(retrievalURI, 'openapi.json');
@@ -106,8 +106,8 @@ describe('dereference', function () {
             const nestedArazzo = dereferenceResult.get(1)! as ParseResultElement;
             assert.isTrue(isParseResultElement(nestedArazzo));
             assert.isTrue(nestedArazzo.classes.includes('source-description'));
-            assert.strictEqual(nestedArazzo.meta.get('name')!.toValue(), 'nestedArazzo');
-            assert.strictEqual(nestedArazzo.meta.get('type')!.toValue(), 'arazzo');
+            assert.strictEqual(nestedArazzo.meta.get('name'), 'nestedArazzo');
+            assert.strictEqual(nestedArazzo.meta.get('type'), 'arazzo');
             // nested arazzo has its own source description (openapi)
             assert.strictEqual(nestedArazzo.length, 2);
 
@@ -115,8 +115,8 @@ describe('dereference', function () {
             const openapi = nestedArazzo.get(1)! as ParseResultElement;
             assert.isTrue(isParseResultElement(openapi));
             assert.isTrue(openapi.classes.includes('source-description'));
-            assert.strictEqual(openapi.meta.get('name')!.toValue(), 'petStore');
-            assert.strictEqual(openapi.meta.get('type')!.toValue(), 'openapi');
+            assert.strictEqual(openapi.meta.get('name'), 'petStore');
+            assert.strictEqual(openapi.meta.get('type'), 'openapi');
           });
         });
 
@@ -216,7 +216,7 @@ describe('dereference', function () {
 
             const sdResult = dereferenceResult.get(1)!;
             assert.isTrue(isParseResultElement(sdResult));
-            assert.strictEqual(sdResult.meta.get('name')!.toValue(), 'petStore');
+            assert.strictEqual(sdResult.meta.get('name'), 'petStore');
           });
 
           specify(
@@ -237,7 +237,7 @@ describe('dereference', function () {
 
               const sdResult = dereferenceResult.get(1)! as ParseResultElement;
               assert.isTrue(isParseResultElement(sdResult));
-              assert.strictEqual(sdResult.meta.get('name')!.toValue(), 'nestedArazzo');
+              assert.strictEqual(sdResult.meta.get('name'), 'nestedArazzo');
             },
           );
 

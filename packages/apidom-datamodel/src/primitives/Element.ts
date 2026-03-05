@@ -1,10 +1,14 @@
 import { equals } from 'ramda';
 
 import type { Meta, Attributes, ToValue, Equatable, Freezable } from '../types.ts';
+import Metadata from '../Metadata.ts';
 import type ObjectElement from './ObjectElement.ts';
 import type ArrayElement from './ArrayElement.ts';
 import KeyValuePair from '../KeyValuePair.ts';
 import ObjectSlice from '../ObjectSlice.ts';
+
+// shared singleton for frozen elements with no meta — avoids allocation on every access
+const FROZEN_EMPTY_METADATA = Object.freeze(new Metadata());
 
 /**
  * Valid content types for an Element.
@@ -110,7 +114,7 @@ class Element implements ToValue, Equatable, Freezable {
    * Metadata about this element.
    * @internal
    */
-  protected _meta?: Element;
+  protected _meta?: Metadata;
 
   /**
    * Element-specific attributes.
@@ -119,7 +123,7 @@ class Element implements ToValue, Equatable, Freezable {
   protected _attributes?: Element;
 
   // ============================================================
-  // Prototype-assigned properties (set in elements.ts)
+  // Prototype-assigned properties (set in registration.ts)
   // Using 'declare' allows TypeScript to know about these
   // without generating runtime code.
   // ============================================================
@@ -227,25 +231,23 @@ class Element implements ToValue, Equatable, Freezable {
 
   /**
    * Metadata about this element (id, classes, title, description, links).
-   * Lazily creates an ObjectElement if not set.
+   * Lazily creates a Metadata instance if not set.
    */
-  get meta(): ObjectElement {
+  get meta(): Metadata {
     if (!this._meta) {
-      if (this.isFrozen) {
-        const meta = new this.ObjectElement();
-        meta.freeze();
-        return meta;
-      }
-      this._meta = new this.ObjectElement();
+      if (this.isFrozen) return FROZEN_EMPTY_METADATA;
+      this._meta = new Metadata();
     }
-    return this._meta as ObjectElement;
+    return this._meta;
   }
 
   set meta(value: Meta) {
-    if (value instanceof Element) {
+    if (value instanceof Metadata) {
       this._meta = value;
-    } else {
-      this.meta.set(value ?? {});
+    } else if (value && typeof value === 'object') {
+      const meta = new Metadata();
+      Object.assign(meta, value);
+      this._meta = meta;
     }
   }
 
@@ -278,47 +280,45 @@ class Element implements ToValue, Equatable, Freezable {
   // ============================================================
 
   /** Unique identifier for this element. */
-  get id(): Element {
-    if (this.isFrozen) {
-      return this.getMetaProperty('id', '') as Element;
-    }
+  get id(): string {
     if (!this.hasMetaProperty('id')) {
+      if (this.isFrozen) return '';
       this.setMetaProperty('id', '');
     }
-    return this.meta.get('id') as Element;
+    return this.meta.get('id') as string;
   }
 
-  set id(value: Element | string) {
+  set id(value: string) {
     this.setMetaProperty('id', value);
   }
 
   /** CSS-like class names. */
-  get classes(): ArrayElement {
-    if (this.isFrozen) {
-      return this.getMetaProperty('classes', []) as ArrayElement;
-    }
+  get classes(): string[] {
     if (!this.hasMetaProperty('classes')) {
+      if (this.isFrozen) return [];
       this.setMetaProperty('classes', []);
     }
-    return this.meta.get('classes') as ArrayElement;
+    return this.meta.get('classes') as string[];
   }
 
-  set classes(value: ArrayElement | unknown[]) {
+  set classes(value: string[]) {
     this.setMetaProperty('classes', value);
   }
 
   /** Hyperlinks associated with this element. */
   get links(): ArrayElement {
-    if (this.isFrozen) {
-      return this.getMetaProperty('links', []) as ArrayElement;
-    }
     if (!this.hasMetaProperty('links')) {
-      this.setMetaProperty('links', []);
+      if (this.isFrozen) {
+        const empty = new this.ArrayElement();
+        empty.freeze();
+        return empty;
+      }
+      this.setMetaProperty('links', new this.ArrayElement());
     }
     return this.meta.get('links') as ArrayElement;
   }
 
-  set links(value: ArrayElement | unknown[]) {
+  set links(value: ArrayElement) {
     this.setMetaProperty('links', value);
   }
 
@@ -366,7 +366,6 @@ class Element implements ToValue, Equatable, Freezable {
 
     // Freeze meta and attributes
     if (this._meta) {
-      this._meta.parent = this;
       this._meta.freeze();
     }
 
@@ -461,7 +460,7 @@ class Element implements ToValue, Equatable, Freezable {
    * @throws Error if this element has no ID
    */
   toRef(path?: string): Element {
-    const idValue = this.id.toValue();
+    const idValue = this.id;
     if (idValue === '') {
       throw new Error('Cannot create reference to an element without an ID');
     }
@@ -475,29 +474,19 @@ class Element implements ToValue, Equatable, Freezable {
   }
 
   /**
-   * Gets a meta property.
+   * Gets a meta property value.
    *
    * When the property doesn't exist:
-   * - With defaultValue: returns a new refracted element instance (not cached)
+   * - With defaultValue: returns the provided default value
    * - Without defaultValue: returns undefined
-   *
-   * Note: Each call with a default creates a new instance. Use setMetaProperty
-   * first if you need reference equality across multiple accesses.
    */
-  public getMetaProperty(name: string, defaultValue: unknown): Element;
-  public getMetaProperty(name: string): Element | undefined;
-  public getMetaProperty(name: string, defaultValue?: unknown): Element | undefined {
+  public getMetaProperty(name: string, defaultValue: unknown): unknown;
+  public getMetaProperty(name: string): unknown;
+  public getMetaProperty(name: string, defaultValue?: unknown): unknown {
     if (!this.hasMetaProperty(name)) {
-      if (defaultValue === undefined) {
-        return undefined;
-      }
-      const element = this.refract(defaultValue);
-      if (element && this.isFrozen) {
-        element.freeze();
-      }
-      return element;
+      return defaultValue;
     }
-    return this.meta.get(name)!;
+    return this.meta.get(name);
   }
 
   /**
@@ -508,20 +497,17 @@ class Element implements ToValue, Equatable, Freezable {
   }
 
   /**
-   * Has meta property.
+   * Checks whether a meta property exists.
    */
   public hasMetaProperty(name: string): boolean {
-    if (!this.isMetaEmpty) {
-      return this.meta.hasKey(name);
-    }
-    return false;
+    return this._meta !== undefined && this._meta.hasKey(name);
   }
 
   /**
    * Checks if meta is empty.
    */
   get isMetaEmpty(): boolean {
-    return this._meta === undefined || this.meta.isEmpty;
+    return this._meta === undefined || this._meta.isEmpty;
   }
 
   /**
@@ -547,7 +533,7 @@ class Element implements ToValue, Equatable, Freezable {
   }
 
   /**
-   * Has attributes property.
+   * Checks whether an attributes property exists.
    */
   public hasAttributesProperty(name: string): boolean {
     if (!this.isAttributesEmpty) {
@@ -566,4 +552,5 @@ class Element implements ToValue, Equatable, Freezable {
 
 // Re-export types for convenience
 export type { Meta, Attributes };
+export { Metadata };
 export default Element;

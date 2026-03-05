@@ -16,6 +16,8 @@ import SourceMapElement from './elements/SourceMap.ts';
 import StyleElement from './elements/Style.ts';
 import ObjectSlice from './ObjectSlice.ts';
 import KeyValuePair from './KeyValuePair.ts';
+import Metadata from './Metadata.ts';
+import { cloneDeep } from './clone/index.ts';
 
 /**
  * Refracts an array item to ApiDOM element.
@@ -65,14 +67,16 @@ function refract(value: unknown): Element {
 }
 
 // Set up prototype assignments for circular dependency resolution.
-// These allow Element instances to create ObjectElement, MemberElement, RefElement
-// without importing them directly (which would cause circular imports).
+// These allow Element and Metadata instances to reference classes they can't import
+// directly (which would cause circular imports).
 // Using 'declare' in the class definitions enables type-safe access to these properties.
 Element.prototype.ObjectElement = ObjectElement;
 Element.prototype.ArrayElement = ArrayElement;
 Element.prototype.RefElement = RefElement;
 Element.prototype.MemberElement = MemberElement;
 Element.prototype.refract = refract;
+Metadata.prototype.Element = Element;
+Metadata.prototype.cloneDeepElement = (element: Element) => cloneDeep(element);
 
 /**
  * Contains all of the element classes, and related structures and methods

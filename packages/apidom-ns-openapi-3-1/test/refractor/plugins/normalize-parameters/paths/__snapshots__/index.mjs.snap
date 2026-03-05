@@ -139,6 +139,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
       ]
     }
   },
+  "__meta_raw__": [
+    "classes"
+  ],
   "content": [
     {
       "element": "member",
@@ -153,6 +156,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -175,6 +181,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": "3.1.0"
         }
       }
@@ -192,6 +201,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -213,6 +225,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                   ]
                 }
               },
+              "__meta_raw__": [
+                "classes"
+              ],
               "content": {
                 "key": {
                   "element": "string",
@@ -231,6 +246,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                       ]
                     }
                   },
+                  "__meta_raw__": [
+                    "classes"
+                  ],
                   "content": "/"
                 },
                 "value": {
@@ -238,24 +256,12 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                   "meta": {
                     "path": {
                       "element": "string",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "openapi-path-template"
-                            },
-                            {
-                              "element": "string",
-                              "content": "path-template"
-                            }
-                          ]
-                        }
-                      },
                       "content": "/"
                     }
                   },
+                  "__meta_raw__": [
+                    "path"
+                  ],
                   "content": [
                     {
                       "element": "member",
@@ -270,6 +276,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                           ]
                         }
                       },
+                      "__meta_raw__": [
+                        "classes"
+                      ],
                       "content": {
                         "key": {
                           "element": "string",
@@ -292,6 +301,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                               ]
                             }
                           },
+                          "__meta_raw__": [
+                            "classes"
+                          ],
                           "content": [
                             {
                               "element": "parameter",
@@ -309,6 +321,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                       ]
                                     }
                                   },
+                                  "__meta_raw__": [
+                                    "classes"
+                                  ],
                                   "content": {
                                     "key": {
                                       "element": "string",
@@ -333,6 +348,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                       ]
                                     }
                                   },
+                                  "__meta_raw__": [
+                                    "classes"
+                                  ],
                                   "content": {
                                     "key": {
                                       "element": "string",
@@ -362,6 +380,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                       ]
                                     }
                                   },
+                                  "__meta_raw__": [
+                                    "classes"
+                                  ],
                                   "content": {
                                     "key": {
                                       "element": "string",
@@ -386,6 +407,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                       ]
                                     }
                                   },
+                                  "__meta_raw__": [
+                                    "classes"
+                                  ],
                                   "content": {
                                     "key": {
                                       "element": "string",
@@ -416,6 +440,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                           ]
                         }
                       },
+                      "__meta_raw__": [
+                        "classes"
+                      ],
                       "content": {
                         "key": {
                           "element": "string",
@@ -429,6 +456,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                               "content": "GET"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -443,6 +473,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                   ]
                                 }
                               },
+                              "__meta_raw__": [
+                                "classes"
+                              ],
                               "content": {
                                 "key": {
                                   "element": "string",
@@ -465,6 +498,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                       ]
                                     }
                                   },
+                                  "__meta_raw__": [
+                                    "classes"
+                                  ],
                                   "content": [
                                     {
                                       "element": "parameter",
@@ -482,6 +518,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                               ]
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "classes"
+                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",
@@ -506,6 +545,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                               ]
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "classes"
+                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",
@@ -530,6 +572,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                               ]
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "classes"
+                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",
@@ -559,6 +604,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                               ]
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "classes"
+                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",
@@ -583,6 +631,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                               ]
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "classes"
+                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",
@@ -666,6 +717,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
       ]
     }
   },
+  "__meta_raw__": [
+    "classes"
+  ],
   "content": [
     {
       "element": "member",
@@ -680,6 +734,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -702,6 +759,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": "3.1.0"
         }
       }
@@ -719,6 +779,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -740,6 +803,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                   ]
                 }
               },
+              "__meta_raw__": [
+                "classes"
+              ],
               "content": {
                 "key": {
                   "element": "string",
@@ -758,6 +824,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                       ]
                     }
                   },
+                  "__meta_raw__": [
+                    "classes"
+                  ],
                   "content": "/"
                 },
                 "value": {
@@ -765,24 +834,12 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                   "meta": {
                     "path": {
                       "element": "string",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "openapi-path-template"
-                            },
-                            {
-                              "element": "string",
-                              "content": "path-template"
-                            }
-                          ]
-                        }
-                      },
                       "content": "/"
                     }
                   },
+                  "__meta_raw__": [
+                    "path"
+                  ],
                   "content": [
                     {
                       "element": "member",
@@ -797,6 +854,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                           ]
                         }
                       },
+                      "__meta_raw__": [
+                        "classes"
+                      ],
                       "content": {
                         "key": {
                           "element": "string",
@@ -819,6 +879,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                               ]
                             }
                           },
+                          "__meta_raw__": [
+                            "classes"
+                          ],
                           "content": [
                             {
                               "element": "parameter",
@@ -836,6 +899,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                       ]
                                     }
                                   },
+                                  "__meta_raw__": [
+                                    "classes"
+                                  ],
                                   "content": {
                                     "key": {
                                       "element": "string",
@@ -860,6 +926,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                       ]
                                     }
                                   },
+                                  "__meta_raw__": [
+                                    "classes"
+                                  ],
                                   "content": {
                                     "key": {
                                       "element": "string",
@@ -889,6 +958,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                       ]
                                     }
                                   },
+                                  "__meta_raw__": [
+                                    "classes"
+                                  ],
                                   "content": {
                                     "key": {
                                       "element": "string",
@@ -913,6 +985,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                       ]
                                     }
                                   },
+                                  "__meta_raw__": [
+                                    "classes"
+                                  ],
                                   "content": {
                                     "key": {
                                       "element": "string",
@@ -943,6 +1018,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                           ]
                         }
                       },
+                      "__meta_raw__": [
+                        "classes"
+                      ],
                       "content": {
                         "key": {
                           "element": "string",
@@ -956,6 +1034,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                               "content": "GET"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -970,6 +1051,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                   ]
                                 }
                               },
+                              "__meta_raw__": [
+                                "classes"
+                              ],
                               "content": {
                                 "key": {
                                   "element": "string",
@@ -992,6 +1076,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                       ]
                                     }
                                   },
+                                  "__meta_raw__": [
+                                    "classes"
+                                  ],
                                   "content": [
                                     {
                                       "element": "parameter",
@@ -1009,6 +1096,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                               ]
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "classes"
+                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",
@@ -1033,6 +1123,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                               ]
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "classes"
+                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",
@@ -1062,6 +1155,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                               ]
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "classes"
+                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",
@@ -1086,6 +1182,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                               ]
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "classes"
+                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",
@@ -1115,6 +1214,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                               ]
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "classes"
+                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",
@@ -1139,6 +1241,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                               ]
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "classes"
+                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",
@@ -1168,6 +1273,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                               ]
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "classes"
+                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",
@@ -1192,6 +1300,9 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                               ]
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "classes"
+                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",

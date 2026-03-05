@@ -188,8 +188,9 @@ const schema = {
 };
 
 const findElementFactory = (ancestor: any, keyName: string) => {
-  const elementType = getNodeType(ancestor); // @ts-ignore
-  const keyMapping = schema[elementType] || schema[toValue(ancestor.classes.first)];
+  const elementType = getNodeType(ancestor);
+  const classType = ancestor.isMetaEmpty ? undefined : ancestor.classes.at(0); // @ts-ignore
+  const keyMapping = schema[elementType] || schema[classType];
 
   return typeof keyMapping === 'undefined'
     ? undefined
@@ -228,8 +229,8 @@ const plugin = () => () => ({
       const replacement = elementFactory.call(
         { context },
         undefined,
-        cloneDeep(element.meta),
-        cloneDeep(element.attributes),
+        element.isMetaEmpty ? undefined : element.meta.cloneDeep(),
+        element.isAttributesEmpty ? undefined : cloneDeep(element.attributes),
       );
 
       SourceMapElement.transfer(element, replacement);

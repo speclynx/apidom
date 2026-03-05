@@ -129,7 +129,7 @@ const cloneShallowElement = <T extends Element>(element: T): T => {
   copy.element = element.element;
 
   if (!element.isMetaEmpty) {
-    copy.meta = cloneDeep(element.meta);
+    copy.meta = element.meta.cloneDeep();
   }
 
   if (!element.isAttributesEmpty) {
@@ -160,8 +160,8 @@ const cloneShallowElement = <T extends Element>(element: T): T => {
 
 /**
  * Creates a shallow clone of an ApiDOM Element, KeyValuePair, or ObjectSlice.
- * The element itself is cloned, but content references are shared (except for
- * meta and attributes which are deep cloned to preserve semantic information).
+ * The element itself is cloned, but content references are shared.
+ * Meta and attributes are deep cloned to preserve semantic information.
  * @public
  */
 export const cloneShallow = <T extends Element | FinalCloneTypes>(value: T): T => {

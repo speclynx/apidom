@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { assert } from 'chai';
-import { Element, ObjectElement } from '@speclynx/apidom-datamodel';
+import { Element } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 import { isParameterElement, mediaTypes } from '@speclynx/apidom-ns-openapi-2';
 import { evaluate } from '@speclynx/apidom-json-pointer';
@@ -52,7 +52,7 @@ describe('dereference', function () {
               const fragment = evaluate<Element>(dereferenced, '/0/paths/~1/parameters/0');
 
               assert.strictEqual(
-                toValue((fragment.meta.get('ref-fields') as ObjectElement).get('$ref')),
+                (fragment.meta.get('ref-fields') as Record<string, unknown>)['$ref'],
                 '#/parameters/userIdRef',
               );
             },

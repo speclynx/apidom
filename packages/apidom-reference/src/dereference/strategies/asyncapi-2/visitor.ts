@@ -187,10 +187,8 @@ class AsyncAPI2DereferenceVisitor {
      * Applying semantics to a referenced element if semantics are missing.
      */
     if (isPrimitiveElement(referencedElement)) {
-      const referencedElementType = toValue(
-        referencingElement.meta.get('referenced-element'),
-      ) as string;
-      const cacheKey = `${referencedElementType}-${toValue(identityManager.identify(referencedElement))}`;
+      const referencedElementType = referencingElement.meta.get('referenced-element') as string;
+      const cacheKey = `${referencedElementType}-${identityManager.identify(referencedElement)}`;
 
       if (this.refractCache.has(cacheKey)) {
         referencedElement = this.refractCache.get(cacheKey)!;
@@ -294,7 +292,7 @@ class AsyncAPI2DereferenceVisitor {
       // annotate fragment with info about referencing element
       booleanJsonSchemaElement.meta.set(
         'ref-referencing-element-id',
-        cloneDeep(identityManager.identify(referencingElement)),
+        identityManager.identify(referencingElement),
       );
 
       path.replaceWith(booleanJsonSchemaElement);
@@ -316,7 +314,7 @@ class AsyncAPI2DereferenceVisitor {
     // annotate fragment with info about referencing element
     mergedElement.meta.set(
       'ref-referencing-element-id',
-      cloneDeep(identityManager.identify(referencingElement)),
+      identityManager.identify(referencingElement),
     );
 
     /**
@@ -374,7 +372,7 @@ class AsyncAPI2DereferenceVisitor {
      * Applying semantics to a referenced element if semantics are missing.
      */
     if (isPrimitiveElement(referencedElement)) {
-      const cacheKey = `channel-item-${toValue(identityManager.identify(referencedElement))}`;
+      const cacheKey = `channel-item-${identityManager.identify(referencedElement)}`;
 
       if (this.refractCache.has(cacheKey)) {
         referencedElement = this.refractCache.get(cacheKey)!;
@@ -479,7 +477,7 @@ class AsyncAPI2DereferenceVisitor {
       // annotate fragment with info about referencing element
       mergedElement.meta.set(
         'ref-referencing-element-id',
-        cloneDeep(identityManager.identify(referencingElement)),
+        identityManager.identify(referencingElement),
       );
 
       referencedElement = mergedElement;

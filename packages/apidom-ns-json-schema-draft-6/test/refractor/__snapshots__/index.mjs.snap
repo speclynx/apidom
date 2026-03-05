@@ -14,6 +14,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
       ]
     }
   },
+  "__meta_raw__": [
+    "ancestorsSchemaIdentifiers"
+  ],
   "content": [
     {
       "element": "member",
@@ -28,6 +31,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -52,6 +58,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -76,6 +85,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -100,6 +112,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -124,6 +139,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -148,6 +166,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -172,6 +193,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -196,6 +220,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -220,6 +247,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -244,6 +274,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -268,6 +301,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -289,7 +325,11 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                 }
               ]
             }
-          }
+          },
+          "__meta_raw__": [
+            "inheritedDialectIdentifier",
+            "ancestorsSchemaIdentifiers"
+          ]
         }
       }
     },
@@ -306,6 +346,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -324,6 +367,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "JSONSchemaDraft6",
@@ -341,7 +387,11 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                     }
                   ]
                 }
-              }
+              },
+              "__meta_raw__": [
+                "inheritedDialectIdentifier",
+                "ancestorsSchemaIdentifiers"
+              ]
             }
           ]
         }
@@ -360,6 +410,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -384,6 +437,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -408,6 +464,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -432,6 +491,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -453,7 +515,11 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                 }
               ]
             }
-          }
+          },
+          "__meta_raw__": [
+            "inheritedDialectIdentifier",
+            "ancestorsSchemaIdentifiers"
+          ]
         }
       }
     },
@@ -470,6 +536,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -494,6 +563,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -518,6 +590,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -536,6 +611,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "string",
@@ -562,6 +640,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -580,6 +661,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "member",
@@ -594,6 +678,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                   ]
                 }
               },
+              "__meta_raw__": [
+                "classes"
+              ],
               "content": {
                 "key": {
                   "element": "string",
@@ -615,7 +702,11 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                         }
                       ]
                     }
-                  }
+                  },
+                  "__meta_raw__": [
+                    "inheritedDialectIdentifier",
+                    "ancestorsSchemaIdentifiers"
+                  ]
                 }
               }
             }
@@ -636,6 +727,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -657,7 +751,11 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                 }
               ]
             }
-          }
+          },
+          "__meta_raw__": [
+            "inheritedDialectIdentifier",
+            "ancestorsSchemaIdentifiers"
+          ]
         }
       }
     },
@@ -674,6 +772,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -692,6 +793,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "member",
@@ -706,6 +810,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                   ]
                 }
               },
+              "__meta_raw__": [
+                "classes"
+              ],
               "content": {
                 "key": {
                   "element": "string",
@@ -727,7 +834,11 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                         }
                       ]
                     }
-                  }
+                  },
+                  "__meta_raw__": [
+                    "inheritedDialectIdentifier",
+                    "ancestorsSchemaIdentifiers"
+                  ]
                 }
               }
             }
@@ -748,6 +859,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -766,6 +880,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "member",
@@ -780,6 +897,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                   ]
                 }
               },
+              "__meta_raw__": [
+                "classes"
+              ],
               "content": {
                 "key": {
                   "element": "string",
@@ -801,7 +921,11 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                         }
                       ]
                     }
-                  }
+                  },
+                  "__meta_raw__": [
+                    "inheritedDialectIdentifier",
+                    "ancestorsSchemaIdentifiers"
+                  ]
                 }
               }
             }
@@ -822,6 +946,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -843,7 +970,11 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                 }
               ]
             }
-          }
+          },
+          "__meta_raw__": [
+            "inheritedDialectIdentifier",
+            "ancestorsSchemaIdentifiers"
+          ]
         }
       }
     },
@@ -860,6 +991,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -878,6 +1012,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "number",
@@ -908,6 +1045,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -932,6 +1072,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -950,6 +1093,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": "string"
         }
       }
@@ -967,6 +1113,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -985,6 +1134,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "JSONSchemaDraft6",
@@ -1002,7 +1154,11 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                     }
                   ]
                 }
-              }
+              },
+              "__meta_raw__": [
+                "inheritedDialectIdentifier",
+                "ancestorsSchemaIdentifiers"
+              ]
             }
           ]
         }
@@ -1021,6 +1177,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -1039,6 +1198,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "JSONSchemaDraft6",
@@ -1056,7 +1218,11 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                     }
                   ]
                 }
-              }
+              },
+              "__meta_raw__": [
+                "inheritedDialectIdentifier",
+                "ancestorsSchemaIdentifiers"
+              ]
             }
           ]
         }
@@ -1075,6 +1241,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -1093,6 +1262,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "JSONSchemaDraft6",
@@ -1110,7 +1282,11 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                     }
                   ]
                 }
-              }
+              },
+              "__meta_raw__": [
+                "inheritedDialectIdentifier",
+                "ancestorsSchemaIdentifiers"
+              ]
             }
           ]
         }
@@ -1129,6 +1305,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -1150,7 +1329,11 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                 }
               ]
             }
-          }
+          },
+          "__meta_raw__": [
+            "inheritedDialectIdentifier",
+            "ancestorsSchemaIdentifiers"
+          ]
         }
       }
     },
@@ -1167,6 +1350,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -1185,6 +1371,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "member",
@@ -1199,6 +1388,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                   ]
                 }
               },
+              "__meta_raw__": [
+                "classes"
+              ],
               "content": {
                 "key": {
                   "element": "string",
@@ -1220,7 +1412,11 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
                         }
                       ]
                     }
-                  }
+                  },
+                  "__meta_raw__": [
+                    "inheritedDialectIdentifier",
+                    "ancestorsSchemaIdentifiers"
+                  ]
                 }
               }
             }
@@ -1241,6 +1437,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -1265,6 +1464,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -1289,6 +1491,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -1313,6 +1518,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -1331,6 +1539,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "number",
@@ -1357,6 +1568,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -1381,6 +1595,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -1405,6 +1622,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -1423,6 +1643,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "linkDescription"
@@ -1444,6 +1667,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -1467,6 +1693,9 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 6 shape shou
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",

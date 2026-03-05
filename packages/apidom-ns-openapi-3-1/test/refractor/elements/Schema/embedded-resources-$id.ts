@@ -1,6 +1,5 @@
 import { assert } from 'chai';
 import { ObjectElement, isElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { find } from '@speclynx/apidom-traverse';
 
 import { isSchemaElement, refractOpenApi3_1 } from '../../../../src/index.ts';
@@ -24,7 +23,7 @@ describe('refractor', function () {
               });
               const openApiElement = refractOpenApi3_1(genericObjectElement);
               const schemaElement = find(openApiElement, (e) => isSchemaElement(e));
-              const actual = toValue(schemaElement?.meta.get('ancestorsSchemaIdentifiers'));
+              const actual = schemaElement?.meta.get('ancestorsSchemaIdentifiers');
 
               assert.deepEqual(actual, []);
             });
@@ -56,7 +55,7 @@ describe('refractor', function () {
                   openApiElement,
                   (e) => isSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('1'),
                 );
-                const actual = toValue(schemaElement?.meta.get('ancestorsSchemaIdentifiers'));
+                const actual = schemaElement?.meta.get('ancestorsSchemaIdentifiers');
 
                 assert.deepEqual(actual, ['./nested/']);
               },
@@ -101,7 +100,7 @@ describe('refractor', function () {
                   openApiElement,
                   (e) => isSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('1'),
                 );
-                const actual = toValue(schemaElement?.meta.get('ancestorsSchemaIdentifiers'));
+                const actual = schemaElement?.meta.get('ancestorsSchemaIdentifiers');
 
                 assert.deepEqual(actual, []);
               },
@@ -114,7 +113,7 @@ describe('refractor', function () {
                   openApiElement,
                   (e) => isSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('2'),
                 );
-                const actual = toValue(schemaElement?.meta.get('ancestorsSchemaIdentifiers'));
+                const actual = schemaElement?.meta.get('ancestorsSchemaIdentifiers');
 
                 assert.deepEqual(actual, ['$id1']);
               },
@@ -127,7 +126,7 @@ describe('refractor', function () {
                   openApiElement,
                   (e) => isSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('3'),
                 );
-                const actual = toValue(schemaElement?.meta.get('ancestorsSchemaIdentifiers'));
+                const actual = schemaElement?.meta.get('ancestorsSchemaIdentifiers');
 
                 assert.deepEqual(actual, ['$id1', '$id2']);
               },
@@ -140,7 +139,7 @@ describe('refractor', function () {
                   openApiElement,
                   (e) => isSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('4'),
                 );
-                const actual = toValue(schemaElement?.meta.get('ancestorsSchemaIdentifiers'));
+                const actual = schemaElement?.meta.get('ancestorsSchemaIdentifiers');
 
                 assert.deepEqual(actual, []);
               },

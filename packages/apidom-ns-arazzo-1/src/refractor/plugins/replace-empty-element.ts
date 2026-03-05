@@ -71,8 +71,8 @@ const schema: Record<string, Record<string, ElementFactory>> = {
 
 const findElementFactory = (ancestor: Element, keyName: string): ElementFactory | undefined => {
   const elementType = getNodeType(ancestor);
-  const keyMapping =
-    schema[elementType as string] || schema[toValue(ancestor.classes.first) as string];
+  const classType = ancestor.isMetaEmpty ? undefined : ancestor.classes.at(0);
+  const keyMapping = schema[elementType as string] || schema[classType as string];
 
   if (typeof keyMapping === 'undefined') return undefined;
 
@@ -106,8 +106,8 @@ const plugin = () => () => ({
 
       const replacement = elementFactory(
         undefined,
-        cloneDeep(element.meta),
-        cloneDeep(element.attributes),
+        element.isMetaEmpty ? undefined : element.meta.cloneDeep(),
+        element.isAttributesEmpty ? undefined : cloneDeep(element.attributes),
       );
       SourceMapElement.transfer(element, replacement);
       StyleElement.transfer(element, replacement);

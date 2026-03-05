@@ -125,6 +125,7 @@ describe('Subclasses', function () {
                     content: 'Content-Type',
                   },
                 },
+                __meta_raw__: ['name'],
                 content: 'application/json',
               },
             ],

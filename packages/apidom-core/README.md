@@ -377,16 +377,20 @@ The `customMetaMerge` function will be passed target and source metadata. If not
 the default behavior is to deep copy metadata from target to new merged element.
 
 ```js
-import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { ObjectElement, Metadata } from '@speclynx/apidom-datamodel';
 import { deepmerge } from '@speclynx/apidom-core';
 
 const alex = new ObjectElement({ name: { first: 'Alex' } }, { metaKey: true });
 const tony = new ObjectElement({ name: { first: 'Tony' } }, { metaKey: false });
 
-const customMetaMerge = (targetMeta, sourceMeta) => deepmerge(targetMeta, sourceMeta);
+const customMetaMerge = (targetMeta, sourceMeta) => {
+  const merged = new Metadata();
+  Object.assign(merged, targetMeta, sourceMeta);
+  return merged;
+};
 
 const output = deepmerge(alex, tony, { customMetaMerge });
-// output.meta.get('metaKey') // => BooleanElement(false)
+// output.meta.get('metaKey') // => false
 ```
 
 #### customAttributesMerge

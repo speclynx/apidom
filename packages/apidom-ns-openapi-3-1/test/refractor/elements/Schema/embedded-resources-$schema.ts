@@ -30,7 +30,7 @@ describe('refractor', function () {
             });
             const openApiElement = refractOpenApi3_1(genericObjectElement);
             const schemaElement = find(openApiElement, (e) => isSchemaElement(e));
-            const actual = toValue(schemaElement?.meta.get('inheritedDialectIdentifier'));
+            const actual = schemaElement?.meta.get('inheritedDialectIdentifier');
             const expected = toValue(JsonSchemaDialectElement.default);
 
             assert.strictEqual(actual, expected);
@@ -45,7 +45,7 @@ describe('refractor', function () {
                 const genericObjectElement = { type: 'object' };
 
                 const schemaElement = refractSchema(genericObjectElement);
-                const actual = toValue(schemaElement.meta.get('inheritedDialectIdentifier'));
+                const actual = schemaElement.meta.get('inheritedDialectIdentifier');
                 const expected = toValue(JsonSchemaDialectElement.default);
 
                 assert.strictEqual(actual, expected);
@@ -71,7 +71,7 @@ describe('refractor', function () {
             }`);
               const openApiElement = refractOpenApi3_1(genericObjectElement.result);
               const schemaElement = find(openApiElement, (e) => isSchemaElement(e));
-              const actual = toValue(schemaElement?.meta.get('inheritedDialectIdentifier'));
+              const actual = schemaElement?.meta.get('inheritedDialectIdentifier');
               const expected = 'https://arbitrary-schema-url.com/';
 
               assert.strictEqual(actual, expected);
@@ -96,7 +96,7 @@ describe('refractor', function () {
             }`);
               const openApiElement = refractOpenApi3_1(genericObjectElement.result);
               const schemaElement = find(openApiElement, (e) => isSchemaElement(e));
-              const actual = toValue(schemaElement?.meta.get('inheritedDialectIdentifier'));
+              const actual = schemaElement?.meta.get('inheritedDialectIdentifier');
               const expected = 'https://arbitrary-schema-url.com/';
 
               assert.strictEqual(actual, expected);
@@ -140,7 +140,7 @@ describe('refractor', function () {
               openApiElement,
               (e) => isSchemaElement(e) && isElement(e.$id) && e.$id.equals('1'),
             );
-            const actual = toValue(schemaElement?.meta.get('inheritedDialectIdentifier'));
+            const actual = schemaElement?.meta.get('inheritedDialectIdentifier');
             const expected = toValue(JsonSchemaDialectElement.default);
 
             assert.strictEqual(actual, expected);
@@ -164,7 +164,7 @@ describe('refractor', function () {
               openApiElement,
               (e) => isSchemaElement(e) && isElement(e.$id) && e.$id.equals('3'),
             );
-            const actual = toValue(schemaElement?.meta.get('inheritedDialectIdentifier'));
+            const actual = schemaElement?.meta.get('inheritedDialectIdentifier');
             const expected = '$schema1';
 
             assert.strictEqual(actual, expected);
@@ -175,7 +175,7 @@ describe('refractor', function () {
               openApiElement,
               (e) => isSchemaElement(e) && isElement(e.$id) && e.$id.equals('4'),
             );
-            const actual = toValue(schemaElement?.meta.get('inheritedDialectIdentifier'));
+            const actual = schemaElement?.meta.get('inheritedDialectIdentifier');
             const expected = toValue(JsonSchemaDialectElement.default);
 
             assert.strictEqual(actual, expected);

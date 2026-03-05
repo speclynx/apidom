@@ -3,6 +3,7 @@ import {
   ArrayElement,
   MemberElement,
   Element,
+  Metadata,
   isObjectElement,
   isArrayElement,
   cloneDeep,
@@ -39,9 +40,9 @@ export type CustomMerge = (keyElement: Element, options: DeepMergeOptions) => De
  * @public
  */
 export type CustomMetaMerge = (
-  targetElementMeta: ObjectElement,
-  sourceElementMeta: ObjectElement,
-) => ObjectElement;
+  targetElementMeta: Metadata,
+  sourceElementMeta: Metadata,
+) => Metadata;
 
 /**
  * @public
@@ -96,7 +97,7 @@ export type DeepMergeOptions = DeepMergeUserOptions & {
 };
 
 export const emptyElement = (element: ObjectElement | ArrayElement) => {
-  const meta = !element.isMetaEmpty ? cloneDeep(element.meta) : undefined;
+  const meta = !element.isMetaEmpty ? element.meta.cloneDeep() : undefined;
   const attributes = !element.isAttributesEmpty ? cloneDeep(element.attributes) : undefined;
 
   // @ts-ignore
@@ -125,7 +126,7 @@ const getMergeFunction = (keyElement: Element, options: DeepMergeOptions): DeepM
 
 const getMetaMergeFunction = (options: DeepMergeOptions): CustomMetaMerge => {
   if (typeof options.customMetaMerge !== 'function') {
-    return (targetMeta) => cloneDeep(targetMeta);
+    return (targetMeta) => targetMeta.cloneDeep();
   }
   return options.customMetaMerge;
 };
@@ -233,11 +234,26 @@ const deepmerge = (
         );
 
   // merging meta & attributes
-  mergedElement.meta = getMetaMergeFunction(mergedOptions)(targetElement.meta, sourceElement.meta);
-  mergedElement.attributes = getAttributesMergeFunction(mergedOptions)(
-    targetElement.attributes,
-    sourceElement.attributes,
-  );
+  if (!targetElement.isMetaEmpty && !sourceElement.isMetaEmpty) {
+    mergedElement.meta = getMetaMergeFunction(mergedOptions)(
+      targetElement.meta,
+      sourceElement.meta,
+    );
+  } else if (!targetElement.isMetaEmpty) {
+    mergedElement.meta = targetElement.meta.cloneDeep();
+  } else if (!sourceElement.isMetaEmpty) {
+    mergedElement.meta = sourceElement.meta.cloneDeep();
+  }
+  if (!targetElement.isAttributesEmpty && !sourceElement.isAttributesEmpty) {
+    mergedElement.attributes = getAttributesMergeFunction(mergedOptions)(
+      targetElement.attributes,
+      sourceElement.attributes,
+    );
+  } else if (!targetElement.isAttributesEmpty) {
+    mergedElement.attributes = cloneDeep(targetElement.attributes);
+  } else if (!sourceElement.isAttributesEmpty) {
+    mergedElement.attributes = cloneDeep(sourceElement.attributes);
+  }
 
   return mergedElement;
 };

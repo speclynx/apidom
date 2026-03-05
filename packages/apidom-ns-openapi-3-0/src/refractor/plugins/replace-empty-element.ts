@@ -603,9 +603,10 @@ const schema = {
 
 const findElementFactory = (ancestor: any, keyName: string) => {
   const elementType = getNodeType(ancestor);
+  const classType = ancestor.isMetaEmpty ? undefined : ancestor.classes.at(0);
   const keyMapping =
     (schema as Record<string, unknown>)[elementType] ||
-    (schema as Record<string, unknown>)[toValue(ancestor.classes.first) as string];
+    (schema as Record<string, unknown>)[classType];
 
   return typeof keyMapping === 'undefined'
     ? undefined
@@ -642,8 +643,8 @@ const plugin = () => () => ({
       const newElement = elementFactory.call(
         { context },
         undefined,
-        cloneDeep(element.meta),
-        cloneDeep(element.attributes),
+        element.isMetaEmpty ? undefined : element.meta.cloneDeep(),
+        element.isAttributesEmpty ? undefined : cloneDeep(element.attributes),
       );
       SourceMapElement.transfer(element, newElement);
       StyleElement.transfer(element, newElement);

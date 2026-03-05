@@ -41,8 +41,8 @@ element.attributes.set('attr', 'value');
 
 Additionally, convenience attributes are exposed on every element as shortcuts for common meta properties:
 
-- `id` (StringElement) - Shortcut for `.meta.get('id')`
-- `classes` (ArrayElement) - Shortcut for `.meta.get('classes')`
+- `id` (string) - Shortcut for `.meta.get('id')`
+- `classes` (string[]) - Shortcut for `.meta.get('classes')`
 - `links` (ArrayElement) - Shortcut for `.meta.get('links')`
 
 ```js
@@ -52,8 +52,8 @@ const element = new StringElement('hello');
 element.id = 'greeting';
 element.classes = ['important', 'message'];
 
-element.id.toValue(); // => 'greeting'
-element.classes.toValue(); // => ['important', 'message']
+element.id; // => 'greeting'
+element.classes; // => ['important', 'message']
 ```
 
 ### StringElement
@@ -638,8 +638,8 @@ Functions for creating shallow and deep copies of ApiDOM elements.
 ### Shallow cloning
 
 Creates a shallow clone of an ApiDOM element. The element itself is cloned,
-but content references are shared (except for meta and attributes which are deep cloned
-to preserve semantic information).
+but content references are shared.
+Meta and attributes are deep cloned to preserve semantic information.
 
 ```js
 import { ObjectElement, cloneShallow } from '@speclynx/apidom-datamodel';

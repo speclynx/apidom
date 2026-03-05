@@ -1,11 +1,7 @@
 import { assert } from 'chai';
-import { ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
-import {
-  refractorPluginElementIdentity,
-  dispatchRefractorPlugins,
-  toValue,
-} from '../../../src/index.ts';
+import { refractorPluginElementIdentity, dispatchRefractorPlugins } from '../../../src/index.ts';
 
 describe('refractor', function () {
   context('plugins', function () {
@@ -17,9 +13,9 @@ describe('refractor', function () {
         ]) as ObjectElement;
         const defaultLength = 6;
 
-        assert.lengthOf(toValue(result.id) as string, defaultLength);
-        assert.lengthOf(toValue(result.getMember('a')!.key!.id) as string, defaultLength);
-        assert.lengthOf(toValue(result.getMember('a')!.value!.id) as string, defaultLength);
+        assert.lengthOf(result.id, defaultLength);
+        assert.lengthOf(result.getMember('a')!.key!.id, defaultLength);
+        assert.lengthOf(result.getMember('a')!.value!.id, defaultLength);
       });
 
       specify(
@@ -31,20 +27,20 @@ describe('refractor', function () {
             refractorPluginElementIdentity({ length }),
           ]) as ObjectElement;
 
-          assert.lengthOf(toValue(result.id) as string, length);
-          assert.lengthOf(toValue(result.getMember('a')!.key!.id) as string, length);
-          assert.lengthOf(toValue(result.getMember('a')!.value!.id) as string, length);
+          assert.lengthOf(result.id, length);
+          assert.lengthOf(result.getMember('a')!.key!.id, length);
+          assert.lengthOf(result.getMember('a')!.value!.id, length);
         },
       );
 
       specify('should not add unique ID when already present', function () {
         const objectElement = new ObjectElement({ id: '123' });
-        objectElement.id = new StringElement('unique-id');
+        objectElement.id = 'unique-id';
         const newObjectElement = dispatchRefractorPlugins(objectElement, [
           refractorPluginElementIdentity(),
         ]);
 
-        assert.isTrue(newObjectElement.id.equals('unique-id'));
+        assert.strictEqual(newObjectElement.id, 'unique-id');
       });
     });
   });

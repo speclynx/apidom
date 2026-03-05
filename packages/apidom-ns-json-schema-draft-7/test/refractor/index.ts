@@ -309,7 +309,7 @@ describe('refractor', function () {
 
           // Verify the plugin was called and modified the element
           const pathArg = plugin2Spec.visitor.LinkDescriptionElement.firstCall.args[0];
-          assert.strictEqual(toValue(pathArg.node.meta.get('metaKey')), 'metaValue');
+          assert.strictEqual(pathArg.node.meta.get('metaKey'), 'metaValue');
         });
       });
     });

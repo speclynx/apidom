@@ -28,8 +28,8 @@ describe('parsers', function () {
         const sdParseResult = sourceDescriptions[0]!;
         assert.isTrue(isParseResultElement(sdParseResult));
         assert.isTrue(sdParseResult.classes.includes('source-description'));
-        assert.strictEqual(sdParseResult.meta.get('name')!.toValue(), 'petStore');
-        assert.strictEqual(sdParseResult.meta.get('type')!.toValue(), 'openapi');
+        assert.strictEqual(sdParseResult.meta.get('name'), 'petStore');
+        assert.strictEqual(sdParseResult.meta.get('type'), 'openapi');
       });
 
       specify('should filter source descriptions by name', async function () {
@@ -49,11 +49,11 @@ describe('parsers', function () {
 
         const petStoreResult = sourceDescriptions[0]! as ParseResultElement;
         assert.isTrue(isParseResultElement(petStoreResult));
-        assert.strictEqual(petStoreResult.meta.get('name')!.toValue(), 'petStore');
+        assert.strictEqual(petStoreResult.meta.get('name'), 'petStore');
 
         const paymentResult = sourceDescriptions[1]! as ParseResultElement;
         assert.isTrue(isParseResultElement(paymentResult));
-        assert.strictEqual(paymentResult.meta.get('name')!.toValue(), 'paymentApi');
+        assert.strictEqual(paymentResult.meta.get('name'), 'paymentApi');
       });
 
       specify('should respect sourceDescriptionsMaxDepth option', async function () {
@@ -102,7 +102,7 @@ describe('parsers', function () {
 
         assert.strictEqual(sourceDescriptions.length, 1);
         assert.isTrue(isParseResultElement(sourceDescriptions[0]));
-        assert.strictEqual(sourceDescriptions[0]!.meta.get('name')!.toValue(), 'petStore');
+        assert.strictEqual(sourceDescriptions[0]!.meta.get('name'), 'petStore');
       });
 
       specify('should default to arazzo-json-1 parserName for filtering lookup', async function () {
@@ -124,7 +124,7 @@ describe('parsers', function () {
         const sdParseResult = sourceDescriptions[0]!;
         assert.isTrue(isParseResultElement(sdParseResult));
         assert.isTrue(sdParseResult.classes.includes('source-description'));
-        assert.strictEqual(sdParseResult.meta.get('name')!.toValue(), 'petStore');
+        assert.strictEqual(sdParseResult.meta.get('name'), 'petStore');
       });
 
       specify('should attach parseResult to source description element meta', async function () {
@@ -152,7 +152,7 @@ describe('parsers', function () {
         const sourceDescriptions = await parseSourceDescriptions(parseResult, uri, options);
 
         const sdParseResult = sourceDescriptions[0]!;
-        const retrievalURI = sdParseResult.meta.get('retrievalURI')?.toValue();
+        const retrievalURI = sdParseResult.meta.get('retrievalURI');
 
         assert.isString(retrievalURI);
         assert.include(retrievalURI, 'openapi.json');

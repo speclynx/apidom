@@ -15,8 +15,8 @@ export const resolveSchema$refField = (retrievalURI: string, schemaElement: JSON
   }
 
   const hash = url.getHash(toValue(schemaElement.$ref) as string);
-  const ancestorsSchemaIdentifiers = toValue(
-    schemaElement.meta.get('ancestorsSchemaIdentifiers'),
+  const ancestorsSchemaIdentifiers = schemaElement.meta.get(
+    'ancestorsSchemaIdentifiers',
   ) as string[];
   const $refBaseURI = reduce(
     (acc: string, uri: string): string => {
@@ -40,8 +40,8 @@ export const resolveSchema$idField = (
     return undefined;
   }
 
-  const ancestorsSchemaIdentifiers = toValue(
-    schemaElement.meta.get('ancestorsSchemaIdentifiers'),
+  const ancestorsSchemaIdentifiers = schemaElement.meta.get(
+    'ancestorsSchemaIdentifiers',
   ) as string[];
 
   return reduce(

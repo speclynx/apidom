@@ -1,10 +1,9 @@
 import { assert } from 'chai';
-import { ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 
 import {
   dispatchRefractorPlugins,
   refractorPluginSemanticElementIdentity,
-  toValue,
 } from '../../../src/index.ts';
 
 // Ad-hoc semantic element classes for testing
@@ -38,10 +37,10 @@ describe('refractor', function () {
         ]) as ObjectElement;
 
         // Primitive elements should NOT have IDs
-        assert.lengthOf(toValue(result.id) as string, 0);
-        assert.lengthOf(toValue(result.getMember('a')!.key!.id) as string, 0);
-        assert.lengthOf(toValue(result.getMember('a')!.value!.id) as string, 0);
-        assert.lengthOf(toValue(result.getMember('info')!.key!.id) as string, 0);
+        assert.lengthOf(result.id, 0);
+        assert.lengthOf(result.getMember('a')!.key!.id, 0);
+        assert.lengthOf(result.getMember('a')!.value!.id, 0);
+        assert.lengthOf(result.getMember('info')!.key!.id, 0);
       });
 
       specify('should add unique ID to semantic elements in ApiDOM tree', function () {
@@ -58,9 +57,9 @@ describe('refractor', function () {
         const defaultLength = 6;
 
         // Semantic elements (InfoElement, ContactElement) should have IDs
-        assert.lengthOf(toValue(result.getMember('info')!.value!.id) as string, defaultLength);
+        assert.lengthOf(result.getMember('info')!.value!.id, defaultLength);
         assert.lengthOf(
-          toValue((result.getMember('info')!.value as ObjectElement).get('contact')!.id) as string,
+          (result.getMember('info')!.value as ObjectElement).get('contact')!.id,
           defaultLength,
         );
       });
@@ -80,11 +79,9 @@ describe('refractor', function () {
             refractorPluginSemanticElementIdentity({ length }),
           ]) as ObjectElement;
 
-          assert.lengthOf(toValue(result.getMember('info')!.value!.id) as string, length);
+          assert.lengthOf(result.getMember('info')!.value!.id, length);
           assert.lengthOf(
-            toValue(
-              (result.getMember('info')!.value as ObjectElement).get('contact')!.id,
-            ) as string,
+            (result.getMember('info')!.value as ObjectElement).get('contact')!.id,
             length,
           );
         },
@@ -95,12 +92,12 @@ describe('refractor', function () {
           title: 'title',
           summary: 'summary',
         });
-        infoElement.id = new StringElement('unique-id');
+        infoElement.id = 'unique-id';
         const newInfoElement = dispatchRefractorPlugins(infoElement, [
           refractorPluginSemanticElementIdentity(),
         ]);
 
-        assert.isTrue(newInfoElement.id.equals('unique-id'));
+        assert.strictEqual(newInfoElement.id, 'unique-id');
       });
     });
   });

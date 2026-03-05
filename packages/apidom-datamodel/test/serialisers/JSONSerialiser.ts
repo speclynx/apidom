@@ -181,6 +181,7 @@ describe('JSON Serialiser', function () {
             content: 'Name',
           },
         },
+        __meta_raw__: ['title'],
         content: 'Doe',
       });
     });
@@ -368,7 +369,7 @@ describe('JSON Serialiser', function () {
       },
     );
 
-    specify('deserialise meta', function () {
+    specify('deserialise meta without __meta_raw__', function () {
       const element = serialiser.deserialise({
         element: 'string',
         meta: {
@@ -381,7 +382,23 @@ describe('JSON Serialiser', function () {
 
       const title = element.meta.get('title');
       assert.instanceOf(title, StringElement);
-      assert.strictEqual((title as StringElement).content, 'hello');
+      assert.strictEqual((title as StringElement).toValue(), 'hello');
+    });
+
+    specify('deserialise meta with __meta_raw__', function () {
+      const element = serialiser.deserialise({
+        element: 'string',
+        meta: {
+          title: {
+            element: 'string',
+            content: 'hello',
+          },
+        },
+        __meta_raw__: ['title'],
+      });
+
+      const title = element.meta.get('title');
+      assert.strictEqual(title, 'hello');
     });
 
     specify('deserialise attributes', function () {
