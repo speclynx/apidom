@@ -1,5 +1,6 @@
 import { always } from 'ramda';
-import { ObjectElement } from '@speclynx/apidom-datamodel';
+import { ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 import { FixedFieldsVisitor, SpecPath } from '@speclynx/apidom-ns-openapi-3-0';
 
@@ -30,12 +31,19 @@ class OpenApi3_1Visitor extends BaseFixedFieldsVisitor {
     this.element = new OpenApi3_1Element();
     this.specPath = always(['document', 'objects', 'OpenApi']);
     this.canSupportSpecificationExtensions = true;
+    this.consumeSafe = true;
     this.openApiSemanticElement = this.element;
   }
 
   ObjectElement(path: Path<ObjectElement>) {
     const objectElement = path.node;
     this.openApiGenericElement = objectElement;
+    // precompute values from generic root before consume may release fields
+    if (isStringElement(objectElement.get('jsonSchemaDialect'))) {
+      this.sourceContext = {
+        jsonSchemaDialect: toValue(objectElement.get('jsonSchemaDialect')) as string,
+      };
+    }
 
     FixedFieldsVisitor.prototype.ObjectElement.call(this, path);
   }

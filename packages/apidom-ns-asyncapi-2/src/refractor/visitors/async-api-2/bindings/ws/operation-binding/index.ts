@@ -21,7 +21,7 @@ class WebSocketOperationBindingVisitor extends BaseFixedFieldsVisitor {
 
   declare protected readonly canSupportSpecificationExtensions: false;
 
-  constructor(options: WebSocketOperationBindingVisitor) {
+  constructor(options: WebSocketOperationBindingVisitorOptions) {
     super(options);
     this.element = new WebSocketOperationBindingElement();
     this.specPath = always(['document', 'objects', 'bindings', 'ws', 'OperationBinding']);

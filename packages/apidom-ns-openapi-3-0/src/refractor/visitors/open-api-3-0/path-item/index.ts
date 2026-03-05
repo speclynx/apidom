@@ -26,6 +26,7 @@ class PathItemVisitor extends BaseFixedFieldsVisitor {
     super(options);
     this.element = new PathItemElement();
     this.specPath = always(['document', 'objects', 'PathItem']);
+    this.consumeSafe = true;
   }
 
   ObjectElement(path: Path<ObjectElement>) {

@@ -49,6 +49,7 @@ export interface RefractorOptions {
   readonly element?: string;
   readonly plugins?: RefractorPlugin[];
   readonly specificationObj?: typeof specification;
+  readonly consume?: boolean;
 }
 
 /**
@@ -56,7 +57,12 @@ export interface RefractorOptions {
  */
 const refract = <T extends Element>(
   value: unknown,
-  { element = 'swagger', plugins = [], specificationObj = specification }: RefractorOptions = {},
+  {
+    element = 'swagger',
+    plugins = [],
+    specificationObj = specification,
+    consume = false,
+  }: RefractorOptions = {},
 ): T => {
   const genericElement = baseRefract(value);
   const resolvedSpec = resolveSpecification(specificationObj);
@@ -72,8 +78,10 @@ const refract = <T extends Element>(
    * We don't allow consumers to hook into this translation.
    * Though we allow consumers to define their own plugins on already transformed ApiDOM.
    */
-  const RootVisitorClass = path(specPath, resolvedSpec) as typeof VisitorClass;
-  const rootVisitor = new RootVisitorClass({ specObj: resolvedSpec });
+  const RootVisitorClass = path(specPath, resolvedSpec) as new (
+    options: Record<string, unknown>,
+  ) => InstanceType<typeof VisitorClass>;
+  const rootVisitor = new RootVisitorClass({ specObj: resolvedSpec, consume });
 
   traverse(genericElement, rootVisitor);
 

@@ -22,6 +22,7 @@ class AsyncApi2Visitor extends BaseFixedFieldsVisitor {
   constructor(options: AsyncApi2VisitorOptions) {
     super(options);
     this.element = new AsyncApi2Element();
+    this.consumeSafe = true;
     this.specPath = always(['document', 'objects', 'AsyncApi']);
     this.canSupportSpecificationExtensions = true;
   }

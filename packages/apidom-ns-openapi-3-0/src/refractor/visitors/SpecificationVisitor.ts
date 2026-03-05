@@ -17,6 +17,7 @@ export interface SpecificationVisitorOptions extends VisitorOptions {
   readonly specObj: typeof specification;
   readonly passingOptionsNames?: string[];
   readonly openApiGenericElement?: ObjectElement;
+  readonly sourceContext?: Record<string, unknown>;
   readonly openApiSemanticElement?: OpenApi3_0Element;
 }
 
@@ -29,10 +30,14 @@ class SpecificationVisitor extends Visitor {
   protected readonly passingOptionsNames: string[] = [
     'specObj',
     'openApiGenericElement',
+    'sourceContext',
     'openApiSemanticElement',
+    'consume',
   ];
 
   protected openApiGenericElement?: ObjectElement;
+
+  protected sourceContext?: Record<string, unknown>;
 
   protected openApiSemanticElement?: OpenApi3_0Element;
 
@@ -54,7 +59,10 @@ class SpecificationVisitor extends Visitor {
   }
 
   retrievePassingOptions() {
-    return pick(this.passingOptionsNames as (keyof this)[], this) as unknown as string[];
+    return pick(this.passingOptionsNames as (keyof this)[], this) as unknown as Record<
+      string,
+      unknown
+    >;
   }
 
   retrieveFixedFields(specPath: string[]) {
@@ -93,7 +101,7 @@ class SpecificationVisitor extends Visitor {
     const visitor = this.retrieveVisitorInstance(specPath, options);
 
     if (visitor instanceof FallbackVisitor && visitor?.constructor === FallbackVisitor) {
-      return cloneDeep(element);
+      return this.consume ? element : cloneDeep(element);
     }
 
     traverse(element, visitor, { nodeTypeGetter: getNodePrimitiveType });

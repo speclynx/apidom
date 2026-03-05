@@ -75,17 +75,29 @@ class FixedFieldsVisitor extends SpecificationVisitor {
           [...specPath, 'fixedFields', keyValue],
           value,
         );
-        const newMemberElement = new MemberElement(cloneDeep(key), fixedFieldElement);
+        const newMemberElement = new MemberElement(
+          this.consume ? key : cloneDeep(key),
+          fixedFieldElement,
+        );
         this.copyMetaAndAttributes(memberElement, newMemberElement);
         (this.element.content as Element[]).push(newMemberElement);
+        // consume: release processed generic subtree
+        if (this.consume && this.consumeSafe && !memberElement.isFrozen)
+          memberElement.value = undefined;
       } else if (
         this.canSupportSpecificationExtensions &&
         this.specificationExtensionPredicate(memberElement)
       ) {
         const extensionElement = this.toRefractedElement(['document', 'extension'], memberElement);
         (this.element.content as Element[]).push(extensionElement);
+        // consume: release processed generic subtree
+        if (this.consume && this.consumeSafe && !memberElement.isFrozen) {
+          memberElement.value = undefined;
+        }
       } else if (!this.ignoredFields.includes(keyValue)) {
-        (this.element.content as Element[]).push(cloneDeep(memberElement));
+        (this.element.content as Element[]).push(
+          this.consume ? memberElement : cloneDeep(memberElement),
+        );
       }
     });
 

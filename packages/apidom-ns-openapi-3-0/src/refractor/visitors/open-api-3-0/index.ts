@@ -28,6 +28,7 @@ class OpenApi3_0Visitor extends BaseFixedFieldsVisitor {
     this.element = new OpenApi3_0Element();
     this.specPath = always(['document', 'objects', 'OpenApi']);
     this.canSupportSpecificationExtensions = true;
+    this.consumeSafe = true;
   }
 
   ObjectElement(path: Path<ObjectElement>) {

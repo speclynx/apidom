@@ -45,7 +45,10 @@ export const parse: typeof parseJSON = async (
   const { result } = parseResultElement;
 
   if (isNotUndefined(result)) {
-    const arazzoSpecificationElement = refractArazzoSpecification1(result, refractorOpts);
+    const arazzoSpecificationElement = refractArazzoSpecification1(result, {
+      consume: true,
+      ...refractorOpts,
+    });
     arazzoSpecificationElement.classes.push('result');
     parseResultElement.replaceResult(arazzoSpecificationElement);
   }

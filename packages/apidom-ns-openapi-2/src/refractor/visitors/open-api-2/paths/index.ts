@@ -23,6 +23,7 @@ class PathsVisitor extends BasePatternedFieldsVisitor {
   constructor(options: BasePatternedFieldsVisitorOptions) {
     super(options);
     this.element = new PathsElement();
+    this.consumeSafe = true;
     this.specPath = always(['document', 'objects', 'PathItem']);
     this.canSupportSpecificationExtensions = true;
     this.fieldPatternPredicate = stubTrue;
