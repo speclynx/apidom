@@ -81,7 +81,8 @@ class PatternedFieldsVisitor extends SpecificationVisitor {
         newMemberElement.classes.push('patterned-field');
         (this.element as ObjectElement).push(newMemberElement);
         // consume: release processed generic subtree
-        if (this.consume && this.consumeSafe) memberElement.value = undefined;
+        if (this.consume && this.consumeSafe && !memberElement.isFrozen)
+          memberElement.value = undefined;
       } else if (!this.ignoredFields.includes(toValue(key) as string)) {
         (this.element as ObjectElement).push(
           this.consume ? memberElement : cloneDeep(memberElement),

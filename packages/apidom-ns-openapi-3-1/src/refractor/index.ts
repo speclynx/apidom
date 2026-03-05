@@ -69,7 +69,7 @@ const refract = <T extends Element>(
     consume = false,
   }: RefractorOptions = {},
 ): T => {
-  let genericElement: Element | null = baseRefract(value);
+  const genericElement = baseRefract(value);
   const resolvedSpec = resolveSpecification(specificationObj);
   const elementMap = resolvedSpec.elementMap as Record<string, string[]>;
   const specPath = elementMap[element];
@@ -89,7 +89,6 @@ const refract = <T extends Element>(
   const rootVisitor = new RootVisitorClass({ specObj: resolvedSpec, consume });
 
   traverse(genericElement, rootVisitor, { nodeTypeGetter: getNodePrimitiveType });
-  genericElement = null; // allow GC to reclaim generic tree
 
   /**
    * Running plugins visitors means extra single traversal === performance hit.
