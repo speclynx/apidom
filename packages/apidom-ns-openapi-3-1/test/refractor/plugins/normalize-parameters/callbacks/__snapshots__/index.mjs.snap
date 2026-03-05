@@ -121,20 +121,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
   "content": [
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -166,20 +152,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -241,20 +213,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                   "content": [
                     {
                       "element": "member",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "fixed-field"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": {
                         "key": {
                           "element": "string",
@@ -286,20 +244,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                               "content": [
                                 {
                                   "element": "member",
-                                  "meta": {
-                                    "classes": {
-                                      "element": "array",
-                                      "content": [
-                                        {
-                                          "element": "string",
-                                          "content": "fixed-field"
-                                        }
-                                      ]
-                                    }
-                                  },
-                                  "__meta_raw__": [
-                                    "classes"
-                                  ],
                                   "content": {
                                     "key": {
                                       "element": "string",
@@ -313,20 +257,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                 },
                                 {
                                   "element": "member",
-                                  "meta": {
-                                    "classes": {
-                                      "element": "array",
-                                      "content": [
-                                        {
-                                          "element": "string",
-                                          "content": "fixed-field"
-                                        }
-                                      ]
-                                    }
-                                  },
-                                  "__meta_raw__": [
-                                    "classes"
-                                  ],
                                   "content": {
                                     "key": {
                                       "element": "string",
@@ -345,20 +275,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                               "content": [
                                 {
                                   "element": "member",
-                                  "meta": {
-                                    "classes": {
-                                      "element": "array",
-                                      "content": [
-                                        {
-                                          "element": "string",
-                                          "content": "fixed-field"
-                                        }
-                                      ]
-                                    }
-                                  },
-                                  "__meta_raw__": [
-                                    "classes"
-                                  ],
                                   "content": {
                                     "key": {
                                       "element": "string",
@@ -372,20 +288,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                 },
                                 {
                                   "element": "member",
-                                  "meta": {
-                                    "classes": {
-                                      "element": "array",
-                                      "content": [
-                                        {
-                                          "element": "string",
-                                          "content": "fixed-field"
-                                        }
-                                      ]
-                                    }
-                                  },
-                                  "__meta_raw__": [
-                                    "classes"
-                                  ],
                                   "content": {
                                     "key": {
                                       "element": "string",
@@ -405,20 +307,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                     },
                     {
                       "element": "member",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "fixed-field"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": {
                         "key": {
                           "element": "string",
@@ -438,20 +326,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                           "content": [
                             {
                               "element": "member",
-                              "meta": {
-                                "classes": {
-                                  "element": "array",
-                                  "content": [
-                                    {
-                                      "element": "string",
-                                      "content": "fixed-field"
-                                    }
-                                  ]
-                                }
-                              },
-                              "__meta_raw__": [
-                                "classes"
-                              ],
                               "content": {
                                 "key": {
                                   "element": "string",
@@ -533,20 +407,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                                   "content": [
                                                     {
                                                       "element": "member",
-                                                      "meta": {
-                                                        "classes": {
-                                                          "element": "array",
-                                                          "content": [
-                                                            {
-                                                              "element": "string",
-                                                              "content": "fixed-field"
-                                                            }
-                                                          ]
-                                                        }
-                                                      },
-                                                      "__meta_raw__": [
-                                                        "classes"
-                                                      ],
                                                       "content": {
                                                         "key": {
                                                           "element": "string",
@@ -578,20 +438,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                                               "content": [
                                                                 {
                                                                   "element": "member",
-                                                                  "meta": {
-                                                                    "classes": {
-                                                                      "element": "array",
-                                                                      "content": [
-                                                                        {
-                                                                          "element": "string",
-                                                                          "content": "fixed-field"
-                                                                        }
-                                                                      ]
-                                                                    }
-                                                                  },
-                                                                  "__meta_raw__": [
-                                                                    "classes"
-                                                                  ],
                                                                   "content": {
                                                                     "key": {
                                                                       "element": "string",
@@ -605,20 +451,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                                                 },
                                                                 {
                                                                   "element": "member",
-                                                                  "meta": {
-                                                                    "classes": {
-                                                                      "element": "array",
-                                                                      "content": [
-                                                                        {
-                                                                          "element": "string",
-                                                                          "content": "fixed-field"
-                                                                        }
-                                                                      ]
-                                                                    }
-                                                                  },
-                                                                  "__meta_raw__": [
-                                                                    "classes"
-                                                                  ],
                                                                   "content": {
                                                                     "key": {
                                                                       "element": "string",
@@ -637,20 +469,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                                               "content": [
                                                                 {
                                                                   "element": "member",
-                                                                  "meta": {
-                                                                    "classes": {
-                                                                      "element": "array",
-                                                                      "content": [
-                                                                        {
-                                                                          "element": "string",
-                                                                          "content": "fixed-field"
-                                                                        }
-                                                                      ]
-                                                                    }
-                                                                  },
-                                                                  "__meta_raw__": [
-                                                                    "classes"
-                                                                  ],
                                                                   "content": {
                                                                     "key": {
                                                                       "element": "string",
@@ -664,20 +482,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                                                 },
                                                                 {
                                                                   "element": "member",
-                                                                  "meta": {
-                                                                    "classes": {
-                                                                      "element": "array",
-                                                                      "content": [
-                                                                        {
-                                                                          "element": "string",
-                                                                          "content": "fixed-field"
-                                                                        }
-                                                                      ]
-                                                                    }
-                                                                  },
-                                                                  "__meta_raw__": [
-                                                                    "classes"
-                                                                  ],
                                                                   "content": {
                                                                     "key": {
                                                                       "element": "string",
@@ -697,20 +501,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                                     },
                                                     {
                                                       "element": "member",
-                                                      "meta": {
-                                                        "classes": {
-                                                          "element": "array",
-                                                          "content": [
-                                                            {
-                                                              "element": "string",
-                                                              "content": "fixed-field"
-                                                            }
-                                                          ]
-                                                        }
-                                                      },
-                                                      "__meta_raw__": [
-                                                        "classes"
-                                                      ],
                                                       "content": {
                                                         "key": {
                                                           "element": "string",
@@ -730,20 +520,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                                           "content": [
                                                             {
                                                               "element": "member",
-                                                              "meta": {
-                                                                "classes": {
-                                                                  "element": "array",
-                                                                  "content": [
-                                                                    {
-                                                                      "element": "string",
-                                                                      "content": "fixed-field"
-                                                                    }
-                                                                  ]
-                                                                }
-                                                              },
-                                                              "__meta_raw__": [
-                                                                "classes"
-                                                              ],
                                                               "content": {
                                                                 "key": {
                                                                   "element": "string",
@@ -775,20 +551,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                                                       "content": [
                                                                         {
                                                                           "element": "member",
-                                                                          "meta": {
-                                                                            "classes": {
-                                                                              "element": "array",
-                                                                              "content": [
-                                                                                {
-                                                                                  "element": "string",
-                                                                                  "content": "fixed-field"
-                                                                                }
-                                                                              ]
-                                                                            }
-                                                                          },
-                                                                          "__meta_raw__": [
-                                                                            "classes"
-                                                                          ],
                                                                           "content": {
                                                                             "key": {
                                                                               "element": "string",
@@ -802,20 +564,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                                                         },
                                                                         {
                                                                           "element": "member",
-                                                                          "meta": {
-                                                                            "classes": {
-                                                                              "element": "array",
-                                                                              "content": [
-                                                                                {
-                                                                                  "element": "string",
-                                                                                  "content": "fixed-field"
-                                                                                }
-                                                                              ]
-                                                                            }
-                                                                          },
-                                                                          "__meta_raw__": [
-                                                                            "classes"
-                                                                          ],
                                                                           "content": {
                                                                             "key": {
                                                                               "element": "string",
@@ -829,20 +577,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                                                         },
                                                                         {
                                                                           "element": "member",
-                                                                          "meta": {
-                                                                            "classes": {
-                                                                              "element": "array",
-                                                                              "content": [
-                                                                                {
-                                                                                  "element": "string",
-                                                                                  "content": "fixed-field"
-                                                                                }
-                                                                              ]
-                                                                            }
-                                                                          },
-                                                                          "__meta_raw__": [
-                                                                            "classes"
-                                                                          ],
                                                                           "content": {
                                                                             "key": {
                                                                               "element": "string",
@@ -861,20 +595,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                                                       "content": [
                                                                         {
                                                                           "element": "member",
-                                                                          "meta": {
-                                                                            "classes": {
-                                                                              "element": "array",
-                                                                              "content": [
-                                                                                {
-                                                                                  "element": "string",
-                                                                                  "content": "fixed-field"
-                                                                                }
-                                                                              ]
-                                                                            }
-                                                                          },
-                                                                          "__meta_raw__": [
-                                                                            "classes"
-                                                                          ],
                                                                           "content": {
                                                                             "key": {
                                                                               "element": "string",
@@ -888,20 +608,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                                                         },
                                                                         {
                                                                           "element": "member",
-                                                                          "meta": {
-                                                                            "classes": {
-                                                                              "element": "array",
-                                                                              "content": [
-                                                                                {
-                                                                                  "element": "string",
-                                                                                  "content": "fixed-field"
-                                                                                }
-                                                                              ]
-                                                                            }
-                                                                          },
-                                                                          "__meta_raw__": [
-                                                                            "classes"
-                                                                          ],
                                                                           "content": {
                                                                             "key": {
                                                                               "element": "string",
@@ -968,20 +674,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                       "content": [
                                         {
                                           "element": "member",
-                                          "meta": {
-                                            "classes": {
-                                              "element": "array",
-                                              "content": [
-                                                {
-                                                  "element": "string",
-                                                  "content": "fixed-field"
-                                                }
-                                              ]
-                                            }
-                                          },
-                                          "__meta_raw__": [
-                                            "classes"
-                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",
@@ -995,20 +687,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                         },
                                         {
                                           "element": "member",
-                                          "meta": {
-                                            "classes": {
-                                              "element": "array",
-                                              "content": [
-                                                {
-                                                  "element": "string",
-                                                  "content": "fixed-field"
-                                                }
-                                              ]
-                                            }
-                                          },
-                                          "__meta_raw__": [
-                                            "classes"
-                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",
@@ -1027,20 +705,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                       "content": [
                                         {
                                           "element": "member",
-                                          "meta": {
-                                            "classes": {
-                                              "element": "array",
-                                              "content": [
-                                                {
-                                                  "element": "string",
-                                                  "content": "fixed-field"
-                                                }
-                                              ]
-                                            }
-                                          },
-                                          "__meta_raw__": [
-                                            "classes"
-                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",
@@ -1054,20 +718,6 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
                                         },
                                         {
                                           "element": "member",
-                                          "meta": {
-                                            "classes": {
-                                              "element": "array",
-                                              "content": [
-                                                {
-                                                  "element": "string",
-                                                  "content": "fixed-field"
-                                                }
-                                              ]
-                                            }
-                                          },
-                                          "__meta_raw__": [
-                                            "classes"
-                                          ],
                                           "content": {
                                             "key": {
                                               "element": "string",

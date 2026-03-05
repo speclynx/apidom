@@ -20,20 +20,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
   "content": [
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -47,20 +33,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -74,20 +46,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -101,20 +59,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -128,20 +72,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -155,20 +85,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -182,20 +98,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -209,20 +111,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -236,20 +124,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -263,20 +137,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -290,20 +150,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -335,20 +181,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -399,20 +231,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -426,20 +244,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -453,20 +257,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -480,20 +270,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -507,20 +283,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -534,20 +296,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -584,20 +332,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -671,20 +405,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -716,20 +436,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -803,20 +509,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -890,20 +582,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -944,20 +622,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -985,20 +649,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1049,20 +699,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1113,20 +749,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1177,20 +799,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1222,20 +830,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1309,20 +903,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1336,20 +916,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1363,20 +929,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1390,20 +942,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1417,20 +955,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1444,20 +968,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1489,20 +999,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1515,20 +1011,6 @@ exports[`refractor given generic ApiDOM object in JSON Schema Draft 4 shape shou
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
