@@ -44,7 +44,7 @@ export const parse: typeof parseJSON = async (
   const { result } = parseResultElement;
 
   if (isNotUndefined(result)) {
-    const swaggerElement = refractSwagger(result, { ...refractorOpts, consume: true });
+    const swaggerElement = refractSwagger(result, { consume: true, ...refractorOpts });
     swaggerElement.classes.push('result');
     parseResultElement.replaceResult(swaggerElement);
   }

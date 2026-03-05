@@ -44,7 +44,7 @@ export const parse: typeof parseJSON = async (
   const { result } = parseResultElement;
 
   if (isNotUndefined(result)) {
-    const openApiElement = refractOpenApi3_0(result, { ...refractorOpts, consume: true });
+    const openApiElement = refractOpenApi3_0(result, { consume: true, ...refractorOpts });
     openApiElement.classes.push('result');
     parseResultElement.replaceResult(openApiElement);
   }

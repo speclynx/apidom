@@ -45,7 +45,7 @@ export const parse: typeof parseYAML = async (
   const { result } = parseResultElement;
 
   if (isNotUndefined(result)) {
-    const jsonSchemaElement = refractJSONSchema(result, { ...refractorOpts, consume: true });
+    const jsonSchemaElement = refractJSONSchema(result, { consume: true, ...refractorOpts });
     jsonSchemaElement.classes.push('result');
     parseResultElement.replaceResult(jsonSchemaElement);
   }

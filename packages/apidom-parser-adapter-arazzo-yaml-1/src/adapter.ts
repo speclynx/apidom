@@ -46,8 +46,8 @@ export const parse: typeof parseYAML = async (
 
   if (isNotUndefined(result)) {
     const arazzoSpecificationElement = refractArazzoSpecification1(result, {
-      ...refractorOpts,
       consume: true,
+      ...refractorOpts,
     });
     arazzoSpecificationElement.classes.push('result');
     parseResultElement.replaceResult(arazzoSpecificationElement);

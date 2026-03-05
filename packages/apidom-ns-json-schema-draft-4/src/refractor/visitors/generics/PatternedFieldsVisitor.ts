@@ -68,10 +68,6 @@ class PatternedFieldsVisitor extends SpecificationVisitor {
 
     this.copyMetaAndAttributes(objectElement, this.element);
 
-    if (this.consume && !objectElement.isFrozen) {
-      objectElement.content = undefined;
-    }
-
     path.stop();
   }
 }
