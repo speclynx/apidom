@@ -75,7 +75,10 @@ class FixedFieldsVisitor extends SpecificationVisitor {
           [...specPath, 'fixedFields', keyValue],
           value,
         );
-        const newMemberElement = new MemberElement(cloneDeep(key), fixedFieldElement);
+        const newMemberElement = new MemberElement(
+          this.consume ? key : cloneDeep(key),
+          fixedFieldElement,
+        );
         this.copyMetaAndAttributes(memberElement, newMemberElement);
         (this.element.content as Element[]).push(newMemberElement);
       } else if (
@@ -85,11 +88,18 @@ class FixedFieldsVisitor extends SpecificationVisitor {
         const extensionElement = this.toRefractedElement(['document', 'extension'], memberElement);
         (this.element.content as Element[]).push(extensionElement);
       } else if (!this.ignoredFields.includes(keyValue)) {
-        (this.element.content as Element[]).push(cloneDeep(memberElement));
+        (this.element.content as Element[]).push(
+          this.consume ? memberElement : cloneDeep(memberElement),
+        );
       }
     });
 
     this.copyMetaAndAttributes(objectElement, this.element);
+
+    // consume mode: release generic node content for GC
+    if (this.consume && !objectElement.isFrozen) {
+      objectElement.content = undefined;
+    }
 
     path.stop();
   }

@@ -45,7 +45,7 @@ export const parse: typeof parseJSON = async (
   const { result } = parseResultElement;
 
   if (isNotUndefined(result)) {
-    const asyncApiElement = refractAsyncApi2(result, refractorOpts);
+    const asyncApiElement = refractAsyncApi2(result, { ...refractorOpts, consume: true });
     asyncApiElement.classes.push('result');
     parseResultElement.replaceResult(asyncApiElement);
   }

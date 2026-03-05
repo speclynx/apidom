@@ -10,13 +10,17 @@ import {
 /**
  * @public
  */
-export interface VisitorOptions {}
+export interface VisitorOptions {
+  readonly consume?: boolean;
+}
 
 /**
  * @public
  */
 class Visitor {
   public element!: Element;
+
+  protected consume: boolean = false;
 
   constructor(options: VisitorOptions = {}) {
     Object.assign(this, options);

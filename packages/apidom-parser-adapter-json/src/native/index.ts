@@ -26,8 +26,9 @@ export const parse = async (source: string): Promise<ParseResultElement> => {
     return parseResult;
   }
 
-  const pojo = JSON.parse(source);
+  let pojo: unknown = JSON.parse(source);
   const element = refract(pojo);
+  pojo = null; // allow GC to reclaim POJO
   element.classes.push('result');
   parseResult.push(element);
 

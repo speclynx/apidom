@@ -22,7 +22,7 @@ export interface SpecificationVisitorOptions extends VisitorOptions {
 class SpecificationVisitor extends Visitor {
   protected readonly specObj: typeof specification;
 
-  protected readonly passingOptionsNames: string[] = ['specObj'];
+  protected readonly passingOptionsNames: string[] = ['specObj', 'consume'];
 
   constructor({ specObj, ...rest }: SpecificationVisitorOptions) {
     super({ ...rest });
@@ -30,7 +30,10 @@ class SpecificationVisitor extends Visitor {
   }
 
   retrievePassingOptions() {
-    return pick(this.passingOptionsNames as (keyof this)[], this) as unknown as string[];
+    return pick(this.passingOptionsNames as (keyof this)[], this) as unknown as Record<
+      string,
+      unknown
+    >;
   }
 
   retrieveFixedFields(specPath: string[]) {
@@ -69,7 +72,7 @@ class SpecificationVisitor extends Visitor {
     const visitor = this.retrieveVisitorInstance(specPath, options);
 
     if (visitor instanceof FallbackVisitor && visitor?.constructor === FallbackVisitor) {
-      return cloneDeep(element);
+      return this.consume ? element : cloneDeep(element);
     }
 
     traverse(element, visitor);

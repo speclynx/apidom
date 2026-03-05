@@ -73,16 +73,26 @@ class PatternedFieldsVisitor extends SpecificationVisitor {
       } else if (!this.ignoredFields.includes(keyValue) && this.fieldPatternPredicate(keyValue)) {
         const specPath = this.specPath(value);
         const patternedFieldElement = this.toRefractedElement(specPath, value);
-        const newMemberElement = new MemberElement(cloneDeep(key), patternedFieldElement);
+        const newMemberElement = new MemberElement(
+          this.consume ? key : cloneDeep(key),
+          patternedFieldElement,
+        );
         this.copyMetaAndAttributes(memberElement, newMemberElement);
         newMemberElement.classes.push('patterned-field');
         (this.element.content as MemberElement[]).push(newMemberElement);
       } else if (!this.ignoredFields.includes(keyValue)) {
-        (this.element.content as MemberElement[]).push(cloneDeep(memberElement));
+        (this.element.content as MemberElement[]).push(
+          this.consume ? memberElement : cloneDeep(memberElement),
+        );
       }
     });
 
     this.copyMetaAndAttributes(objectElement, this.element);
+
+    // consume mode: release generic node content for GC
+    if (this.consume && !objectElement.isFrozen) {
+      objectElement.content = undefined;
+    }
 
     path.stop();
   }

@@ -21,7 +21,7 @@ class SolaceMessageBindingVisitor extends BaseFixedFieldsVisitor {
 
   declare protected readonly canSupportSpecificationExtensions: false;
 
-  constructor(options: SolaceMessageBindingVisitor) {
+  constructor(options: SolaceMessageBindingVisitorOptions) {
     super(options);
     this.element = new SolaceMessageBindingElement();
     this.specPath = always(['document', 'objects', 'bindings', 'solace', 'MessageBinding']);

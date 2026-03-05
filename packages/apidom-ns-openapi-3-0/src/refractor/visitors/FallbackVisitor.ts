@@ -16,7 +16,7 @@ export type { VisitorOptions as FallbackVisitorOptions };
  */
 class FallbackVisitor extends Visitor {
   enter(path: Path<Element>) {
-    this.element = cloneDeep(path.node);
+    this.element = this.consume ? path.node : cloneDeep(path.node);
     path.stop();
   }
 }
