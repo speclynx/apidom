@@ -39,10 +39,6 @@ class MixedFieldsVisitor extends BaseMixedFieldsVisitor {
     const objectElement = path.node;
     const { specPath, ignoredFields } = this;
 
-    // temporarily disable consume so FixedFields/PatternedFields don't release objectElement
-    const { consume } = this;
-    this.consume = false;
-
     try {
       this.specPath = this.specPathFixedFields;
       const fixedFields = this.retrieveFixedFields(this.specPath(objectElement));
@@ -65,13 +61,7 @@ class MixedFieldsVisitor extends BaseMixedFieldsVisitor {
       });
     } catch (e) {
       this.specPath = specPath;
-      this.consume = consume;
       throw e;
-    }
-
-    this.consume = consume;
-    if (this.consume && !objectElement.isFrozen) {
-      objectElement.content = undefined;
     }
 
     path.stop();

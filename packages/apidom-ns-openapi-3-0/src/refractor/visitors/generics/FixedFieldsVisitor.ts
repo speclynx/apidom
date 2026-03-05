@@ -81,12 +81,16 @@ class FixedFieldsVisitor extends SpecificationVisitor {
         );
         this.copyMetaAndAttributes(memberElement, newMemberElement);
         (this.element.content as Element[]).push(newMemberElement);
+        // consume: release processed generic subtree
+        if (this.consume && this.consumeSafe) memberElement.value = undefined;
       } else if (
         this.canSupportSpecificationExtensions &&
         this.specificationExtensionPredicate(memberElement)
       ) {
         const extensionElement = this.toRefractedElement(['document', 'extension'], memberElement);
         (this.element.content as Element[]).push(extensionElement);
+        // consume: release processed generic subtree
+        if (this.consume && this.consumeSafe) memberElement.value = undefined;
       } else if (!this.ignoredFields.includes(keyValue)) {
         (this.element.content as Element[]).push(
           this.consume ? memberElement : cloneDeep(memberElement),
@@ -95,11 +99,6 @@ class FixedFieldsVisitor extends SpecificationVisitor {
     });
 
     this.copyMetaAndAttributes(objectElement, this.element);
-
-    // consume mode: release generic node content for GC
-    if (this.consume && !objectElement.isFrozen) {
-      objectElement.content = undefined;
-    }
 
     path.stop();
   }

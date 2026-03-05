@@ -67,11 +67,8 @@ class SchemaVisitor extends BaseSchemaVisitor {
     ) {
       // @ts-ignore
       jsonSchemaDialect = toValue(this.openApiSemanticElement.jsonSchemaDialect);
-    } else if (
-      this.openApiGenericElement !== undefined &&
-      isStringElement(this.openApiGenericElement.get('jsonSchemaDialect'))
-    ) {
-      jsonSchemaDialect = toValue(this.openApiGenericElement.get('jsonSchemaDialect'));
+    } else if (this.sourceContext?.jsonSchemaDialect !== undefined) {
+      jsonSchemaDialect = this.sourceContext.jsonSchemaDialect;
     } else {
       jsonSchemaDialect = toValue(this.jsonSchemaDefaultDialect);
     }

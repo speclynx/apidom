@@ -17,6 +17,7 @@ export interface SpecificationVisitorOptions extends VisitorOptions {
   readonly specObj: typeof specification;
   readonly passingOptionsNames?: string[];
   readonly openApiGenericElement?: ObjectElement;
+  readonly sourceContext?: Record<string, unknown>;
   readonly openApiSemanticElement?: OpenApi3_0Element;
 }
 
@@ -29,11 +30,14 @@ class SpecificationVisitor extends Visitor {
   protected readonly passingOptionsNames: string[] = [
     'specObj',
     'openApiGenericElement',
+    'sourceContext',
     'openApiSemanticElement',
     'consume',
   ];
 
   protected openApiGenericElement?: ObjectElement;
+
+  protected sourceContext?: Record<string, unknown>;
 
   protected openApiSemanticElement?: OpenApi3_0Element;
 

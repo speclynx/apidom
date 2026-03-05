@@ -25,6 +25,7 @@ class ArazzoSpecificationVisitor extends BaseFixedFieldsFallbackVisitor {
   constructor(options: ArazzoSpecificationVisitorOptions) {
     super(options);
     this.element = new ArazzoSpecification1Element();
+    this.consumeSafe = true;
     this.specPath = always(['document', 'objects', 'ArazzoSpecification']);
     this.canSupportSpecificationExtensions = true;
   }

@@ -29,6 +29,7 @@ class JSONSchemaVisitor extends JSONSchemaVisitorBase {
   constructor(options: JSONSchemaVisitorOptions) {
     super(options);
     this.element = new JSONSchemaElement();
+    this.consumeSafe = true;
     this.specPath = always(['document', 'objects', 'JSONSchema']);
   }
 

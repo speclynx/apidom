@@ -24,6 +24,7 @@ class ComponentsVisitor extends BaseFixedFieldsVisitor {
     this.element = new ComponentsElement();
     this.specPath = always(['document', 'objects', 'Components']);
     this.canSupportSpecificationExtensions = true;
+    this.consumeSafe = true;
   }
 }
 

@@ -19,6 +19,7 @@ class SwaggerVisitor extends BaseFixedFieldsVisitor {
   constructor(options: BaseFixedFieldsVisitorOptions) {
     super(options);
     this.element = new SwaggerElement();
+    this.consumeSafe = true;
     this.specPath = always(['document', 'objects', 'Swagger']);
     this.canSupportSpecificationExtensions = true;
   }

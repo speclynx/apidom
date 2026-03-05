@@ -20,7 +20,9 @@ export interface VisitorOptions {
 class Visitor {
   public element!: Element;
 
-  protected consume: boolean = false;
+  protected readonly consume: boolean = false;
+
+  protected consumeSafe: boolean = false;
 
   constructor(options: VisitorOptions) {
     Object.assign(this, options);
