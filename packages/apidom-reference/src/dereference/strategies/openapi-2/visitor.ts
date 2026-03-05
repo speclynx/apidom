@@ -189,10 +189,8 @@ class OpenAPI2DereferenceVisitor {
      * Applying semantics to a referenced element if semantics are missing.
      */
     if (isPrimitiveElement(referencedElement)) {
-      const referencedElementType = toValue(
-        referencingElement.meta.get('referenced-element'),
-      ) as string;
-      const cacheKey = `${referencedElementType}-${toValue(identityManager.identify(referencedElement))}`;
+      const referencedElementType = referencingElement.meta.get('referenced-element') as string;
+      const cacheKey = `${referencedElementType}-${identityManager.identify(referencedElement)}`;
 
       if (this.refractCache.has(cacheKey)) {
         referencedElement = this.refractCache.get(cacheKey)!;
@@ -296,7 +294,7 @@ class OpenAPI2DereferenceVisitor {
     // annotate fragment with info about referencing element
     mergedElement.meta.set(
       'ref-referencing-element-id',
-      cloneDeep(identityManager.identify(referencingElement)),
+      identityManager.identify(referencingElement),
     );
 
     /**
@@ -355,7 +353,7 @@ class OpenAPI2DereferenceVisitor {
      * Applying semantics to a referenced element if semantics are missing.
      */
     if (isPrimitiveElement(referencedElement)) {
-      const cacheKey = `pathItem-${toValue(identityManager.identify(referencedElement))}`;
+      const cacheKey = `pathItem-${identityManager.identify(referencedElement)}`;
 
       if (this.refractCache.has(cacheKey)) {
         referencedElement = this.refractCache.get(cacheKey)!;
@@ -458,7 +456,7 @@ class OpenAPI2DereferenceVisitor {
       // annotate fragment with info about referencing element
       mergedElement.meta.set(
         'ref-referencing-element-id',
-        cloneDeep(identityManager.identify(referencingElement)),
+        identityManager.identify(referencingElement),
       );
 
       referencedElement = mergedElement;
@@ -517,8 +515,8 @@ class OpenAPI2DereferenceVisitor {
      * Applying semantics to a referenced element if semantics are missing.
      */
     if (isPrimitiveElement(referencedElement)) {
-      const referencedElementType = toValue(referencingElement.meta.get('referenced-element'));
-      const cacheKey = `path-item-${toValue(identityManager.identify(referencedElement))}`;
+      const referencedElementType = referencingElement.meta.get('referenced-element') as string;
+      const cacheKey = `path-item-${identityManager.identify(referencedElement)}`;
 
       if (this.refractCache.has(cacheKey)) {
         referencedElement = this.refractCache.get(cacheKey)!;
@@ -624,7 +622,7 @@ class OpenAPI2DereferenceVisitor {
     // annotate fragment with info about referencing element
     mergedElement.meta.set(
       'ref-referencing-element-id',
-      cloneDeep(identityManager.identify(referencingElement)),
+      identityManager.identify(referencingElement),
     );
 
     /**

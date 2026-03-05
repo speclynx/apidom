@@ -443,7 +443,7 @@ class Arazzo1DereferenceVisitor {
       // annotate fragment with info about referencing element
       booleanJsonSchemaElement.meta.set(
         'ref-referencing-element-id',
-        cloneDeep(identityManager.identify(referencingElement)),
+        identityManager.identify(referencingElement),
       );
 
       path.replaceWith(booleanJsonSchemaElement);
@@ -472,7 +472,7 @@ class Arazzo1DereferenceVisitor {
       // annotate fragment with info about referencing element
       mergedElement.meta.set(
         'ref-referencing-element-id',
-        cloneDeep(identityManager.identify(referencingElement)),
+        identityManager.identify(referencingElement),
       );
 
       referencedElement = mergedElement;

@@ -246,8 +246,8 @@ describe('parsers', function () {
             const sdParseResult = parseResult.get(1)!;
             assert.isTrue(isParseResultElement(sdParseResult));
             assert.isTrue(sdParseResult.classes.includes('source-description'));
-            assert.strictEqual(sdParseResult.meta.get('name')!.toValue(), 'petStore');
-            assert.strictEqual(sdParseResult.meta.get('type')!.toValue(), 'openapi');
+            assert.strictEqual(sdParseResult.meta.get('name'), 'petStore');
+            assert.strictEqual(sdParseResult.meta.get('type'), 'openapi');
           });
 
           specify(
@@ -263,7 +263,7 @@ describe('parsers', function () {
               });
 
               const sdParseResult = parseResult.get(1)!;
-              const retrievalURI = sdParseResult.meta.get('retrievalURI')?.toValue();
+              const retrievalURI = sdParseResult.meta.get('retrievalURI');
 
               assert.isString(retrievalURI);
               assert.include(retrievalURI, 'openapi.yaml');
@@ -321,8 +321,8 @@ describe('parsers', function () {
             const nestedArazzo = parseResult.get(1)! as ParseResultElement;
             assert.isTrue(isParseResultElement(nestedArazzo));
             assert.isTrue(nestedArazzo.classes.includes('source-description'));
-            assert.strictEqual(nestedArazzo.meta.get('name')!.toValue(), 'nestedWorkflow');
-            assert.strictEqual(nestedArazzo.meta.get('type')!.toValue(), 'arazzo');
+            assert.strictEqual(nestedArazzo.meta.get('name'), 'nestedWorkflow');
+            assert.strictEqual(nestedArazzo.meta.get('type'), 'arazzo');
             // nested arazzo has its own source description (openapi)
             assert.strictEqual(nestedArazzo.length, 2);
 
@@ -330,8 +330,8 @@ describe('parsers', function () {
             const openapi = nestedArazzo.get(1)! as ParseResultElement;
             assert.isTrue(isParseResultElement(openapi));
             assert.isTrue(openapi.classes.includes('source-description'));
-            assert.strictEqual(openapi.meta.get('name')!.toValue(), 'petStore');
-            assert.strictEqual(openapi.meta.get('type')!.toValue(), 'openapi');
+            assert.strictEqual(openapi.meta.get('name'), 'petStore');
+            assert.strictEqual(openapi.meta.get('type'), 'openapi');
           });
         });
 
@@ -394,7 +394,7 @@ describe('parsers', function () {
             // b.yaml parse result
             const workflowB = parseResult.get(1)! as ParseResultElement;
             assert.isTrue(isParseResultElement(workflowB));
-            assert.strictEqual(workflowB.meta.get('name')!.toValue(), 'workflowB');
+            assert.strictEqual(workflowB.meta.get('name'), 'workflowB');
             // b.yaml should have arazzo API + cycle warning annotation
             assert.strictEqual(workflowB.length, 2);
 
@@ -493,13 +493,13 @@ describe('parsers', function () {
             const petStoreResult = parseResult.get(1)! as ParseResultElement;
             assert.isTrue(isParseResultElement(petStoreResult));
             assert.isTrue(petStoreResult.classes.includes('source-description'));
-            assert.strictEqual(petStoreResult.meta.get('name')!.toValue(), 'petStore');
+            assert.strictEqual(petStoreResult.meta.get('name'), 'petStore');
 
             // second source description should be paymentApi
             const paymentResult = parseResult.get(2)! as ParseResultElement;
             assert.isTrue(isParseResultElement(paymentResult));
             assert.isTrue(paymentResult.classes.includes('source-description'));
-            assert.strictEqual(paymentResult.meta.get('name')!.toValue(), 'paymentApi');
+            assert.strictEqual(paymentResult.meta.get('name'), 'paymentApi');
           });
 
           specify(
@@ -526,7 +526,7 @@ describe('parsers', function () {
               const userServiceResult = parseResult.get(1)! as ParseResultElement;
               assert.isTrue(isParseResultElement(userServiceResult));
               assert.isTrue(userServiceResult.classes.includes('source-description'));
-              assert.strictEqual(userServiceResult.meta.get('name')!.toValue(), 'userService');
+              assert.strictEqual(userServiceResult.meta.get('name'), 'userService');
             },
           );
 

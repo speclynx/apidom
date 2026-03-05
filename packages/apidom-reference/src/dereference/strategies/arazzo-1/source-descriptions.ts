@@ -5,7 +5,6 @@ import {
   isArrayElement,
   isStringElement,
   isParseResultElement,
-  cloneDeep,
 } from '@speclynx/apidom-datamodel';
 import {
   isArazzoSpecification1Element,
@@ -51,9 +50,9 @@ async function dereferenceSourceDescription(
   // set class and metadata from source description element
   parseResult.classes.push('source-description');
   if (isStringElement(sourceDescription.name))
-    parseResult.setMetaProperty('name', cloneDeep(sourceDescription.name));
+    parseResult.setMetaProperty('name', toValue(sourceDescription.name) as string);
   if (isStringElement(sourceDescription.type))
-    parseResult.setMetaProperty('type', cloneDeep(sourceDescription.type));
+    parseResult.setMetaProperty('type', toValue(sourceDescription.type) as string);
 
   const sourceDescriptionURI = toValue(sourceDescription.url);
   if (typeof sourceDescriptionURI !== 'string') {

@@ -346,9 +346,9 @@ const parseResultFiltered = await parse('/path/to/arazzo.json', {
 // Access parsed source descriptions
 for (const element of parseResult) {
   if (element.classes.includes('source-description')) {
-    console.log(toValue(element.meta.get('name'))); // e.g., 'petStore'
-    console.log(toValue(element.meta.get('type'))); // e.g., 'openapi'
-    console.log(toValue(element.meta.get('retrievalURI'))); // e.g., '/path/to/petstore.json'
+    console.log(element.meta.get('name')); // e.g., 'petStore'
+    console.log(element.meta.get('type')); // e.g., 'openapi'
+    console.log(element.meta.get('retrievalURI')); // e.g., '/path/to/petstore.json'
   }
 }
 ```
@@ -380,7 +380,7 @@ if (parsedDoc.errors.length > 0) {
   console.log('Parsing failed:', parsedDoc.errors);
 } else {
   console.log(parsedDoc.api.element); // e.g., 'openApi3_1'
-  console.log(toValue(parsedDoc.meta.get('retrievalURI'))); // URI where it was fetched from
+  console.log(parsedDoc.meta.get('retrievalURI')); // URI where it was fetched from
 }
 ```
 
@@ -1889,7 +1889,7 @@ if (dereferencedDoc.errors.length > 0) {
   console.log('Dereferencing failed:', dereferencedDoc.errors);
 } else {
   console.log(dereferencedDoc.api.element); // e.g., 'openApi3_1'
-  console.log(toValue(dereferencedDoc.meta.get('retrievalURI'))); // URI where it was fetched from
+  console.log(dereferencedDoc.meta.get('retrievalURI')); // URI where it was fetched from
 }
 ```
 
