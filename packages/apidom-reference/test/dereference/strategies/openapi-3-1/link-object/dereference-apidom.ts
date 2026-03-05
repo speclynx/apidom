@@ -6,6 +6,7 @@ import {
   LinkElement,
   isOperationElement,
 } from '@speclynx/apidom-ns-openapi-3-1';
+import { Element } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 import { fileURLToPath } from 'node:url';
@@ -52,7 +53,9 @@ describe('dereference', function () {
 
             assert.match(
               toValue(
-                dereferenced.operationRef?.meta.get('operation')!.meta.get('ref-origin'),
+                (dereferenced.operationRef?.meta.get('operation') as Element)!.meta.get(
+                  'ref-origin',
+                ),
               ) as string,
               /operation-ref-external\/ex\.json$/,
             );
