@@ -20,7 +20,7 @@ describe('refractor', function () {
               type: 'object',
               not: {},
             }) as JSONSchemaElement;
-            const actual = toValue(jsonSchemaElement.not?.meta.get('inheritedDialectIdentifier'));
+            const actual = jsonSchemaElement.not?.meta.get('inheritedDialectIdentifier');
             const expected = toValue('https://json-schema.org/draft/2020-12/schema');
 
             assert.strictEqual(actual, expected);
@@ -35,7 +35,7 @@ describe('refractor', function () {
                 $id: '1',
                 type: 'object',
               }) as JSONSchemaElement;
-              const actual = toValue(jsonSchemaElement.meta.get('inheritedDialectIdentifier'));
+              const actual = jsonSchemaElement.meta.get('inheritedDialectIdentifier');
               const expected = 'https://json-schema.org/draft/2020-12/schema';
 
               assert.strictEqual(actual, expected);
@@ -70,7 +70,7 @@ describe('refractor', function () {
               jsonSchemaElement,
               (e) => isJSONSchemaElement(e) && isElement(e.$id) && e.$id.equals('1'),
             ) as JSONSchemaElement | undefined;
-            const actual = toValue(foundJsonSchemaElement?.meta.get('inheritedDialectIdentifier'));
+            const actual = foundJsonSchemaElement?.meta.get('inheritedDialectIdentifier');
             const expected = 'https://json-schema.org/draft/2020-12/schema';
 
             assert.strictEqual(actual, expected);
@@ -93,7 +93,7 @@ describe('refractor', function () {
               jsonSchemaElement,
               (e) => isJSONSchemaElement(e) && isElement(e.$id) && e.$id.equals('3'),
             );
-            const actual = toValue(foundJsonSchemaElement?.meta.get('inheritedDialectIdentifier'));
+            const actual = foundJsonSchemaElement?.meta.get('inheritedDialectIdentifier');
             const expected = '$schema1';
 
             assert.strictEqual(actual, expected);
@@ -104,7 +104,7 @@ describe('refractor', function () {
               jsonSchemaElement,
               (e) => isJSONSchemaElement(e) && isElement(e.$id) && e.$id.equals('4'),
             );
-            const actual = toValue(foundJsonSchemaElement?.meta.get('inheritedDialectIdentifier'));
+            const actual = foundJsonSchemaElement?.meta.get('inheritedDialectIdentifier');
             const expected = 'https://json-schema.org/draft/2020-12/schema';
 
             assert.strictEqual(actual, expected);
