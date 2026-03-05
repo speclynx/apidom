@@ -1,6 +1,6 @@
 import { assert, expect } from 'chai';
 import { ObjectElement } from '@speclynx/apidom-datamodel';
-import { sexprs, toValue } from '@speclynx/apidom-core';
+import { sexprs } from '@speclynx/apidom-core';
 
 import { refractReference, ReferenceElement } from '../../../../src/index.ts';
 
@@ -33,9 +33,12 @@ describe('refractor', function () {
         });
 
         specify('should deepmerge meta', function () {
-          assert.deepEqual(toValue(referenceElement.meta), {
-            classes: ['json-reference', 'asyncapi-reference', 'example', 'reference-element'],
-          });
+          assert.deepEqual(referenceElement.classes, [
+            'json-reference',
+            'asyncapi-reference',
+            'example',
+            'reference-element',
+          ]);
         });
 
         specify('should deepmerge attributes', function () {
