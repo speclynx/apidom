@@ -24,20 +24,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with m
   "content": [
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -69,20 +55,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with m
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -144,20 +116,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with m
                   "content": [
                     {
                       "element": "member",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "fixed-field"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": {
                         "key": {
                           "element": "string",
@@ -213,20 +171,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with n
   "content": [
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -258,20 +202,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with n
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -333,20 +263,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with n
                   "content": [
                     {
                       "element": "member",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "fixed-field"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": {
                         "key": {
                           "element": "string",
@@ -366,20 +282,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with n
                           "content": [
                             {
                               "element": "member",
-                              "meta": {
-                                "classes": {
-                                  "element": "array",
-                                  "content": [
-                                    {
-                                      "element": "string",
-                                      "content": "fixed-field"
-                                    }
-                                  ]
-                                }
-                              },
-                              "__meta_raw__": [
-                                "classes"
-                              ],
                               "content": {
                                 "key": {
                                   "element": "string",
@@ -457,20 +359,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with o
   "content": [
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -502,20 +390,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with o
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -577,20 +451,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with o
                   "content": [
                     {
                       "element": "member",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "fixed-field"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": {
                         "key": {
                           "element": "string",
@@ -615,20 +475,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with o
                           "content": [
                             {
                               "element": "member",
-                              "meta": {
-                                "classes": {
-                                  "element": "array",
-                                  "content": [
-                                    {
-                                      "element": "string",
-                                      "content": "fixed-field"
-                                    }
-                                  ]
-                                }
-                              },
-                              "__meta_raw__": [
-                                "classes"
-                              ],
                               "content": {
                                 "key": {
                                   "element": "string",
@@ -725,20 +571,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with o
   "content": [
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -770,20 +602,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with o
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -845,20 +663,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with o
                   "content": [
                     {
                       "element": "member",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "fixed-field"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": {
                         "key": {
                           "element": "string",
@@ -883,20 +687,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with o
                           "content": [
                             {
                               "element": "member",
-                              "meta": {
-                                "classes": {
-                                  "element": "array",
-                                  "content": [
-                                    {
-                                      "element": "string",
-                                      "content": "fixed-field"
-                                    }
-                                  ]
-                                }
-                              },
-                              "__meta_raw__": [
-                                "classes"
-                              ],
                               "content": {
                                 "key": {
                                   "element": "string",
@@ -993,20 +783,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with u
   "content": [
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1038,20 +814,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with u
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1062,20 +824,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with u
           "content": [
             {
               "element": "member",
-              "meta": {
-                "classes": {
-                  "element": "array",
-                  "content": [
-                    {
-                      "element": "string",
-                      "content": "fixed-field"
-                    }
-                  ]
-                }
-              },
-              "__meta_raw__": [
-                "classes"
-              ],
               "content": {
                 "key": {
                   "element": "string",
@@ -1143,20 +891,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with u
                           "content": [
                             {
                               "element": "member",
-                              "meta": {
-                                "classes": {
-                                  "element": "array",
-                                  "content": [
-                                    {
-                                      "element": "string",
-                                      "content": "fixed-field"
-                                    }
-                                  ]
-                                }
-                              },
-                              "__meta_raw__": [
-                                "classes"
-                              ],
                               "content": {
                                 "key": {
                                   "element": "string",
@@ -1195,20 +929,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with u
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1270,20 +990,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with u
                   "content": [
                     {
                       "element": "member",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "fixed-field"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": {
                         "key": {
                           "element": "string",
@@ -1308,20 +1014,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with u
                           "content": [
                             {
                               "element": "member",
-                              "meta": {
-                                "classes": {
-                                  "element": "array",
-                                  "content": [
-                                    {
-                                      "element": "string",
-                                      "content": "fixed-field"
-                                    }
-                                  ]
-                                }
-                              },
-                              "__meta_raw__": [
-                                "classes"
-                              ],
                               "content": {
                                 "key": {
                                   "element": "string",
@@ -1418,20 +1110,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with u
   "content": [
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1463,20 +1141,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with u
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1538,20 +1202,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with u
                   "content": [
                     {
                       "element": "member",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "fixed-field"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": {
                         "key": {
                           "element": "string",
@@ -1576,20 +1226,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Object with u
                           "content": [
                             {
                               "element": "member",
-                              "meta": {
-                                "classes": {
-                                  "element": "array",
-                                  "content": [
-                                    {
-                                      "element": "string",
-                                      "content": "fixed-field"
-                                    }
-                                  ]
-                                }
-                              },
-                              "__meta_raw__": [
-                                "classes"
-                              ],
                               "content": {
                                 "key": {
                                   "element": "string",
@@ -1686,20 +1322,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Objects with 
   "content": [
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1731,20 +1353,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Objects with 
     },
     {
       "element": "member",
-      "meta": {
-        "classes": {
-          "element": "array",
-          "content": [
-            {
-              "element": "string",
-              "content": "fixed-field"
-            }
-          ]
-        }
-      },
-      "__meta_raw__": [
-        "classes"
-      ],
       "content": {
         "key": {
           "element": "string",
@@ -1806,20 +1414,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Objects with 
                   "content": [
                     {
                       "element": "member",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "fixed-field"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": {
                         "key": {
                           "element": "string",
@@ -1844,20 +1438,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Objects with 
                           "content": [
                             {
                               "element": "member",
-                              "meta": {
-                                "classes": {
-                                  "element": "array",
-                                  "content": [
-                                    {
-                                      "element": "string",
-                                      "content": "fixed-field"
-                                    }
-                                  ]
-                                }
-                              },
-                              "__meta_raw__": [
-                                "classes"
-                              ],
                               "content": {
                                 "key": {
                                   "element": "string",
@@ -1888,20 +1468,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Objects with 
                     },
                     {
                       "element": "member",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "fixed-field"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": {
                         "key": {
                           "element": "string",
@@ -1926,20 +1492,6 @@ exports[`refractor plugins normalize-operation-ids given Operation Objects with 
                           "content": [
                             {
                               "element": "member",
-                              "meta": {
-                                "classes": {
-                                  "element": "array",
-                                  "content": [
-                                    {
-                                      "element": "string",
-                                      "content": "fixed-field"
-                                    }
-                                  ]
-                                }
-                              },
-                              "__meta_raw__": [
-                                "classes"
-                              ],
                               "content": {
                                 "key": {
                                   "element": "string",

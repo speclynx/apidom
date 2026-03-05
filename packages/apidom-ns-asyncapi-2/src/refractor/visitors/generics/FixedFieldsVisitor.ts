@@ -76,7 +76,6 @@ class FixedFieldsVisitor extends SpecificationVisitor {
           value,
         );
         const newMemberElement = new MemberElement(cloneDeep(key), fixedFieldElement);
-        newMemberElement.classes.push('fixed-field');
         this.copyMetaAndAttributes(memberElement, newMemberElement);
         (this.element.content as MemberElement[]).push(newMemberElement);
       } else if (
