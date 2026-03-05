@@ -302,7 +302,7 @@ describe('refractor', function () {
           });
 
           // @ts-ignore
-          assert.strictEqual(toValue(jsonSchemaElement.media.meta.get('metaKey')), 'metaValue');
+          assert.strictEqual(jsonSchemaElement.media.meta.get('metaKey'), 'metaValue');
         });
       });
     });

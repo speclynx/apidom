@@ -1,6 +1,6 @@
 import { assert, expect } from 'chai';
 import { ObjectElement } from '@speclynx/apidom-datamodel';
-import { sexprs, toValue } from '@speclynx/apidom-core';
+import { sexprs } from '@speclynx/apidom-core';
 
 import { refractInfo, InfoElement } from '../../../../src/index.ts';
 
@@ -35,9 +35,7 @@ describe('refractor', function () {
         });
 
         specify('should deepmerge meta', function () {
-          assert.deepEqual(toValue(infoElement.meta), {
-            classes: ['info', 'example'],
-          });
+          assert.deepEqual(infoElement.classes, ['info', 'example']);
         });
 
         specify('should deepmerge attributes', function () {

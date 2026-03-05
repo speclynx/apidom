@@ -279,7 +279,7 @@ describe('refractor', function () {
           });
 
           // @ts-ignore
-          assert.strictEqual(toValue(swaggerElement.swagger.meta.get('metaKey')), 'metaValue');
+          assert.strictEqual(swaggerElement.swagger.meta.get('metaKey'), 'metaValue');
         });
       });
     });

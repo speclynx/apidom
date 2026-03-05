@@ -108,9 +108,8 @@ const plugin =
 
               const linkOperationId = String(toValue(linkElement.operationId));
               const operationElement = normalizedOperations.find((normalizedOperationElement) => {
-                const originalOperationId = toValue(
-                  normalizedOperationElement.meta.get('originalOperationId'),
-                );
+                const originalOperationId =
+                  normalizedOperationElement.meta.get('originalOperationId');
                 return originalOperationId === linkOperationId;
               });
 
@@ -132,10 +131,7 @@ const plugin =
           enter(path: Path<PathItemElement>) {
             const pathItemElement = path.node;
             // `path` meta may not be always available, e.g. in Callback Object or Components Object
-            const pathTemplate = defaultTo(
-              'path',
-              toValue(pathItemElement.meta.get('path')) as string,
-            );
+            const pathTemplate = defaultTo('path', pathItemElement.meta.get('path') as string);
             pathTemplates.push(pathTemplate);
           },
           leave() {
@@ -165,10 +161,7 @@ const plugin =
             // perform operationId normalization
             const pathTemplate = last(pathTemplates) as string;
             // `http-method` meta may not be always available, e.g. in Callback Object or Components Object
-            const method = defaultTo(
-              'method',
-              toValue(operationElement.meta.get('http-method')),
-            ) as string;
+            const method = defaultTo('method', operationElement.meta.get('http-method')) as string;
             const normalizedOperationId = operationIdNormalizer(
               originalOperationId,
               pathTemplate,
