@@ -12,6 +12,10 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
       "element": "array"
     }
   },
+  "__meta_raw__": [
+    "inheritedDialectIdentifier",
+    "ancestorsSchemaIdentifiers"
+  ],
   "content": [
     {
       "element": "member",
@@ -26,6 +30,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -44,6 +51,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": true
         }
       }
@@ -61,6 +71,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -79,6 +92,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": true
         }
       }
@@ -96,6 +112,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -114,6 +133,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": false
         }
       }
@@ -131,6 +153,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -149,6 +174,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "member",
@@ -163,6 +191,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
                   ]
                 }
               },
+              "__meta_raw__": [
+                "classes"
+              ],
               "content": {
                 "key": {
                   "element": "string",
@@ -181,6 +212,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
                       ]
                     }
                   },
+                  "__meta_raw__": [
+                    "classes"
+                  ],
                   "content": true
                 }
               }
@@ -202,6 +236,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -220,6 +257,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "member",
@@ -234,6 +274,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
                   ]
                 }
               },
+              "__meta_raw__": [
+                "classes"
+              ],
               "content": {
                 "key": {
                   "element": "string",
@@ -252,6 +295,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
                       ]
                     }
                   },
+                  "__meta_raw__": [
+                    "classes"
+                  ],
                   "content": false
                 }
               }
@@ -273,6 +319,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -291,6 +340,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": true
         }
       }
@@ -308,6 +360,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -326,6 +381,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": true
         }
       }
@@ -343,6 +401,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -361,6 +422,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": false
         }
       }
@@ -378,6 +442,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -396,6 +463,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": true
         }
       }
@@ -413,6 +483,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -431,6 +504,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "boolean",
@@ -445,6 +521,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
                   ]
                 }
               },
+              "__meta_raw__": [
+                "classes"
+              ],
               "content": true
             }
           ]
@@ -464,6 +543,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -482,6 +564,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "boolean",
@@ -496,6 +581,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
                   ]
                 }
               },
+              "__meta_raw__": [
+                "classes"
+              ],
               "content": true
             }
           ]
@@ -515,6 +603,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -533,6 +624,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "boolean",
@@ -547,6 +641,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
                   ]
                 }
               },
+              "__meta_raw__": [
+                "classes"
+              ],
               "content": false
             }
           ]
@@ -566,6 +663,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -584,6 +684,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": false
         }
       }
@@ -601,6 +704,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -619,6 +725,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": [
             {
               "element": "member",
@@ -633,6 +742,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
                   ]
                 }
               },
+              "__meta_raw__": [
+                "classes"
+              ],
               "content": {
                 "key": {
                   "element": "string",
@@ -651,6 +763,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
                       ]
                     }
                   },
+                  "__meta_raw__": [
+                    "classes"
+                  ],
                   "content": true
                 }
               }
@@ -672,6 +787,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -690,6 +808,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": true
         }
       }
@@ -707,6 +828,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -725,6 +849,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": true
         }
       }
@@ -742,6 +869,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
           ]
         }
       },
+      "__meta_raw__": [
+        "classes"
+      ],
       "content": {
         "key": {
           "element": "string",
@@ -760,6 +890,9 @@ exports[`refractor elements Boolean JSON Schema support should refract to semant
               ]
             }
           },
+          "__meta_raw__": [
+            "classes"
+          ],
           "content": true
         }
       }
