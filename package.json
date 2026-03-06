@@ -57,7 +57,7 @@
     "@types/node": "^25.2.3",
     "@types/ramda": "~0.31.1",
     "@types/sinon": "=21.0.0",
-    "babel-loader": "=10.0.0",
+    "babel-loader": "=10.1.0",
     "babel-plugin-inline-json-import": "^0.3.2",
     "benchmark": "=2.1.4",
     "chai": "^6.2.1",
