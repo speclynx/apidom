@@ -1,0 +1,26 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Test",
+    "version": "1.0.0"
+  },
+  "paths": {},
+  "components": {
+    "parameters": {
+      "working": {
+        "$ref": "#/components/schemas/Name"
+      },
+      "broken1": {
+        "$ref": "./missing.json#/param"
+      },
+      "broken2": {
+        "$ref": "./also-missing.json"
+      }
+    },
+    "schemas": {
+      "Name": {
+        "type": "string"
+      }
+    }
+  }
+}

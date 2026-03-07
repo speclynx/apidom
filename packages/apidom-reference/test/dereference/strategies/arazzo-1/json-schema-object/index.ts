@@ -190,7 +190,7 @@ describe('dereference', function () {
             } catch (error: unknown) {
               assert.instanceOf(error, DereferenceError);
               // @ts-ignore
-              assert.instanceOf(error.cause.cause, MaximumDereferenceDepthError);
+              assert.instanceOf(error.cause, MaximumDereferenceDepthError);
             }
           });
         });
@@ -210,7 +210,7 @@ describe('dereference', function () {
             } catch (error: unknown) {
               assert.instanceOf(error, DereferenceError);
               // @ts-ignore
-              assert.instanceOf(error.cause.cause, MaximumResolveDepthError);
+              assert.instanceOf(error.cause, MaximumResolveDepthError);
             }
           });
         });
@@ -438,7 +438,7 @@ describe('dereference', function () {
             } catch (error: unknown) {
               assert.instanceOf(error, DereferenceError);
               // @ts-ignore
-              assert.instanceOf(error.cause.cause, EvaluationJsonSchema$anchorError);
+              assert.instanceOf(error.cause, EvaluationJsonSchema$anchorError);
             }
           });
         });

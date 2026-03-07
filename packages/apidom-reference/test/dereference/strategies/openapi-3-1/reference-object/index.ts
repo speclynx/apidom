@@ -180,11 +180,11 @@ describe('dereference', function () {
             });
             const parent = evaluate<Element>(
               dereferenced,
-              '/0/components/parameters/param1/examples',
+              '/0/components/parameters/param1/examples/example1/examples',
             );
             const cyclicParent = evaluate<Element>(
               dereferenced,
-              '/0/components/parameters/param1/examples/example1/examples',
+              '/0/components/parameters/param1/examples/example1/examples/example1/examples',
             );
 
             assert.strictEqual(parent, cyclicParent);
@@ -358,9 +358,9 @@ describe('dereference', function () {
             } catch (error: any) {
               assert.instanceOf(error, DereferenceError);
               // @ts-ignore
-              assert.instanceOf(error.cause.cause, MaximumDereferenceDepthError);
+              assert.instanceOf(error.cause, MaximumDereferenceDepthError);
               // @ts-ignore
-              assert.match(error.cause.cause.message, /fixtures\/max-depth\/ex2.json"$/);
+              assert.match(error.cause.message, /fixtures\/max-depth\/ex2.json"$/);
             }
           });
         });
@@ -380,9 +380,9 @@ describe('dereference', function () {
             } catch (error: any) {
               assert.instanceOf(error, DereferenceError);
               // @ts-ignore
-              assert.instanceOf(error.cause.cause, MaximumResolveDepthError);
+              assert.instanceOf(error.cause, MaximumResolveDepthError);
               // @ts-ignore
-              assert.match(error.cause.cause.message, /fixtures\/max-depth\/ex2.json"$/);
+              assert.match(error.cause.message, /fixtures\/max-depth\/ex2.json"$/);
             }
           });
         });

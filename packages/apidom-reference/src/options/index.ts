@@ -42,6 +42,7 @@ export interface ReferenceDereferenceOptions {
   circular: 'ignore' | 'replace' | 'error';
   circularReplacer: (ref: RefElement) => unknown;
   immutable: boolean;
+  continueOnError: boolean | ((error: Error) => void);
 }
 
 /**
@@ -193,6 +194,15 @@ const defaultOptions: ReferenceOptions = {
      * false - the dereferencing process will be mutable
      */
     immutable: true,
+    /**
+     * Controls error handling during dereferencing.
+     *
+     * false - fail fast, throw on first error (default)
+     * true - skip unresolvable references silently, continue dereferencing
+     * (error) => void - callback invoked for each error; if the callback
+     *   itself throws, dereferencing stops with that error
+     */
+    continueOnError: false,
   },
   bundle: {
     /**

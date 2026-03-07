@@ -1,7 +1,5 @@
 import { invokeArgs } from 'ramda-adjunct';
 
-import PluginError from '../errors/PluginError.ts';
-
 /**
  * Filters the given plugins, returning only the ones return `true` for the given method.
  */
@@ -30,8 +28,8 @@ export const run = async (method: string, parameters: any[], plugins: any[]): Pr
     try {
       const result = await plugin[method].call(plugin, ...parameters);
       return { plugin, result };
-    } catch (error: any) {
-      lastError = new PluginError('Error while running plugin', { cause: error, plugin });
+    } catch (error: unknown) {
+      lastError = error;
     }
   }
 

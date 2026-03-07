@@ -2099,6 +2099,103 @@ await dereference('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/m
 });
 ```
 
+##### Continue on error
+
+By default, dereferencing fails fast on the first unresolvable reference. The `continueOnError` option
+allows dereferencing to continue past broken references, collecting errors instead of throwing.
+
+**Type:** `false | true | ((error: UnresolvableReferenceError) => void)`
+
+**Default:** `false`
+
+| Value | Behavior |
+|---|---|
+| `false` | Fail fast — throws `UnresolvableReferenceError` on first broken reference |
+| `true` | Skip unresolvable references silently |
+| callback | Called for each unresolvable reference with structured error context |
+
+**Collecting errors with a callback:**
+
+```js
+import { dereference, UnresolvableReferenceError } from '@speclynx/apidom-reference';
+
+const errors = [];
+
+await dereference('/home/user/oas.json', {
+  parse: { mediaType: 'application/openapi+json;version=3.1.2' },
+  dereference: {
+    continueOnError: (error) => {
+      errors.push(error);
+    },
+  },
+});
+
+// errors is an array of UnresolvableReferenceError instances
+```
+
+Each `UnresolvableReferenceError` (extends `DereferenceError`) carries structured context:
+
+| Property | Type | Description |
+|---|---|---|
+| `message` | `string` | Contextual description (e.g., "Error while dereferencing Reference Object. Cannot resolve $ref ...") |
+| `type` | `string` | Element type that failed (e.g., `"reference"`, `"pathItem"`, `"schema"`, `"link"`, `"example"`) |
+| `uri` | `string` | Document URI where the error occurred |
+| `location` | `string` | JSON Pointer to the element within the document |
+| `codeFrame` | `string` | YAML snippet of the referencing element |
+| `refFieldName` | `string` | Reference field name (e.g., `"$ref"`, `"operationRef"`, `"externalValue"`) |
+| `refFieldValue` | `string` | Reference field value |
+| `trace` | `Array` | Chain of reference hops from root document to the failure |
+| `cause` | `Error` | The underlying error |
+
+Each entry in the `trace` array has the shape `{ uri, type, refFieldName, refFieldValue, location, codeFrame }`,
+representing one hop in the reference chain that led to the failure. The trace is ordered from outermost (root document)
+to innermost (closest to the failing reference). For direct failures in the root document, the trace is empty.
+
+**Example output for a 3-hop chain** (`root.yaml → inventory.yaml → items.yaml → missing.yaml`):
+
+```
+error.uri        = "items.yaml"
+error.location   = "/ItemList/items"
+error.refFieldValue = "./missing.yaml#/Item"
+error.trace = [
+  { uri: "root.yaml", location: "/paths/~1inventory/get/.../schema", refFieldValue: "./inventory.yaml#/InventorySchema" },
+  { uri: "inventory.yaml", location: "/InventorySchema/properties/items", refFieldValue: "./items.yaml#/ItemList" },
+]
+```
+
+If the callback **throws**, dereferencing stops immediately. This can be used to abort after a threshold:
+
+```js
+await dereference('/home/user/oas.json', {
+  parse: { mediaType: 'application/openapi+json;version=3.1.2' },
+  dereference: {
+    continueOnError: (error) => {
+      errors.push(error);
+      if (errors.length >= 10) throw new Error('Too many errors');
+    },
+  },
+});
+```
+
+The structured error context enables rich, user-friendly error reporting with full traceability:
+
+```
+[1] schemas/items.yaml at #/ItemList/items                           ← where the broken $ref is (file + JSON Pointer)
+
+  Error while reading file "schemas/no-such-item.yaml"              ← what went wrong (the cause)
+
+    | $ref: ./no-such-item.yaml#/Item                                ← code frame of the failing element
+
+  referenced from root.yaml at #/paths/.../schema                   ← trace: the root document entry point
+    | $ref: ./schemas/inventory.yaml#/InventorySchema                ← code frame of the root reference
+  referenced from schemas/inventory.yaml at #/.../properties/items   ← trace: intermediate hop
+    | $ref: ./items.yaml#/ItemList                                   ← code frame of the intermediate reference
+```
+
+Reading top to bottom: the `$ref` at `/ItemList/items` in `schemas/items.yaml` cannot resolve `no-such-item.yaml`.
+We arrived there via: `root.yaml` referenced `inventory.yaml#/InventorySchema`, which referenced `items.yaml#/ItemList`,
+which contains the broken `$ref`.
+
 ##### Creating new dereference strategy
 
 Dereference component can be extended by additional strategies. Every strategy is an object that

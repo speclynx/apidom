@@ -327,9 +327,9 @@ describe('dereference', function () {
               } catch (error: any) {
                 assert.instanceOf(error, DereferenceError);
                 // @ts-ignore
-                assert.instanceOf(error.cause.cause, MaximumDereferenceDepthError);
+                assert.instanceOf(error.cause, MaximumDereferenceDepthError);
                 // @ts-ignore
-                assert.match(error.cause.cause.message, /fixtures\/max-depth\/ex1.json"$/);
+                assert.match(error.cause.message, /fixtures\/max-depth\/ex1.json"$/);
               }
             });
           });
