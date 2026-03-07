@@ -7,7 +7,6 @@ import {
   Element,
   RefElement,
   BooleanElement,
-  Namespace,
   ParseResultElement,
   cloneShallow,
   cloneDeep,
@@ -58,7 +57,6 @@ import type { ReferenceOptions } from '../../../options/index.ts';
  * @public
  */
 export interface OpenAPI3_1DereferenceVisitorOptions {
-  readonly namespace: Namespace;
   readonly reference: Reference;
   readonly options: ReferenceOptions;
   readonly indirections?: Element[];
@@ -71,8 +69,6 @@ export interface OpenAPI3_1DereferenceVisitorOptions {
  */
 class OpenAPI3_1DereferenceVisitor {
   protected readonly indirections: Element[];
-
-  protected readonly namespace: Namespace;
 
   protected readonly reference: Reference;
 
@@ -89,14 +85,12 @@ class OpenAPI3_1DereferenceVisitor {
 
   constructor({
     reference,
-    namespace,
     options,
     indirections = [],
     refractCache = new WeakMap(),
     ancestors = new AncestorLineage(),
   }: OpenAPI3_1DereferenceVisitorOptions) {
     this.indirections = indirections;
-    this.namespace = namespace;
     this.reference = reference;
     this.options = options;
     this.refractCache = refractCache;
@@ -370,7 +364,7 @@ class OpenAPI3_1DereferenceVisitor {
 
         const visitor = new OpenAPI3_1DereferenceVisitor({
           reference,
-          namespace: this.namespace,
+
           indirections: [...this.indirections],
           options: this.options,
           refractCache: this.refractCache,
@@ -548,7 +542,7 @@ class OpenAPI3_1DereferenceVisitor {
 
         const visitor = new OpenAPI3_1DereferenceVisitor({
           reference,
-          namespace: this.namespace,
+
           indirections: [...this.indirections],
           options: this.options,
           refractCache: this.refractCache,
@@ -971,7 +965,7 @@ class OpenAPI3_1DereferenceVisitor {
 
         const visitor = new OpenAPI3_1DereferenceVisitor({
           reference,
-          namespace: this.namespace,
+
           indirections: [...this.indirections],
           options: this.options,
           refractCache: this.refractCache,

@@ -1,10 +1,7 @@
 import { propEq } from 'ramda';
-import { Element, Namespace, cloneDeep } from '@speclynx/apidom-datamodel';
+import { Element, cloneDeep } from '@speclynx/apidom-datamodel';
 import { traverseAsync } from '@speclynx/apidom-traverse';
-import openApi3_1Namespace, {
-  isOpenApi3_1Element,
-  mediaTypes,
-} from '@speclynx/apidom-ns-openapi-3-1';
+import { isOpenApi3_1Element, mediaTypes } from '@speclynx/apidom-ns-openapi-3-1';
 
 import DereferenceStrategy, { DereferenceStrategyOptions } from '../DereferenceStrategy.ts';
 import File from '../../../File.ts';
@@ -67,7 +64,6 @@ class OpenAPI3_1DereferenceStrategy extends DereferenceStrategy {
   }
 
   async dereference(file: File, options: ReferenceOptions): Promise<Element> {
-    const namespace = new Namespace().use(openApi3_1Namespace);
     const immutableRefSet = options.dereference.refSet ?? new ReferenceSet();
     const mutableRefSet = new ReferenceSet();
     let refSet = immutableRefSet;
@@ -99,7 +95,8 @@ class OpenAPI3_1DereferenceStrategy extends DereferenceStrategy {
       refSet = mutableRefSet;
     }
 
-    const visitor = new OpenAPI3_1DereferenceVisitor({ reference: reference!, namespace, options });
+    const visitor = new OpenAPI3_1DereferenceVisitor({ reference: reference!, options });
+
     const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
       mutable: true,
     });
