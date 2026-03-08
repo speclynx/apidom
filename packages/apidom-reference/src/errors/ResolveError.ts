@@ -1,8 +1,8 @@
-import { ApiDOMError } from '@speclynx/apidom-error';
+import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 
 /**
  * @public
  */
-class ResolveError extends ApiDOMError {}
+class ResolveError extends ApiDOMStructuredError {}
 
 export default ResolveError;

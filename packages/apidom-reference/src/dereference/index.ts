@@ -10,6 +10,7 @@ import File from '../File.ts';
 import * as plugins from '../util/plugins.ts';
 import UnmatchedDereferenceStrategyError from '../errors/UnmatchedDereferenceStrategyError.ts';
 import DereferenceError from '../errors/DereferenceError.ts';
+import UnresolvableReferenceError from '../errors/UnresolvableReferenceError.ts';
 import parse from '../parse/index.ts';
 import { merge as mergeOptions } from '../options/util.ts';
 import * as url from '../util/url.ts';
@@ -58,6 +59,9 @@ export const dereferenceApiDOM = async <T extends Element>(
     // unwrap the element from ParseResult assuming first element is the actual result
     return surrogateWrapping ? result.get(0) : result;
   } catch (error: any) {
+    if (error instanceof UnresolvableReferenceError) {
+      throw error;
+    }
     throw new DereferenceError(`Error while dereferencing file "${file.uri}"`, { cause: error });
   }
 };

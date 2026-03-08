@@ -492,9 +492,9 @@ describe('dereference', function () {
             } catch (error: any) {
               assert.instanceOf(error, DereferenceError);
               // @ts-ignore
-              assert.instanceOf(error.cause.cause, ResolveError);
+              assert.instanceOf(error.cause, ResolveError);
               // @ts-ignore
-              assert.match(error.cause.cause.message, /\/schemas\/nested\/ex\.json"$/);
+              assert.match(error.cause.message, /\/schemas\/nested\/ex\.json"$/);
             }
           });
         });
@@ -611,7 +611,7 @@ describe('dereference', function () {
             } catch (error: any) {
               assert.instanceOf(error, DereferenceError);
               // @ts-ignore
-              assert.instanceOf(error.cause.cause, ResolveError);
+              assert.instanceOf(error.cause, ResolveError);
             }
           });
         });
@@ -682,7 +682,7 @@ describe('dereference', function () {
               } catch (error: any) {
                 assert.instanceOf(error, DereferenceError);
                 // @ts-ignore
-                assert.instanceOf(error.cause.cause, EvaluationJsonSchemaUriError);
+                assert.instanceOf(error.cause, EvaluationJsonSchemaUriError);
               }
             });
           },
@@ -775,7 +775,7 @@ describe('dereference', function () {
             } catch (error: any) {
               assert.instanceOf(error, DereferenceError);
               // @ts-ignore
-              assert.instanceOf(error.cause.cause, EvaluationJsonSchema$anchorError);
+              assert.instanceOf(error.cause, EvaluationJsonSchema$anchorError);
             }
           });
         });
@@ -809,9 +809,9 @@ describe('dereference', function () {
             } catch (error: any) {
               assert.instanceOf(error, DereferenceError);
               // @ts-ignore
-              assert.instanceOf(error.cause.cause, MaximumDereferenceDepthError);
+              assert.instanceOf(error.cause, MaximumDereferenceDepthError);
               // @ts-ignore
-              assert.match(error.cause.cause.message, /fixtures\/max-depth\/ex2.json"$/);
+              assert.match(error.cause.message, /fixtures\/max-depth\/ex2.json"$/);
             }
           });
         });
@@ -831,9 +831,9 @@ describe('dereference', function () {
             } catch (error: any) {
               assert.instanceOf(error, DereferenceError);
               // @ts-ignore
-              assert.instanceOf(error.cause.cause, MaximumResolveDepthError);
+              assert.instanceOf(error.cause, MaximumResolveDepthError);
               // @ts-ignore
-              assert.match(error.cause.cause.message, /fixtures\/max-depth\/ex2.json"$/);
+              assert.match(error.cause.message, /fixtures\/max-depth\/ex2.json"$/);
             }
           });
         });

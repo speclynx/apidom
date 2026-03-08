@@ -1,5 +1,5 @@
-import { Element, Namespace, cloneDeep } from '@speclynx/apidom-datamodel';
-import openApi2Namespace, { isSwaggerElement, mediaTypes } from '@speclynx/apidom-ns-openapi-2';
+import { Element, cloneDeep } from '@speclynx/apidom-datamodel';
+import { isSwaggerElement, mediaTypes } from '@speclynx/apidom-ns-openapi-2';
 import { traverseAsync } from '@speclynx/apidom-traverse';
 
 import DereferenceStrategy, { DereferenceStrategyOptions } from '../DereferenceStrategy.ts';
@@ -64,7 +64,6 @@ class OpenAPI2DereferenceStrategy extends DereferenceStrategy {
   }
 
   async dereference(file: File, options: ReferenceOptions): Promise<Element> {
-    const namespace = new Namespace().use(openApi2Namespace);
     const immutableRefSet = options.dereference.refSet ?? new ReferenceSet();
     const mutableRefSet = new ReferenceSet();
     let refSet = immutableRefSet;
@@ -96,7 +95,7 @@ class OpenAPI2DereferenceStrategy extends DereferenceStrategy {
       refSet = mutableRefSet;
     }
 
-    const visitor = new OpenAPI2DereferenceVisitor({ reference: reference!, namespace, options });
+    const visitor = new OpenAPI2DereferenceVisitor({ reference: reference!, options });
     const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
       mutable: true,
     });

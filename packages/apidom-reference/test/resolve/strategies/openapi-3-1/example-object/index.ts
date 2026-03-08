@@ -123,7 +123,7 @@ describe('resolve', function () {
                 assert.fail('should throw ResolverError');
               } catch (error: any) {
                 assert.strictEqual(
-                  error.cause.cause.message,
+                  error.cause.message,
                   'ExampleElement value and externalValue fields are mutually exclusive',
                 );
                 assert.instanceOf(error, ResolverError);

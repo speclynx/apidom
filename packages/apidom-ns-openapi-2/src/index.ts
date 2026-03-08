@@ -2,6 +2,7 @@ export {
   isJSONReferenceElement,
   isJSONReferenceLikeElement,
   JSONReferenceElement,
+  refractJSONReference,
 } from '@speclynx/apidom-ns-json-schema-draft-4';
 
 export { default as mediaTypes, OpenAPIMediaTypes } from './media-types.ts';

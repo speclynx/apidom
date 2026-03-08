@@ -51,6 +51,7 @@ export { default as BundleError } from './errors/BundleError.ts';
 export { default as MaximumBundleDepthError } from './errors/MaximumBundleDepthError.ts';
 export { default as UnmatchedBundleStrategyError } from './errors/UnmatchedBundleStrategyError.ts';
 export { default as DereferenceError } from './errors/DereferenceError.ts';
+export { default as UnresolvableReferenceError } from './errors/UnresolvableReferenceError.ts';
 export { default as EvaluationElementIdError } from './errors/EvaluationElementIdError.ts';
 export { default as EvaluationJsonSchema$anchorError } from './errors/EvaluationJsonSchema$anchorError.ts';
 export { default as EvaluationJsonSchemaUriError } from './errors/EvaluationJsonSchemaUriError.ts';

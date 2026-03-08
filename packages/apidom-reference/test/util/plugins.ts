@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import File from '../../src/File.ts';
 import { filter, run } from '../../src/util/plugins.ts';
-import PluginError from '../../src/errors/PluginError.ts';
+import ResolverError from '../../src/errors/ResolverError.ts';
 import defaultOptions from '../../src/options/index.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -100,8 +100,7 @@ describe('util', function () {
             await run('read', [file], suitablePlugins);
             assert.fail('Should throw object with Error here');
           } catch (error: any) {
-            assert.instanceOf(error, PluginError);
-            assert.propertyVal(error.plugin, 'name', 'file');
+            assert.instanceOf(error, ResolverError);
             assert.instanceOf(error.cause, Error);
           }
         });

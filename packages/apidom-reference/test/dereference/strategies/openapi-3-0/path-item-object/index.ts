@@ -146,25 +146,22 @@ describe('dereference', function () {
             });
 
             context('given immutable=false', function () {
-              specify('should throw', async function () {
+              specify('should dereference frozen ApiDOM tree', async function () {
                 const entryFilePath = path.join(fixturePath, 'entry.json');
                 const refSet = await resolve(entryFilePath, {
                   parse: { mediaType: mediaTypes.latest('json') },
                 });
                 refSet.refs.forEach((ref) => ref.value.freeze());
-                try {
-                  await dereference(entryFilePath, {
-                    parse: { mediaType: mediaTypes.latest('json') },
-                    resolve: { baseURI: entryFilePath },
-                    dereference: {
-                      refSet,
-                      immutable: false,
-                    },
-                  });
-                  assert.fail('should throw DereferenceError');
-                } catch (e) {
-                  assert.instanceOf(e, DereferenceError);
-                }
+                const dereferenced = await dereference(entryFilePath, {
+                  parse: { mediaType: mediaTypes.latest('json') },
+                  resolve: { baseURI: entryFilePath },
+                  dereference: {
+                    refSet,
+                    immutable: false,
+                  },
+                });
+
+                assert.isTrue(isParseResultElement(dereferenced));
               });
             });
           });
@@ -327,9 +324,9 @@ describe('dereference', function () {
               } catch (error: any) {
                 assert.instanceOf(error, DereferenceError);
                 // @ts-ignore
-                assert.instanceOf(error.cause.cause, MaximumDereferenceDepthError);
+                assert.instanceOf(error.cause, MaximumDereferenceDepthError);
                 // @ts-ignore
-                assert.match(error.cause.cause.message, /fixtures\/max-depth\/ex1.json"$/);
+                assert.match(error.cause.message, /fixtures\/max-depth\/ex1.json"$/);
               }
             });
           });

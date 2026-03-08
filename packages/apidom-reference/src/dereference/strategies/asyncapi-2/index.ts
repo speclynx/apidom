@@ -1,6 +1,6 @@
-import { Element, Namespace, cloneDeep } from '@speclynx/apidom-datamodel';
+import { Element, cloneDeep } from '@speclynx/apidom-datamodel';
 import { traverseAsync } from '@speclynx/apidom-traverse';
-import asyncApi2Namespace, { isAsyncApi2Element, mediaTypes } from '@speclynx/apidom-ns-asyncapi-2';
+import { isAsyncApi2Element, mediaTypes } from '@speclynx/apidom-ns-asyncapi-2';
 
 import DereferenceStrategy, { DereferenceStrategyOptions } from '../DereferenceStrategy.ts';
 import File from '../../../File.ts';
@@ -63,7 +63,6 @@ class AsyncAPI2DereferenceStrategy extends DereferenceStrategy {
   }
 
   async dereference(file: File, options: ReferenceOptions): Promise<Element> {
-    const namespace = new Namespace().use(asyncApi2Namespace);
     const immutableRefSet = options.dereference.refSet ?? new ReferenceSet();
     const mutableRefSet = new ReferenceSet();
     let refSet = immutableRefSet;
@@ -95,7 +94,7 @@ class AsyncAPI2DereferenceStrategy extends DereferenceStrategy {
       refSet = mutableRefSet;
     }
 
-    const visitor = new AsyncAPI2DereferenceVisitor({ reference, namespace, options });
+    const visitor = new AsyncAPI2DereferenceVisitor({ reference, options });
     const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
       mutable: true,
     });

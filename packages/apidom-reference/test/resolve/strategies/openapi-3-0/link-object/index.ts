@@ -88,7 +88,7 @@ describe('resolve', function () {
               assert.fail('should throw ResolverError');
             } catch (error: any) {
               assert.strictEqual(
-                error.cause.cause.message,
+                error.cause.message,
                 'LinkElement operationRef and operationId fields are mutually exclusive',
               );
               assert.instanceOf(error, ResolverError);

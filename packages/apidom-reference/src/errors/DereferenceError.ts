@@ -1,8 +1,8 @@
-import { ApiDOMError } from '@speclynx/apidom-error';
+import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 
 /**
  * @public
  */
-class DereferenceError extends ApiDOMError {}
+class DereferenceError extends ApiDOMStructuredError {}
 
 export default DereferenceError;

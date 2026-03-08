@@ -181,19 +181,16 @@ describe('dereference', function () {
                 parse: { mediaType: mediaTypes.latest('json') },
               });
               refSet.refs.forEach((ref) => ref.value.freeze());
-              try {
-                await dereference(entryFilePath, {
-                  parse: { mediaType: mediaTypes.latest('json') },
-                  resolve: { baseURI: entryFilePath },
-                  dereference: {
-                    refSet,
-                    immutable: false,
-                  },
-                });
-                assert.fail('should throw DereferenceError');
-              } catch (e) {
-                assert.instanceOf(e, DereferenceError);
-              }
+              const dereferenced = await dereference(entryFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                resolve: { baseURI: entryFilePath },
+                dereference: {
+                  refSet,
+                  immutable: false,
+                },
+              });
+
+              assert.isTrue(isParseResultElement(dereferenced));
             });
           });
         });
@@ -286,7 +283,7 @@ describe('dereference', function () {
         context('given JSONReference Objects with direct circular internal reference', function () {
           const fixturePath = path.join(entryFixturePath, 'direct-internal-circular');
 
-          specify('should throw error', async function () {
+          specify('should dereference', async function () {
             const entryFilePath = path.join(fixturePath, 'entry.json');
             const actual = await dereference(entryFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
@@ -437,9 +434,9 @@ describe('dereference', function () {
             } catch (error: any) {
               assert.instanceOf(error, DereferenceError);
               // @ts-ignore
-              assert.instanceOf(error.cause.cause, MaximumDereferenceDepthError);
+              assert.instanceOf(error.cause, MaximumDereferenceDepthError);
               // @ts-ignore
-              assert.match(error.cause.cause.message, /fixtures\/max-depth\/ex2.json"$/);
+              assert.match(error.cause.message, /fixtures\/max-depth\/ex2.json"$/);
             }
           });
         });
@@ -459,9 +456,9 @@ describe('dereference', function () {
             } catch (error: any) {
               assert.instanceOf(error, DereferenceError);
               // @ts-ignore
-              assert.instanceOf(error.cause.cause, MaximumResolveDepthError);
+              assert.instanceOf(error.cause, MaximumResolveDepthError);
               // @ts-ignore
-              assert.match(error.cause.cause.message, /fixtures\/max-depth\/ex2.json"$/);
+              assert.match(error.cause.message, /fixtures\/max-depth\/ex2.json"$/);
             }
           });
         });

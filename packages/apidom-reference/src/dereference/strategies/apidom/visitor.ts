@@ -1,5 +1,5 @@
 import { propEq } from 'ramda';
-import { ApiDOMError } from '@speclynx/apidom-error';
+import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 import {
   Element,
   RefElement,
@@ -12,11 +12,12 @@ import {
   refract,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
-import { traverseAsync, Path } from '@speclynx/apidom-traverse';
+import { toValue, toYAML } from '@speclynx/apidom-core';
+import { traverse, traverseAsync, Path } from '@speclynx/apidom-traverse';
 import { URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
 
 import MaximumResolveDepthError from '../../../errors/MaximumResolveDepthError.ts';
+import UnresolvableReferenceError from '../../../errors/UnresolvableReferenceError.ts';
 import * as url from '../../../util/url.ts';
 import parse from '../../../parse/index.ts';
 import Reference from '../../../Reference.ts';
@@ -65,6 +66,7 @@ class ApiDOMDereferenceVisitor {
     if (this.reference.depth >= this.options.resolve.maxDepth) {
       throw new MaximumResolveDepthError(
         `Maximum resolution depth of ${this.options.resolve.maxDepth} has been exceeded by file "${this.reference.uri}"`,
+        { maxDepth: this.options.resolve.maxDepth, uri: this.reference.uri },
       );
     }
 
@@ -102,6 +104,74 @@ class ApiDOMDereferenceVisitor {
     return mutableReference;
   }
 
+  /**
+   * Handles an error according to the continueOnError option.
+   *
+   * For new errors: wraps in UnresolvableReferenceError with structured context.
+   * For errors already wrapped by a nested visitor: prepends the current hop to the trace.
+   *
+   * Inner/intermediate visitors always throw to let the trace accumulate.
+   * Only the entry document visitor respects continueOnError (callback/swallow/throw).
+   */
+  protected handleError(
+    message: string,
+    error: Error,
+    referencingElement: Element,
+    refFieldName: string | null,
+    refFieldValue: string,
+    visitorPath: Path<Element>,
+  ): void {
+    const { continueOnError } = this.options.dereference;
+    const isEntryDocument =
+      url.stripHash(this.reference.refSet?.rootRef?.uri ?? '') === this.reference.uri;
+    const uri = this.reference.uri;
+    const type = referencingElement.element as string;
+    let location: string | undefined;
+    traverse((this.reference.value as ParseResultElement).result as Element, {
+      enter(p: Path<Element>) {
+        if (p.node === referencingElement) {
+          location = p.formatPath();
+          p.stop();
+        }
+      },
+    });
+    location ??= visitorPath.formatPath();
+
+    const codeFrame = toYAML(referencingElement);
+    const hop = { uri, type, refFieldName, refFieldValue, location, codeFrame };
+
+    let unresolvedError: UnresolvableReferenceError;
+    if (error instanceof UnresolvableReferenceError) {
+      const refBaseURI = this.toBaseURI(refFieldValue);
+      const fragment = URIFragmentIdentifier.fromURIReference(refFieldValue);
+      if (fragment) {
+        if (refBaseURI === (error as any).uri && (error as any).location) {
+          (error as any).location = fragment + (error as any).location;
+        }
+        for (const h of (error as any).trace) {
+          if (h.uri === refBaseURI && h.location) h.location = fragment + h.location;
+        }
+      }
+      // @ts-ignore
+      error.trace = [hop, ...error.trace];
+      unresolvedError = error;
+    } else {
+      unresolvedError = new UnresolvableReferenceError(message, {
+        cause: error,
+        type,
+        uri,
+        location,
+        codeFrame,
+        refFieldName,
+        refFieldValue,
+        trace: [],
+      });
+    }
+
+    if (!isEntryDocument || continueOnError === false) throw unresolvedError;
+    if (typeof continueOnError === 'function') continueOnError(unresolvedError);
+  }
+
   public async RefElement(path: Path<Element>) {
     const refElement = path.node as RefElement;
     const { parent, key } = path;
@@ -126,85 +196,112 @@ class ApiDOMDereferenceVisitor {
       return;
     }
 
-    const reference = await this.toReference(refNormalizedURI);
-    const refBaseURI = url.resolve(retrievalURI, refNormalizedURI);
-    const elementID = URIFragmentIdentifier.fromURIReference(refBaseURI);
-    let referencedElement = evaluate(
-      elementID,
-      (reference.value as ParseResultElement).result as Element,
-    );
+    try {
+      const reference = await this.toReference(refNormalizedURI);
+      const refBaseURI = url.resolve(retrievalURI, refNormalizedURI);
+      const elementID = URIFragmentIdentifier.fromURIReference(refBaseURI);
+      let referencedElement = evaluate(
+        elementID,
+        (reference.value as ParseResultElement).result as Element,
+      );
 
-    if (!isElement(referencedElement)) {
-      throw new ApiDOMError(`Referenced element with id="${elementID}" was not found`);
-    }
+      if (!isElement(referencedElement)) {
+        throw new ApiDOMStructuredError(`Referenced element with id="${elementID}" was not found`, {
+          elementID,
+        });
+      }
 
-    if (refElement === referencedElement) {
-      throw new ApiDOMError('RefElement cannot reference itself');
-    }
+      if (refElement === referencedElement) {
+        throw new ApiDOMStructuredError(
+          `RefElement with id="${elementID}" cannot reference itself`,
+          { elementID },
+        );
+      }
 
-    if (isRefElement(referencedElement)) {
-      throw new ApiDOMError('RefElement cannot reference another RefElement');
-    }
+      if (isRefElement(referencedElement)) {
+        throw new ApiDOMStructuredError(
+          `RefElement with id="${elementID}" cannot reference another RefElement`,
+          { elementID },
+        );
+      }
 
-    if (isExternalReference) {
-      // dive deep into the fragment
-      const visitor = new ApiDOMDereferenceVisitor({ reference, options: this.options });
-      referencedElement = await traverseAsync(referencedElement, visitor, { mutable: true });
-    }
+      if (isExternalReference) {
+        // dive deep into the fragment
+        const visitor = new ApiDOMDereferenceVisitor({ reference, options: this.options });
+        referencedElement = await traverseAsync(referencedElement, visitor, { mutable: true });
+      }
 
-    /**
-     * When path is used, it references the given property of the referenced element.
-     * Valid paths are: 'element', 'content', 'meta', 'attributes'.
-     */
-    const referencedElementPath = toValue(refElement.path) as
-      | 'element'
-      | 'content'
-      | 'meta'
-      | 'attributes';
-    if (referencedElementPath !== 'element' && isElement(referencedElement)) {
-      referencedElement = refract(referencedElement[referencedElementPath]);
-    }
-
-    /**
-     * Transclusion of a Ref Element SHALL be defined in the if/else block below.
-     */
-    // ancestors[0] is the grandparent (nearest ancestor from getAncestorNodes())
-    const grandparent = ancestors[0];
-    if (
-      isObjectElement(referencedElement) &&
-      isObjectElement(grandparent) &&
-      Array.isArray(parent) &&
-      typeof key === 'number'
-    ) {
       /**
-       * If the Ref Element is held by an Object Element and references an Object Element,
-       * its content entries SHALL be inserted in place of the Ref Element.
+       * When path is used, it references the given property of the referenced element.
+       * Valid paths are: 'element', 'content', 'meta', 'attributes'.
        */
-      (parent as unknown as Element[]).splice(key, 1, ...(referencedElement.content as Element[]));
-    } else if (
-      isArrayElement(referencedElement) &&
-      Array.isArray(parent) &&
-      typeof key === 'number'
-    ) {
-      /**
-       * If the Ref Element is held by an Array Element and references an Array Element,
-       * its content entries SHALL be inserted in place of the Ref Element.
-       */
-      (parent as unknown as Element[]).splice(key, 1, ...(referencedElement.content as Element[]));
-    } else if (isMemberElement(parent)) {
-      /**
-       * The Ref Element is substituted by the Element it references.
-       */
-      parent.value = referencedElement;
-    } else if (Array.isArray(parent)) {
-      /**
-       * The Ref Element is substituted by the Element it references.
-       */
-      (parent as unknown as Element[])[key as number] = referencedElement as Element;
-    }
+      const referencedElementPath = toValue(refElement.path) as
+        | 'element'
+        | 'content'
+        | 'meta'
+        | 'attributes';
+      if (referencedElementPath !== 'element' && isElement(referencedElement)) {
+        referencedElement = refract(referencedElement[referencedElementPath]);
+      }
 
-    if (!parent) {
-      path.replaceWith(referencedElement);
+      /**
+       * Transclusion of a Ref Element SHALL be defined in the if/else block below.
+       */
+      // ancestors[0] is the grandparent (nearest ancestor from getAncestorNodes())
+      const grandparent = ancestors[0];
+      if (
+        isObjectElement(referencedElement) &&
+        isObjectElement(grandparent) &&
+        Array.isArray(parent) &&
+        typeof key === 'number'
+      ) {
+        /**
+         * If the Ref Element is held by an Object Element and references an Object Element,
+         * its content entries SHALL be inserted in place of the Ref Element.
+         */
+        (parent as unknown as Element[]).splice(
+          key,
+          1,
+          ...(referencedElement.content as Element[]),
+        );
+      } else if (
+        isArrayElement(referencedElement) &&
+        Array.isArray(parent) &&
+        typeof key === 'number'
+      ) {
+        /**
+         * If the Ref Element is held by an Array Element and references an Array Element,
+         * its content entries SHALL be inserted in place of the Ref Element.
+         */
+        (parent as unknown as Element[]).splice(
+          key,
+          1,
+          ...(referencedElement.content as Element[]),
+        );
+      } else if (isMemberElement(parent)) {
+        /**
+         * The Ref Element is substituted by the Element it references.
+         */
+        parent.value = referencedElement;
+      } else if (Array.isArray(parent)) {
+        /**
+         * The Ref Element is substituted by the Element it references.
+         */
+        (parent as unknown as Element[])[key as number] = referencedElement as Element;
+      }
+
+      if (!parent) {
+        path.replaceWith(referencedElement);
+      }
+    } catch (error: unknown) {
+      this.handleError(
+        `Error while dereferencing Ref Element. Cannot resolve ref "${refURI}": ${(error as Error).message}`,
+        error as Error,
+        refElement,
+        null,
+        refURI,
+        path,
+      );
     }
   }
 }

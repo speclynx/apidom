@@ -260,19 +260,16 @@ describe('dereference', function () {
                 parse: { mediaType: mediaTypes.latest('json') },
               });
               refSet.refs.forEach((ref) => ref.value.freeze());
-              try {
-                await dereference(entryFilePath, {
-                  parse: { mediaType: mediaTypes.latest('json') },
-                  resolve: { baseURI: entryFilePath },
-                  dereference: {
-                    refSet,
-                    immutable: false,
-                  },
-                });
-                assert.fail('should throw DereferenceError');
-              } catch (e) {
-                assert.instanceOf(e, DereferenceError);
-              }
+              const dereferenced = await dereference(entryFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                resolve: { baseURI: entryFilePath },
+                dereference: {
+                  refSet,
+                  immutable: false,
+                },
+              });
+
+              assert.isTrue(isParseResultElement(dereferenced));
             });
           });
         });
@@ -454,9 +451,9 @@ describe('dereference', function () {
             } catch (error: any) {
               assert.instanceOf(error, DereferenceError);
               // @ts-ignore
-              assert.instanceOf(error.cause.cause, MaximumDereferenceDepthError);
+              assert.instanceOf(error.cause, MaximumDereferenceDepthError);
               // @ts-ignore
-              assert.match(error.cause.cause.message, /fixtures\/max-depth\/ex2.json"$/);
+              assert.match(error.cause.message, /fixtures\/max-depth\/ex2.json"$/);
             }
           });
         });
@@ -476,9 +473,9 @@ describe('dereference', function () {
             } catch (error: any) {
               assert.instanceOf(error, DereferenceError);
               // @ts-ignore
-              assert.instanceOf(error.cause.cause, MaximumResolveDepthError);
+              assert.instanceOf(error.cause, MaximumResolveDepthError);
               // @ts-ignore
-              assert.match(error.cause.cause.message, /fixtures\/max-depth\/ex2.json"$/);
+              assert.match(error.cause.message, /fixtures\/max-depth\/ex2.json"$/);
             }
           });
         });
@@ -511,6 +508,120 @@ describe('dereference', function () {
             const expected = loadJsonFile(path.join(fixturePath, 'dereferenced.json'));
 
             assert.deepEqual(toValue(actual), expected);
+          });
+        });
+
+        context('given Reference Objects with continueOnError option', function () {
+          const fixturePath = path.join(entryFixturePath, 'continue-on-error');
+
+          context('and continueOnError is false (default)', function () {
+            specify('should throw on first unresolvable reference', async function () {
+              const entryFilePath = path.join(fixturePath, 'entry.json');
+              try {
+                await dereference(entryFilePath, {
+                  parse: { mediaType: mediaTypes.latest('json') },
+                });
+                assert.fail('should throw DereferenceError');
+              } catch (e) {
+                assert.instanceOf(e, DereferenceError);
+              }
+            });
+          });
+
+          context('and continueOnError is true', function () {
+            specify('should skip unresolvable references silently', async function () {
+              const entryFilePath = path.join(fixturePath, 'entry.json');
+              const actual = await dereference(entryFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                dereference: { continueOnError: true },
+              });
+
+              const working = evaluate(actual, '/0/components/schemas/Working');
+              assert.deepEqual(toValue(working), { type: 'string' });
+            });
+          });
+
+          context('and continueOnError is a callback function', function () {
+            specify('should collect errors via callback', async function () {
+              const entryFilePath = path.join(fixturePath, 'entry.json');
+              const errors: Error[] = [];
+
+              await dereference(entryFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                dereference: {
+                  continueOnError: (error: Error) => {
+                    errors.push(error);
+                  },
+                },
+              });
+
+              assert.lengthOf(errors, 2);
+            });
+
+            specify('should produce DereferenceError instances', async function () {
+              const entryFilePath = path.join(fixturePath, 'entry.json');
+              const errors: Error[] = [];
+
+              await dereference(entryFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                dereference: {
+                  continueOnError: (error: Error) => {
+                    errors.push(error);
+                  },
+                },
+              });
+
+              errors.forEach((error) => {
+                assert.instanceOf(error, DereferenceError);
+              });
+            });
+
+            specify('should include structured context on errors', async function () {
+              const entryFilePath = path.join(fixturePath, 'entry.json');
+              const errors: Error[] = [];
+
+              await dereference(entryFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                dereference: {
+                  continueOnError: (error: Error) => {
+                    errors.push(error);
+                  },
+                },
+              });
+
+              const error = errors[0] as any;
+              assert.isString(error.uri);
+              assert.isString(error.type);
+              assert.isString(error.codeFrame);
+              assert.isString(error.refFieldName);
+              assert.isString(error.refFieldValue);
+              assert.isArray(error.trace);
+              assert.isDefined(error.cause);
+            });
+          });
+
+          context('and continueOnError callback throws', function () {
+            specify('should stop dereferencing immediately', async function () {
+              const entryFilePath = path.join(fixturePath, 'entry.json');
+              const errors: Error[] = [];
+
+              try {
+                await dereference(entryFilePath, {
+                  parse: { mediaType: mediaTypes.latest('json') },
+                  dereference: {
+                    continueOnError: (error: Error) => {
+                      errors.push(error);
+                      throw new Error('abort');
+                    },
+                  },
+                });
+                assert.fail('should throw');
+              } catch (e: any) {
+                assert.instanceOf(e, DereferenceError);
+                assert.strictEqual((e as any).cause.message, 'abort');
+                assert.lengthOf(errors, 1);
+              }
+            });
           });
         });
       });
