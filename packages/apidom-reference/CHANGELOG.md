@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.2.0](https://github.com/speclynx/apidom/compare/v3.1.0...v3.2.0) (2026-03-08)
+
+### Bug Fixes
+
+- **referece:** fix indirection leak in dereference strategies ([#141](https://github.com/speclynx/apidom/issues/141)) ([57ec415](https://github.com/speclynx/apidom/commit/57ec4153baade728681e43223d058ef35b707212))
+
+### Features
+
+- add keywords to all package.json files for npm search discoverability ([#142](https://github.com/speclynx/apidom/issues/142)) ([f6c2b38](https://github.com/speclynx/apidom/commit/f6c2b387db48427f0f12e3019e1bdb8d7e05dd00))
+
 # [3.1.0](https://github.com/speclynx/apidom/compare/v3.0.0...v3.1.0) (2026-03-08)
 
 ### Features
