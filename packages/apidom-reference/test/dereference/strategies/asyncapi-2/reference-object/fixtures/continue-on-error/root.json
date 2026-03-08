@@ -1,0 +1,23 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "Test",
+    "version": "1.0.0"
+  },
+  "channels": {},
+  "components": {
+    "schemas": {
+      "Working": {
+        "type": "string"
+      }
+    },
+    "parameters": {
+      "broken1": {
+        "$ref": "./missing.json#/param"
+      },
+      "broken2": {
+        "$ref": "./also-missing.json"
+      }
+    }
+  }
+}

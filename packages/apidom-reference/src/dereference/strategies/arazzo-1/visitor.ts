@@ -459,7 +459,7 @@ class Arazzo1DereferenceVisitor {
             $ref: toValue(referencingElement.$ref),
           });
         } else if (this.options.dereference.circular === 'replace') {
-          const refElement = new RefElement(referencedElement.id, {
+          const refElement = new RefElement($refBaseURI, {
             type: referencingElement.element,
             uri: reference.uri,
             $ref: toValue(referencingElement.$ref),
@@ -480,15 +480,15 @@ class Arazzo1DereferenceVisitor {
        *
        * Cases to consider:
        *  1. We're crossing document boundary
-       *  2. Fragment is from non-root document
+       *  2. Fragment is from non-entry document
        *  3. Fragment is a JSON Schema with $ref field. We need to follow it to get the eventual value
        *  4. We are dereferencing the fragment lazily/eagerly depending on circular mode
        */
-      const isNonRootDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
+      const isNonEntryDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
       const shouldDetectCircular = ['error', 'replace'].includes(this.options.dereference.circular);
       if (
         (isExternalReference ||
-          isNonRootDocument ||
+          isNonEntryDocument ||
           (isJSONSchemaElement(referencedElement) && isStringElement(referencedElement.$ref)) ||
           shouldDetectCircular) &&
         !ancestorsLineage.includesCycle(referencedElement)

@@ -10,7 +10,7 @@ import {
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
 import { toValue, toYAML } from '@speclynx/apidom-core';
-import { ApiDOMError, ApiDOMStructuredError } from '@speclynx/apidom-error';
+import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 import { traverse, traverseAsync, Path, find } from '@speclynx/apidom-traverse';
 import { evaluate, URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
 import {
@@ -83,10 +83,6 @@ class OpenAPI3_0DereferenceVisitor {
   }
 
   protected toAncestorLineage(path: Path<Element>): [AncestorLineage<Element>, Set<Element>] {
-    /**
-     * Compute full ancestors lineage.
-     * Ancestors are flatten to unwrap all Element instances.
-     */
     const ancestorNodes = path.getAncestorNodes();
     const directAncestors = new Set<Element>(ancestorNodes.filter(isElement));
     const ancestorsLineage = new AncestorLineage(...this.ancestors, directAncestors);
@@ -312,7 +308,9 @@ class OpenAPI3_0DereferenceVisitor {
         reference.refSet!.circular = true;
 
         if (this.options.dereference.circular === 'error') {
-          throw new ApiDOMError('Circular reference detected');
+          throw new ApiDOMStructuredError('Circular reference detected', {
+            $ref: toValue(referencingElement.$ref),
+          });
         } else if (this.options.dereference.circular === 'replace') {
           const refElement = new RefElement($refBaseURI, {
             type: referencingElement.element,

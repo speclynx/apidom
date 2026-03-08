@@ -225,9 +225,9 @@ describe('resolve', function () {
             } catch (error: any) {
               assert.instanceOf(error, ResolverError);
               // @ts-ignore
-              assert.instanceOf(error.cause, MaximumDereferenceDepthError);
+              assert.instanceOf(error.cause.cause, MaximumDereferenceDepthError);
               // @ts-ignore
-              assert.match(error.cause.message, /fixtures\/max-depth\/ex2.json"$/);
+              assert.match(error.cause.cause.message, /fixtures\/max-depth\/ex2.json"$/);
             }
           });
         });
@@ -247,9 +247,9 @@ describe('resolve', function () {
             } catch (error: any) {
               assert.instanceOf(error, ResolverError);
               // @ts-ignore
-              assert.instanceOf(error.cause, MaximumResolveDepthError);
+              assert.instanceOf(error.cause.cause, MaximumResolveDepthError);
               // @ts-ignore
-              assert.match(error.cause.message, /fixtures\/max-depth\/ex2.json"$/);
+              assert.match(error.cause.cause.message, /fixtures\/max-depth\/ex2.json"$/);
             }
           });
         });
