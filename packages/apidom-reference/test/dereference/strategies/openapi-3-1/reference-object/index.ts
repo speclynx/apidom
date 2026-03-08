@@ -565,6 +565,37 @@ describe('dereference', function () {
             );
           });
 
+          context('and continueOnError with low maxDepth', function () {
+            specify(
+              'should not leak indirections across consecutive unresolvable references',
+              async function () {
+                const rootFilePath = path.join(fixturePath, 'root.json');
+                const errors: Error[] = [];
+
+                const actual = await dereference(rootFilePath, {
+                  parse: { mediaType: mediaTypes.latest('json') },
+                  dereference: {
+                    maxDepth: 1,
+                    continueOnError: (error: Error) => {
+                      errors.push(error);
+                    },
+                  },
+                });
+
+                // errors should be resolve failures, not MaximumDereferenceDepthError
+                errors.forEach((error) => {
+                  assert.notInstanceOf(error.cause, MaximumDereferenceDepthError);
+                });
+
+                // working internal $ref should still resolve despite low maxDepth
+                const workingParam = evaluate(actual, '/0/components/parameters/working');
+                assert.deepEqual(toValue(workingParam), { type: 'string' });
+
+                assert.lengthOf(errors, 2);
+              },
+            );
+          });
+
           context('and continueOnError callback throws', function () {
             specify('should stop dereferencing immediately', async function () {
               const rootFilePath = path.join(fixturePath, 'root.json');

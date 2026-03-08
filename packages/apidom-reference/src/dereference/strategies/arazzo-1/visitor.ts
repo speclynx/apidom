@@ -312,6 +312,8 @@ class Arazzo1DereferenceVisitor {
       return;
     }
 
+    const indirectionsSize = this.indirections.length;
+
     try {
       // compute baseURI using rules around $id and $ref keywords
       let reference = await this.toReference(url.unsanitize(this.reference.uri));
@@ -469,7 +471,6 @@ class Arazzo1DereferenceVisitor {
             this.options.dereference.circularReplacer;
           const replacement = replacer(refElement);
 
-          this.indirections.pop();
           path.replaceWith(replacement);
           return;
         }
@@ -507,8 +508,6 @@ class Arazzo1DereferenceVisitor {
         // remove referencing reference from ancestors lineage
         directAncestors.delete(referencingElement);
       }
-
-      this.indirections.pop();
 
       // Boolean JSON Schemas
       if (isBooleanJSONSchemaElement(referencedElement)) {
@@ -560,6 +559,8 @@ class Arazzo1DereferenceVisitor {
         $ref,
         path,
       );
+    } finally {
+      if (this.indirections.length > indirectionsSize) this.indirections.pop();
     }
   }
 }
