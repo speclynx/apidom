@@ -117,7 +117,7 @@ class ApiDOMDereferenceVisitor {
     message: string,
     error: Error,
     referencingElement: Element,
-    refFieldName: string,
+    refFieldName: string | null,
     refFieldValue: string,
     visitorPath: Path<Element>,
   ): void {
@@ -298,7 +298,7 @@ class ApiDOMDereferenceVisitor {
         `Error while dereferencing Ref Element. Cannot resolve ref "${refURI}": ${(error as Error).message}`,
         error as Error,
         refElement,
-        null as any,
+        null,
         refURI,
         path,
       );

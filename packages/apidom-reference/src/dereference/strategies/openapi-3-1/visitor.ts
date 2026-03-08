@@ -266,6 +266,7 @@ class OpenAPI3_1DereferenceVisitor {
 
     const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
 
+    const indirectionsSize = this.indirections.length;
     try {
       const reference = await this.toReference(toValue(referencingElement.$ref) as string);
 
@@ -336,7 +337,6 @@ class OpenAPI3_1DereferenceVisitor {
             this.options.dereference.circularReplacer;
           const replacement = replacer(refElement);
 
-          this.indirections.pop();
           path.replaceWith(replacement);
           return;
         }
@@ -373,8 +373,6 @@ class OpenAPI3_1DereferenceVisitor {
 
         directAncestors.delete(referencingElement);
       }
-
-      this.indirections.pop();
 
       /**
        * Creating a new version of referenced element to avoid modifying the original one.
@@ -420,6 +418,8 @@ class OpenAPI3_1DereferenceVisitor {
         $ref,
         path,
       );
+    } finally {
+      if (this.indirections.length > indirectionsSize) this.indirections.pop();
     }
   }
 
@@ -454,6 +454,7 @@ class OpenAPI3_1DereferenceVisitor {
 
     const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
 
+    const indirectionsSize = this.indirections.length;
     try {
       const reference = await this.toReference(toValue(referencingElement.$ref) as string);
 
@@ -513,7 +514,6 @@ class OpenAPI3_1DereferenceVisitor {
             this.options.dereference.circularReplacer;
           const replacement = replacer(refElement);
 
-          this.indirections.pop();
           path.replaceWith(replacement);
           return;
         }
@@ -550,8 +550,6 @@ class OpenAPI3_1DereferenceVisitor {
 
         directAncestors.delete(referencingElement);
       }
-
-      this.indirections.pop();
 
       /**
        * Creating a new version of Path Item by merging fields from referenced Path Item with referencing one.
@@ -590,6 +588,8 @@ class OpenAPI3_1DereferenceVisitor {
         $ref,
         path,
       );
+    } finally {
+      if (this.indirections.length > indirectionsSize) this.indirections.pop();
     }
   }
 
@@ -786,6 +786,7 @@ class OpenAPI3_1DereferenceVisitor {
       return;
     }
 
+    const indirectionsSize = this.indirections.length;
     try {
       // compute baseURI using rules around $id and $ref keywords
       let reference = await this.toReference(url.unsanitize(this.reference.uri));
@@ -943,7 +944,6 @@ class OpenAPI3_1DereferenceVisitor {
             this.options.dereference.circularReplacer;
           const replacement = replacer(refElement);
 
-          this.indirections.pop();
           path.replaceWith(replacement);
           return;
         }
@@ -980,8 +980,6 @@ class OpenAPI3_1DereferenceVisitor {
 
         directAncestors.delete(referencingElement);
       }
-
-      this.indirections.pop();
 
       // Boolean JSON Schemas
       if (isBooleanJSONSchemaElement(referencedElement)) {
@@ -1033,6 +1031,8 @@ class OpenAPI3_1DereferenceVisitor {
         $ref,
         path,
       );
+    } finally {
+      if (this.indirections.length > indirectionsSize) this.indirections.pop();
     }
   }
 }

@@ -555,7 +555,7 @@ describe('dereference', function () {
               await dereference(rootFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
                 dereference: {
-                  continueOnError: (error) => {
+                  continueOnError: (error: Error) => {
                     errors.push(error);
                   },
                 },
@@ -571,7 +571,7 @@ describe('dereference', function () {
               await dereference(rootFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
                 dereference: {
-                  continueOnError: (error) => {
+                  continueOnError: (error: Error) => {
                     errors.push(error);
                   },
                 },
@@ -589,7 +589,7 @@ describe('dereference', function () {
               await dereference(rootFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
                 dereference: {
-                  continueOnError: (error) => {
+                  continueOnError: (error: Error) => {
                     errors.push(error);
                   },
                 },
@@ -615,7 +615,7 @@ describe('dereference', function () {
                 await dereference(rootFilePath, {
                   parse: { mediaType: mediaTypes.latest('json') },
                   dereference: {
-                    continueOnError: (error) => {
+                    continueOnError: (error: Error) => {
                       errors.push(error);
                       throw new Error('abort');
                     },
@@ -624,7 +624,7 @@ describe('dereference', function () {
                 assert.fail('should throw');
               } catch (e: any) {
                 assert.instanceOf(e, DereferenceError);
-                assert.strictEqual(e.cause.message, 'abort');
+                assert.strictEqual((e as any).cause.message, 'abort');
                 assert.lengthOf(errors, 1);
               }
             });

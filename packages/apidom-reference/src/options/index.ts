@@ -7,6 +7,7 @@ import type ResolveStrategy from '../resolve/strategies/ResolveStrategy.ts';
 import type DereferenceStrategy from '../dereference/strategies/DereferenceStrategy.ts';
 import type ReferenceSet from '../ReferenceSet.ts';
 import type BundleStrategy from '../bundle/strategies/BundleStrategy.ts';
+import type UnresolvableReferenceError from '../errors/UnresolvableReferenceError.ts';
 
 /**
  * @public
@@ -42,7 +43,7 @@ export interface ReferenceDereferenceOptions {
   circular: 'ignore' | 'replace' | 'error';
   circularReplacer: (ref: RefElement) => unknown;
   immutable: boolean;
-  continueOnError: boolean | ((error: Error) => void);
+  continueOnError: boolean | ((error: UnresolvableReferenceError) => void);
 }
 
 /**

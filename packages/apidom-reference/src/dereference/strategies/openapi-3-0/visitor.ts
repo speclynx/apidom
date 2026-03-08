@@ -479,7 +479,7 @@ class OpenAPI3_0DereferenceVisitor {
             $ref: toValue(referencingElement.$ref),
           });
           const replacer =
-            this.options.dereference.strategyOpts['openapi-3-1']?.circularReplacer ??
+            this.options.dereference.strategyOpts['openapi-3-0']?.circularReplacer ??
             this.options.dereference.circularReplacer;
           const replacement = replacer(refElement);
 
