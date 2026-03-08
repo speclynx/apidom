@@ -786,13 +786,11 @@ class OpenAPI3_1DereferenceVisitor {
       return;
     }
 
-    let $refBaseURI: string | undefined;
-
     try {
       // compute baseURI using rules around $id and $ref keywords
       let reference = await this.toReference(url.unsanitize(this.reference.uri));
       let { uri: retrievalURI } = reference;
-      $refBaseURI = resolveSchema$refField(retrievalURI, referencingElement)!;
+      const $refBaseURI = resolveSchema$refField(retrievalURI, referencingElement)!;
       const $refBaseURIStrippedHash = url.stripHash($refBaseURI);
       const file = new File({ uri: $refBaseURIStrippedHash });
       const isUnknownURI = none((r: Resolver) => r.canRead(file), this.options.resolve.resolvers);

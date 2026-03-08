@@ -1,9 +1,6 @@
-import { Element, Namespace, cloneDeep, ParseResultElement } from '@speclynx/apidom-datamodel';
+import { Element, cloneDeep, ParseResultElement } from '@speclynx/apidom-datamodel';
 import { traverseAsync } from '@speclynx/apidom-traverse';
-import arazzo1Namespace, {
-  isArazzoSpecification1Element,
-  mediaTypes,
-} from '@speclynx/apidom-ns-arazzo-1';
+import { isArazzoSpecification1Element, mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
 
 import DereferenceStrategy, { DereferenceStrategyOptions } from '../DereferenceStrategy.ts';
 import File from '../../../File.ts';
@@ -67,7 +64,6 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
   }
 
   async dereference(file: File, options: ReferenceOptions): Promise<Element> {
-    const namespace = new Namespace().use(arazzo1Namespace);
     const immutableRefSet = options.dereference.refSet ?? new ReferenceSet();
     const mutableRefSet = new ReferenceSet();
     let refSet = immutableRefSet;
@@ -99,7 +95,7 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
       refSet = mutableRefSet;
     }
 
-    const visitor = new Arazzo1DereferenceVisitor({ reference, namespace, options });
+    const visitor = new Arazzo1DereferenceVisitor({ reference, options });
     const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
       mutable: true,
     });
