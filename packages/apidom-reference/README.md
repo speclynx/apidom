@@ -2144,12 +2144,12 @@ Each `UnresolvableReferenceError` (extends `DereferenceError`) carries structure
 | `codeFrame` | `string` | YAML snippet of the referencing element |
 | `refFieldName` | `string` | Reference field name (e.g., `"$ref"`, `"operationRef"`, `"externalValue"`) |
 | `refFieldValue` | `string` | Reference field value |
-| `trace` | `Array` | Chain of reference hops from root document to the failure |
+| `trace` | `Array` | Chain of reference hops from entry document to the failure |
 | `cause` | `Error` | The underlying error |
 
 Each entry in the `trace` array has the shape `{ uri, type, refFieldName, refFieldValue, location, codeFrame }`,
-representing one hop in the reference chain that led to the failure. The trace is ordered from outermost (root document)
-to innermost (closest to the failing reference). For direct failures in the root document, the trace is empty.
+representing one hop in the reference chain that led to the failure. The trace is ordered from outermost (entry document)
+to innermost (closest to the failing reference). For direct failures in the entry document, the trace is empty.
 
 **Example output for a 3-hop chain** (`root.yaml → inventory.yaml → items.yaml → missing.yaml`):
 
@@ -2186,7 +2186,7 @@ The structured error context enables rich, user-friendly error reporting with fu
 
     | $ref: ./no-such-item.yaml#/Item                                ← code frame of the failing element
 
-  referenced from root.yaml at #/paths/.../schema                   ← trace: the root document entry point
+  referenced from root.yaml at #/paths/.../schema                   ← trace: the entry document entry point
     | $ref: ./schemas/inventory.yaml#/InventorySchema                ← code frame of the root reference
   referenced from schemas/inventory.yaml at #/.../properties/items   ← trace: intermediate hop
     | $ref: ./items.yaml#/ItemList                                   ← code frame of the intermediate reference

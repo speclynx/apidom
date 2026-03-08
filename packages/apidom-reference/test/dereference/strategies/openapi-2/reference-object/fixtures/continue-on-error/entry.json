@@ -1,0 +1,19 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Test",
+    "version": "1.0.0"
+  },
+  "paths": {},
+  "definitions": {
+    "Working": {
+      "type": "string"
+    },
+    "Broken1": {
+      "$ref": "./missing.json#/param"
+    },
+    "Broken2": {
+      "$ref": "./also-missing.json"
+    }
+  }
+}

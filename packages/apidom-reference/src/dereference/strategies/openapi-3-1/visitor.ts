@@ -41,6 +41,8 @@ import { isAnchor, uriToAnchor, evaluate as $anchorEvaluate } from './selectors/
 import { evaluate as uriEvaluate } from './selectors/uri.ts';
 import MaximumDereferenceDepthError from '../../../errors/MaximumDereferenceDepthError.ts';
 import MaximumResolveDepthError from '../../../errors/MaximumResolveDepthError.ts';
+import UnresolvableReferenceError from '../../../errors/UnresolvableReferenceError.ts';
+import EvaluationJsonSchemaUriError from '../../../errors/EvaluationJsonSchemaUriError.ts';
 import * as url from '../../../util/url.ts';
 import parse from '../../../parse/index.ts';
 import Reference from '../../../Reference.ts';
@@ -49,8 +51,6 @@ import File from '../../../File.ts';
 import Resolver from '../../../resolve/resolvers/Resolver.ts';
 import { resolveSchema$refField, maybeRefractToSchemaElement } from './util.ts';
 import { AncestorLineage } from '../../util.ts';
-import UnresolvableReferenceError from '../../../errors/UnresolvableReferenceError.ts';
-import EvaluationJsonSchemaUriError from '../../../errors/EvaluationJsonSchemaUriError.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 
 /**
@@ -173,7 +173,7 @@ class OpenAPI3_1DereferenceVisitor {
    * For errors already wrapped by a nested visitor: prepends the current hop to the trace.
    *
    * Inner/intermediate visitors always throw to let the trace accumulate.
-   * Only the root document visitor respects continueOnError (callback/swallow/throw).
+   * Only the entry document visitor respects continueOnError (callback/swallow/throw).
    */
   protected handleError(
     message: string,
@@ -184,13 +184,13 @@ class OpenAPI3_1DereferenceVisitor {
     visitorPath: Path<Element>,
   ): void {
     const { continueOnError } = this.options.dereference;
-    const isRootDocument =
+    const isEntryDocument =
       url.stripHash(this.reference.refSet?.rootRef?.uri ?? '') === this.reference.uri;
     const uri = this.reference.uri;
     const type = referencingElement.element as string;
     const codeFrame = toYAML(referencingElement);
 
-    // find element location: tree search for root documents, visitor path for external
+    // find element location: tree search for entry documents, visitor path for external
     let location: string | undefined;
     traverse((this.reference.value as ParseResultElement).result as Element, {
       enter: (p: Path<Element>) => {
@@ -234,7 +234,7 @@ class OpenAPI3_1DereferenceVisitor {
       });
     }
 
-    if (!isRootDocument || continueOnError === false) throw unresolvedError;
+    if (!isEntryDocument || continueOnError === false) throw unresolvedError;
     if (typeof continueOnError === 'function') continueOnError(unresolvedError);
   }
 
@@ -347,15 +347,15 @@ class OpenAPI3_1DereferenceVisitor {
        *
        * Cases to consider:
        *  1. We're crossing document boundary
-       *  2. Fragment is from non-root document
+       *  2. Fragment is from non-entry document
        *  3. Fragment is a Reference Object. We need to follow it to get the eventual value
        *  4. We are dereferencing the fragment lazily/eagerly depending on circular mode
        */
-      const isNonRootDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
+      const isNonEntryDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
       const shouldDetectCircular = ['error', 'replace'].includes(this.options.dereference.circular);
       if (
         (isExternalReference ||
-          isNonRootDocument ||
+          isNonEntryDocument ||
           isReferenceElement(referencedElement) ||
           shouldDetectCircular) &&
         !ancestorsLineage.includesCycle(referencedElement)
@@ -364,7 +364,6 @@ class OpenAPI3_1DereferenceVisitor {
 
         const visitor = new OpenAPI3_1DereferenceVisitor({
           reference,
-
           indirections: [...this.indirections],
           options: this.options,
           refractCache: this.refractCache,
@@ -525,15 +524,15 @@ class OpenAPI3_1DereferenceVisitor {
        *
        * Cases to consider:
        *  1. We're crossing document boundary
-       *  2. Fragment is from non-root document
+       *  2. Fragment is from non-entry document
        *  3. Fragment is a Path Item Object with $ref field. We need to follow it to get the eventual value
        *  4. We are dereferencing the fragment lazily/eagerly depending on circular mode
        */
-      const isNonRootDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
+      const isNonEntryDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
       const shouldDetectCircular = ['error', 'replace'].includes(this.options.dereference.circular);
       if (
         (isExternalReference ||
-          isNonRootDocument ||
+          isNonEntryDocument ||
           (isPathItemElement(referencedElement) && isStringElement(referencedElement.$ref)) ||
           shouldDetectCircular) &&
         !ancestorsLineage.includesCycle(referencedElement)
@@ -542,7 +541,6 @@ class OpenAPI3_1DereferenceVisitor {
 
         const visitor = new OpenAPI3_1DereferenceVisitor({
           reference,
-
           indirections: [...this.indirections],
           options: this.options,
           refractCache: this.refractCache,
@@ -948,15 +946,15 @@ class OpenAPI3_1DereferenceVisitor {
        *
        * Cases to consider:
        *  1. We're crossing document boundary
-       *  2. Fragment is from non-root document
+       *  2. Fragment is from non-entry document
        *  3. Fragment is a Schema Object with $ref field. We need to follow it to get the eventual value
        *  4. We are dereferencing the fragment lazily/eagerly depending on circular mode
        */
-      const isNonRootDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
+      const isNonEntryDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
       const shouldDetectCircular = ['error', 'replace'].includes(this.options.dereference.circular);
       if (
         (isExternalReference ||
-          isNonRootDocument ||
+          isNonEntryDocument ||
           (isSchemaElement(referencedElement) && isStringElement(referencedElement.$ref)) ||
           shouldDetectCircular) &&
         !ancestorsLineage.includesCycle(referencedElement)
@@ -965,7 +963,6 @@ class OpenAPI3_1DereferenceVisitor {
 
         const visitor = new OpenAPI3_1DereferenceVisitor({
           reference,
-
           indirections: [...this.indirections],
           options: this.options,
           refractCache: this.refractCache,

@@ -238,6 +238,7 @@
     "@speclynx/apidom-ns-arazzo-1": "2.13.1",
     "@speclynx/apidom-ns-asyncapi-2": "2.13.1",
     "@speclynx/apidom-ns-json-schema-2020-12": "2.13.1",
+    "@speclynx/apidom-ns-json-schema-draft4": "2.13.1",
     "@speclynx/apidom-ns-openapi-2": "2.13.1",
     "@speclynx/apidom-ns-openapi-3-0": "2.13.1",
     "@speclynx/apidom-ns-openapi-3-1": "2.13.1",
