@@ -1,9 +1,6 @@
-import { Element, Namespace, cloneDeep } from '@speclynx/apidom-datamodel';
+import { Element, cloneDeep } from '@speclynx/apidom-datamodel';
 import { traverseAsync } from '@speclynx/apidom-traverse';
-import openApi3_0Namespace, {
-  isOpenApi3_0Element,
-  mediaTypes,
-} from '@speclynx/apidom-ns-openapi-3-0';
+import { isOpenApi3_0Element, mediaTypes } from '@speclynx/apidom-ns-openapi-3-0';
 
 import DereferenceStrategy, { DereferenceStrategyOptions } from '../DereferenceStrategy.ts';
 import File from '../../../File.ts';
@@ -66,7 +63,6 @@ class OpenAPI3_0DereferenceStrategy extends DereferenceStrategy {
   }
 
   async dereference(file: File, options: ReferenceOptions): Promise<Element> {
-    const namespace = new Namespace().use(openApi3_0Namespace);
     const immutableRefSet = options.dereference.refSet ?? new ReferenceSet();
     const mutableRefSet = new ReferenceSet();
     let refSet = immutableRefSet;
@@ -99,7 +95,7 @@ class OpenAPI3_0DereferenceStrategy extends DereferenceStrategy {
       refSet = mutableRefSet;
     }
 
-    const visitor = new OpenAPI3_0DereferenceVisitor({ reference: reference!, namespace, options });
+    const visitor = new OpenAPI3_0DereferenceVisitor({ reference: reference!, options });
     const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
       mutable: true,
     });

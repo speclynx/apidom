@@ -12,7 +12,7 @@ import {
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
 import { toValue, fixedFields, toYAML } from '@speclynx/apidom-core';
-import { ApiDOMError, ApiDOMStructuredError } from '@speclynx/apidom-error';
+import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 import { traverse, traverseAsync, Path, find } from '@speclynx/apidom-traverse';
 import {
   evaluate as jsonPointerEvaluate,
@@ -603,8 +603,12 @@ class OpenAPI3_1DereferenceVisitor {
 
     // operationRef and operationId fields are mutually exclusive
     if (isStringElement(linkElement.operationRef) && isStringElement(linkElement.operationId)) {
-      throw new ApiDOMError(
+      throw new ApiDOMStructuredError(
         'LinkElement operationRef and operationId fields are mutually exclusive',
+        {
+          operationRef: toValue(linkElement.operationRef),
+          operationId: toValue(linkElement.operationId),
+        },
       );
     }
 
@@ -715,7 +719,13 @@ class OpenAPI3_1DereferenceVisitor {
 
     // value and externalValue fields are mutually exclusive
     if (exampleElement.hasKey('value') && isStringElement(exampleElement.externalValue)) {
-      throw new ApiDOMError('ExampleElement value and externalValue fields are mutually exclusive');
+      throw new ApiDOMStructuredError(
+        'ExampleElement value and externalValue fields are mutually exclusive',
+        {
+          value: toValue(exampleElement.value),
+          externalValue: toValue(exampleElement.externalValue),
+        },
+      );
     }
 
     const retrievalURI = this.toBaseURI(toValue(exampleElement.externalValue) as string);

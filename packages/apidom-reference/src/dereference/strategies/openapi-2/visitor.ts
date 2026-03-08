@@ -66,6 +66,7 @@ class OpenAPI2DereferenceVisitor {
    * the ancestor lineage, a circular reference is detected.
    */
   protected readonly ancestors: AncestorLineage<Element>;
+
   constructor({
     reference,
     options,
@@ -376,8 +377,6 @@ class OpenAPI2DereferenceVisitor {
        * Transclude referencing element with merged referenced element.
        */
       path.replaceWith(mergedElement);
-      this.indirections.push(mergedElement);
-      return;
     } catch (error: unknown) {
       const $ref = toValue(referencingElement.$ref) as string;
       this.handleError(
@@ -550,7 +549,6 @@ class OpenAPI2DereferenceVisitor {
        * Transclude referencing element with merged referenced element.
        */
       path.replaceWith(referencedElement);
-      this.indirections.push(referencedElement);
       return;
     } catch (error: unknown) {
       const $ref = toValue(referencingElement.$ref) as string;
@@ -721,7 +719,6 @@ class OpenAPI2DereferenceVisitor {
        * Transclude referencing element with merged referenced element.
        */
       path.replaceWith(mergedElement);
-      return;
     } catch (error: unknown) {
       const $ref = toValue(referencingElement.$ref) as string;
       this.handleError(

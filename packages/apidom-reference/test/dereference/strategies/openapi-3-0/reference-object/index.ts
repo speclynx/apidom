@@ -260,19 +260,16 @@ describe('dereference', function () {
                 parse: { mediaType: mediaTypes.latest('json') },
               });
               refSet.refs.forEach((ref) => ref.value.freeze());
-              try {
-                await dereference(entryFilePath, {
-                  parse: { mediaType: mediaTypes.latest('json') },
-                  resolve: { baseURI: entryFilePath },
-                  dereference: {
-                    refSet,
-                    immutable: false,
-                  },
-                });
-                assert.fail('should throw DereferenceError');
-              } catch (e) {
-                assert.instanceOf(e, DereferenceError);
-              }
+              const dereferenced = await dereference(entryFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                resolve: { baseURI: entryFilePath },
+                dereference: {
+                  refSet,
+                  immutable: false,
+                },
+              });
+
+              assert.isTrue(isParseResultElement(dereferenced));
             });
           });
         });
