@@ -2,6 +2,22 @@
   "name": "@speclynx/apidom-json-path",
   "version": "3.1.0",
   "description": "Evaluate JSONPath expressions against ApiDOM.",
+  "keywords": [
+    "apidom",
+    "api",
+    "jsonpath",
+    "json-path",
+    "json",
+    "query",
+    "evaluate",
+    "rfc9535",
+    "filter",
+    "selector",
+    "openapi",
+    "swagger",
+    "typescript",
+    "javascript"
+  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org",

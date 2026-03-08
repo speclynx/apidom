@@ -2,6 +2,22 @@
   "name": "@speclynx/apidom-datamodel",
   "version": "3.1.0",
   "description": "Data model primitives for ApiDOM.",
+  "keywords": [
+    "apidom",
+    "api",
+    "openapi",
+    "swagger",
+    "asyncapi",
+    "json-schema",
+    "arazzo",
+    "datamodel",
+    "data-model",
+    "namespace",
+    "serialization",
+    "typescript",
+    "javascript",
+    "oas"
+  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org",
