@@ -280,6 +280,131 @@ describe('dereference', function () {
           });
         });
 
+        context('given RefElement with continueOnError option', function () {
+          context('and continueOnError is false (default)', function () {
+            specify('should throw on first unresolvable reference', async function () {
+              const element = new ObjectElement({
+                ref: new RefElement('non-existent-id'),
+              });
+              try {
+                await dereferenceApiDOM(element, {
+                  parse: { mediaType: 'application/vnd.apidom' },
+                });
+                assert.fail('should throw DereferenceError');
+              } catch (e) {
+                assert.instanceOf(e, DereferenceError);
+              }
+            });
+          });
+
+          context('and continueOnError is true', function () {
+            specify('should skip unresolvable references silently', async function () {
+              const element = new ObjectElement({
+                working: new StringElement('test', { id: 'exists' }),
+                ref1: new RefElement('exists'),
+                broken: new RefElement('does-not-exist'),
+              });
+              const actual = await dereferenceApiDOM(element, {
+                parse: { mediaType: 'application/vnd.apidom' },
+                dereference: { continueOnError: true },
+              });
+
+              assert.strictEqual(toValue(actual.get('working')), 'test');
+            });
+          });
+
+          context('and continueOnError is a callback function', function () {
+            specify('should collect errors via callback', async function () {
+              const element = new ObjectElement({
+                broken1: new RefElement('missing-1'),
+                broken2: new RefElement('missing-2'),
+              });
+              const errors: Error[] = [];
+
+              await dereferenceApiDOM(element, {
+                parse: { mediaType: 'application/vnd.apidom' },
+                dereference: {
+                  continueOnError: (error) => {
+                    errors.push(error);
+                  },
+                },
+              });
+
+              assert.lengthOf(errors, 2);
+            });
+
+            specify('should produce DereferenceError instances', async function () {
+              const element = new ObjectElement({
+                broken: new RefElement('missing-id'),
+              });
+              const errors: Error[] = [];
+
+              await dereferenceApiDOM(element, {
+                parse: { mediaType: 'application/vnd.apidom' },
+                dereference: {
+                  continueOnError: (error) => {
+                    errors.push(error);
+                  },
+                },
+              });
+
+              errors.forEach((error) => {
+                assert.instanceOf(error, DereferenceError);
+              });
+            });
+
+            specify('should include structured context on errors', async function () {
+              const element = new ObjectElement({
+                broken: new RefElement('missing-id'),
+              });
+              const errors: Error[] = [];
+
+              await dereferenceApiDOM(element, {
+                parse: { mediaType: 'application/vnd.apidom' },
+                dereference: {
+                  continueOnError: (error) => {
+                    errors.push(error);
+                  },
+                },
+              });
+
+              const error = errors[0] as any;
+              assert.isString(error.uri);
+              assert.isString(error.type);
+              assert.isString(error.codeFrame);
+              assert.isArray(error.trace);
+              assert.isDefined(error.cause);
+            });
+          });
+
+          context('and continueOnError callback throws', function () {
+            specify('should stop dereferencing immediately', async function () {
+              const element = new ObjectElement({
+                broken1: new RefElement('missing-1'),
+                broken2: new RefElement('missing-2'),
+              });
+              const errors: Error[] = [];
+
+              try {
+                await dereferenceApiDOM(element, {
+                  parse: { mediaType: 'application/vnd.apidom' },
+                  dereference: {
+                    continueOnError: (error) => {
+                      errors.push(error);
+                      throw new Error('abort');
+                    },
+                  },
+                });
+                assert.fail('should throw');
+              } catch (e: any) {
+                assert.instanceOf(e, DereferenceError);
+                assert.strictEqual(e.cause.message, 'abort');
+                assert.lengthOf(errors, 1);
+              }
+            });
+          });
+        });
+
         specify('should consider remote looking references as local', async function () {
           const element = new ObjectElement(
             {
