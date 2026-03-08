@@ -2,6 +2,22 @@
   "name": "@speclynx/apidom-parser-adapter-asyncapi-yaml-2",
   "version": "3.1.0",
   "description": "Parser adapter for parsing YAML documents into AsyncAPI 2.x.y namespace.",
+  "keywords": [
+    "apidom",
+    "api",
+    "asyncapi",
+    "asyncapi2",
+    "event-driven",
+    "yaml",
+    "parser",
+    "parse",
+    "tree-sitter",
+    "ast",
+    "spec",
+    "specification",
+    "typescript",
+    "javascript"
+  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org",

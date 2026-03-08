@@ -2,6 +2,21 @@
   "name": "@speclynx/apidom-parser-adapter-json-schema-yaml-2020-12",
   "version": "3.1.0",
   "description": "Parser adapter for parsing YAML documents into JSON Schema 2020-12 namespace.",
+  "keywords": [
+    "apidom",
+    "api",
+    "json-schema",
+    "jsonschema",
+    "schema",
+    "2020-12",
+    "yaml",
+    "parser",
+    "parse",
+    "tree-sitter",
+    "ast",
+    "typescript",
+    "javascript"
+  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org",

@@ -2,6 +2,20 @@
   "name": "@speclynx/apidom-json-pointer",
   "version": "3.1.0",
   "description": "Evaluate JSON Pointer expressions against ApiDOM.",
+  "keywords": [
+    "apidom",
+    "api",
+    "json-pointer",
+    "json",
+    "pointer",
+    "$ref",
+    "rfc6901",
+    "evaluate",
+    "openapi",
+    "swagger",
+    "typescript",
+    "javascript"
+  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org",

@@ -2,6 +2,20 @@
   "name": "@speclynx/apidom-ns-json-schema-draft-7",
   "version": "3.1.0",
   "description": "JSON Schema Draft 7 namespace for ApiDOM.",
+  "keywords": [
+    "apidom",
+    "api",
+    "json-schema",
+    "jsonschema",
+    "schema",
+    "draft-7",
+    "draft7",
+    "types",
+    "spec",
+    "specification",
+    "typescript",
+    "javascript"
+  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org",

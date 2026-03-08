@@ -2,6 +2,21 @@
   "name": "@speclynx/apidom-json-pointer-relative",
   "version": "3.1.0",
   "description": "Evaluate Relative JSON Pointer expressions against ApiDOM.",
+  "keywords": [
+    "apidom",
+    "api",
+    "json-pointer",
+    "relative-json-pointer",
+    "json",
+    "pointer",
+    "$ref",
+    "evaluate",
+    "draft-bhutton",
+    "openapi",
+    "swagger",
+    "typescript",
+    "javascript"
+  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org",

@@ -2,6 +2,22 @@
   "name": "@speclynx/apidom-parser-adapter-json",
   "version": "3.1.0",
   "description": "Parser adapter for parsing JSON documents into base namespace.",
+  "keywords": [
+    "apidom",
+    "api",
+    "json",
+    "json-parser",
+    "parser",
+    "parse",
+    "tree-sitter",
+    "cst",
+    "ast",
+    "source-map",
+    "error-recovery",
+    "round-trip",
+    "typescript",
+    "javascript"
+  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org",

@@ -2,6 +2,23 @@
   "name": "@speclynx/apidom-core",
   "version": "3.1.0",
   "description": "Tools for manipulating ApiDOM structures.",
+  "keywords": [
+    "apidom",
+    "api",
+    "openapi",
+    "swagger",
+    "asyncapi",
+    "json-schema",
+    "arazzo",
+    "ast",
+    "transformer",
+    "typescript",
+    "javascript",
+    "oas",
+    "open-api",
+    "specification",
+    "spec"
+  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org",
