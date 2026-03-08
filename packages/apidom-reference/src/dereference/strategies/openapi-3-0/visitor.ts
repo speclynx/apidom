@@ -252,6 +252,7 @@ class OpenAPI3_0DereferenceVisitor {
 
     const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
 
+    const indirectionsSize = this.indirections.length;
     try {
       const reference = await this.toReference(toValue(referencingElement.$ref) as string);
 
@@ -322,7 +323,6 @@ class OpenAPI3_0DereferenceVisitor {
             this.options.dereference.circularReplacer;
           const replacement = replacer(refElement);
 
-          this.indirections.pop();
           path.replaceWith(replacement);
           return;
         }
@@ -362,8 +362,6 @@ class OpenAPI3_0DereferenceVisitor {
         directAncestors.delete(referencingElement);
       }
 
-      this.indirections.pop();
-
       /**
        * Creating a new version of referenced element to avoid modifying the original one.
        */
@@ -390,6 +388,8 @@ class OpenAPI3_0DereferenceVisitor {
         $ref,
         path,
       );
+    } finally {
+      if (this.indirections.length > indirectionsSize) this.indirections.pop();
     }
   }
 
@@ -424,6 +424,7 @@ class OpenAPI3_0DereferenceVisitor {
 
     const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
 
+    const indirectionsSize = this.indirections.length;
     try {
       const reference = await this.toReference(toValue(referencingElement.$ref) as string);
 
@@ -483,7 +484,6 @@ class OpenAPI3_0DereferenceVisitor {
             this.options.dereference.circularReplacer;
           const replacement = replacer(refElement);
 
-          this.indirections.pop();
           path.replaceWith(replacement);
           return;
         }
@@ -523,8 +523,6 @@ class OpenAPI3_0DereferenceVisitor {
         directAncestors.delete(referencingElement);
       }
 
-      this.indirections.pop();
-
       /**
        * Creating a new version of Path Item by merging fields from referenced Path Item with referencing one.
        */
@@ -562,6 +560,8 @@ class OpenAPI3_0DereferenceVisitor {
         $ref,
         path,
       );
+    } finally {
+      if (this.indirections.length > indirectionsSize) this.indirections.pop();
     }
   }
 

@@ -248,6 +248,7 @@ class AsyncAPI2DereferenceVisitor {
 
     const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
 
+    const indirectionsSize = this.indirections.length;
     try {
       const reference = await this.toReference(toValue(referencingElement.$ref) as string);
 
@@ -318,7 +319,6 @@ class AsyncAPI2DereferenceVisitor {
             this.options.dereference.circularReplacer;
           const replacement = replacer(refElement);
 
-          this.indirections.pop();
           path.replaceWith(replacement);
           return;
         }
@@ -357,8 +357,6 @@ class AsyncAPI2DereferenceVisitor {
         // remove referencing reference from ancestors lineage
         directAncestors.delete(referencingElement);
       }
-
-      this.indirections.pop();
 
       // Boolean JSON Schemas
       if (isBooleanJSONSchemaElement(referencedElement as unknown)) {
@@ -401,6 +399,8 @@ class AsyncAPI2DereferenceVisitor {
         $ref,
         path,
       );
+    } finally {
+      if (this.indirections.length > indirectionsSize) this.indirections.pop();
     }
   }
 
@@ -435,6 +435,7 @@ class AsyncAPI2DereferenceVisitor {
 
     const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
 
+    const indirectionsSize = this.indirections.length;
     try {
       const reference = await this.toReference(toValue(referencingElement.$ref) as string);
 
@@ -494,7 +495,6 @@ class AsyncAPI2DereferenceVisitor {
             this.options.dereference.circularReplacer;
           const replacement = replacer(refElement);
 
-          this.indirections.pop();
           path.replaceWith(replacement);
           return;
         }
@@ -534,8 +534,6 @@ class AsyncAPI2DereferenceVisitor {
         directAncestors.delete(referencingElement);
       }
 
-      this.indirections.pop();
-
       /**
        * Creating a new version of Channel Item by merging fields from referenced Channel Item with referencing one.
        */
@@ -573,6 +571,8 @@ class AsyncAPI2DereferenceVisitor {
         $ref,
         path,
       );
+    } finally {
+      if (this.indirections.length > indirectionsSize) this.indirections.pop();
     }
   }
 }
