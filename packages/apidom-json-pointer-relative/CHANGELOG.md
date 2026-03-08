@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0](https://github.com/speclynx/apidom/compare/v2.13.1...v3.0.0) (2026-03-05)
+
+### Features
+
+- introduce new memory efficient meta data management ([#129](https://github.com/speclynx/apidom/issues/129)) ([82ae0d7](https://github.com/speclynx/apidom/commit/82ae0d7cc2e9ee7037c3d9681817add2ca18dc92))
+
+### BREAKING CHANGES
+
+- meta data use to be elements before, now they are simple primitives
+
 ## [2.13.1](https://github.com/speclynx/apidom/compare/v2.13.0...v2.13.1) (2026-02-28)
 
 **Note:** Version bump only for package @speclynx/apidom-json-pointer-relative

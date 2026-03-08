@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0](https://github.com/speclynx/apidom/compare/v2.13.1...v3.0.0) (2026-03-05)
+
+### Features
+
+- introduce new memory efficient meta data management ([#129](https://github.com/speclynx/apidom/issues/129)) ([82ae0d7](https://github.com/speclynx/apidom/commit/82ae0d7cc2e9ee7037c3d9681817add2ca18dc92))
+
+### Performance Improvements
+
+- consume generic ApiDOM during semantic refraction ([#132](https://github.com/speclynx/apidom/issues/132)) ([87258b0](https://github.com/speclynx/apidom/commit/87258b01c701120321e12daad0f965910897dae5))
+- **ns:** remove unused 'fixed-field' class from FixedFieldsVisitor ([#131](https://github.com/speclynx/apidom/issues/131)) ([604e0e5](https://github.com/speclynx/apidom/commit/604e0e58c959937f402756e7c5ff2528a1ceb9b6))
+
+### BREAKING CHANGES
+
+- meta data use to be elements before, now they are simple primitives
+
 ## [2.13.1](https://github.com/speclynx/apidom/compare/v2.13.0...v2.13.1) (2026-02-28)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-json-schema-draft-4

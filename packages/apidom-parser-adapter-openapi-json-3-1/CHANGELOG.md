@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0](https://github.com/speclynx/apidom/compare/v2.13.1...v3.0.0) (2026-03-05)
+
+### Performance Improvements
+
+- consume generic ApiDOM during semantic refraction ([#132](https://github.com/speclynx/apidom/issues/132)) ([87258b0](https://github.com/speclynx/apidom/commit/87258b01c701120321e12daad0f965910897dae5))
+
 ## [2.13.1](https://github.com/speclynx/apidom/compare/v2.13.0...v2.13.1) (2026-02-28)
 
 **Note:** Version bump only for package @speclynx/apidom-parser-adapter-openapi-json-3-1
