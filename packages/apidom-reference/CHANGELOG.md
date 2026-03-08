@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.1.0](https://github.com/speclynx/apidom/compare/v3.0.0...v3.1.0) (2026-03-08)
+
+### Features
+
+- **reference:** introduce continueOnError option for dereferencing ([#140](https://github.com/speclynx/apidom/issues/140)) ([a4b21fe](https://github.com/speclynx/apidom/commit/a4b21fe1ea7b6330d0f05c8bbbd713a0579b5115))
+
 # [3.0.0](https://github.com/speclynx/apidom/compare/v2.13.1...v3.0.0) (2026-03-05)
 
 ### Features

@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.1.0](https://github.com/speclynx/apidom/compare/v3.0.0...v3.1.0) (2026-03-08)
+
+**Note:** Version bump only for package @speclynx/apidom-json-path
+
 # [3.0.0](https://github.com/speclynx/apidom/compare/v2.13.1...v3.0.0) (2026-03-05)
 
 **Note:** Version bump only for package @speclynx/apidom-json-path
