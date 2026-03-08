@@ -313,6 +313,7 @@ class Arazzo1DereferenceVisitor {
     }
 
     const indirectionsSize = this.indirections.length;
+
     try {
       // compute baseURI using rules around $id and $ref keywords
       let reference = await this.toReference(url.unsanitize(this.reference.uri));

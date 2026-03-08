@@ -247,8 +247,8 @@ class AsyncAPI2DereferenceVisitor {
     }
 
     const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
-
     const indirectionsSize = this.indirections.length;
+
     try {
       const reference = await this.toReference(toValue(referencingElement.$ref) as string);
 
@@ -434,8 +434,8 @@ class AsyncAPI2DereferenceVisitor {
     }
 
     const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
-
     const indirectionsSize = this.indirections.length;
+
     try {
       const reference = await this.toReference(toValue(referencingElement.$ref) as string);
 
