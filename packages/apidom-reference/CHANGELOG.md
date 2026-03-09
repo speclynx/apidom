@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.2.1](https://github.com/speclynx/apidom/compare/v3.2.0...v3.2.1) (2026-03-09)
+
+### Bug Fixes
+
+- fix issues preventing integrating with Language Service ([#143](https://github.com/speclynx/apidom/issues/143)) ([26480d7](https://github.com/speclynx/apidom/commit/26480d7a495fa57da8b39120a73f64ab2d9d61bf))
+
 # [3.2.0](https://github.com/speclynx/apidom/compare/v3.1.0...v3.2.0) (2026-03-08)
 
 ### Bug Fixes
