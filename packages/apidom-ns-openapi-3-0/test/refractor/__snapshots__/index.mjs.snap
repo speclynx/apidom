@@ -2346,6 +2346,9 @@ exports[`refractor given generic ApiDOM object in OpenApi 3.0.4 shape should ref
                                                                               "content": "200"
                                                                             }
                                                                           },
+                                                                          "__meta_raw__": [
+                                                                            "http-status-code"
+                                                                          ],
                                                                           "content": [
                                                                             {
                                                                               "element": "member",
@@ -5552,6 +5555,9 @@ exports[`refractor given generic ApiDOM object in OpenApi 3.0.4 shape should ref
                                                               "content": "200"
                                                             }
                                                           },
+                                                          "__meta_raw__": [
+                                                            "http-status-code"
+                                                          ],
                                                           "content": [
                                                             {
                                                               "element": "member",

@@ -559,27 +559,12 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                   "meta": {
                     "path": {
                       "element": "string",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "openapi-path-template"
-                            },
-                            {
-                              "element": "string",
-                              "content": "path-template"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": "/pet/{petId}/uploadImage"
                     }
                   },
+                  "__meta_raw__": [
+                    "path"
+                  ],
                   "content": [
                     {
                       "element": "member",
@@ -596,6 +581,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "POST"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -1114,6 +1102,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "200"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -1325,27 +1316,12 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                   "meta": {
                     "path": {
                       "element": "string",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "openapi-path-template"
-                            },
-                            {
-                              "element": "string",
-                              "content": "path-template"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": "/pet"
                     }
                   },
+                  "__meta_raw__": [
+                    "path"
+                  ],
                   "content": [
                     {
                       "element": "member",
@@ -1362,6 +1338,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "POST"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -1716,6 +1695,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "405"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -1830,6 +1812,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "PUT"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -2184,6 +2169,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "400"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -2231,6 +2219,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "404"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -2278,6 +2269,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "405"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -2425,27 +2419,12 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                   "meta": {
                     "path": {
                       "element": "string",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "openapi-path-template"
-                            },
-                            {
-                              "element": "string",
-                              "content": "path-template"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": "/pet/findByStatus"
                     }
                   },
+                  "__meta_raw__": [
+                    "path"
+                  ],
                   "content": [
                     {
                       "element": "member",
@@ -2462,6 +2441,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "GET"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -2864,6 +2846,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "200"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -3030,6 +3015,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "400"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -3177,27 +3165,12 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                   "meta": {
                     "path": {
                       "element": "string",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "openapi-path-template"
-                            },
-                            {
-                              "element": "string",
-                              "content": "path-template"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": "/pet/findByTags"
                     }
                   },
+                  "__meta_raw__": [
+                    "path"
+                  ],
                   "content": [
                     {
                       "element": "member",
@@ -3214,6 +3187,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "GET"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -3563,6 +3539,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "200"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -3729,6 +3708,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "400"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -3889,27 +3871,12 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                   "meta": {
                     "path": {
                       "element": "string",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "openapi-path-template"
-                            },
-                            {
-                              "element": "string",
-                              "content": "path-template"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": "/pet/{petId}"
                     }
                   },
+                  "__meta_raw__": [
+                    "path"
+                  ],
                   "content": [
                     {
                       "element": "member",
@@ -3926,6 +3893,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "GET"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -4220,6 +4190,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "200"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -4331,6 +4304,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "400"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -4378,6 +4354,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "404"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -4482,6 +4461,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "POST"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -5004,6 +4986,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "405"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -5118,6 +5103,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "DELETE"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -5497,6 +5485,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "400"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -5544,6 +5535,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "404"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -5691,27 +5685,12 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                   "meta": {
                     "path": {
                       "element": "string",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "openapi-path-template"
-                            },
-                            {
-                              "element": "string",
-                              "content": "path-template"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": "/store/order"
                     }
                   },
+                  "__meta_raw__": [
+                    "path"
+                  ],
                   "content": [
                     {
                       "element": "member",
@@ -5728,6 +5707,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "POST"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -6078,6 +6060,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "200"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -6189,6 +6174,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "400"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -6263,27 +6251,12 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                   "meta": {
                     "path": {
                       "element": "string",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "openapi-path-template"
-                            },
-                            {
-                              "element": "string",
-                              "content": "path-template"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": "/store/order/{orderId}"
                     }
                   },
+                  "__meta_raw__": [
+                    "path"
+                  ],
                   "content": [
                     {
                       "element": "member",
@@ -6300,6 +6273,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "GET"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -6620,6 +6596,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "200"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -6731,6 +6710,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "400"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -6778,6 +6760,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "404"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -6819,6 +6804,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "DELETE"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -7126,6 +7114,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "400"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -7173,6 +7164,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "404"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -7247,27 +7241,12 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                   "meta": {
                     "path": {
                       "element": "string",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "openapi-path-template"
-                            },
-                            {
-                              "element": "string",
-                              "content": "path-template"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": "/store/inventory"
                     }
                   },
+                  "__meta_raw__": [
+                    "path"
+                  ],
                   "content": [
                     {
                       "element": "member",
@@ -7284,6 +7263,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "GET"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -7461,6 +7443,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "200"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -7721,27 +7706,12 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                   "meta": {
                     "path": {
                       "element": "string",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "openapi-path-template"
-                            },
-                            {
-                              "element": "string",
-                              "content": "path-template"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": "/user/createWithArray"
                     }
                   },
+                  "__meta_raw__": [
+                    "path"
+                  ],
                   "content": [
                     {
                       "element": "member",
@@ -7758,6 +7728,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "POST"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -8226,27 +8199,12 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                   "meta": {
                     "path": {
                       "element": "string",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "openapi-path-template"
-                            },
-                            {
-                              "element": "string",
-                              "content": "path-template"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": "/user/createWithList"
                     }
                   },
+                  "__meta_raw__": [
+                    "path"
+                  ],
                   "content": [
                     {
                       "element": "member",
@@ -8263,6 +8221,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "POST"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -8731,27 +8692,12 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                   "meta": {
                     "path": {
                       "element": "string",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "openapi-path-template"
-                            },
-                            {
-                              "element": "string",
-                              "content": "path-template"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": "/user/{username}"
                     }
                   },
+                  "__meta_raw__": [
+                    "path"
+                  ],
                   "content": [
                     {
                       "element": "member",
@@ -8768,6 +8714,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "GET"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -9049,6 +8998,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "200"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -9160,6 +9112,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "400"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -9207,6 +9162,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "404"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -9248,6 +9206,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "PUT"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -9696,6 +9657,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "400"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -9743,6 +9707,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "404"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -9784,6 +9751,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "DELETE"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -10065,6 +10035,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "400"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -10112,6 +10085,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "404"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -10186,27 +10162,12 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                   "meta": {
                     "path": {
                       "element": "string",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "openapi-path-template"
-                            },
-                            {
-                              "element": "string",
-                              "content": "path-template"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": "/user/login"
                     }
                   },
+                  "__meta_raw__": [
+                    "path"
+                  ],
                   "content": [
                     {
                       "element": "member",
@@ -10223,6 +10184,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "GET"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -10602,6 +10566,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "200"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -10908,6 +10875,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                                               "content": "400"
                                             }
                                           },
+                                          "__meta_raw__": [
+                                            "http-status-code"
+                                          ],
                                           "content": [
                                             {
                                               "element": "member",
@@ -10982,27 +10952,12 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                   "meta": {
                     "path": {
                       "element": "string",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "openapi-path-template"
-                            },
-                            {
-                              "element": "string",
-                              "content": "path-template"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": "/user/logout"
                     }
                   },
+                  "__meta_raw__": [
+                    "path"
+                  ],
                   "content": [
                     {
                       "element": "member",
@@ -11019,6 +10974,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "GET"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",
@@ -11263,27 +11221,12 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                   "meta": {
                     "path": {
                       "element": "string",
-                      "meta": {
-                        "classes": {
-                          "element": "array",
-                          "content": [
-                            {
-                              "element": "string",
-                              "content": "openapi-path-template"
-                            },
-                            {
-                              "element": "string",
-                              "content": "path-template"
-                            }
-                          ]
-                        }
-                      },
-                      "__meta_raw__": [
-                        "classes"
-                      ],
                       "content": "/user"
                     }
                   },
+                  "__meta_raw__": [
+                    "path"
+                  ],
                   "content": [
                     {
                       "element": "member",
@@ -11300,6 +11243,9 @@ exports[`refractor given generic ApiDOM object in OpenAPI 2.0 shape should refra
                               "content": "POST"
                             }
                           },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
                           "content": [
                             {
                               "element": "member",

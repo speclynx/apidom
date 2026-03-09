@@ -1,5 +1,5 @@
 import { always, range } from 'ramda';
-import { Element, ObjectElement, StringElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import { Element, ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
@@ -54,8 +54,8 @@ class ResponsesVisitor extends BaseMixedFieldsVisitor {
     // decorate every ResponseElement with metadata about their status code
     // @ts-ignore
     this.element.filter(isResponseElement).forEach((value: Element, key: StringElement) => {
-      const httpStatusCode = cloneDeep(key);
-      if (!this.fieldPatternPredicate(toValue(httpStatusCode))) return;
+      const httpStatusCode = toValue(key) as string;
+      if (!this.fieldPatternPredicate(httpStatusCode)) return;
       value.meta.set('http-status-code', httpStatusCode);
     });
   }
