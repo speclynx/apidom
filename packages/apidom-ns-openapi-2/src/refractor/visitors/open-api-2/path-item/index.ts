@@ -1,10 +1,5 @@
 import { always } from 'ramda';
-import {
-  StringElement,
-  ObjectElement,
-  isStringElement,
-  cloneDeep,
-} from '@speclynx/apidom-datamodel';
+import { StringElement, ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
@@ -39,9 +34,8 @@ class PathItemVisitor extends BaseFixedFieldsVisitor {
       .filter(isOperationElement)
       // @ts-ignore
       .forEach((operationElement: OperationElement, httpMethodElementCI: StringElement) => {
-        const httpMethodElementCS = cloneDeep(httpMethodElementCI);
-        httpMethodElementCS.content = (toValue(httpMethodElementCS) as string).toUpperCase();
-        operationElement.meta.set('http-method', httpMethodElementCS);
+        const httpMethod = (toValue(httpMethodElementCI) as string).toUpperCase();
+        operationElement.meta.set('http-method', httpMethod);
       });
 
     // mark this PathItemElement with reference metadata

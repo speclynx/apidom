@@ -126,15 +126,22 @@ class ApiDOMDereferenceVisitor {
       url.stripHash(this.reference.refSet?.rootRef?.uri ?? '') === this.reference.uri;
     const uri = this.reference.uri;
     const type = referencingElement.element as string;
+    // find element location by identity in the document tree.
+    // guarded: this.reference.value may not be a ParseResultElement or may lack a result.
+    // falls back to visitorPath which may produce an incomplete path when
+    // dereferenceApiDOM is called with a fragment (cloneShallow creates a new root identity).
     let location: string | undefined;
-    traverse((this.reference.value as ParseResultElement).result as Element, {
-      enter(p: Path<Element>) {
-        if (p.node === referencingElement) {
-          location = p.formatPath();
-          p.stop();
-        }
-      },
-    });
+    const root = (this.reference.value as ParseResultElement).result;
+    if (isElement(root)) {
+      traverse(root, {
+        enter(p: Path<Element>) {
+          if (p.node === referencingElement) {
+            location = p.formatPath();
+            p.stop();
+          }
+        },
+      });
+    }
     location ??= visitorPath.formatPath();
 
     const codeFrame = toYAML(referencingElement);
