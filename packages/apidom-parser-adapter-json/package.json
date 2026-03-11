@@ -68,8 +68,7 @@
     "tree-sitter-json": "=0.24.8"
   },
   "files": [
-    "src/**/*.mjs",
-    "src/**/*.cjs",
+    "src/",
     "dist/",
     "types/apidom-parser-adapter-json.d.ts",
     "LICENSES",

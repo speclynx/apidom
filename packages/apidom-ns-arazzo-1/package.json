@@ -67,8 +67,7 @@
     "ts-mixer": "^6.0.4"
   },
   "files": [
-    "src/**/*.mjs",
-    "src/**/*.cjs",
+    "src/",
     "dist/",
     "types/apidom-ns-arazzo-1.d.ts",
     "LICENSES",

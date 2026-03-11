@@ -64,8 +64,7 @@
     "ramda-adjunct": "^6.0.0"
   },
   "files": [
-    "src/**/*.mjs",
-    "src/**/*.cjs",
+    "src/",
     "dist/",
     "types/apidom-parser-adapter-openapi-yaml-2.d.ts",
     "LICENSES",

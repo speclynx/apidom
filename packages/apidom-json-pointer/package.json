@@ -60,8 +60,7 @@
     "@swaggerexpert/json-pointer": "^3.0.1"
   },
   "files": [
-    "src/**/*.mjs",
-    "src/**/*.cjs",
+    "src/",
     "dist/",
     "types/apidom-json-pointer.d.ts",
     "LICENSES",
