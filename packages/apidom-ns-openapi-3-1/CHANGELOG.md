@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.0.0](https://github.com/speclynx/apidom/compare/v3.2.1...v4.0.0) (2026-03-11)
+
+### Features
+
+- **traverse:** all traverse operations work on Path and not Element ([#153](https://github.com/speclynx/apidom/issues/153)) ([67d244c](https://github.com/speclynx/apidom/commit/67d244cfd3e77f6a9db704cede50ba8e45d10b11))
+
+### BREAKING CHANGES
+
+- **traverse:** This is a breaking change as operation callbacks
+  now accept Path instead of Element. By accepting Path, full
+  context of traversal is exposed to consumer instead of just Element.
+
 ## [3.2.1](https://github.com/speclynx/apidom/compare/v3.2.0...v3.2.1) (2026-03-09)
 
 ### Bug Fixes
