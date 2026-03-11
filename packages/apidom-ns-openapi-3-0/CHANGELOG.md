@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.3](https://github.com/speclynx/apidom/compare/v4.0.2...v4.0.3) (2026-03-11)
+
+### Bug Fixes
+
+- **release:** fix v4.0.2 failed release ([b4dc1c4](https://github.com/speclynx/apidom/commit/b4dc1c48e8d9b2986a70e49b5554eb0a166d7528))
+
 ## [4.0.2](https://github.com/speclynx/apidom/compare/v4.0.1...v4.0.2) (2026-03-11)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-openapi-3-0
