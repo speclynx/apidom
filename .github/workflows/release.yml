@@ -44,5 +44,7 @@ jobs:
           npx lerna version --conventional-commits --no-private --yes --force-publish
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      - name: Rebuild ES and CJS modules after version bump
+        run: npm run build:es && npm run build:cjs
       - name: Publish monorepo npm packages
         run: npx lerna publish from-package --no-private --yes
