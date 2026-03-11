@@ -32,7 +32,7 @@ describe('operations', function () {
         forEach(objElement, callback);
         const { args } = callback.getCall(0);
 
-        assert.strictEqual(args[0], objElement);
+        assert.strictEqual(args[0].node, objElement);
       });
 
       context('and first key value pair', function () {
@@ -40,21 +40,21 @@ describe('operations', function () {
           forEach(objElement, callback);
           const { args } = callback.getCall(1);
 
-          assert.strictEqual(args[0], objElement.getMember('a'));
+          assert.strictEqual(args[0].node, objElement.getMember('a'));
         });
 
         specify('should execute callback on key', function () {
           forEach(objElement, callback);
           const { args } = callback.getCall(2);
 
-          assert.strictEqual(args[0], objElement.getMember('a')!.key);
+          assert.strictEqual(args[0].node, objElement.getMember('a')!.key);
         });
 
         specify('should execute callback on value', function () {
           forEach(objElement, callback);
           const { args } = callback.getCall(3);
 
-          assert.strictEqual(args[0], objElement.get('a'));
+          assert.strictEqual(args[0].node, objElement.get('a'));
         });
       });
 
@@ -63,26 +63,26 @@ describe('operations', function () {
           forEach(objElement, callback);
           const { args } = callback.getCall(4);
 
-          assert.strictEqual(args[0], objElement.getMember('c'));
+          assert.strictEqual(args[0].node, objElement.getMember('c'));
         });
 
         specify('should execute callback on key', function () {
           forEach(objElement, callback);
           const { args } = callback.getCall(5);
 
-          assert.strictEqual(args[0], objElement.getMember('c')!.key);
+          assert.strictEqual(args[0].node, objElement.getMember('c')!.key);
         });
 
         specify('should execute callback on value', function () {
           forEach(objElement, callback);
           const { args } = callback.getCall(6);
 
-          assert.strictEqual(args[0], objElement.get('c'));
+          assert.strictEqual(args[0].node, objElement.get('c'));
         });
       });
 
       context('given predicate', function () {
-        const predicate = (element: any) => isStringElement(element) && element.equals('a');
+        const predicate = (path: any) => isStringElement(path.node) && path.node.equals('a');
         specify('should execute callback once', function () {
           forEach(objElement, { callback, predicate });
           assert.strictEqual(callback.callCount, 1);
@@ -92,7 +92,7 @@ describe('operations', function () {
           forEach(objElement, { callback, predicate });
           const { args } = callback.getCall(0);
 
-          assert.strictEqual(args[0], objElement.getMember('a')!.key);
+          assert.strictEqual(args[0].node, objElement.getMember('a')!.key);
         });
       });
     });
@@ -117,25 +117,25 @@ describe('operations', function () {
         forEach(arrayElement, callback);
         const { args } = callback.getCall(0);
 
-        assert.strictEqual(args[0], arrayElement);
+        assert.strictEqual(args[0].node, arrayElement);
       });
 
       specify('should execute callback on first array item', function () {
         forEach(arrayElement, callback);
         const { args } = callback.getCall(1);
 
-        assert.strictEqual(args[0], arrayElement.get(0));
+        assert.strictEqual(args[0].node, arrayElement.get(0));
       });
 
       specify('should execute callback on second array item', function () {
         forEach(arrayElement, callback);
         const { args } = callback.getCall(2);
 
-        assert.strictEqual(args[0], arrayElement.get(1));
+        assert.strictEqual(args[0].node, arrayElement.get(1));
       });
 
       context('given predicate', function () {
-        const predicate = (element: any) => isStringElement(element) && element.equals('a');
+        const predicate = (path: any) => isStringElement(path.node) && path.node.equals('a');
 
         specify('should execute callback once', function () {
           forEach(arrayElement, { callback, predicate });
@@ -146,7 +146,7 @@ describe('operations', function () {
           forEach(arrayElement, { callback, predicate });
           const { args } = callback.getCall(0);
 
-          assert.strictEqual(args[0], arrayElement.get(0));
+          assert.strictEqual(args[0].node, arrayElement.get(0));
         });
       });
     });

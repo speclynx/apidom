@@ -13,7 +13,7 @@ import {
 } from '@speclynx/apidom-datamodel';
 import { toValue, fixedFields, toYAML } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
-import { traverse, traverseAsync, Path, find } from '@speclynx/apidom-traverse';
+import { traverse, traverseAsync, find, type Path } from '@speclynx/apidom-traverse';
 import {
   evaluate as jsonPointerEvaluate,
   URIFragmentIdentifier,
@@ -679,11 +679,14 @@ class OpenAPI3_1DereferenceVisitor {
       if (isStringElement(linkElement.operationId)) {
         const operationId = toValue(linkElement.operationId) as string;
         const reference = await this.toReference(url.unsanitize(this.reference.uri));
-        operationElement = find(
+        const operationPath = find(
           (reference.value as ParseResultElement).result as Element,
-          (e) =>
-            isOperationElement(e) && isElement(e.operationId) && e.operationId.equals(operationId),
+          (path) =>
+            isOperationElement(path.node) &&
+            isElement(path.node.operationId) &&
+            path.node.operationId.equals(operationId),
         );
+        operationElement = operationPath?.node;
         // OperationElement not found by its operationId
         if (isUndefined(operationElement)) {
           throw new ApiDOMStructuredError(

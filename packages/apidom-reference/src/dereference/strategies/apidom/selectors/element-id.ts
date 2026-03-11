@@ -1,7 +1,7 @@
 import { isUndefined } from 'ramda-adjunct';
 import { Element, isElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
-import { filter } from '@speclynx/apidom-traverse';
+import { filter, type Path } from '@speclynx/apidom-traverse';
 
 import EvaluationElementIdError from '../../../../errors/EvaluationElementIdError.ts';
 
@@ -11,9 +11,9 @@ const getElementID = (element: Element): string => {
   return isElement(id) ? (toValue(id) as string) : (id as string);
 };
 
-const hasElementID = (element: Element): boolean => {
-  if (!element.hasMetaProperty('id')) return false;
-  const id = getElementID(element);
+const hasElementID = (path: Path<Element>): boolean => {
+  if (!path.node.hasMetaProperty('id')) return false;
+  const id = getElementID(path.node);
   return typeof id === 'string' && id !== '';
 };
 
@@ -25,8 +25,11 @@ export const evaluate = <T extends Element>(elementID: string, element: T): Elem
   const { cache } = evaluate;
   // warm the cache
   if (!cache.has(element)) {
-    const elementsWithID = filter(element, hasElementID);
-    cache.set(element, Array.from(elementsWithID));
+    const pathsWithID = filter(element, hasElementID);
+    cache.set(
+      element,
+      pathsWithID.map((path) => path.node),
+    );
   }
 
   // search for the matching element

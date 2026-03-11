@@ -73,19 +73,25 @@ describe('operations', function () {
       specify('should find MemberElement and not dive in', function () {
         const found = findAtOffset(parseResult, 0);
 
-        assert.strictEqual(found, parseResult.get(0));
+        assert.strictEqual(found?.node, parseResult.get(0));
       });
 
       specify('should find key as most inner node', function () {
         const found = findAtOffset(parseResult, 5);
 
-        assert.strictEqual(found, (parseResult.get(0) as ObjectElement).getMember('prop')!.key);
+        assert.strictEqual(
+          found?.node,
+          (parseResult.get(0) as ObjectElement).getMember('prop')!.key,
+        );
       });
 
       specify('should find value as most inner node', function () {
         const found = findAtOffset(parseResult, 12);
 
-        assert.strictEqual(found, (parseResult.get(0) as ObjectElement).getMember('prop')!.value);
+        assert.strictEqual(
+          found?.node,
+          (parseResult.get(0) as ObjectElement).getMember('prop')!.value,
+        );
       });
 
       context('given out of range offset', function () {

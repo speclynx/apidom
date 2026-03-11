@@ -139,8 +139,11 @@ describe('refractor', function () {
         });
         const foundJsonSchemaElement = find(
           jsonSchemaElement,
-          (e) => isJSONSchemaElement(e) && isElement(e.$id) && e.$id!.equals('$id2'),
-        );
+          (path) =>
+            isJSONSchemaElement(path.node) &&
+            isElement(path.node.$id) &&
+            path.node.$id!.equals('$id2'),
+        )?.node;
         const ancestorsSchemaIdentifiers = foundJsonSchemaElement!.meta.get(
           'ancestorsSchemaIdentifiers',
         );

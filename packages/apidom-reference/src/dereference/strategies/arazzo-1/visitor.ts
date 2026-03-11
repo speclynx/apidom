@@ -11,7 +11,7 @@ import {
 } from '@speclynx/apidom-datamodel';
 import { toValue, toYAML } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
-import { traverse, traverseAsync, Path } from '@speclynx/apidom-traverse';
+import { traverse, traverseAsync, type Path } from '@speclynx/apidom-traverse';
 import {
   evaluate as jsonPointerEvaluate,
   compile as jsonPointerCompile,

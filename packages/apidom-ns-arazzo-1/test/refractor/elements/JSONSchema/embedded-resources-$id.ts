@@ -62,8 +62,11 @@ describe('refractor', function () {
             function () {
               const foundJsonSchemaElement = find(
                 jsonSchemaElement,
-                (e) => isJSONSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('1'),
-              );
+                (path) =>
+                  isJSONSchemaElement(path.node) &&
+                  isElement(path.node.$anchor) &&
+                  path.node.$anchor.equals('1'),
+              )?.node;
               const actual = foundJsonSchemaElement?.meta.get('ancestorsSchemaIdentifiers');
 
               assert.deepEqual(actual, []);
@@ -75,8 +78,11 @@ describe('refractor', function () {
             function () {
               const foundJsonSchemaElement = find(
                 jsonSchemaElement,
-                (e) => isJSONSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('2'),
-              );
+                (path) =>
+                  isJSONSchemaElement(path.node) &&
+                  isElement(path.node.$anchor) &&
+                  path.node.$anchor.equals('2'),
+              )?.node;
               const actual = foundJsonSchemaElement?.meta.get('ancestorsSchemaIdentifiers');
 
               assert.deepEqual(actual, ['$id1']);
@@ -88,8 +94,11 @@ describe('refractor', function () {
             function () {
               const foundJsonSchemaElement = find(
                 jsonSchemaElement,
-                (e) => isJSONSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('3'),
-              );
+                (path) =>
+                  isJSONSchemaElement(path.node) &&
+                  isElement(path.node.$anchor) &&
+                  path.node.$anchor.equals('3'),
+              )?.node;
               const actual = foundJsonSchemaElement?.meta.get('ancestorsSchemaIdentifiers');
 
               assert.deepEqual(actual, ['$id1', '$id2']);
@@ -101,8 +110,11 @@ describe('refractor', function () {
             function () {
               const foundJsonSchemaElement = find(
                 jsonSchemaElement,
-                (e) => isJSONSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('4'),
-              );
+                (path) =>
+                  isJSONSchemaElement(path.node) &&
+                  isElement(path.node.$anchor) &&
+                  path.node.$anchor.equals('4'),
+              )?.node;
               const actual = foundJsonSchemaElement?.meta.get('ancestorsSchemaIdentifiers');
 
               assert.deepEqual(actual, []);

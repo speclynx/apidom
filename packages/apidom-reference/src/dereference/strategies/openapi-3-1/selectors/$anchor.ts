@@ -47,15 +47,17 @@ export const parse = (anchor: string): string => {
 export const evaluate = <T extends Element>(anchor: string, element: T): Element | undefined => {
   const token = parse(anchor);
 
-  // @ts-ignore
-  const result = find(element, (e) => isJSONSchemaElement(e) && toValue(e.$anchor) === token);
+  const resultPath = find(
+    element,
+    // @ts-ignore
+    (path) => isJSONSchemaElement(path.node) && toValue(path.node.$anchor) === token,
+  );
 
-  if (isUndefined(result)) {
+  if (isUndefined(resultPath)) {
     throw new EvaluationJsonSchema$anchorError(`Evaluation failed on token: "${token}"`);
   }
 
-  // @ts-ignore
-  return result;
+  return resultPath.node;
 };
 
 export { EvaluationJsonSchema$anchorError, InvalidJsonSchema$anchorError };

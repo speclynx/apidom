@@ -29,7 +29,7 @@ describe('refractor', function () {
               },
             });
             const openApiElement = refractOpenApi3_1(genericObjectElement);
-            const schemaElement = find(openApiElement, (e) => isSchemaElement(e));
+            const schemaElement = find(openApiElement, (path) => isSchemaElement(path.node))?.node;
             const actual = schemaElement?.meta.get('inheritedDialectIdentifier');
             const expected = toValue(JsonSchemaDialectElement.default);
 
@@ -70,7 +70,9 @@ describe('refractor', function () {
               }
             }`);
               const openApiElement = refractOpenApi3_1(genericObjectElement.result);
-              const schemaElement = find(openApiElement, (e) => isSchemaElement(e));
+              const schemaElement = find(openApiElement, (path) =>
+                isSchemaElement(path.node),
+              )?.node;
               const actual = schemaElement?.meta.get('inheritedDialectIdentifier');
               const expected = 'https://arbitrary-schema-url.com/';
 
@@ -95,7 +97,9 @@ describe('refractor', function () {
               "jsonSchemaDialect": "https://arbitrary-schema-url.com/"
             }`);
               const openApiElement = refractOpenApi3_1(genericObjectElement.result);
-              const schemaElement = find(openApiElement, (e) => isSchemaElement(e));
+              const schemaElement = find(openApiElement, (path) =>
+                isSchemaElement(path.node),
+              )?.node;
               const actual = schemaElement?.meta.get('inheritedDialectIdentifier');
               const expected = 'https://arbitrary-schema-url.com/';
 
@@ -138,8 +142,9 @@ describe('refractor', function () {
           specify('should annotate Schema Object($id=1) with appropriate dialect', function () {
             const schemaElement = find(
               openApiElement,
-              (e) => isSchemaElement(e) && isElement(e.$id) && e.$id.equals('1'),
-            );
+              (path) =>
+                isSchemaElement(path.node) && isElement(path.node.$id) && path.node.$id.equals('1'),
+            )?.node;
             const actual = schemaElement?.meta.get('inheritedDialectIdentifier');
             const expected = toValue(JsonSchemaDialectElement.default);
 
@@ -149,8 +154,9 @@ describe('refractor', function () {
           specify('should not annotate Schema Object($id=2) with any dialect', function () {
             const schemaElement = find(
               openApiElement,
-              (e) => isSchemaElement(e) && isElement(e.$id) && e.$id.equals('2'),
-            );
+              (path) =>
+                isSchemaElement(path.node) && isElement(path.node.$id) && path.node.$id.equals('2'),
+            )?.node;
             // @ts-ignore
             const actual = toValue(schemaElement?.$schema);
             const expected = '$schema1';
@@ -162,8 +168,9 @@ describe('refractor', function () {
           specify('should annotate Schema Object($id=3) with appropriate dialect', function () {
             const schemaElement = find(
               openApiElement,
-              (e) => isSchemaElement(e) && isElement(e.$id) && e.$id.equals('3'),
-            );
+              (path) =>
+                isSchemaElement(path.node) && isElement(path.node.$id) && path.node.$id.equals('3'),
+            )?.node;
             const actual = schemaElement?.meta.get('inheritedDialectIdentifier');
             const expected = '$schema1';
 
@@ -173,8 +180,9 @@ describe('refractor', function () {
           specify('should annotate Schema Object($id=4) with appropriate dialect', function () {
             const schemaElement = find(
               openApiElement,
-              (e) => isSchemaElement(e) && isElement(e.$id) && e.$id.equals('4'),
-            );
+              (path) =>
+                isSchemaElement(path.node) && isElement(path.node.$id) && path.node.$id.equals('4'),
+            )?.node;
             const actual = schemaElement?.meta.get('inheritedDialectIdentifier');
             const expected = toValue(JsonSchemaDialectElement.default);
 

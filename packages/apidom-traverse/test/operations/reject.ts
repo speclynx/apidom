@@ -17,17 +17,17 @@ describe('operations', function () {
       const arrayElement = new namespace.elements.Array([1, 2, 3, 'a']);
 
       specify('should return Array instance', function () {
-        const filtered = reject(arrayElement, isNumberElement);
+        const filtered = reject(arrayElement, (path) => isNumberElement(path.node));
 
         assert.isArray(filtered);
       });
 
       specify('should reject content matching the predicate', function () {
-        const filtered = reject(arrayElement, isNumberElement);
-        const stringElement = filtered[1] as StringElement;
+        const filtered = reject(arrayElement, (path) => isNumberElement(path.node));
+        const stringElement = filtered[1].node as StringElement;
 
         assert.lengthOf(filtered, 2);
-        assert.strictEqual(filtered[0], arrayElement);
+        assert.strictEqual(filtered[0].node, arrayElement);
         assert.isTrue(isStringElement(stringElement));
         assert.isTrue(stringElement.equals('a'));
       });

@@ -13,7 +13,7 @@ import {
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
 import { toValue, toYAML } from '@speclynx/apidom-core';
-import { traverse, traverseAsync, Path } from '@speclynx/apidom-traverse';
+import { traverse, traverseAsync, type Path } from '@speclynx/apidom-traverse';
 import { URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
 
 import MaximumResolveDepthError from '../../../errors/MaximumResolveDepthError.ts';
