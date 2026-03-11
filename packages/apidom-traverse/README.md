@@ -58,7 +58,7 @@ All operations use **data-first** signatures: the element comes before the predi
 
 ### filter
 
-Finds all elements matching the predicate.
+Finds all paths whose elements match the predicate.
 
 ```js
 import { ObjectElement, isNumberElement } from '@speclynx/apidom-datamodel';
@@ -66,12 +66,14 @@ import { filter } from '@speclynx/apidom-traverse';
 
 const element = new ObjectElement({ a: 'b', c: 2 });
 
-filter(element, isNumberElement); // => [NumberElement<2>]
+const paths = filter(element, (path) => isNumberElement(path.node)); // => [Path<NumberElement<2>>]
+paths[0].node; // => NumberElement<2>
+paths[0].formatPath(); // => '/c'
 ```
 
 ### find
 
-Find first element that satisfies the provided predicate.
+Finds first path whose element satisfies the provided predicate.
 
 ```js
 import { ObjectElement, isNumberElement } from '@speclynx/apidom-datamodel';
@@ -79,24 +81,29 @@ import { find } from '@speclynx/apidom-traverse';
 
 const element = new ObjectElement({ a: 'b', c: 2 });
 
-find(element, isNumberElement); // => NumberElement<2>
+const path = find(element, (path) => isNumberElement(path.node)); // => Path<NumberElement<2>>
+path.node; // => NumberElement<2>
+path.formatPath(); // => '/c'
 ```
 
 ### findAtOffset
 
-ApiDOM nodes can be associated with source maps. This function finds the most inner node at the given offset.
+ApiDOM nodes can be associated with source maps. This function finds the path of the most inner node at the given offset.
 If includeRightBound is set, also finds nodes that end at the given offset.
 
 ```js
 import { findAtOffset } from '@speclynx/apidom-traverse';
 
-findAtOffset(elementWithSourceMaps, 3); // => returns most inner node at offset 3
+const path = findAtOffset(elementWithSourceMaps, 3); // => Path of most inner node at offset 3
+path.node; // => the element at that offset
+path.formatPath(); // => JSON Pointer to the element
+
 findAtOffset(elementWithSourceMaps, { offset: 3, includeRightBound: true });
 ```
 
 ### reject
 
-Complement of [filter](#filter). Finds all elements NOT matching the predicate.
+Complement of [filter](#filter). Finds all paths whose elements do NOT match the predicate.
 
 ```js
 import { ArrayElement, isNumberElement } from '@speclynx/apidom-datamodel';
@@ -104,12 +111,13 @@ import { reject } from '@speclynx/apidom-traverse';
 
 const element = new ArrayElement([1, 'a']);
 
-reject(element, isNumberElement); // => [ArrayElement, StringElement<'a'>]
+const paths = reject(element, (path) => isNumberElement(path.node)); // => [Path<ArrayElement>, Path<StringElement<'a'>>]
+paths.map((p) => p.node); // => [ArrayElement, StringElement<'a'>]
 ```
 
 ### some
 
-Tests whether at least one element passes the predicate.
+Tests whether at least one path's element passes the predicate.
 
 ```js
 import { ArrayElement, isNumberElement } from '@speclynx/apidom-datamodel';
@@ -117,12 +125,12 @@ import { some } from '@speclynx/apidom-traverse';
 
 const element = new ArrayElement([1, 'a']);
 
-some(element, isNumberElement); // => true
+some(element, (path) => isNumberElement(path.node)); // => true
 ```
 
 ### forEach
 
-Executes the callback on this element and all descendants.
+Executes the callback on this element's path and all descendant paths.
 
 ```js
 import { ArrayElement } from '@speclynx/apidom-datamodel';
@@ -130,7 +138,7 @@ import { forEach } from '@speclynx/apidom-traverse';
 
 const element = new ArrayElement([1, 'a']);
 
-forEach(element, console.dir); // => prints ArrayElement, NumberElement, StringElement in this order
+forEach(element, (path) => console.dir(path.node)); // => prints ArrayElement, NumberElement, StringElement
 ```
 
 The execution of the callback can be controlled further by providing a predicate.
@@ -141,7 +149,10 @@ import { forEach } from '@speclynx/apidom-traverse';
 
 const element = new ArrayElement([1, 'a']);
 
-forEach(element, { callback: console.dir, predicate: isNumberElement }); // => prints NumberElement<1>
+forEach(element, {
+  callback: (path) => console.dir(path.node),
+  predicate: (path) => isNumberElement(path.node),
+}); // => prints NumberElement<1>
 ```
 
 ### parents

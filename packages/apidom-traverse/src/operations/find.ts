@@ -4,19 +4,19 @@ import { traverse } from '../traversal.ts';
 import type { Path } from '../Path.ts';
 
 /**
- * Find first element that satisfies the provided predicate.
+ * Finds first path whose element satisfies the provided predicate.
  * @public
  */
 const find = <T extends Element>(
   element: T,
-  predicate: (element: Element) => boolean,
-): Element | undefined => {
-  let result: Element | undefined;
+  predicate: (path: Path<Element>) => boolean,
+): Path<Element> | undefined => {
+  let result: Path<Element> | undefined;
 
   traverse(element, {
     enter(path: Path<Element>) {
-      if (predicate(path.node)) {
-        result = path.node;
+      if (predicate(path)) {
+        result = path;
         path.stop();
       }
     },

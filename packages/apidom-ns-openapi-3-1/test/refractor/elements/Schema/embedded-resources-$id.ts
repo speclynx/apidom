@@ -22,7 +22,9 @@ describe('refractor', function () {
                 },
               });
               const openApiElement = refractOpenApi3_1(genericObjectElement);
-              const schemaElement = find(openApiElement, (e) => isSchemaElement(e));
+              const schemaElement = find(openApiElement, (path) =>
+                isSchemaElement(path.node),
+              )?.node;
               const actual = schemaElement?.meta.get('ancestorsSchemaIdentifiers');
 
               assert.deepEqual(actual, []);
@@ -53,8 +55,11 @@ describe('refractor', function () {
                 const openApiElement = refractOpenApi3_1(genericObjectElement);
                 const schemaElement = find(
                   openApiElement,
-                  (e) => isSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('1'),
-                );
+                  (path) =>
+                    isSchemaElement(path.node) &&
+                    isElement(path.node.$anchor) &&
+                    path.node.$anchor.equals('1'),
+                )?.node;
                 const actual = schemaElement?.meta.get('ancestorsSchemaIdentifiers');
 
                 assert.deepEqual(actual, ['./nested/']);
@@ -98,8 +103,11 @@ describe('refractor', function () {
               function () {
                 const schemaElement = find(
                   openApiElement,
-                  (e) => isSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('1'),
-                );
+                  (path) =>
+                    isSchemaElement(path.node) &&
+                    isElement(path.node.$anchor) &&
+                    path.node.$anchor.equals('1'),
+                )?.node;
                 const actual = schemaElement?.meta.get('ancestorsSchemaIdentifiers');
 
                 assert.deepEqual(actual, []);
@@ -111,8 +119,11 @@ describe('refractor', function () {
               function () {
                 const schemaElement = find(
                   openApiElement,
-                  (e) => isSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('2'),
-                );
+                  (path) =>
+                    isSchemaElement(path.node) &&
+                    isElement(path.node.$anchor) &&
+                    path.node.$anchor.equals('2'),
+                )?.node;
                 const actual = schemaElement?.meta.get('ancestorsSchemaIdentifiers');
 
                 assert.deepEqual(actual, ['$id1']);
@@ -124,8 +135,11 @@ describe('refractor', function () {
               function () {
                 const schemaElement = find(
                   openApiElement,
-                  (e) => isSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('3'),
-                );
+                  (path) =>
+                    isSchemaElement(path.node) &&
+                    isElement(path.node.$anchor) &&
+                    path.node.$anchor.equals('3'),
+                )?.node;
                 const actual = schemaElement?.meta.get('ancestorsSchemaIdentifiers');
 
                 assert.deepEqual(actual, ['$id1', '$id2']);
@@ -137,8 +151,11 @@ describe('refractor', function () {
               function () {
                 const schemaElement = find(
                   openApiElement,
-                  (e) => isSchemaElement(e) && isElement(e.$anchor) && e.$anchor.equals('4'),
-                );
+                  (path) =>
+                    isSchemaElement(path.node) &&
+                    isElement(path.node.$anchor) &&
+                    path.node.$anchor.equals('4'),
+                )?.node;
                 const actual = schemaElement?.meta.get('ancestorsSchemaIdentifiers');
 
                 assert.deepEqual(actual, []);

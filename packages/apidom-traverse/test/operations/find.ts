@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import { F as stubFalse } from 'ramda';
-import { Namespace, isMemberElement, isElement, MemberElement } from '@speclynx/apidom-datamodel';
+import { Namespace, isMemberElement, isElement } from '@speclynx/apidom-datamodel';
 
 import { find } from '../../src/index.ts';
 
@@ -12,17 +12,19 @@ describe('operations', function () {
       // @ts-ignore
       const objElement = new namespace.elements.Object({ a: 'b', c: 'd' });
 
-      specify('should return first match', function () {
-        const predicate = (element: unknown): boolean =>
-          isMemberElement(element) && isElement(element.key) && element.key.equals('c');
-        // @ts-ignore
-        const found = find(objElement, predicate) as MemberElement;
+      specify('should return first matching path', function () {
+        const found = find(
+          objElement,
+          (path) =>
+            isMemberElement(path.node) && isElement(path.node.key) && path.node.key.equals('c'),
+        );
 
-        assert.isTrue(isMemberElement(found));
+        assert.isDefined(found);
+        assert.isTrue(isMemberElement(found!.node));
         // @ts-ignore
-        assert.isTrue(found.key.equals('c'));
+        assert.isTrue(found!.node.key.equals('c'));
         // @ts-ignore
-        assert.isTrue(found.value.equals('d'));
+        assert.isTrue(found!.node.value.equals('d'));
       });
 
       context('given no match', function () {

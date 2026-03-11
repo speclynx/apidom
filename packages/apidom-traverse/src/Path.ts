@@ -163,7 +163,9 @@ export class Path<TNode = Element> {
    *
    * @example
    * // For a path to $.paths['/pets'].get in an OpenAPI document:
+   * ```
    * path.getPathKeys(); // => ['paths', '/pets', 'get']
+   * ```
    */
   getPathKeys(): PropertyKey[] {
     const keys: PropertyKey[] = [];
@@ -198,18 +200,22 @@ export class Path<TNode = Element> {
    *          or Normalized JSONPath like "$['paths']['/pets']['get']['responses']['200']"
    *
    * @example
+   * ```
    * // JSON Pointer examples:
    * path.formatPath(); // "" (root)
    * path.formatPath(); // "/info"
    * path.formatPath(); // "/paths/~1pets/get"
    * path.formatPath(); // "/paths/~1users~1{id}/parameters/0"
+   * ```
    *
    * @example
+   * ```
    * // JSONPath examples:
    * path.formatPath('jsonpath'); // "$" (root)
    * path.formatPath('jsonpath'); // "$['info']"
    * path.formatPath('jsonpath'); // "$['paths']['/pets']['get']"
    * path.formatPath('jsonpath'); // "$['paths']['/users/{id}']['parameters'][0]"
+   * ```
    */
   formatPath(pathFormat: 'jsonpointer' | 'jsonpath' = 'jsonpointer'): string {
     const parts = this.getPathKeys();

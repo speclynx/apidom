@@ -12,20 +12,22 @@ describe('operations', function () {
       const objElement: ObjectElement = new namespace.elements.Object({ a: 'b', c: 'd' });
 
       specify('should return Array instance', function () {
-        const filtered = filter(objElement, isMemberElement);
+        const filtered = filter(objElement, (path) => isMemberElement(path.node));
 
         assert.isArray(filtered);
       });
 
       specify('should find content matching the predicate', function () {
-        const predicate = (element: unknown): boolean =>
-          isMemberElement(element) && isElement(element.key) && element.key.equals('a');
-        const filtered = filter(objElement, predicate);
+        const filtered = filter(
+          objElement,
+          (path) =>
+            isMemberElement(path.node) && isElement(path.node.key) && path.node.key.equals('a'),
+        );
 
         assert.lengthOf(filtered, 1);
-        assert.isTrue(isMemberElement(filtered[0]));
+        assert.isTrue(isMemberElement(filtered[0].node));
         // @ts-ignore
-        assert.isTrue(filtered[0].value.equals('b'));
+        assert.isTrue(filtered[0].node.value.equals('b'));
       });
     });
   });

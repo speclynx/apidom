@@ -12,14 +12,14 @@ export interface FindAtOffsetOptions {
 }
 
 /**
- * Finds the most inner node at the given offset.
+ * Finds the path of the most inner node at the given offset.
  * If includeRightBound is set, also finds nodes that end at the given offset.
  * @public
  */
 const findAtOffset = <T extends Element>(
   element: T,
   options: number | FindAtOffsetOptions,
-): T | undefined => {
+): Path<Element> | undefined => {
   let offset: number;
   let includeRightBound: boolean;
 
@@ -31,7 +31,7 @@ const findAtOffset = <T extends Element>(
     includeRightBound = options.includeRightBound ?? false;
   }
 
-  const result: T[] = [];
+  const result: Path<Element>[] = [];
 
   traverse(element, {
     enter(path: Path<Element>) {
@@ -47,7 +47,7 @@ const findAtOffset = <T extends Element>(
         offset >= startOffset && (offset < endOffset || (includeRightBound && offset <= endOffset));
 
       if (isWithinOffsetRange) {
-        result.push(node as T);
+        result.push(path);
         return; // push to stack and dive in
       }
 

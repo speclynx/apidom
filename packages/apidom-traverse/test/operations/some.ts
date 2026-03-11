@@ -14,7 +14,7 @@ describe('operations', function () {
 
       context('given match', function () {
         specify('should return true', function () {
-          const isFound = some(objElement, isMemberElement);
+          const isFound = some(objElement, (path) => isMemberElement(path.node));
 
           assert.isTrue(isFound);
         });
