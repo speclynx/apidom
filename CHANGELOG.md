@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.1](https://github.com/speclynx/apidom/compare/v4.0.0...v4.0.1) (2026-03-11)
+
+### Bug Fixes
+
+- **release:** fix v4 failed release ([1cb7b4e](https://github.com/speclynx/apidom/commit/1cb7b4e9bcf40815cec1d6936a509bde29e0bec8))
+
 # [4.0.0](https://github.com/speclynx/apidom/compare/v3.2.1...v4.0.0) (2026-03-11)
 
 ### Features
