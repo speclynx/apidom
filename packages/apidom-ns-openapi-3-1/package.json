@@ -71,7 +71,8 @@
     "ts-mixer": "^6.0.4"
   },
   "files": [
-    "src/",
+    "src/**/*.mjs",
+    "src/**/*.cjs",
     "dist/",
     "types/apidom-ns-openapi-3-1.d.ts",
     "LICENSES",

@@ -50,7 +50,8 @@
     "@babel/runtime-corejs3": "^7.28.4"
   },
   "files": [
-    "src/",
+    "src/**/*.mjs",
+    "src/**/*.cjs",
     "dist/",
     "types/apidom-error.d.ts",
     "LICENSES",

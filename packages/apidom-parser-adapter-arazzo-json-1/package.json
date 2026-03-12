@@ -65,7 +65,8 @@
     "ramda-adjunct": "^6.0.0"
   },
   "files": [
-    "src/",
+    "src/**/*.mjs",
+    "src/**/*.cjs",
     "dist/",
     "types/apidom-parser-adapter-arazzo-json-1.d.ts",
     "LICENSES",
