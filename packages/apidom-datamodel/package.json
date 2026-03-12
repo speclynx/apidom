@@ -59,7 +59,8 @@
     "ramda": "~0.32.0"
   },
   "files": [
-    "src/",
+    "src/**/*.mjs",
+    "src/**/*.cjs",
     "dist/",
     "types/apidom-datamodel.d.ts",
     "LICENSES",

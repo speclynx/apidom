@@ -67,7 +67,8 @@
     "yaml": "^2.8.2"
   },
   "files": [
-    "src/",
+    "src/**/*.mjs",
+    "src/**/*.cjs",
     "dist/",
     "types/apidom-core.d.ts",
     "LICENSES",

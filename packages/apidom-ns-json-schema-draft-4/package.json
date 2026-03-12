@@ -67,7 +67,8 @@
     "ts-mixer": "^6.0.4"
   },
   "files": [
-    "src/",
+    "src/**/*.mjs",
+    "src/**/*.cjs",
     "dist/",
     "types/apidom-ns-json-schema-draft-4.d.ts",
     "LICENSES",

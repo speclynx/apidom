@@ -60,7 +60,8 @@
     "@swaggerexpert/jsonpath": "^4.0.3"
   },
   "files": [
-    "src/",
+    "src/**/*.mjs",
+    "src/**/*.cjs",
     "dist/",
     "types/apidom-json-path.d.ts",
     "LICENSES",

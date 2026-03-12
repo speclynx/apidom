@@ -68,7 +68,8 @@
     "@speclynx/apidom-reference": "*"
   },
   "files": [
-    "src/",
+    "src/**/*.mjs",
+    "src/**/*.cjs",
     "dist/",
     "types/apidom-converter.d.ts",
     "LICENSES",
