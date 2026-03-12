@@ -34,7 +34,7 @@ const specification = {
     document: {
       objects: {
         JSONSchema: {
-          element: 'jSONSchemaDraft4',
+          element: 'JSONSchemaDraft4',
           $visitor: JSONSchemaVisitor,
           fixedFields: {
             // core vocabulary
@@ -98,7 +98,7 @@ const specification = {
           },
         },
         JSONReference: {
-          element: 'jSONReference',
+          element: 'JSONReference',
           $visitor: JSONReferenceVisitor,
           fixedFields: {
             $ref: JSONReference$RefVisitor,

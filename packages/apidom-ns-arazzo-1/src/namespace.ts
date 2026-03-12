@@ -39,7 +39,7 @@ const arazzo1: NamespacePlugin = {
     base.register('step', StepElement);
     base.register('successAction', SuccessActionElement);
     base.register('workflow', WorkflowElement);
-    base.register('jSONSchema', JSONSchemaElement);
+    base.register('JSONSchema', JSONSchemaElement);
 
     return base;
   },

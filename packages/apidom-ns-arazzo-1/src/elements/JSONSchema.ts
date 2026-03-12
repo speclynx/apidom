@@ -7,7 +7,7 @@ import { JSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2020-12';
 class JSONSchema extends JSONSchemaElement {
   constructor(content?: Record<string, unknown>, meta?: Meta, attributes?: Attributes) {
     super(content, meta, attributes);
-    this.element = 'jSONSchema';
+    this.element = 'JSONSchema';
   }
 }
 

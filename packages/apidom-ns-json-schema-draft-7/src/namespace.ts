@@ -11,8 +11,8 @@ const jsonSchemaDraft7: NamespacePlugin = {
   namespace: (options) => {
     const { base } = options;
 
-    base.register('jSONSchemaDraft7', JSONSchemaElement);
-    base.register('jSONReference', JSONReferenceElement);
+    base.register('JSONSchemaDraft7', JSONSchemaElement);
+    base.register('JSONReference', JSONReferenceElement);
     base.register('linkDescription', LinkDescriptionElement);
 
     return base;

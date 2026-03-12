@@ -34,7 +34,7 @@ export interface RefractorOptions {
 const refract = <T extends Element>(
   value: unknown,
   {
-    element = 'jSONSchema202012',
+    element = 'JSONSchema202012',
     plugins = [],
     specificationObj = specification,
     consume = false,
@@ -76,7 +76,7 @@ const refract = <T extends Element>(
 export const refractJSONSchema = <T extends Element = JSONSchemaElement>(
   value: unknown,
   options: Omit<RefractorOptions, 'element'> = {},
-): T => refract(value, { ...options, element: 'jSONSchema202012' });
+): T => refract(value, { ...options, element: 'JSONSchema202012' });
 
 /**
  * Refracts a value into a LinkDescriptionElement.
