@@ -10,7 +10,7 @@ const jsonSchema201909: NamespacePlugin = {
   namespace: (options) => {
     const { base } = options;
 
-    base.register('jSONSchema201909', JSONSchemaElement);
+    base.register('JSONSchema201909', JSONSchemaElement);
     base.register('linkDescription', LinkDescriptionElement);
 
     return base;

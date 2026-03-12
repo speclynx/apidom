@@ -36,7 +36,7 @@ export interface RefractorOptions {
 const refract = <T extends Element>(
   value: unknown,
   {
-    element = 'jSONSchemaDraft4',
+    element = 'JSONSchemaDraft4',
     plugins = [],
     specificationObj = specification,
     consume = false,
@@ -78,7 +78,7 @@ const refract = <T extends Element>(
 export const refractJSONSchema = <T extends Element = JSONSchemaElement>(
   value: unknown,
   options: Omit<RefractorOptions, 'element'> = {},
-): T => refract(value, { ...options, element: 'jSONSchemaDraft4' });
+): T => refract(value, { ...options, element: 'JSONSchemaDraft4' });
 
 /**
  * Refracts a value into a JSONReferenceElement.
@@ -87,7 +87,7 @@ export const refractJSONSchema = <T extends Element = JSONSchemaElement>(
 export const refractJSONReference = <T extends Element = JSONReferenceElement>(
   value: unknown,
   options: Omit<RefractorOptions, 'element'> = {},
-): T => refract(value, { ...options, element: 'jSONReference' });
+): T => refract(value, { ...options, element: 'JSONReference' });
 
 /**
  * Refracts a value into a MediaElement.

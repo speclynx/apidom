@@ -223,7 +223,7 @@ const specification = {
           },
         },
         JSONSchema: {
-          element: 'jSONSchema',
+          element: 'JSONSchema',
           $visitor: JSONSchemaVisitor,
           fixedFields: {
             ...jsonSchemaFixedFields,
