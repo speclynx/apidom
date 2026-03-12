@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-parser",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "description": "Parser consumes parser adapters and provides unified API for parsing.",
   "keywords": [
     "apidom",
@@ -59,9 +59,9 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^7.28.4",
-    "@speclynx/apidom-core": "4.0.3",
-    "@speclynx/apidom-datamodel": "4.0.3",
-    "@speclynx/apidom-error": "4.0.3",
+    "@speclynx/apidom-core": "4.0.4",
+    "@speclynx/apidom-datamodel": "4.0.4",
+    "@speclynx/apidom-error": "4.0.4",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.0.0"
   },

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.4](https://github.com/speclynx/apidom/compare/v4.0.3...v4.0.4) (2026-03-12)
+
+### Bug Fixes
+
+- **release:** override minimatch 10.2.3 to fix glob pattern regression in lerna publish ([#157](https://github.com/speclynx/apidom/issues/157)) ([c2d65a0](https://github.com/speclynx/apidom/commit/c2d65a06a2187e8563a9dc9db74ba27255450e0b)), closes [lerna/lerna#4305](https://github.com/lerna/lerna/issues/4305) [isaacs/minimatch#284](https://github.com/isaacs/minimatch/issues/284)
+
 ## [4.0.3](https://github.com/speclynx/apidom/compare/v4.0.2...v4.0.3) (2026-03-11)
 
 ### Bug Fixes
