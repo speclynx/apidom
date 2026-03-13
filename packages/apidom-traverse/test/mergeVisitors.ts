@@ -329,4 +329,78 @@ describe('mergeVisitorsAsync', function () {
 
     assert.deepEqual(values, ['original', 'modified']);
   });
+
+  context('stop behavior', function () {
+    specify('should stop specific visitor without affecting others', async function () {
+      const root = new ArrayElement([1, 2, 3]);
+      const v1Values: number[] = [];
+      const v2Values: number[] = [];
+
+      const visitor1 = {
+        async NumberElement(path: Path) {
+          const val = (path.node as NumberElement).toValue() as number;
+          v1Values.push(val);
+          if (val === 2) {
+            path.stop();
+          }
+        },
+      };
+
+      const visitor2 = {
+        async NumberElement(path: Path) {
+          v2Values.push((path.node as NumberElement).toValue() as number);
+        },
+      };
+
+      const merged = mergeVisitorsAsync([visitor1, visitor2]);
+      if (merged.enter) {
+        const { Path: PathClass } = await import('../src/Path.ts');
+        for (let i = 0; i < (root.content as Element[]).length; i += 1) {
+          const item = (root.content as Element[])[i];
+          const path = new PathClass(item, root.content, null, i, true);
+          await merged.enter(path);
+          if (path.shouldStop) break;
+        }
+      }
+
+      // v1 stopped at 2
+      assert.deepEqual(v1Values, [1, 2]);
+      // v2 sees all nodes — stop only affects the visitor that called it
+      assert.deepEqual(v2Values, [1, 2, 3]);
+    });
+
+    specify(
+      'should not prevent subsequent visitors from receiving the same node',
+      async function () {
+        const root = new ObjectElement({ a: 'b' });
+        const v1Elements: string[] = [];
+        const v2Elements: string[] = [];
+
+        const visitor1 = {
+          async enter(path: Path) {
+            v1Elements.push(path.node.element);
+            path.stop();
+          },
+        };
+
+        const visitor2 = {
+          async enter(path: Path) {
+            v2Elements.push(path.node.element);
+            path.stop();
+          },
+        };
+
+        const merged = mergeVisitorsAsync([visitor1, visitor2]);
+        if (merged.enter) {
+          const { Path: PathClass } = await import('../src/Path.ts');
+          const path = new PathClass(root, undefined, null, undefined, false);
+          await merged.enter(path);
+        }
+
+        // both visitors should receive the root object element
+        assert.deepEqual(v1Elements, ['object']);
+        assert.deepEqual(v2Elements, ['object']);
+      },
+    );
+  });
 });
