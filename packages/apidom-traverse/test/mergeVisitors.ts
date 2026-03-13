@@ -1,5 +1,6 @@
 import { assert } from 'chai';
 import {
+  Element,
   ObjectElement,
   StringElement,
   NumberElement,
@@ -204,8 +205,35 @@ describe('mergeVisitors', function () {
 
       // v1 stopped at 2
       assert.deepEqual(v1Values, [1, 2]);
-      // v2 sees 1 and 3, but not 2 (stop breaks current node processing)
-      assert.deepEqual(v2Values, [1, 3]);
+      // v2 sees all nodes — stop only affects the visitor that called it
+      assert.deepEqual(v2Values, [1, 2, 3]);
+    });
+
+    specify('should not prevent subsequent visitors from receiving the root node', function () {
+      const root = new ObjectElement({ a: 'b', c: 'd' });
+      const v1Elements: string[] = [];
+      const v2Elements: string[] = [];
+
+      const visitor1 = {
+        enter(path: Path) {
+          v1Elements.push(path.node.element);
+          path.stop();
+        },
+      };
+
+      const visitor2 = {
+        enter(path: Path) {
+          v2Elements.push(path.node.element);
+          path.stop();
+        },
+      };
+
+      const merged = mergeVisitors([visitor1, visitor2]);
+      traverse(root, merged);
+
+      // both visitors should receive the root object element
+      assert.deepEqual(v1Elements, ['object']);
+      assert.deepEqual(v2Elements, ['object']);
     });
   });
 
@@ -301,5 +329,80 @@ describe('mergeVisitorsAsync', function () {
     }
 
     assert.deepEqual(values, ['original', 'modified']);
+  });
+
+  context('stop behavior', function () {
+    specify('should stop specific visitor without affecting others', async function () {
+      const root = new ArrayElement([1, 2, 3]);
+      const v1Values: number[] = [];
+      const v2Values: number[] = [];
+
+      const visitor1 = {
+        async NumberElement(path: Path) {
+          const val = (path.node as NumberElement).toValue() as number;
+          v1Values.push(val);
+          if (val === 2) {
+            path.stop();
+          }
+        },
+      };
+
+      const visitor2 = {
+        async NumberElement(path: Path) {
+          v2Values.push((path.node as NumberElement).toValue() as number);
+        },
+      };
+
+      const merged = mergeVisitorsAsync([visitor1, visitor2]);
+      if (merged.enter) {
+        const { Path: PathClass } = await import('../src/Path.ts');
+        const items = root.content as unknown as Element[];
+        for (let i = 0; i < items.length; i += 1) {
+          const item = items[i];
+          const path = new PathClass(item, root, null, i, true);
+          await merged.enter(path);
+          if (path.shouldStop) break;
+        }
+      }
+
+      // v1 stopped at 2
+      assert.deepEqual(v1Values, [1, 2]);
+      // v2 sees all nodes — stop only affects the visitor that called it
+      assert.deepEqual(v2Values, [1, 2, 3]);
+    });
+
+    specify(
+      'should not prevent subsequent visitors from receiving the same node',
+      async function () {
+        const root = new ObjectElement({ a: 'b' });
+        const v1Elements: string[] = [];
+        const v2Elements: string[] = [];
+
+        const visitor1 = {
+          async enter(path: Path) {
+            v1Elements.push(path.node.element);
+            path.stop();
+          },
+        };
+
+        const visitor2 = {
+          async enter(path: Path) {
+            v2Elements.push(path.node.element);
+            path.stop();
+          },
+        };
+
+        const merged = mergeVisitorsAsync([visitor1, visitor2]);
+        if (merged.enter) {
+          const { Path: PathClass } = await import('../src/Path.ts');
+          const path = new PathClass(root, undefined, null, undefined, false);
+          await merged.enter(path);
+        }
+
+        // both visitors should receive the root object element
+        assert.deepEqual(v1Elements, ['object']);
+        assert.deepEqual(v2Elements, ['object']);
+      },
+    );
   });
 });
