@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.5](https://github.com/speclynx/apidom/compare/v4.0.4...v4.0.5) (2026-03-13)
+
+### Bug Fixes
+
+- **traverse:** path.stop() in merged visitor no longer skips subsequent visitors for current node ([#163](https://github.com/speclynx/apidom/issues/163)) ([51a80af](https://github.com/speclynx/apidom/commit/51a80af99ee786e23829f30f1d5ff393a08a5da1))
+
 ## [4.0.4](https://github.com/speclynx/apidom/compare/v4.0.3...v4.0.4) (2026-03-12)
 
 ### Bug Fixes

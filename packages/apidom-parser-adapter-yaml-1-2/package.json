@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-parser-adapter-yaml-1-2",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "description": "Parser adapter for parsing YAML documents into base namespace.",
   "keywords": [
     "apidom",
@@ -58,9 +58,9 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^7.28.4",
-    "@speclynx/apidom-core": "4.0.4",
-    "@speclynx/apidom-datamodel": "4.0.4",
-    "@speclynx/apidom-error": "4.0.4",
+    "@speclynx/apidom-core": "4.0.5",
+    "@speclynx/apidom-datamodel": "4.0.5",
+    "@speclynx/apidom-error": "4.0.5",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.0.0",
     "unraw": "^3.0.0",
