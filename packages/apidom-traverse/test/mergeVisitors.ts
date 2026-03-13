@@ -1,5 +1,6 @@
 import { assert } from 'chai';
 import {
+  Element,
   ObjectElement,
   StringElement,
   NumberElement,
@@ -355,9 +356,10 @@ describe('mergeVisitorsAsync', function () {
       const merged = mergeVisitorsAsync([visitor1, visitor2]);
       if (merged.enter) {
         const { Path: PathClass } = await import('../src/Path.ts');
-        for (let i = 0; i < (root.content as Element[]).length; i += 1) {
-          const item = (root.content as Element[])[i];
-          const path = new PathClass(item, root.content, null, i, true);
+        const items = root.content as unknown as Element[];
+        for (let i = 0; i < items.length; i += 1) {
+          const item = items[i];
+          const path = new PathClass(item, root, null, i, true);
           await merged.enter(path);
           if (path.shouldStop) break;
         }
