@@ -258,9 +258,9 @@ export const mergeVisitors = <TNode>(
             }
 
             // Handle path-based control flow
+            // Note: no break here — other merged visitors must still process this node
             if (proxyPath.shouldStop) {
               skipping[i] = breakSymbol;
-              break;
             }
 
             if (proxyPath.shouldSkip) {
@@ -295,6 +295,11 @@ export const mergeVisitors = <TNode>(
         }
       }
 
+      // stop traversal only when all visitors have stopped
+      if (skipping.every((s) => s === breakSymbol)) {
+        path.stop();
+      }
+
       if (hasChanged) {
         path.replaceWith(currentNode);
         return currentNode;
@@ -324,9 +329,9 @@ export const mergeVisitors = <TNode>(
             }
 
             // Handle path-based control flow
+            // Note: no break here — other merged visitors must still process this node
             if (proxyPath.shouldStop) {
               skipping[i] = breakSymbol;
-              break;
             }
 
             if (proxyPath.removed) {
@@ -347,6 +352,11 @@ export const mergeVisitors = <TNode>(
           // Reset skip state when leaving the node that was skipped
           skipping[i] = internalSkipSymbol;
         }
+      }
+
+      // stop traversal only when all visitors have stopped
+      if (skipping.every((s) => s === breakSymbol)) {
+        path.stop();
       }
 
       return undefined;
@@ -385,9 +395,10 @@ export const mergeVisitorsAsync = <TNode>(
             const proxyPath = createPathProxy(path, currentNode);
             const result = await visitFn.call(visitors[i], proxyPath);
 
+            // Handle path-based control flow
+            // Note: no break here — other merged visitors must still process this node
             if (proxyPath.shouldStop) {
               skipping[i] = breakSymbol;
-              break;
             }
 
             if (proxyPath.shouldSkip) {
@@ -421,6 +432,11 @@ export const mergeVisitorsAsync = <TNode>(
         }
       }
 
+      // stop traversal only when all visitors have stopped
+      if (skipping.every((s) => s === breakSymbol)) {
+        path.stop();
+      }
+
       if (hasChanged) {
         path.replaceWith(currentNode);
         return currentNode;
@@ -441,9 +457,10 @@ export const mergeVisitorsAsync = <TNode>(
 
             const result = await visitFn.call(visitors[i], proxyPath);
 
+            // Handle path-based control flow
+            // Note: no break here — other merged visitors must still process this node
             if (proxyPath.shouldStop) {
               skipping[i] = breakSymbol;
-              break;
             }
 
             if (proxyPath.removed) {
@@ -463,6 +480,11 @@ export const mergeVisitorsAsync = <TNode>(
         } else if (skipping[i] === currentNode) {
           skipping[i] = internalSkipSymbol;
         }
+      }
+
+      // stop traversal only when all visitors have stopped
+      if (skipping.every((s) => s === breakSymbol)) {
+        path.stop();
       }
 
       return undefined;

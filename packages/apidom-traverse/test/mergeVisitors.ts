@@ -204,8 +204,35 @@ describe('mergeVisitors', function () {
 
       // v1 stopped at 2
       assert.deepEqual(v1Values, [1, 2]);
-      // v2 sees 1 and 3, but not 2 (stop breaks current node processing)
-      assert.deepEqual(v2Values, [1, 3]);
+      // v2 sees all nodes — stop only affects the visitor that called it
+      assert.deepEqual(v2Values, [1, 2, 3]);
+    });
+
+    specify('should not prevent subsequent visitors from receiving the root node', function () {
+      const root = new ObjectElement({ a: 'b', c: 'd' });
+      const v1Elements: string[] = [];
+      const v2Elements: string[] = [];
+
+      const visitor1 = {
+        enter(path: Path) {
+          v1Elements.push(path.node.element);
+          path.stop();
+        },
+      };
+
+      const visitor2 = {
+        enter(path: Path) {
+          v2Elements.push(path.node.element);
+          path.stop();
+        },
+      };
+
+      const merged = mergeVisitors([visitor1, visitor2]);
+      traverse(root, merged);
+
+      // both visitors should receive the root object element
+      assert.deepEqual(v1Elements, ['object']);
+      assert.deepEqual(v2Elements, ['object']);
     });
   });
 
