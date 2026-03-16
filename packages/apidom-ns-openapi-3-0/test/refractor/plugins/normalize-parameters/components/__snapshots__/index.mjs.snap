@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`refractor plugins normalize-parameters given Path Item Object is defined in Components.callbacks should skip the Path Item from normalization 1`] = `
+(OpenApi3_0Element
+  (MemberElement
+    (StringElement)
+    (OpenapiElement))
+  (MemberElement
+    (StringElement)
+    (ComponentsElement
+      (MemberElement
+        (StringElement)
+        (ObjectElement
+          (MemberElement
+            (StringElement)
+            (CallbackElement
+              (MemberElement
+                (StringElement)
+                (PathItemElement
+                  (MemberElement
+                    (StringElement)
+                    (ArrayElement
+                      (ParameterElement
+                        (MemberElement
+                          (StringElement)
+                          (StringElement))
+                        (MemberElement
+                          (StringElement)
+                          (StringElement)))))
+                  (MemberElement
+                    (StringElement)
+                    (OperationElement)))))))))))
+`;

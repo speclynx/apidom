@@ -1,0 +1,38 @@
+import { expect } from 'chai';
+import dedent from 'dedent';
+import { sexprs } from '@speclynx/apidom-core';
+import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
+
+import {
+  refractOpenApi3_0,
+  refractorPluginNormalizeSecurityRequirements,
+} from '../../../../../src/index.ts';
+
+describe('refractor', function () {
+  context('plugins', function () {
+    context('normalize-security-requirements', function () {
+      context('given Operation Object is defined in Components.callbacks', function () {
+        specify('should skip the Operation from normalization', async function () {
+          const yamlDefinition = dedent`
+              openapi: 3.0.4
+              security:
+                - petstore_auth:
+                    - write:pets
+                    - read:pets
+              components:
+                callbacks:
+                  myCallback:
+                    "{$url}":
+                       get: {}
+            `;
+          const apiDOM = await parse(yamlDefinition);
+          const openApiElement = refractOpenApi3_0(apiDOM.result, {
+            plugins: [refractorPluginNormalizeSecurityRequirements()],
+          });
+
+          expect(sexprs(openApiElement)).toMatchSnapshot();
+        });
+      });
+    });
+  });
+});

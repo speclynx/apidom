@@ -1,0 +1,95 @@
+import { expect } from 'chai';
+import dedent from 'dedent';
+import { sexprs } from '@speclynx/apidom-core';
+import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
+
+import { refractOpenApi3_0, refractorPluginNormalizeServers } from '../../../../src/index.ts';
+
+describe('refractor', function () {
+  context('plugins', function () {
+    context('normalize-servers', function () {
+      context('given OpenAPI.server defined', function () {
+        specify(
+          'should duplicate Server Objects in PathItem.servers and Operation.servers',
+          async function () {
+            const yamlDefinition = dedent`
+              openapi: 3.0.4
+              servers:
+               - url: https://example.com/
+                 description: production server
+              paths:
+                /:
+                  get: {}
+            `;
+            const apiDOM = await parse(yamlDefinition);
+            const openApiElement = refractOpenApi3_0(apiDOM.result, {
+              plugins: [refractorPluginNormalizeServers()],
+            });
+
+            expect(sexprs(openApiElement)).toMatchSnapshot();
+          },
+        );
+      });
+
+      context('given PathItem.servers defined', function () {
+        specify('should duplicate Server Objects in Operation.servers', async function () {
+          const yamlDefinition = dedent`
+              openapi: 3.0.4
+              paths:
+                /:
+                  servers:
+                   - url: https://example.com/
+                     description: production server
+                  get: {}
+            `;
+          const apiDOM = await parse(yamlDefinition);
+          const openApiElement = refractOpenApi3_0(apiDOM.result, {
+            plugins: [refractorPluginNormalizeServers()],
+          });
+
+          expect(sexprs(openApiElement)).toMatchSnapshot();
+        });
+      });
+
+      context('given OpenAPI.servers defined and PathItem.servers defined', function () {
+        specify('should duplicate Server Objects from PathItem.servers', async function () {
+          const yamlDefinition = dedent`
+              openapi: 3.0.4
+              servers:
+               - url: https://example.com/top
+                 description: top production server
+              paths:
+                /:
+                  servers:
+                    - url: https://example.com/inner
+                      description: inner production server
+                  get: {}
+            `;
+          const apiDOM = await parse(yamlDefinition);
+          const openApiElement = refractOpenApi3_0(apiDOM.result, {
+            plugins: [refractorPluginNormalizeServers()],
+          });
+
+          expect(openApiElement).toMatchSnapshot();
+        });
+      });
+
+      context('given no servers field is defined', function () {
+        specify('should create default Server Object and duplicate', async function () {
+          const yamlDefinition = dedent`
+              openapi: 3.0.4
+              paths:
+                /:
+                  get: {}
+            `;
+          const apiDOM = await parse(yamlDefinition);
+          const openApiElement = refractOpenApi3_0(apiDOM.result, {
+            plugins: [refractorPluginNormalizeServers()],
+          });
+
+          expect(sexprs(openApiElement)).toMatchSnapshot();
+        });
+      });
+    });
+  });
+});

@@ -1,0 +1,563 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`refractor plugins normalize-servers given OpenAPI.server defined should duplicate Server Objects in PathItem.servers and Operation.servers 1`] = `
+(OpenApi3_0Element
+  (MemberElement
+    (StringElement)
+    (OpenapiElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (ServerElement
+        (MemberElement
+          (StringElement)
+          (StringElement))
+        (MemberElement
+          (StringElement)
+          (StringElement)))))
+  (MemberElement
+    (StringElement)
+    (PathsElement
+      (MemberElement
+        (StringElement)
+        (PathItemElement
+          (MemberElement
+            (StringElement)
+            (OperationElement
+              (MemberElement
+                (StringElement)
+                (ArrayElement
+                  (ServerElement
+                    (MemberElement
+                      (StringElement)
+                      (StringElement))
+                    (MemberElement
+                      (StringElement)
+                      (StringElement)))))))
+          (MemberElement
+            (StringElement)
+            (ArrayElement
+              (ServerElement
+                (MemberElement
+                  (StringElement)
+                  (StringElement))
+                (MemberElement
+                  (StringElement)
+                  (StringElement)))))))))
+  (MemberElement
+    (StringElement)
+    (ObjectElement
+      (MemberElement
+        (StringElement)
+        (ArrayElement
+          (StringElement)
+          (StringElement))))))
+`;
+
+exports[`refractor plugins normalize-servers given OpenAPI.servers defined and PathItem.servers defined should duplicate Server Objects from PathItem.servers 1`] = `
+{
+  "element": "openApi3_0",
+  "meta": {
+    "classes": {
+      "element": "array",
+      "content": [
+        {
+          "element": "string",
+          "content": "api"
+        },
+        {
+          "element": "string",
+          "content": "result"
+        }
+      ]
+    }
+  },
+  "__meta_raw__": [
+    "classes"
+  ],
+  "content": [
+    {
+      "element": "member",
+      "content": {
+        "key": {
+          "element": "string",
+          "content": "openapi"
+        },
+        "value": {
+          "element": "openapi",
+          "meta": {
+            "classes": {
+              "element": "array",
+              "content": [
+                {
+                  "element": "string",
+                  "content": "spec-version"
+                },
+                {
+                  "element": "string",
+                  "content": "version"
+                }
+              ]
+            }
+          },
+          "__meta_raw__": [
+            "classes"
+          ],
+          "content": "3.0.4"
+        }
+      }
+    },
+    {
+      "element": "member",
+      "content": {
+        "key": {
+          "element": "string",
+          "content": "servers"
+        },
+        "value": {
+          "element": "array",
+          "meta": {
+            "classes": {
+              "element": "array",
+              "content": [
+                {
+                  "element": "string",
+                  "content": "servers"
+                }
+              ]
+            }
+          },
+          "__meta_raw__": [
+            "classes"
+          ],
+          "content": [
+            {
+              "element": "server",
+              "content": [
+                {
+                  "element": "member",
+                  "content": {
+                    "key": {
+                      "element": "string",
+                      "content": "url"
+                    },
+                    "value": {
+                      "element": "string",
+                      "meta": {
+                        "classes": {
+                          "element": "array",
+                          "content": [
+                            {
+                              "element": "string",
+                              "content": "server-url"
+                            }
+                          ]
+                        }
+                      },
+                      "__meta_raw__": [
+                        "classes"
+                      ],
+                      "content": "https://example.com/top"
+                    }
+                  }
+                },
+                {
+                  "element": "member",
+                  "content": {
+                    "key": {
+                      "element": "string",
+                      "content": "description"
+                    },
+                    "value": {
+                      "element": "string",
+                      "content": "top production server"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "element": "member",
+      "content": {
+        "key": {
+          "element": "string",
+          "content": "paths"
+        },
+        "value": {
+          "element": "paths",
+          "content": [
+            {
+              "element": "member",
+              "meta": {
+                "classes": {
+                  "element": "array",
+                  "content": [
+                    {
+                      "element": "string",
+                      "content": "patterned-field"
+                    }
+                  ]
+                }
+              },
+              "__meta_raw__": [
+                "classes"
+              ],
+              "content": {
+                "key": {
+                  "element": "string",
+                  "meta": {
+                    "classes": {
+                      "element": "array",
+                      "content": [
+                        {
+                          "element": "string",
+                          "content": "openapi-path-template"
+                        },
+                        {
+                          "element": "string",
+                          "content": "path-template"
+                        }
+                      ]
+                    }
+                  },
+                  "__meta_raw__": [
+                    "classes"
+                  ],
+                  "content": "/"
+                },
+                "value": {
+                  "element": "pathItem",
+                  "meta": {
+                    "path": {
+                      "element": "string",
+                      "content": "/"
+                    }
+                  },
+                  "__meta_raw__": [
+                    "path"
+                  ],
+                  "content": [
+                    {
+                      "element": "member",
+                      "content": {
+                        "key": {
+                          "element": "string",
+                          "content": "servers"
+                        },
+                        "value": {
+                          "element": "array",
+                          "meta": {
+                            "classes": {
+                              "element": "array",
+                              "content": [
+                                {
+                                  "element": "string",
+                                  "content": "path-item-servers"
+                                },
+                                {
+                                  "element": "string",
+                                  "content": "servers"
+                                }
+                              ]
+                            }
+                          },
+                          "__meta_raw__": [
+                            "classes"
+                          ],
+                          "content": [
+                            {
+                              "element": "server",
+                              "content": [
+                                {
+                                  "element": "member",
+                                  "content": {
+                                    "key": {
+                                      "element": "string",
+                                      "content": "url"
+                                    },
+                                    "value": {
+                                      "element": "string",
+                                      "meta": {
+                                        "classes": {
+                                          "element": "array",
+                                          "content": [
+                                            {
+                                              "element": "string",
+                                              "content": "server-url"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "__meta_raw__": [
+                                        "classes"
+                                      ],
+                                      "content": "https://example.com/inner"
+                                    }
+                                  }
+                                },
+                                {
+                                  "element": "member",
+                                  "content": {
+                                    "key": {
+                                      "element": "string",
+                                      "content": "description"
+                                    },
+                                    "value": {
+                                      "element": "string",
+                                      "content": "inner production server"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "element": "member",
+                      "content": {
+                        "key": {
+                          "element": "string",
+                          "content": "get"
+                        },
+                        "value": {
+                          "element": "operation",
+                          "meta": {
+                            "http-method": {
+                              "element": "string",
+                              "content": "GET"
+                            }
+                          },
+                          "__meta_raw__": [
+                            "http-method"
+                          ],
+                          "content": [
+                            {
+                              "element": "member",
+                              "content": {
+                                "key": {
+                                  "element": "string",
+                                  "content": "servers"
+                                },
+                                "value": {
+                                  "element": "array",
+                                  "meta": {
+                                    "classes": {
+                                      "element": "array",
+                                      "content": [
+                                        {
+                                          "element": "string",
+                                          "content": "operation-servers"
+                                        },
+                                        {
+                                          "element": "string",
+                                          "content": "servers"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "__meta_raw__": [
+                                    "classes"
+                                  ],
+                                  "content": [
+                                    {
+                                      "element": "server",
+                                      "content": [
+                                        {
+                                          "element": "member",
+                                          "content": {
+                                            "key": {
+                                              "element": "string",
+                                              "content": "url"
+                                            },
+                                            "value": {
+                                              "element": "string",
+                                              "meta": {
+                                                "classes": {
+                                                  "element": "array",
+                                                  "content": [
+                                                    {
+                                                      "element": "string",
+                                                      "content": "server-url"
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              "__meta_raw__": [
+                                                "classes"
+                                              ],
+                                              "content": "https://example.com/inner"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "element": "member",
+                                          "content": {
+                                            "key": {
+                                              "element": "string",
+                                              "content": "description"
+                                            },
+                                            "value": {
+                                              "element": "string",
+                                              "content": "inner production server"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "element": "member",
+      "content": {
+        "key": {
+          "element": "string",
+          "content": "x-normalized"
+        },
+        "value": {
+          "element": "object",
+          "content": [
+            {
+              "element": "member",
+              "content": {
+                "key": {
+                  "element": "string",
+                  "content": "servers"
+                },
+                "value": {
+                  "element": "array",
+                  "content": [
+                    {
+                      "element": "string",
+                      "content": "/paths/~1"
+                    },
+                    {
+                      "element": "string",
+                      "content": "/paths/~1/get"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+`;
+
+exports[`refractor plugins normalize-servers given PathItem.servers defined should duplicate Server Objects in Operation.servers 1`] = `
+(OpenApi3_0Element
+  (MemberElement
+    (StringElement)
+    (OpenapiElement))
+  (MemberElement
+    (StringElement)
+    (PathsElement
+      (MemberElement
+        (StringElement)
+        (PathItemElement
+          (MemberElement
+            (StringElement)
+            (ArrayElement
+              (ServerElement
+                (MemberElement
+                  (StringElement)
+                  (StringElement))
+                (MemberElement
+                  (StringElement)
+                  (StringElement)))))
+          (MemberElement
+            (StringElement)
+            (OperationElement
+              (MemberElement
+                (StringElement)
+                (ArrayElement
+                  (ServerElement
+                    (MemberElement
+                      (StringElement)
+                      (StringElement))
+                    (MemberElement
+                      (StringElement)
+                      (StringElement)))))))))))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (ServerElement
+        (MemberElement
+          (StringElement)
+          (StringElement)))))
+  (MemberElement
+    (StringElement)
+    (ObjectElement
+      (MemberElement
+        (StringElement)
+        (ArrayElement
+          (StringElement)
+          (StringElement))))))
+`;
+
+exports[`refractor plugins normalize-servers given no servers field is defined should create default Server Object and duplicate 1`] = `
+(OpenApi3_0Element
+  (MemberElement
+    (StringElement)
+    (OpenapiElement))
+  (MemberElement
+    (StringElement)
+    (PathsElement
+      (MemberElement
+        (StringElement)
+        (PathItemElement
+          (MemberElement
+            (StringElement)
+            (OperationElement
+              (MemberElement
+                (StringElement)
+                (ArrayElement
+                  (ServerElement
+                    (MemberElement
+                      (StringElement)
+                      (StringElement)))))))
+          (MemberElement
+            (StringElement)
+            (ArrayElement
+              (ServerElement
+                (MemberElement
+                  (StringElement)
+                  (StringElement)))))))))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (ServerElement
+        (MemberElement
+          (StringElement)
+          (StringElement)))))
+  (MemberElement
+    (StringElement)
+    (ObjectElement
+      (MemberElement
+        (StringElement)
+        (ArrayElement
+          (StringElement)
+          (StringElement))))))
+`;

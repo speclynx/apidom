@@ -1,0 +1,39 @@
+import { expect } from 'chai';
+import dedent from 'dedent';
+import { toValue, dispatchRefractorPlugins } from '@speclynx/apidom-core';
+import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
+
+import {
+  createToolbox,
+  refractOpenApi3_0,
+  refractorPluginNormalizeServers,
+} from '../../../../src/index.ts';
+
+describe('refractor', function () {
+  context('plugins', function () {
+    context('normalize-servers', function () {
+      specify('should have idempotent characteristics', async function () {
+        const yamlDefinition = dedent`
+            openapi: 3.0.4
+            servers:
+              - url: https://example.com/
+                description: production server
+            paths:
+              /:
+                get: {}
+        `;
+        const apiDOM = await parse(yamlDefinition);
+        const openApiElement = refractOpenApi3_0(apiDOM.result);
+        const options = {
+          toolboxCreator: createToolbox,
+        };
+
+        dispatchRefractorPlugins(openApiElement, [refractorPluginNormalizeServers()], options);
+        dispatchRefractorPlugins(openApiElement, [refractorPluginNormalizeServers()], options);
+        dispatchRefractorPlugins(openApiElement, [refractorPluginNormalizeServers()], options);
+
+        expect(toValue(apiDOM.result)).toMatchSnapshot();
+      });
+    });
+  });
+});

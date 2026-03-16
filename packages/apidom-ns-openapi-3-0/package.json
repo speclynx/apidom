@@ -59,6 +59,7 @@
     "@speclynx/apidom-core": "4.1.0",
     "@speclynx/apidom-datamodel": "4.1.0",
     "@speclynx/apidom-error": "4.1.0",
+    "@speclynx/apidom-json-pointer": "4.1.0",
     "@speclynx/apidom-ns-json-schema-draft-4": "4.1.0",
     "@speclynx/apidom-traverse": "4.1.0",
     "ramda": "~0.32.0",

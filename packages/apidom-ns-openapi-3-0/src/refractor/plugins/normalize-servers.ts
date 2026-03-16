@@ -1,15 +1,13 @@
 import { isArrayElement } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
-import {
-  PathItemServersElement,
-  OperationServersElement,
-  ServersElement,
-} from '@speclynx/apidom-ns-openapi-3-0';
 
-import type OpenApi3_1Element from '../../elements/OpenApi3-1.ts';
+import type OpenApi3_0Element from '../../elements/OpenApi3-0.ts';
 import type PathItemElement from '../../elements/PathItem.ts';
 import type ServerElement from '../../elements/Server.ts';
 import type OperationElement from '../../elements/Operation.ts';
+import ServersElement from '../../elements/nces/Servers.ts';
+import PathItemServersElement from '../../elements/nces/PathItemServers.ts';
+import OperationServersElement from '../../elements/nces/OperationServers.ts';
 import type { Toolbox } from '../toolbox.ts';
 import NormalizeStorage from './normalize-storage/index.ts';
 import { refractServer } from '../index.ts';
@@ -17,7 +15,7 @@ import { refractServer } from '../index.ts';
 /**
  * Override of Server Objects.
  *
- * List of Server Objects can be defined in OpenAPI 3.1 on multiple levels:
+ * List of Server Objects can be defined in OpenAPI 3.0 on multiple levels:
  *
  *  - OpenAPI.servers
  *  - PathItem.servers
@@ -37,7 +35,7 @@ export interface PluginOptions {
  * If `servers` is missing or empty, adds a default server with `url: "/"`.
  * @public
  */
-const ensureDefaultServer = (openapiElement: OpenApi3_1Element): void => {
+const ensureDefaultServer = (openapiElement: OpenApi3_0Element): void => {
   const isServersUndefined = typeof openapiElement.servers === 'undefined';
   const isServersArray = isArrayElement(openapiElement.servers);
   const isServersEmpty = isServersArray && openapiElement.servers!.length === 0;
@@ -57,7 +55,7 @@ const ensureDefaultServer = (openapiElement: OpenApi3_1Element): void => {
  */
 const inheritServersToPathItem = (
   pathItemElement: PathItemElement,
-  openapiElement: OpenApi3_1Element,
+  openapiElement: OpenApi3_0Element,
 ): void => {
   const isServersUndefined = typeof pathItemElement.servers === 'undefined';
   const isServersArray = isArrayElement(pathItemElement.servers);
@@ -107,8 +105,8 @@ const plugin =
 
     return {
       visitor: {
-        OpenApi3_1Element: {
-          enter(path: Path<OpenApi3_1Element>) {
+        OpenApi3_0Element: {
+          enter(path: Path<OpenApi3_0Element>) {
             const openapiElement = path.node;
             ensureDefaultServer(openapiElement);
             storage = new NormalizeStorage(openapiElement, storageField, 'servers');
@@ -123,7 +121,7 @@ const plugin =
 
           // skip visiting this Path Item
           if (ancestors.some(predicates.isComponentsElement)) return;
-          if (!ancestors.some(predicates.isOpenApi3_1Element)) return;
+          if (!ancestors.some(predicates.isOpenApi3_0Element)) return;
 
           const pathItemJSONPointer = path.formatPath();
 
@@ -132,12 +130,12 @@ const plugin =
             return;
           }
 
-          const parentOpenapiElement = ancestors.find(predicates.isOpenApi3_1Element);
+          const parentOpenapiElement = ancestors.find(predicates.isOpenApi3_0Element);
 
-          if (predicates.isOpenApi3_1Element(parentOpenapiElement)) {
+          if (predicates.isOpenApi3_0Element(parentOpenapiElement)) {
             inheritServersToPathItem(
               pathItemElement,
-              parentOpenapiElement as unknown as OpenApi3_1Element,
+              parentOpenapiElement as unknown as OpenApi3_0Element,
             );
             storage!.append(pathItemJSONPointer);
           }
@@ -148,7 +146,7 @@ const plugin =
 
           // skip visiting this Operation
           if (ancestors.some(predicates.isComponentsElement)) return;
-          if (!ancestors.some(predicates.isOpenApi3_1Element)) return;
+          if (!ancestors.some(predicates.isOpenApi3_0Element)) return;
 
           const operationJSONPointer = path.formatPath();
 
