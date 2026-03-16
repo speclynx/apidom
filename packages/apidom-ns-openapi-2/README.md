@@ -185,6 +185,128 @@ const swaggerElement = SwaggerElement.refract(apiDOM.result, {
 //     (StringElement)))
 ```
 
+#### Normalize Parameter Objects plugin
+
+Duplicates Parameters from Path Items to Operation Objects using following rules:
+
+- If a parameter is already defined at the Path Item, the new definition will override it but can never remove it
+- The list MUST NOT include duplicated parameters
+- A unique parameter is defined by a combination of a name and location.
+
+```js
+import { toValue } from '@speclynx/apidom-core';
+import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
+import { refractorPluginNormalizeParameters, SwaggerElement } from '@speclynx/apidom-ns-openapi-2';
+
+const yamlDefinition = `
+swagger: "2.0"
+paths:
+  /:
+    parameters:
+      - name: param1
+        in: query
+        type: string
+      - name: param2
+        in: query
+        type: string
+    get: {}
+`;
+const apiDOM = await parse(yamlDefinition);
+const swaggerElement = SwaggerElement.refract(apiDOM.result, {
+  plugins: [refractorPluginNormalizeParameters()],
+});
+
+toValue(swaggerElement);
+// =>
+// {
+//   "swagger": "2.0",
+//   "paths": {
+//     "/": {
+//       "parameters": [
+//         {
+//           "name": "param1",
+//           "in": "query",
+//           "type": "string"
+//         },
+//         {
+//           "name": "param2",
+//           "in": "query",
+//           "type": "string"
+//         }
+//       ],
+//       "get": {
+//         "parameters": [
+//           {
+//             "name": "param1",
+//             "in": "query",
+//             "type": "string"
+//           },
+//           {
+//             "name": "param2",
+//             "in": "query",
+//             "type": "string"
+//           }
+//         ]
+//       }
+//     }
+//   }
+// }
+```
+
+#### Normalize Security Requirements Objects plugin
+
+`Operation.security` definition overrides any declared top-level security from Swagger.security field.
+If Operation.security field is not defined, this field will inherit security from Swagger.security field.
+
+```js
+import { toValue } from '@speclynx/apidom-core';
+import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
+import { refractorPluginNormalizeSecurityRequirements, SwaggerElement } from '@speclynx/apidom-ns-openapi-2';
+
+const yamlDefinition = `
+swagger: "2.0"
+security:
+  - petstore_auth:
+      - write:pets
+      - read:pets
+paths:
+  /:
+    get: {}
+`;
+const apiDOM = await parse(yamlDefinition);
+const swaggerElement = SwaggerElement.refract(apiDOM.result, {
+  plugins: [refractorPluginNormalizeSecurityRequirements()],
+});
+
+toValue(swaggerElement);
+// =>
+// {
+//   "swagger": "2.0",
+//   "security": [
+//     {
+//       "petstore_auth": [
+//         "write:pets",
+//         "read:pets"
+//       ]
+//     }
+//   ],
+//   "paths": {
+//     "/": {
+//       "get": {
+//         "security": [
+//           {
+//             "petstore_auth": [
+//               "write:pets",
+//               "read:pets"
+//             ]
+//           }
+//         ]
+//       }
+//     }
+//   }
+// }
+```
+
 ## Implementation progress
 
 Only fully implemented specification objects should be checked here.
