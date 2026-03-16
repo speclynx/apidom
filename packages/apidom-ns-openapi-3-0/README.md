@@ -180,6 +180,183 @@ const openApiElement = OpenApi3_0Element.refract(apiDOM.result, {
 //     (StringElement)))
 ```
 
+#### Normalize Parameter Objects plugin
+
+Duplicates Parameters from Path Items to Operation Objects using following rules:
+
+- If a parameter is already defined at the Path Item, the new definition will override it but can never remove it
+- The list MUST NOT include duplicated parameters
+- A unique parameter is defined by a combination of a name and location.
+
+```js
+import { toValue } from '@speclynx/apidom-core';
+import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
+import { refractorPluginNormalizeParameters, OpenApi3_0Element } from '@speclynx/apidom-ns-openapi-3-0';
+
+const yamlDefinition = `
+openapi: 3.0.4
+paths:
+  /:
+    parameters:
+      - name: param1
+        in: query
+      - name: param2
+        in: query
+    get: {}
+`;
+const apiDOM = await parse(yamlDefinition);
+const openApiElement = OpenApi3_0Element.refract(apiDOM.result, {
+  plugins: [refractorPluginNormalizeParameters()],
+});
+
+toValue(openApiElement);
+// =>
+// {
+//   "openapi": "3.0.4",
+//   "paths": {
+//     "/": {
+//       "parameters": [
+//         {
+//           "name": "param1",
+//           "in": "query"
+//         },
+//         {
+//           "name": "param2",
+//           "in": "query"
+//         }
+//       ],
+//       "get": {
+//         "parameters": [
+//           {
+//             "name": "param1",
+//             "in": "query"
+//           },
+//           {
+//             "name": "param2",
+//             "in": "query"
+//           }
+//         ]
+//       }
+//     }
+//   }
+// }
+```
+
+#### Normalize Security Requirements Objects plugin
+
+`Operation.security` definition overrides any declared top-level security from OpenAPI.security field.
+If Operation.security field is not defined, this field will inherit security from OpenAPI.security field.
+
+```js
+import { toValue } from '@speclynx/apidom-core';
+import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
+import { refractorPluginNormalizeSecurityRequirements, OpenApi3_0Element } from '@speclynx/apidom-ns-openapi-3-0';
+
+const yamlDefinition = `
+openapi: 3.0.4
+security:
+  - petstore_auth:
+      - write:pets
+      - read:pets
+paths:
+  /:
+    get: {}
+`;
+const apiDOM = await parse(yamlDefinition);
+const openApiElement = OpenApi3_0Element.refract(apiDOM.result, {
+  plugins: [refractorPluginNormalizeSecurityRequirements()],
+});
+
+toValue(openApiElement);
+// =>
+// {
+//   "openapi": "3.0.4",
+//   "security": [
+//     {
+//       "petstore_auth": [
+//         "write:pets",
+//         "read:pets"
+//       ]
+//     }
+//   ],
+//   "paths": {
+//     "/": {
+//       "get": {
+//         "security": [
+//           {
+//             "petstore_auth": [
+//               "write:pets",
+//               "read:pets"
+//             ]
+//           }
+//         ]
+//       }
+//     }
+//   }
+// }
+```
+
+#### Normalize Server Objects plugin
+
+List of Server Objects can be defined in OpenAPI 3.0 on multiple levels:
+
+- OpenAPI.servers
+- PathItem.servers
+- Operation.servers
+
+If an alternative server object is specified at the Path Item Object level, it will override OpenAPI.servers.
+If an alternative server object is specified at the Operation Object level, it will override PathItem.servers and OpenAPI.servers respectively.
+
+```js
+import { toValue } from '@speclynx/apidom-core';
+import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
+import { refractorPluginNormalizeServers, OpenApi3_0Element } from '@speclynx/apidom-ns-openapi-3-0';
+
+const yamlDefinition = `
+openapi: 3.0.4
+servers:
+ - url: https://example.com/
+   description: production server
+paths:
+  /:
+    get: {}
+`;
+const apiDOM = await parse(yamlDefinition);
+const openApiElement = OpenApi3_0Element.refract(apiDOM.result, {
+  plugins: [refractorPluginNormalizeServers()],
+});
+
+toValue(openApiElement);
+// =>
+// {
+//   "openapi": "3.0.4",
+//   "servers": [
+//     {
+//       "url": "https://example.com/",
+//       "description": "production server"
+//     }
+//   ],
+//   "paths": {
+//     "/": {
+//       "servers": [
+//         {
+//           "url": "https://example.com/",
+//           "description": "production server"
+//         }
+//       ],
+//       "get": {
+//         "servers": [
+//           {
+//             "url": "https://example.com/",
+//             "description": "production server"
+//           }
+//         ]
+//       }
+//     }
+//   }
+// }
+```
+
 ## Implementation progress
 
 Only fully implemented specification objects should be checked here.

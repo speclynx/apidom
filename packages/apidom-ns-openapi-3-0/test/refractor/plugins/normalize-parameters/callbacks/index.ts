@@ -3,7 +3,7 @@ import dedent from 'dedent';
 import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
-import { refractOpenApi3_1, refractorPluginNormalizeParameters } from '../../../../../src/index.ts';
+import { refractOpenApi3_0, refractorPluginNormalizeParameters } from '../../../../../src/index.ts';
 
 describe('refractor', function () {
   context('plugins', function () {
@@ -12,7 +12,7 @@ describe('refractor', function () {
         context("and Operation Object doesn't define any parameters", function () {
           specify('should inherit all parameters from closest Path Item', async function () {
             const yamlDefinition = dedent`
-              openapi: 3.1.0
+              openapi: 3.0.4
               paths:
                 /:
                   parameters:
@@ -30,7 +30,7 @@ describe('refractor', function () {
                            get: {}
             `;
             const apiDOM = await parse(yamlDefinition);
-            const openApiElement = refractOpenApi3_1(apiDOM.result, {
+            const openApiElement = refractOpenApi3_0(apiDOM.result, {
               plugins: [refractorPluginNormalizeParameters()],
             });
 
@@ -41,7 +41,7 @@ describe('refractor', function () {
         context("and Operation Object doesn't define empty parameters", function () {
           specify('should inherit all parameters from closest Path Item', async function () {
             const yamlDefinition = dedent`
-              openapi: 3.1.0
+              openapi: 3.0.4
               paths:
                 /:
                   parameters:
@@ -60,7 +60,7 @@ describe('refractor', function () {
                              parameters: []
             `;
             const apiDOM = await parse(yamlDefinition);
-            const openApiElement = refractOpenApi3_1(apiDOM.result, {
+            const openApiElement = refractOpenApi3_0(apiDOM.result, {
               plugins: [refractorPluginNormalizeParameters()],
             });
 
@@ -71,7 +71,7 @@ describe('refractor', function () {
         context('and Operation Object defines additional parameter', function () {
           specify('should merge with all parameters from closest Path Item', async function () {
             const yamlDefinition = dedent`
-              openapi: 3.1.0
+              openapi: 3.0.4
               paths:
                 /:
                   parameters:
@@ -92,7 +92,7 @@ describe('refractor', function () {
                                  in: query
             `;
             const apiDOM = await parse(yamlDefinition);
-            const openApiElement = refractOpenApi3_1(apiDOM.result, {
+            const openApiElement = refractOpenApi3_0(apiDOM.result, {
               plugins: [refractorPluginNormalizeParameters()],
             });
 
@@ -103,7 +103,7 @@ describe('refractor', function () {
         context('and Operation Object defines identical parameter', function () {
           specify('should replace parameter from closest Path Item', async function () {
             const yamlDefinition = dedent`
-              openapi: 3.1.0
+              openapi: 3.0.4
               paths:
                 /:
                   parameters:
@@ -127,7 +127,7 @@ describe('refractor', function () {
                                  description: operation parameter
             `;
             const apiDOM = await parse(yamlDefinition);
-            const openApiElement = refractOpenApi3_1(apiDOM.result, {
+            const openApiElement = refractOpenApi3_0(apiDOM.result, {
               plugins: [refractorPluginNormalizeParameters()],
             });
 

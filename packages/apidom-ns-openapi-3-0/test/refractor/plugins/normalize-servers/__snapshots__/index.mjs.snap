@@ -2,7 +2,7 @@
 
 exports[`refractor plugins normalize-servers given OpenAPI.servers defined and PathItem.servers defined should duplicate Server Objects from PathItem.servers 1`] = `
 {
-  "element": "openApi3_1",
+  "element": "openApi3_0",
   "meta": {
     "classes": {
       "element": "array",
@@ -49,7 +49,7 @@ exports[`refractor plugins normalize-servers given OpenAPI.servers defined and P
           "__meta_raw__": [
             "classes"
           ],
-          "content": "3.1.0"
+          "content": "3.0.4"
         }
       }
     },
@@ -413,7 +413,7 @@ exports[`refractor plugins normalize-servers given OpenAPI.servers defined and P
 `;
 
 exports[`refractor plugins normalize-servers given OpenAPI.servers defined should duplicate Server Objects in PathItem.servers and Operation.servers 1`] = `
-(OpenApi3_1Element
+(OpenApi3_0Element
   (MemberElement
     (StringElement)
     (OpenapiElement))
@@ -467,7 +467,7 @@ exports[`refractor plugins normalize-servers given OpenAPI.servers defined shoul
 `;
 
 exports[`refractor plugins normalize-servers given PathItem.servers defined should duplicate Server Objects in Operation.servers 1`] = `
-(OpenApi3_1Element
+(OpenApi3_0Element
   (MemberElement
     (StringElement)
     (OpenapiElement))
@@ -518,7 +518,7 @@ exports[`refractor plugins normalize-servers given PathItem.servers defined shou
 `;
 
 exports[`refractor plugins normalize-servers given no servers field is defined should create default Server Object and duplicate 1`] = `
-(OpenApi3_1Element
+(OpenApi3_0Element
   (MemberElement
     (StringElement)
     (OpenapiElement))

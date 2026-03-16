@@ -1,15 +1,16 @@
 import { ArrayElement, isArrayElement } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
-import { OperationSecurityElement } from '@speclynx/apidom-ns-openapi-3-0';
 
-import OpenApi3_1Element from '../../elements/OpenApi3-1.ts';
+import OpenApi3_0Element from '../../elements/OpenApi3-0.ts';
 import OperationElement from '../../elements/Operation.ts';
+import OperationSecurityElement from '../../elements/nces/OperationSecurity.ts';
 import type { Toolbox } from '../toolbox.ts';
 import NormalizeStorage from './normalize-storage/index.ts';
+
 /**
  * Override of Security Requirement Objects.
  *
- * OpenAPI 3.1 specification excerpt that defines the override behavior:
+ * OpenAPI 3.0 specification excerpt that defines the override behavior:
  *
  * Operation.security definition overrides any declared top-level security.
  * To remove a top-level security declaration, an empty array can be used.
@@ -31,7 +32,7 @@ export interface PluginOptions {
  */
 const inheritSecurityToOperation = (
   operationElement: OperationElement,
-  openapiElement: OpenApi3_1Element,
+  openapiElement: OpenApi3_0Element,
 ): void => {
   const missingOperationLevelSecurity = typeof operationElement.security === 'undefined';
   const hasTopLevelSecurity = isArrayElement(openapiElement.security);
@@ -53,8 +54,8 @@ const plugin =
 
     return {
       visitor: {
-        OpenApi3_1Element: {
-          enter(path: Path<OpenApi3_1Element>) {
+        OpenApi3_0Element: {
+          enter(path: Path<OpenApi3_0Element>) {
             const openapiElement = path.node;
             storage = new NormalizeStorage(openapiElement, storageField, 'security-requirements');
             if (predicates.isArrayElement(openapiElement.security)) {

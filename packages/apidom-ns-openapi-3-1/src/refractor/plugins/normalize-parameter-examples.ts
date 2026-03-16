@@ -50,7 +50,7 @@ const plugin =
         ParameterElement: {
           leave(path: Path<ParameterElement>) {
             const parameterElement = path.node;
-            const ancestors = path.getAncestorNodes().reverse(); // root to parent order
+            const ancestors = path.getAncestorNodes(); // parent to root order
 
             // skip visiting this Parameter Object
             if (ancestors.some(predicates.isComponentsElement)) {

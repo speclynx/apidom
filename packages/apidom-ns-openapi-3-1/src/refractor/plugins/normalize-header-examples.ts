@@ -50,7 +50,7 @@ const plugin =
         HeaderElement: {
           leave(path: Path<HeaderElement>) {
             const headerElement = path.node;
-            const ancestors = path.getAncestorNodes().reverse(); // root to parent order
+            const ancestors = path.getAncestorNodes(); // parent to root order
 
             // skip visiting this Header Object
             if (ancestors.some(predicates.isComponentsElement)) {

@@ -4,6 +4,12 @@ export type { Format } from './media-types.ts';
 export { default } from './namespace.ts';
 
 export { default as refractorPluginReplaceEmptyElement } from './refractor/plugins/replace-empty-element.ts';
+export { default as refractorPluginNormalizeParameters } from './refractor/plugins/normalize-parameters.ts';
+export type { PluginOptions as RefractorPluginNormalizeParametersOptions } from './refractor/plugins/normalize-parameters.ts';
+export { default as refractorPluginNormalizeSecurityRequirements } from './refractor/plugins/normalize-security-requirements.ts';
+export type { PluginOptions as RefractorPluginNormalizeSecurityRequirementsOptions } from './refractor/plugins/normalize-security-requirements.ts';
+export { default as refractorPluginNormalizeServers } from './refractor/plugins/normalize-servers.ts';
+export type { PluginOptions as RefractorPluginNormalizeServersOptions } from './refractor/plugins/normalize-servers.ts';
 
 export {
   default as refract,
@@ -39,6 +45,7 @@ export {
   refractSecurityRequirement,
 } from './refractor/index.ts';
 export type { RefractorOptions, RefractorPlugin } from './refractor/index.ts';
+export { default as createToolbox } from './refractor/toolbox.ts';
 export type { Toolbox } from './refractor/toolbox.ts';
 export { default as specificationObj } from './refractor/specification.ts';
 

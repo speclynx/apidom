@@ -3,7 +3,7 @@ import dedent from 'dedent';
 import { sexprs } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
-import { refractOpenApi3_1, refractorPluginNormalizeServers } from '../../../../src/index.ts';
+import { refractOpenApi3_0, refractorPluginNormalizeServers } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('plugins', function () {
@@ -13,7 +13,7 @@ describe('refractor', function () {
           'should duplicate Server Objects in PathItem.servers and Operation.servers',
           async function () {
             const yamlDefinition = dedent`
-              openapi: 3.1.0
+              openapi: 3.0.4
               servers:
                - url: https://example.com/
                  description: production server
@@ -22,7 +22,7 @@ describe('refractor', function () {
                   get: {}
             `;
             const apiDOM = await parse(yamlDefinition);
-            const openApiElement = refractOpenApi3_1(apiDOM.result, {
+            const openApiElement = refractOpenApi3_0(apiDOM.result, {
               plugins: [refractorPluginNormalizeServers()],
             });
 
@@ -34,7 +34,7 @@ describe('refractor', function () {
       context('given PathItem.servers defined', function () {
         specify('should duplicate Server Objects in Operation.servers', async function () {
           const yamlDefinition = dedent`
-              openapi: 3.1.0
+              openapi: 3.0.4
               paths:
                 /:
                   servers:
@@ -43,7 +43,7 @@ describe('refractor', function () {
                   get: {}
             `;
           const apiDOM = await parse(yamlDefinition);
-          const openApiElement = refractOpenApi3_1(apiDOM.result, {
+          const openApiElement = refractOpenApi3_0(apiDOM.result, {
             plugins: [refractorPluginNormalizeServers()],
           });
 
@@ -54,7 +54,7 @@ describe('refractor', function () {
       context('given OpenAPI.servers defined and PathItem.servers defined', function () {
         specify('should duplicate Server Objects from PathItem.servers', async function () {
           const yamlDefinition = dedent`
-              openapi: 3.1.0
+              openapi: 3.0.4
               servers:
                - url: https://example.com/top
                  description: top production server
@@ -66,7 +66,7 @@ describe('refractor', function () {
                   get: {}
             `;
           const apiDOM = await parse(yamlDefinition);
-          const openApiElement = refractOpenApi3_1(apiDOM.result, {
+          const openApiElement = refractOpenApi3_0(apiDOM.result, {
             plugins: [refractorPluginNormalizeServers()],
           });
 
@@ -77,13 +77,13 @@ describe('refractor', function () {
       context('given no servers field is defined', function () {
         specify('should create default Server Object and duplicate', async function () {
           const yamlDefinition = dedent`
-              openapi: 3.1.0
+              openapi: 3.0.4
               paths:
                 /:
                   get: {}
             `;
           const apiDOM = await parse(yamlDefinition);
-          const openApiElement = refractOpenApi3_1(apiDOM.result, {
+          const openApiElement = refractOpenApi3_0(apiDOM.result, {
             plugins: [refractorPluginNormalizeServers()],
           });
 

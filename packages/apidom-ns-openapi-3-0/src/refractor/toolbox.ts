@@ -1,4 +1,9 @@
-import { isStringElement, Namespace } from '@speclynx/apidom-datamodel';
+import {
+  isStringElement,
+  isArrayElement,
+  isObjectElement,
+  Namespace,
+} from '@speclynx/apidom-datamodel';
 
 import * as openApi3_0Predicates from '../predicates.ts';
 import * as refractorPredicates from './predicates.ts';
@@ -12,9 +17,18 @@ export interface Toolbox {
   namespace: Namespace;
 }
 
+/**
+ * @public
+ */
 const createToolbox = (): Toolbox => {
   const namespace = new Namespace();
-  const predicates = { ...refractorPredicates, ...openApi3_0Predicates, isStringElement };
+  const predicates = {
+    ...refractorPredicates,
+    ...openApi3_0Predicates,
+    isStringElement,
+    isArrayElement,
+    isObjectElement,
+  };
 
   namespace.use(openApi3_0Namespace);
 
