@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.1.0](https://github.com/speclynx/apidom/compare/v4.0.5...v4.1.0) (2026-03-16)
+
+### Features
+
+- **ns-openapi-3-1:** expose refractor plugins also as reusable functions ([#168](https://github.com/speclynx/apidom/issues/168)) ([ad8c3b0](https://github.com/speclynx/apidom/commit/ad8c3b008881003f4a32ec1a250080a708eb9aa9))
+
 ## [4.0.5](https://github.com/speclynx/apidom/compare/v4.0.4...v4.0.5) (2026-03-13)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-openapi-3-1

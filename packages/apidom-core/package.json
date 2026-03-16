@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-core",
-  "version": "4.0.5",
+  "version": "4.1.0",
   "description": "Tools for manipulating ApiDOM structures.",
   "keywords": [
     "apidom",
@@ -57,9 +57,9 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^7.28.4",
-    "@speclynx/apidom-datamodel": "4.0.5",
-    "@speclynx/apidom-error": "4.0.5",
-    "@speclynx/apidom-traverse": "4.0.5",
+    "@speclynx/apidom-datamodel": "4.1.0",
+    "@speclynx/apidom-error": "4.1.0",
+    "@speclynx/apidom-traverse": "4.1.0",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.0.0",
     "short-unique-id": "^5.3.2",
