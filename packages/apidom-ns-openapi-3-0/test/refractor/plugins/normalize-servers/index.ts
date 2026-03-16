@@ -8,7 +8,7 @@ import { refractOpenApi3_0, refractorPluginNormalizeServers } from '../../../../
 describe('refractor', function () {
   context('plugins', function () {
     context('normalize-servers', function () {
-      context('given OpenAPI.server defined', function () {
+      context('given OpenAPI.servers defined', function () {
         specify(
           'should duplicate Server Objects in PathItem.servers and Operation.servers',
           async function () {

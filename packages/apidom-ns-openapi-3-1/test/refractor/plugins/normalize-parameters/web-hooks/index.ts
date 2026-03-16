@@ -31,7 +31,7 @@ describe('refractor', function () {
           });
         });
 
-        context("and Operation Object doesn't defines empty parameters", function () {
+        context("and Operation Object doesn't define empty parameters", function () {
           specify('should inherit all Path Item parameters', async function () {
             const yamlDefinition = dedent`
               openapi: 3.1.0

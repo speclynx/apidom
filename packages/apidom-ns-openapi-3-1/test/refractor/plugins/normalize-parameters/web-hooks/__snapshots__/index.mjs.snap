@@ -499,7 +499,7 @@ exports[`refractor plugins normalize-parameters given parameters are defined in 
           (StringElement))))))
 `;
 
-exports[`refractor plugins normalize-parameters given parameters are defined in Path Item Object and Operation Object doesn't defines empty parameters should inherit all Path Item parameters 1`] = `
+exports[`refractor plugins normalize-parameters given parameters are defined in Path Item Object and Operation Object doesn't define empty parameters should inherit all Path Item parameters 1`] = `
 (OpenApi3_1Element
   (MemberElement
     (StringElement)

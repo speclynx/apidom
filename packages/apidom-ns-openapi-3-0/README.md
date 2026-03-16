@@ -214,30 +214,31 @@ toValue(openApiElement);
 // {
 //   "openapi": "3.0.4",
 //   "paths": {
-//   "/": {
-//     "parameters": [
-//       {
-//         "name": "param1",
-//         "in": "query"
-//       },
-//       {
-//         "name": "param2",
-//         "in": "query"
-//       }
-//     ],
-//     "get": {
+//     "/": {
 //       "parameters": [
-//          {
-//            "name": "param1",
-//            "in": "query"
-//          },
-//          {
-//            "name": "param2",
-//            "in": "query"
-//          }
-//        ],
-//      }
-//    }
+//         {
+//           "name": "param1",
+//           "in": "query"
+//         },
+//         {
+//           "name": "param2",
+//           "in": "query"
+//         }
+//       ],
+//       "get": {
+//         "parameters": [
+//           {
+//             "name": "param1",
+//             "in": "query"
+//           },
+//           {
+//             "name": "param2",
+//             "in": "query"
+//           }
+//         ]
+//       }
+//     }
+//   }
 // }
 ```
 

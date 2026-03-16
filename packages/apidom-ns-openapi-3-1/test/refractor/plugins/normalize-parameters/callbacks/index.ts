@@ -38,7 +38,7 @@ describe('refractor', function () {
           });
         });
 
-        context("and Operation Object doesn't defines empty parameters", function () {
+        context("and Operation Object doesn't define empty parameters", function () {
           specify('should inherit all parameters from closest Path Item', async function () {
             const yamlDefinition = dedent`
               openapi: 3.1.0
@@ -101,7 +101,7 @@ describe('refractor', function () {
         });
 
         context('and Operation Object defines identical parameter', function () {
-          specify('should replace parameter from closes Path Item', async function () {
+          specify('should replace parameter from closest Path Item', async function () {
             const yamlDefinition = dedent`
               openapi: 3.1.0
               paths:
