@@ -1,3 +1,4 @@
+import { isArrayElement } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
 import {
   PathItemServersElement,
@@ -10,7 +11,7 @@ import type PathItemElement from '../../elements/PathItem.ts';
 import type ServerElement from '../../elements/Server.ts';
 import type OperationElement from '../../elements/Operation.ts';
 import type { Toolbox } from '../toolbox.ts';
-import NormalizeStorage from './normalize-header-examples/NormalizeStorage.ts';
+import NormalizeStorage from './normalize-storage/index.ts';
 import { refractServer } from '../index.ts';
 
 /**
@@ -32,12 +33,76 @@ export interface PluginOptions {
 }
 
 /**
+ * Ensures the OpenAPI document has at least one server defined.
+ * If `servers` is missing or empty, adds a default server with `url: "/"`.
+ * @public
+ */
+const ensureDefaultServer = (openapiElement: OpenApi3_1Element): void => {
+  const isServersUndefined = typeof openapiElement.servers === 'undefined';
+  const isServersArray = isArrayElement(openapiElement.servers);
+  const isServersEmpty = isServersArray && openapiElement.servers!.length === 0;
+  const defaultServer = refractServer({ url: '/' });
+
+  if (isServersUndefined || !isServersArray) {
+    openapiElement.servers = new ServersElement([defaultServer]);
+  } else if (isServersArray && isServersEmpty) {
+    openapiElement.servers!.push(defaultServer);
+  }
+};
+
+/**
+ * Inherits servers from the OpenAPI root into a PathItem element.
+ * If PathItem.servers is missing or empty, copies from OpenAPI.servers.
+ * @public
+ */
+const inheritServersToPathItem = (
+  pathItemElement: PathItemElement,
+  openapiElement: OpenApi3_1Element,
+): void => {
+  const isServersUndefined = typeof pathItemElement.servers === 'undefined';
+  const isServersArray = isArrayElement(pathItemElement.servers);
+  const isServersEmpty = isServersArray && pathItemElement.servers!.length === 0;
+  const openapiServers = [...(openapiElement.servers ?? [])] as ServerElement[];
+
+  if (isServersUndefined || !isServersArray) {
+    pathItemElement.servers = new PathItemServersElement(openapiServers);
+  } else if (isServersArray && isServersEmpty) {
+    openapiServers.forEach((server) => {
+      pathItemElement.servers!.push(server);
+    });
+  }
+};
+
+/**
+ * Inherits servers from a PathItem into an Operation element.
+ * If Operation.servers is missing or empty, copies from PathItem.servers.
+ * @public
+ */
+const inheritServersToOperation = (
+  operationElement: OperationElement,
+  pathItemElement: PathItemElement,
+): void => {
+  const isServersUndefined = typeof operationElement.servers === 'undefined';
+  const isServersArray = isArrayElement(operationElement.servers);
+  const isServersEmpty = isServersArray && operationElement.servers!.length === 0;
+  const pathItemServers = [...(pathItemElement.servers ?? [])] as ServerElement[];
+
+  if (isServersUndefined || !isServersArray) {
+    operationElement.servers = new OperationServersElement(pathItemServers);
+  } else if (isServersArray && isServersEmpty) {
+    pathItemServers.forEach((server) => {
+      operationElement.servers!.push(server);
+    });
+  }
+};
+
+/**
  * @public
  */
 const plugin =
   ({ storageField = 'x-normalized' }: PluginOptions = {}) =>
   (toolbox: Toolbox) => {
-    const { ancestorLineageToJSONPointer, predicates } = toolbox;
+    const { predicates } = toolbox;
     let storage: NormalizeStorage | undefined;
 
     return {
@@ -45,16 +110,7 @@ const plugin =
         OpenApi3_1Element: {
           enter(path: Path<OpenApi3_1Element>) {
             const openapiElement = path.node;
-            const isServersUndefined = typeof openapiElement.servers === 'undefined';
-            const isServersArrayElement = predicates.isArrayElement(openapiElement.servers);
-            const isServersEmpty = isServersArrayElement && openapiElement.servers!.length === 0;
-            const defaultServer = refractServer({ url: '/' });
-
-            if (isServersUndefined || !isServersArrayElement) {
-              openapiElement.servers = new ServersElement([defaultServer]);
-            } else if (isServersArrayElement && isServersEmpty) {
-              openapiElement.servers!.push(defaultServer);
-            }
+            ensureDefaultServer(openapiElement);
             storage = new NormalizeStorage(openapiElement, storageField, 'servers');
           },
           leave() {
@@ -69,7 +125,7 @@ const plugin =
           if (ancestors.some(predicates.isComponentsElement)) return;
           if (!ancestors.some(predicates.isOpenApi3_1Element)) return;
 
-          const pathItemJSONPointer = ancestorLineageToJSONPointer([...ancestors, pathItemElement]);
+          const pathItemJSONPointer = path.formatPath();
 
           // skip visiting this Path Item Object if it's already normalized
           if (storage!.includes(pathItemJSONPointer)) {
@@ -77,23 +133,12 @@ const plugin =
           }
 
           const parentOpenapiElement = ancestors.find(predicates.isOpenApi3_1Element);
-          const isServersUndefined = typeof pathItemElement.servers === 'undefined';
-          const isServersArrayElement = predicates.isArrayElement(pathItemElement.servers);
-          const isServersEmpty = isServersArrayElement && pathItemElement.servers!.length === 0;
 
-          // duplicate OpenAPI.servers into this Path Item object
           if (predicates.isOpenApi3_1Element(parentOpenapiElement)) {
-            const openapiServersContent = (parentOpenapiElement as unknown as OpenApi3_1Element)
-              .servers?.content;
-            const openapiServers = (openapiServersContent ?? []) as ServerElement[];
-
-            if (isServersUndefined || !isServersArrayElement) {
-              pathItemElement.servers = new PathItemServersElement(openapiServers);
-            } else if (isServersArrayElement && isServersEmpty) {
-              openapiServers.forEach((server) => {
-                pathItemElement.servers!.push(server);
-              });
-            }
+            inheritServersToPathItem(
+              pathItemElement,
+              parentOpenapiElement as unknown as OpenApi3_1Element,
+            );
             storage!.append(pathItemJSONPointer);
           }
         },
@@ -105,40 +150,29 @@ const plugin =
           if (ancestors.some(predicates.isComponentsElement)) return;
           if (!ancestors.some(predicates.isOpenApi3_1Element)) return;
 
-          const operationJSONPointer = ancestorLineageToJSONPointer([
-            ...ancestors,
-            operationElement,
-          ]);
+          const operationJSONPointer = path.formatPath();
 
           // skip visiting this Operation Object if it's already normalized
           if (storage!.includes(operationJSONPointer)) {
             return;
           }
 
-          // @TODO(vladimir.gorej@gmail.com): can be replaced by Array.prototype.findLast in future
           const parentPathItemElement = ancestors.findLast(predicates.isPathItemElement);
-          const isServersUndefined = typeof operationElement.servers === 'undefined';
-          const isServersArrayElement = predicates.isArrayElement(operationElement.servers);
-          const isServersEmpty = isServersArrayElement && operationElement.servers!.length === 0;
 
           if (predicates.isPathItemElement(parentPathItemElement)) {
-            const pathItemServersContent = (parentPathItemElement as unknown as PathItemElement)
-              .servers?.content;
-            const pathItemServers = (pathItemServersContent ?? []) as ServerElement[];
-
-            if (isServersUndefined || !isServersArrayElement) {
-              // duplicate parent PathItem.servers into this Operation object
-              operationElement.servers = new OperationServersElement(pathItemServers);
-            } else if (isServersArrayElement && isServersEmpty) {
-              pathItemServers.forEach((server) => {
-                operationElement.servers!.push(server);
-              });
-            }
+            inheritServersToOperation(
+              operationElement,
+              parentPathItemElement as unknown as PathItemElement,
+            );
             storage!.append(operationJSONPointer);
           }
         },
       },
     };
   };
+
+plugin.ensureDefaultServer = ensureDefaultServer;
+plugin.inheritServersToPathItem = inheritServersToPathItem;
+plugin.inheritServersToOperation = inheritServersToOperation;
 
 export default plugin;

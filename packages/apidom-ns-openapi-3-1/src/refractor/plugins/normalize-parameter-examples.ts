@@ -5,7 +5,7 @@ import ParameterElement from '../../elements/Parameter.ts';
 import ExampleElement from '../../elements/Example.ts';
 import type { Toolbox } from '../toolbox.ts';
 import OpenApi3_1Element from '../../elements/OpenApi3-1.ts';
-import NormalizeStorage from './normalize-header-examples/NormalizeStorage.ts';
+import NormalizeStorage from './normalize-storage/index.ts';
 
 /**
  * Override of Schema.example and Schema.examples field inside the Parameter Objects.
@@ -33,7 +33,7 @@ export interface PluginOptions {
 const plugin =
   ({ storageField = 'x-normalized' }: PluginOptions = {}) =>
   (toolbox: Toolbox) => {
-    const { predicates, ancestorLineageToJSONPointer } = toolbox;
+    const { predicates } = toolbox;
     let storage: NormalizeStorage | undefined;
 
     return {
@@ -72,10 +72,7 @@ const plugin =
               return;
             }
 
-            const parameterJSONPointer = ancestorLineageToJSONPointer([
-              ...ancestors,
-              parameterElement,
-            ]);
+            const parameterJSONPointer = path.formatPath();
 
             // skip visiting this Parameter Object if it's already normalized
             if (storage!.includes(parameterJSONPointer)) {

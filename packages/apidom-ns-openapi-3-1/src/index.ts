@@ -14,10 +14,10 @@ export { default as refractorPluginNormalizeOperationIds } from './refractor/plu
 export type { PluginOptions as RefractorPluginNormalizeOperationIdsOptions } from './refractor/plugins/normalize-operation-ids.ts';
 export { default as refractorPluginNormalizeParameterExamples } from './refractor/plugins/normalize-parameter-examples.ts';
 export type { PluginOptions as RefractorPluginNormalizeParameterExamplesOptions } from './refractor/plugins/normalize-parameter-examples.ts';
-export { default as refractorPluginNormalizeHeaderExamples } from './refractor/plugins/normalize-header-examples/index.ts';
-export type { PluginOptions as RefractorPluginNormalizeHeaderExamplesOptions } from './refractor/plugins/normalize-header-examples/index.ts';
+export { default as refractorPluginNormalizeHeaderExamples } from './refractor/plugins/normalize-header-examples.ts';
+export type { PluginOptions as RefractorPluginNormalizeHeaderExamplesOptions } from './refractor/plugins/normalize-header-examples.ts';
 export { default as createToolbox } from './refractor/toolbox.ts';
-export type { Toolbox, ancestorLineageToJSONPointer } from './refractor/toolbox.ts';
+export type { Toolbox } from './refractor/toolbox.ts';
 export { default as specificationObj } from './refractor/specification.ts';
 export {
   default as refract,

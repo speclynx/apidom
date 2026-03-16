@@ -1,11 +1,11 @@
 import { cloneDeep } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
 
-import HeaderElement from '../../../elements/Header.ts';
-import ExampleElement from '../../../elements/Example.ts';
-import type { Toolbox } from '../../toolbox.ts';
-import OpenApi3_1Element from '../../../elements/OpenApi3-1.ts';
-import NormalizeStorage from './NormalizeStorage.ts';
+import HeaderElement from '../../elements/Header.ts';
+import ExampleElement from '../../elements/Example.ts';
+import type { Toolbox } from '../toolbox.ts';
+import OpenApi3_1Element from '../../elements/OpenApi3-1.ts';
+import NormalizeStorage from './normalize-storage/index.ts';
 
 /**
  * Override of Schema.example and Schema.examples field inside the Header Objects.
@@ -33,7 +33,7 @@ export interface PluginOptions {
 const plugin =
   ({ storageField = 'x-normalized' }: PluginOptions = {}) =>
   (toolbox: Toolbox) => {
-    const { predicates, ancestorLineageToJSONPointer } = toolbox;
+    const { predicates } = toolbox;
     let storage: NormalizeStorage | undefined;
 
     return {
@@ -72,7 +72,7 @@ const plugin =
               return;
             }
 
-            const headerJSONPointer = ancestorLineageToJSONPointer([...ancestors, headerElement]);
+            const headerJSONPointer = path.formatPath();
 
             // skip visiting this Header Object if it's already normalized
             if (storage!.includes(headerJSONPointer)) {
