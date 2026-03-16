@@ -8,7 +8,7 @@ import PathItemElement from '../../elements/PathItem.ts';
 import OperationElement from '../../elements/Operation.ts';
 import type { Toolbox } from '../toolbox.ts';
 import OpenApi3_1Element from '../../elements/OpenApi3-1.ts';
-import NormalizeStorage from './normalize-header-examples/NormalizeStorage.ts';
+import NormalizeStorage from './normalize-storage/index.ts';
 
 const removeSpaces = (operationId: string) => {
   return operationId.replace(/\s/g, '');
@@ -67,7 +67,7 @@ const plugin =
     operationIdNormalizer = normalizeOperationId,
   }: PluginOptions = {}) =>
   (toolbox: Toolbox) => {
-    const { predicates, ancestorLineageToJSONPointer, namespace } = toolbox;
+    const { predicates, namespace } = toolbox;
     const pathTemplates: string[] = [];
     const normalizedOperations: OperationElement[] = [];
     const links: LinkElement[] = [];
@@ -141,15 +141,11 @@ const plugin =
         OperationElement: {
           enter(path: Path<OperationElement>) {
             const operationElement = path.node;
-            const ancestors = path.getAncestorNodes().reverse(); // root to parent order
 
             // operationId field is undefined, needs no normalization
             if (typeof operationElement.operationId === 'undefined') return;
 
-            const operationJSONPointer = ancestorLineageToJSONPointer([
-              ...ancestors,
-              operationElement,
-            ]);
+            const operationJSONPointer = path.formatPath();
 
             // skip visiting this Operation Object if it's already normalized
             if (storage!.includes(operationJSONPointer)) {

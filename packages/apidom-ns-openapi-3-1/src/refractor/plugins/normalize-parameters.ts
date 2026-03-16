@@ -1,6 +1,6 @@
-import { uniqWith, pathOr, last } from 'ramda';
+import { uniqWith } from 'ramda';
 import { toValue } from '@speclynx/apidom-core';
-import { StringElement } from '@speclynx/apidom-datamodel';
+import { StringElement, isStringElement, isArrayElement } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
 import { OperationParametersElement } from '@speclynx/apidom-ns-openapi-3-0';
 
@@ -9,7 +9,8 @@ import PathItemElement from '../../elements/PathItem.ts';
 import OperationElement from '../../elements/Operation.ts';
 import type { Toolbox } from '../toolbox.ts';
 import OpenApi3_1Element from '../../elements/OpenApi3-1.ts';
-import NormalizeStorage from './normalize-header-examples/NormalizeStorage.ts';
+import NormalizeStorage from './normalize-storage/index.ts';
+import { isParameterElement } from '../../predicates.ts';
 
 /**
  * Inheritance of Parameter Objects.
@@ -29,32 +30,59 @@ export interface PluginOptions {
 }
 
 /**
+ * Establishes identity between two Parameter Objects.
+ * A unique parameter is defined by a combination of a name and location.
+ *
+ * {@link https://spec.openapis.org/oas/v3.1.2.html#operation-parameters}
+ */
+const parameterEquals = (parameter1: ParameterElement, parameter2: ParameterElement) => {
+  if (!isParameterElement(parameter1)) return false;
+  if (!isParameterElement(parameter2)) return false;
+  if (!isStringElement(parameter1.name)) return false;
+  if (!isStringElement(parameter1.in)) return false;
+  if (!isStringElement(parameter2.name)) return false;
+  if (!isStringElement(parameter2.in)) return false;
+
+  return (
+    toValue(parameter1.name as StringElement) === toValue(parameter2.name as StringElement) &&
+    toValue(parameter1.in as StringElement) === toValue(parameter2.in as StringElement)
+  );
+};
+
+/**
+ * Inherits parameters from a PathItem into an Operation element.
+ * Operation parameters take precedence; PathItem parameters are merged in
+ * for any (name, in) combination not already defined at the Operation level.
+ * @public
+ */
+const inheritParametersToOperation = (
+  operationElement: OperationElement,
+  pathItemElement: PathItemElement,
+): void => {
+  const pathItemParams = isArrayElement(pathItemElement.parameters)
+    ? ([...pathItemElement.parameters] as ParameterElement[])
+    : [];
+
+  if (pathItemParams.length === 0) return;
+
+  const operationParams = isArrayElement(operationElement.parameters)
+    ? ([...operationElement.parameters] as ParameterElement[])
+    : [];
+
+  // prefers the first item if two items compare equal based on the predicate
+  const mergedParameters = uniqWith(parameterEquals, [...operationParams, ...pathItemParams]);
+
+  operationElement.parameters = new OperationParametersElement(mergedParameters);
+};
+
+/**
  * @public
  */
 const plugin =
   ({ storageField = 'x-normalized' }: PluginOptions = {}) =>
   (toolbox: Toolbox) => {
-    const { predicates, ancestorLineageToJSONPointer } = toolbox;
-    /**
-     * Establishes identity between two Parameter Objects.
-     *
-     * {@link https://spec.openapis.org/oas/v3.1.2.html#operation-parameters}
-     */
-    const parameterEquals = (parameter1: ParameterElement, parameter2: ParameterElement) => {
-      if (!predicates.isParameterElement(parameter1)) return false;
-      if (!predicates.isParameterElement(parameter2)) return false;
-      if (!predicates.isStringElement(parameter1.name)) return false;
-      if (!predicates.isStringElement(parameter1.in)) return false;
-      if (!predicates.isStringElement(parameter2.name)) return false;
-      if (!predicates.isStringElement(parameter2.in)) return false;
+    const { predicates } = toolbox;
 
-      return (
-        toValue(parameter1.name as StringElement) === toValue(parameter2.name as StringElement) &&
-        toValue(parameter1.in as StringElement) === toValue(parameter2.in as StringElement)
-      );
-    };
-
-    const pathItemParameters: ParameterElement[][] = [];
     let storage: NormalizeStorage | undefined;
 
     return {
@@ -68,69 +96,41 @@ const plugin =
             storage = undefined;
           },
         },
-        PathItemElement: {
-          enter(path: Path<PathItemElement>) {
-            const pathItemElement = path.node;
-            const ancestors = path.getAncestorNodes().reverse(); // root to parent order
+        OperationElement: {
+          leave(path: Path<OperationElement>) {
+            const operationElement = path.node;
+            const ancestors = path.getAncestorNodes(); // parent to root order
 
-            // skip visiting this Path Item
+            // skip visiting this Operation
             if (ancestors.some(predicates.isComponentsElement)) {
               return;
             }
 
-            const { parameters } = pathItemElement;
+            const parentPathItemElement = ancestors.find(predicates.isPathItemElement);
 
-            if (predicates.isArrayElement(parameters)) {
-              pathItemParameters.push([
-                ...((parameters.content ?? []) as unknown[]),
-              ] as ParameterElement[]);
-            } else {
-              pathItemParameters.push([]);
-            }
-          },
-          leave() {
-            pathItemParameters.pop();
-          },
-        },
-        OperationElement: {
-          leave(path: Path<OperationElement>) {
-            const operationElement = path.node;
-            const ancestors = path.getAncestorNodes().reverse(); // root to parent order
-            const parentPathItemParameters = last(pathItemParameters);
-
-            // no Path Item Object parameters to inherit from
-            if (!Array.isArray(parentPathItemParameters) || parentPathItemParameters.length === 0) {
+            // no parent Path Item to inherit from
+            if (!predicates.isPathItemElement(parentPathItemElement)) {
               return;
             }
 
-            const operationJSONPointer = ancestorLineageToJSONPointer([
-              ...ancestors,
-              operationElement,
-            ]);
+            const operationJSONPointer = path.formatPath();
 
             // skip visiting this Operation Object if it's already normalized
             if (storage!.includes(operationJSONPointer)) {
               return;
             }
 
-            const operationParameters = pathOr(
-              [],
-              ['parameters', 'content'],
+            inheritParametersToOperation(
               operationElement,
-            ) as ParameterElement[];
-
-            // prefers the first item if two items compare equal based on the predicate
-            const mergedParameters = uniqWith(parameterEquals, [
-              ...operationParameters,
-              ...parentPathItemParameters,
-            ]);
-
-            operationElement.parameters = new OperationParametersElement(mergedParameters);
+              parentPathItemElement as unknown as PathItemElement,
+            );
             storage!.append(operationJSONPointer);
           },
         },
       },
     };
   };
+
+plugin.inheritParametersToOperation = inheritParametersToOperation;
 
 export default plugin;

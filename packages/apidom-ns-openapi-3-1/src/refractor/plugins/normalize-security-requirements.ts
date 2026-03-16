@@ -1,11 +1,11 @@
-import { ArrayElement } from '@speclynx/apidom-datamodel';
+import { ArrayElement, isArrayElement } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
 import { OperationSecurityElement } from '@speclynx/apidom-ns-openapi-3-0';
 
 import OpenApi3_1Element from '../../elements/OpenApi3-1.ts';
 import OperationElement from '../../elements/Operation.ts';
 import type { Toolbox } from '../toolbox.ts';
-import NormalizeStorage from './normalize-header-examples/NormalizeStorage.ts';
+import NormalizeStorage from './normalize-storage/index.ts';
 /**
  * Override of Security Requirement Objects.
  *
@@ -25,12 +25,29 @@ export interface PluginOptions {
 }
 
 /**
+ * Inherits top-level security requirements into an Operation element.
+ * If Operation.security is missing and OpenAPI.security is defined, copies it down.
+ * @public
+ */
+const inheritSecurityToOperation = (
+  operationElement: OperationElement,
+  openapiElement: OpenApi3_1Element,
+): void => {
+  const missingOperationLevelSecurity = typeof operationElement.security === 'undefined';
+  const hasTopLevelSecurity = isArrayElement(openapiElement.security);
+
+  if (missingOperationLevelSecurity && hasTopLevelSecurity) {
+    operationElement.security = new OperationSecurityElement([...openapiElement.security!]);
+  }
+};
+
+/**
  * @public
  */
 const plugin =
   ({ storageField = 'x-normalized' }: PluginOptions = {}) =>
   (toolbox: Toolbox) => {
-    const { predicates, ancestorLineageToJSONPointer } = toolbox;
+    const { predicates } = toolbox;
     let topLevelSecurity: ArrayElement | undefined;
     let storage: NormalizeStorage | undefined;
 
@@ -59,10 +76,7 @@ const plugin =
               return;
             }
 
-            const operationJSONPointer = ancestorLineageToJSONPointer([
-              ...ancestors,
-              operationElement,
-            ]);
+            const operationJSONPointer = path.formatPath();
 
             // skip visiting this Operation Object if it's already normalized
             if (storage!.includes(operationJSONPointer)) {
@@ -73,9 +87,7 @@ const plugin =
             const hasTopLevelSecurity = typeof topLevelSecurity !== 'undefined';
 
             if (missingOperationLevelSecurity && hasTopLevelSecurity) {
-              operationElement.security = new OperationSecurityElement(
-                (topLevelSecurity?.content as unknown[] | undefined) ?? undefined,
-              );
+              operationElement.security = new OperationSecurityElement([...topLevelSecurity!]);
               storage!.append(operationJSONPointer);
             }
           },
@@ -83,5 +95,7 @@ const plugin =
       },
     };
   };
+
+plugin.inheritSecurityToOperation = inheritSecurityToOperation;
 
 export default plugin;

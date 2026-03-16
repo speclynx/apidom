@@ -4,27 +4,24 @@ import {
   isObjectElement,
   isArrayElement,
 } from '@speclynx/apidom-datamodel';
-
-import OpenApi3_1Element from '../../../elements/OpenApi3-1.ts';
-
-type JSONPointer = string;
+import type { JSONPointer } from '@speclynx/apidom-json-pointer';
 
 class NormalizeStorage {
-  private internalStore!: ArrayElement;
+  private internalStore: ArrayElement | undefined;
 
   constructor(
-    protected storageElement: OpenApi3_1Element | undefined,
+    protected storageElement: ObjectElement,
     protected storageField: string,
     protected storageSubField: string,
   ) {}
 
   protected get store() {
-    if (!this.internalStore) {
-      let rootStore: ObjectElement = this.storageElement!.get(this.storageField) as ObjectElement;
+    if (this.internalStore === undefined) {
+      let rootStore: ObjectElement = this.storageElement.get(this.storageField) as ObjectElement;
 
       if (!isObjectElement(rootStore)) {
         rootStore = new ObjectElement();
-        this.storageElement!.set(this.storageField, rootStore);
+        this.storageElement.set(this.storageField, rootStore);
       }
 
       let store: ArrayElement = rootStore.get(this.storageSubField) as ArrayElement;
