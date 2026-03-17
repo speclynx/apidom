@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.2.0](https://github.com/speclynx/apidom/compare/v4.1.0...v4.2.0) (2026-03-17)
+
+### Features
+
+- **ns-openapi-2-0:** add normalization refractor plugins ([#170](https://github.com/speclynx/apidom/issues/170)) ([315b5c6](https://github.com/speclynx/apidom/commit/315b5c620f752941749df13c0a5ab4bd14d41597))
+- **ns-openapi-3-0:** add normalization refractor plugins ([#169](https://github.com/speclynx/apidom/issues/169)) ([fb0ec23](https://github.com/speclynx/apidom/commit/fb0ec23dd8c933a9a4d72762f3fb643e3e11d037))
+
 # [4.1.0](https://github.com/speclynx/apidom/compare/v4.0.5...v4.1.0) (2026-03-16)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-openapi-3-0
