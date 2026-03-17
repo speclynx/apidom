@@ -70,7 +70,7 @@ const plugin =
             const operationElement = path.node;
             const ancestors = path.getAncestorNodes(); // parent to root order
 
-            // skip visiting this Operation if inside definitions
+            // skip visiting this Operation if inside parameters definitions
             if (ancestors.some(predicates.isParametersDefinitionsElement)) {
               return;
             }

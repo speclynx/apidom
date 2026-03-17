@@ -184,7 +184,7 @@ const openApiElement = OpenApi3_0Element.refract(apiDOM.result, {
 
 Duplicates Parameters from Path Items to Operation Objects using following rules:
 
-- If a parameter is already defined at the Path Item, the new definition will override it but can never remove it
+- An Operation-level parameter with the same name and location overrides the inherited Path Item parameter, but Path Item parameters can never be removed at the Operation level
 - The list MUST NOT include duplicated parameters
 - A unique parameter is defined by a combination of a name and location.
 
