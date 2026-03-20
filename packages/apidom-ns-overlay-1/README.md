@@ -15,7 +15,7 @@ You can install this package via [npm CLI](https://docs.npmjs.com/cli) by runnin
 
 ## Overlay 1.1.0 namespace
 
-Overlay 1.1.0 namespace consists of [number of elements](https://github.com/speclynx/apidom/tree/main/packages/apidom-ns-overlay-1/src/elements) implemented on top
+Overlay 1.1.0 namespace consists of [a number of elements](https://github.com/speclynx/apidom/tree/main/packages/apidom-ns-overlay-1/src/elements) implemented on top
 of [primitive ones](https://github.com/speclynx/apidom/tree/main/packages/apidom-datamodel/src/primitives).
 
 ```js

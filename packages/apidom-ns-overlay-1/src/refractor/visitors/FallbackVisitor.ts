@@ -5,8 +5,8 @@ import Visitor, { VisitorOptions } from './Visitor.ts';
 
 /**
  * This visitor is responsible for falling back to current traversed element.
- * Given OverlaySpecificationVisitor expects ObjectElement to be traversed. If
- * different Element is provided FallBackVisitor is responsible to assigning
+ * Given OverlayVisitor expects ObjectElement to be traversed. If
+ * different Element is provided FallbackVisitor is responsible for assigning
  * this Element as current element.
  */
 
