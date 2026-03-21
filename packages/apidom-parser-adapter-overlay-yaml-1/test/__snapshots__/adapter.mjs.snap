@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`adapter should parse 1`] = `
+(ParseResultElement
+  (Overlay1Element
+    (MemberElement
+      (StringElement)
+      (OverlayElement))
+    (MemberElement
+      (StringElement)
+      (InfoElement
+        (MemberElement
+          (StringElement)
+          (StringElement))
+        (MemberElement
+          (StringElement)
+          (StringElement))))
+    (MemberElement
+      (StringElement)
+      (StringElement))
+    (MemberElement
+      (StringElement)
+      (ArrayElement
+        (ActionElement
+          (MemberElement
+            (StringElement)
+            (StringElement))
+          (MemberElement
+            (StringElement)
+            (StringElement))
+          (MemberElement
+            (StringElement)
+            (ObjectElement
+              (MemberElement
+                (StringElement)
+                (StringElement)))))
+        (ActionElement
+          (MemberElement
+            (StringElement)
+            (StringElement))
+          (MemberElement
+            (StringElement)
+            (BooleanElement)))))))
+`;

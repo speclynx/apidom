@@ -1,0 +1,12 @@
+overlay: "1.1.0"
+info:
+  title: Overlay to add documentation links
+  version: "1.0.0"
+extends: https://example.com/openapi.json
+actions:
+  - target: "$.paths[*].get"
+    description: Add a description to all GET operations
+    update:
+      description: This is a GET operation
+  - target: "$.paths./old-path"
+    remove: true

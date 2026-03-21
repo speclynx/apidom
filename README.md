@@ -89,6 +89,8 @@ You can install ApiDOM packages using [npm CLI](https://docs.npmjs.com/cli):
  $ npm install @speclynx/apidom-parser-adapter-openapi-yaml-2
  $ npm install @speclynx/apidom-parser-adapter-openapi-yaml-3-0
  $ npm install @speclynx/apidom-parser-adapter-openapi-yaml-3-1
+ $ npm install @speclynx/apidom-parser-adapter-overlay-json-1
+ $ npm install @speclynx/apidom-parser-adapter-overlay-yaml-1
  $ npm install @speclynx/apidom-parser-adapter-yaml-1-2
  $ npm install @speclynx/apidom-reference
  $ npm install @speclynx/apidom-traverse
