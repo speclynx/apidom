@@ -1,0 +1,62 @@
+import { propOr, omit } from 'ramda';
+import { isNotUndefined } from 'ramda-adjunct';
+import { Namespace, ParseResultElement } from '@speclynx/apidom-datamodel';
+import {
+  parse as parseYAML,
+  detect as detectYAML,
+  type ParseDetectOptions,
+  type ParseOptions as ParseOptionsYAML,
+} from '@speclynx/apidom-parser-adapter-yaml-1-2';
+import overlayNamespacePlugin, { refractOverlay1 } from '@speclynx/apidom-ns-overlay-1';
+
+export { default as mediaTypes } from './media-types.ts';
+
+/**
+ * @public
+ */
+export const detectionRegExp =
+  /(?<YAML>^(["']?)overlay\2\s*:\s*(["']?)(?<version_yaml>1\.(?:[1-9]\d*|0)\.(?:[1-9]\d*|0))\3(?:\s+|$))|(?<JSON>"overlay"\s*:\s*"(?<version_json>1\.(?:[1-9]\d*|0)\.(?:[1-9]\d*|0))")/m;
+
+/**
+ * @public
+ */
+export const detect: typeof detectYAML = async (
+  source: string,
+  options: ParseDetectOptions = {},
+): Promise<boolean> => detectionRegExp.test(source) && (await detectYAML(source, options));
+
+/**
+ * @public
+ */
+export interface ParseOptions extends ParseOptionsYAML {
+  refractorOpts?: Record<string, unknown>;
+}
+
+/**
+ * @public
+ */
+export const parse: typeof parseYAML = async (
+  source: string,
+  options: ParseOptions = {},
+): Promise<ParseResultElement> => {
+  const refractorOpts: Record<string, unknown> = propOr({}, 'refractorOpts', options);
+  const parserOpts = omit(['refractorOpts'], options);
+  const parseResultElement = await parseYAML(source, parserOpts);
+  const { result } = parseResultElement;
+
+  if (isNotUndefined(result)) {
+    const overlay1Element = refractOverlay1(result, {
+      consume: true,
+      ...refractorOpts,
+    });
+    overlay1Element.classes.push('result');
+    parseResultElement.replaceResult(overlay1Element);
+  }
+
+  return parseResultElement;
+};
+
+/**
+ * @public
+ */
+export const namespace = new Namespace().use(overlayNamespacePlugin);
