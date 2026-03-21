@@ -106,7 +106,7 @@ describe('adapter', function () {
       assert.isTrue(adapter.detectionRegExp.test('"overlay": "1.0.0"'));
       assert.isTrue(adapter.detectionRegExp.test('"overlay": "1.1.0"'));
       assert.isTrue(adapter.detectionRegExp.test('"overlay": "1.0.145"'));
-      assert.isTrue(adapter.detectionRegExp.test('"overlay": "1.1.0"'));
+      assert.isTrue(adapter.detectionRegExp.test('"overlay": "1.2.0"'));
     });
 
     specify('should reject invalid version ranges', function () {
