@@ -512,6 +512,173 @@ parseSourceDescriptions(
 ): Promise<ParseResultElement[]>
 ```
 
+#### [overlay-json-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/parse/parsers/overlay-json-1)
+
+Wraps [@speclynx/apidom-parser-adapter-overlay-json-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-parser-adapter-overlay-json-1) package
+and is uniquely identified by `overlay-json-1` name.
+
+Supported media types are:
+
+```js
+[
+  'application/vnd.oai.overlay;version=1.0.0',
+  'application/vnd.oai.overlay+json;version=1.0.0',
+  'application/vnd.oai.overlay;version=1.1.0',
+  'application/vnd.oai.overlay+json;version=1.1.0',
+]
+```
+
+##### Parser options
+
+The following options can be passed via `parse.parserOpts` (globally) or `parse.parserOpts['overlay-json-1']` (parser-specific).
+Parser-specific options take precedence over global options.
+
+- **extends** - Controls whether the `extends` target document is parsed and included in the `ParseResultElement`.
+  - `true` - parse the extends target document
+
+  The parsed extends document is added with an `'extends'` class and `retrievalURI` metadata.
+  A `ParseResultElement` is also attached to the extends element's meta as `'parseResult'`.
+
+##### Error handling
+
+The extends parsing uses annotations instead of throwing errors, allowing parsing to continue
+even when the target document cannot be resolved. Errors are reported as `AnnotationElement` instances
+with an `'error'` class within the parse result.
+
+```js
+import { parse } from '@speclynx/apidom-reference';
+
+// Parse with extends resolution
+const parseResult = await parse('/path/to/overlay.json', {
+  parse: {
+    parserOpts: {
+      'overlay-json-1': { extends: true },
+    },
+  },
+});
+
+// Access parsed extends document
+for (const element of parseResult) {
+  if (element.classes.includes('extends')) {
+    console.log(element.meta.get('retrievalURI')); // e.g., '/path/to/openapi.json'
+  }
+}
+```
+
+##### Accessing parsed document via extends element
+
+When extends parsing is enabled, a `ParseResultElement` is attached to the
+extends `StringElement`'s meta as `'parseResult'`:
+
+```js
+import { parse } from '@speclynx/apidom-reference';
+
+const parseResult = await parse('/path/to/overlay.json', {
+  parse: { parserOpts: { 'overlay-json-1': { extends: true } } },
+});
+
+// Access parsed document from extends element
+const api = parseResult.api;
+const extendsElement = api.get('extends');
+const parsedDoc = extendsElement.meta.get('parseResult');
+console.log(parsedDoc.api.element); // e.g., 'openApi3_1'
+```
+
+##### Low-level API
+
+For advanced use cases where you need to parse the extends target from an already-parsed Overlay document
+(e.g., when using naked parser adapters directly), the `parseExtends` function is exported:
+
+```js
+import { parse } from '@speclynx/apidom-parser-adapter-overlay-json-1';
+import { parseExtends } from '@speclynx/apidom-reference/parse/parsers/overlay-json-1';
+import { options } from '@speclynx/apidom-reference';
+
+// Parse using naked parser adapter
+const parseResult = await parse(overlayJsonString);
+
+// Parse the extends target
+await parseExtends(parseResult, '/path/to/overlay.json', options);
+
+// Access parsed document from extends element
+const extendsElement = parseResult.api.get('extends');
+const parsedDoc = extendsElement.meta.get('parseResult');
+```
+
+The function signature is:
+```typescript
+parseExtends(
+  parseResult: ParseResultElement,
+  parseResultRetrievalURI: string,
+  options: ReferenceOptions,
+): Promise<void>
+```
+
+#### [overlay-yaml-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/parse/parsers/overlay-yaml-1)
+
+Wraps [@speclynx/apidom-parser-adapter-overlay-yaml-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-parser-adapter-overlay-yaml-1) package
+and is uniquely identified by `overlay-yaml-1` name.
+
+Supported media types are:
+
+```js
+[
+  'application/vnd.oai.overlay;version=1.0.0',
+  'application/vnd.oai.overlay+yaml;version=1.0.0',
+  'application/vnd.oai.overlay;version=1.1.0',
+  'application/vnd.oai.overlay+yaml;version=1.1.0',
+]
+```
+
+##### Parser options
+
+The following options can be passed via `parse.parserOpts` (globally) or `parse.parserOpts['overlay-yaml-1']` (parser-specific).
+Parser-specific options take precedence over global options. See [overlay-json-1](#overlay-json-1) for usage examples.
+
+- **extends** - Controls whether the `extends` target document is parsed and included in the `ParseResultElement`.
+  - `true` - parse the extends target document
+
+  The parsed extends document is added with an `'extends'` class and `retrievalURI` metadata.
+  A `ParseResultElement` is also attached to the extends element's meta as `'parseResult'`.
+
+##### Error handling
+
+See [overlay-json-1 Error handling](#error-handling-2) - the behavior is identical for both JSON and YAML parsers.
+
+##### Accessing parsed document via extends element
+
+See [overlay-json-1 Accessing parsed document](#accessing-parsed-document-via-extends-element) - the behavior is identical for both JSON and YAML parsers.
+
+##### Low-level API
+
+For advanced use cases where you need to parse the extends target from an already-parsed Overlay document
+(e.g., when using naked parser adapters directly), the `parseExtends` function is exported:
+
+```js
+import { parse } from '@speclynx/apidom-parser-adapter-overlay-yaml-1';
+import { parseExtends } from '@speclynx/apidom-reference/parse/parsers/overlay-yaml-1';
+import { options } from '@speclynx/apidom-reference';
+
+// Parse using naked parser adapter
+const parseResult = await parse(overlayYamlString);
+
+// Parse the extends target
+await parseExtends(parseResult, '/path/to/overlay.yaml', options);
+
+// Access parsed document from extends element
+const extendsElement = parseResult.api.get('extends');
+const parsedDoc = extendsElement.meta.get('parseResult');
+```
+
+The function signature is:
+```typescript
+parseExtends(
+  parseResult: ParseResultElement,
+  parseResultRetrievalURI: string,
+  options: ReferenceOptions,
+): Promise<void>
+```
+
 #### [json](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/parse/parsers/json)
 
 Wraps [@speclynx/apidom-parser-adapter-json](https://github.com/speclynx/apidom/tree/main/packages/apidom-parser-adapter-json) package
@@ -1415,6 +1582,23 @@ Supported media types:
 ]
 ```
 
+##### [overlay-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/resolve/strategies/overlay-1)
+
+External resolution strategy for understanding and resolving external dependencies of [Overlay 1.x](https://spec.openapis.org/overlay/v1.1.0.html) definitions.
+
+Supported media types:
+
+```js
+[
+  'application/vnd.oai.overlay;version=1.0.0',
+  'application/vnd.oai.overlay+json;version=1.0.0',
+  'application/vnd.oai.overlay+yaml;version=1.0.0',
+  'application/vnd.oai.overlay;version=1.1.0',
+  'application/vnd.oai.overlay+json;version=1.1.0',
+  'application/vnd.oai.overlay+yaml;version=1.1.0',
+]
+```
+
 ##### [openapi-2](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/resolve/strategies/openapi-2)
 
 External resolution strategy for understanding and resolving external dependencies of [OpenApi 2.0](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md) definitions.
@@ -1936,6 +2120,111 @@ dereferenceSourceDescriptions(
   options: ReferenceOptions,
   strategyName?: string, // defaults to 'arazzo-1'
 ): Promise<ParseResultElement[]>
+```
+
+##### [overlay-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/dereference/strategies/overlay-1)
+
+Dereference strategy for dereferencing [Overlay 1.x](https://spec.openapis.org/overlay/v1.1.0.html) definitions.
+
+Supported media types:
+
+```js
+[
+  'application/vnd.oai.overlay;version=1.0.0',
+  'application/vnd.oai.overlay+json;version=1.0.0',
+  'application/vnd.oai.overlay+yaml;version=1.0.0',
+  'application/vnd.oai.overlay;version=1.1.0',
+  'application/vnd.oai.overlay+json;version=1.1.0',
+  'application/vnd.oai.overlay+yaml;version=1.1.0',
+]
+```
+
+###### Strategy options
+
+The following options can be passed via `dereference.strategyOpts` (globally) or `dereference.strategyOpts['overlay-1']` (strategy-specific).
+Strategy-specific options take precedence over global options.
+
+- **extends** - Controls whether the `extends` target document is dereferenced and included in the result.
+  - `true` - dereference the extends target document
+
+  The dereferenced extends document is added with an `'extends'` class and `retrievalURI` metadata.
+  If the extends target was already parsed during the parse phase, it will be dereferenced in place
+  without re-fetching.
+
+###### Error handling
+
+The extends dereferencing uses annotations instead of throwing errors, allowing dereferencing to continue
+even when the target document fails. Errors are reported as `AnnotationElement` instances
+with an `'error'` class within the result.
+
+```js
+import { dereference } from '@speclynx/apidom-reference';
+
+// Dereference with extends resolution
+const result = await dereference('/path/to/overlay.json', {
+  dereference: {
+    strategyOpts: {
+      'overlay-1': { extends: true },
+    },
+  },
+});
+
+// Access dereferenced extends document
+for (const element of result) {
+  if (element.classes.includes('extends')) {
+    console.log(element.meta.get('retrievalURI')); // e.g., '/path/to/openapi.json'
+  }
+}
+```
+
+###### Accessing dereferenced document via extends element
+
+When extends dereferencing is enabled, a `ParseResultElement` is attached to the
+extends `StringElement`'s meta as `'parseResult'`, overriding any existing parse result
+from the parse phase:
+
+```js
+import { dereference } from '@speclynx/apidom-reference';
+
+const result = await dereference('/path/to/overlay.json', {
+  dereference: { strategyOpts: { 'overlay-1': { extends: true } } },
+});
+
+// Access dereferenced document from extends element
+const api = result.api;
+const extendsElement = api.get('extends');
+const dereferencedDoc = extendsElement.meta.get('parseResult');
+console.log(dereferencedDoc.api.element); // e.g., 'openApi3_1'
+```
+
+###### Low-level API
+
+For advanced use cases where you need to dereference the extends target from an already-parsed Overlay document
+(e.g., when using naked parser adapters directly), the `dereferenceExtends` function is exported:
+
+```js
+import { parse } from '@speclynx/apidom-parser-adapter-overlay-json-1';
+import { dereferenceExtends } from '@speclynx/apidom-reference/dereference/strategies/overlay-1';
+import { options } from '@speclynx/apidom-reference';
+
+// Parse using naked parser adapter
+const parseResult = await parse(overlayJsonString);
+
+// Dereference the extends target
+await dereferenceExtends(parseResult, '/path/to/overlay.json', options);
+
+// Access dereferenced document from extends element
+const extendsElement = parseResult.api.get('extends');
+const dereferencedDoc = extendsElement.meta.get('parseResult');
+```
+
+The function signature is:
+```typescript
+dereferenceExtends(
+  parseResult: ParseResultElement,
+  parseResultRetrievalURI: string,
+  options: ReferenceOptions,
+): Promise<void>
 ```
 
 ##### [openapi-2](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/dereference/strategies/openapi-2)

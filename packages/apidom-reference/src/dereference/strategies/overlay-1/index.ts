@@ -1,20 +1,12 @@
-import {
-  Element,
-  cloneDeep,
-  ParseResultElement,
-  isParseResultElement,
-  includesClasses,
-} from '@speclynx/apidom-datamodel';
-import { traverseAsync } from '@speclynx/apidom-traverse';
-import { isArazzoSpecification1Element, mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
+import { Element, ParseResultElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import { isOverlay1Element, mediaTypes } from '@speclynx/apidom-ns-overlay-1';
 
 import DereferenceStrategy, { DereferenceStrategyOptions } from '../DereferenceStrategy.ts';
 import File from '../../../File.ts';
 import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
-import Arazzo1DereferenceVisitor from './visitor.ts';
-import { dereferenceSourceDescriptions } from './source-descriptions.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
+import { dereferenceExtends } from './extends.ts';
 
 export type {
   default as DereferenceStrategy,
@@ -23,7 +15,6 @@ export type {
 export type { default as File, FileOptions } from '../../../File.ts';
 export type { default as Reference, ReferenceOptions } from '../../../Reference.ts';
 export type { default as ReferenceSet, ReferenceSetOptions } from '../../../ReferenceSet.ts';
-export type { Arazzo1DereferenceVisitorOptions } from './visitor.ts';
 export type {
   ReferenceOptions as ApiDOMReferenceOptions,
   ReferenceBundleOptions as ApiDOMReferenceBundleOptions,
@@ -41,12 +32,11 @@ export type {
   default as BundleStrategy,
   BundleStrategyOptions,
 } from '../../../bundle/strategies/BundleStrategy.ts';
-export type { AncestorLineage } from '../../util.ts';
 
 /**
  * @public
  */
-export interface Arazzo1DereferenceStrategyOptions extends Omit<
+export interface Overlay1DereferenceStrategyOptions extends Omit<
   DereferenceStrategyOptions,
   'name'
 > {}
@@ -54,9 +44,9 @@ export interface Arazzo1DereferenceStrategyOptions extends Omit<
 /**
  * @public
  */
-class Arazzo1DereferenceStrategy extends DereferenceStrategy {
-  constructor(options?: Arazzo1DereferenceStrategyOptions) {
-    super({ ...(options ?? {}), name: 'arazzo-1' });
+class Overlay1DereferenceStrategy extends DereferenceStrategy {
+  constructor(options?: Overlay1DereferenceStrategyOptions) {
+    super({ ...(options ?? {}), name: 'overlay-1' });
   }
 
   canDereference(file: File): boolean {
@@ -66,13 +56,12 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
     }
 
     // assert by inspecting ApiDOM
-    return isArazzoSpecification1Element(file.parseResult?.result);
+    return isOverlay1Element(file.parseResult?.result);
   }
 
   async dereference(file: File, options: ReferenceOptions): Promise<Element> {
     const immutableRefSet = options.dereference.refSet ?? new ReferenceSet();
     const mutableRefSet = new ReferenceSet();
-    let refSet = immutableRefSet;
     let reference: Reference;
 
     if (!immutableRefSet.has(file.uri)) {
@@ -98,37 +87,19 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
         )
         .forEach((ref) => mutableRefSet.add(ref));
       reference = mutableRefSet.find((ref) => ref.uri === file.uri)!;
-      refSet = mutableRefSet;
     }
 
-    const visitor = new Arazzo1DereferenceVisitor({ reference, options });
-    const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
-      mutable: true,
-    });
+    const dereferencedElement = reference.value as ParseResultElement;
 
     /**
-     * Dereference source descriptions if option is enabled.
+     * Dereference extends target if option is enabled.
      */
-    const shouldDereferenceSourceDescriptions =
-      options?.dereference?.strategyOpts?.[this.name]?.sourceDescriptions ??
-      options?.dereference?.strategyOpts?.sourceDescriptions;
+    const shouldDereferenceExtends =
+      options?.dereference?.strategyOpts?.[this.name]?.extends ??
+      options?.dereference?.strategyOpts?.extends;
 
-    if (shouldDereferenceSourceDescriptions) {
-      const parseResult = dereferencedElement as ParseResultElement;
-
-      // drop any existing parse-phase source description results before pushing
-      const cleaned = parseResult.reject(
-        (item) => isParseResultElement(item) && includesClasses(item, ['source-description']),
-      );
-      parseResult.content = cleaned.content;
-
-      const sourceDescriptions = await dereferenceSourceDescriptions(
-        parseResult,
-        reference.uri,
-        options,
-        this.name,
-      );
-      parseResult.push(...sourceDescriptions);
+    if (shouldDereferenceExtends) {
+      await dereferenceExtends(dereferencedElement, reference.uri, options);
     }
 
     /**
@@ -161,12 +132,6 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
   }
 }
 
-export { Arazzo1DereferenceVisitor };
-export {
-  resolveSchema$refField,
-  resolveSchema$idField,
-  maybeRefractToJSONSchemaElement,
-} from './util.ts';
-export { dereferenceSourceDescriptions } from './source-descriptions.ts';
+export { dereferenceExtends } from './extends.ts';
 
-export default Arazzo1DereferenceStrategy;
+export default Overlay1DereferenceStrategy;
