@@ -285,7 +285,7 @@
     "ramda-adjunct": "^6.0.0"
   },
   "devDependencies": {
-    "@types/picomatch": "^4.0.2",
+    "@types/picomatch": "^4.0.3",
     "axios-mock-adapter": "^2.0.0"
   },
   "files": [
