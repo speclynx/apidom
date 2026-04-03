@@ -29,12 +29,14 @@
     "@mui/material": "^7.0.2",
     "@speclynx/apidom-core": "*",
     "@speclynx/apidom-datamodel": "*",
+    "@speclynx/apidom-ns-arazzo-1": "*",
     "@speclynx/apidom-ns-asyncapi-2": "*",
     "@speclynx/apidom-ns-openapi-2": "*",
     "@speclynx/apidom-ns-openapi-3-0": "*",
     "@speclynx/apidom-ns-openapi-3-1": "*",
-    "@speclynx/apidom-ns-arazzo-1": "*",
     "@speclynx/apidom-parser": "*",
+    "@speclynx/apidom-parser-adapter-arazzo-json-1": "*",
+    "@speclynx/apidom-parser-adapter-arazzo-yaml-1": "*",
     "@speclynx/apidom-parser-adapter-asyncapi-json-2": "*",
     "@speclynx/apidom-parser-adapter-asyncapi-yaml-2": "*",
     "@speclynx/apidom-parser-adapter-json": "*",
@@ -44,8 +46,6 @@
     "@speclynx/apidom-parser-adapter-openapi-yaml-2": "*",
     "@speclynx/apidom-parser-adapter-openapi-yaml-3-0": "*",
     "@speclynx/apidom-parser-adapter-openapi-yaml-3-1": "*",
-    "@speclynx/apidom-parser-adapter-arazzo-json-1": "*",
-    "@speclynx/apidom-parser-adapter-arazzo-yaml-1": "*",
     "@speclynx/apidom-parser-adapter-yaml-1-2": "*",
     "@speclynx/apidom-reference": "*",
     "@speclynx/apidom-traverse": "*",
@@ -62,7 +62,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.0.1",
-    "sass": "^1.55.0",
+    "sass": "^1.99.0",
     "vite": "^8.0.0"
   }
 }
