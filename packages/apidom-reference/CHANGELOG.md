@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.3.0](https://github.com/speclynx/apidom/compare/v4.2.0...v4.3.0) (2026-04-07)
+
+### Features
+
+- **reference:** add Arazzo resolve strategy ([#210](https://github.com/speclynx/apidom/issues/210)) ([28103f5](https://github.com/speclynx/apidom/commit/28103f52d72591b9a185319a4e4b1631cd639407)), closes [#78](https://github.com/speclynx/apidom/issues/78)
+- **reference:** add Overlay parsers, derefer and resolve strategies ([#189](https://github.com/speclynx/apidom/issues/189)) ([7e4565b](https://github.com/speclynx/apidom/commit/7e4565b7807b875769857693a912bab807dc9a13))
+
 # [4.2.0](https://github.com/speclynx/apidom/compare/v4.1.0...v4.2.0) (2026-03-17)
 
 **Note:** Version bump only for package @speclynx/apidom-reference

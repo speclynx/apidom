@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.3.0](https://github.com/speclynx/apidom/compare/v4.2.0...v4.3.0) (2026-04-07)
+
+### Features
+
+- add Overlay namespace ([#185](https://github.com/speclynx/apidom/issues/185)) ([8fa9a1e](https://github.com/speclynx/apidom/commit/8fa9a1e3536b2da1a03e8275b00013da051f08da))
+- add Overlay parser adapters ([#188](https://github.com/speclynx/apidom/issues/188)) ([49824ff](https://github.com/speclynx/apidom/commit/49824ffe9e41c627ae762c082291e9ca0b159f31))
+- **reference:** add Arazzo resolve strategy ([#210](https://github.com/speclynx/apidom/issues/210)) ([28103f5](https://github.com/speclynx/apidom/commit/28103f52d72591b9a185319a4e4b1631cd639407)), closes [#78](https://github.com/speclynx/apidom/issues/78)
+- **reference:** add Overlay parsers, derefer and resolve strategies ([#189](https://github.com/speclynx/apidom/issues/189)) ([7e4565b](https://github.com/speclynx/apidom/commit/7e4565b7807b875769857693a912bab807dc9a13))
+
 # [4.2.0](https://github.com/speclynx/apidom/compare/v4.1.0...v4.2.0) (2026-03-17)
 
 ### Features
