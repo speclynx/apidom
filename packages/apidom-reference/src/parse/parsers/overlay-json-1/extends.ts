@@ -12,7 +12,8 @@ import parse from '../../index.ts';
  * Parses the `extends` target document from an Overlay document's ParseResult.
  *
  * The parsed extends document is pushed directly into the overlay's ParseResult
- * and attached to the extends element's meta as 'parseResult'.
+ * and always attached to the extends element's meta as 'parseResult',
+ * regardless of success or failure.
  *
  * @param parseResult - ParseResult containing an Overlay specification
  * @param parseResultRetrievalURI - URI from which the parseResult was retrieved
@@ -40,8 +41,12 @@ export async function parseExtends(
   const extendsURI = toValue(extendsElement) as string;
   const retrievalURI = url.sanitize(url.stripHash(url.resolve(file.uri, extendsURI)));
 
+  const extendsParseResult = new ParseResultElement();
+  extendsParseResult.classes.push('extends');
+  extendsParseResult.setMetaProperty('retrievalURI', retrievalURI);
+
   try {
-    const extendsParseResult = await parse(
+    const targetParseResult = await parse(
       retrievalURI,
       mergeOptions(options, {
         parse: {
@@ -49,19 +54,20 @@ export async function parseExtends(
         },
       }),
     );
-    extendsParseResult.classes.push('extends');
-    extendsParseResult.setMetaProperty('retrievalURI', retrievalURI);
-
-    // attach to extends element meta for easy access
-    extendsElement.meta.set('parseResult', extendsParseResult);
-
-    parseResult.push(extendsParseResult);
+    // merge parsed result into our wrapper
+    for (const item of targetParseResult) {
+      extendsParseResult.push(item);
+    }
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     const annotation = new AnnotationElement(
       `Error parsing extends target "${retrievalURI}": ${message}`,
     );
     annotation.classes.push('error');
-    parseResult.push(annotation);
+    extendsParseResult.push(annotation);
   }
+
+  // always attach result to extends element meta (even on failure - contains annotations)
+  extendsElement.meta.set('parseResult', extendsParseResult);
+  parseResult.push(extendsParseResult);
 }

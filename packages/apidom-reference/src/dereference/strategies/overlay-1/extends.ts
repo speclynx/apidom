@@ -22,8 +22,9 @@ import dereference, { dereferenceApiDOM } from '../../index.ts';
  * parsed, and dereferenced.
  *
  * The dereferenced result is pushed into the overlay's ParseResult
- * and attached to the extends element's meta as 'parseResult',
+ * and always attached to the extends element's meta as 'parseResult',
  * overriding any existing parse result from the parse phase.
+ * On failure, the result contains error annotations.
  *
  * @param parseResult - ParseResult containing an Overlay specification
  * @param parseResultRetrievalURI - URI from which the parseResult was retrieved
@@ -50,6 +51,10 @@ export async function dereferenceExtends(
 
   const extendsURI = toValue(extendsElement) as string;
   const retrievalURI = url.sanitize(url.stripHash(url.resolve(file.uri, extendsURI)));
+
+  const extendsDereferenceResult = new ParseResultElement();
+  extendsDereferenceResult.classes.push('extends');
+  extendsDereferenceResult.setMetaProperty('retrievalURI', retrievalURI);
 
   try {
     let extendsDereferenced: ParseResultElement;
@@ -80,24 +85,26 @@ export async function dereferenceExtends(
       );
     }
 
-    extendsDereferenced.classes.push('extends');
-    extendsDereferenced.setMetaProperty('retrievalURI', retrievalURI);
-
-    // override parse result with dereferenced result
-    extendsElement.meta.set('parseResult', extendsDereferenced);
-
-    // drop any existing parse-phase extends results before pushing
-    const cleaned = parseResult.reject(
-      (item) => isParseResultElement(item) && includesClasses(item, ['extends']),
-    );
-    parseResult.content = cleaned.content;
-    parseResult.push(extendsDereferenced);
+    // merge dereferenced result into our wrapper
+    for (const item of extendsDereferenced) {
+      extendsDereferenceResult.push(item);
+    }
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     const annotation = new AnnotationElement(
       `Error dereferencing extends target "${retrievalURI}": ${message}`,
     );
     annotation.classes.push('error');
-    parseResult.push(annotation);
+    extendsDereferenceResult.push(annotation);
   }
+
+  // always attach result to extends element meta (even on failure - contains annotations)
+  extendsElement.meta.set('parseResult', extendsDereferenceResult);
+
+  // drop any existing parse-phase extends results before pushing
+  const cleaned = parseResult.reject(
+    (item) => isParseResultElement(item) && includesClasses(item, ['extends']),
+  );
+  parseResult.content = cleaned.content;
+  parseResult.push(extendsDereferenceResult);
 }
