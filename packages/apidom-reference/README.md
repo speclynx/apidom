@@ -1593,6 +1593,23 @@ Supported media types:
 ]
 ```
 
+##### [arazzo-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/resolve/strategies/arazzo-1)
+
+External resolution strategy for understanding and resolving external dependencies of [Arazzo 1.x](https://spec.openapis.org/arazzo/latest.html) definitions.
+
+Supported media types:
+
+```js
+[
+  'application/vnd.oai.workflows;version=1.0.0',
+  'application/vnd.oai.workflows+json;version=1.0.0',
+  'application/vnd.oai.workflows+yaml;version=1.0.0',
+  'application/vnd.oai.workflows;version=1.0.1',
+  'application/vnd.oai.workflows+json;version=1.0.1',
+  'application/vnd.oai.workflows+yaml;version=1.0.1',
+]
+```
+
 ##### [overlay-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/resolve/strategies/overlay-1)
 
 External resolution strategy for understanding and resolving external dependencies of [Overlay 1.x](https://spec.openapis.org/overlay/v1.1.0.html) definitions.

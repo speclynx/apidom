@@ -87,6 +87,11 @@
       "require": "./src/resolve/strategies/asyncapi-2/index.cjs",
       "types": "./types/resolve/strategies/asyncapi-2/index.d.ts"
     },
+    "./resolve/strategies/arazzo-1": {
+      "import": "./src/resolve/strategies/arazzo-1/index.mjs",
+      "require": "./src/resolve/strategies/arazzo-1/index.cjs",
+      "types": "./types/resolve/strategies/arazzo-1/index.d.ts"
+    },
     "./resolve/strategies/overlay-1": {
       "import": "./src/resolve/strategies/overlay-1/index.mjs",
       "require": "./src/resolve/strategies/overlay-1/index.cjs",
