@@ -568,7 +568,11 @@ for (const element of parseResult) {
 ##### Accessing parsed document via extends element
 
 When extends parsing is enabled, a `ParseResultElement` is attached to the
-extends `StringElement`'s meta as `'parseResult'`:
+extends `StringElement`'s meta as `'parseResult'`. This attachment always happens,
+regardless of success or failure:
+
+- **On success**: The parseResult contains the parsed API document
+- **On failure**: The parseResult contains error annotations explaining what went wrong
 
 ```js
 import { parse } from '@speclynx/apidom-reference';
@@ -581,7 +585,14 @@ const parseResult = await parse('/path/to/overlay.json', {
 const api = parseResult.api;
 const extendsElement = api.get('extends');
 const parsedDoc = extendsElement.meta.get('parseResult');
-console.log(parsedDoc.api.element); // e.g., 'openApi3_1'
+
+// Check for errors before using
+if (parsedDoc.errors.length > 0) {
+  console.log('Parsing failed:', parsedDoc.errors);
+} else {
+  console.log(parsedDoc.api.element); // e.g., 'openApi3_1'
+  console.log(parsedDoc.meta.get('retrievalURI')); // URI where it was fetched from
+}
 ```
 
 ##### Low-level API
@@ -2181,7 +2192,10 @@ for (const element of result) {
 
 When extends dereferencing is enabled, a `ParseResultElement` is attached to the
 extends `StringElement`'s meta as `'parseResult'`, overriding any existing parse result
-from the parse phase:
+from the parse phase. This attachment always happens, regardless of success or failure:
+
+- **On success**: The parseResult contains the dereferenced API document
+- **On failure**: The parseResult contains error annotations explaining what went wrong
 
 ```js
 import { dereference } from '@speclynx/apidom-reference';
@@ -2194,7 +2208,14 @@ const result = await dereference('/path/to/overlay.json', {
 const api = result.api;
 const extendsElement = api.get('extends');
 const dereferencedDoc = extendsElement.meta.get('parseResult');
-console.log(dereferencedDoc.api.element); // e.g., 'openApi3_1'
+
+// Check for errors before using
+if (dereferencedDoc.errors.length > 0) {
+  console.log('Dereferencing failed:', dereferencedDoc.errors);
+} else {
+  console.log(dereferencedDoc.api.element); // e.g., 'openApi3_1'
+  console.log(dereferencedDoc.meta.get('retrievalURI')); // URI where it was fetched from
+}
 ```
 
 ###### Low-level API
