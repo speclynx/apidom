@@ -1,7 +1,8 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { assert } from 'chai';
+import { assert, expect } from 'chai';
 import { isParseResultElement, ParseResultElement } from '@speclynx/apidom-datamodel';
+import { toJSON } from '@speclynx/apidom-core';
 import { mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
 
 import { dereference } from '../../../../../src/index.ts';
@@ -35,6 +36,22 @@ describe('dereference', function () {
             assert.strictEqual(sdResult.meta.get('type'), 'openapi');
           });
 
+          specify('should dereference source description document', async function () {
+            const uri = path.join(rootFixturePath, 'root.json');
+            const dereferenceResult = await dereference(uri, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: {
+                strategyOpts: {
+                  'arazzo-1': { sourceDescriptions: true },
+                },
+              },
+            });
+
+            const sdResult = dereferenceResult.get(1)! as ParseResultElement;
+
+            expect(toJSON(sdResult.api!, undefined, 2)).toMatchSnapshot();
+          });
+
           specify(
             'should set retrievalURI metadata on source description result',
             async function () {
@@ -55,6 +72,33 @@ describe('dereference', function () {
               assert.include(retrievalURI, 'openapi.json');
             },
           );
+        });
+
+        context('given sourceDescriptions enabled on both parser and dereference', function () {
+          specify('should not produce duplicate source description results', async function () {
+            const uri = path.join(rootFixturePath, 'root.json');
+            const dereferenceResult = await dereference(uri, {
+              parse: {
+                mediaType: mediaTypes.latest('json'),
+                parserOpts: {
+                  'arazzo-json-1': { sourceDescriptions: true },
+                },
+              },
+              dereference: {
+                strategyOpts: {
+                  'arazzo-1': { sourceDescriptions: true },
+                },
+              },
+            });
+
+            assert.isTrue(isParseResultElement(dereferenceResult));
+            // should have exactly 2 elements (arazzo API + single source description), not 3
+            assert.strictEqual(dereferenceResult.length, 2);
+
+            const sdResult = dereferenceResult.get(1)!;
+            assert.isTrue(isParseResultElement(sdResult));
+            assert.isTrue(sdResult.classes.includes('source-description'));
+          });
         });
 
         context('given sourceDescriptions disabled', function () {

@@ -4,6 +4,7 @@ import OpenAPI2ResolveStrategy from '../resolve/strategies/openapi-2/index.ts';
 import OpenAPI3_0ResolveStrategy from '../resolve/strategies/openapi-3-0/index.ts';
 import OpenAPI3_1ResolveStrategy from '../resolve/strategies/openapi-3-1/index.ts';
 import AsyncAPI2ResolveStrategy from '../resolve/strategies/asyncapi-2/index.ts';
+import Overlay1ResolveStrategy from '../resolve/strategies/overlay-1/index.ts';
 import ApiDOMResolveStrategy from '../resolve/strategies/apidom/index.ts';
 import OpenAPIJSON2Parser from '../parse/parsers/openapi-json-2/index.ts';
 import OpenAPIYAML2Parser from '../parse/parsers/openapi-yaml-2/index.ts';
@@ -15,6 +16,8 @@ import AsyncAPIJSON2Parser from '../parse/parsers/asyncapi-json-2/index.ts';
 import AsyncAPIYAML2Parser from '../parse/parsers/asyncapi-yaml-2/index.ts';
 import ArazzoJSON1Parser from '../parse/parsers/arazzo-json-1/index.ts';
 import ArazzoYAML1Parser from '../parse/parsers/arazzo-yaml-1/index.ts';
+import OverlayJSON1Parser from '../parse/parsers/overlay-json-1/index.ts';
+import OverlayYAML1Parser from '../parse/parsers/overlay-yaml-1/index.ts';
 import APIDOMJSONParser from '../parse/parsers/apidom-json/index.ts';
 import JSONParser from '../parse/parsers/json/index.ts';
 import YAMLParser from '../parse/parsers/yaml-1-2/index.ts';
@@ -25,6 +28,7 @@ import OpenAPI3_0DereferenceStrategy from '../dereference/strategies/openapi-3-0
 import OpenAPI3_1DereferenceStrategy from '../dereference/strategies/openapi-3-1/index.ts';
 import AsyncAPI2DereferenceStrategy from '../dereference/strategies/asyncapi-2/index.ts';
 import Arazzo1DereferenceStrategy from '../dereference/strategies/arazzo-1/index.ts';
+import Overlay1DereferenceStrategy from '../dereference/strategies/overlay-1/index.ts';
 import OpenAPI3_1BundleStrategy from '../bundle/strategies/openapi-3-1/index.ts';
 import { options } from '../index.ts';
 
@@ -39,6 +43,8 @@ options.parse.parsers = [
   new AsyncAPIYAML2Parser({ allowEmpty: true, sourceMap: false }),
   new ArazzoJSON1Parser({ allowEmpty: true, sourceMap: false }),
   new ArazzoYAML1Parser({ allowEmpty: true, sourceMap: false }),
+  new OverlayJSON1Parser({ allowEmpty: true, sourceMap: false }),
+  new OverlayYAML1Parser({ allowEmpty: true, sourceMap: false }),
   new APIDOMJSONParser({ allowEmpty: true, sourceMap: false }),
   new JSONParser({ allowEmpty: true, sourceMap: false }),
   new YAMLParser({ allowEmpty: true, sourceMap: false }),
@@ -55,6 +61,7 @@ options.resolve.strategies = [
   new OpenAPI3_0ResolveStrategy(),
   new OpenAPI3_1ResolveStrategy(),
   new AsyncAPI2ResolveStrategy(),
+  new Overlay1ResolveStrategy(),
   new ApiDOMResolveStrategy(),
 ];
 
@@ -64,6 +71,7 @@ options.dereference.strategies = [
   new OpenAPI3_1DereferenceStrategy(),
   new AsyncAPI2DereferenceStrategy(),
   new Arazzo1DereferenceStrategy(),
+  new Overlay1DereferenceStrategy(),
   new ApiDOMDereferenceStrategy(),
 ];
 

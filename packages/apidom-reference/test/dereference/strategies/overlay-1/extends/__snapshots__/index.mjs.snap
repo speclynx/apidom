@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`dereference strategies overlay-1 extends given extends enabled should dereference $refs in the extends target document 1`] = `
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Sample API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/pets": {
+      "get": {
+        "summary": "List pets",
+        "responses": {
+          "200": {
+            "description": "A list of pets"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "PetList": {
+        "description": "A list of pets"
+      }
+    }
+  }
+}
+`;
