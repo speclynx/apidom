@@ -222,6 +222,55 @@ describe('dereference', function () {
             assert.strictEqual(dereferenceResult.length, 1);
           });
         });
+
+        context('given extends target that cannot be resolved', function () {
+          specify('should attach error parse result to extends element meta', async function () {
+            const uri = path.join(rootFixturePath, 'overlay-bad-extends.json');
+            const dereferenceResult = await dereference(uri, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: {
+                strategyOpts: {
+                  'overlay-1': { extends: true },
+                },
+              },
+            });
+
+            assert.isTrue(isParseResultElement(dereferenceResult));
+            assert.strictEqual(dereferenceResult.length, 2);
+
+            // extends result should contain error annotation
+            const extendsResult = dereferenceResult.get(1)! as ParseResultElement;
+            assert.isTrue(isParseResultElement(extendsResult));
+            assert.isTrue(extendsResult.classes.includes('extends'));
+
+            const annotation = extendsResult.get(0);
+            assert.strictEqual(annotation?.element, 'annotation');
+            assert.isTrue(annotation?.classes.includes('error'));
+          });
+
+          specify('should always set parseResult on extends element meta', async function () {
+            const uri = path.join(rootFixturePath, 'overlay-bad-extends.json');
+            const dereferenceResult = await dereference(uri, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: {
+                strategyOpts: {
+                  'overlay-1': { extends: true },
+                },
+              },
+            });
+
+            const api = dereferenceResult.api as Overlay1Element;
+            const extendsElement = api.get('extends')!;
+            const attachedResult = extendsElement.meta.get('parseResult') as ParseResultElement;
+
+            assert.isTrue(isParseResultElement(attachedResult));
+            assert.isTrue(attachedResult.classes.includes('extends'));
+
+            const annotation = attachedResult.get(0);
+            assert.strictEqual(annotation?.element, 'annotation');
+            assert.isTrue(annotation?.classes.includes('error'));
+          });
+        });
       });
     });
   });
