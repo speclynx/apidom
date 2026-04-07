@@ -4,6 +4,7 @@ import OpenAPI2ResolveStrategy from '../resolve/strategies/openapi-2/index.ts';
 import OpenAPI3_0ResolveStrategy from '../resolve/strategies/openapi-3-0/index.ts';
 import OpenAPI3_1ResolveStrategy from '../resolve/strategies/openapi-3-1/index.ts';
 import AsyncAPI2ResolveStrategy from '../resolve/strategies/asyncapi-2/index.ts';
+import Arazzo1ResolveStrategy from '../resolve/strategies/arazzo-1/index.ts';
 import Overlay1ResolveStrategy from '../resolve/strategies/overlay-1/index.ts';
 import ApiDOMResolveStrategy from '../resolve/strategies/apidom/index.ts';
 import OpenAPIJSON2Parser from '../parse/parsers/openapi-json-2/index.ts';
@@ -61,6 +62,7 @@ options.resolve.strategies = [
   new OpenAPI3_0ResolveStrategy(),
   new OpenAPI3_1ResolveStrategy(),
   new AsyncAPI2ResolveStrategy(),
+  new Arazzo1ResolveStrategy(),
   new Overlay1ResolveStrategy(),
   new ApiDOMResolveStrategy(),
 ];
