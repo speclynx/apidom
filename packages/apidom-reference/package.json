@@ -302,7 +302,7 @@
     "@speclynx/apidom-traverse": "4.2.0",
     "@swaggerexpert/arazzo-runtime-expression": "^2.0.3",
     "axios": "^1.14.0",
-    "picomatch": "^4.0.3",
+    "picomatch": "^4.0.4",
     "process": "^0.11.10",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.0.0"
