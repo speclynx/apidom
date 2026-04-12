@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.7.0](https://github.com/speclynx/apidom/compare/v4.6.0...v4.7.0) (2026-04-12)
+
+### Features
+
+- **overlay:** generic targets, export defaults, scoped opts ([#236](https://github.com/speclynx/apidom/issues/236)) ([7df6dc7](https://github.com/speclynx/apidom/commit/7df6dc79d18e4c71ceb17037a45f9ba069fdcaf1))
+
 # [4.6.0](https://github.com/speclynx/apidom/compare/v4.5.0...v4.6.0) (2026-04-12)
 
 ### Features
