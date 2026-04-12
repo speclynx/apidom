@@ -3,7 +3,11 @@ export {
   applyOverlay as applyOverlayApiDOM,
   type ApplyOptions,
 } from './apply/realms/apidom.ts';
-export { default as applyOverlay, type ApplyOverlayOptions } from './apply/realms/uri.ts';
+export {
+  default as applyOverlay,
+  defaultOptions as defaultApplyOverlayOptions,
+  type ApplyOverlayOptions,
+} from './apply/realms/uri.ts';
 export {
   applyAction as applyActionPOJO,
   applyOverlay as applyOverlayPOJO,

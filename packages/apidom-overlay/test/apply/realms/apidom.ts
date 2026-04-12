@@ -1,5 +1,5 @@
 import { assert, expect } from 'chai';
-import { refract } from '@speclynx/apidom-datamodel';
+import { refract, ParseResultElement } from '@speclynx/apidom-datamodel';
 import { toValue, toJSON } from '@speclynx/apidom-core';
 import { refractAction, refractOverlay1 } from '@speclynx/apidom-ns-overlay-1';
 
@@ -663,6 +663,44 @@ describe('applyOverlayApiDOM', function () {
         () => applyOverlayApiDOM(notOverlay as unknown as Overlay1Element, target),
         OverlayError,
       );
+    });
+  });
+
+  context('generic ParseResultElement target (no api class)', function () {
+    specify('should apply overlay to generic JSON/YAML target', function () {
+      const overlay = refractOverlay1({
+        overlay: '1.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        actions: [{ target: '$.title', update: 'Updated' }],
+      });
+
+      const targetContent = refract({ title: 'Original', version: '1.0.0' });
+      targetContent.classes.push('result');
+      const targetParseResult = new ParseResultElement();
+      targetParseResult.push(targetContent);
+
+      const result = applyOverlayApiDOM(overlay, targetParseResult);
+      const value = toValue(result.result) as AnyJson;
+
+      assert.strictEqual(value.title, 'Updated');
+      assert.strictEqual(value.version, '1.0.0');
+    });
+
+    specify('should return ParseResultElement when given ParseResultElement', function () {
+      const overlay = refractOverlay1({
+        overlay: '1.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        actions: [{ target: '$.name', update: 'New Name' }],
+      });
+
+      const targetContent = refract({ name: 'Old Name' });
+      targetContent.classes.push('result');
+      const targetParseResult = new ParseResultElement();
+      targetParseResult.push(targetContent);
+
+      const result = applyOverlayApiDOM(overlay, targetParseResult);
+
+      assert.instanceOf(result, ParseResultElement);
     });
   });
 });

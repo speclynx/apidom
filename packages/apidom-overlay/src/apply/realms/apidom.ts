@@ -367,10 +367,10 @@ export const applyOverlay = <T extends Element | ParseResultElement>(
 
   let target: Element;
   if (targetElement instanceof ParseResultElement) {
-    if (targetElement.api === undefined) {
-      throw new OverlayError('Target ParseResultElement contains no API element');
+    if (targetElement.result === undefined) {
+      throw new OverlayError('Target ParseResultElement contains no result element');
     }
-    target = targetElement.api;
+    target = targetElement.result;
   } else {
     target = targetElement;
   }
@@ -387,7 +387,9 @@ export const applyOverlay = <T extends Element | ParseResultElement>(
   }
 
   if (targetElement instanceof ParseResultElement) {
-    targetElement.replaceResult(target);
+    if (target !== targetElement.result) {
+      targetElement.replaceResult(target);
+    }
     return targetElement;
   }
 
