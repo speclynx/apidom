@@ -85,11 +85,10 @@ const applyOverlay = async (
   // apply overlay actions to the target
   const overlayed = applyOverlayApiDOM(overlayParseResult, targetParseResult, options);
 
-  // wrap result in a ParseResultElement
-  const resultParseResult = new ParseResultElement();
-  resultParseResult.push(overlayed);
+  // replace result in existing ParseResultElement to preserve annotations and metadata
   overlayed.classes.push('result');
-  return resultParseResult;
+  targetParseResult.replaceResult(overlayed);
+  return targetParseResult;
 };
 
 export default applyOverlay;
