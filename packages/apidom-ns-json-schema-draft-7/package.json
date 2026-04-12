@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-ns-json-schema-draft-7",
-  "version": "4.3.1",
+  "version": "4.4.0",
   "description": "JSON Schema Draft 7 namespace for ApiDOM.",
   "keywords": [
     "apidom",
@@ -57,11 +57,11 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^7.28.4",
-    "@speclynx/apidom-core": "4.3.1",
-    "@speclynx/apidom-datamodel": "4.3.1",
-    "@speclynx/apidom-error": "4.3.1",
-    "@speclynx/apidom-ns-json-schema-draft-6": "4.3.1",
-    "@speclynx/apidom-traverse": "4.3.1",
+    "@speclynx/apidom-core": "4.4.0",
+    "@speclynx/apidom-datamodel": "4.4.0",
+    "@speclynx/apidom-error": "4.4.0",
+    "@speclynx/apidom-ns-json-schema-draft-6": "4.4.0",
+    "@speclynx/apidom-traverse": "4.4.0",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.0.0",
     "ts-mixer": "^6.0.4"
