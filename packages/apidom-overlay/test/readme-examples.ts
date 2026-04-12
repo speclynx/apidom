@@ -12,6 +12,9 @@ import applyOverlay, {
   OverlayError,
 } from '../src/index.ts';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyJson = Record<string, any>;
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('README examples', function () {
@@ -52,7 +55,7 @@ describe('README examples', function () {
       });
 
       const result = applyOverlayApiDOM(overlay, target);
-      const value = toValue(result) as Record<string, any>;
+      const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.info.title, 'Renamed API');
       assert.strictEqual(value.info.description, 'Added by overlay');
@@ -69,7 +72,7 @@ describe('README examples', function () {
       const target = refract({ info: { title: 'Old Title', version: '1.0.0' } });
 
       const result = applyAction(action, target);
-      const value = toValue(result) as Record<string, any>;
+      const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.info.title, 'New Title');
       assert.strictEqual(value.info.version, '1.0.0');

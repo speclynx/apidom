@@ -3,7 +3,12 @@ import { refract } from '@speclynx/apidom-datamodel';
 import { toValue, toJSON } from '@speclynx/apidom-core';
 import { refractAction, refractOverlay1 } from '@speclynx/apidom-ns-overlay-1';
 
+import type { Overlay1Element } from '@speclynx/apidom-ns-overlay-1';
+
 import { applyAction, applyOverlayApiDOM, OverlayError } from '../src/index.ts';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyJson = Record<string, any>;
 
 describe('applyAction', function () {
   context('update action', function () {
@@ -18,7 +23,7 @@ describe('applyAction', function () {
         });
 
         const result = applyAction(action, target);
-        const value = toValue(result) as Record<string, any>;
+        const value = toValue(result) as AnyJson;
 
         assert.strictEqual(value.info.title, 'My API');
         assert.strictEqual(value.info.version, '1.0.0');
@@ -35,7 +40,7 @@ describe('applyAction', function () {
         });
 
         const result = applyAction(action, target);
-        const value = toValue(result) as Record<string, any>;
+        const value = toValue(result) as AnyJson;
 
         assert.strictEqual(value.info.title, 'Renamed API');
         assert.strictEqual(value.info.version, '1.0.0');
@@ -56,7 +61,7 @@ describe('applyAction', function () {
         });
 
         const result = applyAction(action, target);
-        const value = toValue(result) as Record<string, any>;
+        const value = toValue(result) as AnyJson;
 
         assert.strictEqual(value.info.contact.name, 'Support');
         assert.strictEqual(value.info.contact.email, 'help@example.com');
@@ -73,7 +78,7 @@ describe('applyAction', function () {
         });
 
         applyAction(action, target);
-        const value = toValue(target) as Record<string, any>;
+        const value = toValue(target) as AnyJson;
 
         assert.isUndefined(value.info.description);
       });
@@ -90,7 +95,7 @@ describe('applyAction', function () {
         });
 
         const result = applyAction(action, target);
-        const value = toValue(result) as Record<string, any>;
+        const value = toValue(result) as AnyJson;
 
         assert.strictEqual(value.tags.length, 3);
         assert.strictEqual(value.tags[0].name, 'pets');
@@ -108,7 +113,7 @@ describe('applyAction', function () {
         });
 
         const result = applyAction(action, target);
-        const value = toValue(result) as Record<string, any>;
+        const value = toValue(result) as AnyJson;
 
         assert.strictEqual(value.servers.length, 3);
       });
@@ -125,7 +130,7 @@ describe('applyAction', function () {
         });
 
         const result = applyAction(action, target);
-        const value = toValue(result) as Record<string, any>;
+        const value = toValue(result) as AnyJson;
 
         assert.strictEqual(value.info.title, 'New Title');
       });
@@ -140,7 +145,7 @@ describe('applyAction', function () {
         });
 
         const result = applyAction(action, target);
-        const value = toValue(result) as Record<string, any>;
+        const value = toValue(result) as AnyJson;
 
         assert.strictEqual(value.info.deprecated, true);
       });
@@ -153,7 +158,7 @@ describe('applyAction', function () {
         const target = refract({ retryCount: 3 });
 
         const result = applyAction(action, target);
-        const value = toValue(result) as Record<string, any>;
+        const value = toValue(result) as AnyJson;
 
         assert.strictEqual(value.retryCount, 5);
       });
@@ -173,7 +178,7 @@ describe('applyAction', function () {
         });
 
         const result = applyAction(action, target);
-        const value = toValue(result) as Record<string, any>;
+        const value = toValue(result) as AnyJson;
 
         assert.strictEqual(value.paths['/pets'].get.summary, 'Updated');
         assert.strictEqual(value.paths['/users'].get.summary, 'Updated');
@@ -192,7 +197,7 @@ describe('applyAction', function () {
         });
 
         const result = applyAction(action, target);
-        const value = toValue(result) as Record<string, any>;
+        const value = toValue(result) as AnyJson;
 
         assert.strictEqual(value.paths['/pets'].get.deprecated, true);
         assert.strictEqual(value.paths['/pets'].get.summary, 'List pets');
@@ -234,7 +239,7 @@ describe('applyAction', function () {
         });
 
         const result = applyAction(action, target);
-        const value = toValue(result) as Record<string, any>;
+        const value = toValue(result) as AnyJson;
 
         assert.strictEqual(value.paths['/pets'].get.summary, 'List all pets');
       });
@@ -255,7 +260,7 @@ describe('applyAction', function () {
       });
 
       const result = applyAction(action, target);
-      const value = toValue(result) as Record<string, any>;
+      const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.paths['/users'].get.description, 'List all pets');
     });
@@ -273,7 +278,7 @@ describe('applyAction', function () {
       });
 
       const result = applyAction(action, target);
-      const value = toValue(result) as Record<string, any>;
+      const value = toValue(result) as AnyJson;
 
       // merged — copy source overwrites summary, adds description
       assert.strictEqual(value.paths['/users'].get.summary, 'List pets');
@@ -294,7 +299,7 @@ describe('applyAction', function () {
       });
 
       const result = applyAction(action, target);
-      const value = toValue(result) as Record<string, any>;
+      const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.paths['/a'].get.description, 'Standard endpoint');
       assert.strictEqual(value.paths['/b'].get.description, 'Standard endpoint');
@@ -338,7 +343,7 @@ describe('applyAction', function () {
       });
 
       const result = applyAction(action, target);
-      const value = toValue(result) as Record<string, any>;
+      const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.info.title, 'API');
       assert.strictEqual(value.info.version, '1.0.0');
@@ -358,7 +363,7 @@ describe('applyAction', function () {
       });
 
       const result = applyAction(action, target);
-      const value = toValue(result) as Record<string, any>;
+      const value = toValue(result) as AnyJson;
 
       assert.isUndefined(value.paths['/old']);
       assert.isDefined(value.paths['/new']);
@@ -378,7 +383,7 @@ describe('applyAction', function () {
       });
 
       const result = applyAction(action, target);
-      const value = toValue(result) as Record<string, any>;
+      const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.servers.length, 2);
       assert.strictEqual(value.servers[0].url, 'https://second.example.com');
@@ -398,7 +403,7 @@ describe('applyAction', function () {
       });
 
       const result = applyAction(action, target);
-      const value = toValue(result) as Record<string, any>;
+      const value = toValue(result) as AnyJson;
 
       assert.isUndefined(value.paths['/a'].get.deprecated);
       assert.isUndefined(value.paths['/b'].get.deprecated);
@@ -416,7 +421,7 @@ describe('applyAction', function () {
       });
 
       applyAction(action, target);
-      const value = toValue(target) as Record<string, any>;
+      const value = toValue(target) as AnyJson;
 
       assert.strictEqual(value.info.description, 'Keep me');
     });
@@ -431,7 +436,7 @@ describe('applyAction', function () {
       });
 
       const result = applyAction(action, target);
-      const value = toValue(result) as Record<string, any>;
+      const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.info.description, 'Still here');
     });
@@ -475,7 +480,7 @@ describe('applyAction', function () {
       const target = refract({ info: { title: 'Original' } });
 
       applyAction(action, target);
-      const value = toValue(target) as Record<string, any>;
+      const value = toValue(target) as AnyJson;
 
       assert.isUndefined(value.info.description);
     });
@@ -488,7 +493,7 @@ describe('applyAction', function () {
       const target = refract({ info: { title: 'API', description: 'Keep' } });
 
       applyAction(action, target);
-      const value = toValue(target) as Record<string, any>;
+      const value = toValue(target) as AnyJson;
 
       assert.strictEqual(value.info.description, 'Keep');
     });
@@ -503,7 +508,7 @@ describe('applyAction', function () {
       const target = refract({ info: { title: 'Original' } });
 
       applyAction(action, target, { immutable: false });
-      const value = toValue(target) as Record<string, any>;
+      const value = toValue(target) as AnyJson;
 
       assert.strictEqual(value.info.description, 'Added');
     });
@@ -516,7 +521,7 @@ describe('applyAction', function () {
       const target = refract({ info: { title: 'API', description: 'Remove me' } });
 
       applyAction(action, target, { immutable: false });
-      const value = toValue(target) as Record<string, any>;
+      const value = toValue(target) as AnyJson;
 
       assert.isUndefined(value.info.description);
     });
@@ -538,7 +543,7 @@ describe('applyOverlayApiDOM', function () {
       const target = refract({ info: { title: 'Original' } });
 
       const result = applyOverlayApiDOM(overlay, target);
-      const value = toValue(result) as Record<string, any>;
+      const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.info.title, 'Third');
     });
@@ -557,7 +562,7 @@ describe('applyOverlayApiDOM', function () {
       });
 
       const result = applyOverlayApiDOM(overlay, target);
-      const value = toValue(result) as Record<string, any>;
+      const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.info.description, 'Recreated');
     });
@@ -578,7 +583,7 @@ describe('applyOverlayApiDOM', function () {
       });
 
       const result = applyOverlayApiDOM(overlay, target);
-      const value = toValue(result) as Record<string, any>;
+      const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.destination, 'value to move');
       assert.isUndefined(value.source);
@@ -596,7 +601,7 @@ describe('applyOverlayApiDOM', function () {
       const target = refract({ info: { title: 'Unchanged' } });
 
       const result = applyOverlayApiDOM(overlay, target);
-      const value = toValue(result) as Record<string, any>;
+      const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.info.title, 'Unchanged');
     });
@@ -650,7 +655,10 @@ describe('applyOverlayApiDOM', function () {
       const notOverlay = refract({ not: 'an overlay' });
       const target = refract({ info: { title: 'API' } });
 
-      assert.throws(() => applyOverlayApiDOM(notOverlay as any, target), OverlayError);
+      assert.throws(
+        () => applyOverlayApiDOM(notOverlay as unknown as Overlay1Element, target),
+        OverlayError,
+      );
     });
   });
 });
