@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 
-import { applyAction, applyOverlay } from '../../src/apply/pojo.ts';
+import { applyAction, applyOverlay } from '../../../src/apply/realms/pojo.ts';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyJson = Record<string, any>;

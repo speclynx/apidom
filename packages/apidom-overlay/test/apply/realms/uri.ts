@@ -3,11 +3,11 @@ import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import { toJSON, toYAML } from '@speclynx/apidom-core';
 
-import applyOverlay from '../../src/apply/uri.ts';
-import OverlayError from '../../src/errors/OverlayError.ts';
+import applyOverlay from '../../../src/apply/realms/uri.ts';
+import OverlayError from '../../../src/errors/OverlayError.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const fixturesDir = path.join(__dirname, '..', 'fixtures-style');
+const fixturesDir = path.join(__dirname, '..', '..', 'fixtures-style');
 
 describe('applyOverlay (URI-level)', function () {
   context('given YAML target via extends', function () {
