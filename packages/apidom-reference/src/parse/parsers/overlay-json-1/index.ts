@@ -48,15 +48,14 @@ class OverlayJSON1Parser extends Parser {
     const source = file.toString();
 
     try {
-      const parserOpts = pick(['sourceMap', 'style', 'strict', 'refractorOpts'], {
-        ...this,
-        ...((this as Record<string, unknown>)[this.name] as object),
-      });
+      const parserOptsNames = ['sourceMap', 'style', 'strict', 'refractorOpts'] as const;
+      const parserOptsGlobal = pick(parserOptsNames, this);
+      const parserOptsLocal = pick([...parserOptsNames, 'extends'], (this as any)[this.name] ?? {});
+      const parserOpts = { ...parserOptsGlobal, ...parserOptsLocal };
+
       const parseResult = await parse(source, parserOpts);
 
-      const shouldParseExtends =
-        options?.parse?.parserOpts?.[this.name]?.extends ?? options?.parse?.parserOpts?.extends;
-      if (shouldParseExtends) {
+      if (parserOpts.extends) {
         await parseExtends(parseResult, file.uri, options!);
       }
 
