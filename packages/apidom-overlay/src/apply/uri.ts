@@ -6,8 +6,8 @@ import {
   type ApiDOMReferenceOptions as ReferenceOptions,
 } from '@speclynx/apidom-reference';
 
-import { applyOverlayApiDOM, type ApplyOptions } from './apply.ts';
-import OverlayError from './errors/OverlayError.ts';
+import { applyOverlay as applyOverlayApiDOM, type ApplyOptions } from './apidom.ts';
+import OverlayError from '../errors/OverlayError.ts';
 
 /**
  * @public

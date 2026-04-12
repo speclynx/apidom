@@ -5,9 +5,12 @@ import { refract } from '@speclynx/apidom-datamodel';
 import { toValue, toYAML } from '@speclynx/apidom-core';
 import { refractOverlay1, refractAction } from '@speclynx/apidom-ns-overlay-1';
 
-import applyOverlay, {
+import {
+  applyOverlay,
   applyOverlayApiDOM,
-  applyAction,
+  applyActionApiDOM,
+  applyOverlayPOJO,
+  applyActionPOJO,
   validateAction,
   OverlayError,
 } from '../src/index.ts';
@@ -64,18 +67,46 @@ describe('README examples', function () {
   });
 
   context('applying a single action', function () {
-    specify('applyAction example', function () {
+    specify('applyActionApiDOM example', function () {
       const action = refractAction({
         target: '$.info.title',
         update: 'New Title',
       });
       const target = refract({ info: { title: 'Old Title', version: '1.0.0' } });
 
-      const result = applyAction(action, target);
+      const result = applyActionApiDOM(action, target);
       const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.info.title, 'New Title');
       assert.strictEqual(value.info.version, '1.0.0');
+    });
+  });
+
+  context('applying to plain JavaScript objects (POJO)', function () {
+    specify('applyOverlayPOJO example', function () {
+      const result = applyOverlayPOJO(
+        {
+          overlay: '1.1.0',
+          info: { title: 'My overlay', version: '1.0.0' },
+          actions: [{ target: '$.info.title', update: 'Renamed API' }],
+        },
+        {
+          openapi: '3.1.0',
+          info: { title: 'Original', version: '1.0.0' },
+        },
+      ) as AnyJson;
+
+      assert.strictEqual(result.info.title, 'Renamed API');
+      assert.strictEqual(result.info.version, '1.0.0');
+    });
+
+    specify('applyActionPOJO example', function () {
+      const result = applyActionPOJO(
+        { target: '$.info.title', update: 'New Title' },
+        { info: { title: 'Old Title' } },
+      ) as AnyJson;
+
+      assert.strictEqual(result.info.title, 'New Title');
     });
   });
 
@@ -107,7 +138,7 @@ describe('README examples', function () {
       const target = refract({ info: { title: 'API' } });
 
       try {
-        applyAction(action, target);
+        applyActionApiDOM(action, target);
         assert.fail('Should have thrown');
       } catch (error) {
         assert.instanceOf(error, OverlayError);

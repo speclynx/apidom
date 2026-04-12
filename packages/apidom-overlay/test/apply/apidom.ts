@@ -5,7 +5,8 @@ import { refractAction, refractOverlay1 } from '@speclynx/apidom-ns-overlay-1';
 
 import type { Overlay1Element } from '@speclynx/apidom-ns-overlay-1';
 
-import { applyAction, applyOverlayApiDOM, OverlayError } from '../src/index.ts';
+import { applyAction, applyOverlay as applyOverlayApiDOM } from '../../src/apply/apidom.ts';
+import OverlayError from '../../src/errors/OverlayError.ts';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyJson = Record<string, any>;
