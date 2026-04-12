@@ -59,7 +59,7 @@ export const defaultOptions: ApplyOverlayOptions = {
  *
  * @param overlayURI - URI to the overlay document (file path or URL)
  * @param targetURI - URI to the target document; if omitted, uses the overlay's `extends` field
- * @param options - apidom-reference options + overlay merge options
+ * @param options - overlay apply options; reference options live under `options.reference`
  * @returns ParseResultElement with the modified target document
  *
  * @public
@@ -71,7 +71,7 @@ const applyOverlay = async (
 ): Promise<ParseResultElement> => {
   const mergedRefOptions = mergeOptions(
     defaultReferenceOptions as unknown as ReferenceOptions,
-    (options.reference ?? defaultReferenceOptions) as ReferenceOptions,
+    (options.reference ?? {}) as Record<string, unknown>,
   );
 
   // parse the overlay document along with document attached to `extends` field (if present)
