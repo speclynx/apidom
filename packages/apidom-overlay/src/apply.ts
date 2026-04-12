@@ -178,9 +178,10 @@ export const applyRemoveAction = (
   options?: ApplyOptions,
 ): Element => {
   const result = options?.immutable !== false ? cloneDeep(targetElement) : targetElement;
-  const sorted = [...normalizedPaths].sort().reverse();
+  // reverse document order so higher array indices are removed first (avoids index shifting)
+  const sortedNormalizedPaths = [...normalizedPaths].reverse();
 
-  for (const normalizedPath of sorted) {
+  for (const normalizedPath of sortedNormalizedPaths) {
     const resolved = resolveParent(normalizedPath, result);
 
     if (resolved === null) {
