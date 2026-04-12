@@ -27,6 +27,8 @@ export interface ApplyOptions {
   readonly immutable?: boolean;
 }
 
+const defaultApplyOptions: ApplyOptions = { immutable: true, strict: false };
+
 /**
  * Default customMerge that enforces Overlay spec type compatibility.
  * Throws OverlayError on incompatible type combinations.
@@ -56,20 +58,20 @@ const overlayCustomMerge = (_keyElement: Element, options: DeepMergeUserOptions)
 const mergeValue = (
   targetElement: Element,
   sourceElement: Element,
-  options?: ApplyOptions,
+  options: ApplyOptions = defaultApplyOptions,
 ): Element => {
   const targetIsObject = isObjectElement(targetElement);
   const targetIsArray = isArrayElement(targetElement);
   const sourceIsObject = isObjectElement(sourceElement);
   const sourceIsArray = isArrayElement(sourceElement);
 
-  const clone = options?.immutable !== false;
+  const clone = options.immutable;
 
   if ((targetIsObject && sourceIsObject) || (targetIsArray && sourceIsArray)) {
     const mergeOpts: DeepMergeUserOptions = {
       clone,
       customMerge: overlayCustomMerge,
-      ...options?.deepmerge,
+      ...options.deepmerge,
     };
     return deepmerge(
       targetElement as ObjectElement | ArrayElement,
@@ -112,9 +114,9 @@ export const applyUpdateAction = (
   normalizedPaths: string[],
   updateValue: Element,
   targetElement: Element,
-  options?: ApplyOptions,
+  options: ApplyOptions = defaultApplyOptions,
 ): Element => {
-  let result = options?.immutable !== false ? cloneDeep(targetElement) : targetElement;
+  let result = options.immutable ? cloneDeep(targetElement) : targetElement;
 
   for (const normalizedPath of normalizedPaths) {
     const resolved = resolveParent(normalizedPath, result);
@@ -151,7 +153,7 @@ export const applyCopyAction = (
   normalizedPaths: string[],
   copyExpression: string,
   targetElement: Element,
-  options?: ApplyOptions,
+  options: ApplyOptions = defaultApplyOptions,
 ): Element => {
   const sourceMatches = evaluate<Element>(targetElement, copyExpression);
 
@@ -175,13 +177,13 @@ export const applyCopyAction = (
 export const applyRemoveAction = (
   normalizedPaths: string[],
   targetElement: Element,
-  options?: ApplyOptions,
+  options: ApplyOptions = defaultApplyOptions,
 ): Element => {
-  const result = options?.immutable !== false ? cloneDeep(targetElement) : targetElement;
+  const result = options.immutable ? cloneDeep(targetElement) : targetElement;
   // reverse document order so higher array indices are removed first (avoids index shifting)
-  const sortedNormalizedPaths = [...normalizedPaths].reverse();
+  const sorted = [...normalizedPaths].reverse();
 
-  for (const normalizedPath of sortedNormalizedPaths) {
+  for (const normalizedPath of sorted) {
     const resolved = resolveParent(normalizedPath, result);
 
     if (resolved === null) {
@@ -209,7 +211,7 @@ export const applyRemoveAction = (
 export const applyAction = (
   actionElement: ActionElement,
   targetElement: Element,
-  options?: ApplyOptions,
+  options: ApplyOptions = defaultApplyOptions,
 ): Element => {
   const actionValidation = validateAction(actionElement);
   if (!actionValidation.valid) throw actionValidation.error!;
@@ -226,7 +228,7 @@ export const applyAction = (
   });
 
   if (matches.length === 0) {
-    if (options?.strict) {
+    if (options.strict) {
       throw new OverlayError(
         `Action target "${targetExpression}" matched zero nodes (strict mode)`,
         { action: actionElement },
@@ -281,7 +283,7 @@ export const applyAction = (
 export const applyOverlayApiDOM = (
   overlayElement: Overlay1Element | ParseResultElement,
   targetElement: Element | ParseResultElement,
-  options?: ApplyOptions,
+  options: ApplyOptions = defaultApplyOptions,
 ): Element => {
   const overlay =
     overlayElement instanceof ParseResultElement

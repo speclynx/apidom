@@ -55,7 +55,7 @@ const defaultOptions = {
 const applyOverlay = async (
   overlayURI: string,
   targetURI?: string,
-  options: ApplyOverlayOptions = {},
+  options: ApplyOverlayOptions = { immutable: false, strict: false },
 ): Promise<ParseResultElement> => {
   const mergedOptions = mergeOptions(defaultOptions as unknown as ReferenceOptions, options);
 
@@ -83,10 +83,7 @@ const applyOverlay = async (
   }
 
   // apply overlay actions to the target
-  const overlayed = applyOverlayApiDOM(overlayParseResult, targetParseResult, {
-    ...options,
-    immutable: false,
-  });
+  const overlayed = applyOverlayApiDOM(overlayParseResult, targetParseResult, options);
 
   // wrap result in a ParseResultElement
   const resultParseResult = new ParseResultElement();
