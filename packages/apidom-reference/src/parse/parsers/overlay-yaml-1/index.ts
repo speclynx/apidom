@@ -24,12 +24,15 @@ export interface OverlayYAML1ParserOptions extends Omit<ParserOptions, 'name'> {
  * @public
  */
 class OverlayYAML1Parser extends Parser {
-  public refractorOpts!: object;
+  public refractorOpts: object;
+  public extends: boolean;
 
   constructor(options?: OverlayYAML1ParserOptions) {
     const { fileExtensions = [], mediaTypes = OverlayYAML1MediaTypes, ...rest } = options ?? {};
 
     super({ ...rest, name: 'overlay-yaml-1', fileExtensions, mediaTypes });
+    this.refractorOpts = {};
+    this.extends = false;
   }
 
   async canParse(file: File): Promise<boolean> {
@@ -49,9 +52,9 @@ class OverlayYAML1Parser extends Parser {
     const source = file.toString();
 
     try {
-      const parserOptsNames = ['sourceMap', 'style', 'strict', 'refractorOpts'] as const;
+      const parserOptsNames = ['sourceMap', 'style', 'strict', 'refractorOpts', 'extends'] as const;
       const parserOptsGlobal = pick(parserOptsNames, this);
-      const parserOptsLocal = pick([...parserOptsNames, 'extends'], (this as any)[this.name] ?? {});
+      const parserOptsLocal = pick(parserOptsNames, (this as any)[this.name] ?? {});
       const parserOpts = { ...parserOptsGlobal, ...parserOptsLocal };
 
       const parseResult = await parse(source, parserOpts);
