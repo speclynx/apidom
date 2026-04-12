@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.6.0](https://github.com/speclynx/apidom/compare/v4.5.0...v4.6.0) (2026-04-12)
+
+### Features
+
+- **overlay:** add tracing and restructure into realms ([#234](https://github.com/speclynx/apidom/issues/234)) ([3ae47c6](https://github.com/speclynx/apidom/commit/3ae47c6f8916b70db15704ade73af63210813c8c))
+
 # [4.5.0](https://github.com/speclynx/apidom/compare/v4.4.0...v4.5.0) (2026-04-12)
 
 ### Features
