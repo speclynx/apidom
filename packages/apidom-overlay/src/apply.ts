@@ -166,7 +166,7 @@ export const applyCopyAction = (
     );
   }
 
-  const sourceValue = sourceMatches[0];
+  const sourceValue = cloneDeep(sourceMatches[0]);
   return applyUpdateAction(normalizedPaths, sourceValue, targetElement, options);
 };
 
@@ -280,11 +280,11 @@ export const applyAction = (
  *
  * @public
  */
-export const applyOverlayApiDOM = (
+export const applyOverlayApiDOM = <T extends Element | ParseResultElement>(
   overlayElement: Overlay1Element | ParseResultElement,
-  targetElement: Element | ParseResultElement,
+  targetElement: T,
   options: ApplyOptions = defaultApplyOptions,
-): Element => {
+): T => {
   const overlay =
     overlayElement instanceof ParseResultElement
       ? (overlayElement.api as Overlay1Element)
@@ -296,12 +296,17 @@ export const applyOverlayApiDOM = (
   }
 
   if (!isArrayElement(overlay.actions)) {
-    return target;
+    return targetElement;
   }
 
   for (const action of overlay.actions) {
     target = applyAction(action as ActionElement, target, options);
   }
 
-  return target;
+  if (targetElement instanceof ParseResultElement) {
+    targetElement.replaceResult(target);
+    return targetElement;
+  }
+
+  return target as T;
 };
