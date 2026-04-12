@@ -166,7 +166,7 @@ export const applyCopyAction = (
     );
   }
 
-  const sourceValue = cloneDeep(sourceMatches[0]);
+  const sourceValue = sourceMatches[0];
   return applyUpdateAction(normalizedPaths, sourceValue, targetElement, options);
 };
 
