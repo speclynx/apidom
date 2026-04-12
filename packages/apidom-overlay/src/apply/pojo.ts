@@ -9,13 +9,17 @@ import { applyAction as applyActionApiDOM, applyOverlay as applyOverlayApiDOM } 
  *
  * @public
  */
-export const applyAction = (action: object, target: object): unknown =>
-  toValue(applyActionApiDOM(refractAction(action), refract(target)));
+export const applyAction = (
+  action: Record<string, unknown>,
+  target: Record<string, unknown>,
+): unknown => toValue(applyActionApiDOM(refractAction(action), refract(target)));
 
 /**
  * Applies an entire overlay document (POJO) to a target (POJO).
  *
  * @public
  */
-export const applyOverlay = (overlay: object, target: object): unknown =>
-  toValue(applyOverlayApiDOM(refractOverlay1(overlay), refract(target)));
+export const applyOverlay = (
+  overlay: Record<string, unknown>,
+  target: Record<string, unknown>,
+): unknown => toValue(applyOverlayApiDOM(refractOverlay1(overlay), refract(target)));

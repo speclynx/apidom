@@ -19,11 +19,11 @@ This package provides three levels of API for applying overlays:
 
 ### Applying from file/URL
 
-The default export parses an overlay document, resolves the target (from `targetURI` or the overlay's `extends` field),
+`applyOverlay` parses an overlay document, resolves the target (from `targetURI` or the overlay's `extends` field),
 and applies all actions. The target is parsed with style preservation for round-trip fidelity.
 
 ```js
-import applyOverlay from '@speclynx/apidom-overlay';
+import { applyOverlay } from '@speclynx/apidom-overlay';
 import { toYAML } from '@speclynx/apidom-core';
 
 // target from extends field
