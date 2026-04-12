@@ -49,7 +49,10 @@ class OverlayYAML1Parser extends Parser {
     const source = file.toString();
 
     try {
-      const parserOpts = pick(['sourceMap', 'style', 'strict', 'refractorOpts'], this);
+      const parserOpts = pick(['sourceMap', 'style', 'strict', 'refractorOpts'], {
+        ...this,
+        ...((this as Record<string, unknown>)[this.name] as object),
+      });
       const parseResult = await parse(source, parserOpts);
 
       const shouldParseExtends =

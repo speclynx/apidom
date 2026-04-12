@@ -1,0 +1,6 @@
+{
+  "paths": {
+    "/pets": { "get": { "summary": "List pets" } },
+    "/users": { "get": { "summary": "List users" } }
+  }
+}

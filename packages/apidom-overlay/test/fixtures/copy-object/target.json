@@ -1,0 +1,11 @@
+{
+  "paths": {
+    "/foo": {
+      "get": { "summary": "Get foo", "operationId": "getFoo" },
+      "post": { "summary": "Create foo", "operationId": "createFoo" }
+    },
+    "/bar": {
+      "get": { "summary": "Get bar", "operationId": "getBar" }
+    }
+  }
+}

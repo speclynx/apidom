@@ -1,0 +1,7 @@
+{
+  "info": { "title": "API" },
+  "paths": {
+    "/a": { "get": { "summary": "A" } },
+    "/b": { "get": { "summary": "B" } }
+  }
+}

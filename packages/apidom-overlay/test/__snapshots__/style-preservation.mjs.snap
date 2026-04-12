@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`applyOverlay (URI-level) given JSON target via extends should preserve JSON formatting 1`] = `
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Renamed API",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Support",
+      "email": "help@example.com"
+    },
+    "description": "Added by overlay"
+  },
+  "paths": {
+    "/pets": {
+      "get": {
+        "summary": "List pets",
+        "description": "Returns all pets"
+      }
+    }
+  }
+}
+`;
+
+exports[`applyOverlay (URI-level) given YAML target via extends should preserve YAML formatting 1`] = `
+openapi: "3.1.0"
+info:
+  title: Renamed API
+  version: "1.0.0"
+  contact:
+    name: Support
+    email: help@example.com
+  description: Added by overlay
+paths:
+  /pets:
+    get:
+      summary: List pets
+      description: Returns all pets
+
+`;

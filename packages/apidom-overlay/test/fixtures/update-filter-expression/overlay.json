@@ -1,0 +1,10 @@
+{
+  "overlay": "1.1.0",
+  "info": { "title": "test", "version": "1.0.0" },
+  "actions": [
+    {
+      "target": "$.servers[?@.description=='staging'].url",
+      "update": "https://staging-v2.example.com"
+    }
+  ]
+}

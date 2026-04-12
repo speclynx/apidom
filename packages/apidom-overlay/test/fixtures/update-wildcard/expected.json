@@ -1,0 +1,6 @@
+{
+  "paths": {
+    "/pets": { "get": { "summary": "List pets", "x-internal": false } },
+    "/users": { "get": { "summary": "List users", "x-internal": false } }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "overlay": "1.1.0",
+  "info": {
+    "title": "Style test",
+    "version": "1.0.0"
+  },
+  "extends": "target.json",
+  "actions": [
+    {
+      "target": "$.info",
+      "update": { "description": "Added by overlay" }
+    },
+    {
+      "target": "$.info.title",
+      "update": "Renamed API"
+    }
+  ]
+}
