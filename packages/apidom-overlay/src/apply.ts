@@ -244,12 +244,10 @@ export const applyAction = (
       return applyRemoveAction(normalizedPaths, targetElement, options);
     }
 
-    // validate target node types for update/copy
-    const nodesValidation = validateTargetNodes(matches);
-    if (!nodesValidation.valid) throw nodesValidation.error!;
-
     // update action
     if (actionElement.update !== undefined) {
+      const nodesValidation = validateTargetNodes(matches);
+      if (!nodesValidation.valid) throw nodesValidation.error!;
       return applyUpdateAction(
         normalizedPaths,
         actionElement.update as Element,
@@ -260,6 +258,8 @@ export const applyAction = (
 
     // copy action
     if (actionElement.copy !== undefined) {
+      const nodesValidation = validateTargetNodes(matches);
+      if (!nodesValidation.valid) throw nodesValidation.error!;
       const copyExpression = toValue(actionElement.copy) as string;
       return applyCopyAction(normalizedPaths, copyExpression, targetElement, options);
     }
@@ -286,13 +286,20 @@ export const applyOverlayApiDOM = <T extends Element | ParseResultElement>(
   options: ApplyOptions = defaultApplyOptions,
 ): T => {
   const overlay =
-    overlayElement instanceof ParseResultElement
-      ? (overlayElement.api as Overlay1Element)
-      : overlayElement;
-  let target = targetElement instanceof ParseResultElement ? targetElement.api! : targetElement;
+    overlayElement instanceof ParseResultElement ? overlayElement.api : overlayElement;
 
   if (!isOverlay1Element(overlay)) {
     throw new OverlayError('First argument must be an Overlay 1.x document');
+  }
+
+  let target: Element;
+  if (targetElement instanceof ParseResultElement) {
+    if (targetElement.api === undefined) {
+      throw new OverlayError('Target ParseResultElement contains no API element');
+    }
+    target = targetElement.api;
+  } else {
+    target = targetElement;
   }
 
   if (!isArrayElement(overlay.actions)) {
