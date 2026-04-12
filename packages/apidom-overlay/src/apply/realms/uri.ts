@@ -5,6 +5,7 @@ import {
   mergeOptions,
   type ApiDOMReferenceOptions as ReferenceOptions,
 } from '@speclynx/apidom-reference';
+import type { PartialDeep } from 'type-fest';
 
 import { applyOverlay as applyOverlayApiDOM, type ApplyOptions } from './apidom.ts';
 import OverlayError from '../../errors/OverlayError.ts';
@@ -12,9 +13,11 @@ import OverlayError from '../../errors/OverlayError.ts';
 /**
  * @public
  */
-export interface ApplyOverlayOptions extends Partial<ReferenceOptions>, ApplyOptions {}
+export interface ApplyOverlayOptions extends ApplyOptions {
+  readonly reference?: PartialDeep<ReferenceOptions>;
+}
 
-const defaultOptions = {
+const defaultReferenceOptions = {
   parse: {
     parserOpts: {
       strict: false,
@@ -39,6 +42,15 @@ const defaultOptions = {
 };
 
 /**
+ * @public
+ */
+export const defaultOptions: ApplyOverlayOptions = {
+  immutable: false,
+  strict: false,
+  reference: defaultReferenceOptions,
+};
+
+/**
  * Applies an overlay document from a file/URL to its target document.
  *
  * Parses the overlay, resolves the target from `targetURI` or the overlay's
@@ -55,12 +67,15 @@ const defaultOptions = {
 const applyOverlay = async (
   overlayURI: string,
   targetURI?: string,
-  options: ApplyOverlayOptions = { immutable: false, strict: false },
+  options: ApplyOverlayOptions = defaultOptions,
 ): Promise<ParseResultElement> => {
-  const mergedOptions = mergeOptions(defaultOptions as unknown as ReferenceOptions, options);
+  const mergedRefOptions = mergeOptions(
+    defaultReferenceOptions as unknown as ReferenceOptions,
+    (options.reference ?? defaultReferenceOptions) as ReferenceOptions,
+  );
 
   // parse the overlay document along with document attached to `extends` field (if present)
-  const overlayParseResult = await parse(overlayURI, mergedOptions);
+  const overlayParseResult = await parse(overlayURI, mergedRefOptions);
   const overlayElement = overlayParseResult.api;
 
   if (!isOverlay1Element(overlayElement)) {
@@ -69,8 +84,7 @@ const applyOverlay = async (
 
   let targetParseResult;
   if (targetURI) {
-    const targetOptions = mergeOptions(defaultOptions as unknown as ReferenceOptions, options);
-    targetParseResult = await parse(targetURI, targetOptions);
+    targetParseResult = await parse(targetURI, mergedRefOptions);
   } else {
     const extendsElement = overlayElement.get('extends');
     targetParseResult = extendsElement?.meta?.get('parseResult') as ParseResultElement;
