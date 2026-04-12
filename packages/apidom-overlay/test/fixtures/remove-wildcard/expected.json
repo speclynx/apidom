@@ -1,0 +1,7 @@
+{
+  "paths": {
+    "/a": { "get": { "summary": "A" } },
+    "/b": { "get": { "summary": "B" } },
+    "/c": { "get": { "summary": "C" } }
+  }
+}

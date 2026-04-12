@@ -1,0 +1,8 @@
+{
+  "overlay": "1.1.0",
+  "info": { "title": "test", "version": "1.0.0" },
+  "actions": [
+    { "target": "$.info.description", "remove": true },
+    { "target": "$.info", "update": { "description": "Recreated description" } }
+  ]
+}

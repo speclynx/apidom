@@ -1,0 +1,7 @@
+{
+  "servers": [
+    { "url": "https://api.example.com", "description": "production" },
+    { "url": "https://staging.example.com", "description": "staging" },
+    { "url": "https://dev.example.com", "description": "development" }
+  ]
+}

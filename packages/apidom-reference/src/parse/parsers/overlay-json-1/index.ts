@@ -23,12 +23,15 @@ export interface OverlayJSON1ParserOptions extends Omit<ParserOptions, 'name'> {
  * @public
  */
 class OverlayJSON1Parser extends Parser {
-  public refractorOpts!: object;
+  public refractorOpts: object;
+  public extends: boolean;
 
   constructor(options?: OverlayJSON1ParserOptions) {
     const { fileExtensions = [], mediaTypes = OverlayJSON1MediaTypes, ...rest } = options ?? {};
 
     super({ ...rest, name: 'overlay-json-1', fileExtensions, mediaTypes });
+    this.refractorOpts = {};
+    this.extends = false;
   }
 
   async canParse(file: File): Promise<boolean> {
@@ -48,12 +51,14 @@ class OverlayJSON1Parser extends Parser {
     const source = file.toString();
 
     try {
-      const parserOpts = pick(['sourceMap', 'style', 'strict', 'refractorOpts'], this);
+      const parserOptsNames = ['sourceMap', 'style', 'strict', 'refractorOpts', 'extends'] as const;
+      const parserOptsGlobal = pick(parserOptsNames, this);
+      const parserOptsLocal = pick(parserOptsNames, (this as any)[this.name] ?? {});
+      const parserOpts = { ...parserOptsGlobal, ...parserOptsLocal };
+
       const parseResult = await parse(source, parserOpts);
 
-      const shouldParseExtends =
-        options?.parse?.parserOpts?.[this.name]?.extends ?? options?.parse?.parserOpts?.extends;
-      if (shouldParseExtends) {
+      if (parserOpts.extends) {
         await parseExtends(parseResult, file.uri, options!);
       }
 

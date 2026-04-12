@@ -1,0 +1,16 @@
+{
+  "items": [
+    { "id": 0, "remove": false },
+    { "id": 1, "remove": false },
+    { "id": 2, "remove": true },
+    { "id": 3, "remove": false },
+    { "id": 4, "remove": false },
+    { "id": 5, "remove": false },
+    { "id": 6, "remove": false },
+    { "id": 7, "remove": false },
+    { "id": 8, "remove": false },
+    { "id": 9, "remove": false },
+    { "id": 10, "remove": true },
+    { "id": 11, "remove": false }
+  ]
+}

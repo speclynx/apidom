@@ -1,0 +1,7 @@
+{
+  "servers": [
+    { "url": "https://first.example.com" },
+    { "url": "https://second.example.com" },
+    { "url": "https://third.example.com" }
+  ]
+}

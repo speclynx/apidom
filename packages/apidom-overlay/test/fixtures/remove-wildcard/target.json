@@ -1,0 +1,7 @@
+{
+  "paths": {
+    "/a": { "get": { "summary": "A", "deprecated": true } },
+    "/b": { "get": { "summary": "B", "deprecated": true } },
+    "/c": { "get": { "summary": "C" } }
+  }
+}

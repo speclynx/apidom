@@ -1,0 +1,5 @@
+{
+  "source": "value to move",
+  "destination": "will be overwritten",
+  "other": "stays"
+}

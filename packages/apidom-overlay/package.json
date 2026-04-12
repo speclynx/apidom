@@ -1,0 +1,73 @@
+{
+  "name": "@speclynx/apidom-overlay",
+  "version": "4.3.1",
+  "description": "Apply Overlay 1.x.y documents to API definitions.",
+  "keywords": [
+    "apidom",
+    "api",
+    "overlay",
+    "openapi-overlay",
+    "openapi",
+    "jsonpath",
+    "rfc9535",
+    "spec",
+    "specification",
+    "typescript",
+    "javascript"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org",
+    "provenance": true
+  },
+  "type": "module",
+  "sideEffects": false,
+  "unpkg": "./dist/apidom-overlay.browser.min.js",
+  "main": "./src/index.cjs",
+  "exports": {
+    "types": "./types/apidom-overlay.d.ts",
+    "import": "./src/index.mjs",
+    "require": "./src/index.cjs"
+  },
+  "types": "./types/apidom-overlay.d.ts",
+  "scripts": {
+    "build": "npm run clean && run-p --max-parallel ${CPU_CORES:-2} typescript:declaration build:es build:cjs build:umd:browser",
+    "build:es": "cross-env BABEL_ENV=es babel src --out-dir src --extensions '.ts' --out-file-extension '.mjs' --root-mode 'upward'",
+    "build:cjs": "cross-env BABEL_ENV=cjs babel src --out-dir src --extensions '.ts' --out-file-extension '.cjs' --root-mode 'upward'",
+    "build:umd:browser": "cross-env BABEL_ENV=browser webpack --config config/webpack/browser.config.js --progress",
+    "lint": "eslint ./",
+    "lint:fix": "eslint ./ --fix",
+    "clean": "rimraf --glob 'src/**/*.mjs' 'src/**/*.cjs' 'test/**/*.mjs' ./dist ./types",
+    "test": "npm run build:es && cross-env BABEL_ENV=es babel test --out-dir test --extensions '.ts' --out-file-extension '.mjs' --root-mode 'upward' && cross-env NODE_ENV=test mocha",
+    "test:update-snapshots": "cross-env UPDATE_SNAPSHOT=1 BABEL_ENV=cjs mocha",
+    "typescript:check-types": "tsc --noEmit",
+    "typescript:declaration": "tsc -p tsconfig.declaration.json && api-extractor run -l -c ./config/api-extractor/api-extractor.json",
+    "prepack": "copyfiles -u 3 ../../LICENSES/* LICENSES && copyfiles -u 2 ../../NOTICE .",
+    "postpack": "rimraf NOTICE LICENSES"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/speclynx/apidom.git"
+  },
+  "author": "Vladimir Gorej",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@babel/runtime-corejs3": "^7.28.4",
+    "@speclynx/apidom-core": "4.3.1",
+    "@speclynx/apidom-datamodel": "4.3.1",
+    "@speclynx/apidom-error": "4.3.1",
+    "@speclynx/apidom-json-path": "4.3.1",
+    "@speclynx/apidom-ns-overlay-1": "4.3.1",
+    "@speclynx/apidom-reference": "4.3.1"
+  },
+  "files": [
+    "src/**/*.mjs",
+    "src/**/*.cjs",
+    "dist/",
+    "types/apidom-overlay.d.ts",
+    "LICENSES",
+    "NOTICE",
+    "README.md",
+    "CHANGELOG.md"
+  ]
+}

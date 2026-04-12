@@ -1,0 +1,8 @@
+{
+  "staging": {
+    "scopes": ["read", "write"]
+  },
+  "production": {
+    "scopes": ["read", "read", "write"]
+  }
+}
