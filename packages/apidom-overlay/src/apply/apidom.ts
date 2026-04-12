@@ -15,8 +15,8 @@ import {
   isOverlay1Element,
 } from '@speclynx/apidom-ns-overlay-1';
 
-import OverlayError from './errors/OverlayError.ts';
-import { validateAction, validateTargetNodes } from './validate.ts';
+import OverlayError from '../errors/OverlayError.ts';
+import { validateAction, validateTargetNodes } from '../validate.ts';
 
 /**
  * @public
@@ -280,7 +280,7 @@ export const applyAction = (
  *
  * @public
  */
-export const applyOverlayApiDOM = <T extends Element | ParseResultElement>(
+export const applyOverlay = <T extends Element | ParseResultElement>(
   overlayElement: Overlay1Element | ParseResultElement,
   targetElement: T,
   options: ApplyOptions = defaultApplyOptions,

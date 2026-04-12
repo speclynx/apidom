@@ -62,14 +62,12 @@ const target = refract({
 const result = applyOverlayApiDOM(overlay, target);
 ```
 
-### Applying a single action
-
-`applyAction` applies a single overlay action. Useful for programmatic, step-by-step application.
+`applyActionApiDOM` applies a single overlay action. Useful for programmatic, step-by-step application.
 
 ```js
 import { refract } from '@speclynx/apidom-datamodel';
 import { refractAction } from '@speclynx/apidom-ns-overlay-1';
-import { applyAction } from '@speclynx/apidom-overlay';
+import { applyActionApiDOM } from '@speclynx/apidom-overlay';
 
 const action = refractAction({
   target: '$.info.title',
@@ -77,7 +75,38 @@ const action = refractAction({
 });
 const target = refract({ info: { title: 'Old Title', version: '1.0.0' } });
 
-const result = applyAction(action, target);
+const result = applyActionApiDOM(action, target);
+```
+
+### Applying to plain JavaScript objects (POJO)
+
+`applyOverlayPOJO` and `applyActionPOJO` accept and return plain JavaScript objects —
+no need to manually refract or serialize.
+
+```js
+import { applyOverlayPOJO, applyActionPOJO } from '@speclynx/apidom-overlay';
+
+// full overlay
+const result = applyOverlayPOJO(
+  {
+    overlay: '1.1.0',
+    info: { title: 'My overlay', version: '1.0.0' },
+    actions: [
+      { target: '$.info.title', update: 'Renamed API' },
+    ],
+  },
+  {
+    openapi: '3.1.0',
+    info: { title: 'Original', version: '1.0.0' },
+  },
+);
+// result is a plain object: { openapi: '3.1.0', info: { title: 'Renamed API', version: '1.0.0' } }
+
+// single action
+const updated = applyActionPOJO(
+  { target: '$.info.title', update: 'New Title' },
+  { info: { title: 'Old Title' } },
+);
 ```
 
 ## Overlay spec semantics
@@ -99,7 +128,7 @@ The implementation follows [Overlay 1.1.0](https://spec.openapis.org/overlay/v1.
 
 ### ApplyOptions
 
-Passed to `applyAction`, `applyOverlayApiDOM`, and `applyOverlay`:
+Passed to `applyActionApiDOM`, `applyOverlayApiDOM`, and `applyOverlay`:
 
 | Option | Type | Default | Description |
 |---|---|---|---|
@@ -136,10 +165,10 @@ All errors thrown by this package are instances of `OverlayError`, which extends
 Errors carry structured context for diagnostics:
 
 ```js
-import { applyAction, OverlayError } from '@speclynx/apidom-overlay';
+import { applyActionApiDOM, OverlayError } from '@speclynx/apidom-overlay';
 
 try {
-  applyAction(action, target);
+  applyActionApiDOM(action, target);
 } catch (error) {
   if (error instanceof OverlayError) {
     console.error(error.message);
