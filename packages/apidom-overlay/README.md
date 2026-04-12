@@ -124,6 +124,61 @@ The implementation follows [Overlay 1.1.0](https://spec.openapis.org/overlay/v1.
 | `remove: true` | Removes matched nodes; when combined with `update`, the update has no effect |
 | Action ordering | Applied sequentially — each action modifies the result of the previous |
 
+## Tracing
+
+Overlay application supports tracing to inspect what each action did during application.
+Pass a trace object via the `trace` option — it will be populated in place with step-by-step
+information about every action applied.
+
+```js
+import { applyOverlayApiDOM } from '@speclynx/apidom-overlay';
+
+const trace = {};
+const result = applyOverlayApiDOM(overlay, target, { trace });
+
+console.log(trace.failed);   // false
+console.log(trace.message);  // 'Overlay was successfully applied'
+
+for (const action of trace.actions) {
+  console.log(action.target);          // '$.info.title'
+  console.log(action.type);            // 'update' | 'copy' | 'remove' | 'noop'
+  console.log(action.matchCount);      // 1
+  console.log(action.normalizedPaths); // ["$['info']['title']"]
+  console.log(action.success);         // true
+}
+```
+
+When an action fails, the trace captures the error before it is re-thrown:
+
+```js
+const trace = {};
+try {
+  applyOverlayApiDOM(overlay, target, { trace });
+} catch (error) {
+  console.log(trace.failed);                // true
+  console.log(trace.failedAt);              // index of the failed action
+  console.log(trace.message);               // error message
+  console.log(trace.actions[trace.failedAt].error); // the OverlayError instance
+}
+```
+
+Tracing works across all API levels — ApiDOM elements, file/URL, and POJO:
+
+```js
+// single action (ApiDOM)
+const trace = {};
+applyActionApiDOM(action, target, { trace });
+console.log(trace.actions[0].type); // 'update'
+
+// file/URL
+const trace = {};
+await applyOverlay('/path/to/overlay.yaml', undefined, { trace });
+
+// POJO
+const trace = {};
+applyOverlayPOJO(overlay, target, { trace });
+```
+
 ## Options
 
 ### ApplyOptions
@@ -135,6 +190,7 @@ Passed to `applyActionApiDOM`, `applyOverlayApiDOM`, and `applyOverlay`:
 | `deepmerge` | `DeepMergeUserOptions` | `{}` | Custom [deepmerge options](https://github.com/speclynx/apidom/blob/main/packages/apidom-core/src/merge/deepmerge.ts) from `@speclynx/apidom-core`. Default `customMerge` enforces Overlay spec type compatibility. |
 | `strict` | `boolean` | `false` | When `true`, throws `OverlayError` if any action's target JSONPath matches zero nodes. |
 | `immutable` | `boolean` | `true` | When `true` (default), returns a new element without mutating the input. Set to `false` for in-place mutation. |
+| `trace` | `OverlayTrace` | — | When provided, populated in place with action-by-action trace data. See [Tracing](#tracing). |
 
 ### ApplyOverlayOptions
 

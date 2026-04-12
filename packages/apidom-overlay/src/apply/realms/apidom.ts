@@ -15,8 +15,10 @@ import {
   isOverlay1Element,
 } from '@speclynx/apidom-ns-overlay-1';
 
-import OverlayError from '../errors/OverlayError.ts';
-import { validateAction, validateTargetNodes } from '../validate.ts';
+import OverlayError from '../../errors/OverlayError.ts';
+import { validateAction, validateTargetNodes } from '../../validate.ts';
+import TraceBuilder from '../trace/TraceBuilder.ts';
+import type { OverlayTrace } from '../trace/types.ts';
 
 /**
  * @public
@@ -25,6 +27,14 @@ export interface ApplyOptions {
   readonly deepmerge?: DeepMergeUserOptions;
   readonly strict?: boolean;
   readonly immutable?: boolean;
+  readonly trace?: OverlayTrace;
+}
+
+/**
+ * Internal options that carry the tracer instance.
+ */
+interface InternalApplyOptions extends ApplyOptions {
+  readonly tracer?: TraceBuilder;
 }
 
 const defaultApplyOptions: ApplyOptions = { immutable: true, strict: false };
@@ -213,6 +223,9 @@ export const applyAction = (
   targetElement: Element,
   options: ApplyOptions = defaultApplyOptions,
 ): Element => {
+  const internalOpts = options as InternalApplyOptions;
+  const tracer =
+    internalOpts.tracer ?? (options.trace ? new TraceBuilder(options.trace) : undefined);
   const actionValidation = validateAction(actionElement);
   if (!actionValidation.valid) throw actionValidation.error!;
 
@@ -229,11 +242,28 @@ export const applyAction = (
 
   if (matches.length === 0) {
     if (options.strict) {
-      throw new OverlayError(
+      const error = new OverlayError(
         `Action target "${targetExpression}" matched zero nodes (strict mode)`,
         { action: actionElement },
       );
+
+      tracer?.action({
+        target: targetExpression,
+        type: 'noop',
+        matchCount: 0,
+        normalizedPaths: [],
+        success: false,
+        error,
+      });
+
+      throw error;
     }
+    tracer?.action({
+      target: targetExpression,
+      type: 'noop',
+      matchCount: 0,
+      normalizedPaths: [],
+    });
     return targetElement;
   }
 
@@ -241,19 +271,36 @@ export const applyAction = (
     // remove action
     const removeValue = actionElement.removeField;
     if (removeValue !== undefined && toValue(removeValue) === true) {
-      return applyRemoveAction(normalizedPaths, targetElement, options);
+      const result = applyRemoveAction(normalizedPaths, targetElement, options);
+      tracer?.action({
+        target: targetExpression,
+        type: 'remove',
+        matchCount: matches.length,
+        normalizedPaths,
+      });
+      return result;
     }
 
     // update action
     if (actionElement.update !== undefined) {
       const nodesValidation = validateTargetNodes(matches);
       if (!nodesValidation.valid) throw nodesValidation.error!;
-      return applyUpdateAction(
+
+      const result = applyUpdateAction(
         normalizedPaths,
         actionElement.update as Element,
         targetElement,
         options,
       );
+
+      tracer?.action({
+        target: targetExpression,
+        type: 'update',
+        matchCount: matches.length,
+        normalizedPaths,
+      });
+
+      return result;
     }
 
     // copy action
@@ -261,8 +308,24 @@ export const applyAction = (
       const nodesValidation = validateTargetNodes(matches);
       if (!nodesValidation.valid) throw nodesValidation.error!;
       const copyExpression = toValue(actionElement.copy) as string;
-      return applyCopyAction(normalizedPaths, copyExpression, targetElement, options);
+      const result = applyCopyAction(normalizedPaths, copyExpression, targetElement, options);
+
+      tracer?.action({
+        target: targetExpression,
+        type: 'copy',
+        matchCount: matches.length,
+        normalizedPaths,
+      });
+
+      return result;
     }
+
+    tracer?.action({
+      target: targetExpression,
+      type: 'noop',
+      matchCount: matches.length,
+      normalizedPaths,
+    });
 
     return targetElement;
   } catch (error: unknown) {
@@ -270,6 +333,16 @@ export const applyAction = (
     if (error instanceof OverlayError && !error.action) {
       error.action = actionElement;
     }
+
+    tracer?.action({
+      target: targetExpression,
+      type: 'noop',
+      matchCount: matches.length,
+      normalizedPaths,
+      success: false,
+      error: error instanceof OverlayError ? error : undefined,
+    });
+
     throw error;
   }
 };
@@ -306,8 +379,11 @@ export const applyOverlay = <T extends Element | ParseResultElement>(
     return targetElement;
   }
 
+  const tracer = options.trace ? new TraceBuilder(options.trace) : undefined;
+  const internalOptions: InternalApplyOptions = tracer ? { ...options, tracer } : options;
+
   for (const action of overlay.actions) {
-    target = applyAction(action as ActionElement, target, options);
+    target = applyAction(action as ActionElement, target, internalOptions);
   }
 
   if (targetElement instanceof ParseResultElement) {
