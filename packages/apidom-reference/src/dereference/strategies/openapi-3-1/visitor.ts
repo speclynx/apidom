@@ -347,6 +347,7 @@ class OpenAPI3_1DereferenceVisitor {
           const replacement = replacer(refElement);
 
           path.replaceWith(replacement);
+          path.skip();
           return;
         }
       }
@@ -524,6 +525,7 @@ class OpenAPI3_1DereferenceVisitor {
           const replacement = replacer(refElement);
 
           path.replaceWith(replacement);
+          path.skip();
           return;
         }
       }
@@ -958,6 +960,7 @@ class OpenAPI3_1DereferenceVisitor {
           const replacement = replacer(refElement);
 
           path.replaceWith(replacement);
+          path.skip();
           return;
         }
       }
@@ -1006,6 +1009,7 @@ class OpenAPI3_1DereferenceVisitor {
         booleanJsonSchemaElement.meta.set('ref-type', referencingElement.element);
 
         path.replaceWith(booleanJsonSchemaElement);
+        path.skip();
         return;
       }
 
