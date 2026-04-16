@@ -329,6 +329,7 @@ class AsyncAPI2DereferenceVisitor {
           const replacement = replacer(refElement);
 
           path.replaceWith(replacement);
+          path.skip();
           return;
         }
       }
@@ -379,6 +380,7 @@ class AsyncAPI2DereferenceVisitor {
         booleanJsonSchemaElement.meta.set('ref-type', referencingElement.element);
 
         path.replaceWith(booleanJsonSchemaElement);
+        path.skip();
         return;
       }
 
@@ -398,6 +400,7 @@ class AsyncAPI2DereferenceVisitor {
        * Transclude referencing element with merged referenced element.
        */
       path.replaceWith(mergedElement);
+      path.skip();
     } catch (error: unknown) {
       const $ref = toValue(referencingElement.$ref) as string;
       this.handleError(

@@ -171,6 +171,56 @@ describe('traverse', function () {
     });
   });
 
+  context('path.replaceWith() + path.skip()', function () {
+    specify('should apply replacement but not traverse into its children', function () {
+      const root = new ObjectElement({ key: 'original' });
+      const replacement = new ObjectElement({ nested: 'value' });
+      const visited: string[] = [];
+
+      traverse(
+        root,
+        {
+          enter(path: Path) {
+            visited.push((path.node as Element).element);
+            if ((path.node as Element).element === 'object' && visited.length === 1) {
+              path.replaceWith(replacement);
+              path.skip();
+            }
+          },
+        },
+        { mutable: true },
+      );
+
+      // should only visit the root object, not the replacement's children
+      assert.deepEqual(visited, ['object']);
+    });
+
+    specify(
+      'should apply replacement but not traverse into its children (async)',
+      async function () {
+        const root = new ObjectElement({ key: 'original' });
+        const replacement = new ObjectElement({ nested: 'value' });
+        const visited: string[] = [];
+
+        await traverseAsync(
+          root,
+          {
+            async enter(path: Path) {
+              visited.push((path.node as Element).element);
+              if ((path.node as Element).element === 'object' && visited.length === 1) {
+                path.replaceWith(replacement);
+                path.skip();
+              }
+            },
+          },
+          { mutable: true },
+        );
+
+        assert.deepEqual(visited, ['object']);
+      },
+    );
+  });
+
   context('path.remove()', function () {
     specify('should remove node from array in mutable mode', function () {
       const root = new ArrayElement([1, 2, 3]);

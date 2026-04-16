@@ -302,6 +302,7 @@ class Arazzo1DereferenceVisitor {
      * Transclude referencing element with merged referenced element.
      */
     path.replaceWith(mergedElement);
+    path.skip();
   }
 
   public async JSONSchemaElement(path: Path<Element>) {
@@ -478,6 +479,7 @@ class Arazzo1DereferenceVisitor {
           const replacement = replacer(refElement);
 
           path.replaceWith(replacement);
+          path.skip();
           return;
         }
       }
@@ -527,6 +529,7 @@ class Arazzo1DereferenceVisitor {
         booleanJsonSchemaElement.meta.set('ref-type', referencingElement.element);
 
         path.replaceWith(booleanJsonSchemaElement);
+        path.skip();
         return;
       }
 

@@ -331,6 +331,7 @@ class OpenAPI2DereferenceVisitor {
           const replacement = replacer(refElement);
 
           path.replaceWith(replacement);
+          path.skip();
           return;
         }
       }
@@ -384,6 +385,7 @@ class OpenAPI2DereferenceVisitor {
        * Transclude referencing element with merged referenced element.
        */
       path.replaceWith(mergedElement);
+      path.skip();
     } catch (error: unknown) {
       const $ref = toValue(referencingElement.$ref) as string;
       this.handleError(
@@ -491,6 +493,7 @@ class OpenAPI2DereferenceVisitor {
           const replacement = replacer(refElement);
 
           path.replaceWith(replacement);
+          path.skip();
           return;
         }
       }
@@ -672,6 +675,7 @@ class OpenAPI2DereferenceVisitor {
           const replacement = replacer(refElement);
 
           path.replaceWith(replacement);
+          path.skip();
           return;
         }
       }
@@ -726,6 +730,7 @@ class OpenAPI2DereferenceVisitor {
        * Transclude referencing element with merged referenced element.
        */
       path.replaceWith(mergedElement);
+      path.skip();
     } catch (error: unknown) {
       const $ref = toValue(referencingElement.$ref) as string;
       this.handleError(

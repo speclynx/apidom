@@ -204,12 +204,6 @@ function* traverseGenerator<TNode>(
           break;
         }
 
-        if (currentPath.shouldSkip) {
-          if (!isLeaving) {
-            continue;
-          }
-        }
-
         if (currentPath.removed) {
           edits.push([key!, null]);
           if (!isLeaving) {
@@ -219,11 +213,18 @@ function* traverseGenerator<TNode>(
           const replacement = currentPath._getReplacementNode()!;
           edits.push([key!, replacement]);
           if (!isLeaving) {
+            if (currentPath.shouldSkip) {
+              continue;
+            }
             if (nodePredicate(replacement)) {
               node = replacement;
             } else {
               continue;
             }
+          }
+        } else if (currentPath.shouldSkip) {
+          if (!isLeaving) {
+            continue;
           }
         } else if (result !== undefined) {
           // Support return value replacement for backwards compatibility
