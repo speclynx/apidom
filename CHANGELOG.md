@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.7.1](https://github.com/speclynx/apidom/compare/v4.7.0...v4.7.1) (2026-04-16)
+
+### Bug Fixes
+
+- **reference:** prevent exponential tree growth on deref ([#244](https://github.com/speclynx/apidom/issues/244)) ([2873e2a](https://github.com/speclynx/apidom/commit/2873e2ac8a2489396091b6bdf321138a34398d44)), closes [#12](https://github.com/speclynx/apidom/issues/12)
+
 # [4.7.0](https://github.com/speclynx/apidom/compare/v4.6.0...v4.7.0) (2026-04-12)
 
 ### Features
