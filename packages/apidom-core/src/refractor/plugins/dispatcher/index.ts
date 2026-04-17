@@ -29,7 +29,7 @@ export interface DispatchPluginsSync {
   <T extends Element, U extends Element = Element>(
     element: T,
     plugins: ((toolbox: any) => object)[],
-    options?: Record<string, unknown>,
+    options?: Partial<DispatchPluginsOptions>,
   ): U;
   [key: symbol]: DispatchPluginsAsync;
 }
@@ -41,7 +41,7 @@ export interface DispatchPluginsAsync {
   <T extends Element, U extends Element = Element>(
     element: T,
     plugins: ((toolbox: any) => object)[],
-    options?: Record<string, unknown>,
+    options?: Partial<DispatchPluginsOptions>,
   ): Promise<U>;
 }
 

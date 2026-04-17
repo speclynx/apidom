@@ -1,7 +1,7 @@
 import sinon from 'sinon';
 import { assert } from 'chai';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
-import { NumberElement, ObjectElement } from '@speclynx/apidom-datamodel';
+import { Element, NumberElement, ObjectElement } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
 
 import { toValue, dispatchRefractorPlugins as dispatchPluginsSync } from '../../../../src/index.ts';
@@ -58,7 +58,7 @@ describe('refrator', function () {
           const visited: string[] = [];
           const plugin = () => ({
             visitor: {
-              enter(path: Path<NumberElement>) {
+              enter(path: Path<Element>) {
                 visited.push(path.node.element);
               },
             },
