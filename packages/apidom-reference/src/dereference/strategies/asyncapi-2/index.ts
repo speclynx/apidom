@@ -94,9 +94,11 @@ class AsyncAPI2DereferenceStrategy extends DereferenceStrategy {
       refSet = mutableRefSet;
     }
 
+    const shouldDetectCircular = ['error', 'replace'].includes(options.dereference.circular);
     const visitor = new AsyncAPI2DereferenceVisitor({ reference, options });
     const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
       mutable: true,
+      ...(shouldDetectCircular && { skipVisited: true }),
     });
 
     /**

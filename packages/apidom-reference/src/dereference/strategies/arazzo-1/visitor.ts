@@ -52,6 +52,7 @@ export interface Arazzo1DereferenceVisitorOptions {
   readonly options: ReferenceOptions;
   readonly indirections?: Element[];
   readonly ancestors?: AncestorLineage<Element>;
+  readonly visited?: WeakSet<Element>;
 }
 
 /**
@@ -63,6 +64,8 @@ class Arazzo1DereferenceVisitor {
   protected readonly reference: Reference;
 
   protected readonly options: ReferenceOptions;
+
+  protected readonly visited: WeakSet<Element>;
 
   /**
    * Tracks element ancestors across dive-deep traversal boundaries.
@@ -76,11 +79,13 @@ class Arazzo1DereferenceVisitor {
     options,
     indirections = [],
     ancestors = new AncestorLineage(),
+    visited = new WeakSet(),
   }: Arazzo1DereferenceVisitorOptions) {
     this.indirections = indirections;
     this.reference = reference;
     this.options = options;
     this.ancestors = new AncestorLineage(...ancestors);
+    this.visited = visited;
   }
 
   protected toAncestorLineage(path: Path<Element>): [AncestorLineage<Element>, Set<Element>] {
@@ -499,9 +504,13 @@ class Arazzo1DereferenceVisitor {
         (isExternalReference ||
           isNonEntryDocument ||
           (isJSONSchemaElement(referencedElement) && isStringElement(referencedElement.$ref)) ||
-          shouldDetectCircular) &&
+          (shouldDetectCircular && !this.visited.has(referencedElement))) &&
         !ancestorsLineage.includesCycle(referencedElement)
       ) {
+        if (shouldDetectCircular) {
+          this.visited.add(referencedElement);
+        }
+
         // append referencing reference to ancestors lineage
         directAncestors.add(referencingElement);
 
@@ -509,9 +518,13 @@ class Arazzo1DereferenceVisitor {
           reference,
           indirections: [...this.indirections],
           options: this.options,
+          visited: this.visited,
           ancestors: ancestorsLineage,
         });
-        referencedElement = await traverseAsync(referencedElement, visitor, { mutable: true });
+        referencedElement = await traverseAsync(referencedElement, visitor, {
+          mutable: true,
+          skipVisited: true,
+        });
 
         // remove referencing reference from ancestors lineage
         directAncestors.delete(referencingElement);
