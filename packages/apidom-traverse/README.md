@@ -49,6 +49,21 @@ await traverseAsync(element, {
 });
 ```
 
+### Options
+
+Both `traverse` and `traverseAsync` accept an options object as the third argument:
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `detectCycles` | `boolean` | `true` | Skip nodes that appear in the current ancestor chain (true identity cycles). |
+| `skipVisited` | `boolean` | `true` | Skip nodes already visited via a `WeakSet`. Prevents combinatorial explosion when traversing dereferenced trees with shared structure (DAG from `cloneShallow`). Set to `false` if you need to visit the same node at every location it appears. |
+| `mutable` | `boolean` | `false` | If `true`, edits modify the original tree in place. |
+| `keyMap` | `Record` or `function` | `getNodeKeys` | Maps node types to child property names for traversal. |
+| `nodeTypeGetter` | `function` | `getNodeType` | Returns the type name of a node. |
+| `nodePredicate` | `function` | `isNode` | Predicate to check if a value is a valid node. |
+| `nodeCloneFn` | `function` | `cloneNode` | Function to clone a node (used in immutable mode). |
+| `mutationFn` | `function` | `mutateNode` | Function for applying mutations in mutable mode. |
+
 ---
 
 ## Operations

@@ -38,9 +38,19 @@ export interface TraverseOptions<TNode> {
    */
   nodeCloneFn?: (node: TNode) => TNode;
   /**
-   * Whether to detect and skip cycles. Defaults to true.
+   * Whether to detect and skip cycles using ancestor tracking. Defaults to true.
+   * Catches true identity cycles where a node is its own ancestor.
    */
   detectCycles?: boolean;
+  /**
+   * Whether to skip already-visited nodes. Defaults to true.
+   * When true, uses a WeakSet to track visited nodes and skips any node
+   * encountered a second time, regardless of the path taken to reach it.
+   * Handles dereferenced trees that contain shared structure from cloneShallow
+   * (DAG) which would otherwise cause combinatorial explosion.
+   * Set to false if you need to visit the same node at every location.
+   */
+  skipVisited?: boolean;
   /**
    * If true, edits modify the original tree in place.
    * If false (default), creates a new tree with changes applied.
@@ -88,10 +98,12 @@ function* traverseGenerator<TNode>(
     nodePredicate,
     nodeCloneFn,
     detectCycles,
+    skipVisited,
     mutable,
     mutationFn,
   } = options;
   const keyMapIsFunction = typeof keyMap === 'function';
+  const visitedNodes = skipVisited ? new WeakSet<object>() : null;
 
   let stack: TraversalState<TNode> | undefined;
   let inArray = Array.isArray(root);
@@ -179,6 +191,14 @@ function* traverseGenerator<TNode>(
       // Cycle detection
       if (detectCycles && ancestors.includes(node)) {
         continue;
+      }
+
+      // Skip already-visited nodes (handles DAG structures from cloneShallow)
+      if (skipVisited && !isLeaving) {
+        if (visitedNodes!.has(node as object)) {
+          continue;
+        }
+        visitedNodes!.add(node as object);
       }
 
       // Always create Path for the current node (needed for parentPath chain)
@@ -330,6 +350,7 @@ export const traverse = <TNode>(
     nodePredicate: options.nodePredicate ?? (isNode as (value: unknown) => value is TNode),
     nodeCloneFn: options.nodeCloneFn ?? (cloneNode as (node: TNode) => TNode),
     detectCycles: options.detectCycles ?? true,
+    skipVisited: options.skipVisited ?? true,
     mutable: options.mutable ?? false,
     mutationFn: options.mutationFn ?? mutateNode,
   };
@@ -370,6 +391,7 @@ export const traverseAsync = async <TNode>(
     nodePredicate: options.nodePredicate ?? (isNode as (value: unknown) => value is TNode),
     nodeCloneFn: options.nodeCloneFn ?? (cloneNode as (node: TNode) => TNode),
     detectCycles: options.detectCycles ?? true,
+    skipVisited: options.skipVisited ?? true,
     mutable: options.mutable ?? false,
     mutationFn: options.mutationFn ?? mutateNode,
   };
