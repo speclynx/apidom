@@ -4,6 +4,7 @@ import {
   traverseAsync,
   mergeVisitors,
   mergeVisitorsAsync,
+  type TraverseOptions,
 } from '@speclynx/apidom-traverse';
 import { mergeDeepRight, propOr } from 'ramda';
 import { invokeArgs } from 'ramda-adjunct';
@@ -18,6 +19,7 @@ export interface DispatchPluginsOptions {
   visitorOptions: {
     exposeEdits: boolean;
   };
+  traverseOptions?: TraverseOptions<Element>;
 }
 
 /**
@@ -60,7 +62,7 @@ export const dispatchPluginsSync: DispatchPluginsSync = ((element, plugins, opti
     defaultDispatchPluginsOptions,
     options,
   ) as DispatchPluginsOptions;
-  const { toolboxCreator, visitorOptions } = mergedOptions;
+  const { toolboxCreator, visitorOptions, traverseOptions } = mergedOptions;
   const toolbox = toolboxCreator();
   const pluginsSpecs = plugins.map((plugin) => plugin(toolbox));
   const mergedPluginsVisitor = mergeVisitors(
@@ -69,7 +71,7 @@ export const dispatchPluginsSync: DispatchPluginsSync = ((element, plugins, opti
   );
 
   pluginsSpecs.forEach(invokeArgs(['pre'], []));
-  const newElement = traverse(element, mergedPluginsVisitor);
+  const newElement = traverse(element, mergedPluginsVisitor, traverseOptions);
   pluginsSpecs.forEach(invokeArgs(['post'], []));
   return newElement;
 }) as DispatchPluginsSync;
@@ -85,7 +87,7 @@ export const dispatchPluginsAsync: DispatchPluginsAsync = (async (
     defaultDispatchPluginsOptions,
     options,
   ) as DispatchPluginsOptions;
-  const { toolboxCreator, visitorOptions } = mergedOptions;
+  const { toolboxCreator, visitorOptions, traverseOptions } = mergedOptions;
   const toolbox = toolboxCreator();
   const pluginsSpecs = plugins.map((plugin) => plugin(toolbox));
   const mergedPluginsVisitor = mergeVisitorsAsync(
@@ -94,7 +96,7 @@ export const dispatchPluginsAsync: DispatchPluginsAsync = (async (
   );
 
   await Promise.allSettled(pluginsSpecs.map(invokeArgs(['pre'], [])));
-  const newElement = await traverseAsync(element, mergedPluginsVisitor);
+  const newElement = await traverseAsync(element, mergedPluginsVisitor, traverseOptions);
   await Promise.allSettled(pluginsSpecs.map(invokeArgs(['post'], [])));
   return newElement;
 }) as DispatchPluginsAsync;
