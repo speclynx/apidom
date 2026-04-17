@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.8.0](https://github.com/speclynx/apidom/compare/v4.7.1...v4.8.0) (2026-04-17)
+
+### Bug Fixes
+
+- **reference:** fix circular: 'replace' hanging on large specs ([7b94468](https://github.com/speclynx/apidom/commit/7b9446889e89dab869648a5e9ad9042f5faa00cc))
+
 ## [4.7.1](https://github.com/speclynx/apidom/compare/v4.7.0...v4.7.1) (2026-04-16)
 
 ### Bug Fixes

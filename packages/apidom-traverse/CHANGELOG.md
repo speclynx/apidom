@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.8.0](https://github.com/speclynx/apidom/compare/v4.7.1...v4.8.0) (2026-04-17)
+
+### Bug Fixes
+
+- **traverse:** change skipVisited default to false ([3e0df19](https://github.com/speclynx/apidom/commit/3e0df196d0bb5878fc18858209cc8ec31c0ab9cb))
+
+### Features
+
+- **traverse:** add skipVisited option to prevent DAG explosion ([a149b2e](https://github.com/speclynx/apidom/commit/a149b2e92024afaf945f52a06ea00a9202519e2b))
+
 ## [4.7.1](https://github.com/speclynx/apidom/compare/v4.7.0...v4.7.1) (2026-04-16)
 
 ### Bug Fixes
