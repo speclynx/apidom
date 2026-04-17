@@ -47,6 +47,7 @@ export interface OpenAPI3_0DereferenceVisitorOptions {
   readonly indirections?: Element[];
   readonly refractCache?: WeakMap<Element, Element>;
   readonly ancestors?: AncestorLineage<Element>;
+  readonly visited?: WeakSet<Element>;
 }
 
 /**
@@ -61,6 +62,8 @@ class OpenAPI3_0DereferenceVisitor {
 
   protected readonly refractCache: WeakMap<Element, Element>;
 
+  protected readonly visited: WeakSet<Element>;
+
   /**
    * Tracks element ancestors across dive-deep traversal boundaries.
    * Used for cycle detection: if a referenced element is found in
@@ -74,12 +77,14 @@ class OpenAPI3_0DereferenceVisitor {
     indirections = [],
     ancestors = new AncestorLineage(),
     refractCache = new WeakMap(),
+    visited = new WeakSet(),
   }: OpenAPI3_0DereferenceVisitorOptions) {
     this.indirections = indirections;
     this.reference = reference;
     this.options = options;
     this.ancestors = new AncestorLineage(...ancestors);
     this.refractCache = refractCache;
+    this.visited = visited;
   }
 
   protected toAncestorLineage(path: Path<Element>): [AncestorLineage<Element>, Set<Element>] {
@@ -353,9 +358,13 @@ class OpenAPI3_0DereferenceVisitor {
         (isExternalReference ||
           isNonEntryDocument ||
           isReferenceElement(referencedElement) ||
-          shouldDetectCircular) &&
+          (shouldDetectCircular && !this.visited.has(referencedElement))) &&
         !ancestorsLineage.includesCycle(referencedElement)
       ) {
+        if (shouldDetectCircular) {
+          this.visited.add(referencedElement);
+        }
+
         // append referencing reference to ancestors lineage
         directAncestors.add(referencingElement);
 
@@ -364,9 +373,13 @@ class OpenAPI3_0DereferenceVisitor {
           indirections: [...this.indirections],
           options: this.options,
           refractCache: this.refractCache,
+          visited: this.visited,
           ancestors: ancestorsLineage,
         });
-        referencedElement = await traverseAsync(referencedElement, visitor, { mutable: true });
+        referencedElement = await traverseAsync(referencedElement, visitor, {
+          mutable: true,
+          skipVisited: true,
+        });
 
         // remove referencing reference from ancestors lineage
         directAncestors.delete(referencingElement);
@@ -516,9 +529,13 @@ class OpenAPI3_0DereferenceVisitor {
         (isExternalReference ||
           isNonEntryDocument ||
           (isPathItemElement(referencedElement) && isStringElement(referencedElement.$ref)) ||
-          shouldDetectCircular) &&
+          (shouldDetectCircular && !this.visited.has(referencedElement))) &&
         !ancestorsLineage.includesCycle(referencedElement)
       ) {
+        if (shouldDetectCircular) {
+          this.visited.add(referencedElement);
+        }
+
         // append referencing reference to ancestors lineage
         directAncestors.add(referencingElement);
 
@@ -527,9 +544,13 @@ class OpenAPI3_0DereferenceVisitor {
           indirections: [...this.indirections],
           options: this.options,
           refractCache: this.refractCache,
+          visited: this.visited,
           ancestors: ancestorsLineage,
         });
-        referencedElement = await traverseAsync(referencedElement, visitor, { mutable: true });
+        referencedElement = await traverseAsync(referencedElement, visitor, {
+          mutable: true,
+          skipVisited: true,
+        });
 
         // remove referencing reference from ancestors lineage
         directAncestors.delete(referencingElement);

@@ -95,10 +95,12 @@ class OpenAPI3_1DereferenceStrategy extends DereferenceStrategy {
       refSet = mutableRefSet;
     }
 
+    const shouldDetectCircular = ['error', 'replace'].includes(options.dereference.circular);
     const visitor = new OpenAPI3_1DereferenceVisitor({ reference: reference!, options });
 
     const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
       mutable: true,
+      ...(shouldDetectCircular && { skipVisited: true }),
     });
 
     /**

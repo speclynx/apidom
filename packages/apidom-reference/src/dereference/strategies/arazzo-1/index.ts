@@ -101,9 +101,11 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
       refSet = mutableRefSet;
     }
 
+    const shouldDetectCircular = ['error', 'replace'].includes(options.dereference.circular);
     const visitor = new Arazzo1DereferenceVisitor({ reference, options });
     const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
       mutable: true,
+      ...(shouldDetectCircular && { skipVisited: true }),
     });
 
     /**
