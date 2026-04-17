@@ -43,12 +43,11 @@ export interface TraverseOptions<TNode> {
    */
   detectCycles?: boolean;
   /**
-   * Whether to skip already-visited nodes. Defaults to true.
+   * Whether to skip already-visited nodes. Defaults to false.
    * When true, uses a WeakSet to track visited nodes and skips any node
    * encountered a second time, regardless of the path taken to reach it.
-   * Handles dereferenced trees that contain shared structure from cloneShallow
-   * (DAG) which would otherwise cause combinatorial explosion.
-   * Set to false if you need to visit the same node at every location.
+   * Useful for traversing dereferenced trees that contain shared structure
+   * from cloneShallow (DAG) which would otherwise cause combinatorial explosion.
    */
   skipVisited?: boolean;
   /**
@@ -350,7 +349,7 @@ export const traverse = <TNode>(
     nodePredicate: options.nodePredicate ?? (isNode as (value: unknown) => value is TNode),
     nodeCloneFn: options.nodeCloneFn ?? (cloneNode as (node: TNode) => TNode),
     detectCycles: options.detectCycles ?? true,
-    skipVisited: options.skipVisited ?? true,
+    skipVisited: options.skipVisited ?? false,
     mutable: options.mutable ?? false,
     mutationFn: options.mutationFn ?? mutateNode,
   };
@@ -391,7 +390,7 @@ export const traverseAsync = async <TNode>(
     nodePredicate: options.nodePredicate ?? (isNode as (value: unknown) => value is TNode),
     nodeCloneFn: options.nodeCloneFn ?? (cloneNode as (node: TNode) => TNode),
     detectCycles: options.detectCycles ?? true,
-    skipVisited: options.skipVisited ?? true,
+    skipVisited: options.skipVisited ?? false,
     mutable: options.mutable ?? false,
     mutationFn: options.mutationFn ?? mutateNode,
   };
