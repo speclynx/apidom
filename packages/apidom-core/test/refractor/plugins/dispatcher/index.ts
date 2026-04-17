@@ -53,6 +53,38 @@ describe('refrator', function () {
             'Async visitor not supported in sync mode',
           );
         });
+
+        specify('should pass traverseOptions to traverse', function () {
+          const visited: string[] = [];
+          const plugin = () => ({
+            visitor: {
+              enter(path: Path<NumberElement>) {
+                visited.push(path.node.element);
+              },
+            },
+          });
+
+          // create a tree with shared nodes (DAG)
+          const shared = new NumberElement(1);
+          const objectElement = new ObjectElement({});
+          objectElement.set('a', shared);
+          objectElement.set('b', shared);
+
+          // without skipVisited, shared node is visited twice
+          visited.length = 0;
+          dispatchPluginsSync(objectElement, [plugin]);
+          const withoutSkip = visited.filter((e) => e === 'number').length;
+
+          // with skipVisited, shared node is visited once
+          visited.length = 0;
+          dispatchPluginsSync(objectElement, [plugin], {
+            traverseOptions: { skipVisited: true },
+          });
+          const withSkip = visited.filter((e) => e === 'number').length;
+
+          assert.strictEqual(withoutSkip, 2);
+          assert.strictEqual(withSkip, 1);
+        });
       });
 
       context('dispatchPluginsASync', function () {
