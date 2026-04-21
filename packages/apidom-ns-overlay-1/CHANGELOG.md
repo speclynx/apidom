@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.9.1](https://github.com/speclynx/apidom/compare/v4.9.0...v4.9.1) (2026-04-21)
+
+### Bug Fixes
+
+- **ns-overlay-1:** add actions mappings to replaceEmptyElement plugin ([#257](https://github.com/speclynx/apidom/issues/257)) ([3719dc0](https://github.com/speclynx/apidom/commit/3719dc03613c49fc24696dcd7779e0f151a8989f))
+
 # [4.9.0](https://github.com/speclynx/apidom/compare/v4.8.0...v4.9.0) (2026-04-17)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-overlay-1
