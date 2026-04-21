@@ -1,5 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`given empty value instead of Actions should replace empty value with semantic element 1`] = `
+(Overlay1Element
+  (MemberElement
+    (StringElement)
+    (OverlayElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement)))
+`;
+
 exports[`given empty value instead of InfoElement should replace empty value with semantic element 1`] = `
 (Overlay1Element
   (MemberElement

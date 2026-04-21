@@ -25,6 +25,21 @@ describe('given empty value instead of InfoElement', function () {
   });
 });
 
+describe('given empty value instead of Actions', function () {
+  it('should replace empty value with semantic element', async function () {
+    const yamlDefinition = dedent`
+      overlay: 1.1.0
+      actions:
+    `;
+    const apiDOM = await parse(yamlDefinition);
+    const overlay1Element = refractOverlay1(apiDOM.result, {
+      plugins: [refractorPluginReplaceEmptyElement()],
+    });
+
+    expect(sexprs(overlay1Element)).toMatchSnapshot();
+  });
+});
+
 describe('given Overlay definition with empty values', function () {
   it('should generate proper source maps', async function () {
     const yamlDefinition = dedent`
