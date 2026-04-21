@@ -6,57 +6,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ApiDOM is a TypeScript monorepo that provides a unified structure for describing APIs across different API description languages (OpenAPI, AsyncAPI, JSON Schema, Arazzo, etc.) and serialization formats (JSON, YAML). It allows parsers to produce a single structure that tools can consume regardless of the original format.
 
-## Build & Development Commands
-
-**Prerequisites:** Node.js >=24.10.0, npm >=11.6.1
-
-**Important:** Always run nvm before executing any node/npm/npx commands to ensure the correct Node.js version is used:
-```bash
-source ~/.nvm/nvm.sh && nvm use
-```
-
-```bash
-# Install dependencies (required before any other operation)
-npm i
-
-# Build all packages (required before running tests)
-npm run build
-
-# Build only ES modules (faster for development)
-npm run build:es
-
-# Run all tests (must build first)
-npm run test
-
-# Lint all packages
-npm run lint
-npm run lint:fix
-
-# Type checking
-npm run typescript:check-types
-
-# Clean build artifacts
-npm run clean
-```
-
-### Working with Individual Packages
-
-All npm scripts propagate to packages via lerna. To work with a specific package:
-
-```bash
-# Run tests for a single package
-cd packages/apidom-core && npm test
-
-# Build a single package
-cd packages/apidom-ns-openapi-3-1 && npm run build:es
-```
-
-**Performance tip:** Set `CPU_CORES` environment variable to match your CPU cores for faster parallel builds:
-```bash
-export CPU_CORES=8
-npm run build
-```
-
 ## Architecture
 
 ### Package Categories
@@ -72,6 +21,7 @@ The monorepo contains 38 packages organized into these categories:
    - `apidom-ns-openapi-2`, `apidom-ns-openapi-3-0`, `apidom-ns-openapi-3-1`
    - `apidom-ns-asyncapi-2`
    - `apidom-ns-arazzo-1`
+   - `apidom-ns-overlay-1`
    - `apidom-ns-json-schema-draft-4/6/7`, `apidom-ns-json-schema-2019-09/2020-12`
 
 3. **Parser Adapters (`apidom-parser-adapter-*`):** Parse specific formats into ApiDOM
@@ -122,32 +72,6 @@ Each package typically contains:
 - `src/media-types.ts` - MIME type definitions
 - `src/namespace.ts` - Namespace registration
 - `test/` - Mocha tests with fixtures
-
-### Build Outputs
-
-Each package produces:
-- `*.mjs` - ES modules (in `src/`)
-- `*.cjs` - CommonJS modules (in `src/`)
-- `dist/` - UMD bundles for browsers
-- `types/` - TypeScript declarations
-
-## Testing
-
-Uses Mocha with Chai assertions. Snapshot testing via `mocha-chai-jest-snapshot`.
-
-```bash
-# Update snapshots when output changes intentionally
-npm run test:update-snapshots
-```
-
-## Code Style
-
-- TypeScript with strict mode
-- ESLint + Prettier for formatting
-- Conventional Commits for commit messages
-- Branch naming: `feature/description` or `fix/issue-number-description`
-- Line comments (`//`) start with lowercase
-- Block comments (`/** */`) start with uppercase
 
 ## Dependencies
 

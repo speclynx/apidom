@@ -6,7 +6,22 @@
         "hooks": [
           {
             "type": "command",
+            "command": ".claude/hooks/declarations-before-commit.sh"
+          },
+          {
+            "type": "command",
             "command": ".claude/hooks/typecheck-before-commit.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/lint-fix-after-edit.sh"
           }
         ]
       }

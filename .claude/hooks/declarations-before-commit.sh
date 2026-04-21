@@ -8,21 +8,21 @@ fi
 
 source ~/.nvm/nvm.sh && nvm use > /dev/null 2>&1
 
-echo "Running TypeScript type check before commit..." >&2
+echo "Building TypeScript declarations before commit..." >&2
 
 CHANGED_PACKAGES=$(git diff --cached --name-only | grep '^packages/' | cut -d/ -f1-2 | sort -u)
 
 for pkg in $CHANGED_PACKAGES; do
-  if [ -f "$pkg/package.json" ] && grep -q '"typescript:check-types"' "$pkg/package.json"; then
-    echo "Type-checking $pkg..." >&2
-    if ! (cd "$pkg" && npm run typescript:check-types 2>&1); then
+  if [ -f "$pkg/package.json" ] && grep -q '"typescript:declaration"' "$pkg/package.json"; then
+    echo "Building declarations for $pkg..." >&2
+    if ! (cd "$pkg" && npm run typescript:declaration 2>&1); then
       echo "" >&2
-      echo "TypeScript check failed in $pkg" >&2
+      echo "TypeScript declaration build failed in $pkg" >&2
       jq -n '{
         hookSpecificOutput: {
           hookEventName: "PreToolUse",
           permissionDecision: "deny",
-          permissionDecisionReason: "TypeScript type check failed. Fix type errors before committing."
+          permissionDecisionReason: "TypeScript declaration build failed. Fix errors before committing."
         }
       }'
       exit 0
