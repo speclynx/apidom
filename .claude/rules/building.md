@@ -1,0 +1,2 @@
+- Build individual modified packages: `cd packages/<package-name> && npm run build:es` (ES modules only, faster for development)
+- Set `CPU_CORES` env var to match your CPU cores for faster parallel builds

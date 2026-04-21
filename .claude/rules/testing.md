@@ -1,0 +1,3 @@
+- Tests use Mocha with Chai assertions. Snapshot testing via `mocha-chai-jest-snapshot`.
+- Run tests for individual packages: `cd packages/<package-name> && npm test`
+- When output changes intentionally, update snapshots with `npm run test:update-snapshots`
