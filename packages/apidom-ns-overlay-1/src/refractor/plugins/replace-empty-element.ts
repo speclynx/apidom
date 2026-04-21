@@ -18,6 +18,8 @@ import { toValue } from '@speclynx/apidom-core';
  * Overlay 1.1.0 specification elements.
  */
 import InfoElement from '../../elements/Info.ts';
+import ActionElement from '../../elements/Action.ts';
+import Actions from '../../elements/nces/Actions.ts';
 
 /**
  * This plugin is specific to YAML 1.2 format, which allows defining key-value pairs
@@ -66,6 +68,11 @@ const schema: Record<string, Record<string, ElementFactory>> = {
   // concrete types handling (CTs)
   Overlay1Element: {
     info: (content, meta, attributes) => new InfoElement(content, meta, attributes),
+    actions: (content, meta, attributes) => new Actions(content, meta, attributes),
+  },
+  // non-concrete types handling (NCEs)
+  [Actions.primaryClass]: {
+    '<*>': (content, meta, attributes) => new ActionElement(content, meta, attributes),
   },
 };
 
