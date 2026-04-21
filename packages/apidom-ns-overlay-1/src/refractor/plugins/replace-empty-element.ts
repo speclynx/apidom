@@ -68,7 +68,8 @@ const schema: Record<string, Record<string, ElementFactory>> = {
   // concrete types handling (CTs)
   Overlay1Element: {
     info: (content, meta, attributes) => new InfoElement(content, meta, attributes),
-    actions: (content, meta, attributes) => new Actions(content, meta, attributes),
+    actions: (content, meta, attributes) =>
+      new Actions(content as unknown as Array<unknown> | undefined, meta, attributes),
   },
   // non-concrete types handling (NCEs)
   [Actions.primaryClass]: {
