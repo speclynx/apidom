@@ -1,6 +1,7 @@
 # @speclynx/apidom-overlay
 
-`@speclynx/apidom-overlay` applies [Overlay 1.x.y](https://spec.openapis.org/overlay/v1.1.0.html) documents to API definitions.
+`@speclynx/apidom-overlay` applies [Overlay 1.x.y](https://spec.openapis.org/overlay/v1.1.0.html) documents to API definitions
+and can generate overlays by diffing two API documents.
 The [Overlay Specification](https://spec.openapis.org/overlay/v1.1.0.html) defines a mechanism for modifying
 existing API documents without directly editing the original, using [JSONPath (RFC 9535)](https://www.rfc-editor.org/rfc/rfc9535.html)
 expressions to target specific nodes and apply updates, copies, or removals.
@@ -14,8 +15,6 @@ You can install this package via [npm CLI](https://docs.npmjs.com/cli) by runnin
 ```
 
 ## Usage
-
-This package provides three levels of API for applying overlays:
 
 ### Applying from file/URL
 
@@ -109,6 +108,101 @@ const updated = applyActionPOJO(
 );
 ```
 
+### Generating an Overlay (diff)
+
+`diffApiDOM` computes the diff between two ApiDOM elements and returns an `Overlay1Element` that,
+when applied to the left document, yields the right document.
+
+```js
+import { refract } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
+import { diffApiDOM, applyOverlayApiDOM } from '@speclynx/apidom-overlay';
+
+const left = refract({
+  openapi: '3.1.0',
+  info: { title: 'My API', version: '1.0.0' },
+  servers: [{ url: 'https://staging.example.com' }],
+});
+const right = refract({
+  openapi: '3.1.0',
+  info: { title: 'My API', version: '2.0.0' },
+  servers: [{ url: 'https://prod.example.com' }, { url: 'https://dr.example.com' }],
+});
+
+const overlay = diffApiDOM(left, right, {
+  info: { title: 'v1 → v2 migration', version: '1.0.0' },
+  extends: 'https://example.com/openapi-v1.yaml',
+});
+
+// overlay is an Overlay1Element — serialize or apply it directly
+const updated = applyOverlayApiDOM(overlay, left);
+console.log(toValue(updated)); // equals toValue(right)
+```
+
+`diffPOJO` accepts and returns plain JavaScript objects:
+
+```js
+import { diffPOJO } from '@speclynx/apidom-overlay';
+
+const overlay = diffPOJO(
+  { info: { title: 'Old', version: '1.0.0' } },
+  { info: { title: 'New', version: '2.0.0' } },
+);
+// overlay is a plain object: { overlay: '1.1.0', info: {...}, actions: [...] }
+```
+
+`diffOverlay` parses two documents from file paths or URLs and returns an `Overlay1Element`.
+The `extends` field is automatically set to `leftURI` when not provided, so the overlay
+can be applied back to the original document without additional configuration.
+
+```js
+import { diffOverlay } from '@speclynx/apidom-overlay';
+import { toValue } from '@speclynx/apidom-core';
+
+// diff two local files
+const overlay = await diffOverlay('/path/to/openapi-v1.yaml', '/path/to/openapi-v2.yaml');
+
+// extends is auto-populated with leftURI
+console.log(toValue(overlay).extends); // '/path/to/openapi-v1.yaml'
+
+// provide a canonical URL instead
+const overlay = await diffOverlay(
+  '/path/to/openapi-v1.yaml',
+  '/path/to/openapi-v2.yaml',
+  { extends: 'https://example.com/openapi-v1.yaml' },
+);
+```
+
+#### DiffOptions
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `overlay` | `string` | `'1.1.0'` | Version string written to the `overlay` field. Configurable because 1.0.0 and 1.1.0 have slightly different semantics. |
+| `info.title` | `string` | `'API diff'` | Title for the generated overlay's `info` object. |
+| `info.version` | `string` | `'0.0.0'` | Version for the generated overlay's `info` object. |
+| `info.description` | `string` | — | Optional description for the overlay's `info` object. |
+| `extends` | `string` | — | When provided, sets the `extends` field on the overlay pointing to the base document. |
+| `onEmptyDiff` | `'allow' \| 'throw'` | `'allow'` | Controls behavior when the documents are identical and the diff produces no actions. `'allow'` returns an overlay with an empty `actions` array; `'throw'` throws `OverlayError`. |
+
+#### Diff algorithm
+
+The diff walks both element trees recursively and generates [JSONPath (RFC 9535)](https://www.rfc-editor.org/rfc/rfc9535.html) targets using the normalized path format (e.g. `$['info']['title']`).
+
+- **Objects**: per-field comparison. Removed fields produce `remove` actions. Newly added fields are batched into a single `update` on the parent object. Changed fields recurse deeper.
+- **Arrays**: positional comparison. Changed items at the same index recurse deeper. New items at the end are appended via `update` on the array. Removed trailing items use `remove` in reverse-index order for index stability. Structural type changes at a given index trigger a tail-reconstruct (remove tail + re-append from right) to stay within Overlay's supported operations.
+- **Primitives**: direct `update` with the new value.
+
+#### Known limitations
+
+| Limitation | Details |
+|---|---|
+| Empty actions on identical documents | By default, identical inputs produce an overlay with an empty `actions` array (Overlay 1.1.0 §3 requires non-empty). Use `onEmptyDiff: 'throw'` to turn this into an `OverlayError` instead. |
+| Root structural type change | Throws `OverlayError`. Overlay has no mechanism to replace the root node. |
+| Array insert-at-position | Overlay 1.x has no insert primitive. Positional diffing cascades replacements + appends, which is always correct but may be verbose for large array reorderings. |
+| Array item structural type change | Handled via tail-reconstruct: items from the first type-mismatched index onward are removed and re-appended. Always correct, but produces more actions than a minimal diff. |
+| Shared element references | Action `update` values reference elements from the right document directly. Mutating the right document after calling `diff` will affect the returned overlay. |
+| Reverse diff | The overlay carries no "before" value. It cannot be reversed without the original document. |
+
 ## Overlay spec semantics
 
 The implementation follows [Overlay 1.1.0](https://spec.openapis.org/overlay/v1.1.0.html) merge rules:
@@ -196,6 +290,17 @@ Passed to `applyActionApiDOM`, `applyOverlayApiDOM`, and `applyOverlay`:
 
 Extends `ApplyOptions` with all [`@speclynx/apidom-reference` options](https://github.com/speclynx/apidom/blob/main/packages/apidom-reference/README.md)
 for controlling parsing, resolving, and dereferencing of the overlay and target documents.
+
+### DiffOverlayOptions
+
+Passed to `diffOverlay`. Extends `DiffOptions` with a `reference` field:
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `overlay` | `string` | `'1.1.0'` | Inherited from `DiffOptions`. See [DiffOptions](#diffoptions). |
+| `info` | `object` | — | Inherited from `DiffOptions`. |
+| `extends` | `string` | `leftURI` | When omitted, automatically set to `leftURI` so the overlay points back to the base document. |
+| `reference` | `PartialDeep<ReferenceOptions>` | — | [`@speclynx/apidom-reference` options](https://github.com/speclynx/apidom/blob/main/packages/apidom-reference/README.md) for parsing the left and right documents. |
 
 ## Validation
 

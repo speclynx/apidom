@@ -12,6 +12,14 @@ export {
   applyAction as applyActionPOJO,
   applyOverlay as applyOverlayPOJO,
 } from './apply/realms/pojo.ts';
+export {
+  diffApiDOM,
+  diffPOJO,
+  diffOverlay,
+  defaultDiffOverlayOptions,
+  type DiffOptions,
+  type DiffOverlayOptions,
+} from './diff/index.ts';
 export { validateAction, type ValidationResult } from './validate.ts';
 export { default as OverlayError, type OverlayErrorOptions } from './errors/OverlayError.ts';
 export type { OverlayTrace, ActionTrace, ActionTraceType } from './apply/trace/index.ts';
