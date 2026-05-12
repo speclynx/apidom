@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.10.0](https://github.com/speclynx/apidom/compare/v4.9.1...v4.10.0) (2026-05-12)
+
+### Features
+
+- **overlay:** add support for overlay generation by diffing API docs ([#278](https://github.com/speclynx/apidom/issues/278)) ([41fca34](https://github.com/speclynx/apidom/commit/41fca3455bce2e637b1e53f78f3f60afd93ef16c))
+
 ## [4.9.1](https://github.com/speclynx/apidom/compare/v4.9.0...v4.9.1) (2026-04-21)
 
 ### Bug Fixes
