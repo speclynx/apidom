@@ -6,7 +6,7 @@ import { refract } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 import { refractOverlay1 } from '@speclynx/apidom-ns-overlay-1';
 
-import { applyOverlayApiDOM } from '../src/index.ts';
+import { applyOverlayApiDOM, diffApiDOM } from '../src/index.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, 'fixtures');
@@ -77,6 +77,24 @@ describe('overlay application fixtures', function () {
           Error,
           new RegExp(error.message, 'i'),
         );
+      });
+    }
+  });
+
+  context('diff round-trip', function () {
+    for (const fixture of successFixtures) {
+      specify(fixture, function () {
+        const dir = path.join(fixturesDir, fixture);
+        const target = JSON.parse(fs.readFileSync(path.join(dir, 'target.json'), 'utf-8'));
+        const expected = JSON.parse(fs.readFileSync(path.join(dir, 'expected.json'), 'utf-8'));
+
+        const leftElement = refract(target);
+        const rightElement = refract(expected);
+
+        const overlay = diffApiDOM(leftElement, rightElement);
+        const result = applyOverlayApiDOM(overlay, leftElement);
+
+        assert.deepEqual(toValue(result), expected);
       });
     }
   });
