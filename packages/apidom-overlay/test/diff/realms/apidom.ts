@@ -22,7 +22,7 @@ describe('diffApiDOM', function () {
       assert.strictEqual(overlay.actions?.length, 0);
     });
 
-    specify('should produce an overlay with no actions when onEmptyDiff is allow', function () {
+    specify("should produce an overlay with no actions when onEmptyDiff is 'allow'", function () {
       const left = refract({ info: { title: 'My API', version: '1.0.0' } });
       const right = refract({ info: { title: 'My API', version: '1.0.0' } });
 
@@ -31,7 +31,7 @@ describe('diffApiDOM', function () {
       assert.strictEqual(overlay.actions?.length, 0);
     });
 
-    specify('should throw OverlayError when onEmptyDiff is throw', function () {
+    specify("should throw OverlayError when onEmptyDiff is 'throw'", function () {
       const left = refract({ info: { title: 'My API', version: '1.0.0' } });
       const right = refract({ info: { title: 'My API', version: '1.0.0' } });
 
