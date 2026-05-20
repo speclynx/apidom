@@ -65,7 +65,7 @@
     "ramda-adjunct": "^6.0.0",
     "unraw": "^3.0.0",
     "web-tree-sitter": "=0.26.8",
-    "yaml": "^2.8.4"
+    "yaml": "^2.9.0"
   },
   "devDependencies": {
     "@types/emscripten": "^1.41.2"
