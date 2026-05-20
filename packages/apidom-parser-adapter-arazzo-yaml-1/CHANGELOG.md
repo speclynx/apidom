@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.10.1](https://github.com/speclynx/apidom/compare/v4.10.0...v4.10.1) (2026-05-20)
+
+**Note:** Version bump only for package @speclynx/apidom-parser-adapter-arazzo-yaml-1
+
 # [4.10.0](https://github.com/speclynx/apidom/compare/v4.9.1...v4.10.0) (2026-05-12)
 
 **Note:** Version bump only for package @speclynx/apidom-parser-adapter-arazzo-yaml-1
