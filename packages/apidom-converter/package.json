@@ -58,14 +58,14 @@
   "author": "Vladimír Gorej",
   "license": "Apache-2.0",
   "dependencies": {
-    "@babel/runtime-corejs3": "^7.28.4",
-    "@speclynx/apidom-error": "*",
+    "@babel/runtime-corejs3": "^7.29.7",
     "@speclynx/apidom-core": "*",
     "@speclynx/apidom-datamodel": "*",
-    "@speclynx/apidom-traverse": "*",
+    "@speclynx/apidom-error": "*",
     "@speclynx/apidom-ns-openapi-3-0": "*",
     "@speclynx/apidom-ns-openapi-3-1": "*",
-    "@speclynx/apidom-reference": "*"
+    "@speclynx/apidom-reference": "*",
+    "@speclynx/apidom-traverse": "*"
   },
   "files": [
     "src/**/*.mjs",
