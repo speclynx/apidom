@@ -62,7 +62,7 @@
     "@speclynx/apidom-datamodel": "4.10.1",
     "@speclynx/apidom-error": "4.10.1",
     "ramda": "~0.32.0",
-    "ramda-adjunct": "^6.0.0",
+    "ramda-adjunct": "^6.1.0",
     "unraw": "^3.0.0",
     "web-tree-sitter": "=0.26.9",
     "yaml": "^2.9.0"

@@ -65,7 +65,7 @@
     "@speclynx/apidom-error": "4.10.1",
     "@speclynx/apidom-json-path": "4.10.1",
     "@speclynx/apidom-json-pointer": "4.10.1",
-    "ramda-adjunct": "^6.0.0"
+    "ramda-adjunct": "^6.1.0"
   },
   "files": [
     "src/**/*.mjs",

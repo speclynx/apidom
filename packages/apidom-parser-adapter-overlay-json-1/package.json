@@ -59,7 +59,7 @@
     "@speclynx/apidom-ns-overlay-1": "4.10.1",
     "@speclynx/apidom-parser-adapter-json": "4.10.1",
     "ramda": "~0.32.0",
-    "ramda-adjunct": "^6.0.0"
+    "ramda-adjunct": "^6.1.0"
   },
   "files": [
     "src/**/*.mjs",
