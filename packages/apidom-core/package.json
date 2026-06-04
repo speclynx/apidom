@@ -61,7 +61,7 @@
     "@speclynx/apidom-error": "4.10.1",
     "@speclynx/apidom-traverse": "4.10.1",
     "ramda": "~0.32.0",
-    "ramda-adjunct": "^6.0.0",
+    "ramda-adjunct": "^6.1.0",
     "short-unique-id": "^5.3.2",
     "ts-mixer": "^6.0.4",
     "yaml": "^2.9.0"
