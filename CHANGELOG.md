@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.11.0](https://github.com/speclynx/apidom/compare/v4.10.1...v4.11.0) (2026-06-10)
+
+### Features
+
+- **traverse:** skipVisited 'enter-only' mode and path.revisited ([#333](https://github.com/speclynx/apidom/issues/333)) ([fe944df](https://github.com/speclynx/apidom/commit/fe944df0eaab437a65d5761e6a3e14d490d2d3d6))
+
 ## [4.10.1](https://github.com/speclynx/apidom/compare/v4.10.0...v4.10.1) (2026-05-20)
 
 ### Features
