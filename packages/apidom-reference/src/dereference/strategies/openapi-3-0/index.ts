@@ -99,7 +99,7 @@ class OpenAPI3_0DereferenceStrategy extends DereferenceStrategy {
     const visitor = new OpenAPI3_0DereferenceVisitor({ reference: reference!, options });
     const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
       mutable: true,
-      ...(shouldDetectCircular && { skipVisited: true }),
+      ...(shouldDetectCircular && { skipVisited: 'skip' as const }),
     });
 
     /**

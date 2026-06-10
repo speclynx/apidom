@@ -105,7 +105,7 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
     const visitor = new Arazzo1DereferenceVisitor({ reference, options });
     const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
       mutable: true,
-      ...(shouldDetectCircular && { skipVisited: true }),
+      ...(shouldDetectCircular && { skipVisited: 'skip' as const }),
     });
 
     /**
