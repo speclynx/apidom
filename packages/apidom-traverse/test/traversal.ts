@@ -398,7 +398,8 @@ describe('traverse', function () {
               }
             },
           },
-          { skipVisited: true },
+          // legacy boolean accepted at runtime for backward compatibility
+          { skipVisited: true as unknown as 'skip' },
         );
 
         // shared node entered once, never revisited

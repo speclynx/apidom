@@ -44,17 +44,20 @@ export interface TraverseOptions<TNode> {
   detectCycles?: boolean;
   /**
    * Controls handling of already-visited nodes (by identity, via a WeakSet).
-   * Defaults to false.
-   * - false / 'never' : no skipping (default).
-   * - true  / 'skip'  : skip the node entirely on re-encounter (no enter/leave, no descent).
-   * - 'enter-only'    : on re-encounter still fire enter/leave, but DO NOT descend into
-   *                     the (already-walked) subtree. Lets visitors observe every
-   *                     occurrence of a shared node while preserving the
-   *                     no-combinatorial-explosion guarantee.
+   * Defaults to 'never'.
+   * - 'never'      : no skipping (default).
+   * - 'skip'       : skip the node entirely on re-encounter (no enter/leave, no descent).
+   * - 'enter-only' : on re-encounter still fire enter/leave, but DO NOT descend into
+   *                  the (already-walked) subtree. Lets visitors observe every
+   *                  occurrence of a shared node while preserving the
+   *                  no-combinatorial-explosion guarantee.
    * Useful for traversing dereferenced trees that contain shared structure
    * from cloneShallow (DAG) which would otherwise cause combinatorial explosion.
+   *
+   * Legacy booleans are still accepted at runtime for backward compatibility:
+   * `false` maps to 'never' and `true` maps to 'skip'.
    */
-  skipVisited?: boolean | 'never' | 'skip' | 'enter-only';
+  skipVisited?: 'never' | 'skip' | 'enter-only';
   /**
    * If true, edits modify the original tree in place.
    * If false (default), creates a new tree with changes applied.
