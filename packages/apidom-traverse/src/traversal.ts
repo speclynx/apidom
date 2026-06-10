@@ -86,11 +86,6 @@ const normalizeSkipVisited = (v: boolean | SkipVisitedMode | undefined): SkipVis
   return v;
 };
 
-// Resolved options as seen by the generator: skipVisited is narrowed to its canonical string.
-type ResolvedTraverseOptions<TNode> = Omit<Required<TraverseOptions<TNode>>, 'skipVisited'> & {
-  skipVisited: SkipVisitedMode;
-};
-
 interface VisitorCall<TNode> {
   visitFn: VisitorFn<TNode>;
   path: Path<TNode>;
@@ -114,7 +109,7 @@ interface TraversalState<TNode> {
 function* traverseGenerator<TNode>(
   root: TNode,
   visitor: object,
-  options: ResolvedTraverseOptions<TNode>,
+  options: Required<TraverseOptions<TNode>>,
 ): Generator<VisitorCall<TNode>, TNode, VisitorResult<TNode>> {
   const {
     keyMap,
@@ -379,7 +374,7 @@ export const traverse = <TNode>(
   visitor: object,
   options: TraverseOptions<TNode> = {},
 ): TNode => {
-  const resolvedOptions: ResolvedTraverseOptions<TNode> = {
+  const resolvedOptions: Required<TraverseOptions<TNode>> = {
     keyMap: options.keyMap ?? (getNodeKeys as (node: TNode) => readonly string[]),
     state: options.state ?? {},
     nodeTypeGetter: options.nodeTypeGetter ?? (getNodeType as (node: TNode) => string | undefined),
@@ -420,7 +415,7 @@ export const traverseAsync = async <TNode>(
   visitor: object,
   options: TraverseOptions<TNode> = {},
 ): Promise<TNode> => {
-  const resolvedOptions: ResolvedTraverseOptions<TNode> = {
+  const resolvedOptions: Required<TraverseOptions<TNode>> = {
     keyMap: options.keyMap ?? (getNodeKeys as (node: TNode) => readonly string[]),
     state: options.state ?? {},
     nodeTypeGetter: options.nodeTypeGetter ?? (getNodeType as (node: TNode) => string | undefined),
