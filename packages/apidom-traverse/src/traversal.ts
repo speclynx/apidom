@@ -12,6 +12,12 @@ import type { VisitorFn, VisitorResult } from './Path.ts';
 import { getNodeType, isNode, cloneNode, mutateNode, getVisitFn, getNodeKeys } from './visitors.ts';
 
 /**
+ * Controls handling of already-visited nodes during traversal.
+ * @public
+ */
+export type SkipVisitedMode = 'never' | 'skip' | 'enter-only';
+
+/**
  * Options for the traverse function.
  * @public
  */
@@ -43,13 +49,21 @@ export interface TraverseOptions<TNode> {
    */
   detectCycles?: boolean;
   /**
-   * Whether to skip already-visited nodes. Defaults to false.
-   * When true, uses a WeakSet to track visited nodes and skips any node
-   * encountered a second time, regardless of the path taken to reach it.
+   * Controls handling of already-visited nodes (by identity, via a WeakSet).
+   * Defaults to 'never'.
+   * - 'never'      : no skipping (default).
+   * - 'skip'       : skip the node entirely on re-encounter (no enter/leave, no descent).
+   * - 'enter-only' : on re-encounter still fire enter/leave, but DO NOT descend into
+   *                  the (already-walked) subtree. Lets visitors observe every
+   *                  occurrence of a shared node while preserving the
+   *                  no-combinatorial-explosion guarantee.
    * Useful for traversing dereferenced trees that contain shared structure
    * from cloneShallow (DAG) which would otherwise cause combinatorial explosion.
+   *
+   * Legacy booleans are still accepted at runtime for backward compatibility:
+   * `false` maps to 'never' and `true` maps to 'skip'.
    */
-  skipVisited?: boolean;
+  skipVisited?: SkipVisitedMode;
   /**
    * If true, edits modify the original tree in place.
    * If false (default), creates a new tree with changes applied.
@@ -66,6 +80,12 @@ export interface TraverseOptions<TNode> {
 // Internal types for generator
 // =============================================================================
 
+const normalizeSkipVisited = (v: boolean | SkipVisitedMode | undefined): SkipVisitedMode => {
+  if (v === true) return 'skip';
+  if (v === false || v === undefined) return 'never';
+  return v;
+};
+
 interface VisitorCall<TNode> {
   visitFn: VisitorFn<TNode>;
   path: Path<TNode>;
@@ -78,6 +98,7 @@ interface TraversalState<TNode> {
   keys: readonly PropertyKey[] | TNode[];
   edits: Array<[PropertyKey, TNode | null]>;
   parentPath: Path<TNode> | null;
+  revisitNoDescend: boolean;
   prev: TraversalState<TNode> | undefined;
 }
 
@@ -102,7 +123,7 @@ function* traverseGenerator<TNode>(
     mutationFn,
   } = options;
   const keyMapIsFunction = typeof keyMap === 'function';
-  const visitedNodes = skipVisited ? new WeakSet<object>() : null;
+  const visitedNodes = skipVisited !== 'never' ? new WeakSet<object>() : null;
 
   let stack: TraversalState<TNode> | undefined;
   let inArray = Array.isArray(root);
@@ -119,6 +140,7 @@ function* traverseGenerator<TNode>(
     index += 1;
     const isLeaving = index === keys.length;
     let key: PropertyKey | undefined;
+    let revisitNoDescend = false;
     const isEdited = isLeaving && edits.length !== 0;
 
     if (isLeaving) {
@@ -163,6 +185,7 @@ function* traverseGenerator<TNode>(
         edits = stack.edits;
         const parentInArray = stack.inArray;
         parentPath = stack.parentPath;
+        revisitNoDescend = stack.revisitNoDescend;
         stack = stack.prev;
 
         // Push the edited node to parent's edits for propagation up the tree
@@ -193,15 +216,22 @@ function* traverseGenerator<TNode>(
       }
 
       // Skip already-visited nodes (handles DAG structures from cloneShallow)
-      if (skipVisited && !isLeaving) {
+      if (skipVisited !== 'never' && !isLeaving) {
         if (visitedNodes!.has(node as object)) {
-          continue;
+          if (skipVisited === 'enter-only') {
+            // fire enter/leave for this occurrence, but don't re-descend
+            revisitNoDescend = true;
+          } else {
+            continue;
+          }
+        } else {
+          visitedNodes!.add(node as object);
         }
-        visitedNodes!.add(node as object);
       }
 
       // Always create Path for the current node (needed for parentPath chain)
       currentPath = new Path<TNode>(node, parent, parentPath, key, inArray);
+      currentPath.revisited = revisitNoDescend;
 
       const visitFn = getVisitFn<TNode>(visitor, nodeTypeGetter(node), isLeaving);
 
@@ -263,9 +293,11 @@ function* traverseGenerator<TNode>(
     }
 
     if (!isLeaving) {
-      stack = { inArray, index, keys, edits, parentPath, prev: stack };
+      stack = { inArray, index, keys, edits, parentPath, revisitNoDescend, prev: stack };
       inArray = Array.isArray(node);
-      if (inArray) {
+      if (revisitNoDescend) {
+        keys = [];
+      } else if (inArray) {
         keys = node as unknown as TNode[];
       } else if (keyMapIsFunction) {
         keys = keyMap(node);
@@ -349,7 +381,7 @@ export const traverse = <TNode>(
     nodePredicate: options.nodePredicate ?? (isNode as (value: unknown) => value is TNode),
     nodeCloneFn: options.nodeCloneFn ?? (cloneNode as (node: TNode) => TNode),
     detectCycles: options.detectCycles ?? true,
-    skipVisited: options.skipVisited ?? false,
+    skipVisited: normalizeSkipVisited(options.skipVisited),
     mutable: options.mutable ?? false,
     mutationFn: options.mutationFn ?? mutateNode,
   };
@@ -390,7 +422,7 @@ export const traverseAsync = async <TNode>(
     nodePredicate: options.nodePredicate ?? (isNode as (value: unknown) => value is TNode),
     nodeCloneFn: options.nodeCloneFn ?? (cloneNode as (node: TNode) => TNode),
     detectCycles: options.detectCycles ?? true,
-    skipVisited: options.skipVisited ?? false,
+    skipVisited: normalizeSkipVisited(options.skipVisited),
     mutable: options.mutable ?? false,
     mutationFn: options.mutationFn ?? mutateNode,
   };

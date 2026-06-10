@@ -306,6 +306,165 @@ describe('traverse', function () {
     });
   });
 
+  context('skipVisited', function () {
+    // Build a DAG: one shared ObjectElement reachable via two members of the root.
+    const buildDag = () => {
+      const shared = new ObjectElement({ shared: 'leaf' });
+      const root = new ObjectElement();
+      root.set('a', shared);
+      root.set('b', shared);
+      return { root, shared };
+    };
+
+    context("given 'enter-only'", function () {
+      specify('should re-fire enter/leave on revisit without descending', function () {
+        const { root, shared } = buildDag();
+        const sharedEnters: boolean[] = [];
+        const sharedLeaves: boolean[] = [];
+        let leafEnters = 0;
+
+        traverse(
+          root,
+          {
+            ObjectElement: {
+              enter(path: Path) {
+                if (path.node === shared) {
+                  sharedEnters.push(path.revisited);
+                }
+              },
+              leave(path: Path) {
+                if (path.node === shared) {
+                  sharedLeaves.push(path.revisited);
+                }
+              },
+            },
+            StringElement(path: Path) {
+              if ((path.node as StringElement).toValue() === 'leaf') {
+                leafEnters += 1;
+              }
+            },
+          },
+          { skipVisited: 'enter-only' },
+        );
+
+        // shared node enters/leaves on both encounters
+        assert.lengthOf(sharedEnters, 2);
+        assert.lengthOf(sharedLeaves, 2);
+        // revisited is false on first encounter, true on second (enter and leave)
+        assert.deepEqual(sharedEnters, [false, true]);
+        assert.deepEqual(sharedLeaves, [false, true]);
+        // children of the shared node are walked only once (no re-descent)
+        assert.strictEqual(leafEnters, 1);
+      });
+
+      specify('should always leave first-visit nodes with revisited=false', function () {
+        const { root } = buildDag();
+        const rootLeaves: boolean[] = [];
+
+        traverse(
+          root,
+          {
+            enter() {},
+            leave(path: Path) {
+              if (path.isRoot()) {
+                rootLeaves.push(path.revisited);
+              }
+            },
+          },
+          { skipVisited: 'enter-only' },
+        );
+
+        assert.deepEqual(rootLeaves, [false]);
+      });
+    });
+
+    context("given true ('skip')", function () {
+      specify('should skip revisited nodes entirely (no enter/leave, no descent)', function () {
+        const { root, shared } = buildDag();
+        let sharedEnters = 0;
+        let leafEnters = 0;
+        const revisitedFlags: boolean[] = [];
+
+        traverse(
+          root,
+          {
+            ObjectElement(path: Path) {
+              revisitedFlags.push(path.revisited);
+              if (path.node === shared) {
+                sharedEnters += 1;
+              }
+            },
+            StringElement(path: Path) {
+              if ((path.node as StringElement).toValue() === 'leaf') {
+                leafEnters += 1;
+              }
+            },
+          },
+          // @ts-expect-error legacy boolean accepted at runtime for backward compatibility
+          { skipVisited: true },
+        );
+
+        // shared node entered once, never revisited
+        assert.strictEqual(sharedEnters, 1);
+        assert.strictEqual(leafEnters, 1);
+        // revisited is inert outside 'enter-only'
+        assert.isTrue(revisitedFlags.every((r) => r === false));
+      });
+    });
+
+    context("given false / omitted ('never')", function () {
+      specify('should visit every occurrence and descend each time', function () {
+        const { root, shared } = buildDag();
+        let sharedEnters = 0;
+        let leafEnters = 0;
+        const revisitedFlags: boolean[] = [];
+
+        traverse(root, {
+          ObjectElement(path: Path) {
+            revisitedFlags.push(path.revisited);
+            if (path.node === shared) {
+              sharedEnters += 1;
+            }
+          },
+          StringElement(path: Path) {
+            if ((path.node as StringElement).toValue() === 'leaf') {
+              leafEnters += 1;
+            }
+          },
+        });
+
+        // both occurrences of the shared node are visited and descended into
+        assert.strictEqual(sharedEnters, 2);
+        assert.strictEqual(leafEnters, 2);
+        // revisited is inert outside 'enter-only'
+        assert.isTrue(revisitedFlags.every((r) => r === false));
+      });
+    });
+
+    context('given false explicitly', function () {
+      specify('should map to never (legacy boolean back-compat)', function () {
+        const { root, shared } = buildDag();
+        let sharedEnters = 0;
+
+        traverse(
+          root,
+          {
+            ObjectElement(path: Path) {
+              if (path.node === shared) {
+                sharedEnters += 1;
+              }
+            },
+          },
+          // @ts-expect-error legacy boolean accepted at runtime for backward compatibility
+          { skipVisited: false },
+        );
+
+        // false behaves as 'never' — both occurrences visited
+        assert.strictEqual(sharedEnters, 2);
+      });
+    });
+  });
+
   context('state injection', function () {
     specify('should inject state into visitor', function () {
       const root = new StringElement('test');

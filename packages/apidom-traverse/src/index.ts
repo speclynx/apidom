@@ -30,7 +30,7 @@ export type {
   MergedVisitorAsync,
 } from './visitors.ts';
 export { traverse, traverseAsync } from './traversal.ts';
-export type { TraverseOptions } from './traversal.ts';
+export type { TraverseOptions, SkipVisitedMode } from './traversal.ts';
 
 // Operations
 export { default as filter } from './operations/filter.ts';

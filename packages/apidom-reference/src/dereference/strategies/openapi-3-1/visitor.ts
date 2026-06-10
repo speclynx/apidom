@@ -391,7 +391,7 @@ class OpenAPI3_1DereferenceVisitor {
         });
         referencedElement = await traverseAsync(referencedElement, visitor, {
           mutable: true,
-          skipVisited: true,
+          skipVisited: 'skip',
         });
 
         directAncestors.delete(referencingElement);
@@ -577,7 +577,7 @@ class OpenAPI3_1DereferenceVisitor {
         });
         referencedElement = await traverseAsync(referencedElement, visitor, {
           mutable: true,
-          skipVisited: true,
+          skipVisited: 'skip',
         });
 
         directAncestors.delete(referencingElement);
@@ -1020,7 +1020,7 @@ class OpenAPI3_1DereferenceVisitor {
         });
         referencedElement = await traverseAsync(referencedElement, visitor, {
           mutable: true,
-          skipVisited: true,
+          skipVisited: 'skip',
         });
 
         directAncestors.delete(referencingElement);

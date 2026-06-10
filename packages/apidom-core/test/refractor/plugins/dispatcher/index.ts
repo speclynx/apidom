@@ -78,7 +78,7 @@ describe('refrator', function () {
           // with skipVisited, shared node is visited once
           visited.length = 0;
           dispatchPluginsSync(objectElement, [plugin], {
-            traverseOptions: { skipVisited: true },
+            traverseOptions: { skipVisited: 'skip' },
           });
           const withSkip = visited.filter((e) => e === 'number').length;
 

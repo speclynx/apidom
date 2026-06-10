@@ -376,7 +376,7 @@ class OpenAPI2DereferenceVisitor {
         });
         referencedElement = await traverseAsync(referencedElement, visitor, {
           mutable: true,
-          skipVisited: true,
+          skipVisited: 'skip',
         });
 
         directAncestors.delete(referencingElement);
@@ -546,7 +546,7 @@ class OpenAPI2DereferenceVisitor {
         });
         referencedElement = await traverseAsync(referencedElement, visitor, {
           mutable: true,
-          skipVisited: true,
+          skipVisited: 'skip',
         });
 
         // remove referencing reference from ancestors lineage
@@ -736,7 +736,7 @@ class OpenAPI2DereferenceVisitor {
         });
         referencedElement = await traverseAsync(referencedElement, visitor, {
           mutable: true,
-          skipVisited: true,
+          skipVisited: 'skip',
         });
 
         // remove referencing reference from ancestors lineage

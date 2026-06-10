@@ -378,7 +378,7 @@ class OpenAPI3_0DereferenceVisitor {
         });
         referencedElement = await traverseAsync(referencedElement, visitor, {
           mutable: true,
-          skipVisited: true,
+          skipVisited: 'skip',
         });
 
         // remove referencing reference from ancestors lineage
@@ -549,7 +549,7 @@ class OpenAPI3_0DereferenceVisitor {
         });
         referencedElement = await traverseAsync(referencedElement, visitor, {
           mutable: true,
-          skipVisited: true,
+          skipVisited: 'skip',
         });
 
         // remove referencing reference from ancestors lineage

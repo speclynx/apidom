@@ -523,7 +523,7 @@ class Arazzo1DereferenceVisitor {
         });
         referencedElement = await traverseAsync(referencedElement, visitor, {
           mutable: true,
-          skipVisited: true,
+          skipVisited: 'skip',
         });
 
         // remove referencing reference from ancestors lineage

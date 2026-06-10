@@ -63,6 +63,14 @@ export class Path<TNode = Element> {
   public readonly inList: boolean;
 
   /**
+   * True when this node is a non-descending revisit of an already-visited node
+   * (only under skipVisited: 'enter-only'). Children are not traversed.
+   * Set on both the enter and the matching leave phase, so it is meaningful
+   * in either phase.
+   */
+  public revisited: boolean = false;
+
+  /**
    * Internal state for traversal control.
    */
   #shouldSkip: boolean = false;
