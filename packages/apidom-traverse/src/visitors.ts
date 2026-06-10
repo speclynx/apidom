@@ -502,11 +502,13 @@ export const mergeVisitorsAsync = <TNode>(
  * @internal
  */
 function createPathProxy<TNode>(originalPath: Path<TNode>, currentNode: TNode): Path<TNode> {
-  return new Path<TNode>(
+  const proxy = new Path<TNode>(
     currentNode,
     originalPath.parent,
     originalPath.parentPath,
     originalPath.key,
     originalPath.inList,
   );
+  proxy.revisited = originalPath.revisited;
+  return proxy;
 }
