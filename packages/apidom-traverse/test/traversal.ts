@@ -383,11 +383,13 @@ describe('traverse', function () {
         const { root, shared } = buildDag();
         let sharedEnters = 0;
         let leafEnters = 0;
+        const revisitedFlags: boolean[] = [];
 
         traverse(
           root,
           {
             ObjectElement(path: Path) {
+              revisitedFlags.push(path.revisited);
               if (path.node === shared) {
                 sharedEnters += 1;
               }
@@ -398,13 +400,15 @@ describe('traverse', function () {
               }
             },
           },
-          // legacy boolean accepted at runtime for backward compatibility
-          { skipVisited: true as unknown as 'skip' },
+          // @ts-expect-error legacy boolean accepted at runtime for backward compatibility
+          { skipVisited: true },
         );
 
         // shared node entered once, never revisited
         assert.strictEqual(sharedEnters, 1);
         assert.strictEqual(leafEnters, 1);
+        // revisited is inert outside 'enter-only'
+        assert.isTrue(revisitedFlags.every((r) => r === false));
       });
     });
 
@@ -413,9 +417,11 @@ describe('traverse', function () {
         const { root, shared } = buildDag();
         let sharedEnters = 0;
         let leafEnters = 0;
+        const revisitedFlags: boolean[] = [];
 
         traverse(root, {
           ObjectElement(path: Path) {
+            revisitedFlags.push(path.revisited);
             if (path.node === shared) {
               sharedEnters += 1;
             }
@@ -430,6 +436,31 @@ describe('traverse', function () {
         // both occurrences of the shared node are visited and descended into
         assert.strictEqual(sharedEnters, 2);
         assert.strictEqual(leafEnters, 2);
+        // revisited is inert outside 'enter-only'
+        assert.isTrue(revisitedFlags.every((r) => r === false));
+      });
+    });
+
+    context('given false explicitly', function () {
+      specify('should map to never (legacy boolean back-compat)', function () {
+        const { root, shared } = buildDag();
+        let sharedEnters = 0;
+
+        traverse(
+          root,
+          {
+            ObjectElement(path: Path) {
+              if (path.node === shared) {
+                sharedEnters += 1;
+              }
+            },
+          },
+          // @ts-expect-error legacy boolean accepted at runtime for backward compatibility
+          { skipVisited: false },
+        );
+
+        // false behaves as 'never' — both occurrences visited
+        assert.strictEqual(sharedEnters, 2);
       });
     });
   });
