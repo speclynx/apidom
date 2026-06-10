@@ -12,6 +12,12 @@ import type { VisitorFn, VisitorResult } from './Path.ts';
 import { getNodeType, isNode, cloneNode, mutateNode, getVisitFn, getNodeKeys } from './visitors.ts';
 
 /**
+ * Controls handling of already-visited nodes during traversal.
+ * @public
+ */
+export type SkipVisitedMode = 'never' | 'skip' | 'enter-only';
+
+/**
  * Options for the traverse function.
  * @public
  */
@@ -57,7 +63,7 @@ export interface TraverseOptions<TNode> {
    * Legacy booleans are still accepted at runtime for backward compatibility:
    * `false` maps to 'never' and `true` maps to 'skip'.
    */
-  skipVisited?: 'never' | 'skip' | 'enter-only';
+  skipVisited?: SkipVisitedMode;
   /**
    * If true, edits modify the original tree in place.
    * If false (default), creates a new tree with changes applied.
@@ -73,8 +79,6 @@ export interface TraverseOptions<TNode> {
 // =============================================================================
 // Internal types for generator
 // =============================================================================
-
-type SkipVisitedMode = 'never' | 'skip' | 'enter-only';
 
 const normalizeSkipVisited = (v: boolean | SkipVisitedMode | undefined): SkipVisitedMode => {
   if (v === true) return 'skip';
