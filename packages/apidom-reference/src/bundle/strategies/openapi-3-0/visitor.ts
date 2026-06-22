@@ -10,7 +10,7 @@ import {
   cloneDeep,
   cloneShallow,
 } from '@speclynx/apidom-datamodel';
-import { toValue, toYAML } from '@speclynx/apidom-core';
+import { toValue, toYAML, fixedFields } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 import { traverse, traverseAsync, type Path } from '@speclynx/apidom-traverse';
 import { evaluate, escape, unescape, URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
@@ -45,17 +45,20 @@ import type {
 /**
  * Maps the `referenced-element` meta value (set during refraction) to the
  * Components Object field where the referenced element should be hoisted.
+ * Field names are sourced from the Components Object fixed fields so they
+ * cannot drift from the namespace definition.
  */
+const cf = fixedFields(ComponentsElement, { indexed: true });
 const componentFieldByReferencedElement: Record<string, string> = {
-  schema: 'schemas',
-  response: 'responses',
-  parameter: 'parameters',
-  example: 'examples',
-  requestBody: 'requestBodies',
-  header: 'headers',
-  securityScheme: 'securitySchemes',
-  link: 'links',
-  callback: 'callbacks',
+  schema: cf.schemas.name,
+  response: cf.responses.name,
+  parameter: cf.parameters.name,
+  example: cf.examples.name,
+  requestBody: cf.requestBodies.name,
+  header: cf.headers.name,
+  securityScheme: cf.securitySchemes.name,
+  link: cf.links.name,
+  callback: cf.callbacks.name,
 };
 
 /**
