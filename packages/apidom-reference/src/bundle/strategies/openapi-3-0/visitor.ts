@@ -225,11 +225,12 @@ class OpenAPI3_0BundleVisitor {
     refFieldValue: string,
     visitorPath: Path<Element>,
   ): void {
-    // BundleError (a maxDepth breach or a collision reported as `error`) is a
-    // deliberate stop, not a resolution failure — pass it through unchanged
-    // rather than wrapping it as UnresolvableReferenceError or swallowing it
-    // via continueOnError.
-    if (error instanceof BundleError) {
+    // a collision reported as `error` is a deliberate hard stop with no
+    // resolution-failure analog, so pass it through unchanged. A maxDepth
+    // breach (MaximumBundleDepthError, which also extends BundleError) is a
+    // resolution failure and flows through below — wrapped and subject to
+    // continueOnError, like dereferencing.
+    if (error instanceof BundleError && !(error instanceof MaximumBundleDepthError)) {
       throw error;
     }
 
