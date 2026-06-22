@@ -13,7 +13,6 @@ import ReferenceSet from '../../../ReferenceSet.ts';
 import * as url from '../../../util/url.ts';
 import BundleStrategy, { BundleStrategyOptions } from '../BundleStrategy.ts';
 import OpenAPI3_0BundleVisitor from './visitor.ts';
-import type { ComponentNamesStrategy, ComponentNameCollisionSeverity } from './visitor.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 
 export type {
@@ -44,46 +43,19 @@ export type {
   ComponentNameResolver,
   ComponentNameResolverArgs,
   ComponentNameCollisionSeverity,
-} from './visitor.ts';
+} from '../../../options/index.ts';
 
 /**
  * @public
  */
-export interface OpenAPI3_0BundleStrategyOptions extends Omit<BundleStrategyOptions, 'name'> {
-  /**
-   * Determines how hoisted components are named.
-   *
-   * `basename` (default) - derive the name from the referenced JSON Pointer
-   *   (its last token), falling back to the referenced file's basename.
-   * `title` - derive Schema Object names from their `title` field, falling
-   *   back to `basename` when no usable title is present.
-   * A custom resolver function - receives the referenced element and reference
-   *   context and returns the base name; collision suffixing is still applied.
-   */
-  readonly componentNamesStrategy?: ComponentNamesStrategy;
-  /**
-   * Determines how a component rename forced by a name collision with
-   * different content is reported.
-   *
-   * `warn` (default) - append a warning annotation to the parse result.
-   * `off` - rename silently.
-   * `error` - throw a BundleError instead of renaming.
-   */
-  readonly onComponentNameCollision?: ComponentNameCollisionSeverity;
-}
+export interface OpenAPI3_0BundleStrategyOptions extends Omit<BundleStrategyOptions, 'name'> {}
 
 /**
  * @public
  */
 class OpenAPI3_0BundleStrategy extends BundleStrategy {
-  protected readonly componentNamesStrategy: ComponentNamesStrategy;
-
-  protected readonly onComponentNameCollision: ComponentNameCollisionSeverity;
-
   constructor(options?: OpenAPI3_0BundleStrategyOptions) {
     super({ ...(options ?? {}), name: 'openapi-3-0' });
-    this.componentNamesStrategy = options?.componentNamesStrategy ?? 'basename';
-    this.onComponentNameCollision = options?.onComponentNameCollision ?? 'warn';
   }
 
   canBundle(file: File): boolean {
@@ -97,46 +69,72 @@ class OpenAPI3_0BundleStrategy extends BundleStrategy {
   }
 
   async bundle(file: File, options: ReferenceOptions): Promise<ParseResultElement> {
-    const refSet = options.bundle.refSet ?? new ReferenceSet();
-
-    // own a copy of the entry document so the original parse result is left intact
-    const bundledParseResult = cloneDeep(file.parseResult!) as ParseResultElement;
+    const immutableRefSet = options.bundle.refSet ?? new ReferenceSet();
+    const mutableRefSet = new ReferenceSet();
+    let refSet = immutableRefSet;
     let reference;
-    if (!refSet.has(file.uri)) {
-      reference = new Reference({ uri: file.uri, value: bundledParseResult });
-      refSet.add(reference);
+
+    // determine the initial reference
+    if (!immutableRefSet.has(file.uri)) {
+      reference = new Reference({ uri: file.uri, value: file.parseResult! });
+      immutableRefSet.add(reference);
     } else {
-      reference = refSet.find((ref) => ref.uri === file.uri)!;
+      // pre-computed refSet was provided as configuration option
+      reference = immutableRefSet.find((ref) => ref.uri === file.uri);
+    }
+
+    /**
+     * Clone refSet due the bundling process being mutable.
+     * We don't want to mutate the original refSet and the references.
+     */
+    if (options.bundle.immutable) {
+      immutableRefSet.refs
+        .map((ref) => new Reference({ ...ref, value: cloneDeep(ref.value) }))
+        .forEach((ref) => mutableRefSet.add(ref));
+      reference = mutableRefSet.find((ref) => ref.uri === file.uri);
+      refSet = mutableRefSet;
     }
 
     const entryURI = url.stripHash(file.uri);
-    const entryResult = (reference.value as ParseResultElement).result as Element;
+    const entryResult = (reference!.value as ParseResultElement).result as Element;
+
+    // strategy specific options take precedence over the top-level bundle options
+    const strategyOpts = options.bundle.strategyOpts['openapi-3-0'] ?? {};
+    const componentNamesStrategy =
+      strategyOpts.componentNamesStrategy ?? options.bundle.componentNamesStrategy;
+    const onComponentNameCollision =
+      strategyOpts.onComponentNameCollision ?? options.bundle.onComponentNameCollision;
 
     const annotations: AnnotationElement[] = [];
     const visitor = new OpenAPI3_0BundleVisitor({
-      reference,
+      reference: reference!,
       options,
       entryURI,
       entryResult,
-      componentNamesStrategy: this.componentNamesStrategy,
-      onComponentNameCollision: this.onComponentNameCollision,
+      componentNamesStrategy,
+      onComponentNameCollision,
       annotations,
     });
-    await traverseAsync((reference.value as ParseResultElement).result as Element, visitor, {
+    await traverseAsync(refSet.rootRef!.value, visitor, {
       mutable: true,
     });
 
     // surface bundling diagnostics as annotations on the parse result. appended
     // (never prepended) so the result element stays ahead of annotations.
-    const parseResult = reference.value as ParseResultElement;
+    const parseResult = reference!.value as ParseResultElement;
     annotations.forEach((annotation) => {
       (parseResult.content as Element[]).push(annotation);
     });
 
-    // release memory if this refSet was not provided as a configuration option
+    /**
+     * Release all memory if this refSet was not provided as a configuration option.
+     * If provided as configuration option, then provider is responsible for cleanup.
+     */
     if (options.bundle.refSet === null) {
-      refSet.clean();
+      immutableRefSet.clean();
     }
+
+    mutableRefSet.clean();
 
     return parseResult;
   }

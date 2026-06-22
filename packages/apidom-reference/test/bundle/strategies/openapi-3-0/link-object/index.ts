@@ -4,6 +4,7 @@ import { assert } from 'chai';
 import { toValue } from '@speclynx/apidom-core';
 import { Element } from '@speclynx/apidom-datamodel';
 import { mediaTypes } from '@speclynx/apidom-ns-openapi-3-0';
+import { evaluate } from '@speclynx/apidom-json-pointer';
 
 import { bundle } from '../../../../../src/index.ts';
 
@@ -22,8 +23,9 @@ describe('bundle', function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const operationRef = toValue(bundled.result as Element).components.links.link1
-              .operationRef as string;
+            const operationRef = toValue(
+              evaluate(bundled.result as Element, '/components/links/link1/operationRef'),
+            ) as string;
 
             assert.isFalse(operationRef.startsWith('./'));
             assert.include(operationRef, 'ex.json#/paths/~1things/get');
@@ -33,7 +35,9 @@ describe('bundle', function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const link1 = toValue(bundled.result as Element).components.links.link1;
+            const link1 = toValue(
+              evaluate(bundled.result as Element, '/components/links/link1'),
+            ) as object;
 
             assert.hasAllKeys(link1, ['operationRef']);
           });
@@ -47,8 +51,9 @@ describe('bundle', function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const operationRef = toValue(bundled.result as Element).components.links.link1
-              .operationRef as string;
+            const operationRef = toValue(
+              evaluate(bundled.result as Element, '/components/links/link1/operationRef'),
+            ) as string;
 
             assert.strictEqual(operationRef, '#/paths/~1things/get');
           });

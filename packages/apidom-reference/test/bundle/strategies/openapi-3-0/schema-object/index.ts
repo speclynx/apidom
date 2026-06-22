@@ -4,9 +4,10 @@ import { assert } from 'chai';
 import { toValue } from '@speclynx/apidom-core';
 import { Element } from '@speclynx/apidom-datamodel';
 import { mediaTypes } from '@speclynx/apidom-ns-openapi-3-0';
+import { evaluate } from '@speclynx/apidom-json-pointer';
 
 import { bundle } from '../../../../../src/index.ts';
-import OpenAPI3_0BundleStrategy from '../../../../../src/bundle/strategies/openapi-3-0/index.ts';
+import type { ComponentNameResolverArgs } from '../../../../../src/options/index.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootFixturePath = path.join(__dirname, 'fixtures');
@@ -23,15 +24,20 @@ describe('bundle', function () {
             specify('should name the hoisted schema from its title', async function () {
               const bundled = await bundle(rootFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
-                bundle: {
-                  strategies: [new OpenAPI3_0BundleStrategy({ componentNamesStrategy: 'title' })],
-                },
+                bundle: { componentNamesStrategy: 'title' },
               });
-              const value = toValue(bundled.result as Element);
 
-              assert.property(value.components.schemas, 'PetModel');
+              assert.property(
+                toValue(evaluate(bundled.result as Element, '/components/schemas')) as object,
+                'PetModel',
+              );
               assert.strictEqual(
-                value.paths['/pets'].get.responses['200'].content['application/json'].schema.$ref,
+                toValue(
+                  evaluate(
+                    bundled.result as Element,
+                    '/paths/~1pets/get/responses/200/content/application~1json/schema/$ref',
+                  ),
+                ),
                 '#/components/schemas/PetModel',
               );
             });
@@ -42,16 +48,15 @@ describe('bundle', function () {
               const bundled = await bundle(rootFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
                 bundle: {
-                  strategies: [
-                    new OpenAPI3_0BundleStrategy({
-                      componentNamesStrategy: ({ field }) => `Custom_${field}`,
-                    }),
-                  ],
+                  componentNamesStrategy: ({ field }: ComponentNameResolverArgs) =>
+                    `Custom_${field}`,
                 },
               });
-              const value = toValue(bundled.result as Element);
 
-              assert.property(value.components.schemas, 'Custom_schemas');
+              assert.property(
+                toValue(evaluate(bundled.result as Element, '/components/schemas')) as object,
+                'Custom_schemas',
+              );
             });
           });
 
@@ -60,9 +65,11 @@ describe('bundle', function () {
               const bundled = await bundle(rootFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
               });
-              const value = toValue(bundled.result as Element);
 
-              assert.property(value.components.schemas, 'petDefinition');
+              assert.property(
+                toValue(evaluate(bundled.result as Element, '/components/schemas')) as object,
+                'petDefinition',
+              );
             });
           });
 
@@ -71,13 +78,13 @@ describe('bundle', function () {
               const fallbackFilePath = path.join(rootFixturePath, 'title-fallback', 'root.json');
               const bundled = await bundle(fallbackFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
-                bundle: {
-                  strategies: [new OpenAPI3_0BundleStrategy({ componentNamesStrategy: 'title' })],
-                },
+                bundle: { componentNamesStrategy: 'title' },
               });
-              const value = toValue(bundled.result as Element);
 
-              assert.property(value.components.schemas, 'untitledSchema');
+              assert.property(
+                toValue(evaluate(bundled.result as Element, '/components/schemas')) as object,
+                'untitledSchema',
+              );
             });
           });
 
@@ -86,13 +93,13 @@ describe('bundle', function () {
               const sanitizeFilePath = path.join(rootFixturePath, 'title-sanitize', 'root.json');
               const bundled = await bundle(sanitizeFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
-                bundle: {
-                  strategies: [new OpenAPI3_0BundleStrategy({ componentNamesStrategy: 'title' })],
-                },
+                bundle: { componentNamesStrategy: 'title' },
               });
-              const value = toValue(bundled.result as Element);
 
-              assert.property(value.components.schemas, 'Pet-Model-v2');
+              assert.property(
+                toValue(evaluate(bundled.result as Element, '/components/schemas')) as object,
+                'Pet-Model-v2',
+              );
             });
           });
 
@@ -101,13 +108,13 @@ describe('bundle', function () {
               const collisionFilePath = path.join(rootFixturePath, 'title-collision', 'root.json');
               const bundled = await bundle(collisionFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
-                bundle: {
-                  strategies: [new OpenAPI3_0BundleStrategy({ componentNamesStrategy: 'title' })],
-                },
+                bundle: { componentNamesStrategy: 'title' },
               });
-              const value = toValue(bundled.result as Element);
 
-              assert.hasAllKeys(value.components.schemas, ['SharedTitle', 'SharedTitle-2']);
+              assert.hasAllKeys(
+                toValue(evaluate(bundled.result as Element, '/components/schemas')) as object,
+                ['SharedTitle', 'SharedTitle-2'],
+              );
               assert.lengthOf(bundled.warnings, 1);
             });
           });
@@ -123,15 +130,23 @@ describe('bundle', function () {
               const bundled = await bundle(rootFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
               });
-              const value = toValue(bundled.result as Element);
-              const schema =
-                value.paths['/a'].get.responses['200'].content['application/json'].schema;
 
-              assert.deepEqual(schema.properties, {
-                $ref: { type: 'string' },
-                externalValue: { type: 'string' },
-              });
-              assert.notProperty(value, 'components');
+              assert.deepEqual(
+                toValue(
+                  evaluate(
+                    bundled.result as Element,
+                    '/paths/~1a/get/responses/200/content/application~1json/schema/properties',
+                  ),
+                ),
+                {
+                  $ref: { type: 'string' },
+                  externalValue: { type: 'string' },
+                },
+              );
+              assert.notProperty(
+                toValue(evaluate(bundled.result as Element, '')) as object,
+                'components',
+              );
             });
           },
         );

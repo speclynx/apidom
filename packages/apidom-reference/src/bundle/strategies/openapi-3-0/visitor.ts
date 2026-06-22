@@ -34,7 +34,11 @@ import * as url from '../../../util/url.ts';
 import parse from '../../../parse/index.ts';
 import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
-import type { ReferenceOptions } from '../../../options/index.ts';
+import type {
+  ReferenceOptions,
+  ComponentNamesStrategy,
+  ComponentNameCollisionSeverity,
+} from '../../../options/index.ts';
 
 /**
  * Maps the `referenced-element` meta value (set during refraction) to the
@@ -77,40 +81,6 @@ interface HoistedComponent {
 /**
  * @public
  */
-/**
- * Context passed to a custom component-name resolver.
- *
- * @public
- */
-export interface ComponentNameResolverArgs {
-  /** The refracted element being hoisted. */
-  readonly element: Element;
-  /** The Components Object field the element is hoisted into (e.g. `schemas`). */
-  readonly field: string;
-  /** The JSON Pointer of the referenced fragment within its document. */
-  readonly jsonPointer: string;
-  /** The base URI (without hash) of the referenced document. */
-  readonly baseURI: string;
-}
-
-/**
- * @public
- */
-export type ComponentNameResolver = (args: ComponentNameResolverArgs) => string;
-
-/**
- * @public
- */
-export type ComponentNamesStrategy = 'basename' | 'title' | ComponentNameResolver;
-
-/**
- * @public
- */
-export type ComponentNameCollisionSeverity = 'off' | 'warn' | 'error';
-
-/**
- * @public
- */
 export interface OpenAPI3_0BundleVisitorOptions {
   readonly reference: Reference;
   readonly options: ReferenceOptions;
@@ -121,7 +91,7 @@ export interface OpenAPI3_0BundleVisitorOptions {
   readonly assignments?: Map<string, Assignment>;
   readonly hoisted?: Map<string, HoistedComponent[]>;
   readonly annotations?: AnnotationElement[];
-  readonly refractCache?: WeakMap<Element, Element>;
+  readonly refractCache?: WeakMap<Element, Map<string, Element>>;
   readonly inlineStack?: Set<string>;
 }
 
@@ -176,7 +146,13 @@ class OpenAPI3_0BundleVisitor {
    */
   protected readonly annotations: AnnotationElement[];
 
-  protected readonly refractCache: WeakMap<Element, Element>;
+  /**
+   * Caches refracted fragments keyed by source element and target element type.
+   * The type is part of the key because the same source can be refracted into
+   * different semantic elements depending on the referencing context (e.g. a
+   * generic object referenced once as a Parameter and once as a Response).
+   */
+  protected readonly refractCache: WeakMap<Element, Map<string, Element>>;
 
   /**
    * Canonical URIs of Path Item Objects currently being inlined. Path Items
@@ -210,6 +186,19 @@ class OpenAPI3_0BundleVisitor {
     this.hoisted = hoisted;
     this.annotations = annotations;
     this.refractCache = refractCache;
+  }
+
+  protected getRefracted(source: Element, type: string): Element | undefined {
+    return this.refractCache.get(source)?.get(type);
+  }
+
+  protected setRefracted(source: Element, type: string, refracted: Element): void {
+    let byType = this.refractCache.get(source);
+    if (byType === undefined) {
+      byType = new Map<string, Element>();
+      this.refractCache.set(source, byType);
+    }
+    byType.set(type, refracted);
   }
 
   protected toBaseURI(uri: string): string {
@@ -384,7 +373,15 @@ class OpenAPI3_0BundleVisitor {
 
     const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
     const jsonPointer = URIFragmentIdentifier.fromURIReference($refBaseURI);
-    const canonicalKey = `${retrievalURI}#${jsonPointer}`;
+
+    // the target bucket depends on the referencing context, so it's part of the
+    // identity: the same external target referenced as e.g. both a parameter and
+    // a response must be hoisted into both components fields.
+    const referencedElementType = referencingElement.meta.get('referenced-element') as string;
+    const field =
+      componentFieldByReferencedElement[referencedElementType] ??
+      componentFieldByReferencedElement.schema;
+    const canonicalKey = `${field}\t${retrievalURI}#${jsonPointer}`;
 
     // already hoisted (or being hoisted) — just rewrite the pointer
     if (this.assignments.has(canonicalKey)) {
@@ -402,28 +399,24 @@ class OpenAPI3_0BundleVisitor {
     );
 
     // apply semantics to the fragment so nested references become Reference Objects
-    const referencedElementType = referencingElement.meta.get('referenced-element') as string;
     if (
       referencedElement.element !== referencedElementType &&
       !isReferenceElement(referencedElement)
     ) {
-      if (this.refractCache.has(referencedElement)) {
-        referencedElement = this.refractCache.get(referencedElement)!;
+      const cached = this.getRefracted(referencedElement, referencedElementType);
+      if (cached !== undefined) {
+        referencedElement = cached;
       } else if (isReferenceLikeElement(referencedElement)) {
         const sourceElement = referencedElement;
         referencedElement = refractReference(referencedElement);
         referencedElement.meta.set('referenced-element', referencedElementType);
-        this.refractCache.set(sourceElement, referencedElement);
+        this.setRefracted(sourceElement, referencedElementType, referencedElement);
       } else {
         const sourceElement = referencedElement;
         referencedElement = refract(referencedElement, { element: referencedElementType });
-        this.refractCache.set(sourceElement, referencedElement);
+        this.setRefracted(sourceElement, referencedElementType, referencedElement);
       }
     }
-
-    const field =
-      componentFieldByReferencedElement[referencedElementType] ??
-      componentFieldByReferencedElement.schema;
 
     // collapse references whose targets are deeply equal into one component.
     // the pre-bundle value is compared: bundling rewrites refs deterministically,
@@ -556,12 +549,13 @@ class OpenAPI3_0BundleVisitor {
 
     // apply Path Item semantics to the referenced fragment
     if (!isPathItemElement(referencedElement)) {
-      if (this.refractCache.has(referencedElement)) {
-        referencedElement = this.refractCache.get(referencedElement)!;
+      const cached = this.getRefracted(referencedElement, 'pathItem');
+      if (cached !== undefined) {
+        referencedElement = cached;
       } else {
         const sourceElement = referencedElement;
         referencedElement = refractPathItem(referencedElement);
-        this.refractCache.set(sourceElement, referencedElement);
+        this.setRefracted(sourceElement, 'pathItem', referencedElement);
       }
     }
 

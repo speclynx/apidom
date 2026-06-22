@@ -1,5 +1,7 @@
 {
   "paths": {
-    "/things": { "get": { "operationId": "getThings", "responses": { "200": { "description": "ok" } } } }
+    "/things": {
+      "get": { "operationId": "getThings", "responses": { "200": { "description": "ok" } } }
+    }
   }
 }

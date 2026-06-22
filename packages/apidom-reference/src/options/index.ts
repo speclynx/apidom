@@ -1,5 +1,5 @@
 import { identity } from 'ramda';
-import type { RefElement } from '@speclynx/apidom-datamodel';
+import type { RefElement, Element } from '@speclynx/apidom-datamodel';
 
 import type Parser from '../parse/parsers/Parser.ts';
 import type Resolver from '../resolve/resolvers/Resolver.ts';
@@ -47,12 +47,47 @@ export interface ReferenceDereferenceOptions {
 }
 
 /**
+ * Context passed to a custom component-name resolver.
+ *
+ * @public
+ */
+export interface ComponentNameResolverArgs {
+  /** The refracted element being hoisted. */
+  readonly element: Element;
+  /** The Components Object field the element is hoisted into (e.g. `schemas`). */
+  readonly field: string;
+  /** The JSON Pointer of the referenced fragment within its document. */
+  readonly jsonPointer: string;
+  /** The base URI (without hash) of the referenced document. */
+  readonly baseURI: string;
+}
+
+/**
+ * @public
+ */
+export type ComponentNameResolver = (args: ComponentNameResolverArgs) => string;
+
+/**
+ * @public
+ */
+export type ComponentNamesStrategy = 'basename' | 'title' | ComponentNameResolver;
+
+/**
+ * @public
+ */
+export type ComponentNameCollisionSeverity = 'off' | 'warn' | 'error';
+
+/**
  * @public
  */
 export interface ReferenceBundleOptions {
   strategies: Array<BundleStrategy>;
+  strategyOpts: Record<string, any>;
   refSet: null | ReferenceSet;
   maxDepth: number;
+  immutable: boolean;
+  componentNamesStrategy: ComponentNamesStrategy;
+  onComponentNameCollision: ComponentNameCollisionSeverity;
 }
 
 /**
@@ -215,6 +250,13 @@ const defaultOptions: ReferenceOptions = {
      */
     strategies: [],
     /**
+     * Determines strategy specific options. The key is the name of the strategy
+     * (e.g. `openapi-3-0`) and the value is an object of options specific to
+     * that strategy. Strategy specific options take precedence over the
+     * top-level bundle options.
+     */
+    strategyOpts: {},
+    /**
      * This option accepts an instance of pre-computed ReferenceSet.
      * If provided it will speed up the bundling significantly as the external
      * resolution doesn't need to happen anymore.
@@ -233,6 +275,35 @@ const defaultOptions: ReferenceOptions = {
      * is exceeded by this option.
      */
     maxDepth: +Infinity,
+    /**
+     * Determines whether the bundling process will be immutable.
+     * By default, the bundling process is immutable, which means that the original
+     * ApiDOM (and any pre-computed refSet) is not mutated and a deep clone is bundled.
+     *
+     * true - the bundling process is immutable (deep cloning of ApiDOM is involved)
+     * false - the bundling process is mutable (no deep cloning, faster, mutates input)
+     */
+    immutable: true,
+    /**
+     * Determines how hoisted components are named.
+     *
+     * `basename` (default) - derive the name from the referenced JSON Pointer
+     *   (its last token), falling back to the referenced file's basename.
+     * `title` - derive Schema Object names from their `title` field, falling
+     *   back to `basename` when no usable title is present.
+     * A custom resolver function - receives the referenced element and reference
+     *   context and returns the base name; collision suffixing is still applied.
+     */
+    componentNamesStrategy: 'basename',
+    /**
+     * Determines how a component rename forced by a name collision with
+     * different content is reported.
+     *
+     * `warn` (default) - append a warning annotation to the parse result.
+     * `off` - rename silently.
+     * `error` - throw a BundleError instead of renaming.
+     */
+    onComponentNameCollision: 'warn',
   },
 };
 

@@ -2,12 +2,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert } from 'chai';
 import { toValue } from '@speclynx/apidom-core';
-import { Element, isParseResultElement } from '@speclynx/apidom-datamodel';
+import { Element, ParseResultElement, isParseResultElement } from '@speclynx/apidom-datamodel';
 import { mediaTypes } from '@speclynx/apidom-ns-openapi-3-0';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 
-import { bundle } from '../../../../../src/index.ts';
-import OpenAPI3_0BundleStrategy from '../../../../../src/bundle/strategies/openapi-3-0/index.ts';
+import { bundle, resolve } from '../../../../../src/index.ts';
+import MaximumBundleDepthError from '../../../../../src/errors/MaximumBundleDepthError.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootFixturePath = path.join(__dirname, 'fixtures');
@@ -32,48 +32,79 @@ describe('bundle', function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const fragment = evaluate<Element>(
-              bundled.result as Element,
-              '/components/parameters/externalParameter',
-            );
 
-            assert.strictEqual(toValue(fragment).name, 'filter');
+            assert.strictEqual(
+              toValue(
+                evaluate(
+                  bundled.result as Element,
+                  '/components/parameters/externalParameter/name',
+                ),
+              ),
+              'filter',
+            );
           });
 
           specify('should hoist external Response Object into components', async function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
+
+            assert.strictEqual(
+              toValue(
+                evaluate(
+                  bundled.result as Element,
+                  '/components/responses/externalResponse/description',
+                ),
+              ),
+              'external response',
+            );
+          });
+
+          specify('should annotate hoisted components with their origin', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
             const fragment = evaluate<Element>(
               bundled.result as Element,
-              '/components/responses/externalResponse',
+              '/components/parameters/externalParameter',
             );
 
-            assert.strictEqual(toValue(fragment).description, 'external response');
+            assert.match(toValue(fragment.meta.get('ref-origin')) as string, /ex\.json$/);
           });
 
           specify('should rewrite external $refs to internal pointers', async function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const value = toValue(bundled.result as Element);
 
-            assert.deepEqual(value.paths['/users/{userId}'].get.parameters, [
-              { $ref: '#/components/parameters/userId' },
-              { $ref: '#/components/parameters/externalParameter' },
-            ]);
-            assert.deepEqual(value.paths['/users/{userId}'].get.responses['200'], {
-              $ref: '#/components/responses/externalResponse',
-            });
+            assert.deepEqual(
+              toValue(
+                evaluate(bundled.result as Element, '/paths/~1users~1{userId}/get/parameters'),
+              ),
+              [
+                { $ref: '#/components/parameters/userId' },
+                { $ref: '#/components/parameters/externalParameter' },
+              ],
+            );
+            assert.deepEqual(
+              toValue(
+                evaluate(bundled.result as Element, '/paths/~1users~1{userId}/get/responses/200'),
+              ),
+              {
+                $ref: '#/components/responses/externalResponse',
+              },
+            );
           });
 
           specify('should preserve internal Reference Objects untouched', async function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const value = toValue(bundled.result as Element);
 
-            assert.strictEqual(value.components.parameters.userId.name, 'userId');
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/components/parameters/userId/name')),
+              'userId',
+            );
           });
 
           specify('should produce a document without external $refs', async function () {
@@ -102,11 +133,15 @@ describe('bundle', function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const value = toValue(bundled.result as Element);
 
-            assert.deepEqual(value.paths['/users/{userId}'].get.parameters[0], {
-              $ref: '#/components/parameters/userId',
-            });
+            assert.deepEqual(
+              toValue(
+                evaluate(bundled.result as Element, '/paths/~1users~1{userId}/get/parameters/0'),
+              ),
+              {
+                $ref: '#/components/parameters/userId',
+              },
+            );
           });
         });
 
@@ -118,11 +153,13 @@ describe('bundle', function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const value = toValue(bundled.result as Element);
 
-            assert.deepEqual(value.paths['/users'].get.parameters[0], {
-              $ref: '#/components/parameters/userId',
-            });
+            assert.deepEqual(
+              toValue(evaluate(bundled.result as Element, '/paths/~1users/get/parameters/0')),
+              {
+                $ref: '#/components/parameters/userId',
+              },
+            );
           });
 
           specify('should produce a transferable document', async function () {
@@ -143,20 +180,23 @@ describe('bundle', function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const value = toValue(bundled.result as Element);
 
-            assert.lengthOf(Object.keys(value.components.parameters), 1);
+            assert.lengthOf(
+              Object.keys(
+                toValue(evaluate(bundled.result as Element, '/components/parameters')) as object,
+              ),
+              1,
+            );
           });
 
           specify('should point both references at the same component', async function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const value = toValue(bundled.result as Element);
 
             assert.strictEqual(
-              value.paths['/a'].get.parameters[0].$ref,
-              value.paths['/b'].get.parameters[0].$ref,
+              toValue(evaluate(bundled.result as Element, '/paths/~1a/get/parameters/0/$ref')),
+              toValue(evaluate(bundled.result as Element, '/paths/~1b/get/parameters/0/$ref')),
             );
           });
         });
@@ -169,12 +209,16 @@ describe('bundle', function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const value = toValue(bundled.result as Element);
 
-            assert.lengthOf(Object.keys(value.components.parameters), 2);
+            assert.lengthOf(
+              Object.keys(
+                toValue(evaluate(bundled.result as Element, '/components/parameters')) as object,
+              ),
+              2,
+            );
             assert.notStrictEqual(
-              value.paths['/a'].get.parameters[0].$ref,
-              value.paths['/b'].get.parameters[0].$ref,
+              toValue(evaluate(bundled.result as Element, '/paths/~1a/get/parameters/0/$ref')),
+              toValue(evaluate(bundled.result as Element, '/paths/~1b/get/parameters/0/$ref')),
             );
           });
 
@@ -192,9 +236,7 @@ describe('bundle', function () {
             async function () {
               const bundled = await bundle(rootFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
-                bundle: {
-                  strategies: [new OpenAPI3_0BundleStrategy({ onComponentNameCollision: 'off' })],
-                },
+                bundle: { onComponentNameCollision: 'off' },
               });
 
               assert.lengthOf(bundled.warnings, 0);
@@ -205,15 +247,25 @@ describe('bundle', function () {
             try {
               await bundle(rootFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
-                bundle: {
-                  strategies: [new OpenAPI3_0BundleStrategy({ onComponentNameCollision: 'error' })],
-                },
+                bundle: { onComponentNameCollision: 'error' },
               });
               assert.fail('should have thrown');
-            } catch (error: any) {
-              assert.strictEqual(error.constructor.name, 'BundleError');
+            } catch (error) {
+              assert.strictEqual((error as Error).constructor.name, 'BundleError');
             }
           });
+
+          specify(
+            'should support per-strategy override via bundle.strategyOpts',
+            async function () {
+              const bundled = await bundle(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                bundle: { strategyOpts: { 'openapi-3-0': { onComponentNameCollision: 'off' } } },
+              });
+
+              assert.lengthOf(bundled.warnings, 0);
+            },
+          );
         });
 
         context('given an external reference with a dotted JSON Pointer key', function () {
@@ -224,11 +276,18 @@ describe('bundle', function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const value = toValue(bundled.result as Element);
 
-            assert.property(value.components.schemas, 'my.org.User');
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/schemas')) as object,
+              'my.org.User',
+            );
             assert.strictEqual(
-              value.paths['/a'].get.responses['200'].content['application/json'].schema.$ref,
+              toValue(
+                evaluate(
+                  bundled.result as Element,
+                  '/paths/~1a/get/responses/200/content/application~1json/schema/$ref',
+                ),
+              ),
               '#/components/schemas/my.org.User',
             );
           });
@@ -269,23 +328,30 @@ describe('bundle', function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const value = toValue(bundled.result as Element);
 
-            assert.hasAllKeys(value.components.schemas, ['A', 'B']);
+            assert.hasAllKeys(
+              toValue(evaluate(bundled.result as Element, '/components/schemas')) as object,
+              ['A', 'B'],
+            );
           });
 
           specify('should rewrite the cycle to internal pointers', async function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const value = toValue(bundled.result as Element);
 
-            assert.deepEqual(value.components.schemas.A.properties.b, {
-              $ref: '#/components/schemas/B',
-            });
-            assert.deepEqual(value.components.schemas.B.properties.a, {
-              $ref: '#/components/schemas/A',
-            });
+            assert.deepEqual(
+              toValue(evaluate(bundled.result as Element, '/components/schemas/A/properties/b')),
+              {
+                $ref: '#/components/schemas/B',
+              },
+            );
+            assert.deepEqual(
+              toValue(evaluate(bundled.result as Element, '/components/schemas/B/properties/a')),
+              {
+                $ref: '#/components/schemas/A',
+              },
+            );
           });
 
           specify('should produce a document without external $refs', async function () {
@@ -298,6 +364,66 @@ describe('bundle', function () {
           });
         });
 
+        context('given the same external target referenced in two different contexts', function () {
+          const fixturePath = path.join(rootFixturePath, 'same-target-two-contexts');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should hoist it into each context-appropriate bucket', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/parameters')) as object,
+              'Thing',
+            );
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/responses')) as object,
+              'Thing',
+            );
+          });
+
+          specify('should point each reference at its own bucket', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/paths/~1a/get/parameters/0/$ref')),
+              '#/components/parameters/Thing',
+            );
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/paths/~1a/get/responses/200/$ref')),
+              '#/components/responses/Thing',
+            );
+          });
+        });
+
+        context('given an external reference whose pointer token contains a slash', function () {
+          const fixturePath = path.join(rootFixturePath, 'pointer-escape');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should escape the slash in the internal pointer', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/schemas')) as object,
+              'Foo/Bar',
+            );
+            assert.strictEqual(
+              toValue(
+                evaluate(
+                  bundled.result as Element,
+                  '/paths/~1a/get/responses/200/content/application~1json/schema/$ref',
+                ),
+              ),
+              '#/components/schemas/Foo~1Bar',
+            );
+          });
+        });
+
         context('given external references across all Components Object fields', function () {
           const fixturePath = path.join(rootFixturePath, 'all-component-types');
           const rootFilePath = path.join(fixturePath, 'root.json');
@@ -306,29 +432,55 @@ describe('bundle', function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const value = toValue(bundled.result as Element);
 
-            assert.property(value.components.requestBodies, 'RB');
-            assert.property(value.components.parameters, 'Param');
-            assert.property(value.components.headers, 'Head');
-            assert.property(value.components.callbacks, 'CB');
-            assert.property(value.components.securitySchemes, 'Sec');
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/requestBodies')) as object,
+              'RB',
+            );
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/parameters')) as object,
+              'Param',
+            );
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/headers')) as object,
+              'Head',
+            );
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/callbacks')) as object,
+              'CB',
+            );
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/securitySchemes')) as object,
+              'Sec',
+            );
           });
 
           specify('should rewrite every reference to an internal pointer', async function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const value = toValue(bundled.result as Element);
-            const operation = value.paths['/a'].post;
 
-            assert.strictEqual(operation.requestBody.$ref, '#/components/requestBodies/RB');
-            assert.strictEqual(operation.parameters[0].$ref, '#/components/parameters/Param');
             assert.strictEqual(
-              operation.responses['200'].headers['X-H'].$ref,
+              toValue(evaluate(bundled.result as Element, '/paths/~1a/post/requestBody/$ref')),
+              '#/components/requestBodies/RB',
+            );
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/paths/~1a/post/parameters/0/$ref')),
+              '#/components/parameters/Param',
+            );
+            assert.strictEqual(
+              toValue(
+                evaluate(
+                  bundled.result as Element,
+                  '/paths/~1a/post/responses/200/headers/X-H/$ref',
+                ),
+              ),
               '#/components/headers/Head',
             );
-            assert.strictEqual(operation.callbacks.cb.$ref, '#/components/callbacks/CB');
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/paths/~1a/post/callbacks/cb/$ref')),
+              '#/components/callbacks/CB',
+            );
           });
 
           specify('should produce a document without external $refs', async function () {
@@ -349,9 +501,11 @@ describe('bundle', function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const value = toValue(bundled.result as Element);
 
-            assert.property(value.components.parameters, 'NullableParam');
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/parameters')) as object,
+              'NullableParam',
+            );
           });
         });
 
@@ -365,13 +519,144 @@ describe('bundle', function () {
               const bundled = await bundle(rootFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
               });
-              const value = toValue(bundled.result as Element);
 
-              assert.deepEqual(value.paths['/a'].get['x-custom'], {
-                schema: { $ref: './ex.json#/ExtSchema' },
-              });
+              assert.deepEqual(
+                toValue(evaluate(bundled.result as Element, '/paths/~1a/get/x-custom')),
+                {
+                  schema: { $ref: './ex.json#/ExtSchema' },
+                },
+              );
             },
           );
+        });
+
+        context('given a document with only internal references', function () {
+          const fixturePath = path.join(rootFixturePath, 'internal-only');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should leave the document unchanged', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.deepEqual(
+              toValue(evaluate(bundled.result as Element, '/paths/~1a/get/parameters/0')),
+              {
+                $ref: '#/components/parameters/p',
+              },
+            );
+            assert.hasAllKeys(
+              toValue(evaluate(bundled.result as Element, '/components/parameters')) as object,
+              ['p'],
+            );
+          });
+        });
+
+        context('given a YAML document', function () {
+          const fixturePath = path.join(rootFixturePath, 'yaml-input');
+          const rootFilePath = path.join(fixturePath, 'root.yaml');
+
+          specify('should bundle regardless of serialization format', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('yaml') },
+            });
+
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/parameters')) as object,
+              'Param',
+            );
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/paths/~1a/get/parameters/0/$ref')),
+              '#/components/parameters/Param',
+            );
+          });
+        });
+
+        context('given a chain of external references exceeding bundle.maxDepth', function () {
+          const fixturePath = path.join(rootFixturePath, 'max-depth');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should throw a MaximumBundleDepthError', async function () {
+            try {
+              await bundle(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                bundle: { maxDepth: 1 },
+              });
+              assert.fail('should have thrown');
+            } catch (error) {
+              assert.instanceOf((error as Error).cause, MaximumBundleDepthError);
+            }
+          });
+
+          specify('should bundle the whole chain when maxDepth is not exceeded', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const serialized = JSON.stringify(toValue(bundled.result as Element));
+
+            assert.notInclude(serialized, 'ex1.json');
+            assert.notInclude(serialized, 'ex2.json');
+            assert.notInclude(serialized, 'ex3.json');
+          });
+        });
+
+        context('given a pre-computed refSet', function () {
+          const fixturePath = path.join(rootFixturePath, 'internal-external');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should bundle using the provided refSet', async function () {
+            const refSet = await resolve(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              bundle: { refSet },
+            });
+
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/parameters')) as object,
+              'externalParameter',
+            );
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/responses')) as object,
+              'externalResponse',
+            );
+          });
+
+          specify(
+            'should not mutate the provided refSet (immutable by default)',
+            async function () {
+              const refSet = await resolve(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              const entry = refSet.find((ref) => ref.uri.endsWith('root.json'))!;
+              const before = JSON.stringify(toValue((entry.value as ParseResultElement).result));
+
+              await bundle(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                bundle: { refSet },
+              });
+              const after = JSON.stringify(toValue((entry.value as ParseResultElement).result));
+
+              assert.strictEqual(before, after);
+            },
+          );
+
+          specify('should mutate the provided refSet given immutable=false', async function () {
+            const refSet = await resolve(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const entry = refSet.find((ref) => ref.uri.endsWith('root.json'))!;
+            const before = JSON.stringify(toValue((entry.value as ParseResultElement).result));
+
+            await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              bundle: { refSet, immutable: false },
+            });
+            const after = JSON.stringify(toValue((entry.value as ParseResultElement).result));
+
+            assert.notStrictEqual(before, after);
+          });
         });
       });
     });

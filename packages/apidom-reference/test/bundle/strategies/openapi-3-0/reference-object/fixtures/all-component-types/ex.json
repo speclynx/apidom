@@ -1,5 +1,8 @@
 {
-  "RB": { "description": "rb", "content": { "application/json": { "schema": { "type": "object" } } } },
+  "RB": {
+    "description": "rb",
+    "content": { "application/json": { "schema": { "type": "object" } } }
+  },
   "Param": { "name": "p", "in": "query", "schema": { "type": "string" } },
   "Head": { "description": "h", "schema": { "type": "string" } },
   "CB": { "/cb": { "post": { "responses": { "200": { "description": "ok" } } } } },

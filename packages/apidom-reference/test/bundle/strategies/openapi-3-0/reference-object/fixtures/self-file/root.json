@@ -4,9 +4,7 @@
   "paths": {
     "/users": {
       "get": {
-        "parameters": [
-          { "$ref": "./root.json#/components/parameters/userId" }
-        ],
+        "parameters": [{ "$ref": "./root.json#/components/parameters/userId" }],
         "responses": { "200": { "description": "ok" } }
       }
     }

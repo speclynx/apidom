@@ -4,6 +4,7 @@ import { assert } from 'chai';
 import { toValue } from '@speclynx/apidom-core';
 import { Element } from '@speclynx/apidom-datamodel';
 import { mediaTypes } from '@speclynx/apidom-ns-openapi-3-0';
+import { evaluate } from '@speclynx/apidom-json-pointer';
 
 import { bundle } from '../../../../../src/index.ts';
 
@@ -22,10 +23,9 @@ describe('bundle', function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const value = toValue(bundled.result as Element);
 
-            assert.isDefined(value.paths['/a'].get);
-            assert.isDefined(value.paths['/b'].get);
+            assert.isDefined(toValue(evaluate(bundled.result as Element, '/paths/~1a/get')));
+            assert.isDefined(toValue(evaluate(bundled.result as Element, '/paths/~1b/get')));
           });
 
           specify('should produce a document without external $refs', async function () {
@@ -46,9 +46,11 @@ describe('bundle', function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const value = toValue(bundled.result as Element);
 
-            assert.strictEqual(value.paths['/a'].get.operationId, 'realOperation');
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/paths/~1a/get/operationId')),
+              'realOperation',
+            );
           });
 
           specify('should produce a document without external $refs', async function () {
@@ -69,9 +71,8 @@ describe('bundle', function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const value = toValue(bundled.result as Element);
 
-            assert.isDefined(value.paths['/a']);
+            assert.isDefined(toValue(evaluate(bundled.result as Element, '/paths/~1a')));
           });
         });
       });

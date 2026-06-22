@@ -1,0 +1,15 @@
+{
+  "openapi": "3.0.4",
+  "info": { "title": "internal only", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "parameters": [{ "$ref": "#/components/parameters/p" }],
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  },
+  "components": {
+    "parameters": { "p": { "name": "p", "in": "query", "schema": { "type": "string" } } }
+  }
+}
