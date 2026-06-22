@@ -68,12 +68,16 @@ describe('bundle', function () {
           const fixturePath = path.join(rootFixturePath, 'external-circular');
           const rootFilePath = path.join(fixturePath, 'root.json');
 
-          specify('should terminate and break the cycle', async function () {
+          specify('should terminate and keep the cycle-breaking $ref in place', async function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
 
-            assert.isDefined(toValue(evaluate(bundled.result as Element, '/paths/~1a')));
+            // the cycle cannot be inlined, so the Path Item retains its $ref
+            // rather than collapsing to an empty object
+            assert.deepEqual(toValue(evaluate(bundled.result as Element, '/paths/~1a')), {
+              $ref: './ex.json#/PathA',
+            });
           });
         });
 

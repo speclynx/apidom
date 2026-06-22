@@ -2717,10 +2717,11 @@ It produces a self-contained, transferable Compound Document: every external ref
 into the appropriate `components` field, and the referencing `$ref` is rewritten to an internal JSON Pointer.
 External references that have no Components Object field in OpenAPI 3.0 are handled differently — external
 Path Item Objects and Example Object `externalValue` content are inlined in place, and an external Link Object
-`operationRef` is rewritten to an absolute URI so the link stays resolvable. References whose targets are
-deeply equal are collapsed into a single component. Internal references are preserved untouched; only a
-self-file reference (e.g. `./root.json#/components/schemas/Pet`) is normalized to a bare fragment
-(`#/components/schemas/Pet`) so the bundled document remains transferable.
+`operationRef` is rewritten to an absolute URI so the link stays resolvable. Multiple references to the
+**same** external target (same document URI and JSON Pointer) are collapsed into a single component; distinct
+targets each get their own component, even when their content happens to be identical. Internal references are
+preserved untouched; only a self-file reference (e.g. `./root.json#/components/schemas/Pet`) is normalized to a
+bare fragment (`#/components/schemas/Pet`) so the bundled document remains transferable.
 
 Supported media types:
 
@@ -2773,8 +2774,8 @@ await bundle('/home/user/oas.json', {
 - a resolver function `({ element, field, jsonPointer, baseURI }) => string` — returns the base name;
   collision suffixing is still applied on top of the returned value.
 
-`onComponentNameCollision` determines how a rename forced by a name collision with **different** content
-is reported (deeply equal targets are collapsed and never trigger this):
+`onComponentNameCollision` determines how a rename forced by two distinct targets resolving to the same
+component name is reported:
 
 - `'warn'` (default) — append a `warning` annotation to the returned `ParseResultElement`.
 - `'off'` — rename silently.

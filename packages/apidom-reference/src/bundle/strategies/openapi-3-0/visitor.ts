@@ -628,12 +628,16 @@ class OpenAPI3_0BundleVisitor {
         this.inlineStack.delete(canonicalKey);
       }
 
-      // merge sibling fields from the referencing Path Item over the referenced one
+      // merge sibling fields from the referencing Path Item over the referenced
+      // one. The referencing `$ref` is being resolved away and is skipped; the
+      // referenced element keeps its own `$ref` if one survived (i.e. it was
+      // left in place to break a circular external Path Item chain).
       pathItemElement.forEach((_value: Element, keyElement: Element, item: Element) => {
-        bundledElement.remove(toValue(keyElement) as string);
+        const key = toValue(keyElement) as string;
+        if (key === '$ref') return;
+        bundledElement.remove(key);
         (bundledElement.content as Element[]).push(item);
       });
-      bundledElement.remove('$ref');
       bundledElement.meta.set('ref-origin', reference.uri);
 
       path.replaceWith(bundledElement);

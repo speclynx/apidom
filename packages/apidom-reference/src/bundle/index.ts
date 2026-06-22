@@ -51,7 +51,9 @@ const bundle = async (uri: string, options: ReferenceOptions): Promise<ParseResu
     const { result } = await plugins.run('bundle', [file, mergedOptions], bundleStrategies);
     return result;
   } catch (error: any) {
-    if (error instanceof UnresolvableReferenceError) {
+    // pass through errors that are already part of the bundle/resolution
+    // taxonomy rather than nesting them inside another BundleError
+    if (error instanceof BundleError || error instanceof UnresolvableReferenceError) {
       throw error;
     }
     throw new BundleError(`Error while bundling file "${file.uri}"`, { cause: error });

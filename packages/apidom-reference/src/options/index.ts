@@ -88,7 +88,7 @@ export interface ReferenceBundleOptions {
   immutable: boolean;
   componentNamesStrategy: ComponentNamesStrategy;
   onComponentNameCollision: ComponentNameCollisionSeverity;
-  continueOnError: boolean | ((error: Error) => void);
+  continueOnError: boolean | ((error: UnresolvableReferenceError) => void);
 }
 
 /**
