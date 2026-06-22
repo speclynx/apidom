@@ -20,6 +20,7 @@ import {
   ExampleElement,
   LinkElement,
   ComponentsElement,
+  OpenApi3_0Element,
   isReferenceElement,
   isReferenceLikeElement,
   isPathItemElement,
@@ -111,12 +112,13 @@ class OpenAPI3_0BundleVisitor {
   }
 
   /**
-   * The root element of the entry document. Hoisted external fragments are
-   * placed into its `components` object. Derived from the shared refSet's
-   * root reference.
+   * The entry document element. Hoisted external fragments are placed into its
+   * `components` object. Derived from the shared refSet's root reference; the
+   * `canBundle` guard guarantees it is an OpenApi3_0Element.
    */
-  protected get entryResult(): Element {
-    return (this.reference.refSet!.rootRef!.value as ParseResultElement).result as Element;
+  protected get entryResult(): OpenApi3_0Element {
+    return (this.reference.refSet!.rootRef!.value as ParseResultElement)
+      .result as OpenApi3_0Element;
   }
 
   /**
@@ -340,11 +342,11 @@ class OpenAPI3_0BundleVisitor {
    * on the entry document, returning the field where a fragment is hoisted.
    */
   protected ensureComponentsField(field: string): ObjectElement {
-    const entryResult = this.entryResult as ObjectElement;
-    let components = entryResult.get('components') as ComponentsElement | undefined;
+    const entryResult = this.entryResult;
+    let components = entryResult.components;
     if (!isObjectElement(components)) {
       components = new ComponentsElement();
-      entryResult.set('components', components);
+      entryResult.components = components;
     }
 
     let fieldElement = components.get(field) as ObjectElement | undefined;
@@ -474,7 +476,15 @@ class OpenAPI3_0BundleVisitor {
       componentFieldByReferencedElement.schema;
     const canonicalKey = `${field}\t${retrievalURI}#${jsonPointer}`;
 
-    // already hoisted (or being hoisted) — just rewrite the pointer
+    // already hoisted (or being hoisted) — just rewrite the pointer.
+    //
+    // this is also how circular references terminate: the assignment is
+    // reserved BEFORE recursing into the fragment (see below), so a reference
+    // that cycles back (directly or indirectly) finds its pointer already
+    // reserved here and is rewritten without recursing. Cycles are deliberately
+    // preserved as internal `$ref`s pointing at each other — that is valid,
+    // serializable output; resolving the cycle (if desired) is dereferencing's
+    // job, not bundling's.
     if (this.assignments.has(canonicalKey)) {
       referencingElement.set('$ref', this.assignments.get(canonicalKey)!.pointer);
       path.skip();
