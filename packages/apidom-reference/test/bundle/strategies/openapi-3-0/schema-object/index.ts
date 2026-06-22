@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert } from 'chai';
 import { toValue } from '@speclynx/apidom-core';
-import { Element } from '@speclynx/apidom-datamodel';
+import { Element, includesClasses } from '@speclynx/apidom-datamodel';
 import { mediaTypes } from '@speclynx/apidom-ns-openapi-3-0';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 
@@ -150,6 +150,23 @@ describe('bundle', function () {
             });
           },
         );
+
+        context('given a bundle that creates the components/schemas field', function () {
+          const fixturePath = path.join(rootFixturePath, 'title-naming');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify(
+            'should create it as a ComponentsSchemas named-content element',
+            async function () {
+              const bundled = await bundle(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              const schemas = evaluate<Element>(bundled.result as Element, '/components/schemas');
+
+              assert.isTrue(includesClasses(schemas, ['components-schemas']));
+            },
+          );
+        });
       });
     });
   });

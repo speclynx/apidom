@@ -20,6 +20,15 @@ import {
   ExampleElement,
   LinkElement,
   ComponentsElement,
+  ComponentsSchemasElement,
+  ComponentsResponsesElement,
+  ComponentsParametersElement,
+  ComponentsExamplesElement,
+  ComponentsRequestBodiesElement,
+  ComponentsHeadersElement,
+  ComponentsSecuritySchemesElement,
+  ComponentsLinksElement,
+  ComponentsCallbacksElement,
   OpenApi3_0Element,
   isReferenceElement,
   isReferenceLikeElement,
@@ -56,6 +65,24 @@ const componentFieldByReferencedElement: Record<string, string> = {
   securityScheme: cf.securitySchemes.name,
   link: cf.links.name,
   callback: cf.callbacks.name,
+};
+
+/**
+ * Maps a Components Object field to the named-content element the namespace
+ * uses for it, so a bundle-created field matches a parsed/refracted one
+ * (e.g. carries the `components-schemas` class) rather than being a generic
+ * object.
+ */
+const componentFieldElementByField: Record<string, new () => ObjectElement> = {
+  [cf.schemas.name]: ComponentsSchemasElement,
+  [cf.responses.name]: ComponentsResponsesElement,
+  [cf.parameters.name]: ComponentsParametersElement,
+  [cf.examples.name]: ComponentsExamplesElement,
+  [cf.requestBodies.name]: ComponentsRequestBodiesElement,
+  [cf.headers.name]: ComponentsHeadersElement,
+  [cf.securitySchemes.name]: ComponentsSecuritySchemesElement,
+  [cf.links.name]: ComponentsLinksElement,
+  [cf.callbacks.name]: ComponentsCallbacksElement,
 };
 
 /**
@@ -279,7 +306,8 @@ class OpenAPI3_0BundleVisitor {
 
     let fieldElement = components.get(field) as ObjectElement | undefined;
     if (!isObjectElement(fieldElement)) {
-      fieldElement = new ObjectElement();
+      const FieldElement = componentFieldElementByField[field] ?? ObjectElement;
+      fieldElement = new FieldElement();
       components.set(field, fieldElement);
     }
 
