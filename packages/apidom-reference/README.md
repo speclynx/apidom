@@ -2945,6 +2945,42 @@ const bundled = await bundle('/home/user/oas.json', {
 });
 ```
 
+##### Continue on error
+
+By default, bundling fails fast on the first unresolvable reference. The `continueOnError` option
+allows bundling to continue past broken references, collecting errors instead of throwing.
+
+**Type:** `false | true | ((error: Error) => void)`
+
+**Default:** `false`
+
+| Value | Behavior |
+|---|---|
+| `false` | Fail fast — throws `UnresolvableBundleReferenceError` on first broken reference |
+| `true` | Skip unresolvable references silently |
+| callback | Called for each unresolvable reference with structured error context |
+
+Unlike dereferencing, a skipped reference is **left in place** — so the bundled document may still
+contain unresolved external references when `continueOnError` is not `false`. Bundling cannot inline or
+hoist a reference it could not resolve, so the resulting document is not guaranteed to be self-contained.
+
+```js
+import { bundle, UnresolvableBundleReferenceError } from '@speclynx/apidom-reference';
+
+const errors = [];
+
+await bundle('/home/user/oas.json', {
+  parse: { mediaType: 'application/openapi+json;version=3.0.4' },
+  bundle: {
+    continueOnError: (error) => {
+      errors.push(error);
+    },
+  },
+});
+
+// errors is an array of UnresolvableBundleReferenceError instances
+```
+
 ##### Creating new bundle strategy
 
 Bundle component can be extended by additional strategies. Every strategy is an object that

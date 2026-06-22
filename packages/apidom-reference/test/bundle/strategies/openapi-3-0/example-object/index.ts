@@ -44,6 +44,24 @@ describe('bundle', function () {
             assert.notInclude(serialized, 'value.json');
           });
         });
+
+        context('given both value and externalValue fields', function () {
+          const fixturePath = path.join(rootFixturePath, 'value-and-external-value');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should throw because the fields are mutually exclusive', async function () {
+            try {
+              await bundle(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              assert.fail('should have thrown');
+            } catch (error) {
+              // the bundle entry point wraps it in a BundleError; the original
+              // validation error is the cause
+              assert.match(((error as Error).cause as Error).message, /mutually exclusive/);
+            }
+          });
+        });
       });
     });
   });

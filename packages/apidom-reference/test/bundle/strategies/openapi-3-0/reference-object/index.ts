@@ -8,6 +8,7 @@ import { evaluate } from '@speclynx/apidom-json-pointer';
 
 import { bundle, resolve } from '../../../../../src/index.ts';
 import MaximumBundleDepthError from '../../../../../src/errors/MaximumBundleDepthError.ts';
+import UnresolvableBundleReferenceError from '../../../../../src/errors/UnresolvableBundleReferenceError.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootFixturePath = path.join(__dirname, 'fixtures');
@@ -200,6 +201,29 @@ describe('bundle', function () {
             );
           });
         });
+
+        context(
+          'given deeply equal targets from different documents with relative refs',
+          function () {
+            const fixturePath = path.join(rootFixturePath, 'dedup-relative-refs');
+            const rootFilePath = path.join(fixturePath, 'root.json');
+
+            specify(
+              'should NOT collapse them (their relative refs resolve differently)',
+              async function () {
+                const bundled = await bundle(rootFilePath, {
+                  parse: { mediaType: mediaTypes.latest('json') },
+                });
+                const schemas = toValue(
+                  evaluate(bundled.result as Element, '/components/schemas'),
+                ) as Record<string, unknown>;
+
+                // both Wrap fragments and both distinct models are kept
+                assert.hasAllKeys(schemas, ['Wrap', 'Wrap-2', 'M', 'M-2']);
+              },
+            );
+          },
+        );
 
         context('given external references colliding on name with different content', function () {
           const fixturePath = path.join(rootFixturePath, 'collision-different');
@@ -656,6 +680,46 @@ describe('bundle', function () {
             const after = JSON.stringify(toValue((entry.value as ParseResultElement).result));
 
             assert.notStrictEqual(before, after);
+          });
+        });
+
+        context('given an unresolvable external reference', function () {
+          const fixturePath = path.join(rootFixturePath, 'unresolvable');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should throw UnresolvableBundleReferenceError by default', async function () {
+            try {
+              await bundle(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              assert.fail('should have thrown');
+            } catch (error) {
+              assert.instanceOf(error, UnresolvableBundleReferenceError);
+            }
+          });
+
+          specify('should skip and continue given continueOnError=true', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              bundle: { continueOnError: true },
+            });
+
+            // the unresolved $ref is left in place
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/paths/~1a/get/parameters/0/$ref')),
+              './missing.json#/Nope',
+            );
+          });
+
+          specify('should collect errors given a continueOnError callback', async function () {
+            const errors: Error[] = [];
+            await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              bundle: { continueOnError: (error: Error) => errors.push(error) },
+            });
+
+            assert.lengthOf(errors, 1);
+            assert.instanceOf(errors[0], UnresolvableBundleReferenceError);
           });
         });
       });

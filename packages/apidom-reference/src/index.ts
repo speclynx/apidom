@@ -56,6 +56,7 @@ export type { ReferenceSetOptions } from './ReferenceSet.ts';
 export { default as BundleError } from './errors/BundleError.ts';
 export { default as MaximumBundleDepthError } from './errors/MaximumBundleDepthError.ts';
 export { default as UnmatchedBundleStrategyError } from './errors/UnmatchedBundleStrategyError.ts';
+export { default as UnresolvableBundleReferenceError } from './errors/UnresolvableBundleReferenceError.ts';
 export { default as DereferenceError } from './errors/DereferenceError.ts';
 export { default as UnresolvableReferenceError } from './errors/UnresolvableReferenceError.ts';
 export { default as EvaluationElementIdError } from './errors/EvaluationElementIdError.ts';

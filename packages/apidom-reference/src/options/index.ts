@@ -88,6 +88,7 @@ export interface ReferenceBundleOptions {
   immutable: boolean;
   componentNamesStrategy: ComponentNamesStrategy;
   onComponentNameCollision: ComponentNameCollisionSeverity;
+  continueOnError: boolean | ((error: Error) => void);
 }
 
 /**
@@ -304,6 +305,19 @@ const defaultOptions: ReferenceOptions = {
      * `error` - throw a BundleError instead of renaming.
      */
     onComponentNameCollision: 'warn',
+    /**
+     * Determines how the bundling process behaves when a reference cannot be
+     * resolved.
+     *
+     * Unlike dereferencing, a swallowed reference is left in place — so the
+     * bundled document may still contain unresolved external references.
+     *
+     * false - fail fast, throw on first error (default)
+     * true - skip unresolvable references silently, continue bundling
+     * (error) => void - callback invoked for each error; if the callback
+     *   itself throws, bundling stops with that error
+     */
+    continueOnError: false,
   },
 };
 

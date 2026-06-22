@@ -10,8 +10,9 @@ import {
   cloneDeep,
   cloneShallow,
 } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
-import { traverseAsync, type Path } from '@speclynx/apidom-traverse';
+import { toValue, toYAML } from '@speclynx/apidom-core';
+import { ApiDOMStructuredError } from '@speclynx/apidom-error';
+import { traverse, traverseAsync, type Path } from '@speclynx/apidom-traverse';
 import { evaluate, escape, unescape, URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
 import {
   ReferenceElement,
@@ -28,6 +29,7 @@ import {
 } from '@speclynx/apidom-ns-openapi-3-0';
 
 import BundleError from '../../../errors/BundleError.ts';
+import UnresolvableBundleReferenceError from '../../../errors/UnresolvableBundleReferenceError.ts';
 import MaximumBundleDepthError from '../../../errors/MaximumBundleDepthError.ts';
 import MaximumResolveDepthError from '../../../errors/MaximumResolveDepthError.ts';
 import * as url from '../../../util/url.ts';
@@ -76,6 +78,7 @@ interface HoistedComponent {
   readonly name: string;
   readonly pointer: string;
   readonly value: unknown;
+  readonly baseURI: string;
 }
 
 /**
@@ -205,6 +208,125 @@ class OpenAPI3_0BundleVisitor {
     return url.resolve(this.reference.uri, url.sanitize(url.stripHash(uri)));
   }
 
+  /**
+   * Normalizes a self-file reference (e.g. `./root.json#/components/schemas/Pet`)
+   * to a bare fragment (`#/components/schemas/Pet`) so the bundled document stays
+   * transferable. Bare fragments are returned unchanged.
+   */
+  protected normalizeSelfFileRef(ref: string): string {
+    return ref.startsWith('#') ? ref : url.getHash(ref);
+  }
+
+  /**
+   * Whether the fragment carries any reference (`$ref`/`operationRef`/
+   * `externalValue`) that is neither a bare fragment nor an absolute URI, i.e.
+   * one whose meaning depends on the document it lives in. Such fragments are
+   * not safe to dedup across documents even when their content is deeply equal.
+   */
+  protected hasRelativeExternalRefs(element: Element): boolean {
+    let found = false;
+    traverse(element, {
+      enter(path: Path<Element>) {
+        const node = path.node;
+        if (!isObjectElement(node)) return;
+        for (const field of ['$ref', 'operationRef', 'externalValue']) {
+          const member = (node as ObjectElement).get(field);
+          if (isStringElement(member)) {
+            const value = toValue(member) as string;
+            if (!value.startsWith('#') && !url.hasProtocol(value)) {
+              found = true;
+              path.stop();
+              return;
+            }
+          }
+        }
+      },
+    });
+    return found;
+  }
+
+  /**
+   * Creates a child visitor sharing all cross-document bundling state, scoped to
+   * a different reference (the external document being bundled into the entry).
+   */
+  protected createChildVisitor(reference: Reference): OpenAPI3_0BundleVisitor {
+    return new OpenAPI3_0BundleVisitor({
+      reference,
+      options: this.options,
+      entryURI: this.entryURI,
+      entryResult: this.entryResult,
+      componentNamesStrategy: this.componentNamesStrategy,
+      onComponentNameCollision: this.onComponentNameCollision,
+      assignments: this.assignments,
+      hoisted: this.hoisted,
+      annotations: this.annotations,
+      refractCache: this.refractCache,
+      inlineStack: this.inlineStack,
+    });
+  }
+
+  /**
+   * Handles an error according to the `bundle.continueOnError` option.
+   *
+   * For new errors: wraps in UnresolvableBundleReferenceError with structured
+   * context. For errors already wrapped by a nested visitor: prepends the
+   * current hop to the trace.
+   *
+   * Inner/intermediate visitors always throw to let the trace accumulate. Only
+   * the entry document visitor respects continueOnError (callback/swallow/throw).
+   */
+  protected handleError(
+    message: string,
+    error: Error,
+    referencingElement: Element,
+    refFieldName: string,
+    refFieldValue: string,
+    visitorPath: Path<Element>,
+  ): void {
+    // deliberate stop signals (depth limits, collision=error) are not
+    // resolution failures: never wrap or swallow them. UnresolvableBundle
+    // ReferenceError also extends BundleError but IS a resolution failure, so
+    // it must fall through to the trace-accumulating handling below.
+    if (
+      !(error instanceof UnresolvableBundleReferenceError) &&
+      (error instanceof MaximumBundleDepthError ||
+        error instanceof MaximumResolveDepthError ||
+        error instanceof BundleError)
+    ) {
+      throw error;
+    }
+
+    const { continueOnError } = this.options.bundle;
+    const isEntryDocument =
+      url.stripHash(this.reference.refSet?.rootRef?.uri ?? '') === this.reference.uri;
+    const uri = this.reference.uri;
+    const type = referencingElement.element as string;
+    const codeFrame = toYAML(referencingElement);
+    const location = visitorPath.formatPath();
+    const hop = { uri, type, refFieldName, refFieldValue, location, codeFrame };
+
+    let unresolvedError: UnresolvableBundleReferenceError;
+    if (error instanceof UnresolvableBundleReferenceError) {
+      // @ts-ignore
+      error.trace = [hop, ...error.trace];
+      unresolvedError = error;
+    } else {
+      unresolvedError = new UnresolvableBundleReferenceError(message, {
+        cause: error,
+        type,
+        uri,
+        location,
+        codeFrame,
+        refFieldName,
+        refFieldValue,
+        trace: [],
+      });
+    }
+
+    if (!isEntryDocument || continueOnError === false) throw unresolvedError;
+    if (typeof continueOnError === 'function') continueOnError(unresolvedError);
+  }
+
   protected async toReference(uri: string): Promise<Reference> {
     // detect maximum depth of resolution
     if (this.reference.depth >= this.options.resolve.maxDepth) {
@@ -266,9 +388,11 @@ class OpenAPI3_0BundleVisitor {
     const tokens = jsonPointer.split('/').filter((token) => token !== '');
     let candidate = tokens.length > 0 ? unescape(tokens[tokens.length - 1]) : '';
     if (candidate === '') {
-      candidate = url.getExtension(baseURI)
-        ? baseURI.slice(baseURI.lastIndexOf('/') + 1, baseURI.lastIndexOf('.'))
-        : baseURI.slice(baseURI.lastIndexOf('/') + 1);
+      const lastSlash = baseURI.lastIndexOf('/');
+      const lastDot = baseURI.lastIndexOf('.');
+      const fileName = baseURI.slice(lastSlash + 1);
+      // strip the extension only when the last dot belongs to the file name
+      candidate = lastDot > lastSlash ? baseURI.slice(lastSlash + 1, lastDot) : fileName;
     }
     if (candidate === '') candidate = 'Schema';
     return candidate;
@@ -315,16 +439,9 @@ class OpenAPI3_0BundleVisitor {
 
   /**
    * Computes a collision-free component name within the target field by
-   * suffixing `-2`, `-3`, ... on top of the strategy-derived base name.
+   * suffixing `-2`, `-3`, ... on top of the given base name.
    */
-  protected uniqueName(
-    element: Element,
-    field: string,
-    jsonPointer: string,
-    baseURI: string,
-  ): string {
-    const candidate = this.baseName(element, field, jsonPointer, baseURI);
-
+  protected uniqueName(candidate: string, field: string): string {
     // a name is taken if it's already placed in components or reserved by a
     // component that is still being bundled (reserved before recursion)
     const fieldElement = this.ensureComponentsField(field);
@@ -351,16 +468,9 @@ class OpenAPI3_0BundleVisitor {
     const isExternalReference = !isInternalReference;
 
     if (isInternalReference) {
-      // a bare fragment is already self-contained; leave it untouched
-      if ($ref.startsWith('#')) {
-        path.skip();
-        return;
-      }
-
-      // a self-file reference (e.g. "./root.json#/...") resolves to this
-      // document but carries a file path that makes the bundled document
-      // non-transferable. Normalize it to a bare fragment.
-      referencingElement.set('$ref', url.getHash($ref));
+      // normalize self-file references to a bare fragment so the bundled
+      // document stays transferable; bare fragments are left untouched
+      referencingElement.set('$ref', this.normalizeSelfFileRef($ref));
       path.skip();
       return;
     }
@@ -371,7 +481,7 @@ class OpenAPI3_0BundleVisitor {
       return;
     }
 
-    const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
+    const $refBaseURI = url.resolve(retrievalURI, $ref);
     const jsonPointer = URIFragmentIdentifier.fromURIReference($refBaseURI);
 
     // the target bucket depends on the referencing context, so it's part of the
@@ -390,111 +500,122 @@ class OpenAPI3_0BundleVisitor {
       return;
     }
 
-    const reference = await this.toReference(toValue(referencingElement.$ref) as string);
-
-    // possibly non-semantic fragment
-    let referencedElement = evaluate<Element>(
-      (reference.value as ParseResultElement).result as Element,
-      jsonPointer,
-    );
-
-    // apply semantics to the fragment so nested references become Reference Objects
-    if (
-      referencedElement.element !== referencedElementType &&
-      !isReferenceElement(referencedElement)
-    ) {
-      const cached = this.getRefracted(referencedElement, referencedElementType);
-      if (cached !== undefined) {
-        referencedElement = cached;
-      } else if (isReferenceLikeElement(referencedElement)) {
-        const sourceElement = referencedElement;
-        referencedElement = refractReference(referencedElement);
-        referencedElement.meta.set('referenced-element', referencedElementType);
-        this.setRefracted(sourceElement, referencedElementType, referencedElement);
-      } else {
-        const sourceElement = referencedElement;
-        referencedElement = refract(referencedElement, { element: referencedElementType });
-        this.setRefracted(sourceElement, referencedElementType, referencedElement);
+    try {
+      // detect maximum depth of bundling
+      if (this.reference.depth >= this.options.bundle.maxDepth) {
+        throw new MaximumBundleDepthError(
+          `Maximum bundle depth of "${this.options.bundle.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
+          { maxDepth: this.options.bundle.maxDepth, uri: this.reference.uri },
+        );
       }
-    }
 
-    // collapse references whose targets are deeply equal into one component.
-    // the pre-bundle value is compared: bundling rewrites refs deterministically,
-    // so targets equal before bundling remain equal after.
-    const referencedValue = toValue(referencedElement);
-    const existing = (this.hoisted.get(field) ?? []).find((component) =>
-      equals(component.value, referencedValue),
-    );
-    if (existing !== undefined) {
-      this.assignments.set(canonicalKey, {
-        field,
-        name: existing.name,
-        pointer: existing.pointer,
-      });
-      referencingElement.set('$ref', existing.pointer);
-      path.skip();
-      return;
-    }
+      const reference = await this.toReference($ref);
 
-    const preferredName = this.baseName(referencedElement, field, jsonPointer, retrievalURI);
-    const name = this.uniqueName(referencedElement, field, jsonPointer, retrievalURI);
-    const internalPointer = `#/components/${field}/${escape(name)}`;
-
-    // a rename here means a different-content target wanted an already-taken
-    // name (deeply equal targets were collapsed earlier). Report per severity.
-    if (name !== preferredName && this.onComponentNameCollision !== 'off') {
-      const message = `Component "${preferredName}" in components/${field} is referenced with the same name but different content. Renamed to "${name}".`;
-      if (this.onComponentNameCollision === 'error') {
-        throw new BundleError(message);
-      }
-      const annotation = new AnnotationElement(message);
-      annotation.classes.push('warning');
-      annotation.code = 'bundle-component-name-collision';
-      this.annotations.push(annotation);
-    }
-
-    // reserve the assignment and component slot before recursing so cyclic
-    // references terminate
-    this.assignments.set(canonicalKey, { field, name, pointer: internalPointer });
-    if (!this.hoisted.has(field)) this.hoisted.set(field, []);
-    this.hoisted.get(field)!.push({ name, pointer: internalPointer, value: referencedValue });
-
-    // detect maximum depth of bundling
-    if (this.assignments.size > this.options.bundle.maxDepth) {
-      throw new MaximumBundleDepthError(
-        `Maximum bundle depth of "${this.options.bundle.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
-        { maxDepth: this.options.bundle.maxDepth, uri: this.reference.uri },
+      // possibly non-semantic fragment
+      let referencedElement = evaluate<Element>(
+        (reference.value as ParseResultElement).result as Element,
+        jsonPointer,
       );
+
+      // apply semantics to the fragment so nested references become Reference Objects
+      if (
+        referencedElement.element !== referencedElementType &&
+        !isReferenceElement(referencedElement)
+      ) {
+        const cached = this.getRefracted(referencedElement, referencedElementType);
+        if (cached !== undefined) {
+          referencedElement = cached;
+        } else if (isReferenceLikeElement(referencedElement)) {
+          const sourceElement = referencedElement;
+          referencedElement = refractReference(referencedElement);
+          referencedElement.meta.set('referenced-element', referencedElementType);
+          this.setRefracted(sourceElement, referencedElementType, referencedElement);
+        } else {
+          const sourceElement = referencedElement;
+          referencedElement = refract(referencedElement, { element: referencedElementType });
+          this.setRefracted(sourceElement, referencedElementType, referencedElement);
+        }
+      }
+
+      // collapse references whose targets are deeply equal into one component.
+      // a fragment with relative external refs resolves against its own document,
+      // so byte-identical fragments from different documents are only safe to
+      // collapse when they carry no relative external refs of their own.
+      const referencedValue = toValue(referencedElement);
+      const hasRelativeRefs = this.hasRelativeExternalRefs(referencedElement);
+      const existing = (this.hoisted.get(field) ?? []).find(
+        (component) =>
+          equals(component.value, referencedValue) &&
+          (!hasRelativeRefs || component.baseURI === reference.uri),
+      );
+      if (existing !== undefined) {
+        this.assignments.set(canonicalKey, {
+          field,
+          name: existing.name,
+          pointer: existing.pointer,
+        });
+        referencingElement.set('$ref', existing.pointer);
+        path.skip();
+        return;
+      }
+
+      const preferredName = this.baseName(referencedElement, field, jsonPointer, retrievalURI);
+      const name = this.uniqueName(preferredName, field);
+      const internalPointer = `#/components/${field}/${escape(name)}`;
+
+      // a rename here means a different-content target wanted an already-taken
+      // name (deeply equal targets were collapsed earlier). Report per severity.
+      if (name !== preferredName && this.onComponentNameCollision !== 'off') {
+        const message = `Component "${preferredName}" in components/${field} is referenced with the same name but different content. Renamed to "${name}".`;
+        if (this.onComponentNameCollision === 'error') {
+          throw new BundleError(message);
+        }
+        const annotation = new AnnotationElement(message);
+        annotation.classes.push('warning');
+        annotation.code = 'bundle-component-name-collision';
+        this.annotations.push(annotation);
+      }
+
+      // reserve the assignment and component slot before recursing so cyclic
+      // references terminate
+      this.assignments.set(canonicalKey, { field, name, pointer: internalPointer });
+      if (!this.hoisted.has(field)) this.hoisted.set(field, []);
+      this.hoisted
+        .get(field)!
+        .push({ name, pointer: internalPointer, value: referencedValue, baseURI: reference.uri });
+
+      // own a copy of the fragment and bundle its own external references
+      const hoistedElement = cloneDeep(referencedElement);
+      const bundledElement = await traverseAsync(
+        hoistedElement,
+        this.createChildVisitor(reference),
+        {
+          mutable: true,
+        },
+      );
+
+      // annotate the hoisted fragment with info about its origin
+      if (isElement(bundledElement)) {
+        bundledElement.meta.set('ref-origin', reference.uri);
+      }
+
+      // place the bundled fragment into the entry document's components
+      this.ensureComponentsField(field).set(name, bundledElement);
+
+      // rewrite the referencing element to point at the hoisted fragment
+      referencingElement.set('$ref', internalPointer);
+      path.skip();
+    } catch (error: unknown) {
+      this.handleError(
+        `Error while bundling Reference Object. Cannot resolve $ref "${$ref}": ${(error as Error).message}`,
+        error as Error,
+        referencingElement,
+        '$ref',
+        $ref,
+        path,
+      );
+      path.skip();
     }
-
-    // own a copy of the fragment and bundle its own external references
-    const hoistedElement = cloneDeep(referencedElement);
-    const childVisitor = new OpenAPI3_0BundleVisitor({
-      reference,
-      options: this.options,
-      entryURI: this.entryURI,
-      entryResult: this.entryResult,
-      componentNamesStrategy: this.componentNamesStrategy,
-      onComponentNameCollision: this.onComponentNameCollision,
-      assignments: this.assignments,
-      hoisted: this.hoisted,
-      annotations: this.annotations,
-      refractCache: this.refractCache,
-      inlineStack: this.inlineStack,
-    });
-    const bundledElement = await traverseAsync(hoistedElement, childVisitor, { mutable: true });
-
-    // annotate the hoisted fragment with info about its origin
-    if (isElement(bundledElement)) {
-      bundledElement.meta.set('ref-origin', reference.uri);
-    }
-
-    // place the bundled fragment into the entry document's components
-    this.ensureComponentsField(field).set(name, bundledElement);
-
-    // rewrite the referencing element to point at the hoisted fragment
-    referencingElement.set('$ref', internalPointer);
-    path.skip();
   }
 
   /**
@@ -519,9 +640,7 @@ class OpenAPI3_0BundleVisitor {
     if (isInternalReference) {
       // normalize self-file references to a bare fragment so the bundled
       // document stays transferable; bare fragments are left untouched
-      if (!$ref.startsWith('#')) {
-        pathItemElement.set('$ref', url.getHash($ref));
-      }
+      pathItemElement.set('$ref', this.normalizeSelfFileRef($ref));
       return;
     }
 
@@ -530,7 +649,7 @@ class OpenAPI3_0BundleVisitor {
       return;
     }
 
-    const $refBaseURI = url.resolve(retrievalURI, toValue(pathItemElement.$ref) as string);
+    const $refBaseURI = url.resolve(retrievalURI, $ref);
     const jsonPointer = URIFragmentIdentifier.fromURIReference($refBaseURI);
     const canonicalKey = `${retrievalURI}#${jsonPointer}`;
 
@@ -540,55 +659,65 @@ class OpenAPI3_0BundleVisitor {
       return;
     }
 
-    const reference = await this.toReference(toValue(pathItemElement.$ref) as string);
-
-    let referencedElement = evaluate<Element>(
-      (reference.value as ParseResultElement).result as Element,
-      jsonPointer,
-    );
-
-    // apply Path Item semantics to the referenced fragment
-    if (!isPathItemElement(referencedElement)) {
-      const cached = this.getRefracted(referencedElement, 'pathItem');
-      if (cached !== undefined) {
-        referencedElement = cached;
-      } else {
-        const sourceElement = referencedElement;
-        referencedElement = refractPathItem(referencedElement);
-        this.setRefracted(sourceElement, 'pathItem', referencedElement);
+    try {
+      // detect maximum depth of bundling
+      if (this.reference.depth >= this.options.bundle.maxDepth) {
+        throw new MaximumBundleDepthError(
+          `Maximum bundle depth of "${this.options.bundle.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
+          { maxDepth: this.options.bundle.maxDepth, uri: this.reference.uri },
+        );
       }
+
+      const reference = await this.toReference($ref);
+
+      let referencedElement = evaluate<Element>(
+        (reference.value as ParseResultElement).result as Element,
+        jsonPointer,
+      );
+
+      // apply Path Item semantics to the referenced fragment
+      if (!isPathItemElement(referencedElement)) {
+        const cached = this.getRefracted(referencedElement, 'pathItem');
+        if (cached !== undefined) {
+          referencedElement = cached;
+        } else {
+          const sourceElement = referencedElement;
+          referencedElement = refractPathItem(referencedElement);
+          this.setRefracted(sourceElement, 'pathItem', referencedElement);
+        }
+      }
+
+      // own a copy and bundle the external references it contains
+      const inlinedElement = cloneDeep(referencedElement) as PathItemElement;
+      this.inlineStack.add(canonicalKey);
+      let bundledElement: PathItemElement;
+      try {
+        bundledElement = (await traverseAsync(inlinedElement, this.createChildVisitor(reference), {
+          mutable: true,
+        })) as PathItemElement;
+      } finally {
+        this.inlineStack.delete(canonicalKey);
+      }
+
+      // merge sibling fields from the referencing Path Item over the referenced one
+      pathItemElement.forEach((_value: Element, keyElement: Element, item: Element) => {
+        bundledElement.remove(toValue(keyElement) as string);
+        (bundledElement.content as Element[]).push(item);
+      });
+      bundledElement.remove('$ref');
+      bundledElement.meta.set('ref-origin', reference.uri);
+
+      path.replaceWith(bundledElement);
+    } catch (error: unknown) {
+      this.handleError(
+        `Error while bundling Path Item Object. Cannot resolve $ref "${$ref}": ${(error as Error).message}`,
+        error as Error,
+        pathItemElement,
+        '$ref',
+        $ref,
+        path,
+      );
     }
-
-    // own a copy and bundle the external references it contains
-    const inlinedElement = cloneDeep(referencedElement) as PathItemElement;
-    this.inlineStack.add(canonicalKey);
-    const childVisitor = new OpenAPI3_0BundleVisitor({
-      reference,
-      options: this.options,
-      entryURI: this.entryURI,
-      entryResult: this.entryResult,
-      componentNamesStrategy: this.componentNamesStrategy,
-      onComponentNameCollision: this.onComponentNameCollision,
-      assignments: this.assignments,
-      hoisted: this.hoisted,
-      annotations: this.annotations,
-      refractCache: this.refractCache,
-      inlineStack: this.inlineStack,
-    });
-    const bundledElement = (await traverseAsync(inlinedElement, childVisitor, {
-      mutable: true,
-    })) as PathItemElement;
-    this.inlineStack.delete(canonicalKey);
-
-    // merge sibling fields from the referencing Path Item over the referenced one
-    pathItemElement.forEach((_value: Element, keyElement: Element, item: Element) => {
-      bundledElement.remove(toValue(keyElement) as string);
-      (bundledElement.content as Element[]).push(item);
-    });
-    bundledElement.remove('$ref');
-    bundledElement.meta.set('ref-origin', reference.uri);
-
-    path.replaceWith(bundledElement);
   }
 
   /**
@@ -604,7 +733,19 @@ class OpenAPI3_0BundleVisitor {
       return;
     }
 
-    const retrievalURI = this.toBaseURI(toValue(exampleElement.externalValue) as string);
+    // value and externalValue fields are mutually exclusive
+    if (exampleElement.hasKey('value') && isStringElement(exampleElement.externalValue)) {
+      throw new ApiDOMStructuredError(
+        'ExampleElement value and externalValue fields are mutually exclusive',
+        {
+          value: toValue(exampleElement.value),
+          externalValue: toValue(exampleElement.externalValue),
+        },
+      );
+    }
+
+    const externalValue = toValue(exampleElement.externalValue) as string;
+    const retrievalURI = this.toBaseURI(externalValue);
     const isInternalReference = this.entryURI === retrievalURI;
     const isExternalReference = !isInternalReference;
 
@@ -613,15 +754,26 @@ class OpenAPI3_0BundleVisitor {
       return;
     }
 
-    const reference = await this.toReference(toValue(exampleElement.externalValue) as string);
-    const valueElement = cloneShallow((reference.value as ParseResultElement).result as Element);
-    valueElement.meta.set('ref-origin', reference.uri);
+    try {
+      const reference = await this.toReference(externalValue);
+      const valueElement = cloneShallow((reference.value as ParseResultElement).result as Element);
+      valueElement.meta.set('ref-origin', reference.uri);
 
-    const exampleElementCopy = cloneShallow(exampleElement);
-    exampleElementCopy.value = valueElement;
-    exampleElementCopy.remove('externalValue');
+      const exampleElementCopy = cloneShallow(exampleElement);
+      exampleElementCopy.value = valueElement;
+      exampleElementCopy.remove('externalValue');
 
-    path.replaceWith(exampleElementCopy);
+      path.replaceWith(exampleElementCopy);
+    } catch (error: unknown) {
+      this.handleError(
+        `Error while bundling Example Object. Cannot resolve externalValue "${externalValue}": ${(error as Error).message}`,
+        error as Error,
+        exampleElement,
+        'externalValue',
+        externalValue,
+        path,
+      );
+    }
   }
 
   /**
@@ -646,9 +798,7 @@ class OpenAPI3_0BundleVisitor {
     if (isInternalReference) {
       // normalize self-file operationRef to a bare fragment so the bundled
       // document stays transferable; bare fragments are left untouched
-      if (!operationRef.startsWith('#')) {
-        linkElement.set('operationRef', url.getHash(operationRef));
-      }
+      linkElement.set('operationRef', this.normalizeSelfFileRef(operationRef));
       return;
     }
 
