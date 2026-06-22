@@ -414,7 +414,9 @@ class OpenAPI3_0BundleVisitor {
 
     // the target bucket depends on the referencing context, so it's part of the
     // identity: the same external target referenced as e.g. both a parameter and
-    // a response must be hoisted into both components fields.
+    // a response must be hoisted into both components fields. The refractor sets
+    // `referenced-element` for every Reference Object position; the `schemas`
+    // fallback is a defensive default for the (unexpected) untagged case.
     const referencedElementType = referencingElement.meta.get('referenced-element') as string;
     const field =
       componentFieldByReferencedElement[referencedElementType] ??
