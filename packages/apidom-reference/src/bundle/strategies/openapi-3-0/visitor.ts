@@ -36,11 +36,7 @@ import * as url from '../../../util/url.ts';
 import parse from '../../../parse/index.ts';
 import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
-import type {
-  ReferenceOptions,
-  ComponentNamesStrategy,
-  ComponentNameCollisionSeverity,
-} from '../../../options/index.ts';
+import type { ReferenceOptions } from '../../../options/index.ts';
 
 /**
  * Maps the `referenced-element` meta value (set during refraction) to the
@@ -90,8 +86,6 @@ interface HoistedComponent {
 export interface OpenAPI3_0BundleVisitorOptions {
   readonly reference: Reference;
   readonly options: ReferenceOptions;
-  readonly componentNamesStrategy?: ComponentNamesStrategy;
-  readonly onComponentNameCollision?: ComponentNameCollisionSeverity;
   readonly assignments?: Map<string, Assignment>;
   readonly hoisted?: Map<string, HoistedComponent[]>;
   readonly annotations?: AnnotationElement[];
@@ -124,16 +118,6 @@ class OpenAPI3_0BundleVisitor {
   protected get entryResult(): Element {
     return (this.reference.refSet!.rootRef!.value as ParseResultElement).result as Element;
   }
-
-  /**
-   * Determines how hoisted components are named (`basename` or `title`).
-   */
-  protected readonly componentNamesStrategy: ComponentNamesStrategy;
-
-  /**
-   * Determines how a collision-forced rename is reported (`off`/`warn`/`error`).
-   */
-  protected readonly onComponentNameCollision: ComponentNameCollisionSeverity;
 
   /**
    * Shared across the entry document and every external document visitor.
@@ -175,8 +159,6 @@ class OpenAPI3_0BundleVisitor {
   constructor({
     reference,
     options,
-    componentNamesStrategy = 'basename',
-    onComponentNameCollision = 'warn',
     assignments = new Map<string, Assignment>(),
     hoisted = new Map<string, HoistedComponent[]>(),
     annotations = [],
@@ -185,8 +167,6 @@ class OpenAPI3_0BundleVisitor {
   }: OpenAPI3_0BundleVisitorOptions) {
     this.reference = reference;
     this.options = options;
-    this.componentNamesStrategy = componentNamesStrategy;
-    this.onComponentNameCollision = onComponentNameCollision;
     this.inlineStack = inlineStack;
     this.assignments = assignments;
     this.hoisted = hoisted;
@@ -256,8 +236,6 @@ class OpenAPI3_0BundleVisitor {
     return new OpenAPI3_0BundleVisitor({
       reference,
       options: this.options,
-      componentNamesStrategy: this.componentNamesStrategy,
-      onComponentNameCollision: this.onComponentNameCollision,
       assignments: this.assignments,
       hoisted: this.hoisted,
       annotations: this.annotations,
@@ -406,15 +384,20 @@ class OpenAPI3_0BundleVisitor {
     jsonPointer: string,
     baseURI: string,
   ): string {
-    if (typeof this.componentNamesStrategy === 'function') {
-      const resolved = this.componentNamesStrategy({ element, field, jsonPointer, baseURI });
+    // strategy specific options take precedence over the top-level bundle options
+    const componentNamesStrategy =
+      this.options.bundle.strategyOpts['openapi-3-0']?.componentNamesStrategy ??
+      this.options.bundle.componentNamesStrategy;
+
+    if (typeof componentNamesStrategy === 'function') {
+      const resolved = componentNamesStrategy({ element, field, jsonPointer, baseURI });
       if (typeof resolved === 'string' && resolved !== '') {
         return resolved;
       }
       return this.basenameOf(jsonPointer, baseURI);
     }
 
-    if (this.componentNamesStrategy === 'title') {
+    if (componentNamesStrategy === 'title') {
       const title = toValue((element as ObjectElement).get?.('title'));
       if (typeof title === 'string' && title.trim() !== '') {
         // PascalCase the title, replace characters invalid in a component name
@@ -563,9 +546,13 @@ class OpenAPI3_0BundleVisitor {
 
       // a rename here means a different-content target wanted an already-taken
       // name (deeply equal targets were collapsed earlier). Report per severity.
-      if (name !== preferredName && this.onComponentNameCollision !== 'off') {
+      // strategy specific options take precedence over the top-level bundle options
+      const onComponentNameCollision =
+        this.options.bundle.strategyOpts['openapi-3-0']?.onComponentNameCollision ??
+        this.options.bundle.onComponentNameCollision;
+      if (name !== preferredName && onComponentNameCollision !== 'off') {
         const message = `Component "${preferredName}" in components/${field} is referenced with the same name but different content. Renamed to "${name}".`;
-        if (this.onComponentNameCollision === 'error') {
+        if (onComponentNameCollision === 'error') {
           throw new BundleError(message);
         }
         const annotation = new AnnotationElement(message);

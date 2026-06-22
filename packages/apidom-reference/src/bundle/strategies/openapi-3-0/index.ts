@@ -94,19 +94,10 @@ class OpenAPI3_0BundleStrategy extends BundleStrategy {
       refSet = mutableRefSet;
     }
 
-    // strategy specific options take precedence over the top-level bundle options
-    const strategyOpts = options.bundle.strategyOpts['openapi-3-0'] ?? {};
-    const componentNamesStrategy =
-      strategyOpts.componentNamesStrategy ?? options.bundle.componentNamesStrategy;
-    const onComponentNameCollision =
-      strategyOpts.onComponentNameCollision ?? options.bundle.onComponentNameCollision;
-
     const annotations: AnnotationElement[] = [];
     const visitor = new OpenAPI3_0BundleVisitor({
       reference: reference!,
       options,
-      componentNamesStrategy,
-      onComponentNameCollision,
       annotations,
     });
     await traverseAsync(refSet.rootRef!.value, visitor, {
