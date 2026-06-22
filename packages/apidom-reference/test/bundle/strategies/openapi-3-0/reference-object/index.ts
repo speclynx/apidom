@@ -8,7 +8,7 @@ import { evaluate } from '@speclynx/apidom-json-pointer';
 
 import { bundle, resolve } from '../../../../../src/index.ts';
 import MaximumBundleDepthError from '../../../../../src/errors/MaximumBundleDepthError.ts';
-import UnresolvableBundleReferenceError from '../../../../../src/errors/UnresolvableBundleReferenceError.ts';
+import UnresolvableReferenceError from '../../../../../src/errors/UnresolvableReferenceError.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootFixturePath = path.join(__dirname, 'fixtures');
@@ -687,14 +687,14 @@ describe('bundle', function () {
           const fixturePath = path.join(rootFixturePath, 'unresolvable');
           const rootFilePath = path.join(fixturePath, 'root.json');
 
-          specify('should throw UnresolvableBundleReferenceError by default', async function () {
+          specify('should throw UnresolvableReferenceError by default', async function () {
             try {
               await bundle(rootFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
               });
               assert.fail('should have thrown');
             } catch (error) {
-              assert.instanceOf(error, UnresolvableBundleReferenceError);
+              assert.instanceOf(error, UnresolvableReferenceError);
             }
           });
 
@@ -719,7 +719,7 @@ describe('bundle', function () {
             });
 
             assert.lengthOf(errors, 1);
-            assert.instanceOf(errors[0], UnresolvableBundleReferenceError);
+            assert.instanceOf(errors[0], UnresolvableReferenceError);
           });
         });
       });

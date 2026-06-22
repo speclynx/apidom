@@ -2956,7 +2956,7 @@ allows bundling to continue past broken references, collecting errors instead of
 
 | Value | Behavior |
 |---|---|
-| `false` | Fail fast — throws `UnresolvableBundleReferenceError` on first broken reference |
+| `false` | Fail fast — throws `UnresolvableReferenceError` on first broken reference |
 | `true` | Skip unresolvable references silently |
 | callback | Called for each unresolvable reference with structured error context |
 
@@ -2965,7 +2965,7 @@ contain unresolved external references when `continueOnError` is not `false`. Bu
 hoist a reference it could not resolve, so the resulting document is not guaranteed to be self-contained.
 
 ```js
-import { bundle, UnresolvableBundleReferenceError } from '@speclynx/apidom-reference';
+import { bundle, UnresolvableReferenceError } from '@speclynx/apidom-reference';
 
 const errors = [];
 
@@ -2978,7 +2978,7 @@ await bundle('/home/user/oas.json', {
   },
 });
 
-// errors is an array of UnresolvableBundleReferenceError instances
+// errors is an array of UnresolvableReferenceError instances
 ```
 
 ##### Creating new bundle strategy

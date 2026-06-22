@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { dereference, parse, Reference, ReferenceSet } from '../../../../../src/index.ts';
 import { loadJsonFile } from '../../../../helpers.ts';
 import DereferenceError from '../../../../../src/errors/DereferenceError.ts';
+import UnresolvableReferenceError from '../../../../../src/errors/UnresolvableReferenceError.ts';
 import MaximumDereferenceDepthError from '../../../../../src/errors/MaximumDereferenceDepthError.ts';
 import MaximumResolveDepthError from '../../../../../src/errors/MaximumResolveDepthError.ts';
 import EvaluationJsonSchema$anchorError from '../../../../../src/errors/EvaluationJsonSchema$anchorError.ts';
@@ -188,7 +189,7 @@ describe('dereference', function () {
               });
               assert.fail('should throw MaximumDereferenceDepthError');
             } catch (error: unknown) {
-              assert.instanceOf(error, DereferenceError);
+              assert.instanceOf(error, UnresolvableReferenceError);
               // @ts-ignore
               assert.instanceOf(error.cause, MaximumDereferenceDepthError);
             }
@@ -208,7 +209,7 @@ describe('dereference', function () {
               });
               assert.fail('should throw MaximumResolveDepthError');
             } catch (error: unknown) {
-              assert.instanceOf(error, DereferenceError);
+              assert.instanceOf(error, UnresolvableReferenceError);
               // @ts-ignore
               assert.instanceOf(error.cause, MaximumResolveDepthError);
             }
@@ -227,7 +228,7 @@ describe('dereference', function () {
               });
               assert.fail('should throw DereferenceError');
             } catch (e: unknown) {
-              assert.instanceOf(e, DereferenceError);
+              assert.instanceOf(e, UnresolvableReferenceError);
             }
           });
         });
@@ -244,7 +245,7 @@ describe('dereference', function () {
               });
               assert.fail('should throw DereferenceError');
             } catch (e: unknown) {
-              assert.instanceOf(e, DereferenceError);
+              assert.instanceOf(e, UnresolvableReferenceError);
             }
           });
         });
@@ -315,7 +316,7 @@ describe('dereference', function () {
               });
               assert.fail('should throw DereferenceError');
             } catch (e: unknown) {
-              assert.instanceOf(e, DereferenceError);
+              assert.instanceOf(e, UnresolvableReferenceError);
             }
           });
         });
@@ -436,7 +437,7 @@ describe('dereference', function () {
               });
               assert.fail('should throw DereferenceError');
             } catch (error: unknown) {
-              assert.instanceOf(error, DereferenceError);
+              assert.instanceOf(error, UnresolvableReferenceError);
               // @ts-ignore
               assert.instanceOf(error.cause, EvaluationJsonSchema$anchorError);
             }
@@ -542,7 +543,7 @@ describe('dereference', function () {
               });
               assert.fail('should throw DereferenceError');
             } catch (e: unknown) {
-              assert.instanceOf(e, DereferenceError);
+              assert.instanceOf(e, UnresolvableReferenceError);
             }
           });
         });
@@ -698,7 +699,7 @@ describe('dereference', function () {
                 });
                 assert.fail('should throw DereferenceError');
               } catch (e: unknown) {
-                assert.instanceOf(e, DereferenceError);
+                assert.instanceOf(e, UnresolvableReferenceError);
               }
             });
           },
@@ -766,7 +767,7 @@ describe('dereference', function () {
                 });
                 assert.fail('should throw DereferenceError');
               } catch (e: unknown) {
-                assert.instanceOf(e, DereferenceError);
+                assert.instanceOf(e, UnresolvableReferenceError);
               }
             });
           },
@@ -871,7 +872,7 @@ describe('dereference', function () {
                 });
                 assert.fail('should throw DereferenceError');
               } catch (e) {
-                assert.instanceOf(e, DereferenceError);
+                assert.instanceOf(e, UnresolvableReferenceError);
               }
             });
           });
@@ -920,7 +921,7 @@ describe('dereference', function () {
               });
 
               errors.forEach((error) => {
-                assert.instanceOf(error, DereferenceError);
+                assert.instanceOf(error, UnresolvableReferenceError);
               });
             });
 

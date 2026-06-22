@@ -29,7 +29,7 @@ import {
 } from '@speclynx/apidom-ns-openapi-3-0';
 
 import BundleError from '../../../errors/BundleError.ts';
-import UnresolvableBundleReferenceError from '../../../errors/UnresolvableBundleReferenceError.ts';
+import UnresolvableReferenceError from '../../../errors/UnresolvableReferenceError.ts';
 import MaximumBundleDepthError from '../../../errors/MaximumBundleDepthError.ts';
 import MaximumResolveDepthError from '../../../errors/MaximumResolveDepthError.ts';
 import * as url from '../../../util/url.ts';
@@ -268,7 +268,7 @@ class OpenAPI3_0BundleVisitor {
   /**
    * Handles an error according to the `bundle.continueOnError` option.
    *
-   * For new errors: wraps in UnresolvableBundleReferenceError with structured
+   * For new errors: wraps in UnresolvableReferenceError with structured
    * context. For errors already wrapped by a nested visitor: prepends the
    * current hop to the trace.
    *
@@ -284,14 +284,11 @@ class OpenAPI3_0BundleVisitor {
     visitorPath: Path<Element>,
   ): void {
     // deliberate stop signals (depth limits, collision=error) are not
-    // resolution failures: never wrap or swallow them. UnresolvableBundle
-    // ReferenceError also extends BundleError but IS a resolution failure, so
-    // it must fall through to the trace-accumulating handling below.
+    // resolution failures: never wrap or swallow them
     if (
-      !(error instanceof UnresolvableBundleReferenceError) &&
-      (error instanceof MaximumBundleDepthError ||
-        error instanceof MaximumResolveDepthError ||
-        error instanceof BundleError)
+      error instanceof MaximumBundleDepthError ||
+      error instanceof MaximumResolveDepthError ||
+      error instanceof BundleError
     ) {
       throw error;
     }
@@ -305,13 +302,13 @@ class OpenAPI3_0BundleVisitor {
     const location = visitorPath.formatPath();
     const hop = { uri, type, refFieldName, refFieldValue, location, codeFrame };
 
-    let unresolvedError: UnresolvableBundleReferenceError;
-    if (error instanceof UnresolvableBundleReferenceError) {
+    let unresolvedError: UnresolvableReferenceError;
+    if (error instanceof UnresolvableReferenceError) {
       // @ts-ignore
       error.trace = [hop, ...error.trace];
       unresolvedError = error;
     } else {
-      unresolvedError = new UnresolvableBundleReferenceError(message, {
+      unresolvedError = new UnresolvableReferenceError(message, {
         cause: error,
         type,
         uri,
