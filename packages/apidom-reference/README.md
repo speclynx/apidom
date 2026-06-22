@@ -2810,6 +2810,10 @@ the original.
 
 Bundle strategy for bundling [OpenApi 3.1.x](https://spec.openapis.org/oas/v3.1.2.html) definitions.
 
+> **Note:** this strategy is **not implemented yet**. It matches OpenAPI 3.1.x
+> documents but currently returns the parse result unchanged (no references are
+> resolved or hoisted). For real bundling, use OpenAPI 3.0.x for now.
+
 Supported media types:
 
 ```js
