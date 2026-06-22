@@ -51,7 +51,11 @@ import * as url from '../../../util/url.ts';
 import parse from '../../../parse/index.ts';
 import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
-import { toPascalCase, sanitizeComponentName, uniqueName } from '../../util.ts';
+import {
+  toPascalCase,
+  sanitizeComponentName,
+  uniqueName as resolveUniqueName,
+} from '../../util.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 
 /**
@@ -373,6 +377,17 @@ class OpenAPI3_0BundleVisitor {
     return this.basenameOf(jsonPointer, baseURI);
   }
 
+  /**
+   * Computes a collision-free component name within the target field. A name is
+   * taken if it's already placed in components or reserved by a component that
+   * is still being bundled (reserved before recursion).
+   */
+  protected uniqueName(candidate: string, field: string): string {
+    const fieldElement = this.ensureComponentsField(field);
+    const reserved = this.reservedNames.get(field) ?? new Set<string>();
+    return resolveUniqueName(candidate, (name) => fieldElement.hasKey(name) || reserved.has(name));
+  }
+
   public async ReferenceElement(path: Path<Element>) {
     const referencingElement = path.node as ReferenceElement;
     const $ref = toValue(referencingElement.$ref) as string;
@@ -458,15 +473,8 @@ class OpenAPI3_0BundleVisitor {
         }
       }
 
-      // a name is taken if it's already placed in components or reserved by a
-      // component that is still being bundled (reserved before recursion)
       const preferredName = this.baseName(referencedElement, field, jsonPointer, retrievalURI);
-      const fieldElement = this.ensureComponentsField(field);
-      const reserved = this.reservedNames.get(field) ?? new Set<string>();
-      const componentName = uniqueName(
-        preferredName,
-        (candidate) => fieldElement.hasKey(candidate) || reserved.has(candidate),
-      );
+      const componentName = this.uniqueName(preferredName, field);
       const internalPointer = `#/components/${field}/${escape(componentName)}`;
 
       // a rename means two distinct targets resolved to the same name; each
