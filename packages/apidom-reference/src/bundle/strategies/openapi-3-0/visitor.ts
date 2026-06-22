@@ -59,17 +59,6 @@ const componentFieldByReferencedElement: Record<string, string> = {
 };
 
 /**
- * A previously hoisted external fragment, keyed by its canonical
- * `baseURI#jsonPointer`. `pointer` is the internal JSON pointer that
- * referencing elements are rewritten to point at.
- */
-interface Assignment {
-  readonly field: string;
-  readonly name: string;
-  readonly pointer: string;
-}
-
-/**
  * A component already hoisted into the entry document, retaining the value of
  * the fragment as it was before bundling. Used to collapse multiple references
  * whose targets are deeply equal into a single component.
@@ -87,7 +76,7 @@ interface HoistedComponent {
 export interface OpenAPI3_0BundleVisitorOptions {
   readonly reference: Reference;
   readonly options: ReferenceOptions;
-  readonly assignments?: Map<string, Assignment>;
+  readonly assignments?: Map<string, string>;
   readonly hoisted?: Map<string, HoistedComponent[]>;
   readonly annotations?: AnnotationElement[];
   readonly refractCache?: WeakMap<Element, Map<string, Element>>;
@@ -126,7 +115,7 @@ class OpenAPI3_0BundleVisitor {
    * Guarantees each external fragment is hoisted exactly once and gives us a
    * stable internal pointer to rewrite every referencing element to.
    */
-  protected readonly assignments: Map<string, Assignment>;
+  protected readonly assignments: Map<string, string>;
 
   /**
    * Components already hoisted into the entry document, grouped by Components
@@ -161,7 +150,7 @@ class OpenAPI3_0BundleVisitor {
   constructor({
     reference,
     options,
-    assignments = new Map<string, Assignment>(),
+    assignments = new Map<string, string>(),
     hoisted = new Map<string, HoistedComponent[]>(),
     annotations = [],
     refractCache = new WeakMap(),
@@ -486,7 +475,7 @@ class OpenAPI3_0BundleVisitor {
     // serializable output; resolving the cycle (if desired) is dereferencing's
     // job, not bundling's.
     if (this.assignments.has(canonicalKey)) {
-      referencingElement.set('$ref', this.assignments.get(canonicalKey)!.pointer);
+      referencingElement.set('$ref', this.assignments.get(canonicalKey)!);
       path.skip();
       return;
     }
@@ -540,11 +529,7 @@ class OpenAPI3_0BundleVisitor {
           (!hasRelativeRefs || component.baseURI === reference.uri),
       );
       if (existing !== undefined) {
-        this.assignments.set(canonicalKey, {
-          field,
-          name: existing.name,
-          pointer: existing.pointer,
-        });
+        this.assignments.set(canonicalKey, existing.pointer);
         referencingElement.set('$ref', existing.pointer);
         path.skip();
         return;
@@ -573,7 +558,7 @@ class OpenAPI3_0BundleVisitor {
 
       // reserve the assignment and component slot before recursing so cyclic
       // references terminate
-      this.assignments.set(canonicalKey, { field, name, pointer: internalPointer });
+      this.assignments.set(canonicalKey, internalPointer);
       if (!this.hoisted.has(field)) this.hoisted.set(field, []);
       this.hoisted
         .get(field)!
