@@ -173,57 +173,38 @@ describe('bundle', function () {
           });
         });
 
-        context('given external references with deeply equal targets', function () {
+        context('given distinct external targets with identical content', function () {
           const fixturePath = path.join(rootFixturePath, 'dedup-equal');
           const rootFilePath = path.join(fixturePath, 'root.json');
 
-          specify('should collapse them into a single component', async function () {
+          specify('should hoist each target into its own component', async function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
 
-            assert.lengthOf(
-              Object.keys(
-                toValue(evaluate(bundled.result as Element, '/components/parameters')) as object,
-              ),
-              1,
+            // identical content is not merged: each distinct target keeps its
+            // own component (and origin), matching libopenapi's bundling
+            assert.hasAllKeys(
+              toValue(evaluate(bundled.result as Element, '/components/parameters')) as object,
+              ['SharedParam', 'AlsoShared'],
             );
           });
 
-          specify('should point both references at the same component', async function () {
+          specify('should point each reference at its own component', async function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
 
             assert.strictEqual(
               toValue(evaluate(bundled.result as Element, '/paths/~1a/get/parameters/0/$ref')),
+              '#/components/parameters/SharedParam',
+            );
+            assert.strictEqual(
               toValue(evaluate(bundled.result as Element, '/paths/~1b/get/parameters/0/$ref')),
+              '#/components/parameters/AlsoShared',
             );
           });
         });
-
-        context(
-          'given deeply equal targets from different documents with relative refs',
-          function () {
-            const fixturePath = path.join(rootFixturePath, 'dedup-relative-refs');
-            const rootFilePath = path.join(fixturePath, 'root.json');
-
-            specify(
-              'should NOT collapse them (their relative refs resolve differently)',
-              async function () {
-                const bundled = await bundle(rootFilePath, {
-                  parse: { mediaType: mediaTypes.latest('json') },
-                });
-                const schemas = toValue(
-                  evaluate(bundled.result as Element, '/components/schemas'),
-                ) as Record<string, unknown>;
-
-                // both Wrap fragments and both distinct models are kept
-                assert.hasAllKeys(schemas, ['Wrap', 'Wrap-2', 'M', 'M-2']);
-              },
-            );
-          },
-        );
 
         context('given external references colliding on name with different content', function () {
           const fixturePath = path.join(rootFixturePath, 'collision-different');

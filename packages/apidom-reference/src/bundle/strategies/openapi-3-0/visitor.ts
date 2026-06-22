@@ -1,4 +1,4 @@
-import { propEq, equals } from 'ramda';
+import { propEq } from 'ramda';
 import {
   isElement,
   isObjectElement,
@@ -7,13 +7,12 @@ import {
   ObjectElement,
   ParseResultElement,
   AnnotationElement,
-  StringElement,
   cloneDeep,
   cloneShallow,
 } from '@speclynx/apidom-datamodel';
 import { toValue, toYAML, fixedFields } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
-import { traverse, traverseAsync, type Path } from '@speclynx/apidom-traverse';
+import { traverseAsync, type Path } from '@speclynx/apidom-traverse';
 import { evaluate, escape, unescape, URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
 import {
   ReferenceElement,
@@ -25,8 +24,6 @@ import {
   isReferenceElement,
   isReferenceLikeElement,
   isPathItemElement,
-  isLinkElement,
-  isExampleElement,
   refract,
   refractReference,
   refractPathItem,
@@ -62,25 +59,13 @@ const componentFieldByReferencedElement: Record<string, string> = {
 };
 
 /**
- * A component already hoisted into the entry document, retaining the value of
- * the fragment as it was before bundling. Used to collapse multiple references
- * whose targets are deeply equal into a single component.
- */
-interface HoistedComponent {
-  readonly name: string;
-  readonly pointer: string;
-  readonly value: unknown;
-  readonly baseURI: string;
-}
-
-/**
  * @public
  */
 export interface OpenAPI3_0BundleVisitorOptions {
   readonly reference: Reference;
   readonly options: ReferenceOptions;
   readonly assignments?: Map<string, string>;
-  readonly hoisted?: Map<string, HoistedComponent[]>;
+  readonly reservedNames?: Map<string, Set<string>>;
   readonly refractCache?: WeakMap<Element, Map<string, Element>>;
   readonly inlineStack?: Set<string>;
 }
@@ -126,11 +111,11 @@ class OpenAPI3_0BundleVisitor {
   protected readonly assignments: Map<string, string>;
 
   /**
-   * Components already hoisted into the entry document, grouped by Components
-   * Object field. Lets references with deeply equal targets collapse into a
-   * single component instead of producing `Pet`, `Pet-2`, `Pet-3`, ...
+   * Component names already reserved per Components Object field. Reserved
+   * before recursion so collision suffixing (`Pet`, `Pet-2`, ...) accounts for
+   * components that are still being bundled.
    */
-  protected readonly hoisted: Map<string, HoistedComponent[]>;
+  protected readonly reservedNames: Map<string, Set<string>>;
 
   /**
    * Caches refracted fragments keyed by source element and target element type.
@@ -152,7 +137,7 @@ class OpenAPI3_0BundleVisitor {
     reference,
     options,
     assignments = new Map<string, string>(),
-    hoisted = new Map<string, HoistedComponent[]>(),
+    reservedNames = new Map<string, Set<string>>(),
     refractCache = new WeakMap(),
     inlineStack = new Set<string>(),
   }: OpenAPI3_0BundleVisitorOptions) {
@@ -160,7 +145,7 @@ class OpenAPI3_0BundleVisitor {
     this.options = options;
     this.inlineStack = inlineStack;
     this.assignments = assignments;
-    this.hoisted = hoisted;
+    this.reservedNames = reservedNames;
     this.refractCache = refractCache;
   }
 
@@ -223,37 +208,6 @@ class OpenAPI3_0BundleVisitor {
   }
 
   /**
-   * Whether the fragment carries any reference (`$ref`/`operationRef`/
-   * `externalValue`) that is neither a bare fragment nor an absolute URI, i.e.
-   * one whose meaning depends on the document it lives in. Such fragments are
-   * not safe to dedup across documents even when their content is deeply equal.
-   */
-  protected hasRelativeExternalRefs(element: Element): boolean {
-    const isRelative = (ref: StringElement | undefined): boolean => {
-      if (!isStringElement(ref)) return false;
-      const value = toValue(ref) as string;
-      return !value.startsWith('#') && !url.hasProtocol(value);
-    };
-
-    let found = false;
-    traverse(element, {
-      enter(path: Path<Element>) {
-        const node = path.node;
-        if (
-          (isReferenceElement(node) && isRelative(node.$ref)) ||
-          (isPathItemElement(node) && isRelative(node.$ref)) ||
-          (isLinkElement(node) && isRelative(node.operationRef)) ||
-          (isExampleElement(node) && isRelative(node.externalValue))
-        ) {
-          found = true;
-          path.stop();
-        }
-      },
-    });
-    return found;
-  }
-
-  /**
    * Creates a child visitor sharing all cross-document bundling state, scoped to
    * a different reference (the external document being bundled into the entry).
    */
@@ -262,7 +216,7 @@ class OpenAPI3_0BundleVisitor {
       reference,
       options: this.options,
       assignments: this.assignments,
-      hoisted: this.hoisted,
+      reservedNames: this.reservedNames,
       refractCache: this.refractCache,
       inlineStack: this.inlineStack,
     });
@@ -418,9 +372,8 @@ class OpenAPI3_0BundleVisitor {
     // a name is taken if it's already placed in components or reserved by a
     // component that is still being bundled (reserved before recursion)
     const fieldElement = this.ensureComponentsField(field);
-    const reserved = this.hoisted.get(field) ?? [];
-    const isTaken = (taken: string): boolean =>
-      fieldElement.hasKey(taken) || reserved.some((component) => component.name === taken);
+    const reserved = this.reservedNames.get(field) ?? new Set<string>();
+    const isTaken = (taken: string): boolean => fieldElement.hasKey(taken) || reserved.has(taken);
 
     if (!isTaken(candidate)) {
       return candidate;
@@ -518,30 +471,12 @@ class OpenAPI3_0BundleVisitor {
         }
       }
 
-      // collapse references whose targets are deeply equal into one component.
-      // a fragment with relative external refs resolves against its own document,
-      // so byte-identical fragments from different documents are only safe to
-      // collapse when they carry no relative external refs of their own.
-      const referencedValue = toValue(referencedElement);
-      const hasRelativeRefs = this.hasRelativeExternalRefs(referencedElement);
-      const existing = (this.hoisted.get(field) ?? []).find(
-        (component) =>
-          equals(component.value, referencedValue) &&
-          (!hasRelativeRefs || component.baseURI === reference.uri),
-      );
-      if (existing !== undefined) {
-        this.assignments.set(canonicalKey, existing.pointer);
-        referencingElement.set('$ref', existing.pointer);
-        path.skip();
-        return;
-      }
-
       const preferredName = this.baseName(referencedElement, field, jsonPointer, retrievalURI);
       const name = this.uniqueName(preferredName, field);
       const internalPointer = `#/components/${field}/${escape(name)}`;
 
-      // a rename here means a different-content target wanted an already-taken
-      // name (deeply equal targets were collapsed earlier). Report per severity.
+      // a rename means two distinct targets resolved to the same name; each
+      // keeps its own component (and origin), so report the rename per severity.
       // strategy specific options take precedence over the top-level bundle options
       const onComponentNameCollision =
         this.options.bundle.strategyOpts['openapi-3-0']?.onComponentNameCollision ??
@@ -558,13 +493,11 @@ class OpenAPI3_0BundleVisitor {
         (this.entryParseResult.content as Element[]).push(annotation);
       }
 
-      // reserve the assignment and component slot before recursing so cyclic
+      // reserve the assignment and component name before recursing so cyclic
       // references terminate
       this.assignments.set(canonicalKey, internalPointer);
-      if (!this.hoisted.has(field)) this.hoisted.set(field, []);
-      this.hoisted
-        .get(field)!
-        .push({ name, pointer: internalPointer, value: referencedValue, baseURI: reference.uri });
+      if (!this.reservedNames.has(field)) this.reservedNames.set(field, new Set<string>());
+      this.reservedNames.get(field)!.add(name);
 
       // own a copy of the fragment and bundle its own external references
       const hoistedElement = cloneDeep(referencedElement);
