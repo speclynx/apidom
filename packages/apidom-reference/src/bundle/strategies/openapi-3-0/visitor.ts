@@ -713,6 +713,17 @@ class OpenAPI3_0BundleVisitor {
   public async LinkElement(path: Path<Element>) {
     const linkElement = path.node as LinkElement;
 
+    // operationRef and operationId fields are mutually exclusive
+    if (isStringElement(linkElement.operationRef) && isStringElement(linkElement.operationId)) {
+      throw new ApiDOMStructuredError(
+        'LinkElement operationRef and operationId fields are mutually exclusive',
+        {
+          operationRef: toValue(linkElement.operationRef),
+          operationId: toValue(linkElement.operationId),
+        },
+      );
+    }
+
     // only external operationRef links need adjusting
     if (!isStringElement(linkElement.operationRef)) {
       return;

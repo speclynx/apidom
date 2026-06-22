@@ -1,0 +1,12 @@
+{
+  "openapi": "3.0.4",
+  "info": { "title": "operationRef and operationId both defined", "version": "1.0.0" },
+  "components": {
+    "links": {
+      "link1": {
+        "operationRef": "./ex.json#/paths/~1things/get",
+        "operationId": "getThings"
+      }
+    }
+  }
+}

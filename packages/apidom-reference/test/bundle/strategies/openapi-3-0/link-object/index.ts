@@ -58,6 +58,22 @@ describe('bundle', function () {
             assert.strictEqual(operationRef, '#/paths/~1things/get');
           });
         });
+
+        context('given both operationRef and operationId', function () {
+          const fixturePath = path.join(rootFixturePath, 'operation-ref-id-both-defined');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should throw because the fields are mutually exclusive', async function () {
+            try {
+              await bundle(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              assert.fail('should have thrown');
+            } catch (error) {
+              assert.match(((error as Error).cause as Error).message, /mutually exclusive/);
+            }
+          });
+        });
       });
     });
   });
