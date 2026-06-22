@@ -78,7 +78,6 @@ export interface OpenAPI3_0BundleVisitorOptions {
   readonly options: ReferenceOptions;
   readonly assignments?: Map<string, string>;
   readonly hoisted?: Map<string, HoistedComponent[]>;
-  readonly annotations?: AnnotationElement[];
   readonly refractCache?: WeakMap<Element, Map<string, Element>>;
   readonly inlineStack?: Set<string>;
 }
@@ -101,13 +100,19 @@ class OpenAPI3_0BundleVisitor {
   }
 
   /**
+   * The entry parse result. Derived from the shared refSet's root reference.
+   */
+  protected get entryParseResult(): ParseResultElement {
+    return this.reference.refSet!.rootRef!.value as ParseResultElement;
+  }
+
+  /**
    * The entry document element. Hoisted external fragments are placed into its
-   * `components` object. Derived from the shared refSet's root reference; the
-   * `canBundle` guard guarantees it is an OpenApi3_0Element.
+   * `components` object. The `canBundle` guard guarantees it is an
+   * OpenApi3_0Element.
    */
   protected get entryResult(): OpenApi3_0Element {
-    return (this.reference.refSet!.rootRef!.value as ParseResultElement)
-      .result as OpenApi3_0Element;
+    return this.entryParseResult.result as OpenApi3_0Element;
   }
 
   /**
@@ -123,13 +128,6 @@ class OpenAPI3_0BundleVisitor {
    * single component instead of producing `Pet`, `Pet-2`, `Pet-3`, ...
    */
   protected readonly hoisted: Map<string, HoistedComponent[]>;
-
-  /**
-   * Shared sink for diagnostics surfaced during bundling (e.g. a component
-   * rename forced by a name collision). Appended to the returned parse result
-   * as warning annotations.
-   */
-  protected readonly annotations: AnnotationElement[];
 
   /**
    * Caches refracted fragments keyed by source element and target element type.
@@ -152,7 +150,6 @@ class OpenAPI3_0BundleVisitor {
     options,
     assignments = new Map<string, string>(),
     hoisted = new Map<string, HoistedComponent[]>(),
-    annotations = [],
     refractCache = new WeakMap(),
     inlineStack = new Set<string>(),
   }: OpenAPI3_0BundleVisitorOptions) {
@@ -161,7 +158,6 @@ class OpenAPI3_0BundleVisitor {
     this.inlineStack = inlineStack;
     this.assignments = assignments;
     this.hoisted = hoisted;
-    this.annotations = annotations;
     this.refractCache = refractCache;
   }
 
@@ -229,7 +225,6 @@ class OpenAPI3_0BundleVisitor {
       options: this.options,
       assignments: this.assignments,
       hoisted: this.hoisted,
-      annotations: this.annotations,
       refractCache: this.refractCache,
       inlineStack: this.inlineStack,
     });
@@ -553,7 +548,8 @@ class OpenAPI3_0BundleVisitor {
         const annotation = new AnnotationElement(message);
         annotation.classes.push('warning');
         annotation.code = 'bundle-component-name-collision';
-        this.annotations.push(annotation);
+        // append (never prepend) so the result element stays ahead of annotations
+        (this.entryParseResult.content as Element[]).push(annotation);
       }
 
       // reserve the assignment and component slot before recursing so cyclic

@@ -1,9 +1,4 @@
-import {
-  ParseResultElement,
-  Element,
-  AnnotationElement,
-  cloneDeep,
-} from '@speclynx/apidom-datamodel';
+import { ParseResultElement, cloneDeep } from '@speclynx/apidom-datamodel';
 import { traverseAsync } from '@speclynx/apidom-traverse';
 import { mediaTypes, isOpenApi3_0Element } from '@speclynx/apidom-ns-openapi-3-0';
 
@@ -94,22 +89,15 @@ class OpenAPI3_0BundleStrategy extends BundleStrategy {
       refSet = mutableRefSet;
     }
 
-    const annotations: AnnotationElement[] = [];
     const visitor = new OpenAPI3_0BundleVisitor({
       reference: reference!,
       options,
-      annotations,
     });
     await traverseAsync(refSet.rootRef!.value, visitor, {
       mutable: true,
     });
 
-    // surface bundling diagnostics as annotations on the parse result. appended
-    // (never prepended) so the result element stays ahead of annotations.
     const parseResult = reference!.value as ParseResultElement;
-    annotations.forEach((annotation) => {
-      (parseResult.content as Element[]).push(annotation);
-    });
 
     /**
      * Release all memory if this refSet was not provided as a configuration option.
