@@ -51,6 +51,7 @@ import * as url from '../../../util/url.ts';
 import parse from '../../../parse/index.ts';
 import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
+import { toPascalCase, sanitizeComponentName, uniqueName } from '../../util.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 
 /**
@@ -363,44 +364,13 @@ class OpenAPI3_0BundleVisitor {
     if (componentNamesStrategy === 'title') {
       const title = toValue((element as ObjectElement).get?.('title'));
       if (typeof title === 'string' && title.trim() !== '') {
-        // PascalCase the title, replace characters invalid in a component name
-        // with `-`, then collapse and trim stray separators
-        const pascal = title
-          .trim()
-          .split(/\s+/)
-          .map((word) => word.replace(/^[a-z]/, (char) => char.toUpperCase()))
-          .join('')
-          .replace(/[^a-zA-Z0-9.\-_]/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-|-$/g, '');
-        if (pascal !== '') return pascal;
+        const name = sanitizeComponentName(toPascalCase(title));
+        if (name !== '') return name;
       }
       // fall back to basename when no usable title is present
     }
 
     return this.basenameOf(jsonPointer, baseURI);
-  }
-
-  /**
-   * Computes a collision-free component name within the target field by
-   * suffixing `-2`, `-3`, ... on top of the given base name.
-   */
-  protected uniqueName(candidate: string, field: string): string {
-    // a name is taken if it's already placed in components or reserved by a
-    // component that is still being bundled (reserved before recursion)
-    const fieldElement = this.ensureComponentsField(field);
-    const reserved = this.reservedNames.get(field) ?? new Set<string>();
-    const isTaken = (taken: string): boolean => fieldElement.hasKey(taken) || reserved.has(taken);
-
-    if (!isTaken(candidate)) {
-      return candidate;
-    }
-
-    let counter = 2;
-    while (isTaken(`${candidate}-${counter}`)) {
-      counter += 1;
-    }
-    return `${candidate}-${counter}`;
   }
 
   public async ReferenceElement(path: Path<Element>) {
@@ -488,9 +458,16 @@ class OpenAPI3_0BundleVisitor {
         }
       }
 
+      // a name is taken if it's already placed in components or reserved by a
+      // component that is still being bundled (reserved before recursion)
       const preferredName = this.baseName(referencedElement, field, jsonPointer, retrievalURI);
-      const name = this.uniqueName(preferredName, field);
-      const internalPointer = `#/components/${field}/${escape(name)}`;
+      const fieldElement = this.ensureComponentsField(field);
+      const reserved = this.reservedNames.get(field) ?? new Set<string>();
+      const componentName = uniqueName(
+        preferredName,
+        (candidate) => fieldElement.hasKey(candidate) || reserved.has(candidate),
+      );
+      const internalPointer = `#/components/${field}/${escape(componentName)}`;
 
       // a rename means two distinct targets resolved to the same name; each
       // keeps its own component (and origin), so report the rename per severity.
@@ -498,8 +475,8 @@ class OpenAPI3_0BundleVisitor {
       const onComponentNameCollision =
         this.options.bundle.strategyOpts['openapi-3-0']?.onComponentNameCollision ??
         this.options.bundle.onComponentNameCollision;
-      if (name !== preferredName && onComponentNameCollision !== 'off') {
-        const message = `Component "${preferredName}" in components/${field} is referenced with the same name but different content. Renamed to "${name}".`;
+      if (componentName !== preferredName && onComponentNameCollision !== 'off') {
+        const message = `Component "${preferredName}" in components/${field} is referenced with the same name but different content. Renamed to "${componentName}".`;
         if (onComponentNameCollision === 'error') {
           throw new BundleError(message);
         }
@@ -514,7 +491,7 @@ class OpenAPI3_0BundleVisitor {
       // references terminate
       this.assignments.set(canonicalKey, internalPointer);
       if (!this.reservedNames.has(field)) this.reservedNames.set(field, new Set<string>());
-      this.reservedNames.get(field)!.add(name);
+      this.reservedNames.get(field)!.add(componentName);
 
       // own a copy of the fragment and bundle its own external references
       const hoistedElement = cloneDeep(referencedElement);
@@ -534,7 +511,7 @@ class OpenAPI3_0BundleVisitor {
       }
 
       // place the bundled fragment into the entry document's components
-      this.ensureComponentsField(field).set(name, bundledElement);
+      this.ensureComponentsField(field).set(componentName, bundledElement);
 
       // rewrite the referencing element to point at the hoisted fragment
       referencingElement.set('$ref', internalPointer);
