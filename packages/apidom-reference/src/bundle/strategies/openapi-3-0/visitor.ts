@@ -7,6 +7,7 @@ import {
   ObjectElement,
   ParseResultElement,
   AnnotationElement,
+  StringElement,
   cloneDeep,
   cloneShallow,
 } from '@speclynx/apidom-datamodel';
@@ -24,6 +25,8 @@ import {
   isReferenceElement,
   isReferenceLikeElement,
   isPathItemElement,
+  isLinkElement,
+  isExampleElement,
   refract,
   refractReference,
   refractPathItem,
@@ -178,6 +181,38 @@ class OpenAPI3_0BundleVisitor {
     return url.resolve(this.reference.uri, url.sanitize(url.stripHash(uri)));
   }
 
+  protected async toReference(uri: string): Promise<Reference> {
+    // detect maximum depth of resolution
+    if (this.reference.depth >= this.options.resolve.maxDepth) {
+      throw new MaximumResolveDepthError(
+        `Maximum resolution depth of ${this.options.resolve.maxDepth} has been exceeded by file "${this.reference.uri}"`,
+        { maxDepth: this.options.resolve.maxDepth, uri: this.reference.uri },
+      );
+    }
+
+    const baseURI = this.toBaseURI(uri);
+    const { refSet } = this.reference as { refSet: ReferenceSet };
+
+    // we've already processed this Reference in past
+    if (refSet.has(baseURI)) {
+      return refSet.find(propEq(baseURI, 'uri'))!;
+    }
+
+    const parseResult = await parse(url.unsanitize(baseURI), {
+      ...this.options,
+      parse: { ...this.options.parse, mediaType: 'text/plain' },
+    });
+
+    const reference = new Reference({
+      uri: baseURI,
+      value: parseResult,
+      depth: this.reference.depth + 1,
+    });
+    refSet.add(reference);
+
+    return reference;
+  }
+
   /**
    * Normalizes a self-file reference (e.g. `./root.json#/components/schemas/Pet`)
    * to a bare fragment (`#/components/schemas/Pet`) so the bundled document stays
@@ -194,21 +229,24 @@ class OpenAPI3_0BundleVisitor {
    * not safe to dedup across documents even when their content is deeply equal.
    */
   protected hasRelativeExternalRefs(element: Element): boolean {
+    const isRelative = (ref: StringElement | undefined): boolean => {
+      if (!isStringElement(ref)) return false;
+      const value = toValue(ref) as string;
+      return !value.startsWith('#') && !url.hasProtocol(value);
+    };
+
     let found = false;
     traverse(element, {
       enter(path: Path<Element>) {
         const node = path.node;
-        if (!isObjectElement(node)) return;
-        for (const field of ['$ref', 'operationRef', 'externalValue']) {
-          const member = (node as ObjectElement).get(field);
-          if (isStringElement(member)) {
-            const value = toValue(member) as string;
-            if (!value.startsWith('#') && !url.hasProtocol(value)) {
-              found = true;
-              path.stop();
-              return;
-            }
-          }
+        if (
+          (isReferenceElement(node) && isRelative(node.$ref)) ||
+          (isPathItemElement(node) && isRelative(node.$ref)) ||
+          (isLinkElement(node) && isRelative(node.operationRef)) ||
+          (isExampleElement(node) && isRelative(node.externalValue))
+        ) {
+          found = true;
+          path.stop();
         }
       },
     });
@@ -287,38 +325,6 @@ class OpenAPI3_0BundleVisitor {
 
     if (!isEntryDocument || continueOnError === false) throw unresolvedError;
     if (typeof continueOnError === 'function') continueOnError(unresolvedError);
-  }
-
-  protected async toReference(uri: string): Promise<Reference> {
-    // detect maximum depth of resolution
-    if (this.reference.depth >= this.options.resolve.maxDepth) {
-      throw new MaximumResolveDepthError(
-        `Maximum resolution depth of ${this.options.resolve.maxDepth} has been exceeded by file "${this.reference.uri}"`,
-        { maxDepth: this.options.resolve.maxDepth, uri: this.reference.uri },
-      );
-    }
-
-    const baseURI = this.toBaseURI(uri);
-    const { refSet } = this.reference as { refSet: ReferenceSet };
-
-    // we've already processed this Reference in past
-    if (refSet.has(baseURI)) {
-      return refSet.find(propEq(baseURI, 'uri'))!;
-    }
-
-    const parseResult = await parse(url.unsanitize(baseURI), {
-      ...this.options,
-      parse: { ...this.options.parse, mediaType: 'text/plain' },
-    });
-
-    const reference = new Reference({
-      uri: baseURI,
-      value: parseResult,
-      depth: this.reference.depth + 1,
-    });
-    refSet.add(reference);
-
-    return reference;
   }
 
   /**
