@@ -90,8 +90,6 @@ interface HoistedComponent {
 export interface OpenAPI3_0BundleVisitorOptions {
   readonly reference: Reference;
   readonly options: ReferenceOptions;
-  readonly entryURI: string;
-  readonly entryResult: Element;
   readonly componentNamesStrategy?: ComponentNamesStrategy;
   readonly onComponentNameCollision?: ComponentNameCollisionSeverity;
   readonly assignments?: Map<string, Assignment>;
@@ -112,14 +110,20 @@ class OpenAPI3_0BundleVisitor {
   /**
    * The base URI (without hash) of the entry document. A reference is
    * considered internal when it resolves to this URI and external otherwise.
+   * Derived from the shared refSet's root reference.
    */
-  protected readonly entryURI: string;
+  protected get entryURI(): string {
+    return url.stripHash(this.reference.refSet?.rootRef?.uri ?? '');
+  }
 
   /**
    * The root element of the entry document. Hoisted external fragments are
-   * placed into its `components` object.
+   * placed into its `components` object. Derived from the shared refSet's
+   * root reference.
    */
-  protected readonly entryResult: Element;
+  protected get entryResult(): Element {
+    return (this.reference.refSet!.rootRef!.value as ParseResultElement).result as Element;
+  }
 
   /**
    * Determines how hoisted components are named (`basename` or `title`).
@@ -171,8 +175,6 @@ class OpenAPI3_0BundleVisitor {
   constructor({
     reference,
     options,
-    entryURI,
-    entryResult,
     componentNamesStrategy = 'basename',
     onComponentNameCollision = 'warn',
     assignments = new Map<string, Assignment>(),
@@ -185,8 +187,6 @@ class OpenAPI3_0BundleVisitor {
     this.options = options;
     this.componentNamesStrategy = componentNamesStrategy;
     this.onComponentNameCollision = onComponentNameCollision;
-    this.entryURI = entryURI;
-    this.entryResult = entryResult;
     this.inlineStack = inlineStack;
     this.assignments = assignments;
     this.hoisted = hoisted;
@@ -256,8 +256,6 @@ class OpenAPI3_0BundleVisitor {
     return new OpenAPI3_0BundleVisitor({
       reference,
       options: this.options,
-      entryURI: this.entryURI,
-      entryResult: this.entryResult,
       componentNamesStrategy: this.componentNamesStrategy,
       onComponentNameCollision: this.onComponentNameCollision,
       assignments: this.assignments,

@@ -10,7 +10,6 @@ import { mediaTypes, isOpenApi3_0Element } from '@speclynx/apidom-ns-openapi-3-0
 import File from '../../../File.ts';
 import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
-import * as url from '../../../util/url.ts';
 import BundleStrategy, { BundleStrategyOptions } from '../BundleStrategy.ts';
 import OpenAPI3_0BundleVisitor from './visitor.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
@@ -95,9 +94,6 @@ class OpenAPI3_0BundleStrategy extends BundleStrategy {
       refSet = mutableRefSet;
     }
 
-    const entryURI = url.stripHash(file.uri);
-    const entryResult = (reference!.value as ParseResultElement).result as Element;
-
     // strategy specific options take precedence over the top-level bundle options
     const strategyOpts = options.bundle.strategyOpts['openapi-3-0'] ?? {};
     const componentNamesStrategy =
@@ -109,8 +105,6 @@ class OpenAPI3_0BundleStrategy extends BundleStrategy {
     const visitor = new OpenAPI3_0BundleVisitor({
       reference: reference!,
       options,
-      entryURI,
-      entryResult,
       componentNamesStrategy,
       onComponentNameCollision,
       annotations,
