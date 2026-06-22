@@ -208,21 +208,6 @@ class OpenAPI3_0BundleVisitor {
   }
 
   /**
-   * Creates a child visitor sharing all cross-document bundling state, scoped to
-   * a different reference (the external document being bundled into the entry).
-   */
-  protected createChildVisitor(reference: Reference): OpenAPI3_0BundleVisitor {
-    return new OpenAPI3_0BundleVisitor({
-      reference,
-      options: this.options,
-      assignments: this.assignments,
-      reservedNames: this.reservedNames,
-      refractCache: this.refractCache,
-      inlineStack: this.inlineStack,
-    });
-  }
-
-  /**
    * Handles an error according to the `bundle.continueOnError` option.
    *
    * For new errors: wraps in UnresolvableReferenceError with structured
@@ -240,13 +225,11 @@ class OpenAPI3_0BundleVisitor {
     refFieldValue: string,
     visitorPath: Path<Element>,
   ): void {
-    // deliberate stop signals (depth limits, collision=error) are not
-    // resolution failures: never wrap or swallow them
-    if (
-      error instanceof MaximumBundleDepthError ||
-      error instanceof MaximumResolveDepthError ||
-      error instanceof BundleError
-    ) {
+    // BundleError (a maxDepth breach or a collision reported as `error`) is a
+    // deliberate stop, not a resolution failure — pass it through unchanged
+    // rather than wrapping it as UnresolvableReferenceError or swallowing it
+    // via continueOnError.
+    if (error instanceof BundleError) {
       throw error;
     }
 
@@ -501,13 +484,15 @@ class OpenAPI3_0BundleVisitor {
 
       // own a copy of the fragment and bundle its own external references
       const hoistedElement = cloneDeep(referencedElement);
-      const bundledElement = await traverseAsync(
-        hoistedElement,
-        this.createChildVisitor(reference),
-        {
-          mutable: true,
-        },
-      );
+      const visitor = new OpenAPI3_0BundleVisitor({
+        reference,
+        options: this.options,
+        assignments: this.assignments,
+        reservedNames: this.reservedNames,
+        refractCache: this.refractCache,
+        inlineStack: this.inlineStack,
+      });
+      const bundledElement = await traverseAsync(hoistedElement, visitor, { mutable: true });
 
       // annotate the hoisted fragment with info about its origin
       if (isElement(bundledElement)) {
@@ -605,9 +590,17 @@ class OpenAPI3_0BundleVisitor {
       // own a copy and bundle the external references it contains
       const inlinedElement = cloneDeep(referencedElement) as PathItemElement;
       this.inlineStack.add(canonicalKey);
+      const visitor = new OpenAPI3_0BundleVisitor({
+        reference,
+        options: this.options,
+        assignments: this.assignments,
+        reservedNames: this.reservedNames,
+        refractCache: this.refractCache,
+        inlineStack: this.inlineStack,
+      });
       let bundledElement: PathItemElement;
       try {
-        bundledElement = (await traverseAsync(inlinedElement, this.createChildVisitor(reference), {
+        bundledElement = (await traverseAsync(inlinedElement, visitor, {
           mutable: true,
         })) as PathItemElement;
       } finally {
