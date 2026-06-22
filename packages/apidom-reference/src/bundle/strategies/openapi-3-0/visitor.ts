@@ -13,7 +13,12 @@ import {
 import { toValue, toYAML, fixedFields } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 import { traverseAsync, type Path } from '@speclynx/apidom-traverse';
-import { evaluate, escape, unescape, URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
+import {
+  evaluate,
+  escape,
+  parse as parseJSONPointer,
+  URIFragmentIdentifier,
+} from '@speclynx/apidom-json-pointer';
 import {
   ReferenceElement,
   PathItemElement,
@@ -319,8 +324,8 @@ class OpenAPI3_0BundleVisitor {
    * falling back to the referenced file's basename.
    */
   protected basenameOf(jsonPointer: string, baseURI: string): string {
-    const tokens = jsonPointer.split('/').filter((token) => token !== '');
-    let candidate = tokens.length > 0 ? unescape(tokens[tokens.length - 1]) : '';
+    const tokens = parseJSONPointer(jsonPointer).tree as string[];
+    let candidate = tokens.length > 0 ? tokens[tokens.length - 1] : '';
     if (candidate === '') {
       const lastSlash = baseURI.lastIndexOf('/');
       const lastDot = baseURI.lastIndexOf('.');
