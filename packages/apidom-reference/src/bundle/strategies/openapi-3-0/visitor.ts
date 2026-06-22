@@ -366,7 +366,7 @@ class OpenAPI3_0BundleVisitor {
     }
 
     if (componentNamesStrategy === 'title') {
-      const title = toValue((element as ObjectElement).get?.('title'));
+      const title = isObjectElement(element) ? toValue(element.get('title')) : undefined;
       if (typeof title === 'string' && title.trim() !== '') {
         const name = sanitizeComponentName(toPascalCase(title));
         if (name !== '') return name;
