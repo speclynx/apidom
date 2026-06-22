@@ -1,0 +1,1 @@
+{ "Thing": { "title": "Shared Title", "type": "object", "properties": { "a": { "type": "string" } } } }

@@ -1,0 +1,7 @@
+{
+  "petDefinition": {
+    "title": "Pet Model",
+    "type": "object",
+    "properties": { "name": { "type": "string" } }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "openapi": "3.0.4",
+  "info": { "title": "internal operationRef", "version": "1.0.0" },
+  "paths": {
+    "/things": { "get": { "operationId": "getThings", "responses": { "200": { "description": "ok" } } } }
+  },
+  "components": {
+    "links": {
+      "link1": { "operationRef": "#/paths/~1things/get" }
+    }
+  }
+}
