@@ -344,6 +344,48 @@ describe('bundle', function () {
           });
         });
 
+        context('given an external reference indirected through another reference', function () {
+          const fixturePath = path.join(rootFixturePath, 'external-indirection');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should hoist every hop of the indirection chain', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const parameters = toValue(
+              evaluate(bundled.result as Element, '/components/parameters'),
+            ) as Record<string, unknown>;
+
+            // the indirection (A) and its eventual target (B) are both hoisted
+            assert.hasAllKeys(parameters, ['A', 'B']);
+          });
+
+          specify('should keep the chain as internal references', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/paths/~1a/get/parameters/0/$ref')),
+              '#/components/parameters/A',
+            );
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/components/parameters/A/$ref')),
+              '#/components/parameters/B',
+            );
+          });
+
+          specify('should produce a document without external $refs', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const serialized = JSON.stringify(toValue(bundled.result as Element));
+
+            assert.notInclude(serialized, 'ex1.json');
+            assert.notInclude(serialized, 'ex2.json');
+          });
+        });
+
         context('given circular external Schema Objects', function () {
           const fixturePath = path.join(rootFixturePath, 'external-circular-schema');
           const rootFilePath = path.join(fixturePath, 'root.json');

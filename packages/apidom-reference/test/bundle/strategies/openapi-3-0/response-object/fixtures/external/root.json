@@ -1,0 +1,9 @@
+{
+  "openapi": "3.0.4",
+  "info": { "title": "response-object external", "version": "1.0.0" },
+  "components": {
+    "responses": {
+      "Local": { "$ref": "./ex.json#/External" }
+    }
+  }
+}

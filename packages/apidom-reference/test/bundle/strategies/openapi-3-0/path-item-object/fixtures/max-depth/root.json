@@ -1,0 +1,7 @@
+{
+  "openapi": "3.0.4",
+  "info": { "title": "path item max depth", "version": "1.0.0" },
+  "paths": {
+    "/a": { "$ref": "./ex1.json#/PathA" }
+  }
+}

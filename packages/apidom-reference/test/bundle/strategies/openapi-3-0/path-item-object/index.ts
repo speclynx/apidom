@@ -7,6 +7,7 @@ import { mediaTypes } from '@speclynx/apidom-ns-openapi-3-0';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 
 import { bundle } from '../../../../../src/index.ts';
+import MaximumBundleDepthError from '../../../../../src/errors/MaximumBundleDepthError.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootFixturePath = path.join(__dirname, 'fixtures');
@@ -73,6 +74,34 @@ describe('bundle', function () {
             });
 
             assert.isDefined(toValue(evaluate(bundled.result as Element, '/paths/~1a')));
+          });
+        });
+
+        context('given an external Path Item chain exceeding bundle.maxDepth', function () {
+          const fixturePath = path.join(rootFixturePath, 'max-depth');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should throw a MaximumBundleDepthError', async function () {
+            try {
+              await bundle(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                bundle: { maxDepth: 1 },
+              });
+              assert.fail('should have thrown');
+            } catch (error) {
+              assert.instanceOf((error as Error).cause, MaximumBundleDepthError);
+            }
+          });
+
+          specify('should follow the whole chain when maxDepth is not exceeded', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/paths/~1a/get/operationId')),
+              'deep',
+            );
           });
         });
       });
