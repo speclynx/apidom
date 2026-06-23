@@ -1,0 +1,12 @@
+{
+  "Pet": {
+    "description": "a pet response defined in an external file",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "./b.json#/PetSchema"
+        }
+      }
+    }
+  }
+}

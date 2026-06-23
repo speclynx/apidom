@@ -1,0 +1,7 @@
+{
+  "openapi": "3.0.4",
+  "info": { "title": "circular external path item", "version": "1.0.0" },
+  "paths": {
+    "/a": { "$ref": "./ex.json#/PathA" }
+  }
+}

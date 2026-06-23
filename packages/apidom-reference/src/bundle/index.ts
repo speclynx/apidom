@@ -5,6 +5,7 @@ import File from '../File.ts';
 import * as plugins from '../util/plugins.ts';
 import UnmatchedBundleStrategyError from '../errors/UnmatchedBundleStrategyError.ts';
 import BundleError from '../errors/BundleError.ts';
+import UnresolvableReferenceError from '../errors/UnresolvableReferenceError.ts';
 import parse from '../parse/index.ts';
 import { merge as mergeOptions } from '../options/util.ts';
 import * as url from '../util/url.ts';
@@ -50,6 +51,11 @@ const bundle = async (uri: string, options: ReferenceOptions): Promise<ParseResu
     const { result } = await plugins.run('bundle', [file, mergedOptions], bundleStrategies);
     return result;
   } catch (error: any) {
+    // pass through errors that are already part of the bundle/resolution
+    // taxonomy rather than nesting them inside another BundleError
+    if (error instanceof BundleError || error instanceof UnresolvableReferenceError) {
+      throw error;
+    }
     throw new BundleError(`Error while bundling file "${file.uri}"`, { cause: error });
   }
 };

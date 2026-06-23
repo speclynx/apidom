@@ -1,0 +1,21 @@
+{
+  "externalParameter": {
+    "name": "filter",
+    "in": "query",
+    "description": "this parameter is stored in an external file",
+    "required": false,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "externalResponse": {
+    "description": "external response",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

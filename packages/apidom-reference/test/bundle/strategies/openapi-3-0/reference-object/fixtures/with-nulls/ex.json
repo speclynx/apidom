@@ -1,0 +1,7 @@
+{
+  "NullableParam": {
+    "name": "x",
+    "in": "query",
+    "schema": { "type": "string", "nullable": true, "default": null, "example": null }
+  }
+}

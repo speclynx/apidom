@@ -1,8 +1,8 @@
-import { ApiDOMError } from '@speclynx/apidom-error';
+import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 
 /**
  * @public
  */
-class BundleError extends ApiDOMError {}
+class BundleError extends ApiDOMStructuredError {}
 
 export default BundleError;

@@ -1,0 +1,9 @@
+{
+  "openapi": "3.0.4",
+  "info": { "title": "parameter-object external", "version": "1.0.0" },
+  "components": {
+    "parameters": {
+      "Local": { "$ref": "./ex.json#/External" }
+    }
+  }
+}

@@ -1,0 +1,1 @@
+{ "B": { "type": "object", "properties": { "c": { "$ref": "./ex3.json#/C" } } } }

@@ -10,7 +10,12 @@ import {
 } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 
-import { dereference, dereferenceApiDOM, DereferenceError } from '../../../../../src/index.ts';
+import {
+  dereference,
+  dereferenceApiDOM,
+  DereferenceError,
+  UnresolvableReferenceError,
+} from '../../../../../src/index.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -259,7 +264,7 @@ describe('dereference', function () {
               });
               assert.fail('should throw DereferenceError');
             } catch (e) {
-              assert.instanceOf(e, DereferenceError);
+              assert.instanceOf(e, UnresolvableReferenceError);
             }
           });
         });
@@ -275,7 +280,7 @@ describe('dereference', function () {
               });
               assert.fail('should throw DereferenceError');
             } catch (e) {
-              assert.instanceOf(e, DereferenceError);
+              assert.instanceOf(e, UnresolvableReferenceError);
             }
           });
         });
@@ -292,7 +297,7 @@ describe('dereference', function () {
                 });
                 assert.fail('should throw DereferenceError');
               } catch (e) {
-                assert.instanceOf(e, DereferenceError);
+                assert.instanceOf(e, UnresolvableReferenceError);
               }
             });
           });
@@ -349,7 +354,7 @@ describe('dereference', function () {
               });
 
               errors.forEach((error) => {
-                assert.instanceOf(error, DereferenceError);
+                assert.instanceOf(error, UnresolvableReferenceError);
               });
             });
 

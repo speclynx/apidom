@@ -1,0 +1,22 @@
+{
+  "openapi": "3.0.4",
+  "info": { "title": "value and externalValue", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "ex1": { "value": { "inline": true }, "externalValue": "./value.json" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "openapi": "3.0.4",
+  "info": { "title": "title fallback", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": { "schema": { "$ref": "./schemas.json#/untitledSchema" } }
+            }
+          }
+        }
+      }
+    }
+  }
+}

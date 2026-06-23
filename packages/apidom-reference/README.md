@@ -2707,11 +2707,113 @@ await bundle('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/e
 #### [Bundle strategies](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/bundle/strategies)
 
 Bundle strategy determines how a document is bundled into a Compound Document. Depending on document `mediaType` option,
-every strategy differs significantly. `Bundle component` comes with single (1) default bundle strategy.
+every strategy differs significantly. `Bundle component` comes with two (2) default bundle strategies.
+
+##### [openapi-3-0](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/bundle/strategies/openapi-3-0)
+
+Bundle strategy for bundling [OpenApi 3.0.x](https://spec.openapis.org/oas/v3.0.4.html) definitions.
+
+It produces a self-contained, transferable Compound Document: every external reference is resolved and lifted
+into the appropriate `components` field, and the referencing `$ref` is rewritten to an internal JSON Pointer.
+External references that have no Components Object field in OpenAPI 3.0 are handled differently — external
+Path Item Objects and Example Object `externalValue` content are inlined in place, and an external Link Object
+`operationRef` is rewritten to an absolute URI so the link stays resolvable. Multiple references to the
+**same** external target (same document URI and JSON Pointer) are collapsed into a single component; distinct
+targets each get their own component, even when their content happens to be identical. Internal references are
+preserved untouched; only a self-file reference (e.g. `./root.json#/components/schemas/Pet`) is normalized to a
+bare fragment (`#/components/schemas/Pet`) so the bundled document remains transferable.
+
+Supported media types:
+
+```js
+[
+  'application/openapi;version=3.0.0',
+  'application/openapi+json;version=3.0.0',
+  'application/openapi+yaml;version=3.0.0',
+  'application/openapi;version=3.0.1',
+  'application/openapi+json;version=3.0.1',
+  'application/openapi+yaml;version=3.0.1',
+  'application/openapi;version=3.0.2',
+  'application/openapi+json;version=3.0.2',
+  'application/openapi+yaml;version=3.0.2',
+  'application/openapi;version=3.0.3',
+  'application/openapi+json;version=3.0.3',
+  'application/openapi+yaml;version=3.0.3',
+  'application/openapi;version=3.0.4',
+  'application/openapi+json;version=3.0.4',
+  'application/openapi+yaml;version=3.0.4'
+]
+```
+
+This strategy accepts the following options:
+
+This strategy's behavior is controlled by the following `bundle` options:
+
+```js
+import { bundle } from '@speclynx/apidom-reference';
+
+await bundle('/home/user/oas.json', {
+  parse: {
+    mediaType: 'application/openapi+json;version=3.0.4',
+  },
+  bundle: {
+    // how hoisted components are named
+    componentNamesStrategy: 'basename',
+    // how a collision-forced rename is reported
+    onComponentNameCollision: 'warn',
+  },
+});
+```
+
+`componentNamesStrategy` determines how hoisted components are named:
+
+- `'basename'` (default) — derive the name from the referenced JSON Pointer (its last token),
+  falling back to the referenced file's basename.
+- `'title'` — derive Schema Object names from their `title` field (PascalCased and sanitized),
+  falling back to `'basename'` when no usable title is present.
+- a resolver function `({ element, field, jsonPointer, baseURI }) => string` — returns the base name;
+  collision suffixing is still applied on top of the returned value.
+
+`onComponentNameCollision` determines how a rename forced by two distinct targets resolving to the same
+component name is reported:
+
+- `'warn'` (default) — append a `warning` annotation to the returned `ParseResultElement`.
+- `'off'` — rename silently.
+- `'error'` — throw a `BundleError` instead of renaming.
+
+Both options are top-level `bundle` fields that apply to every bundle strategy. To override them for a
+specific strategy only, use `bundle.strategyOpts` keyed by strategy name (strategy specific options take
+precedence over the top-level ones):
+
+```js
+await bundle('/home/user/oas.json', {
+  parse: {
+    mediaType: 'application/openapi+json;version=3.0.4',
+  },
+  bundle: {
+    strategyOpts: {
+      'openapi-3-0': {
+        onComponentNameCollision: 'error',
+      },
+    },
+  },
+});
+```
+
+Hoisted components are annotated with a `ref-origin` meta field pointing at their source document.
+
+The bundling process is **immutable** by default (`bundle.immutable: true`) — the original ApiDOM and any
+pre-computed `bundle.refSet` are deep cloned before bundling, so they are never mutated. Set
+`bundle.immutable` to `false` to bundle in place (faster, no deep cloning) when you don't need to retain
+the original.
 
 ##### [openapi-3-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/bundle/strategies/openapi-3-1)
 
 Bundle strategy for bundling [OpenApi 3.1.x](https://spec.openapis.org/oas/v3.1.2.html) definitions.
+
+> **Note:** this strategy is **not implemented yet**. It matches OpenAPI 3.1.x
+> documents but currently returns the parse result unchanged (no references are
+> resolved or hoisted). For real bundling, use OpenAPI 3.0.x for now.
 
 Supported media types:
 
@@ -2741,6 +2843,7 @@ returns `true` or until entire list of strategies is exhausted (throws error).
 
 ```js
 [
+  new OpenAPI3_0BundleStrategy(),
   new OpenAPI3_1BundleStrategy(),
 ]
 ```
@@ -2750,10 +2853,12 @@ It's possible to **change** strategies **order globally** by mutating global `bu
 
 ```js
 import { options } from '@speclynx/apidom-reference';
+import OpenAPI3_0BundleStrategy from '@speclynx/apidom-reference/bundle/strategies/openapi-3-0'
 import OpenAPI3_1BundleStrategy from '@speclynx/apidom-reference/bundle/strategies/openapi-3-1'
 
-options.dereference.strategies = [
-  new OpenAPI3_1DereferenceStrategy(),
+options.bundle.strategies = [
+  new OpenAPI3_1BundleStrategy(),
+  new OpenAPI3_0BundleStrategy(),
 ];
 ```
 
@@ -2761,6 +2866,7 @@ To **change** the strategies **order** on ad-hoc basis:
 
 ```js
 import { bundle } from '@speclynx/apidom-reference';
+import OpenAPI3_0BundleStrategy from '@speclynx/apidom-reference/bundle/strategies/openapi-3-0'
 import OpenAPI3_1BundleStrategy from '@speclynx/apidom-reference/bundle/strategies/openapi-3-1'
 
 await bundle('/home/user/oas.json', {
@@ -2770,10 +2876,116 @@ await bundle('/home/user/oas.json', {
   bundle: {
     strategies: [
       new OpenAPI3_1BundleStrategy(),
+      new OpenAPI3_0BundleStrategy(),
     ]
   }
 });
 ```
+
+##### Bundle strategy plugin options
+
+Some bundle strategy plugins accept additional options. These can be set globally as top-level
+`bundle` options (applying to every strategy), or per-strategy via `bundle.strategyOpts` keyed by
+strategy name (strategy specific options take precedence over the top-level ones).
+
+To **change** strategy plugin **options globally** by mutating global `bundle` options:
+
+```js
+import { options } from '@speclynx/apidom-reference';
+
+options.bundle.componentNamesStrategy = 'title';
+options.bundle.onComponentNameCollision = 'error';
+```
+
+To **change** the bundle strategy plugin **options** on ad-hoc basis:
+
+```js
+import { bundle } from '@speclynx/apidom-reference';
+
+await bundle('/home/user/oas.json', {
+  parse: { mediaType: 'application/openapi+json;version=3.0.4' },
+  bundle: {
+    componentNamesStrategy: 'title',
+    onComponentNameCollision: 'error',
+  },
+});
+```
+
+To **override** options for a **single strategy** via `strategyOpts`:
+
+```js
+import { bundle } from '@speclynx/apidom-reference';
+
+await bundle('/home/user/oas.json', {
+  parse: { mediaType: 'application/openapi+json;version=3.0.4' },
+  bundle: {
+    strategyOpts: {
+      'openapi-3-0': {
+        componentNamesStrategy: 'title',
+        onComponentNameCollision: 'error',
+      },
+    },
+  },
+});
+```
+
+##### Increasing speed of bundle
+
+Just like dereference, bundling time is the sum of `traversing` + sum of `external resolution per file`.
+By having a huge number of external dependencies in your definition file, bundling can get quite slow.
+The same optimization applies: run an `external resolution` first and pass its result to bundling via the
+`refSet` option. External resolution ignores internal references, so it's theoretically always faster than
+the bundling.
+
+```js
+import { resolve, bundle } from '@speclynx/apidom-reference';
+
+const refSet = await resolve('/home/user/oas.json', {
+  parse: { mediaType: 'application/openapi+json;version=3.0.4' },
+});
+
+const bundled = await bundle('/home/user/oas.json', {
+  parse: { mediaType: 'application/openapi+json;version=3.0.4' },
+  bundle: { refSet },
+});
+```
+
+##### Continue on error
+
+By default, bundling fails fast on the first unresolvable reference. The `continueOnError` option
+allows bundling to continue past broken references, collecting errors instead of throwing.
+
+**Type:** `false | true | ((error: Error) => void)`
+
+**Default:** `false`
+
+| Value | Behavior |
+|---|---|
+| `false` | Fail fast — throws `UnresolvableReferenceError` on first broken reference |
+| `true` | Skip unresolvable references silently |
+| callback | Called for each unresolvable reference with structured error context |
+
+Unlike dereferencing, a skipped reference is **left in place** — so the bundled document may still
+contain unresolved external references when `continueOnError` is not `false`. Bundling cannot inline or
+hoist a reference it could not resolve, so the resulting document is not guaranteed to be self-contained.
+
+```js
+import { bundle, UnresolvableReferenceError } from '@speclynx/apidom-reference';
+
+const errors = [];
+
+await bundle('/home/user/oas.json', {
+  parse: { mediaType: 'application/openapi+json;version=3.0.4' },
+  bundle: {
+    continueOnError: (error) => {
+      errors.push(error);
+    },
+  },
+});
+
+// errors is an array of UnresolvableReferenceError instances
+```
+
 ##### Creating new bundle strategy
 
 Bundle component can be extended by additional strategies. Every strategy is an object that

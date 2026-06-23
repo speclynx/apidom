@@ -1,0 +1,3 @@
+{
+  "SharedParam": { "name": "shared", "in": "query", "schema": { "type": "string" } }
+}

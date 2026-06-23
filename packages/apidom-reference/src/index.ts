@@ -29,6 +29,12 @@ export { AncestorLineage as DereferenceAncestorLineage } from './dereference/uti
 
 export { default as BundleStrategy } from './bundle/strategies/BundleStrategy.ts';
 export type { BundleStrategyOptions } from './bundle/strategies/BundleStrategy.ts';
+export type {
+  ComponentNamesStrategy,
+  ComponentNameResolver,
+  ComponentNameResolverArgs,
+  ComponentNameCollisionSeverity,
+} from './options/index.ts';
 
 export { default as options } from './options/index.ts';
 export { merge as mergeOptions } from './options/util.ts';
