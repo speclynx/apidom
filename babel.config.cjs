@@ -12,29 +12,20 @@ module.exports = {
           {
             debug: false,
             modules: 'commonjs',
-            loose: true,
-            useBuiltIns: false,
             forceAllTransforms: false,
             ignoreBrowserslistConfig: false,
             exclude: ['transform-function-name'],
           },
         ],
-        [
-          '@babel/preset-typescript',
-          {
-            allowDeclareFields: true,
-          },
-        ],
+        ['@babel/preset-typescript', { onlyRemoveTypeImports: false }],
       ],
       plugins: [
         [
           '@babel/plugin-transform-runtime',
           {
-            corejs: { version: 3, proposals: false },
+            moduleName: '@babel/runtime-corejs3',
             absoluteRuntime: false,
-            helpers: true,
-            regenerator: false,
-            version: '^7.22.15',
+            version: '^8.0.0',
           },
         ],
         path.join(__dirname, './scripts/babel-plugin-inline-wasm.cjs'),
@@ -54,29 +45,20 @@ module.exports = {
           {
             debug: false,
             modules: false,
-            useBuiltIns: false,
             forceAllTransforms: false,
             ignoreBrowserslistConfig: false,
             exclude: ['transform-function-name'], // this is here because of https://github.com/babel/babel/discussions/12874
           },
         ],
-        [
-          '@babel/preset-typescript',
-          {
-            allowDeclareFields: true,
-          },
-        ],
+        ['@babel/preset-typescript', { onlyRemoveTypeImports: false }],
       ],
       plugins: [
         [
           '@babel/plugin-transform-runtime',
           {
-            corejs: { version: 3, proposals: false },
+            moduleName: '@babel/runtime-corejs3',
             absoluteRuntime: false,
-            helpers: true,
-            regenerator: false,
-            useESModules: true,
-            version: '^7.22.15',
+            version: '^8.0.0',
           },
         ],
         path.join(__dirname, './scripts/babel-plugin-inline-wasm.cjs'),
@@ -94,29 +76,21 @@ module.exports = {
           {
             debug: false,
             modules: 'auto',
-            useBuiltIns: false,
             forceAllTransforms: false,
             ignoreBrowserslistConfig: false,
             exclude: ['transform-function-name'], // this is here because of https://github.com/babel/babel/discussions/12874
           },
         ],
-        [
-          '@babel/preset-typescript',
-          {
-            allowDeclareFields: true,
-          },
-        ],
+        ['@babel/preset-typescript', { onlyRemoveTypeImports: false }],
       ],
       plugins: [
         path.join(__dirname, './scripts/babel-plugin-inline-wasm.cjs'),
         [
           '@babel/plugin-transform-runtime',
           {
-            corejs: { version: 3, proposals: false },
+            moduleName: '@babel/runtime-corejs3',
             absoluteRuntime: false,
-            helpers: true,
-            regenerator: false,
-            version: '^7.22.15',
+            version: '^8.0.0',
           },
         ],
       ],

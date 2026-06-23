@@ -58,7 +58,7 @@
   "author": "Vladimír Gorej",
   "license": "Apache-2.0",
   "dependencies": {
-    "@babel/runtime-corejs3": "^7.29.7",
+    "@babel/runtime-corejs3": "^8.0.0",
     "@speclynx/apidom-core": "*",
     "@speclynx/apidom-datamodel": "*",
     "@speclynx/apidom-error": "*",
