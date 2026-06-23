@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.12.1](https://github.com/speclynx/apidom/compare/v4.12.0...v4.12.1) (2026-06-23)
+
+### Bug Fixes
+
+- **datamodel:** register annotation, comment and parseResult elements ([#356](https://github.com/speclynx/apidom/issues/356)) ([d6609ea](https://github.com/speclynx/apidom/commit/d6609ea2ffa5d550b0e3d528de79f7667fa41f21))
+- **playground:** migrate to MUI v9 component APIs ([#357](https://github.com/speclynx/apidom/issues/357)) ([04236ec](https://github.com/speclynx/apidom/commit/04236ecafd796819fefd28a00f2b0254d1a305f3)), closes [#340](https://github.com/speclynx/apidom/issues/340) [#349](https://github.com/speclynx/apidom/issues/349)
+
+### Features
+
+- **playground:** add overlay 1.x parsing support ([#358](https://github.com/speclynx/apidom/issues/358)) ([8157297](https://github.com/speclynx/apidom/commit/8157297ac3547b3c0cbbe9ff7e4d7f525fc6f009)), closes [#235](https://github.com/speclynx/apidom/issues/235)
+
 # [4.12.0](https://github.com/speclynx/apidom/compare/v4.11.1...v4.12.0) (2026-06-23)
 
 ### Features

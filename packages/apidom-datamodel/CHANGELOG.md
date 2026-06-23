@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.12.1](https://github.com/speclynx/apidom/compare/v4.12.0...v4.12.1) (2026-06-23)
+
+### Bug Fixes
+
+- **datamodel:** register annotation, comment and parseResult elements ([#356](https://github.com/speclynx/apidom/issues/356)) ([d6609ea](https://github.com/speclynx/apidom/commit/d6609ea2ffa5d550b0e3d528de79f7667fa41f21))
+
 # [4.12.0](https://github.com/speclynx/apidom/compare/v4.11.1...v4.12.0) (2026-06-23)
 
 **Note:** Version bump only for package @speclynx/apidom-datamodel
