@@ -14,6 +14,8 @@ import * as asyncapi2AdapterJson from '@speclynx/apidom-parser-adapter-asyncapi-
 import * as asyncapi2AdapterYaml from '@speclynx/apidom-parser-adapter-asyncapi-yaml-2';
 import * as arazzo1AdapterJson from '@speclynx/apidom-parser-adapter-arazzo-json-1';
 import * as arazzo1AdapterYaml from '@speclynx/apidom-parser-adapter-arazzo-yaml-1';
+import * as overlay1AdapterJson from '@speclynx/apidom-parser-adapter-overlay-json-1';
+import * as overlay1AdapterYaml from '@speclynx/apidom-parser-adapter-overlay-yaml-1';
 import {
   readFile,
   resolveApiDOM as resolveApiDOMReferences,
@@ -33,7 +35,9 @@ const parser = new ApiDOMParser()
   .use(asyncapi2AdapterJson)
   .use(asyncapi2AdapterYaml)
   .use(arazzo1AdapterJson)
-  .use(arazzo1AdapterYaml);
+  .use(arazzo1AdapterYaml)
+  .use(overlay1AdapterJson)
+  .use(overlay1AdapterYaml);
 
 /* eslint-disable */
 const service = {

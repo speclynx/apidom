@@ -17,6 +17,7 @@ import asyncApi2NsPlugin, {
 import arazzoSpecification1NsPlugin, {
   mediaTypes as arazzoSpecification1MediaTypes,
 } from '@speclynx/apidom-ns-arazzo-1';
+import overlay1NsPlugin, { mediaTypes as overlay1MediaTypes } from '@speclynx/apidom-ns-overlay-1';
 import { mediaTypes as jsonMediaTypes } from '@speclynx/apidom-parser-adapter-json';
 import { mediaTypes as yamlMediaTypes } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
@@ -56,6 +57,9 @@ export const selectApiDOMNamespace = createSelector(selectMediaType, (mediaType)
   }
   if (arazzoSpecification1MediaTypes.includes(mediaType)) {
     return new Namespace().use(arazzoSpecification1NsPlugin);
+  }
+  if (overlay1MediaTypes.includes(mediaType)) {
+    return new Namespace().use(overlay1NsPlugin);
   }
   return new Namespace();
 });
@@ -132,6 +136,7 @@ export const selectMediaTypes = (() => {
     ...openApi3_1MediaTypes,
     ...asyncApi2MediaTypes,
     ...arazzoSpecification1MediaTypes,
+    ...overlay1MediaTypes,
   ];
   return () => allMediaTypes;
 })();
