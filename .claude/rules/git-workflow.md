@@ -9,6 +9,7 @@
 - Reference related issues with `Refs #<issue>` in the commit body.
 - Do NOT use GitHub magic close-keywords (`Closes`, `Fixes`, `Resolves`) in commit messages — those belong in the PR body so they close issues on merge, not on every push.
 - Follow Conventional Commits (see `conventional-commits.md`).
+- Sign off every commit with DCO: `git commit -s` (per `CONTRIBUTING.md`).
 
 ## Issues
 
