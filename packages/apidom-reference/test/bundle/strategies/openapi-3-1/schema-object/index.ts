@@ -355,6 +355,36 @@ describe('bundle', function () {
             );
           });
         });
+
+        context(
+          'given an internal Schema Object reference inside a document at resolve.maxDepth',
+          function () {
+            const fixturePath = path.join(rootFixturePath, 'internal-ref-at-max-depth');
+            const rootFilePath = path.join(fixturePath, 'root.json');
+
+            specify(
+              'should leave the internal $ref untouched without resolving',
+              async function () {
+                // the embedded resource is reached at depth 1; an internal $ref
+                // within it needs no resolution and must not trip resolve.maxDepth
+                const bundled = await bundle(rootFilePath, {
+                  parse: { mediaType: mediaTypes.latest('json') },
+                  resolve: { maxDepth: 1 },
+                });
+
+                assert.strictEqual(
+                  toValue(
+                    evaluate(
+                      bundled.result as Element,
+                      '/components/responses/Resp/content/application~1json/schema/properties/self/$ref',
+                    ),
+                  ),
+                  '#/Resp',
+                );
+              },
+            );
+          },
+        );
       });
     });
   });

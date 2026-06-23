@@ -701,9 +701,11 @@ class OpenAPI3_1BundleVisitor {
     const $ref = toValue(referencingElement.$ref) as string;
 
     try {
-      // compute baseURI using rules around $id and $ref keywords
-      const reference = await this.toReference(url.unsanitize(this.reference.uri));
-      const retrievalURI = reference.uri;
+      // compute baseURI using rules around $id and $ref keywords. The current
+      // document's URI is the retrieval URI — derive it directly (not via
+      // toReference) so an internal $ref needs no resolution and never trips the
+      // resolve.maxDepth guard, matching how ReferenceElement returns early.
+      const retrievalURI = this.reference.uri;
       const $refBaseURI = resolveSchema$refField(retrievalURI, referencingElement)!;
       const $refBaseURIStrippedHash = url.stripHash($refBaseURI);
       const file = new File({ uri: $refBaseURIStrippedHash });
@@ -724,10 +726,19 @@ class OpenAPI3_1BundleVisitor {
         return;
       }
 
+      // detect maximum depth of bundling before fetching the external resource,
+      // matching ReferenceElement/PathItemElement (which check before toReference)
+      if (this.reference.depth >= this.options.bundle.maxDepth) {
+        throw new MaximumBundleDepthError(
+          `Maximum bundle depth of "${this.options.bundle.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
+          { maxDepth: this.options.bundle.maxDepth, uri: this.reference.uri },
+        );
+      }
+
       // locate the external schema resource the $ref targets, reusing the
       // dereference strategy's classification (unknown URI / URL vs JSON
       // Pointer vs $anchor)
-      let schemaReference = reference;
+      let schemaReference = this.reference;
       try {
         if (isUnknownURI || isURL) {
           const referenceAsSchema = maybeRefractToSchemaElement(
@@ -792,14 +803,6 @@ class OpenAPI3_1BundleVisitor {
       if (this.assignments.has(canonicalKey)) {
         path.skip();
         return;
-      }
-
-      // detect maximum depth of bundling
-      if (this.reference.depth >= this.options.bundle.maxDepth) {
-        throw new MaximumBundleDepthError(
-          `Maximum bundle depth of "${this.options.bundle.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
-          { maxDepth: this.options.bundle.maxDepth, uri: this.reference.uri },
-        );
       }
 
       // own a copy of the resource and ensure it carries a $id so the unchanged

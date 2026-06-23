@@ -1,0 +1,13 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "internal schema ref inside external doc at max depth", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "responses": {
+          "200": { "$ref": "./ex.json#/Resp" }
+        }
+      }
+    }
+  }
+}
