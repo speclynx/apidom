@@ -9,7 +9,7 @@ import {
   AnnotationElement,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { toValue, toYAML } from '@speclynx/apidom-core';
+import { toValue, toYAML, fixedFields } from '@speclynx/apidom-core';
 import { traverseAsync, type Path } from '@speclynx/apidom-traverse';
 import {
   evaluate,
@@ -55,12 +55,15 @@ import type { ReferenceOptions } from '../../../options/index.ts';
  * Maps the `referenced-element` meta value (set during refraction) to the
  * top-level Swagger Object field where the referenced element should be
  * hoisted. Unlike OpenAPI 3.x, OpenAPI 2.0 has no single Components Object;
- * reusable definitions live directly under the document root.
+ * reusable definitions live directly under the document root. Field names are
+ * sourced from the Swagger Object fixed fields so they cannot drift from the
+ * namespace definition.
  */
+const sf = fixedFields(SwaggerElement, { indexed: true });
 const fieldByReferencedElement: Record<string, string> = {
-  schema: 'definitions',
-  parameter: 'parameters',
-  response: 'responses',
+  schema: sf.definitions.name,
+  parameter: sf.parameters.name,
+  response: sf.responses.name,
 };
 
 /**
@@ -70,9 +73,9 @@ const fieldByReferencedElement: Record<string, string> = {
  * object.
  */
 const fieldElementByField: Record<string, new () => ObjectElement> = {
-  definitions: DefinitionsElement,
-  parameters: ParametersDefinitionsElement,
-  responses: ResponsesDefinitionsElement,
+  [sf.definitions.name]: DefinitionsElement,
+  [sf.parameters.name]: ParametersDefinitionsElement,
+  [sf.responses.name]: ResponsesDefinitionsElement,
 };
 
 /**
