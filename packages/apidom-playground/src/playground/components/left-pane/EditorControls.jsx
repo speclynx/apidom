@@ -106,9 +106,11 @@ const EditorControls = () => {
       <Grid
         container
         direction="row"
-        justifyContent="center"
-        alignItems="center"
-        sx={{ marginTop: (theme) => theme.spacing(2) }}
+        sx={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginTop: (theme) => theme.spacing(2),
+        }}
       >
         <Grid>
           <ButtonGroup

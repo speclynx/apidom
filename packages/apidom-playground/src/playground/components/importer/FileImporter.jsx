@@ -79,13 +79,13 @@ const FileImporter = () => {
         <SpeedDialAction
           key="Import URL"
           icon={<ImportExportIcon />}
-          tooltipTitle="Import URL"
+          slotProps={{ tooltip: { title: 'Import URL' } }}
           onClick={handleUrlDialogOpen}
         />
         <SpeedDialAction
           key="Attach file"
           icon={<AttachFileIcon />}
-          tooltipTitle="Attach file"
+          slotProps={{ tooltip: { title: 'Attach file' } }}
           onClick={handleFileUploadClick}
         />
       </SpeedDial>

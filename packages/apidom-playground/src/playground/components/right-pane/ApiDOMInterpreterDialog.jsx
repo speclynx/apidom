@@ -39,7 +39,7 @@ const ApiDOMInterpreterDialog = ({ open, onClose }) => {
       open={open}
       onClose={onClose}
       aria-labelledby="form-dialog-title"
-      TransitionComponent={Transition}
+      slots={{ transition: Transition }}
     >
       <AppBar>
         <Toolbar>
