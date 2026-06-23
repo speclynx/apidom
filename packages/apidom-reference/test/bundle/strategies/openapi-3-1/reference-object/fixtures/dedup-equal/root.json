@@ -1,0 +1,18 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "content-equal dedup", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "parameters": [{ "$ref": "./p1.json#/SharedParam" }],
+        "responses": { "200": { "description": "ok" } }
+      }
+    },
+    "/b": {
+      "get": {
+        "parameters": [{ "$ref": "./p2.json#/AlsoShared" }],
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  }
+}

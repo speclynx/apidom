@@ -1,0 +1,18 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "name collision different content", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "parameters": [{ "$ref": "./dir1/Param.json#/Param" }],
+        "responses": { "200": { "description": "ok" } }
+      }
+    },
+    "/b": {
+      "get": {
+        "parameters": [{ "$ref": "./dir2/Param.json#/Param" }],
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  }
+}

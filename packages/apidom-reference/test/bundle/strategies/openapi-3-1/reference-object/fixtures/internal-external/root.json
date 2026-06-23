@@ -1,28 +1,37 @@
 {
-  "openapi": "3.1.2",
+  "openapi": "3.1.0",
+  "info": {
+    "title": "internal and external references",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/users/{userId}": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          },
+          {
+            "$ref": "./ex.json#/externalParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "./ex.json#/externalResponse"
+          }
+        }
+      }
+    }
+  },
   "components": {
     "parameters": {
       "userId": {
-        "$ref": "#/components/parameters/indirection1",
-        "description": "override"
-      },
-      "indirection1": {
-        "$ref": "#/components/parameters/indirection2",
-        "summary": "indirect summary"
-      },
-      "indirection2": {
-        "$ref": "#/components/parameters/userIdRef",
-        "summary": "indirect summary"
-      },
-      "userIdRef": {
         "name": "userId",
-        "in": "query",
-        "description": "ID of the user",
-        "required": true
-      },
-      "externalRef": {
-        "$ref": "./ex.json#/externalParameter",
-        "description": "another ref"
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     }
   }

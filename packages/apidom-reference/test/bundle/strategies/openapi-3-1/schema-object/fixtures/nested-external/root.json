@@ -1,0 +1,9 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "deeply nested external schema resources", "version": "1.0.0" },
+  "components": {
+    "schemas": {
+      "Order": { "$ref": "./order.json" }
+    }
+  }
+}

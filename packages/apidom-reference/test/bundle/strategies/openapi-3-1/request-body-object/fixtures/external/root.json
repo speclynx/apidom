@@ -1,0 +1,9 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "request-body-object external", "version": "1.0.0" },
+  "components": {
+    "requestBodies": {
+      "Local": { "$ref": "./ex.json#/External" }
+    }
+  }
+}

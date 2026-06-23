@@ -1,0 +1,11 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "path item $ref with siblings", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "summary": "local summary",
+      "description": "local description",
+      "$ref": "./ex.json#/SharedPath"
+    }
+  }
+}

@@ -1,0 +1,1 @@
+{ "PathB": { "$ref": "./ex3.json#/PathC" } }

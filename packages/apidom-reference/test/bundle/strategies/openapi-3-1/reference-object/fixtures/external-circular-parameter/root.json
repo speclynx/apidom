@@ -1,0 +1,12 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "circular external parameter", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "parameters": [{ "$ref": "./ex.json#/A" }],
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  }
+}

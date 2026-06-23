@@ -2863,9 +2863,27 @@ the original.
 
 Bundle strategy for bundling [OpenApi 3.1.x](https://spec.openapis.org/oas/v3.1.2.html) definitions.
 
-> **Note:** this strategy is **not implemented yet**. It matches OpenAPI 3.1.x
-> documents but currently returns the parse result unchanged (no references are
-> resolved or hoisted). For real bundling, use OpenAPI 3.0.x for now.
+It produces a self-contained, transferable Compound Document. **Reference Objects** are bundled exactly as
+in the `openapi-3-0` strategy: every external reference is resolved and lifted into the appropriate
+`components` field, and the referencing `$ref` is rewritten to an internal JSON Pointer. The one upgrade
+over 3.0 is **Path Item Objects** — OpenAPI 3.1 adds a `components.pathItems` field, so an external Path
+Item is hoisted there (and its `$ref` rewritten to `#/components/pathItems/<name>`) instead of being
+inlined in place. Example Object `externalValue` content is inlined, and an external Link Object
+`operationRef` is rewritten to an absolute URI so the link stays resolvable.
+
+**Schema Objects** are a [JSON Schema 2020-12](https://json-schema.org/draft/2020-12) dialect and are
+bundled per the [JSON Schema Compound Document](https://json-schema.org/blog/posts/bundling-json-schema-compound-documents)
+rules: the external schema **resource** is embedded verbatim into `components.schemas` carrying its `$id`
+(one is assigned from the retrieval URI when absent), and the referencing `$ref` is left **unchanged** — it
+keeps resolving against the embedded resource's `$id`. The whole external resource is embedded once, keyed by
+its `$id`; references (including `$anchor`, `$dynamicRef`, and `$dynamicAnchor`) are never rewritten. Nested
+external schema resources are embedded flat into the top-level `components.schemas`, deduplicated by resource
+URI. Internal Schema Object references are preserved untouched.
+
+Multiple references to the **same** external target are collapsed into a single component; distinct targets
+each get their own component, even when their content happens to be identical. Internal Reference Objects are
+preserved untouched; only a self-file reference (e.g. `./root.json#/components/parameters/userId`) is
+normalized to a bare fragment (`#/components/parameters/userId`) so the bundled document remains transferable.
 
 Supported media types:
 
@@ -2882,6 +2900,30 @@ Supported media types:
   'application/openapi+yaml;version=3.1.2'
 ]
 ```
+
+This strategy's behavior is controlled by the same `bundle` options as the `openapi-3-0` strategy
+(`componentNamesStrategy`, `onComponentNameCollision`, `immutable`, `maxDepth`, `continueOnError`, `refSet`),
+documented above. Per-strategy overrides use the `openapi-3-1` key in `bundle.strategyOpts`:
+
+```js
+import { bundle } from '@speclynx/apidom-reference';
+
+await bundle('/home/user/oas.json', {
+  parse: {
+    mediaType: 'application/openapi+json;version=3.1.0',
+  },
+  bundle: {
+    strategyOpts: {
+      'openapi-3-1': {
+        onComponentNameCollision: 'error',
+      },
+    },
+  },
+});
+```
+
+Hoisted components and embedded schema resources are annotated with a `ref-origin` meta field pointing at
+their source document. The bundling process is **immutable** by default (`bundle.immutable: true`).
 
 ##### Bundle strategies execution order
 

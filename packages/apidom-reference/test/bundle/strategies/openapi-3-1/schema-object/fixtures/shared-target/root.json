@@ -1,0 +1,27 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "multiple references to the same external schema resource",
+    "version": "1.0.0"
+  },
+  "components": {
+    "schemas": {
+      "Cat": {
+        "type": "object",
+        "properties": {
+          "friend": {
+            "$ref": "./ex.json#/$defs/Pet"
+          }
+        }
+      },
+      "Dog": {
+        "type": "object",
+        "properties": {
+          "rival": {
+            "$ref": "./ex.json#/$defs/Pet"
+          }
+        }
+      }
+    }
+  }
+}

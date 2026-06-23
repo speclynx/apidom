@@ -1,0 +1,1 @@
+{ "External": { "description": "external header", "schema": { "type": "string" } } }

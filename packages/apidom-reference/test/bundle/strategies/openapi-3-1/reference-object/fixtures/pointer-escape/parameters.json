@@ -1,0 +1,1 @@
+{ "Foo/Bar": { "name": "foobar", "in": "query", "schema": { "type": "string" } } }

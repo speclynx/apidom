@@ -1,0 +1,19 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "external schema reference by $anchor",
+    "version": "1.0.0"
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "profile": {
+            "$ref": "./ex.json#user-profile"
+          }
+        }
+      }
+    }
+  }
+}

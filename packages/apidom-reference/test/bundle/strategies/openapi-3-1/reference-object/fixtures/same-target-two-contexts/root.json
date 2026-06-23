@@ -1,0 +1,12 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "same target two contexts", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "parameters": [{ "$ref": "./ex.json#/Thing" }],
+        "responses": { "200": { "$ref": "./ex.json#/Thing" } }
+      }
+    }
+  }
+}

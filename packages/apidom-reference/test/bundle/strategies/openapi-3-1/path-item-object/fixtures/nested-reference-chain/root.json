@@ -1,0 +1,7 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "entry -> path item -> response", "version": "1.0.0" },
+  "paths": {
+    "/a": { "$ref": "./ex.json#/SharedPath" }
+  }
+}

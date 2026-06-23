@@ -1,0 +1,12 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "dotted pointer keys", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "parameters": [{ "$ref": "./parameters.json#/my.org.User" }],
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  }
+}

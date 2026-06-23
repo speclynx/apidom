@@ -1,0 +1,1 @@
+{ "External": { "description": "external request body", "content": { "application/json": { "schema": { "type": "object" } } } } }

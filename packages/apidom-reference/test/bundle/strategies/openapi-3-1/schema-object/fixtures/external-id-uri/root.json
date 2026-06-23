@@ -1,0 +1,14 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "external schema reference by absolute $id URI",
+    "version": "1.0.0"
+  },
+  "components": {
+    "schemas": {
+      "Pet": {
+        "$ref": "./ex.json"
+      }
+    }
+  }
+}

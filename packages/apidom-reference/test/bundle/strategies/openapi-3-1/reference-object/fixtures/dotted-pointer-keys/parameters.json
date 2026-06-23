@@ -1,0 +1,3 @@
+{
+  "my.org.User": { "name": "user", "in": "query", "schema": { "type": "string" } }
+}
