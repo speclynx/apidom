@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.13.0](https://github.com/speclynx/apidom/compare/v4.12.1...v4.13.0) (2026-06-23)
+
+### Features
+
+- **reference:** add OpenAPI 2.0 bundle strategy ([#360](https://github.com/speclynx/apidom/issues/360)) ([29a1b3f](https://github.com/speclynx/apidom/commit/29a1b3f05ecdf12bf9003af96e19c6dedb4e310f)), closes [#351](https://github.com/speclynx/apidom/issues/351)
+
 ## [4.12.1](https://github.com/speclynx/apidom/compare/v4.12.0...v4.12.1) (2026-06-23)
 
 ### Bug Fixes

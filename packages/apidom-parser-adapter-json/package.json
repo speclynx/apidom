@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-parser-adapter-json",
-  "version": "4.12.1",
+  "version": "4.13.0",
   "description": "Parser adapter for parsing JSON documents into base namespace.",
   "keywords": [
     "apidom",
@@ -58,9 +58,9 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^8.0.0",
-    "@speclynx/apidom-core": "4.12.1",
-    "@speclynx/apidom-datamodel": "4.12.1",
-    "@speclynx/apidom-error": "4.12.1",
+    "@speclynx/apidom-core": "4.13.0",
+    "@speclynx/apidom-datamodel": "4.13.0",
+    "@speclynx/apidom-error": "4.13.0",
     "web-tree-sitter": "=0.26.9"
   },
   "devDependencies": {
