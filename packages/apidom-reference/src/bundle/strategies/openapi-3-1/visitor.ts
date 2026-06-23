@@ -656,9 +656,9 @@ class OpenAPI3_1BundleVisitor {
         mutable: true,
       })) as PathItemElement;
 
-      // the hoisted Path Item drops its own `$ref` (it has been resolved); a
-      // surviving `$ref` only means it was left in place to break a circular
-      // external Path Item chain, which is preserved as-is
+      // a `$ref` surviving on the hoisted Path Item means it pointed at another
+      // Path Item (a chain or cycle); it has already been rewritten to an
+      // internal `#/components/pathItems/...` pointer by the child traversal
       bundledElement.meta.set('ref-origin', reference.uri);
 
       // place the bundled Path Item into the entry document's components
@@ -736,23 +736,16 @@ class OpenAPI3_1BundleVisitor {
       }
 
       // locate the external schema resource the $ref targets, reusing the
-      // dereference strategy's classification (unknown URI / URL vs JSON
-      // Pointer vs $anchor)
+      // dereference strategy's classification. First try to resolve the target
+      // as a canonical URI / URL against the current document's $id graph; if
+      // that fails, fall back to fetching the external document and resolving
+      // the fragment there as a $anchor or JSON Pointer.
       let schemaReference = this.reference;
       try {
-        if (isUnknownURI || isURL) {
-          const referenceAsSchema = maybeRefractToSchemaElement(
-            (schemaReference.value as ParseResultElement).result as Element,
-          );
-          uriEvaluate($refBaseURI, referenceAsSchema);
-        } else {
-          schemaReference = await this.toReference(url.unsanitize($refBaseURI));
-          const selector = URIFragmentIdentifier.fromURIReference($refBaseURI);
-          const referenceAsSchema = maybeRefractToSchemaElement(
-            (schemaReference.value as ParseResultElement).result as Element,
-          );
-          jsonPointerEvaluate(referenceAsSchema, selector);
-        }
+        const referenceAsSchema = maybeRefractToSchemaElement(
+          (schemaReference.value as ParseResultElement).result as Element,
+        );
+        uriEvaluate($refBaseURI, referenceAsSchema);
       } catch (error) {
         if (isURL && error instanceof EvaluationJsonSchemaUriError) {
           if (isAnchor(uriToAnchor($refBaseURI))) {
