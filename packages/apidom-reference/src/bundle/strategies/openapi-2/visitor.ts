@@ -219,11 +219,11 @@ class OpenAPI2BundleVisitor {
   }
 
   /**
-   * Normalizes a self-file reference (e.g. `./root.json#/definitions/Pet`)
+   * Normalizes a self-reference (e.g. `./root.json#/definitions/Pet`)
    * to a bare fragment (`#/definitions/Pet`) so the bundled document stays
    * transferable. Bare fragments are returned unchanged.
    */
-  protected normalizeSelfFileRef(ref: string): string {
+  protected normalizeSelfReference(ref: string): string {
     return ref.startsWith('#') ? ref : url.getHash(ref);
   }
 
@@ -385,9 +385,9 @@ class OpenAPI2BundleVisitor {
     const isExternalReference = !isInternalReference;
 
     if (isInternalReference) {
-      // normalize self-file references to a bare fragment so the bundled
+      // normalize self-references to a bare fragment so the bundled
       // document stays transferable; bare fragments are left untouched
-      referencingElement.set('$ref', this.normalizeSelfFileRef($ref));
+      referencingElement.set('$ref', this.normalizeSelfReference($ref));
       path.skip();
       return;
     }
@@ -576,9 +576,9 @@ class OpenAPI2BundleVisitor {
     const isExternalReference = !isInternalReference;
 
     if (isInternalReference) {
-      // normalize self-file references to a bare fragment so the bundled
+      // normalize self-references to a bare fragment so the bundled
       // document stays transferable; bare fragments are left untouched
-      pathItemElement.set('$ref', this.normalizeSelfFileRef($ref));
+      pathItemElement.set('$ref', this.normalizeSelfReference($ref));
       return;
     }
 
