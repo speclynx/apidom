@@ -1,5 +1,13 @@
 import { assert } from 'chai';
-import { Namespace, JSONSerialiser, StringElement, Element } from '../src/index.ts';
+import {
+  Namespace,
+  JSONSerialiser,
+  StringElement,
+  Element,
+  AnnotationElement,
+  CommentElement,
+  ParseResultElement,
+} from '../src/index.ts';
 
 describe('Namespace', function () {
   let namespace: Namespace;
@@ -35,6 +43,12 @@ describe('Namespace', function () {
       const testnamespace = new Namespace({ noDefault: true });
       testnamespace.useDefault();
       assert.isNotEmpty(testnamespace.elementMap);
+    });
+
+    specify('register annotation, comment and parseResult elements', function () {
+      assert.strictEqual(namespace.getElementClass('annotation'), AnnotationElement);
+      assert.strictEqual(namespace.getElementClass('comment'), CommentElement);
+      assert.strictEqual(namespace.getElementClass('parseResult'), ParseResultElement);
     });
   });
 

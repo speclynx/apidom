@@ -113,7 +113,10 @@ class Namespace {
       .register('member', elements.MemberElement)
       .register('ref', elements.RefElement)
       .register('link', elements.LinkElement)
-      .register('sourceMap', elements.SourceMapElement);
+      .register('sourceMap', elements.SourceMapElement)
+      .register('annotation', elements.AnnotationElement)
+      .register('comment', elements.CommentElement)
+      .register('parseResult', elements.ParseResultElement);
 
     // Add instance detection functions to convert existing objects into
     // the corresponding refract elements.
