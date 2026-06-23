@@ -5,6 +5,7 @@ import {
   fromFileSystemPath,
   toFileSystemPath,
   getExtension,
+  getBasename,
   getHash,
   resolve,
   stripHash,
@@ -165,6 +166,37 @@ describe('util', function () {
           const extension = getExtension(url);
 
           assert.strictEqual(extension, '.json');
+        });
+      });
+
+      context('given a dot in a directory segment but none in the file name', function () {
+        specify('should return an empty string', function () {
+          assert.strictEqual(getExtension('https://speclynx.com/v1.0/openapi'), '');
+          assert.strictEqual(getExtension('/api.v2/users'), '');
+        });
+      });
+    });
+
+    context('getBasename', function () {
+      specify('should return the file name without extension', function () {
+        assert.strictEqual(getBasename('https://speclynx.com/schemas/Pet.json'), 'Pet');
+      });
+
+      context('given a URI without extension', function () {
+        specify('should return the whole last segment', function () {
+          assert.strictEqual(getBasename('/schemas/Pet'), 'Pet');
+        });
+      });
+
+      context('given a dot in a directory segment', function () {
+        specify('should not strip a directory dot as an extension', function () {
+          assert.strictEqual(getBasename('/my.dir/Pet'), 'Pet');
+        });
+      });
+
+      context('given a URN', function () {
+        specify('should return the whole URI when there is no path segment', function () {
+          assert.strictEqual(getBasename('urn:example:pet'), 'urn:example:pet');
         });
       });
     });

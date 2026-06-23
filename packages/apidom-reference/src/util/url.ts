@@ -35,16 +35,37 @@ export const getProtocol = (url: string): string | undefined => {
 export const hasProtocol = pipe(getProtocol, isNotUndefined);
 
 /**
+ * Returns the final path segment of the given URI (the part after the last
+ * `/`). Inputs are URIs, whose path separator is `/` — filesystem paths are
+ * forward-slashed by `sanitize` before reaching here.
+ */
+const getFilename = (uri: string): string => uri.slice(uri.lastIndexOf('/') + 1);
+
+/**
  * Returns the lower-cased file extension of the given URL,
  * or an empty string if it has no extension.
  * @public
  */
 export const getExtension = (url: string): string => {
-  const lastDotPosition = url.lastIndexOf('.');
+  const fileName = getFilename(url);
+  const lastDotPosition = fileName.lastIndexOf('.');
   if (lastDotPosition >= 0) {
-    return url.substring(lastDotPosition).toLowerCase();
+    return fileName.substring(lastDotPosition).toLowerCase();
   }
   return '';
+};
+
+/**
+ * Returns the final path segment of the given URI with its file extension
+ * removed (e.g. `./schemas/Pet.json` -> `Pet`). Returns the whole segment when
+ * there is no extension, and the whole URI when there is no path segment
+ * (e.g. a URN).
+ * @public
+ */
+export const getBasename = (uri: string): string => {
+  const fileName = getFilename(uri);
+  const extension = getExtension(uri);
+  return extension === '' ? fileName : fileName.slice(0, -extension.length);
 };
 
 /**

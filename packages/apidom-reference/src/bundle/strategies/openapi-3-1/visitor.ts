@@ -337,16 +337,8 @@ class OpenAPI3_1BundleVisitor {
    */
   protected basenameOf(jsonPointer: string, baseURI: string): string {
     const tokens = parseJSONPointer(jsonPointer).tree as string[];
-    let candidate = tokens.length > 0 ? tokens[tokens.length - 1] : '';
-    if (candidate === '') {
-      const lastSlash = baseURI.lastIndexOf('/');
-      const lastDot = baseURI.lastIndexOf('.');
-      const fileName = baseURI.slice(lastSlash + 1);
-      // strip the extension only when the last dot belongs to the file name
-      candidate = lastDot > lastSlash ? baseURI.slice(lastSlash + 1, lastDot) : fileName;
-    }
-    if (candidate === '') candidate = 'Schema';
-    return candidate;
+    const lastToken = tokens.length > 0 ? tokens[tokens.length - 1] : '';
+    return lastToken || url.getBasename(baseURI) || 'Schema';
   }
 
   /**
