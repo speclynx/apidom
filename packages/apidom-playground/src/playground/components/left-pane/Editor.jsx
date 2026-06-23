@@ -15,22 +15,18 @@ const Editor = ({ className }) => {
   return (
     <div className={className}>
       <FormControl fullWidth>
-        <OutlinedInput // currently not showing scroll bar due to https://github.com/swagger-api/apidom/issues/4027
+        <OutlinedInput
           fullWidth
           multiline
           id="input"
-          sx={{
-            '.MuiInputBase-inputMultiline': {
-              height: 'calc(100vh - 64px - 190px - 80px)',
-              maxHeight: 'calc(100vh - 64px - 190px - 80px)',
-              display: 'block',
-            },
-          }}
+          inputComponent="textarea"
           value={source}
           onChange={handleEditorChange}
           inputProps={{
             style: {
               height: 'calc(100vh - 64px - 190px - 80px)',
+              maxHeight: 'calc(100vh - 64px - 190px - 80px)',
+              overflow: 'auto',
             },
           }}
         />

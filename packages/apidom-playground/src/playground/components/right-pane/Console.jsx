@@ -36,16 +36,18 @@ const Console = () => {
         variant="outlined"
         value={consoleContent}
         inputRef={inputRef}
-        InputProps={{
-          readOnly: true,
-          sx: (theme) => ({
-            height: 190.5,
-            ...theme.typography.caption,
-            marginBottom: 0,
-          }),
-        }}
-        InputLabelProps={{
-          shrink: true,
+        slotProps={{
+          input: {
+            readOnly: true,
+            sx: (theme) => ({
+              height: 190.5,
+              ...theme.typography.caption,
+              marginBottom: 0,
+            }),
+          },
+          inputLabel: {
+            shrink: true,
+          },
         }}
       />
       <Tooltip title="Clear console">

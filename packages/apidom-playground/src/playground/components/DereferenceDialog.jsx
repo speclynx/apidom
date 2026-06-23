@@ -57,7 +57,7 @@ const ApiDOMInterpreterDialog = ({ open, onClose }) => {
       open={open}
       onClose={onClose}
       aria-labelledby="form-dialog-title"
-      TransitionComponent={Transition}
+      slots={{ transition: Transition }}
     >
       <AppBar>
         <Toolbar>
@@ -82,7 +82,7 @@ const ApiDOMInterpreterDialog = ({ open, onClose }) => {
           />
         </FormControl>
         <Box mt={2}>
-          <Grid container justifyContent="center">
+          <Grid container sx={{ justifyContent: 'center' }}>
             <ButtonGroup
               variant="contained"
               color="primary"
