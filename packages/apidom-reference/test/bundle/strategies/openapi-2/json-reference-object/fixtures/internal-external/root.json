@@ -1,0 +1,23 @@
+{
+  "swagger": "2.0",
+  "info": { "title": "internal and external schema references", "version": "1.0.0" },
+  "paths": {
+    "/pets": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": { "$ref": "./ex.json#/Pet" }
+          },
+          "400": {
+            "description": "bad",
+            "schema": { "$ref": "#/definitions/LocalError" }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "LocalError": { "type": "object", "properties": { "message": { "type": "string" } } }
+  }
+}

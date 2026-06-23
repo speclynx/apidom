@@ -1,0 +1,1 @@
+{ "External": { "description": "external response", "schema": { "type": "object" } } }

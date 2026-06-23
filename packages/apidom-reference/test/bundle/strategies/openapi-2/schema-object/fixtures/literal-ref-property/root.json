@@ -1,0 +1,22 @@
+{
+  "swagger": "2.0",
+  "info": { "title": "literal $ref property", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "$ref": { "type": "string" },
+                "externalValue": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

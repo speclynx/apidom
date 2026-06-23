@@ -2707,7 +2707,59 @@ await bundle('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/e
 #### [Bundle strategies](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/bundle/strategies)
 
 Bundle strategy determines how a document is bundled into a Compound Document. Depending on document `mediaType` option,
-every strategy differs significantly. `Bundle component` comes with two (2) default bundle strategies.
+every strategy differs significantly. `Bundle component` comes with three (3) default bundle strategies.
+
+##### [openapi-2](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/bundle/strategies/openapi-2)
+
+Bundle strategy for bundling [OpenAPI 2.0](https://spec.openapis.org/oas/v2.0.html) (Swagger) definitions.
+
+It produces a self-contained, transferable Compound Document: every external reference is resolved and lifted
+into the matching top-level definition field, and the referencing `$ref` is rewritten to an internal JSON
+Pointer. Unlike OpenAPI 3.x, OpenAPI 2.0 has no single Components Object — reusable definitions live directly
+under the document root, so the three hoist targets are:
+
+- external Schema Objects (JSON References) → `definitions`
+- external Parameter Objects → `parameters`
+- external Response Objects → `responses`
+
+External Path Item Objects have no definition field to hold them, so they are inlined in place (after bundling
+their own external references); a circular external Path Item retains its cycle-breaking `$ref` rather than
+collapsing to an empty object. Multiple references to the **same** external target (same document URI and JSON
+Pointer) are collapsed into a single component; distinct targets each get their own component, even when their
+content happens to be identical. Internal references are preserved untouched; only a self-file reference (e.g.
+`./root.json#/definitions/Pet`) is normalized to a bare fragment (`#/definitions/Pet`) so the bundled document
+remains transferable.
+
+Supported media types:
+
+```js
+[
+  'application/vnd.oai.openapi;version=2.0',
+  'application/vnd.oai.openapi+json;version=2.0',
+  'application/vnd.oai.openapi+yaml;version=2.0'
+]
+```
+
+This strategy's behavior is controlled by the same `bundle` options as the `openapi-3-0` strategy
+(`componentNamesStrategy`, `onComponentNameCollision`, `immutable`, `maxDepth`, `continueOnError`, `refSet`),
+documented below. Per-strategy overrides use the `openapi-2` key in `bundle.strategyOpts`:
+
+```js
+import { bundle } from '@speclynx/apidom-reference';
+
+await bundle('/home/user/swagger.json', {
+  parse: {
+    mediaType: 'application/vnd.oai.openapi+json;version=2.0',
+  },
+  bundle: {
+    strategyOpts: {
+      'openapi-2': {
+        onComponentNameCollision: 'error',
+      },
+    },
+  },
+});
+```
 
 ##### [openapi-3-0](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/bundle/strategies/openapi-3-0)
 
@@ -2843,6 +2895,7 @@ returns `true` or until entire list of strategies is exhausted (throws error).
 
 ```js
 [
+  new OpenAPI2BundleStrategy(),
   new OpenAPI3_0BundleStrategy(),
   new OpenAPI3_1BundleStrategy(),
 ]

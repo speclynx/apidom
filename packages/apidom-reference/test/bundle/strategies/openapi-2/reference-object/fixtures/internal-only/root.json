@@ -1,0 +1,15 @@
+{
+  "swagger": "2.0",
+  "info": { "title": "internal only", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "parameters": [{ "$ref": "#/parameters/p" }],
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  },
+  "parameters": {
+    "p": { "name": "p", "in": "query", "type": "string" }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "swagger": "2.0",
+  "info": { "title": "body parameter schema reference", "version": "1.0.0" },
+  "paths": {
+    "/pets": {
+      "post": {
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": { "$ref": "./ex.json#/Pet" }
+          }
+        ],
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  }
+}

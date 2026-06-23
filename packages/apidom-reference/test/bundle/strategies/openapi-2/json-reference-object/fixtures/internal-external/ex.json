@@ -1,0 +1,10 @@
+{
+  "Pet": {
+    "type": "object",
+    "properties": {
+      "id": { "type": "integer" },
+      "category": { "$ref": "./ex.json#/Category" }
+    }
+  },
+  "Category": { "type": "object", "properties": { "name": { "type": "string" } } }
+}

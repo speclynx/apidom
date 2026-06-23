@@ -1,0 +1,4 @@
+Param:
+  name: p
+  in: query
+  type: string

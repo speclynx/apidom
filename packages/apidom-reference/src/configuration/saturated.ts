@@ -30,6 +30,7 @@ import OpenAPI3_1DereferenceStrategy from '../dereference/strategies/openapi-3-1
 import AsyncAPI2DereferenceStrategy from '../dereference/strategies/asyncapi-2/index.ts';
 import Arazzo1DereferenceStrategy from '../dereference/strategies/arazzo-1/index.ts';
 import Overlay1DereferenceStrategy from '../dereference/strategies/overlay-1/index.ts';
+import OpenAPI2BundleStrategy from '../bundle/strategies/openapi-2/index.ts';
 import OpenAPI3_0BundleStrategy from '../bundle/strategies/openapi-3-0/index.ts';
 import OpenAPI3_1BundleStrategy from '../bundle/strategies/openapi-3-1/index.ts';
 import { options } from '../index.ts';
@@ -78,6 +79,10 @@ options.dereference.strategies = [
   new ApiDOMDereferenceStrategy(),
 ];
 
-options.bundle.strategies = [new OpenAPI3_0BundleStrategy(), new OpenAPI3_1BundleStrategy()];
+options.bundle.strategies = [
+  new OpenAPI2BundleStrategy(),
+  new OpenAPI3_0BundleStrategy(),
+  new OpenAPI3_1BundleStrategy(),
+];
 
 export * from '../index.ts';
