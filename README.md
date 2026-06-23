@@ -117,8 +117,8 @@ ApiDOM Playground is available at [https://speclynx.github.io/apidom/](https://s
 This is a monorepo for all ApiDOM packages. All the code is written in [TypeScript](https://www.typescriptlang.org/).
 All the information necessary for working with monorepo can be found in this [article](https://vladimirgorej.com/blog/things-i-have-learned-maintaining-javascript-monorepo-with-lerna/).
 
-[Node.js](https://nodejs.org/) `>=24.10.0` and `npm >=11.6.1`
-are the minimum required versions that this repo runs on, but we recommend using the latest version of Node.js@24.
+[Node.js](https://nodejs.org/) `>=26.3.1` and `npm >=11.16.0`
+are the minimum required versions that this repo runs on, but we recommend using the latest version of Node.js@26.
 
 ### Setting up
 
