@@ -1,0 +1,13 @@
+{
+  "swagger": "2.0",
+  "info": { "title": "response-object external", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "responses": {
+          "200": { "$ref": "./ex.json#/External" }
+        }
+      }
+    }
+  }
+}

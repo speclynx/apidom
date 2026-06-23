@@ -1,0 +1,12 @@
+{
+  "swagger": "2.0",
+  "info": { "title": "parameter-object external", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "parameters": [{ "$ref": "./ex.json#/External" }],
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  }
+}

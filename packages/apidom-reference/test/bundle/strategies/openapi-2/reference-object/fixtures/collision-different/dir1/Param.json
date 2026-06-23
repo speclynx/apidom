@@ -1,0 +1,1 @@
+{ "Param": { "name": "alpha", "in": "query", "type": "string" } }

@@ -1,0 +1,6 @@
+{
+  "Pet": {
+    "description": "a pet response defined in an external file",
+    "schema": { "$ref": "./b.json#/PetSchema" }
+  }
+}

@@ -1,0 +1,3 @@
+{
+  "AlsoShared": { "name": "shared", "in": "query", "type": "string" }
+}

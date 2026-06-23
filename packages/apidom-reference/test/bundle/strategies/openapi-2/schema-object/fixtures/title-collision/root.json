@@ -1,0 +1,22 @@
+{
+  "swagger": "2.0",
+  "info": { "title": "title collision", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "one": { "$ref": "./dir1/schema.json#/Thing" },
+                "two": { "$ref": "./dir2/schema.json#/Thing" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

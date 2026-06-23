@@ -1,0 +1,4 @@
+{
+  "PathA": { "$ref": "./ex.json#/PathB" },
+  "PathB": { "$ref": "./ex.json#/PathA" }
+}

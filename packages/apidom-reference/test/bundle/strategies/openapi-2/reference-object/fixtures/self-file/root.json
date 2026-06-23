@@ -1,0 +1,15 @@
+{
+  "swagger": "2.0",
+  "info": { "title": "self-file reference", "version": "1.0.0" },
+  "paths": {
+    "/users": {
+      "get": {
+        "parameters": [{ "$ref": "./root.json#/parameters/userId" }],
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  },
+  "parameters": {
+    "userId": { "name": "userId", "in": "query", "type": "string" }
+  }
+}
