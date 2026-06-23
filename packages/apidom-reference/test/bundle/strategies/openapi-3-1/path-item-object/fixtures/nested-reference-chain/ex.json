@@ -1,0 +1,10 @@
+{
+  "SharedPath": {
+    "get": {
+      "responses": {
+        "200": { "$ref": "./ex.json#/SharedResponse" }
+      }
+    }
+  },
+  "SharedResponse": { "description": "shared response" }
+}

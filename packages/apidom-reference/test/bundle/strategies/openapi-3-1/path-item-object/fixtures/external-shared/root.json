@@ -1,0 +1,8 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "shared external path item", "version": "1.0.0" },
+  "paths": {
+    "/a": { "$ref": "./shared.json#/SharedPath" },
+    "/b": { "$ref": "./shared.json#/SharedPath" }
+  }
+}

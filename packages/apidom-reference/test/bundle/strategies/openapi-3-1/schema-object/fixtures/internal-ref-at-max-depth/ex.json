@@ -1,0 +1,15 @@
+{
+  "Resp": {
+    "description": "ok",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "self": { "$ref": "#/Resp" }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "external schema using $dynamicRef and $dynamicAnchor",
+    "version": "1.0.0"
+  },
+  "components": {
+    "schemas": {
+      "Tree": {
+        "$ref": "./ex.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "extension ref", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "x-custom": { "schema": { "$ref": "./ex.json#/ExtSchema" } },
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  }
+}

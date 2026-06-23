@@ -236,11 +236,11 @@ class OpenAPI3_0BundleVisitor {
   }
 
   /**
-   * Normalizes a self-file reference (e.g. `./root.json#/components/schemas/Pet`)
+   * Normalizes a self-reference (e.g. `./root.json#/components/schemas/Pet`)
    * to a bare fragment (`#/components/schemas/Pet`) so the bundled document stays
    * transferable. Bare fragments are returned unchanged.
    */
-  protected normalizeSelfFileRef(ref: string): string {
+  protected normalizeSelfReference(ref: string): string {
     return ref.startsWith('#') ? ref : url.getHash(ref);
   }
 
@@ -330,16 +330,8 @@ class OpenAPI3_0BundleVisitor {
    */
   protected basenameOf(jsonPointer: string, baseURI: string): string {
     const tokens = parseJSONPointer(jsonPointer).tree as string[];
-    let candidate = tokens.length > 0 ? tokens[tokens.length - 1] : '';
-    if (candidate === '') {
-      const lastSlash = baseURI.lastIndexOf('/');
-      const lastDot = baseURI.lastIndexOf('.');
-      const fileName = baseURI.slice(lastSlash + 1);
-      // strip the extension only when the last dot belongs to the file name
-      candidate = lastDot > lastSlash ? baseURI.slice(lastSlash + 1, lastDot) : fileName;
-    }
-    if (candidate === '') candidate = 'Schema';
-    return candidate;
+    const lastToken = tokens.length > 0 ? tokens[tokens.length - 1] : '';
+    return lastToken || url.getBasename(baseURI) || 'Schema';
   }
 
   /**
@@ -396,9 +388,9 @@ class OpenAPI3_0BundleVisitor {
     const isExternalReference = !isInternalReference;
 
     if (isInternalReference) {
-      // normalize self-file references to a bare fragment so the bundled
+      // normalize self-references to a bare fragment so the bundled
       // document stays transferable; bare fragments are left untouched
-      referencingElement.set('$ref', this.normalizeSelfFileRef($ref));
+      referencingElement.set('$ref', this.normalizeSelfReference($ref));
       path.skip();
       return;
     }
@@ -559,9 +551,9 @@ class OpenAPI3_0BundleVisitor {
     const isExternalReference = !isInternalReference;
 
     if (isInternalReference) {
-      // normalize self-file references to a bare fragment so the bundled
+      // normalize self-references to a bare fragment so the bundled
       // document stays transferable; bare fragments are left untouched
-      pathItemElement.set('$ref', this.normalizeSelfFileRef($ref));
+      pathItemElement.set('$ref', this.normalizeSelfReference($ref));
       return;
     }
 
@@ -740,9 +732,9 @@ class OpenAPI3_0BundleVisitor {
     const isInternalReference = this.entryURI === retrievalURI;
 
     if (isInternalReference) {
-      // normalize self-file operationRef to a bare fragment so the bundled
+      // normalize a self-reference operationRef to a bare fragment so the bundled
       // document stays transferable; bare fragments are left untouched
-      linkElement.set('operationRef', this.normalizeSelfFileRef(operationRef));
+      linkElement.set('operationRef', this.normalizeSelfReference(operationRef));
       return;
     }
 

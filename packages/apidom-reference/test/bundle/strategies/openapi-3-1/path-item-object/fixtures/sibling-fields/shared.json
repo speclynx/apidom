@@ -1,0 +1,8 @@
+{
+  "SharedPath": {
+    "get": {
+      "operationId": "siblingOperation",
+      "responses": { "200": { "description": "ok" } }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "PathA": { "$ref": "./ex.json#/PathB" },
+  "PathB": {
+    "get": {
+      "operationId": "realOperation",
+      "responses": { "200": { "description": "ok" } }
+    }
+  }
+}

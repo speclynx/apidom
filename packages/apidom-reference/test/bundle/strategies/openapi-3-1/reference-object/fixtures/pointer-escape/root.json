@@ -1,0 +1,12 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "pointer escape", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "parameters": [{ "$ref": "./parameters.json#/Foo~1Bar" }],
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  }
+}

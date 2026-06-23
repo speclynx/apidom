@@ -1,0 +1,1 @@
+{ "C": { "name": "c", "in": "query", "schema": { "type": "string" } } }

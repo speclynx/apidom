@@ -1,0 +1,1 @@
+{ "PathC": { "get": { "operationId": "deep", "responses": { "200": { "description": "ok" } } } } }

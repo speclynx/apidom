@@ -1,0 +1,12 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "max depth", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "parameters": [{ "$ref": "./ex1.json#/A" }],
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  }
+}

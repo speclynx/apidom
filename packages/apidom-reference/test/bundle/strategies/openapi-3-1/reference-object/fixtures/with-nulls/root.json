@@ -1,0 +1,12 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "nulls", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "parameters": [{ "$ref": "./ex.json#/NullableParam" }],
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  }
+}

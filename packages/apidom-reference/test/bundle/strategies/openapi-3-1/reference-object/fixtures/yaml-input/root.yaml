@@ -1,0 +1,12 @@
+openapi: '3.1.0'
+info:
+  title: yaml input
+  version: 1.0.0
+paths:
+  /a:
+    get:
+      parameters:
+        - $ref: './ex.yaml#/Param'
+      responses:
+        '200':
+          description: ok

@@ -1,0 +1,12 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "unresolvable", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "get": {
+        "parameters": [{ "$ref": "./missing.json#/Nope" }],
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  }
+}
