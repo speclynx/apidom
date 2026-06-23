@@ -6,11 +6,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/declarations-before-commit.sh"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/commitlint-before-commit.mjs",
+            "statusMessage": "Validating Conventional Commit format"
           },
           {
             "type": "command",
-            "command": ".claude/hooks/typecheck-before-commit.sh"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/declarations-before-commit.sh"
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/typecheck-before-commit.sh"
           }
         ]
       }
@@ -21,10 +26,13 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/lint-fix-after-edit.sh"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/lint-fix-after-edit.sh"
           }
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "skill-creator@claude-plugins-official": true
   }
 }

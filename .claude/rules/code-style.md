@@ -1,5 +1,0 @@
-- TypeScript with strict mode
-- ESLint + Prettier for formatting — run on individual modified packages: `cd packages/<package-name> && npm run lint:fix`
-- Line comments (`//`) start with lowercase
-- Block comments (`/** */`) start with uppercase
-- Branch naming: `char0n/<issue-number>--<description>`
