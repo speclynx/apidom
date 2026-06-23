@@ -79,7 +79,7 @@
     "jsdom": "=29.1.1",
     "jsdom-global": "=3.0.2",
     "lerna": "=9.0.7",
-    "lint-staged": "=17.0.7",
+    "lint-staged": "=17.0.8",
     "microtime": "=3.1.1",
     "mocha": "=11.7.6",
     "mocha-chai-jest-snapshot": "^1.1.7",
