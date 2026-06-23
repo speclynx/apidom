@@ -764,6 +764,14 @@ class OpenAPI3_1BundleVisitor {
         }
       }
 
+      // a $ref that resolves (by $id/$anchor/pointer) within the current document
+      // is internal even when its URI form (e.g. a URN or absolute $id) is not a
+      // bare fragment. Leave it untouched — it resolves against the in-document
+      // $id graph, and embedding the current document into itself would be wrong.
+      if (url.stripHash(schemaReference.uri) === url.stripHash(this.reference.uri)) {
+        return;
+      }
+
       // the resource to embed is the WHOLE external document (its root schema),
       // identified by its $id. A $ref into a fragment of the document embeds the
       // entire document resource once; the fragment keeps resolving against the

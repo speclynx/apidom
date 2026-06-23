@@ -330,6 +330,31 @@ describe('bundle', function () {
             );
           });
         });
+
+        context('given an internal Schema Object reference by $id', function () {
+          const fixturePath = path.join(rootFixturePath, 'internal-by-id');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should leave the $id reference untouched and hoist nothing', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const schemas = toValue(
+              evaluate(bundled.result as Element, '/components/schemas'),
+            ) as Record<string, object>;
+
+            // a $ref to a $id/URN defined within the entry document is internal
+            // even though its URI form is not a bare fragment — it must not embed
+            // the entry document into itself
+            assert.hasAllKeys(schemas, ['User', 'Pet']);
+            assert.strictEqual(
+              toValue(
+                evaluate(bundled.result as Element, '/components/schemas/User/properties/pet/$ref'),
+              ),
+              'urn:example:pet',
+            );
+          });
+        });
       });
     });
   });
