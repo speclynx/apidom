@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.16.0](https://github.com/speclynx/apidom/compare/v4.15.0...v4.16.0) (2026-06-24)
+
+### Features
+
+- **reference:** add AsyncAPI 2 bundle strategy ([#368](https://github.com/speclynx/apidom/issues/368)) ([32acbe8](https://github.com/speclynx/apidom/commit/32acbe80604b26dcdf03292c2010e58ea74b81f8))
+
 # [4.15.0](https://github.com/speclynx/apidom/compare/v4.14.0...v4.15.0) (2026-06-24)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-asyncapi-2
