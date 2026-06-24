@@ -2925,6 +2925,59 @@ await bundle('/home/user/oas.json', {
 Hoisted components and embedded schema resources are annotated with a `ref-origin` meta field pointing at
 their source document. The bundling process is **immutable** by default (`bundle.immutable: true`).
 
+##### [arazzo-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/bundle/strategies/arazzo-1)
+
+Bundle strategy for bundling [Arazzo 1.x](https://spec.openapis.org/arazzo/latest.html) definitions.
+
+The only external references Arazzo defines are **JSON Schema Objects** — a
+[JSON Schema 2020-12](https://json-schema.org/draft/2020-12) dialect used by Input Objects and inline schemas.
+(Reusable Objects are internal-only runtime-expression references, and Source Descriptions point at whole
+external documents that are intentionally kept external — neither is bundled.) Schema Objects are therefore
+bundled per the [JSON Schema Compound Document](https://json-schema.org/blog/posts/bundling-json-schema-compound-documents)
+rules, exactly as in the `openapi-3-1` strategy: the external schema **resource** is embedded verbatim into
+`components.inputs` carrying its `$id` (one is assigned from the retrieval URI when absent), and the referencing
+`$ref` is left **unchanged** — it keeps resolving against the embedded resource's `$id`. The whole external
+resource is embedded once, keyed by its `$id`; references (including `$anchor`, `$dynamicRef`, and
+`$dynamicAnchor`) are never rewritten. Nested external schema resources are embedded flat into the top-level
+`components.inputs`, deduplicated by resource URI. Internal Schema Object references are preserved untouched.
+
+Supported media types:
+
+```js
+[
+  'application/vnd.oai.workflows;version=1.0.0',
+  'application/vnd.oai.workflows+json;version=1.0.0',
+  'application/vnd.oai.workflows+yaml;version=1.0.0',
+  'application/vnd.oai.workflows;version=1.0.1',
+  'application/vnd.oai.workflows+json;version=1.0.1',
+  'application/vnd.oai.workflows+yaml;version=1.0.1'
+]
+```
+
+This strategy's behavior is controlled by the same `bundle` options as the `openapi-3-1` strategy
+(`componentNamesStrategy`, `onComponentNameCollision`, `immutable`, `maxDepth`, `continueOnError`, `refSet`),
+documented above. Per-strategy overrides use the `arazzo-1` key in `bundle.strategyOpts`:
+
+```js
+import { bundle } from '@speclynx/apidom-reference';
+
+await bundle('/home/user/arazzo.json', {
+  parse: {
+    mediaType: 'application/vnd.oai.workflows+json;version=1.0.1',
+  },
+  bundle: {
+    strategyOpts: {
+      'arazzo-1': {
+        onComponentNameCollision: 'error',
+      },
+    },
+  },
+});
+```
+
+Embedded schema resources are annotated with a `ref-origin` meta field pointing at their source document.
+The bundling process is **immutable** by default (`bundle.immutable: true`).
+
 ##### Bundle strategies execution order
 
 It's important to understand that default bundle strategies are run in specific order. The order is determined
@@ -2940,6 +2993,7 @@ returns `true` or until entire list of strategies is exhausted (throws error).
   new OpenAPI2BundleStrategy(),
   new OpenAPI3_0BundleStrategy(),
   new OpenAPI3_1BundleStrategy(),
+  new Arazzo1BundleStrategy(),
 ]
 ```
 Most specific strategies are listed first, most generic are listed last.

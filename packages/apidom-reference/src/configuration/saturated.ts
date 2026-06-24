@@ -33,6 +33,7 @@ import Overlay1DereferenceStrategy from '../dereference/strategies/overlay-1/ind
 import OpenAPI2BundleStrategy from '../bundle/strategies/openapi-2/index.ts';
 import OpenAPI3_0BundleStrategy from '../bundle/strategies/openapi-3-0/index.ts';
 import OpenAPI3_1BundleStrategy from '../bundle/strategies/openapi-3-1/index.ts';
+import Arazzo1BundleStrategy from '../bundle/strategies/arazzo-1/index.ts';
 import { options } from '../index.ts';
 
 options.parse.parsers = [
@@ -83,6 +84,7 @@ options.bundle.strategies = [
   new OpenAPI2BundleStrategy(),
   new OpenAPI3_0BundleStrategy(),
   new OpenAPI3_1BundleStrategy(),
+  new Arazzo1BundleStrategy(),
 ];
 
 export * from '../index.ts';
