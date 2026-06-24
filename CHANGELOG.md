@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.15.0](https://github.com/speclynx/apidom/compare/v4.14.0...v4.15.0) (2026-06-24)
+
+### Features
+
+- **reference:** add Arazzo 1 bundle strategy ([#367](https://github.com/speclynx/apidom/issues/367)) ([c2bbf7f](https://github.com/speclynx/apidom/commit/c2bbf7f27214839d7288c6439ec482e4094756a3))
+
 # [4.14.0](https://github.com/speclynx/apidom/compare/v4.13.0...v4.14.0) (2026-06-23)
 
 ### Features
