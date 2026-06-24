@@ -1,0 +1,13 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "channel item references",
+    "version": "1.0.0"
+  },
+  "channels": {
+    "user/signedup": {
+      "$ref": "./ex.json#/externalChannel",
+      "description": "sibling stays on referencing element"
+    }
+  }
+}

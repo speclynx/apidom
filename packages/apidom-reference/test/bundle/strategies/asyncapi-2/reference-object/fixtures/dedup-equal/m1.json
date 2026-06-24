@@ -1,0 +1,8 @@
+{
+  "SharedMessage": {
+    "name": "Shared",
+    "payload": {
+      "type": "object"
+    }
+  }
+}

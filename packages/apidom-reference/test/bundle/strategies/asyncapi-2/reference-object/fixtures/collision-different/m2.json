@@ -1,0 +1,8 @@
+{
+  "Shared": {
+    "name": "Second",
+    "payload": {
+      "type": "string"
+    }
+  }
+}

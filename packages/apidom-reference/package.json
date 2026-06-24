@@ -264,6 +264,11 @@
       "require": "./src/bundle/strategies/openapi-3-1/index.cjs",
       "types": "./types/bundle/strategies/openapi-3-1/index.d.ts"
     },
+    "./bundle/strategies/asyncapi-2": {
+      "import": "./src/bundle/strategies/asyncapi-2/index.mjs",
+      "require": "./src/bundle/strategies/asyncapi-2/index.cjs",
+      "types": "./types/bundle/strategies/asyncapi-2/index.d.ts"
+    },
     "./bundle/strategies/arazzo-1": {
       "import": "./src/bundle/strategies/arazzo-1/index.mjs",
       "require": "./src/bundle/strategies/arazzo-1/index.cjs",

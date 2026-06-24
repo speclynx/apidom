@@ -1,0 +1,10 @@
+{
+  "Schema": {
+    "type": "object",
+    "properties": {
+      "userId": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "A": {
+    "type": "object",
+    "properties": {
+      "b": {
+        "$ref": "./ex.json#/B"
+      }
+    }
+  },
+  "B": {
+    "type": "object",
+    "properties": {
+      "a": {
+        "$ref": "./ex.json#/A"
+      }
+    }
+  }
+}

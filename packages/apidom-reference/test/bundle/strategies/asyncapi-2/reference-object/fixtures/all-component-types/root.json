@@ -1,0 +1,48 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "external references across components fields",
+    "version": "1.0.0"
+  },
+  "servers": {
+    "production": {
+      "$ref": "./ex.json#/Server"
+    }
+  },
+  "channels": {
+    "user/signedup": {
+      "parameters": {
+        "userId": {
+          "$ref": "./ex.json#/Parameter"
+        }
+      },
+      "subscribe": {
+        "traits": [
+          {
+            "$ref": "./ex.json#/OperationTrait"
+          }
+        ],
+        "message": {
+          "traits": [
+            {
+              "$ref": "./ex.json#/MessageTrait"
+            }
+          ],
+          "correlationId": {
+            "$ref": "./ex.json#/CorrelationId"
+          },
+          "payload": {
+            "$ref": "./ex.json#/Schema"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "$ref": "./ex.json#/SecurityScheme"
+      }
+    }
+  }
+}

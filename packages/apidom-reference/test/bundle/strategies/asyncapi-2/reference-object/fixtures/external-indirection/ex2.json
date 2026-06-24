@@ -1,0 +1,8 @@
+{
+  "B": {
+    "name": "UserSignedUp",
+    "payload": {
+      "type": "object"
+    }
+  }
+}

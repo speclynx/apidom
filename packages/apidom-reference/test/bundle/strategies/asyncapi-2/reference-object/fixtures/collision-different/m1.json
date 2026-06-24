@@ -1,0 +1,8 @@
+{
+  "Shared": {
+    "name": "First",
+    "payload": {
+      "type": "object"
+    }
+  }
+}

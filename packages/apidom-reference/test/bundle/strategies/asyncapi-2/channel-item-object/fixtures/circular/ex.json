@@ -1,0 +1,8 @@
+{
+  "channelA": {
+    "$ref": "#/channelB"
+  },
+  "channelB": {
+    "$ref": "#/channelA"
+  }
+}

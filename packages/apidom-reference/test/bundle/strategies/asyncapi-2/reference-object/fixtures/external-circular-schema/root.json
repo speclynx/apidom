@@ -1,0 +1,18 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "circular external schema",
+    "version": "1.0.0"
+  },
+  "channels": {
+    "user/signedup": {
+      "subscribe": {
+        "message": {
+          "payload": {
+            "$ref": "./ex.json#/A"
+          }
+        }
+      }
+    }
+  }
+}

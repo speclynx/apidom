@@ -1,0 +1,21 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "same target two contexts",
+    "version": "1.0.0"
+  },
+  "channels": {
+    "user/signedup": {
+      "subscribe": {
+        "message": {
+          "$ref": "./ex.json#/Thing"
+        }
+      },
+      "parameters": {
+        "thing": {
+          "$ref": "./ex.json#/Thing"
+        }
+      }
+    }
+  }
+}

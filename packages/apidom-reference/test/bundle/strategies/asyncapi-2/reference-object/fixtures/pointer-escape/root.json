@@ -1,0 +1,16 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "pointer escape",
+    "version": "1.0.0"
+  },
+  "channels": {
+    "user/signedup": {
+      "subscribe": {
+        "message": {
+          "$ref": "./messages.json#/Foo~1Bar"
+        }
+      }
+    }
+  }
+}
