@@ -1,0 +1,26 @@
+{
+  "ServerVariable": {
+    "default": "demo",
+    "description": "external server variable"
+  },
+  "ServerBindings": {
+    "mqtt": {
+      "clientId": "guest"
+    }
+  },
+  "ChannelBindings": {
+    "amqp": {
+      "is": "queue"
+    }
+  },
+  "OperationBindings": {
+    "kafka": {
+      "groupId": "my-group"
+    }
+  },
+  "MessageBindings": {
+    "kafka": {
+      "key": "my-key"
+    }
+  }
+}

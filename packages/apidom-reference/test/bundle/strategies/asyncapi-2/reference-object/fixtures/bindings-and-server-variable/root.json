@@ -1,0 +1,40 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "bindings and server variable references",
+    "version": "1.0.0"
+  },
+  "servers": {
+    "production": {
+      "url": "mqtt://{region}.example.com",
+      "protocol": "mqtt",
+      "bindings": {
+        "$ref": "./ex.json#/ServerBindings"
+      }
+    }
+  },
+  "channels": {
+    "user/signedup": {
+      "bindings": {
+        "$ref": "./ex.json#/ChannelBindings"
+      },
+      "subscribe": {
+        "bindings": {
+          "$ref": "./ex.json#/OperationBindings"
+        },
+        "message": {
+          "bindings": {
+            "$ref": "./ex.json#/MessageBindings"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "serverVariables": {
+      "region": {
+        "$ref": "./ex.json#/ServerVariable"
+      }
+    }
+  }
+}

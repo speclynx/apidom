@@ -1,0 +1,18 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "dotted pointer keys",
+    "version": "1.0.0"
+  },
+  "channels": {
+    "user/signedup": {
+      "subscribe": {
+        "message": {
+          "payload": {
+            "$ref": "./schemas.json#/my.org.User"
+          }
+        }
+      }
+    }
+  }
+}

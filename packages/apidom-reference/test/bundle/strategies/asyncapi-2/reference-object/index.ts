@@ -325,6 +325,268 @@ describe('bundle', function () {
           });
         });
 
+        context('given external binding and Server Variable references', function () {
+          const fixturePath = path.join(rootFixturePath, 'bindings-and-server-variable');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify(
+            'should hoist each binding kind into its matching components field',
+            async function () {
+              const bundled = await bundle(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+
+              assert.property(
+                toValue(
+                  evaluate(bundled.result as Element, '/components/serverBindings'),
+                ) as object,
+                'ServerBindings',
+              );
+              assert.property(
+                toValue(
+                  evaluate(bundled.result as Element, '/components/channelBindings'),
+                ) as object,
+                'ChannelBindings',
+              );
+              assert.property(
+                toValue(
+                  evaluate(bundled.result as Element, '/components/operationBindings'),
+                ) as object,
+                'OperationBindings',
+              );
+              assert.property(
+                toValue(
+                  evaluate(bundled.result as Element, '/components/messageBindings'),
+                ) as object,
+                'MessageBindings',
+              );
+            },
+          );
+
+          specify('should hoist the external Server Variable into components', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/serverVariables')) as object,
+              'ServerVariable',
+            );
+          });
+
+          specify('should produce a document without external $refs', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const serialized = JSON.stringify(toValue(bundled.result as Element));
+
+            assert.notInclude(serialized, 'ex.json');
+          });
+        });
+
+        context('given the same external target referenced in two different contexts', function () {
+          const fixturePath = path.join(rootFixturePath, 'same-target-two-contexts');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should hoist it into each context-appropriate bucket', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/messages')) as object,
+              'Thing',
+            );
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/parameters')) as object,
+              'Thing',
+            );
+          });
+
+          specify('should point each reference at its own bucket', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.strictEqual(
+              toValue(
+                evaluate(
+                  bundled.result as Element,
+                  '/channels/user~1signedup/subscribe/message/$ref',
+                ),
+              ),
+              '#/components/messages/Thing',
+            );
+            assert.strictEqual(
+              toValue(
+                evaluate(
+                  bundled.result as Element,
+                  '/channels/user~1signedup/parameters/thing/$ref',
+                ),
+              ),
+              '#/components/parameters/Thing',
+            );
+          });
+        });
+
+        context('given an external reference indirected through another reference', function () {
+          const fixturePath = path.join(rootFixturePath, 'external-indirection');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should hoist every hop of the indirection chain', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.hasAllKeys(
+              toValue(evaluate(bundled.result as Element, '/components/messages')) as object,
+              ['A', 'B'],
+            );
+          });
+
+          specify('should keep the chain as internal references', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.strictEqual(
+              toValue(
+                evaluate(
+                  bundled.result as Element,
+                  '/channels/user~1signedup/subscribe/message/$ref',
+                ),
+              ),
+              '#/components/messages/A',
+            );
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/components/messages/A/$ref')),
+              '#/components/messages/B',
+            );
+          });
+
+          specify('should produce a document without external $refs', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const serialized = JSON.stringify(toValue(bundled.result as Element));
+
+            assert.notInclude(serialized, 'ex1.json');
+            assert.notInclude(serialized, 'ex2.json');
+          });
+        });
+
+        context('given circular external Schema Objects', function () {
+          const fixturePath = path.join(rootFixturePath, 'external-circular-schema');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should terminate and hoist both schemas once', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.hasAllKeys(
+              toValue(evaluate(bundled.result as Element, '/components/schemas')) as object,
+              ['A', 'B'],
+            );
+          });
+
+          specify('should rewrite the cycle to internal pointers', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.deepEqual(
+              toValue(evaluate(bundled.result as Element, '/components/schemas/A/properties/b')),
+              {
+                $ref: '#/components/schemas/B',
+              },
+            );
+            assert.deepEqual(
+              toValue(evaluate(bundled.result as Element, '/components/schemas/B/properties/a')),
+              {
+                $ref: '#/components/schemas/A',
+              },
+            );
+          });
+
+          specify('should produce a document without external $refs', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const serialized = JSON.stringify(toValue(bundled.result as Element));
+
+            assert.notInclude(serialized, 'ex.json');
+          });
+        });
+
+        context('given an external reference whose pointer token contains a slash', function () {
+          const fixturePath = path.join(rootFixturePath, 'pointer-escape');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should escape the slash in the internal pointer', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/messages')) as object,
+              'Foo/Bar',
+            );
+            assert.strictEqual(
+              toValue(
+                evaluate(
+                  bundled.result as Element,
+                  '/channels/user~1signedup/subscribe/message/$ref',
+                ),
+              ),
+              '#/components/messages/Foo~1Bar',
+            );
+          });
+        });
+
+        context('given an external reference with a dotted JSON Pointer key', function () {
+          const fixturePath = path.join(rootFixturePath, 'dotted-pointer-keys');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should preserve the dotted key as the component name', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.property(
+              toValue(evaluate(bundled.result as Element, '/components/schemas')) as object,
+              'my.org.User',
+            );
+            assert.strictEqual(
+              toValue(
+                evaluate(
+                  bundled.result as Element,
+                  '/channels/user~1signedup/subscribe/message/payload/$ref',
+                ),
+              ),
+              '#/components/schemas/my.org.User',
+            );
+          });
+        });
+
+        context('given an external $ref inside a specification extension field', function () {
+          const fixturePath = path.join(rootFixturePath, 'extension-ref');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify(
+            'should leave the extension $ref untouched (consistent with dereference)',
+            async function () {
+              const bundled = await bundle(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+
+              assert.deepEqual(toValue(evaluate(bundled.result as Element, '/x-custom')), {
+                schema: { $ref: './ex.json#/ExtSchema' },
+              });
+            },
+          );
+        });
+
         context('given a document with only internal references', function () {
           const fixturePath = path.join(rootFixturePath, 'internal-only');
           const rootFilePath = path.join(fixturePath, 'root.json');
