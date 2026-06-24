@@ -1,0 +1,17 @@
+{
+  "externalMessage": {
+    "name": "UserSignedUp",
+    "title": "User signed up event",
+    "payload": {
+      "$ref": "#/externalSchema"
+    }
+  },
+  "externalSchema": {
+    "type": "object",
+    "properties": {
+      "userId": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -2707,7 +2707,7 @@ await bundle('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/e
 #### [Bundle strategies](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/bundle/strategies)
 
 Bundle strategy determines how a document is bundled into a Compound Document. Depending on document `mediaType` option,
-every strategy differs significantly. `Bundle component` comes with three (3) default bundle strategies.
+every strategy differs significantly. `Bundle component` comes with five (5) default bundle strategies.
 
 ##### [openapi-2](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/bundle/strategies/openapi-2)
 
@@ -2978,6 +2978,83 @@ await bundle('/home/user/arazzo.json', {
 Embedded schema resources are annotated with a `ref-origin` meta field pointing at their source document.
 The bundling process is **immutable** by default (`bundle.immutable: true`).
 
+##### [asyncapi-2](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/bundle/strategies/asyncapi-2)
+
+Bundle strategy for bundling [AsyncAPI 2.x](https://www.asyncapi.com/docs/reference/specification/v2.6.0) definitions.
+
+It produces a self-contained, transferable Compound Document: every external reference is resolved and lifted
+into the appropriate `components` field, and the referencing `$ref` is rewritten to an internal JSON Pointer.
+**Reference Objects** are bundled exactly as in the `openapi-3-0` strategy, hoisted into the `components`
+field that matches their referencing context (Schema Objects → `components.schemas`, Message Objects →
+`components.messages`, Parameter Objects → `components.parameters`, and likewise for `servers`,
+`serverVariables`, `securitySchemes`, `correlationIds`, `operationTraits`, `messageTraits`, and the binding
+fields). Unlike OpenAPI, **Schema Objects** in AsyncAPI 2.0 are an [extended JSON Schema Draft 7](https://www.asyncapi.com/docs/reference/specification/v2.6.0#schemaObject)
+dialect that does **not** use `$id`-based resolution — a schema `$ref` is a plain Reference Object resolved by
+JSON Pointer, so schemas are hoisted into `components.schemas` like any other Reference Object rather than
+embedded as JSON Schema compound resources.
+
+**Channel Item Objects** have a `components.channels` field in AsyncAPI 2.0, so an external Channel Item is
+hoisted there (and its `$ref` rewritten to `#/components/channels/<name>`); sibling fields next to the `$ref`
+(e.g. `description`) are kept on the referencing element.
+
+Multiple references to the **same** external target (same document URI and JSON Pointer) are collapsed into a
+single component; distinct targets each get their own component, even when their content happens to be
+identical. Internal references are preserved untouched; only a self-file reference (e.g.
+`./root.json#/components/messages/UserSignedUp`) is normalized to a bare fragment
+(`#/components/messages/UserSignedUp`) so the bundled document remains transferable.
+
+Supported media types:
+
+```js
+[
+  'application/vnd.aai.asyncapi;version=2.0.0',
+  'application/vnd.aai.asyncapi+json;version=2.0.0',
+  'application/vnd.aai.asyncapi+yaml;version=2.0.0',
+  'application/vnd.aai.asyncapi;version=2.1.0',
+  'application/vnd.aai.asyncapi+json;version=2.1.0',
+  'application/vnd.aai.asyncapi+yaml;version=2.1.0',
+  'application/vnd.aai.asyncapi;version=2.2.0',
+  'application/vnd.aai.asyncapi+json;version=2.2.0',
+  'application/vnd.aai.asyncapi+yaml;version=2.2.0',
+  'application/vnd.aai.asyncapi;version=2.3.0',
+  'application/vnd.aai.asyncapi+json;version=2.3.0',
+  'application/vnd.aai.asyncapi+yaml;version=2.3.0',
+  'application/vnd.aai.asyncapi;version=2.4.0',
+  'application/vnd.aai.asyncapi+json;version=2.4.0',
+  'application/vnd.aai.asyncapi+yaml;version=2.4.0',
+  'application/vnd.aai.asyncapi;version=2.5.0',
+  'application/vnd.aai.asyncapi+json;version=2.5.0',
+  'application/vnd.aai.asyncapi+yaml;version=2.5.0',
+  'application/vnd.aai.asyncapi;version=2.6.0',
+  'application/vnd.aai.asyncapi+json;version=2.6.0',
+  'application/vnd.aai.asyncapi+yaml;version=2.6.0'
+]
+```
+
+This strategy's behavior is controlled by the same `bundle` options as the `openapi-3-0` strategy
+(`componentNamesStrategy`, `onComponentNameCollision`, `immutable`, `maxDepth`, `continueOnError`, `refSet`),
+documented above. Per-strategy overrides use the `asyncapi-2` key in `bundle.strategyOpts`:
+
+```js
+import { bundle } from '@speclynx/apidom-reference';
+
+await bundle('/home/user/asyncapi.json', {
+  parse: {
+    mediaType: 'application/vnd.aai.asyncapi+json;version=2.6.0',
+  },
+  bundle: {
+    strategyOpts: {
+      'asyncapi-2': {
+        onComponentNameCollision: 'error',
+      },
+    },
+  },
+});
+```
+
+Hoisted components are annotated with a `ref-origin` meta field pointing at their source document.
+The bundling process is **immutable** by default (`bundle.immutable: true`).
+
 ##### Bundle strategies execution order
 
 It's important to understand that default bundle strategies are run in specific order. The order is determined
@@ -2993,6 +3070,7 @@ returns `true` or until entire list of strategies is exhausted (throws error).
   new OpenAPI2BundleStrategy(),
   new OpenAPI3_0BundleStrategy(),
   new OpenAPI3_1BundleStrategy(),
+  new AsyncAPI2BundleStrategy(),
   new Arazzo1BundleStrategy(),
 ]
 ```

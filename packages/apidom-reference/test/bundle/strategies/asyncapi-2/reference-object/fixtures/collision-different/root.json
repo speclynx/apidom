@@ -1,0 +1,23 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "name collision with different content",
+    "version": "1.0.0"
+  },
+  "channels": {
+    "a": {
+      "subscribe": {
+        "message": {
+          "$ref": "./m1.json#/Shared"
+        }
+      }
+    },
+    "b": {
+      "subscribe": {
+        "message": {
+          "$ref": "./m2.json#/Shared"
+        }
+      }
+    }
+  }
+}

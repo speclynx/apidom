@@ -1,0 +1,9 @@
+asyncapi: 2.6.0
+info:
+  title: yaml document
+  version: 1.0.0
+channels:
+  user/signedup:
+    subscribe:
+      message:
+        $ref: ./ex.yaml#/Message

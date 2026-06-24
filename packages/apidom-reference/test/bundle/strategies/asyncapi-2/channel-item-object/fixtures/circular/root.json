@@ -1,0 +1,12 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "circular external channel items",
+    "version": "1.0.0"
+  },
+  "channels": {
+    "a": {
+      "$ref": "./ex.json#/channelA"
+    }
+  }
+}

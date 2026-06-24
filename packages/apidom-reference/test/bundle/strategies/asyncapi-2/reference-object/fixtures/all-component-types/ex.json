@@ -1,0 +1,28 @@
+{
+  "Server": {
+    "url": "mqtt://example.com",
+    "protocol": "mqtt"
+  },
+  "Parameter": {
+    "description": "external parameter",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "OperationTrait": {
+    "summary": "external operation trait"
+  },
+  "MessageTrait": {
+    "contentType": "application/json"
+  },
+  "CorrelationId": {
+    "location": "$message.header#/correlationId"
+  },
+  "Schema": {
+    "type": "object"
+  },
+  "SecurityScheme": {
+    "type": "apiKey",
+    "in": "user"
+  }
+}

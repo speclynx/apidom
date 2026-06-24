@@ -1,0 +1,16 @@
+{
+  "externalChannel": {
+    "description": "channel stored in an external file",
+    "subscribe": {
+      "message": {
+        "$ref": "#/externalMessage"
+      }
+    }
+  },
+  "externalMessage": {
+    "name": "UserSignedUp",
+    "payload": {
+      "type": "object"
+    }
+  }
+}

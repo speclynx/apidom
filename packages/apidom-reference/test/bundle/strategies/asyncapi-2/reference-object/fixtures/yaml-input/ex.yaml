@@ -1,0 +1,4 @@
+Message:
+  name: UserSignedUp
+  payload:
+    type: object

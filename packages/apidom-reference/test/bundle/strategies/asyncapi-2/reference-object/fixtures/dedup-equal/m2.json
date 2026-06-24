@@ -1,0 +1,8 @@
+{
+  "AlsoShared": {
+    "name": "Shared",
+    "payload": {
+      "type": "object"
+    }
+  }
+}
