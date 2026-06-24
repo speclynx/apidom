@@ -1,0 +1,17 @@
+{
+  "$id": "https://example.com/schemas/user",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "UserProfile": {
+      "$anchor": "user-profile",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

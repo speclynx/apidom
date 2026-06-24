@@ -1,0 +1,46 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "internal schema reference by $id",
+    "version": "1.0.0"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "petStore",
+      "url": "https://example.com/openapi.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "testWorkflow",
+      "steps": [
+        {
+          "stepId": "step1",
+          "operationId": "petStore.getPet"
+        }
+      ]
+    }
+  ],
+  "components": {
+    "inputs": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "pet": {
+            "$ref": "urn:example:pet"
+          }
+        }
+      },
+      "Pet": {
+        "$id": "urn:example:pet",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
