@@ -54,7 +54,7 @@
     "@types/dedent": "=0.7.2",
     "@types/jsdom-global": "^3.0.7",
     "@types/mocha": "=10.0.10",
-    "@types/node": "^25.2.3",
+    "@types/node": "^26.0.0",
     "@types/ramda": "~0.31.1",
     "@types/sinon": "=21.0.1",
     "babel-loader": "=10.1.1",
