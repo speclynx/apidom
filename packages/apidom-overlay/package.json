@@ -59,7 +59,7 @@
     "@speclynx/apidom-json-path": "4.16.0",
     "@speclynx/apidom-ns-overlay-1": "4.16.0",
     "@speclynx/apidom-reference": "4.16.0",
-    "type-fest": "^5.7.0"
+    "type-fest": "^5.8.0"
   },
   "files": [
     "src/**/*.mjs",
