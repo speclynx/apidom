@@ -73,19 +73,9 @@ class Schema extends JSONSchemaElement {
    */
 
   override get itemsField():
-    | this
-    | BooleanElement
-    | ReferenceElement
-    | ArrayElement
-    | undefined
-    | any {
+    this | BooleanElement | ReferenceElement | ArrayElement | undefined | any {
     return this.get('items') as
-      | this
-      | BooleanElement
-      | ReferenceElement
-      | ArrayElement
-      | undefined
-      | any;
+      this | BooleanElement | ReferenceElement | ArrayElement | undefined | any;
   }
 
   override set itemsField(

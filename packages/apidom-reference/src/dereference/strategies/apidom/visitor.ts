@@ -243,10 +243,7 @@ class ApiDOMDereferenceVisitor {
        * Valid paths are: 'element', 'content', 'meta', 'attributes'.
        */
       const referencedElementPath = toValue(refElement.path) as
-        | 'element'
-        | 'content'
-        | 'meta'
-        | 'attributes';
+        'element' | 'content' | 'meta' | 'attributes';
       if (referencedElementPath !== 'element' && isElement(referencedElement)) {
         referencedElement = refract(referencedElement[referencedElementPath]);
       }

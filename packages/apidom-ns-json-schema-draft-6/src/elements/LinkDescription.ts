@@ -25,10 +25,7 @@ class LinkDescription extends LinkDescriptionElement {
   // @ts-expect-error - widening type to include BooleanElement (boolean schemas introduced in draft-6)
   override get targetSchema(): JSONSchema | BooleanElement | JSONReferenceElement | undefined {
     return this.get('targetSchema') as
-      | JSONSchema
-      | BooleanElement
-      | JSONReferenceElement
-      | undefined;
+      JSONSchema | BooleanElement | JSONReferenceElement | undefined;
   }
 
   // @ts-expect-error - widening type to include BooleanElement (boolean schemas introduced in draft-6)
@@ -52,10 +49,7 @@ class LinkDescription extends LinkDescriptionElement {
 
   get submissionSchema(): JSONSchema | BooleanElement | JSONReferenceElement | undefined {
     return this.get('submissionSchema') as
-      | JSONSchema
-      | BooleanElement
-      | JSONReferenceElement
-      | undefined;
+      JSONSchema | BooleanElement | JSONReferenceElement | undefined;
   }
 
   set submissionSchema(
