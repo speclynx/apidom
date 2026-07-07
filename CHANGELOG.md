@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.0.0](https://github.com/speclynx/apidom/compare/v4.16.0...v5.0.0) (2026-07-07)
+
+### Bug Fixes
+
+- **reference:** upgrade arazzo-runtime-expression to v3.0.0 ([#388](https://github.com/speclynx/apidom/issues/388)) ([1ac337a](https://github.com/speclynx/apidom/commit/1ac337afa7fcbfdce7074bd70a95183defaa69f3))
+
+### BREAKING CHANGES
+
+- **reference:** in v3:
+  The parse result tree structure for ComponentsExpression changed from
+  { type, field, subField } to { type, componentType, componentName }.
+
+Updated the arazzo-1 dereference visitor to use the new v3 API.
+
+Signed-off-by: Vladimir Gorej <vladimir.gorej@gmail.com>
+
 # [4.16.0](https://github.com/speclynx/apidom/compare/v4.15.0...v4.16.0) (2026-06-24)
 
 ### Features
