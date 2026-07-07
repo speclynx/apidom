@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`dereference strategies arazzo-1 sourceDescriptions given sourceDescriptions enabled should dereference source description document 1`] = `
 {
