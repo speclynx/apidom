@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`dereference strategies overlay-1 extends given extends enabled should dereference $refs in the extends target document 1`] = `
 {
