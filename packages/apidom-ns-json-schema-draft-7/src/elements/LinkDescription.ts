@@ -70,10 +70,7 @@ class LinkDescription extends LinkDescriptionElement {
 
   get targetSchema(): JSONSchema | BooleanElement | JSONReferenceElement | undefined {
     return this.get('targetSchema') as
-      | JSONSchema
-      | BooleanElement
-      | JSONReferenceElement
-      | undefined;
+      JSONSchema | BooleanElement | JSONReferenceElement | undefined;
   }
 
   set targetSchema(targetSchema: JSONSchema | BooleanElement | JSONReferenceElement | undefined) {
@@ -140,10 +137,7 @@ class LinkDescription extends LinkDescriptionElement {
 
   get headerSchema(): JSONSchema | BooleanElement | JSONReferenceElement | undefined {
     return this.get('headerSchema') as
-      | JSONSchema
-      | BooleanElement
-      | JSONReferenceElement
-      | undefined;
+      JSONSchema | BooleanElement | JSONReferenceElement | undefined;
   }
 
   set headerSchema(headerSchema: JSONSchema | BooleanElement | JSONReferenceElement | undefined) {
@@ -158,10 +152,7 @@ class LinkDescription extends LinkDescriptionElement {
 
   get submissionSchema(): JSONSchema | BooleanElement | JSONReferenceElement | undefined {
     return this.get('submissionSchema') as
-      | JSONSchema
-      | BooleanElement
-      | JSONReferenceElement
-      | undefined;
+      JSONSchema | BooleanElement | JSONReferenceElement | undefined;
   }
 
   set submissionSchema(

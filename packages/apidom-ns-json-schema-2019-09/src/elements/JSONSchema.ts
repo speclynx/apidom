@@ -182,10 +182,7 @@ class JSONSchema extends JSONSchemaElement {
 
   override get additionalProperties(): this | BooleanElement | JSONReferenceElement | undefined {
     return this.get('additionalProperties') as
-      | this
-      | BooleanElement
-      | JSONReferenceElement
-      | undefined;
+      this | BooleanElement | JSONReferenceElement | undefined;
   }
 
   override set additionalProperties(
@@ -224,10 +221,7 @@ class JSONSchema extends JSONSchemaElement {
 
   get unevaluatedProperties(): this | BooleanElement | JSONReferenceElement | undefined {
     return this.get('unevaluatedProperties') as
-      | this
-      | BooleanElement
-      | JSONReferenceElement
-      | undefined;
+      this | BooleanElement | JSONReferenceElement | undefined;
   }
 
   set unevaluatedProperties(

@@ -138,15 +138,9 @@ class JSONSchema extends ObjectElement {
   }
 
   get itemsField():
-    | this
-    | JSONReferenceElement
-    | ArrayElement<this | JSONReferenceElement>
-    | undefined {
+    this | JSONReferenceElement | ArrayElement<this | JSONReferenceElement> | undefined {
     return this.get('items') as
-      | this
-      | JSONReferenceElement
-      | ArrayElement<this | JSONReferenceElement>
-      | undefined;
+      this | JSONReferenceElement | ArrayElement<this | JSONReferenceElement> | undefined;
   }
 
   set itemsField(
@@ -217,10 +211,7 @@ class JSONSchema extends ObjectElement {
 
   get additionalProperties(): this | JSONReferenceElement | BooleanElement | undefined {
     return this.get('additionalProperties') as
-      | this
-      | JSONReferenceElement
-      | BooleanElement
-      | undefined;
+      this | JSONReferenceElement | BooleanElement | undefined;
   }
 
   set additionalProperties(
