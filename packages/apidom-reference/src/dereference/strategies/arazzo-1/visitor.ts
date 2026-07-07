@@ -270,7 +270,7 @@ class Arazzo1DereferenceVisitor {
     }
 
     // evaluate runtime expression as JSON Pointer to get the referenced element
-    const jsonPointer = jsonPointerCompile(['components', tree.field, tree.subField]);
+    const jsonPointer = jsonPointerCompile(['components', tree.componentType, tree.componentName]);
     let referencedElement: Element;
     try {
       referencedElement = jsonPointerEvaluate<Element>(
