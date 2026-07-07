@@ -98,6 +98,10 @@
     "yaml-js": "^0.3.1"
   },
   "overrides": {
-    "minimatch@10.2.3": "10.2.4"
+    "minimatch@10.2.3": "10.2.4",
+    "jest-snapshot": "^30.4.1",
+    "@babel/core": "$@babel/core",
+    "@babel/plugin-syntax-jsx": "^8.0.0",
+    "@babel/plugin-syntax-typescript": "^8.0.0"
   }
 }
