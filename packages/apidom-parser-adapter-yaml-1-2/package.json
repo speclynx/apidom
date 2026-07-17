@@ -64,7 +64,7 @@
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.1.0",
     "unraw": "^3.0.0",
-    "web-tree-sitter": "=0.26.10",
+    "web-tree-sitter": "=0.26.11",
     "yaml": "^2.9.0"
   },
   "devDependencies": {
