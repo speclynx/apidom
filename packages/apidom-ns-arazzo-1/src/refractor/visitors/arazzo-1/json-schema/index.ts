@@ -1,4 +1,4 @@
-import { ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
 import {
   JSONSchemaVisitor as JSONSchema202012Visitor,
@@ -25,7 +25,7 @@ class JSONSchemaVisitor extends JSONSchema202012Visitor {
 
     // the inherited visitor tags `schema`, which no Arazzo element is named;
     // consumers match this value against an element name, so mirror our own
-    if (isStringElement(this.element.$ref)) {
+    if (this.element.meta.hasKey('referenced-element')) {
       this.element.meta.set('referenced-element', this.element.element);
     }
   }
