@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import { sexprs } from '@speclynx/apidom-core';
+import { assert, expect } from 'chai';
+import { sexprs, toValue } from '@speclynx/apidom-core';
 
 import { refractJSONSchema } from '../../../../src/index.ts';
 
@@ -92,6 +92,15 @@ describe('refractor', function () {
         });
 
         expect(sexprs(jsonSchemaElement)).toMatchSnapshot();
+      });
+
+      context('given $ref field', function () {
+        specify('should contain referenced-element meta', function () {
+          const jsonSchemaElement = refractJSONSchema({ $ref: '#/components/inputs/Input1' });
+          const referencedElementMeta = jsonSchemaElement.meta.get('referenced-element');
+
+          assert.strictEqual(toValue(referencedElementMeta), 'JSONSchema');
+        });
       });
 
       context('given embedded JSONSchemaElements', function () {
