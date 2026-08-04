@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.2](https://github.com/speclynx/apidom/compare/v5.0.1...v5.0.2) (2026-08-04)
+
+### Bug Fixes
+
+- **ns-arazzo-1:** tag JSON Schema refs with own element name ([#428](https://github.com/speclynx/apidom/issues/428)) ([91b759c](https://github.com/speclynx/apidom/commit/91b759c476d791251a0bcee9052aefc19ad8bb85))
+
 ## [5.0.1](https://github.com/speclynx/apidom/compare/v5.0.0...v5.0.1) (2026-07-07)
 
 ### Bug Fixes
