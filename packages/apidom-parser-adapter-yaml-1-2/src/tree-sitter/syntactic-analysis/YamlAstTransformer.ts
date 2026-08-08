@@ -346,6 +346,27 @@ const transformStream = (node: YamlStream, ctx: TransformContext): ParseResultEl
   if (elements.length > 0) {
     const resultElement = elements[0];
     resultElement.classes.push('result');
+
+    // stream comments before the first document belong above the result element;
+    // capture them as commentBefore so style round-trips can re-emit them
+    if (ctx.style) {
+      const streamChildren = (node.children || []) as (TypedNode & { content?: string })[];
+      const firstDocument = streamChildren.find((child) => child?.type === 'document');
+      const preDocumentComments = streamChildren.filter(
+        (child) =>
+          child?.type === 'comment' &&
+          (firstDocument === undefined ||
+            (child.startOffset ?? 0) < (firstDocument.startOffset ?? Infinity)),
+      );
+      if (preDocumentComments.length > 0) {
+        const text = preDocumentComments
+          .map((comment) => stripCommentHash(comment.content || ''))
+          .join('\n');
+        const existing = (resultElement.style?.yaml as Record<string, unknown> | undefined)
+          ?.commentBefore as string | undefined;
+        setYamlStyleProp(resultElement, 'commentBefore', existing ? `${text}\n${existing}` : text);
+      }
+    }
   }
 
   // Add collected annotations
