@@ -10,6 +10,7 @@ import {
   type CreateNodeOptions,
   type DocumentOptions,
   type SchemaOptions,
+  type ScalarTag,
   type ToStringOptions,
 } from 'yaml';
 import {
@@ -71,6 +72,25 @@ export interface YAMLSerializerOptions
   /** Padding inside flow collections (e.g. `{ a: 1 }` vs `{a: 1}`) */
   flowCollectionPadding?: boolean;
 }
+
+// the YAML library re-derives number text from the JS value (normalizing e.g.
+// 1e3 -> 1e+3, 0x1A -> 0x1a) and has no per-node verbatim hook, so numbers with
+// faithful rawContent are boxed and emitted through a custom tag whose stringify
+// returns the original text; `default: true` keeps the tag implicit in the output
+class RawNumber {
+  constructor(
+    public value: number,
+    public raw: string,
+  ) {}
+}
+
+const rawNumberTag: ScalarTag = {
+  tag: 'tag:yaml.org,2002:float',
+  default: true,
+  identify: (value: unknown): boolean => value instanceof RawNumber,
+  resolve: (str: string): number => Number(str),
+  stringify: (item): string => (item.value as RawNumber).raw,
+};
 
 /**
  * Converts an ApiDOM element tree to YAML library AST nodes,
@@ -137,21 +157,27 @@ const toYAMLNode = (element: unknown, visited: WeakSet<object>): unknown => {
     scalar.type = scalarType;
   }
 
-  // use rawContent to infer YAML library format hints for plain scalars that resolved to numbers;
-  // only applies to Plain style — quoted scalars are always strings in YAML.
-  // note: the YAML library may normalize the representation (e.g. 1.0e10 -> 1e+10, 0x1A -> 0x1a)
-  // while preserving the format category (exponential, hex, octal, fractional digits)
+  // emit raw number content verbatim for plain scalars whose rawContent still
+  // faithfully represents the current value; only applies to Plain style —
+  // quoted scalars are always strings in YAML
   if (style.rawContent && style.scalarStyle === 'Plain' && typeof scalar.value === 'number') {
-    if (/[eE]/.test(style.rawContent)) {
-      scalar.format = 'EXP';
-    } else if (/^0x/i.test(style.rawContent)) {
-      scalar.format = 'HEX';
-    } else if (/^0o/i.test(style.rawContent)) {
-      scalar.format = 'OCT';
-    }
-    const dotMatch = style.rawContent.match(/\.(\d+)/);
-    if (dotMatch) {
-      scalar.minFractionDigits = dotMatch[1].length;
+    if (Number(style.rawContent) === scalar.value) {
+      scalar.value = new RawNumber(scalar.value, style.rawContent);
+    } else {
+      // fallback: infer YAML library format hints; the library may normalize the
+      // representation (e.g. 1.0e10 -> 1e+10, 0x1A -> 0x1a) while preserving the
+      // format category (exponential, hex, octal, fractional digits)
+      if (/[eE]/.test(style.rawContent)) {
+        scalar.format = 'EXP';
+      } else if (/^0x/i.test(style.rawContent)) {
+        scalar.format = 'HEX';
+      } else if (/^0o/i.test(style.rawContent)) {
+        scalar.format = 'OCT';
+      }
+      const dotMatch = style.rawContent.match(/\.(\d+)/);
+      if (dotMatch) {
+        scalar.minFractionDigits = dotMatch[1].length;
+      }
     }
   }
 
@@ -184,7 +210,7 @@ const serializer = (
     }
 
     const rootNode = toYAMLNode(element, new WeakSet());
-    const doc = new Document(undefined, allOptions);
+    const doc = new Document(undefined, { ...allOptions, customTags: [rawNumberTag] });
     doc.contents = rootNode as YAMLNode;
 
     if (directive) {

@@ -72,9 +72,7 @@ describe('serializers', function () {
     });
 
     context('given NumberElement with exponential rawContent', function () {
-      // the yaml library normalizes exponential notation (e.g. 1.0e10 -> 1e+10);
-      // we preserve the exponential form but not the exact original representation
-      specify('should preserve exponential format', function () {
+      specify('should preserve original representation verbatim', function () {
         const element = new ObjectElement({});
         const numElement = new NumberElement(10000000000);
         numElement.style = { yaml: { scalarStyle: 'Plain', indent: 2, rawContent: '1.0e10' } };
@@ -83,12 +81,12 @@ describe('serializers', function () {
 
         const result = serialize(element, { preserveStyle: true });
 
-        assert.strictEqual(result, 'key: 1e+10\n');
+        assert.strictEqual(result, 'key: 1.0e10\n');
       });
     });
 
     context('given NumberElement with hex rawContent', function () {
-      specify('should preserve hex format', function () {
+      specify('should preserve original representation verbatim', function () {
         const element = new ObjectElement({});
         const numElement = new NumberElement(26);
         numElement.style = { yaml: { scalarStyle: 'Plain', indent: 2, rawContent: '0x1A' } };
@@ -97,7 +95,36 @@ describe('serializers', function () {
 
         const result = serialize(element, { preserveStyle: true });
 
-        assert.strictEqual(result, 'key: 0x1a\n');
+        assert.strictEqual(result, 'key: 0x1A\n');
+      });
+    });
+
+    context('given NumberElement with stale rawContent', function () {
+      // a plugin changed the value but left the original rawContent behind;
+      // the stale text must not be emitted — fall back to format hints
+      specify('should fall back to format-preserving serialization', function () {
+        const element = new ObjectElement({});
+        const numElement = new NumberElement(2000);
+        numElement.style = { yaml: { scalarStyle: 'Plain', indent: 2, rawContent: '1e3' } };
+        element.set('key', numElement);
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'key: 2e+3\n');
+      });
+    });
+
+    context('given NumberElement with rawContent inside a flow sequence', function () {
+      specify('should preserve original representation verbatim', function () {
+        const numElement = new NumberElement(1000);
+        numElement.style = { yaml: { scalarStyle: 'Plain', indent: 2, rawContent: '1e3' } };
+        const element = new ArrayElement([numElement, 2]);
+        element.style = { yaml: { styleGroup: 'Flow', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, '[ 1e3, 2 ]\n');
       });
     });
 

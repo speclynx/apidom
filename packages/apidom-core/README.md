@@ -628,9 +628,11 @@ toYAML(objElement);
 `toYAML` accepts an optional second argument with serialization options. When `preserveStyle` is `true`,
 the serializer uses style information from `element.style.yaml` (captured during parsing with `style: true`)
 to preserve original formatting such as quoting styles, flow/block collections, comments, and indentation.
-Number format categories (exponential, hex, octal, fractional digits) are also preserved, though the
-underlying yaml library may normalize the exact representation (e.g., `1.0e10` becomes `1e+10`,
-`0x1A` becomes `0x1a`).
+Raw number representations (e.g. `1.0e10`, `0.50`) are preserved verbatim as long as they still
+represent the element's current value; when the value was changed without updating the captured
+raw content, the serializer falls back to preserving only the format category (exponential, hex,
+octal, fractional digits), letting the underlying yaml library normalize the exact representation
+(e.g., `1.0e10` becomes `1e+10`).
 
 ```js
 import { toYAML } from '@speclynx/apidom-core';
