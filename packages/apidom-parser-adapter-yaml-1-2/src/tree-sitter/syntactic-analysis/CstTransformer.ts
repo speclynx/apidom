@@ -156,11 +156,12 @@ const processChildren = (
   return results;
 };
 
-// strip leading '# ' (or bare '#') from comment text, keeping only the content
+// strip leading '#' from each line of comment text; the text after '#' is kept
+// verbatim (including leading whitespace) so serializers can round-trip it exactly
 const stripCommentHash = (text: string): string =>
   text
     .split('\n')
-    .map((line) => line.replace(/^#\s?/, ''))
+    .map((line) => line.replace(/^#/, ''))
     .join('\n');
 
 // find the first YamlNode in a TransformResult (which may be an array from block_node)
@@ -174,11 +175,16 @@ const findYamlNode = (result: TransformResult): YamlNode | null => {
   return null;
 };
 
+interface PairComment {
+  text: string;
+  startLine?: number;
+}
+
 interface KeyValuePairResult {
   key: TransformResult | null;
   value: TransformResult | null;
   errors: TransformResult[];
-  commentsBetweenKeyValue: string[];
+  commentsBetweenKeyValue: PairComment[];
   commentsAfterValue: string[];
 }
 
@@ -191,7 +197,7 @@ const processKeyValuePairChildren = (
   let key: TransformResult | null = null;
   let value: TransformResult | null = null;
   const errors: TransformResult[] = [];
-  const commentsBetweenKeyValue: string[] = [];
+  const commentsBetweenKeyValue: PairComment[] = [];
   const commentsAfterValue: string[] = [];
   let siblings: SiblingContext = {};
   let seenKey = false;
@@ -218,7 +224,7 @@ const processKeyValuePairChildren = (
         if (seenValue) {
           commentsAfterValue.push(commentText);
         } else if (seenKey) {
-          commentsBetweenKeyValue.push(commentText);
+          commentsBetweenKeyValue.push({ text: commentText, startLine: info.startPosition.row });
         }
         continue;
       }
@@ -501,11 +507,20 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       children.push(value);
     }
 
-    // attach comments found between key and value to the value node
+    // attach comments found between key and value: comments on the key's own line
+    // belong after the key (`key: # comment`), the rest before the value node
     if (commentsBetweenKeyValue.length > 0) {
+      const keyNode = findYamlNode(key);
       const valueNode = findYamlNode(value);
-      if (valueNode) {
-        valueNode.commentBefore = commentsBetweenKeyValue.join('\n');
+      const onKeyLine = commentsBetweenKeyValue.filter(
+        (comment) => keyNode !== null && comment.startLine === keyNode.endLine,
+      );
+      const onOwnLine = commentsBetweenKeyValue.filter((comment) => !onKeyLine.includes(comment));
+      if (onKeyLine.length > 0 && keyNode) {
+        keyNode.comment = onKeyLine.map((comment) => comment.text).join('\n');
+      }
+      if (onOwnLine.length > 0 && valueNode) {
+        valueNode.commentBefore = onOwnLine.map((comment) => comment.text).join('\n');
       }
     }
     // attach comments found after value to the value node
@@ -594,11 +609,20 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       children.push(value);
     }
 
-    // attach comments found between key and value to the value node
+    // attach comments found between key and value: comments on the key's own line
+    // belong after the key (`key: # comment`), the rest before the value node
     if (commentsBetweenKeyValue.length > 0) {
+      const keyNode = findYamlNode(key);
       const valueNode = findYamlNode(value);
-      if (valueNode) {
-        valueNode.commentBefore = commentsBetweenKeyValue.join('\n');
+      const onKeyLine = commentsBetweenKeyValue.filter(
+        (comment) => keyNode !== null && comment.startLine === keyNode.endLine,
+      );
+      const onOwnLine = commentsBetweenKeyValue.filter((comment) => !onKeyLine.includes(comment));
+      if (onKeyLine.length > 0 && keyNode) {
+        keyNode.comment = onKeyLine.map((comment) => comment.text).join('\n');
+      }
+      if (onOwnLine.length > 0 && valueNode) {
+        valueNode.commentBefore = onOwnLine.map((comment) => comment.text).join('\n');
       }
     }
     // attach comments found after value to the value node

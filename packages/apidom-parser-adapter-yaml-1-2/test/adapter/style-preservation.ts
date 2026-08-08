@@ -51,5 +51,31 @@ describe('adapter', function () {
         assert.deepInclude(member.style?.yaml, { comment: ' inline comment' });
       });
     });
+
+    context('given comment on the key line before a nested block value', function () {
+      specify('should capture the text after "#" verbatim on the key', async function () {
+        const source = 'a: # key line comment\n    nested: 1\n';
+
+        const parseResult = await adapter.parse(source, { style: true });
+        const result = parseResult.result!;
+        // @ts-ignore
+        const member = result.getMember('a');
+
+        assert.deepInclude(member.key.style?.yaml, { comment: ' key line comment' });
+      });
+    });
+
+    context('given comment on its own line before a nested block value', function () {
+      specify('should capture the text after "#" verbatim on the value', async function () {
+        const source = 'a:\n    # own line comment\n    nested: 1\n';
+
+        const parseResult = await adapter.parse(source, { style: true });
+        const result = parseResult.result!;
+        // @ts-ignore
+        const member = result.getMember('a');
+
+        assert.deepInclude(member.value.style?.yaml, { commentBefore: ' own line comment' });
+      });
+    });
   });
 });
