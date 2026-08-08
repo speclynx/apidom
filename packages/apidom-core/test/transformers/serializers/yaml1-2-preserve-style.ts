@@ -162,7 +162,7 @@ describe('serializers', function () {
     context('given element with comment', function () {
       specify('should preserve inline comment', function () {
         const element = new ObjectElement({ a: 1 });
-        element.style = { yaml: { styleGroup: 'Block', indent: 2, comment: 'my comment' } };
+        element.style = { yaml: { styleGroup: 'Block', indent: 2, comment: ' my comment' } };
 
         const result = serialize(element, { preserveStyle: true });
 
@@ -174,7 +174,7 @@ describe('serializers', function () {
       specify('should preserve comment before node', function () {
         const element = new ObjectElement({ a: 1 });
         element.style = {
-          yaml: { styleGroup: 'Block', indent: 2, commentBefore: 'before comment' },
+          yaml: { styleGroup: 'Block', indent: 2, commentBefore: ' before comment' },
         };
 
         const result = serialize(element, { preserveStyle: true });
