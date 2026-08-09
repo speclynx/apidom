@@ -246,7 +246,7 @@ const plugin = () => () => ({
       const replacement = elementFactory.call(
         { context },
         undefined,
-        element.isMetaEmpty ? undefined : element.meta.cloneDeep(),
+        element.isMetaEmpty ? undefined : cloneDeep(element.meta),
         element.isAttributesEmpty ? undefined : cloneDeep(element.attributes),
       );
 
