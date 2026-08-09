@@ -22,6 +22,7 @@ import type YamlKeyValuePair from './ast/nodes/YamlKeyValuePair.ts';
 import type YamlSequence from './ast/nodes/YamlSequence.ts';
 import type YamlScalar from './ast/nodes/YamlScalar.ts';
 import type YamlNode from './ast/nodes/YamlNode.ts';
+import { isComment, isDocument } from './ast/nodes/predicates.ts';
 import { YamlStyle, YamlStyleGroup } from './ast/nodes/YamlStyle.ts';
 
 // Transform context passed through transformation
@@ -180,6 +181,9 @@ const setYamlStyleProp = (element: Element, key: string, value: string): void =>
   element.style.yaml = yaml;
 };
 
+const getYamlStyleProp = (element: Element, key: string): unknown =>
+  (element.style?.yaml as Record<string, unknown> | undefined)?.[key];
+
 // apply collected comments to transformed ApiDOM elements
 const applyComments = (elements: Element[], comments: CommentAssociations): void => {
   comments.before.forEach((text, idx) => {
@@ -324,6 +328,17 @@ const transformChildren = (children: unknown[], ctx: TransformContext): Element[
   return results;
 };
 
+// stream comments that precede the first document, joined; null when there are none
+// (stream children are in source order, so everything before the document node qualifies)
+const collectPreDocumentComments = (node: YamlStream): string | null => {
+  const texts: string[] = [];
+  for (const child of node.children) {
+    if (isDocument(child)) break;
+    if (isComment(child)) texts.push(stripCommentHash(child.content));
+  }
+  return texts.length > 0 ? texts.join('\n') : null;
+};
+
 // Stream: Wraps transformed children in ParseResultElement
 const transformStream = (node: YamlStream, ctx: TransformContext): ParseResultElement => {
   // detect indent from the stream structure (only needed for style preservation)
@@ -350,21 +365,16 @@ const transformStream = (node: YamlStream, ctx: TransformContext): ParseResultEl
     // stream comments before the first document belong above the result element;
     // capture them as commentBefore so style round-trips can re-emit them
     if (ctx.style) {
-      const streamChildren = (node.children || []) as (TypedNode & { content?: string })[];
-      const firstDocument = streamChildren.find((child) => child?.type === 'document');
-      const preDocumentComments = streamChildren.filter(
-        (child) =>
-          child?.type === 'comment' &&
-          (firstDocument === undefined ||
-            (child.startOffset ?? 0) < (firstDocument.startOffset ?? Infinity)),
-      );
-      if (preDocumentComments.length > 0) {
-        const text = preDocumentComments
-          .map((comment) => stripCommentHash(comment.content || ''))
-          .join('\n');
-        const existing = (resultElement.style?.yaml as Record<string, unknown> | undefined)
-          ?.commentBefore as string | undefined;
-        setYamlStyleProp(resultElement, 'commentBefore', existing ? `${text}\n${existing}` : text);
+      const preDocumentComments = collectPreDocumentComments(node);
+      if (preDocumentComments !== null) {
+        const existing = getYamlStyleProp(resultElement, 'commentBefore');
+        setYamlStyleProp(
+          resultElement,
+          'commentBefore',
+          typeof existing === 'string'
+            ? `${preDocumentComments}\n${existing}`
+            : preDocumentComments,
+        );
       }
     }
   }
