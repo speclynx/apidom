@@ -250,6 +250,37 @@ const processKeyValuePairChildren = (
   return { key, value, errors, commentsBetweenKeyValue, commentsAfterValue };
 };
 
+// attach comments collected inside a pair: comments on the key's own line belong
+// after the key (`key: # comment`), the rest before the value node; comments
+// found after the value become the value's trailing comment
+const attachPairComments = ({
+  key,
+  value,
+  commentsBetweenKeyValue,
+  commentsAfterValue,
+}: KeyValuePairResult): void => {
+  if (commentsBetweenKeyValue.length > 0) {
+    const keyNode = findYamlNode(key);
+    const valueNode = findYamlNode(value);
+    const onKeyLine = commentsBetweenKeyValue.filter(
+      (comment) => keyNode !== null && comment.startLine === keyNode.endLine,
+    );
+    const onOwnLine = commentsBetweenKeyValue.filter((comment) => !onKeyLine.includes(comment));
+    if (onKeyLine.length > 0 && keyNode) {
+      keyNode.comment = onKeyLine.map((comment) => comment.text).join('\n');
+    }
+    if (onOwnLine.length > 0 && valueNode) {
+      valueNode.commentBefore = onOwnLine.map((comment) => comment.text).join('\n');
+    }
+  }
+  if (commentsAfterValue.length > 0) {
+    const valueNode = findYamlNode(value);
+    if (valueNode) {
+      valueNode.comment = commentsAfterValue.join('\n');
+    }
+  }
+};
+
 const transform = (
   cursor: TreeCursor,
   ctx: TransformContext,
@@ -464,8 +495,8 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
   block_mapping_pair(cursor: TreeCursor, ctx: TransformContext): YamlKeyValuePair {
     const info = getCursorInfo(cursor);
 
-    const { key, value, errors, commentsBetweenKeyValue, commentsAfterValue } =
-      processKeyValuePairChildren(cursor, ctx, transformerMap);
+    const pairResult = processKeyValuePairChildren(cursor, ctx, transformerMap);
+    const { key, value, errors } = pairResult;
 
     const children: TransformResult[] = [];
 
@@ -507,29 +538,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       children.push(value);
     }
 
-    // attach comments found between key and value: comments on the key's own line
-    // belong after the key (`key: # comment`), the rest before the value node
-    if (commentsBetweenKeyValue.length > 0) {
-      const keyNode = findYamlNode(key);
-      const valueNode = findYamlNode(value);
-      const onKeyLine = commentsBetweenKeyValue.filter(
-        (comment) => keyNode !== null && comment.startLine === keyNode.endLine,
-      );
-      const onOwnLine = commentsBetweenKeyValue.filter((comment) => !onKeyLine.includes(comment));
-      if (onKeyLine.length > 0 && keyNode) {
-        keyNode.comment = onKeyLine.map((comment) => comment.text).join('\n');
-      }
-      if (onOwnLine.length > 0 && valueNode) {
-        valueNode.commentBefore = onOwnLine.map((comment) => comment.text).join('\n');
-      }
-    }
-    // attach comments found after value to the value node
-    if (commentsAfterValue.length > 0) {
-      const valueNode = findYamlNode(value);
-      if (valueNode) {
-        valueNode.comment = commentsAfterValue.join('\n');
-      }
-    }
+    attachPairComments(pairResult);
 
     children.push(...errors);
 
@@ -566,8 +575,8 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
   flow_pair(cursor: TreeCursor, ctx: TransformContext): YamlKeyValuePair {
     const info = getCursorInfo(cursor);
 
-    const { key, value, errors, commentsBetweenKeyValue, commentsAfterValue } =
-      processKeyValuePairChildren(cursor, ctx, transformerMap);
+    const pairResult = processKeyValuePairChildren(cursor, ctx, transformerMap);
+    const { key, value, errors } = pairResult;
 
     const children: TransformResult[] = [];
 
@@ -609,29 +618,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       children.push(value);
     }
 
-    // attach comments found between key and value: comments on the key's own line
-    // belong after the key (`key: # comment`), the rest before the value node
-    if (commentsBetweenKeyValue.length > 0) {
-      const keyNode = findYamlNode(key);
-      const valueNode = findYamlNode(value);
-      const onKeyLine = commentsBetweenKeyValue.filter(
-        (comment) => keyNode !== null && comment.startLine === keyNode.endLine,
-      );
-      const onOwnLine = commentsBetweenKeyValue.filter((comment) => !onKeyLine.includes(comment));
-      if (onKeyLine.length > 0 && keyNode) {
-        keyNode.comment = onKeyLine.map((comment) => comment.text).join('\n');
-      }
-      if (onOwnLine.length > 0 && valueNode) {
-        valueNode.commentBefore = onOwnLine.map((comment) => comment.text).join('\n');
-      }
-    }
-    // attach comments found after value to the value node
-    if (commentsAfterValue.length > 0) {
-      const valueNode = findYamlNode(value);
-      if (valueNode) {
-        valueNode.comment = commentsAfterValue.join('\n');
-      }
-    }
+    attachPairComments(pairResult);
 
     children.push(...errors);
 
