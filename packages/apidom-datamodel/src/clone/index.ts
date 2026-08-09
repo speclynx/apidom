@@ -2,6 +2,7 @@ import { clone } from 'ramda';
 
 import ObjectSlice from '../ObjectSlice.ts';
 import KeyValuePair from '../KeyValuePair.ts';
+import Metadata from '../Metadata.ts';
 import Element from '../primitives/Element.ts';
 import MemberElement from '../primitives/MemberElement.ts';
 import { isElement, hasElementSourceMap, hasElementStyle } from '../predicates/index.ts';
@@ -12,7 +13,7 @@ import ShallowCloneError from './errors/ShallowCloneError.ts';
 /**
  * @public
  */
-export type FinalCloneTypes = KeyValuePair | ObjectSlice;
+export type FinalCloneTypes = KeyValuePair | ObjectSlice | Metadata;
 
 /**
  * @public
@@ -80,7 +81,7 @@ const cloneDeepObjectSlice = (slice: ObjectSlice, options: DeepCloneOptions): Ob
 };
 
 /**
- * Creates a deep clone of an ApiDOM Element, KeyValuePair, or ObjectSlice.
+ * Creates a deep clone of an ApiDOM Element, KeyValuePair, ObjectSlice, or Metadata.
  * Handles cycles by memoizing visited objects.
  * @public
  */
@@ -94,6 +95,10 @@ export const cloneDeep = <T extends Element | FinalCloneTypes>(
 
   if (value instanceof ObjectSlice) {
     return cloneDeepObjectSlice(value, options) as T;
+  }
+
+  if (value instanceof Metadata) {
+    return value.cloneDeep() as T;
   }
 
   if (isElement(value)) {
@@ -129,7 +134,7 @@ const cloneShallowElement = <T extends Element>(element: T): T => {
   copy.element = element.element;
 
   if (!element.isMetaEmpty) {
-    copy.meta = element.meta.cloneDeep();
+    copy.meta = cloneDeep(element.meta);
   }
 
   if (!element.isAttributesEmpty) {
@@ -159,7 +164,7 @@ const cloneShallowElement = <T extends Element>(element: T): T => {
 };
 
 /**
- * Creates a shallow clone of an ApiDOM Element, KeyValuePair, or ObjectSlice.
+ * Creates a shallow clone of an ApiDOM Element, KeyValuePair, ObjectSlice, or Metadata.
  * The element itself is cloned, but content references are shared.
  * Meta and attributes are deep cloned to preserve semantic information.
  * @public
@@ -171,6 +176,10 @@ export const cloneShallow = <T extends Element | FinalCloneTypes>(value: T): T =
 
   if (value instanceof ObjectSlice) {
     return cloneShallowObjectSlice(value) as T;
+  }
+
+  if (value instanceof Metadata) {
+    return value.cloneShallow() as T;
   }
 
   if (isElement(value)) {
