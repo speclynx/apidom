@@ -87,7 +87,7 @@ const inheritParametersToOperation = (
   // its meta, attributes, source map and style
   if (isArrayElement(originalParameters)) {
     if (!originalParameters.isMetaEmpty) {
-      mergedElement.meta = originalParameters.meta.cloneDeep();
+      mergedElement.meta = cloneDeep(originalParameters.meta);
     }
     if (!originalParameters.isAttributesEmpty) {
       mergedElement.attributes = cloneDeep(originalParameters.attributes);
