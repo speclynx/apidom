@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.1.0](https://github.com/speclynx/apidom/compare/v5.0.2...v5.1.0) (2026-08-09)
+
+### Bug Fixes
+
+- **yaml:** make YAML style round-trips byte-perfect (comments, raw numbers) ([#441](https://github.com/speclynx/apidom/issues/441)) ([43dc5b6](https://github.com/speclynx/apidom/commit/43dc5b6a19bfe6268f0ecaedf8f099b1990a363d))
+
 ## [5.0.2](https://github.com/speclynx/apidom/compare/v5.0.1...v5.0.2) (2026-08-04)
 
 **Note:** Version bump only for package @speclynx/apidom-parser-adapter-yaml-1-2

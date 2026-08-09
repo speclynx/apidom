@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.1.0](https://github.com/speclynx/apidom/compare/v5.0.2...v5.1.0) (2026-08-09)
+
+### Features
+
+- **datamodel:** support Metadata in cloneDeep and cloneShallow ([#443](https://github.com/speclynx/apidom/issues/443)) ([8e7e27a](https://github.com/speclynx/apidom/commit/8e7e27a7b01223bba13e54c9703a0c1da34a47d6)), closes [cloneDeep/#cloneShallow](https://github.com/speclynx/apidom/issues/cloneShallow)
+
 ## [5.0.2](https://github.com/speclynx/apidom/compare/v5.0.1...v5.0.2) (2026-08-04)
 
 ### Bug Fixes
