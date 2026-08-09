@@ -157,11 +157,13 @@ const processChildren = (
 };
 
 // strip leading '#' from each line of comment text; the text after '#' is kept
-// verbatim (including leading whitespace) so serializers can round-trip it exactly
+// verbatim (including leading whitespace) so serializers can round-trip it exactly;
+// a bare '#' becomes a single space — the yaml library's encoding for an empty
+// comment, which its stringifier turns back into '#' (plain '' would be dropped)
 const stripCommentHash = (text: string): string =>
   text
     .split('\n')
-    .map((line) => line.replace(/^#/, ''))
+    .map((line) => (line === '#' ? ' ' : line.replace(/^#/, '')))
     .join('\n');
 
 // find the first YamlNode in a TransformResult (which may be an array from block_node)

@@ -65,6 +65,22 @@ describe('adapter', function () {
       });
     });
 
+    context('given bare "#" comment after a mapping entry', function () {
+      specify(
+        'should capture it as a single space (yaml empty-comment encoding)',
+        async function () {
+          const source = 'a: 1 #\n';
+
+          const parseResult = await adapter.parse(source, { style: true });
+          const result = parseResult.result!;
+          // @ts-ignore
+          const member = result.getMember('a');
+
+          assert.deepInclude(member.style?.yaml, { comment: ' ' });
+        },
+      );
+    });
+
     context('given comment on its own line before a nested block value', function () {
       specify('should capture the text after "#" verbatim on the value', async function () {
         const source = 'a:\n    # own line comment\n    nested: 1\n';

@@ -210,6 +210,18 @@ describe('serializers', function () {
       });
     });
 
+    context('given element with empty comment', function () {
+      specify('should emit a bare "#" for the single-space encoding', function () {
+        const element = new ObjectElement({ a: 1 });
+        element.style = { yaml: { styleGroup: 'Block', indent: 2, comment: ' ' } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.include(result, '#');
+        assert.notInclude(result, '# ');
+      });
+    });
+
     context('given no style on element', function () {
       specify('should fall back to defaults', function () {
         const element = new ObjectElement({ a: 'b' });

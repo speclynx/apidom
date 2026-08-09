@@ -92,11 +92,14 @@ const detectIndent = (node: YamlStream): number => {
   return 2;
 };
 
-// strip leading '#' from each line of comment text; yaml library adds '#' during stringification
+// strip leading '#' from each line of comment text; yaml library adds '#' during
+// stringification; a bare '#' becomes a single space — the yaml library's encoding
+// for an empty comment, which its stringifier turns back into '#' (plain '' would
+// be dropped)
 const stripCommentHash = (text: string): string =>
   text
     .split('\n')
-    .map((line) => line.replace(/^#/, ''))
+    .map((line) => (line === '#' ? ' ' : line.replace(/^#/, '')))
     .join('\n');
 
 // collect comment texts from raw AST children, indexed by position relative to non-comment siblings
