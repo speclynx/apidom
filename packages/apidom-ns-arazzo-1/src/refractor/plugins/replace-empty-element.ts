@@ -106,7 +106,7 @@ const plugin = () => () => ({
 
       const replacement = elementFactory(
         undefined,
-        element.isMetaEmpty ? undefined : element.meta.cloneDeep(),
+        element.isMetaEmpty ? undefined : cloneDeep(element.meta),
         element.isAttributesEmpty ? undefined : cloneDeep(element.attributes),
       );
       SourceMapElement.transfer(element, replacement);

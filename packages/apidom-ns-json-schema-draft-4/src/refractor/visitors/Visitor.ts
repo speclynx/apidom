@@ -32,7 +32,7 @@ class Visitor {
     if (!from.isMetaEmpty && !to.isMetaEmpty) {
       to.meta = to.meta.merge(from.meta);
     } else if (!from.isMetaEmpty) {
-      to.meta = from.meta.cloneDeep();
+      to.meta = cloneDeep(from.meta);
     }
 
     if (!from.isAttributesEmpty && !to.isAttributesEmpty) {

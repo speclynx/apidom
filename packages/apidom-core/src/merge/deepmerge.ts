@@ -97,7 +97,7 @@ export type DeepMergeOptions = DeepMergeUserOptions & {
 };
 
 export const emptyElement = (element: ObjectElement | ArrayElement) => {
-  const meta = !element.isMetaEmpty ? element.meta.cloneDeep() : undefined;
+  const meta = !element.isMetaEmpty ? cloneDeep(element.meta) : undefined;
   const attributes = !element.isAttributesEmpty ? cloneDeep(element.attributes) : undefined;
 
   // @ts-ignore
@@ -126,7 +126,7 @@ const getMergeFunction = (keyElement: Element, options: DeepMergeOptions): DeepM
 
 const getMetaMergeFunction = (options: DeepMergeOptions): CustomMetaMerge => {
   if (typeof options.customMetaMerge !== 'function') {
-    return (targetMeta) => targetMeta.cloneDeep();
+    return (targetMeta) => cloneDeep(targetMeta);
   }
   return options.customMetaMerge;
 };
@@ -240,9 +240,9 @@ const deepmerge = (
       sourceElement.meta,
     );
   } else if (!targetElement.isMetaEmpty) {
-    mergedElement.meta = targetElement.meta.cloneDeep();
+    mergedElement.meta = cloneDeep(targetElement.meta);
   } else if (!sourceElement.isMetaEmpty) {
-    mergedElement.meta = sourceElement.meta.cloneDeep();
+    mergedElement.meta = cloneDeep(sourceElement.meta);
   }
   if (!targetElement.isAttributesEmpty && !sourceElement.isAttributesEmpty) {
     mergedElement.attributes = getAttributesMergeFunction(mergedOptions)(
