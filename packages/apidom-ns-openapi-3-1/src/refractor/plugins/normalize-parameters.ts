@@ -1,6 +1,13 @@
 import { uniqWith } from 'ramda';
 import { toValue } from '@speclynx/apidom-core';
-import { StringElement, isStringElement, isArrayElement } from '@speclynx/apidom-datamodel';
+import {
+  StringElement,
+  SourceMapElement,
+  StyleElement,
+  cloneDeep,
+  isStringElement,
+  isArrayElement,
+} from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
 import { OperationParametersElement } from '@speclynx/apidom-ns-openapi-3-0';
 
@@ -72,7 +79,23 @@ const inheritParametersToOperation = (
   // prefers the first item if two items compare equal based on the predicate
   const mergedParameters = uniqWith(parameterEquals, [...operationParams, ...pathItemParams]);
 
-  operationElement.parameters = new OperationParametersElement(mergedParameters);
+  const originalParameters = operationElement.parameters;
+  const mergedElement = new OperationParametersElement(mergedParameters);
+
+  // the merged container may replace an existing source container — carry over
+  // its meta, attributes, source map and style
+  if (isArrayElement(originalParameters)) {
+    if (!originalParameters.isMetaEmpty) {
+      mergedElement.meta = cloneDeep(originalParameters.meta);
+    }
+    if (!originalParameters.isAttributesEmpty) {
+      mergedElement.attributes = cloneDeep(originalParameters.attributes);
+    }
+    SourceMapElement.transfer(originalParameters, mergedElement);
+    StyleElement.transfer(originalParameters, mergedElement);
+  }
+
+  operationElement.parameters = mergedElement;
 };
 
 /**

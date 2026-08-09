@@ -1,5 +1,6 @@
-import { expect } from 'chai';
+import { assert, expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
+import { ArrayElement, ObjectElement } from '@speclynx/apidom-datamodel';
 
 import { refractOperation } from '../../../../src/index.ts';
 
@@ -51,6 +52,19 @@ describe('refractor', function () {
           });
 
           expect(sexprs(operationElement)).toMatchSnapshot();
+        });
+      });
+
+      context('given tags field carrying style information', function () {
+        specify('should transfer style to the refracted element', function () {
+          const tags = new ArrayElement(['tag1', 'tag2']);
+          tags.style = { yaml: { styleGroup: 'Flow' } };
+          const operation = new ObjectElement({ summary: 'operation-summary' });
+          operation.set('tags', tags);
+
+          const operationElement = refractOperation(operation);
+
+          assert.deepEqual(operationElement.tags?.style, { yaml: { styleGroup: 'Flow' } });
         });
       });
     });

@@ -21,6 +21,7 @@ class ConsumesVisitor extends FallbackVisitor {
     const arrayElement = path.node;
 
     this.element = this.element.concat(cloneDeep(arrayElement));
+    this.copyMetaAndAttributes(arrayElement, this.element);
 
     path.stop();
   }
