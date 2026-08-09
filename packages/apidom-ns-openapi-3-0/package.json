@@ -22,8 +22,8 @@
   },
   "type": "module",
   "sideEffects": [
-    "./src/refractor/registration.mjs",
-    "./src/refractor/registration.cjs"
+    "./src/refractor/inspect.mjs",
+    "./src/refractor/inspect.cjs"
   ],
   "unpkg": "./dist/apidom-ns-openapi-3-0.browser.min.js",
   "main": "./src/index.cjs",
