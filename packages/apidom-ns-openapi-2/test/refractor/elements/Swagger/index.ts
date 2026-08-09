@@ -1,5 +1,5 @@
 import { assert, expect } from 'chai';
-import { includesClasses } from '@speclynx/apidom-datamodel';
+import { ArrayElement, ObjectElement, includesClasses } from '@speclynx/apidom-datamodel';
 import { sexprs } from '@speclynx/apidom-core';
 
 import { refractSwagger, SwaggerElement } from '../../../../src/index.ts';
@@ -53,6 +53,25 @@ describe('refractor', function () {
             'specification-extension',
           ]),
         );
+      });
+
+      context('given array fields carrying style information', function () {
+        specify('should transfer style to the refracted elements', function () {
+          const style = { yaml: { styleGroup: 'Flow' } };
+          const fields = ['schemes', 'consumes', 'produces'];
+          const swagger = new ObjectElement({ swagger: '2.0' });
+          for (const field of fields) {
+            const array = new ArrayElement(['value1', 'value2']);
+            array.style = { ...style };
+            swagger.set(field, array);
+          }
+
+          const swaggerElement = refractSwagger(swagger) as SwaggerElement;
+
+          for (const field of fields) {
+            assert.deepEqual((swaggerElement.get(field) as ArrayElement).style, style, field);
+          }
+        });
       });
     });
   });
