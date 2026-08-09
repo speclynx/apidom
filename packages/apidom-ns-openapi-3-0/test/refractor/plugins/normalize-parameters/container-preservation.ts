@@ -42,10 +42,11 @@ describe('refractor', function () {
               plugins: [refractorPluginNormalizeParameters()],
             }) as OpenApi3_0Element;
 
-            const operationElement = openApiElement.paths?.get('/').get('get') as OperationElement;
+            const pathItemElement = openApiElement.paths?.get('/') as ObjectElement;
+            const operationElement = pathItemElement.get('get') as OperationElement;
             const mergedParameters = operationElement.parameters as ArrayElement;
 
-            assert.lengthOf(mergedParameters.content, 2);
+            assert.strictEqual(mergedParameters.length, 2);
             assert.deepEqual(mergedParameters.style, { yaml: { styleGroup: 'Flow' } });
             assert.strictEqual(mergedParameters.meta.get('custom-meta'), 'meta-value');
             assert.strictEqual(
