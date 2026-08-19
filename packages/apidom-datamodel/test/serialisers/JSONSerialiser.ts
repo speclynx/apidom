@@ -636,5 +636,44 @@ describe('JSON Serialiser', function () {
         assert.strictEqual(deserialised.endOffset, 6);
       });
     });
+
+    context('given a "__proto__" key', function () {
+      specify('serialises it as an attribute instead of setting the prototype', function () {
+        const element = new StringElement('x');
+        element.attributes.set('__proto__', new ObjectElement({ injected: 'yes' }));
+        element.attributes.set('safe', 1);
+
+        const serialised = serialiser.serialise(element) as RefractDocument;
+        const attributes = serialised.attributes as Record<string, unknown>;
+
+        assert.deepEqual(Object.keys(attributes), ['__proto__', 'safe']);
+        assert.strictEqual(Object.getPrototypeOf(attributes), Object.prototype);
+      });
+
+      specify('serialises it as a meta key instead of setting the prototype', function () {
+        const element = new StringElement('x');
+        element.meta.set('__proto__', 'pwned');
+
+        const serialised = serialiser.serialise(element) as RefractDocument;
+        const meta = serialised.meta as Record<string, unknown>;
+
+        assert.deepEqual(Object.keys(meta), ['__proto__']);
+        assert.strictEqual(Object.getPrototypeOf(meta), Object.prototype);
+      });
+
+      specify('deserialises a crafted meta key without breaking the element', function () {
+        // built via JSON.parse so "__proto__" is a real own key, not a literal
+        // prototype assignment
+        const doc = JSON.parse(
+          '{"element":"string","meta":{"__proto__":{"element":"string","content":"pwned"}},"content":"x"}',
+        ) as RefractDocument;
+
+        const deserialised = serialiser.deserialise(doc);
+
+        assert.isFunction(deserialised.meta.hasKey);
+        assert.isTrue(deserialised.meta.hasKey('__proto__'));
+        assert.strictEqual(deserialised.element, 'string');
+      });
+    });
   });
 });
