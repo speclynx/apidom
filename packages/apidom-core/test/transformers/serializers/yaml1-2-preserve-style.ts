@@ -322,6 +322,64 @@ describe('serializers', function () {
       });
     });
 
+    context('given aliasDuplicateObjects', function () {
+      specify('should emit an anchor and alias for a shared ObjectElement', function () {
+        const shared = new ObjectElement({ title: 'shared' });
+        const element = new ObjectElement();
+        element.set('a', shared);
+        element.set('b', shared);
+
+        const result = serialize(element, { preserveStyle: true, aliasDuplicateObjects: true });
+
+        assert.strictEqual(result, 'a: &a1\n  title: shared\nb: *a1\n');
+      });
+
+      specify('should emit an anchor and alias for a shared ArrayElement', function () {
+        const shared = new ArrayElement([1, 2]);
+        const element = new ObjectElement();
+        element.set('a', shared);
+        element.set('b', shared);
+
+        const result = serialize(element, { preserveStyle: true, aliasDuplicateObjects: true });
+
+        assert.strictEqual(result, 'a: &a1\n  - 1\n  - 2\nb: *a1\n');
+      });
+
+      specify('should give each shared element its own anchor', function () {
+        const first = new ObjectElement({ n: 1 });
+        const second = new ObjectElement({ n: 2 });
+        const element = new ObjectElement();
+        element.set('a', first);
+        element.set('b', second);
+        element.set('c', first);
+        element.set('d', second);
+
+        const result = serialize(element, { preserveStyle: true, aliasDuplicateObjects: true });
+
+        assert.strictEqual(result, 'a: &a1\n  n: 1\nb: &a2\n  n: 2\nc: *a1\nd: *a2\n');
+      });
+
+      specify('should expand every occurrence when not enabled', function () {
+        const shared = new ObjectElement({ title: 'shared' });
+        const element = new ObjectElement();
+        element.set('a', shared);
+        element.set('b', shared);
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'a:\n  title: shared\nb:\n  title: shared\n');
+      });
+
+      specify('should still serialize a cycle as null', function () {
+        const element = new ObjectElement({ a: 1 });
+        element.set('self', element);
+
+        const result = serialize(element, { preserveStyle: true, aliasDuplicateObjects: true });
+
+        assert.strictEqual(result, 'a: 1\nself: null\n');
+      });
+    });
+
     context('given empty ArrayElement', function () {
       specify('should serialize to empty array', function () {
         const element = new ArrayElement([]);
