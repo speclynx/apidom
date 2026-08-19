@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-ns-openapi-3-0",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "description": "OpenAPI 3.0.x namespace for ApiDOM.",
   "keywords": [
     "apidom",
@@ -56,12 +56,12 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^8.0.0",
-    "@speclynx/apidom-core": "5.1.0",
-    "@speclynx/apidom-datamodel": "5.1.0",
-    "@speclynx/apidom-error": "5.1.0",
-    "@speclynx/apidom-json-pointer": "5.1.0",
-    "@speclynx/apidom-ns-json-schema-draft-4": "5.1.0",
-    "@speclynx/apidom-traverse": "5.1.0",
+    "@speclynx/apidom-core": "5.1.1",
+    "@speclynx/apidom-datamodel": "5.1.1",
+    "@speclynx/apidom-error": "5.1.1",
+    "@speclynx/apidom-json-pointer": "5.1.1",
+    "@speclynx/apidom-ns-json-schema-draft-4": "5.1.1",
+    "@speclynx/apidom-traverse": "5.1.1",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.1.0",
     "ts-mixer": "^6.0.4"

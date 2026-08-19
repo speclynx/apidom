@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.1.1](https://github.com/speclynx/apidom/compare/v5.1.0...v5.1.1) (2026-08-19)
+
+### Bug Fixes
+
+- **core:** alias cycles as recursive anchors when aliasing ([739341a](https://github.com/speclynx/apidom/commit/739341aacd8a11925f5efca505baa53b52fac152)), closes [#459](https://github.com/speclynx/apidom/issues/459)
+- **core:** honour aliasDuplicateObjects when preserving style ([8e05d32](https://github.com/speclynx/apidom/commit/8e05d32c236a9515167417ba6921ee307b86cbc2)), closes [#459](https://github.com/speclynx/apidom/issues/459)
+- **core:** keep "**proto**" key when building POJOs ([696f49b](https://github.com/speclynx/apidom/commit/696f49b3f704ecb3f29c4218b4b311bbe501a155))
+- **core:** make JSON raw number sentinels unforgeable ([#463](https://github.com/speclynx/apidom/issues/463)) ([cdfa493](https://github.com/speclynx/apidom/commit/cdfa493f24248c8d29a30fb91f8b2cbd8a16ee28)), closes [#461](https://github.com/speclynx/apidom/issues/461) [#462](https://github.com/speclynx/apidom/issues/462) [pre-#462](https://github.com/pre-/issues/462) [#459](https://github.com/speclynx/apidom/issues/459)
+- **core:** scope serializer cycle detection to ancestors ([#461](https://github.com/speclynx/apidom/issues/461)) ([8f48c50](https://github.com/speclynx/apidom/commit/8f48c50d31e8cc57c0961788d78879478b4fc761)), closes [#459](https://github.com/speclynx/apidom/issues/459)
+- **core:** terminate on cycles in the default serializer paths ([5514f4f](https://github.com/speclynx/apidom/commit/5514f4fa2b02c380fd73dcf3db8f453c084a4edf)), closes [#459](https://github.com/speclynx/apidom/issues/459) [#465](https://github.com/speclynx/apidom/issues/465)
+
+### Performance Improvements
+
+- **core:** replace JSON sentinels in a single pass ([#462](https://github.com/speclynx/apidom/issues/462)) ([f6cb922](https://github.com/speclynx/apidom/commit/f6cb9221a73c3e70493ffbda97c12036a11d0a96)), closes [#459](https://github.com/speclynx/apidom/issues/459)
+
 # [5.1.0](https://github.com/speclynx/apidom/compare/v5.0.2...v5.1.0) (2026-08-09)
 
 ### Bug Fixes

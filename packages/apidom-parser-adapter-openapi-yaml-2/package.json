@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-parser-adapter-openapi-yaml-2",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "description": "Parser adapter for parsing YAML documents into OpenAPI 2.0 namespace.",
   "keywords": [
     "apidom",
@@ -56,10 +56,10 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^8.0.0",
-    "@speclynx/apidom-core": "5.1.0",
-    "@speclynx/apidom-datamodel": "5.1.0",
-    "@speclynx/apidom-ns-openapi-2": "5.1.0",
-    "@speclynx/apidom-parser-adapter-yaml-1-2": "5.1.0",
+    "@speclynx/apidom-core": "5.1.1",
+    "@speclynx/apidom-datamodel": "5.1.1",
+    "@speclynx/apidom-ns-openapi-2": "5.1.1",
+    "@speclynx/apidom-parser-adapter-yaml-1-2": "5.1.1",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.1.0"
   },

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.1.1](https://github.com/speclynx/apidom/compare/v5.1.0...v5.1.1) (2026-08-19)
+
+### Bug Fixes
+
+- **parser-adapter:** mark the result element only once ([b875db4](https://github.com/speclynx/apidom/commit/b875db447f8e92181055d3675683050a1291b1d0))
+
 # [5.1.0](https://github.com/speclynx/apidom/compare/v5.0.2...v5.1.0) (2026-08-09)
 
 **Note:** Version bump only for package @speclynx/apidom-parser-adapter-arazzo-json-1

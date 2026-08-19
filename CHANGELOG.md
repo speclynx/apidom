@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.1.1](https://github.com/speclynx/apidom/compare/v5.1.0...v5.1.1) (2026-08-19)
+
+### Bug Fixes
+
+- **core:** alias cycles as recursive anchors when aliasing ([739341a](https://github.com/speclynx/apidom/commit/739341aacd8a11925f5efca505baa53b52fac152)), closes [#459](https://github.com/speclynx/apidom/issues/459)
+- **core:** honour aliasDuplicateObjects when preserving style ([8e05d32](https://github.com/speclynx/apidom/commit/8e05d32c236a9515167417ba6921ee307b86cbc2)), closes [#459](https://github.com/speclynx/apidom/issues/459)
+- **core:** keep "**proto**" key when building POJOs ([696f49b](https://github.com/speclynx/apidom/commit/696f49b3f704ecb3f29c4218b4b311bbe501a155))
+- **core:** make JSON raw number sentinels unforgeable ([#463](https://github.com/speclynx/apidom/issues/463)) ([cdfa493](https://github.com/speclynx/apidom/commit/cdfa493f24248c8d29a30fb91f8b2cbd8a16ee28)), closes [#461](https://github.com/speclynx/apidom/issues/461) [#462](https://github.com/speclynx/apidom/issues/462) [pre-#462](https://github.com/pre-/issues/462) [#459](https://github.com/speclynx/apidom/issues/459)
+- **core:** scope serializer cycle detection to ancestors ([#461](https://github.com/speclynx/apidom/issues/461)) ([8f48c50](https://github.com/speclynx/apidom/commit/8f48c50d31e8cc57c0961788d78879478b4fc761)), closes [#459](https://github.com/speclynx/apidom/issues/459)
+- **core:** terminate on cycles in the default serializer paths ([5514f4f](https://github.com/speclynx/apidom/commit/5514f4fa2b02c380fd73dcf3db8f453c084a4edf)), closes [#459](https://github.com/speclynx/apidom/issues/459) [#465](https://github.com/speclynx/apidom/issues/465)
+- **datamodel:** stop "**proto**" keys hijacking prototypes ([e1d308e](https://github.com/speclynx/apidom/commit/e1d308e9141545adcd11a3856bdcf98f17dc808f))
+- **overlay:** apply root-target updates in place ([da41593](https://github.com/speclynx/apidom/commit/da4159322ba53af8595628ae74e11285c8272915)), closes [#471](https://github.com/speclynx/apidom/issues/471)
+- **overlay:** clone the parse result under immutable apply ([203d2b5](https://github.com/speclynx/apidom/commit/203d2b53323d9b6d9a77e6b180de005600b067e6)), closes [#475](https://github.com/speclynx/apidom/issues/475)
+- **overlay:** clone update value per matched target ([cb98f2b](https://github.com/speclynx/apidom/commit/cb98f2b68a6b1a0831b608f7734895a164b97f0b)), closes [#460](https://github.com/speclynx/apidom/issues/460)
+- **overlay:** clone update values emitted by diff ([31b8db9](https://github.com/speclynx/apidom/commit/31b8db9205636a2c79c27a64e57c5da4ba9a14fb)), closes [#469](https://github.com/speclynx/apidom/issues/469)
+- **overlay:** honour the immutable default for partial options ([5730aed](https://github.com/speclynx/apidom/commit/5730aedd7c21b256dc41e8f408a36fbf4f09d01a))
+- **overlay:** restore the result marker after a root replacement ([#482](https://github.com/speclynx/apidom/issues/482)) ([9227cfc](https://github.com/speclynx/apidom/commit/9227cfc5a287b1d63afb704df4906d41c4984d99)), closes [#481](https://github.com/speclynx/apidom/issues/481)
+- **overlay:** return an independent tree from no-op apply ([eb545b8](https://github.com/speclynx/apidom/commit/eb545b8eb53214102d2cbe3975efead1974e6bd5)), closes [#470](https://github.com/speclynx/apidom/issues/470)
+- **overlay:** snapshot copy source before updating targets ([bb6ee06](https://github.com/speclynx/apidom/commit/bb6ee06937a6fa296eb6e29dcab1cf6e5c1f9106)), closes [#470](https://github.com/speclynx/apidom/issues/470)
+- **parser-adapter:** mark the result element only once ([b875db4](https://github.com/speclynx/apidom/commit/b875db447f8e92181055d3675683050a1291b1d0))
+
+### Performance Improvements
+
+- **core:** replace JSON sentinels in a single pass ([#462](https://github.com/speclynx/apidom/issues/462)) ([f6cb922](https://github.com/speclynx/apidom/commit/f6cb9221a73c3e70493ffbda97c12036a11d0a96)), closes [#459](https://github.com/speclynx/apidom/issues/459)
+- **overlay:** skip the throwaway clone in the POJO realm ([07c5a81](https://github.com/speclynx/apidom/commit/07c5a818d874f4d492fe8a958bf495351c54b625))
+
 # [5.1.0](https://github.com/speclynx/apidom/compare/v5.0.2...v5.1.0) (2026-08-09)
 
 ### Bug Fixes

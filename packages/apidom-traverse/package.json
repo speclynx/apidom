@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-traverse",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "description": "Traversal and visitor utilities for walking and transforming ApiDOM structures.",
   "keywords": [
     "apidom",
@@ -61,10 +61,10 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^8.0.0",
-    "@speclynx/apidom-datamodel": "5.1.0",
-    "@speclynx/apidom-error": "5.1.0",
-    "@speclynx/apidom-json-path": "5.1.0",
-    "@speclynx/apidom-json-pointer": "5.1.0",
+    "@speclynx/apidom-datamodel": "5.1.1",
+    "@speclynx/apidom-error": "5.1.1",
+    "@speclynx/apidom-json-path": "5.1.1",
+    "@speclynx/apidom-json-pointer": "5.1.1",
     "ramda-adjunct": "^6.1.0"
   },
   "files": [
