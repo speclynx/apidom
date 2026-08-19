@@ -38,7 +38,8 @@ const yaml = toYAML(result.api, { preserveStyle: true });
 ### Applying to ApiDOM elements
 
 `applyOverlayApiDOM` applies an entire overlay document to a target element. Accepts `Overlay1Element`
-or `ParseResultElement`. Immutable by default — returns a new element.
+or `ParseResultElement`. Immutable by default. Returns a new element, even when no action
+changes anything.
 
 ```js
 import { refract } from '@speclynx/apidom-datamodel';
@@ -282,7 +283,7 @@ Passed to `applyActionApiDOM`, `applyOverlayApiDOM`, and `applyOverlay`:
 |---|---|---|---|
 | `deepmerge` | `DeepMergeUserOptions` | `{}` | Custom [deepmerge options](https://github.com/speclynx/apidom/blob/main/packages/apidom-core/src/merge/deepmerge.ts) from `@speclynx/apidom-core`. Default `customMerge` enforces Overlay spec type compatibility. |
 | `strict` | `boolean` | `false` | When `true`, throws `OverlayError` if any action's target JSONPath matches zero nodes. |
-| `immutable` | `boolean` | `true` | When `true` (default), returns a new element without mutating the input. Set to `false` for in-place mutation. |
+| `immutable` | `boolean` | `true` | When `true` (default), the target is cloned once up front and actions are applied to the clone, so the returned element is always independent of the input, including when no action changes anything. Set to `false` for in-place mutation. |
 | `trace` | `OverlayTrace` | — | When provided, populated in place with action-by-action trace data. See [Tracing](#tracing). |
 
 ### ApplyOverlayOptions
