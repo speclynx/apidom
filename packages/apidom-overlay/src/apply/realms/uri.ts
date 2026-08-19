@@ -97,7 +97,10 @@ const applyOverlay = async (
   }
 
   // apply overlay actions to the target (returns targetParseResult with result replaced)
-  return applyOverlayApiDOM(overlayParseResult, targetParseResult, options) as ParseResultElement;
+  return applyOverlayApiDOM(overlayParseResult, targetParseResult, {
+    ...options,
+    immutable: options.immutable ?? defaultOptions.immutable,
+  }) as ParseResultElement;
 };
 
 export default applyOverlay;

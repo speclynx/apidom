@@ -40,6 +40,18 @@ interface InternalApplyOptions extends ApplyOptions {
 const defaultApplyOptions: ApplyOptions = { immutable: true, strict: false };
 
 /**
+ * Merges caller options over the defaults. A partial options object leaves the
+ * fields it omits undefined, which must still mean the documented defaults.
+ * `immutable` is spelled out because it is the only default that is not falsy,
+ * so a caller forwarding an undefined value must not end up mutating in place.
+ */
+const withDefaults = <T extends ApplyOptions>(options: T): T => ({
+  ...defaultApplyOptions,
+  ...options,
+  immutable: options.immutable ?? defaultApplyOptions.immutable,
+});
+
+/**
  * Default customMerge that enforces Overlay spec type compatibility.
  * Throws OverlayError on incompatible type combinations.
  */
@@ -126,7 +138,8 @@ export const applyUpdateAction = (
   targetElement: Element,
   options: ApplyOptions = defaultApplyOptions,
 ): Element => {
-  let result = options.immutable ? cloneDeep(targetElement) : targetElement;
+  const opts = withDefaults(options);
+  let result = opts.immutable ? cloneDeep(targetElement) : targetElement;
 
   for (const normalizedPath of normalizedPaths) {
     /**
@@ -141,7 +154,7 @@ export const applyUpdateAction = (
 
     if (resolved === null) {
       // targeting root
-      result = mergeValue(result, clonedUpdateValue, options);
+      result = mergeValue(result, clonedUpdateValue, opts);
       continue;
     }
 
@@ -150,16 +163,12 @@ export const applyUpdateAction = (
     if (isObjectElement(parent)) {
       const current = parent.get(key as string);
       if (current !== undefined) {
-        parent.set(key as string, mergeValue(current, clonedUpdateValue, options));
+        parent.set(key as string, mergeValue(current, clonedUpdateValue, opts));
       }
     } else if (isArrayElement(parent)) {
       const current = parent.get(key as number);
       if (current !== undefined) {
-        (parent.content as Element[])[key as number] = mergeValue(
-          current,
-          clonedUpdateValue,
-          options,
-        );
+        (parent.content as Element[])[key as number] = mergeValue(current, clonedUpdateValue, opts);
       }
     }
   }
@@ -201,7 +210,8 @@ export const applyRemoveAction = (
   targetElement: Element,
   options: ApplyOptions = defaultApplyOptions,
 ): Element => {
-  const result = options.immutable ? cloneDeep(targetElement) : targetElement;
+  const opts = withDefaults(options);
+  const result = opts.immutable ? cloneDeep(targetElement) : targetElement;
   // reverse document order so higher array indices are removed first (avoids index shifting)
   const sorted = [...normalizedPaths].reverse();
 
