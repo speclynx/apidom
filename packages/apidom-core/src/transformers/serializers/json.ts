@@ -8,6 +8,7 @@ import {
   isStringElement,
   isNumberElement,
 } from '@speclynx/apidom-datamodel';
+import ShortUniqueId from 'short-unique-id';
 
 import toValue from './value.ts';
 
@@ -28,11 +29,16 @@ export interface JSONSerializerOptions {
   preserveStyle?: boolean;
 }
 
+// sentinels are substituted by a textual pass over the serialized JSON, so a
+// document string shaped like a sentinel would be substituted as well. A random
+// per-invocation nonce makes the sentinel unforgeable by document content.
+const nonceGenerator = new ShortUniqueId({ length: 12 });
+
 /**
  * Builds a POJO from an ApiDOM element tree. Numbers with rawContent
  * are replaced with sentinel strings; all other values go through toValue().
  */
-const toPojo = (element: Element, sentinels: Map<string, string>): unknown => {
+const toPojo = (element: Element, sentinels: Map<string, string>, nonce: string): unknown => {
   const ancestors = new WeakSet<object>();
 
   const convert = (node: unknown): unknown => {
@@ -68,7 +74,7 @@ const toPojo = (element: Element, sentinels: Map<string, string>): unknown => {
     if (isNumberElement(node)) {
       const style = getStyle(node);
       if (typeof style.rawContent === 'string') {
-        const sentinel = `\0RAW${sentinels.size}\0`;
+        const sentinel = `\0RAW${nonce}_${sentinels.size}\0`;
         sentinels.set(sentinel, style.rawContent);
         return sentinel;
       }
@@ -94,15 +100,18 @@ const serializer = (
     const indent =
       typeof space === 'number' ? space : typeof style.indent === 'number' ? style.indent : 0;
 
+    const nonce = nonceGenerator.randomUUID();
     const sentinels = new Map<string, string>();
-    const pojo = toPojo(element, sentinels);
+    const pojo = toPojo(element, sentinels, nonce);
     let serialized = JSON.stringify(pojo, null, indent);
 
     // replace quoted sentinels with raw number representations; a single pass
     // keeps this linear in the output size regardless of how many sentinels
-    // were minted (a shared NumberElement mints one per occurrence)
+    // were minted (a shared NumberElement mints one per occurrence). The map
+    // lookup is the authority — sentinel-shaped document strings are not in it
+    // and are left untouched
     serialized = serialized.replace(
-      /"\\u0000RAW\d+\\u0000"/g,
+      /"\\u0000RAW\w+\\u0000"/g,
       (match) => sentinels.get(JSON.parse(match) as string) ?? match,
     );
 

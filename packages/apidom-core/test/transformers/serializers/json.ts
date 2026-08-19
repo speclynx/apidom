@@ -228,6 +228,40 @@ describe('serializers', function () {
 
           assert.strictEqual(result, '{"a":{"value":1.5e10},"b":{"value":1.5e10}}');
         });
+
+        context('given document content shaped like a raw number sentinel', function () {
+          const NUL = String.fromCharCode(0);
+          const forged = `${NUL}RAW0${NUL}`;
+
+          // a raw number has to be present for a sentinel to be minted at all —
+          // without one the substitution map is empty and nothing can collide
+          const rawNumber = () => {
+            const numElement = new NumberElement(15000000000);
+            numElement.style = { json: { rawContent: '1.5e10' } };
+            return numElement;
+          };
+
+          specify('should leave the string untouched in value position', function () {
+            const element = new ObjectElement();
+            element.set('forged', forged);
+            element.set('real', rawNumber());
+
+            const result = serialize(element, undefined, undefined, { preserveStyle: true });
+
+            assert.strictEqual(result, `{"forged":${JSON.stringify(forged)},"real":1.5e10}`);
+          });
+
+          specify('should leave the string untouched in key position', function () {
+            const element = new ObjectElement();
+            element.set(forged, 'value');
+            element.set('real', rawNumber());
+
+            const result = serialize(element, undefined, undefined, { preserveStyle: true });
+
+            assert.strictEqual(result, `{${JSON.stringify(forged)}:"value","real":1.5e10}`);
+            assert.doesNotThrow(() => JSON.parse(result));
+          });
+        });
       });
     });
   });
