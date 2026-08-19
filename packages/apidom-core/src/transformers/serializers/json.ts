@@ -98,10 +98,13 @@ const serializer = (
     const pojo = toPojo(element, sentinels);
     let serialized = JSON.stringify(pojo, null, indent);
 
-    // replace quoted sentinels with raw number representations
-    for (const [sentinel, raw] of sentinels) {
-      serialized = serialized.replace(JSON.stringify(sentinel), raw);
-    }
+    // replace quoted sentinels with raw number representations; a single pass
+    // keeps this linear in the output size regardless of how many sentinels
+    // were minted (a shared NumberElement mints one per occurrence)
+    serialized = serialized.replace(
+      /"\\u0000RAW\d+\\u0000"/g,
+      (match) => sentinels.get(JSON.parse(match) as string) ?? match,
+    );
 
     return serialized;
   }
