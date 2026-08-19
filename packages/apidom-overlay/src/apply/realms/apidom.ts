@@ -197,7 +197,12 @@ export const applyCopyAction = (
     );
   }
 
-  const sourceValue = sourceMatches[0];
+  /**
+   * Snapshot the copy source. Matched targets are updated in document order and
+   * the source may sit under one of them, so a live reference would let later
+   * targets copy a source that an earlier target already modified.
+   */
+  const sourceValue = cloneDeep(sourceMatches[0]);
   return applyUpdateAction(normalizedPaths, sourceValue, targetElement, options);
 };
 
@@ -390,8 +395,10 @@ export const applyAction = (
  * `immutable: false` to apply the actions in place.
  *
  * When the target is a `ParseResultElement`, that parse result is returned with
- * its result element replaced by the new tree; the original result element is
- * left unmutated.
+ * its result element replaced by the new tree, including when no action changed
+ * anything. The original result element is never mutated, but it is detached
+ * from the parse result. The immutable contract covers the result element, not
+ * the parse result wrapper.
  *
  * @public
  */

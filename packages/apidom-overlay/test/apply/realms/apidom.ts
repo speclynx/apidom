@@ -335,6 +335,24 @@ describe('applyAction', function () {
 
       assert.throws(() => applyAction(action, target), OverlayError, /single node/);
     });
+
+    [true, false].forEach(function (immutable) {
+      specify(`should copy the pristine source with immutable=${immutable}`, function () {
+        const action = refractAction({
+          target: "$.paths['/a'][*]",
+          copy: "$.paths['/a']",
+        });
+        const target = refract({
+          paths: { '/a': { get: { s: 'g' }, post: { s: 'p' } } },
+        });
+
+        const result = applyAction(action, target, { immutable });
+        const value = toValue(result) as AnyJson;
+
+        // '/a'.get is updated before '/a'.post, and the source sits above both
+        assert.deepEqual(value.paths['/a'].post.get, { s: 'g' });
+      });
+    });
   });
 
   context('remove action', function () {
@@ -463,7 +481,9 @@ describe('applyAction', function () {
       // immutable contract: the caller never gets its own document back
       assert.notStrictEqual(result, target);
       (result as ObjectElement).set('added', 'value');
+      ((result as ObjectElement).get('info') as ObjectElement).set('title', 'Mutated');
       assert.isUndefined((toValue(target) as AnyJson).added);
+      assert.strictEqual((toValue(target) as AnyJson).info.title, 'API');
     });
 
     specify('should return the target itself in mutable mode', function () {
@@ -501,7 +521,9 @@ describe('applyAction', function () {
       assert.deepEqual(toValue(result), toValue(target));
       assert.notStrictEqual(result, target);
       (result as ObjectElement).set('added', 'value');
+      ((result as ObjectElement).get('info') as ObjectElement).set('title', 'Mutated');
       assert.isUndefined((toValue(target) as AnyJson).added);
+      assert.strictEqual((toValue(target) as AnyJson).info.title, 'API');
     });
 
     specify('should return the target itself in mutable mode', function () {
@@ -860,7 +882,9 @@ describe('applyOverlayApiDOM', function () {
       assert.deepEqual(toValue(result), toValue(target));
       assert.notStrictEqual(result, target);
       (result as ObjectElement).set('added', 'value');
+      ((result as ObjectElement).get('info') as ObjectElement).set('title', 'Mutated');
       assert.isUndefined((toValue(target) as AnyJson).added);
+      assert.strictEqual((toValue(target) as AnyJson).info.title, 'Unchanged');
     });
 
     specify('should return the target itself in mutable mode', function () {
@@ -947,6 +971,26 @@ describe('applyOverlayApiDOM', function () {
 
       assert.strictEqual(value.title, 'Updated');
       assert.strictEqual(value.version, '1.0.0');
+    });
+
+    specify('should replace the result element even when nothing is applied', function () {
+      const overlay = refractOverlay1({
+        overlay: '1.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        actions: [{ target: '$.nonexistent', update: 'anything' }],
+      });
+
+      const targetContent = refract({ title: 'Original' });
+      targetContent.classes.push('result');
+      const targetParseResult = new ParseResultElement();
+      targetParseResult.push(targetContent);
+
+      const result = applyOverlayApiDOM(overlay, targetParseResult);
+
+      // the parse result wrapper is updated in place, the original result element is not
+      assert.strictEqual(result, targetParseResult);
+      assert.notStrictEqual(result.result, targetContent);
+      assert.deepEqual(toValue(result.result), toValue(targetContent));
     });
 
     specify('should return ParseResultElement when given ParseResultElement', function () {
