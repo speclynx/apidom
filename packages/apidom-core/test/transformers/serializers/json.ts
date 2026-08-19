@@ -21,6 +21,46 @@ describe('serializers', function () {
       });
     });
 
+    context('given a cyclic element tree', function () {
+      specify('should serialize a direct cycle as null', function () {
+        const element = new ObjectElement({ a: 1 });
+        element.set('self', element);
+
+        assert.strictEqual(serialize(element), '{"a":1,"self":null}');
+      });
+
+      specify('should serialize an indirect cycle as null', function () {
+        const a = new ObjectElement({ name: 'a' });
+        const b = new ObjectElement({ name: 'b' });
+        a.set('b', b);
+        b.set('a', a);
+
+        assert.strictEqual(serialize(a), '{"name":"a","b":{"name":"b","a":null}}');
+      });
+
+      specify('should expand a shared sibling rather than treating it as a cycle', function () {
+        const shared = new ObjectElement({ title: 'shared' });
+        const element = new ObjectElement();
+        element.set('a', shared);
+        element.set('b', shared);
+        element.set('self', element);
+
+        assert.strictEqual(
+          serialize(element),
+          '{"a":{"title":"shared"},"b":{"title":"shared"},"self":null}',
+        );
+      });
+
+      specify('should still apply a user replacer', function () {
+        const element = new ObjectElement({ a: 1, drop: 2 });
+        element.set('self', element);
+
+        const result = serialize(element, (key, value) => (key === 'drop' ? undefined : value));
+
+        assert.strictEqual(result, '{"a":1,"self":null}');
+      });
+    });
+
     context('preserveStyle', function () {
       context('given ObjectElement with indent style', function () {
         specify('should preserve indentation', function () {
