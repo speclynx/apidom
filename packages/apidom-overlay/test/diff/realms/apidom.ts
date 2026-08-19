@@ -1,5 +1,10 @@
 import { assert } from 'chai';
-import { refract, isElement, isMemberElement } from '@speclynx/apidom-datamodel';
+import {
+  refract,
+  isElement,
+  isMemberElement,
+  ParseResultElement,
+} from '@speclynx/apidom-datamodel';
 import type { Element, ObjectElement, ArrayElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 import { isOverlay1Element } from '@speclynx/apidom-ns-overlay-1';
@@ -250,6 +255,31 @@ describe('diffApiDOM', function () {
       const result = toValue(applyOverlayApiDOM(diffApiDOM(left, right), left)) as AnyJson;
 
       assert.deepEqual(result, toValue(right));
+    });
+  });
+
+  context('given documents with a changed scalar root', function () {
+    specify('should emit a root-targeting update', function () {
+      const overlay = diffApiDOM(refract('original'), refract('replaced'));
+      const [action] = toValue(overlay.actions as ArrayElement) as AnyJson[];
+
+      assert.strictEqual(action.target, '$');
+      assert.strictEqual(action.update, 'replaced');
+    });
+
+    specify('should round-trip through a ParseResultElement target', function () {
+      const left = refract('original');
+      left.classes.push('result');
+      const parseResult = new ParseResultElement();
+      parseResult.push(left);
+
+      const overlay = diffApiDOM(refract('original'), refract('replaced'));
+      const result = applyOverlayApiDOM(overlay, parseResult, { immutable: false });
+
+      // replacing a primitive root swaps in the update value's meta wholesale,
+      // so the parse result must still be able to find its result element
+      assert.isDefined(result.result);
+      assert.strictEqual(toValue(result.result), 'replaced');
     });
   });
 
