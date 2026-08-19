@@ -149,6 +149,47 @@ describe('serializers', function () {
 
           assert.strictEqual(result, '42');
         });
+
+        specify('should expand every occurrence of a shared element instance', function () {
+          const shared = new ObjectElement({ title: 'shared title' });
+          const element = new ObjectElement({ a: new ObjectElement(), b: new ObjectElement() });
+          (element.get('a') as ObjectElement).set('schema', shared);
+          (element.get('b') as ObjectElement).set('schema', shared);
+
+          const result = serialize(element, undefined, undefined, { preserveStyle: true });
+
+          assert.strictEqual(
+            result,
+            '{"a":{"schema":{"title":"shared title"}},"b":{"schema":{"title":"shared title"}}}',
+          );
+        });
+
+        specify('should expand a shared element instance within an ArrayElement', function () {
+          const shared = new ObjectElement({ title: 'shared title' });
+          const element = new ArrayElement([shared, shared]);
+
+          const result = serialize(element, undefined, undefined, { preserveStyle: true });
+
+          assert.strictEqual(result, '[{"title":"shared title"},{"title":"shared title"}]');
+        });
+
+        specify('should serialize a self-referencing ObjectElement as null', function () {
+          const element = new ObjectElement({ a: 1 });
+          element.set('self', element);
+
+          const result = serialize(element, undefined, undefined, { preserveStyle: true });
+
+          assert.strictEqual(result, '{"a":1,"self":null}');
+        });
+
+        specify('should serialize a self-referencing ArrayElement as null', function () {
+          const element = new ArrayElement([1]);
+          element.push(element);
+
+          const result = serialize(element, undefined, undefined, { preserveStyle: true });
+
+          assert.strictEqual(result, '[1,null]');
+        });
       });
     });
   });
