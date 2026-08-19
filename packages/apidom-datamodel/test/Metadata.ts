@@ -279,4 +279,81 @@ describe('Metadata', function () {
       assert.deepEqual(source.get('classes'), ['b']);
     });
   });
+
+  context('given a "__proto__" key', function () {
+    specify('should store it as an own property without replacing the prototype', function () {
+      const metadata = new Metadata();
+      metadata.set('__proto__', 'pwned');
+      metadata.set('safe', 1);
+
+      // the instance must remain a usable Metadata, not a hijacked object
+      assert.instanceOf(metadata, Metadata);
+      assert.isTrue(metadata.hasKey('__proto__'));
+      assert.deepEqual(metadata.keys(), ['__proto__', 'safe']);
+      assert.strictEqual(metadata.get('__proto__'), 'pwned');
+      assert.strictEqual(Object.getOwnPropertyDescriptor(metadata, '__proto__')!.value, 'pwned');
+    });
+
+    specify('should keep a clone of a frozen instance modifiable', function () {
+      // guards the descriptor-copying approach, which would carry
+      // writable:false over from the frozen source
+      const metadata = new Metadata();
+      metadata.set('title', 'x');
+      metadata.freeze();
+
+      const clone = metadata.cloneShallow();
+      clone.set('title', 'changed');
+
+      assert.strictEqual(clone.get('title'), 'changed');
+      assert.isFalse(clone.isFrozen);
+    });
+
+    specify('should merge into a frozen instance without throwing', function () {
+      const target = new Metadata();
+      target.set('title', 'x');
+      target.freeze();
+      const source = new Metadata();
+      source.set('title', 'y');
+
+      const merged = target.merge(source);
+
+      assert.strictEqual(merged.get('title'), 'y');
+      assert.strictEqual(target.get('title'), 'x');
+    });
+
+    specify('should survive cloneShallow', function () {
+      const metadata = new Metadata();
+      metadata.set('__proto__', 'pwned');
+      metadata.set('safe', 1);
+
+      const clone = metadata.cloneShallow();
+
+      assert.instanceOf(clone, Metadata);
+      assert.isTrue(clone.hasKey('__proto__'));
+      assert.deepEqual(clone.keys(), ['__proto__', 'safe']);
+    });
+
+    specify('should survive cloneDeep', function () {
+      const metadata = new Metadata();
+      metadata.set('__proto__', 'pwned');
+
+      const copy = metadata.cloneDeep();
+
+      assert.instanceOf(copy, Metadata);
+      assert.isTrue(copy.hasKey('__proto__'));
+    });
+
+    specify('should be removable', function () {
+      const metadata = new Metadata();
+      metadata.set('__proto__', 'pwned');
+      // assert it was actually stored first, otherwise removal proves nothing
+      assert.isTrue(metadata.hasKey('__proto__'));
+
+      metadata.remove('__proto__');
+
+      assert.isFalse(metadata.hasKey('__proto__'));
+      assert.deepEqual(metadata.keys(), []);
+      assert.instanceOf(metadata, Metadata);
+    });
+  });
 });

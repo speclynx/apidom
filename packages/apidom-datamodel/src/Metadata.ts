@@ -1,6 +1,7 @@
 import { clone } from 'ramda';
 
 import type Element from './primitives/Element.ts';
+import setProperty from './util.ts';
 
 /**
  * Lightweight meta container for Element metadata.
@@ -20,7 +21,7 @@ class Metadata {
   }
 
   set(name: string, value: unknown): void {
-    (this as Record<string, unknown>)[name] = value;
+    setProperty(this, name, value);
   }
 
   hasKey(name: string): boolean {
@@ -59,7 +60,20 @@ class Metadata {
    */
   cloneShallow(): Metadata {
     const clone = new Metadata();
-    Object.assign(clone, this);
+
+    // Object.assign is the fast path but invokes the prototype setter for a
+    // "__proto__" key, hijacking the clone's prototype. That key can only come
+    // from untrusted input, so check for it once and fall back to a guarded
+    // copy. Copying property descriptors instead would carry writable:false
+    // over from a frozen source and hand back an unmodifiable clone.
+    if (!Object.hasOwn(this, '__proto__')) {
+      Object.assign(clone, this);
+    } else {
+      for (const key of Object.keys(this)) {
+        setProperty(clone, key, (this as Record<string, unknown>)[key]);
+      }
+    }
+
     return clone;
   }
 

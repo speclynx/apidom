@@ -1,6 +1,7 @@
 import CollectionElement from './CollectionElement.ts';
 import MemberElement from './MemberElement.ts';
 import ObjectSlice from '../ObjectSlice.ts';
+import setProperty from '../util.ts';
 import type Element from './Element.ts';
 import type { Meta, Attributes } from './Element.ts';
 
@@ -40,7 +41,7 @@ class ObjectElement<
 
   toValue(): Record<string, unknown> {
     return this._content.reduce<Record<string, unknown>>((results, el) => {
-      results[el.key!.toValue() as string] = el.value ? el.value.toValue() : undefined;
+      setProperty(results, el.key!.toValue() as string, el.value ? el.value.toValue() : undefined);
       return results;
     }, {});
   }

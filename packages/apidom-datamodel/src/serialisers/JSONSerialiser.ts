@@ -4,6 +4,7 @@ import type KeyValuePair from '../KeyValuePair.ts';
 import type ObjectElement from '../primitives/ObjectElement.ts';
 import SourceMapElement from '../elements/SourceMap.ts';
 import StyleElement from '../elements/Style.ts';
+import setProperty from '../util.ts';
 
 /**
  * Serialized representation of an Element in JSON Refract format.
@@ -253,12 +254,12 @@ class JSONSerialiser {
 
     for (const [key, value] of Object.entries(element.meta)) {
       if (value instanceof this.namespace.elements.Element) {
-        meta[key] = this.serialise(value as Element);
+        setProperty(meta, key, this.serialise(value as Element));
         hasEntries = true;
       } else if (value !== undefined) {
         // refract primitives to maintain JSON Refract spec compatibility
         const refracted = element.refract(value);
-        meta[key] = this.serialise(refracted);
+        setProperty(meta, key, this.serialise(refracted));
         rawKeys.push(key);
         hasEntries = true;
       }
@@ -272,7 +273,7 @@ class JSONSerialiser {
 
     obj.forEach((value: Element, key: Element) => {
       if (value) {
-        result[key.toValue() as string] = this.serialise(value);
+        setProperty(result, key.toValue() as string, this.serialise(value));
       }
     });
 
