@@ -292,6 +292,36 @@ describe('serializers', function () {
       });
     });
 
+    context('given an indirect cycle', function () {
+      specify('should terminate and serialize the cycle as null', function () {
+        const a = new ObjectElement({ name: 'a' });
+        const b = new ObjectElement({ name: 'b' });
+        a.set('b', b);
+        b.set('a', a);
+
+        const result = serialize(a, { preserveStyle: true });
+
+        assert.strictEqual(result, 'name: a\nb:\n  name: b\n  a: null\n');
+      });
+    });
+
+    context('given a shared element reached from inside a cyclic branch', function () {
+      specify('should expand the shared element and terminate the cycle', function () {
+        const shared = new ObjectElement({ title: 'shared title' });
+        const cyclic = new ObjectElement({ name: 'cyclic' });
+        cyclic.set('self', cyclic);
+        cyclic.set('schema', shared);
+        const element = new ObjectElement({ cyclic, schema: shared });
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(
+          result,
+          'cyclic:\n  name: cyclic\n  self: null\n  schema:\n    title: shared title\nschema:\n  title: shared title\n',
+        );
+      });
+    });
+
     context('given empty ArrayElement', function () {
       specify('should serialize to empty array', function () {
         const element = new ArrayElement([]);

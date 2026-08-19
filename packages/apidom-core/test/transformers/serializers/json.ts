@@ -190,6 +190,44 @@ describe('serializers', function () {
 
           assert.strictEqual(result, '[1,null]');
         });
+
+        specify('should serialize an indirect cycle as null', function () {
+          const a = new ObjectElement({ name: 'a' });
+          const b = new ObjectElement({ name: 'b' });
+          a.set('b', b);
+          b.set('a', a);
+
+          const result = serialize(a, undefined, undefined, { preserveStyle: true });
+
+          assert.strictEqual(result, '{"name":"a","b":{"name":"b","a":null}}');
+        });
+
+        specify('should expand a shared element reached from inside a cyclic branch', function () {
+          const shared = new ObjectElement({ title: 'shared title' });
+          const cyclic = new ObjectElement({ name: 'cyclic' });
+          cyclic.set('self', cyclic);
+          cyclic.set('schema', shared);
+          const element = new ObjectElement({ cyclic, schema: shared });
+
+          const result = serialize(element, undefined, undefined, { preserveStyle: true });
+
+          assert.strictEqual(
+            result,
+            '{"cyclic":{"name":"cyclic","self":null,"schema":{"title":"shared title"}},"schema":{"title":"shared title"}}',
+          );
+        });
+
+        specify('should preserve raw number representation at every occurrence', function () {
+          const numElement = new NumberElement(15000000000);
+          numElement.style = { json: { rawContent: '1.5e10' } };
+          const shared = new ObjectElement();
+          shared.set('value', numElement);
+          const element = new ObjectElement({ a: shared, b: shared });
+
+          const result = serialize(element, undefined, undefined, { preserveStyle: true });
+
+          assert.strictEqual(result, '{"a":{"value":1.5e10},"b":{"value":1.5e10}}');
+        });
       });
     });
   });
