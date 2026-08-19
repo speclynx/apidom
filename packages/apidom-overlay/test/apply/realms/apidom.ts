@@ -458,7 +458,22 @@ describe('applyAction', function () {
       const result = applyAction(action, target);
 
       // spec: action succeeds without changing the target
-      assert.strictEqual(result, target);
+      assert.deepEqual(toValue(result), toValue(target));
+
+      // immutable contract: the caller never gets its own document back
+      assert.notStrictEqual(result, target);
+      (result as ObjectElement).set('added', 'value');
+      assert.isUndefined((toValue(target) as AnyJson).added);
+    });
+
+    specify('should return the target itself in mutable mode', function () {
+      const action = refractAction({
+        target: '$.nonexistent.path',
+        update: 'anything',
+      });
+      const target = refract({ info: { title: 'API' } });
+
+      assert.strictEqual(applyAction(action, target, { immutable: false }), target);
     });
 
     specify('should throw in strict mode', function () {
@@ -473,6 +488,27 @@ describe('applyAction', function () {
         OverlayError,
         /zero nodes.*strict/i,
       );
+    });
+  });
+
+  context('action without update, copy or remove', function () {
+    specify('should return an independent clone', function () {
+      const action = refractAction({ target: '$.info' });
+      const target = refract({ info: { title: 'API' } });
+
+      const result = applyAction(action, target);
+
+      assert.deepEqual(toValue(result), toValue(target));
+      assert.notStrictEqual(result, target);
+      (result as ObjectElement).set('added', 'value');
+      assert.isUndefined((toValue(target) as AnyJson).added);
+    });
+
+    specify('should return the target itself in mutable mode', function () {
+      const action = refractAction({ target: '$.info' });
+      const target = refract({ info: { title: 'API' } });
+
+      assert.strictEqual(applyAction(action, target, { immutable: false }), target);
     });
   });
 
@@ -807,6 +843,34 @@ describe('applyOverlayApiDOM', function () {
       const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.info.title, 'Unchanged');
+      assert.notStrictEqual(result, target);
+    });
+  });
+
+  context('missing actions field', function () {
+    specify('should return an independent clone', function () {
+      const overlay = refractOverlay1({
+        overlay: '1.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+      });
+      const target = refract({ info: { title: 'Unchanged' } });
+
+      const result = applyOverlayApiDOM(overlay, target);
+
+      assert.deepEqual(toValue(result), toValue(target));
+      assert.notStrictEqual(result, target);
+      (result as ObjectElement).set('added', 'value');
+      assert.isUndefined((toValue(target) as AnyJson).added);
+    });
+
+    specify('should return the target itself in mutable mode', function () {
+      const overlay = refractOverlay1({
+        overlay: '1.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+      });
+      const target = refract({ info: { title: 'Unchanged' } });
+
+      assert.strictEqual(applyOverlayApiDOM(overlay, target, { immutable: false }), target);
     });
   });
 

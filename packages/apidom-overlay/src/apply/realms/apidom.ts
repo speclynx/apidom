@@ -236,7 +236,11 @@ export const applyRemoveAction = (
 
 /**
  * Applies a single overlay action to a target element.
- * Immutable — returns a new element with the action applied.
+ *
+ * Immutable by default. The target is cloned once up front and the action is
+ * applied to the clone, so the returned element is always independent of the
+ * input, including when the action changes nothing. Pass `immutable: false` to
+ * apply the action in place.
  *
  * @public
  */
@@ -245,9 +249,8 @@ export const applyAction = (
   targetElement: Element,
   options: ApplyOptions = defaultApplyOptions,
 ): Element => {
-  const internalOpts = options as InternalApplyOptions;
-  const tracer =
-    internalOpts.tracer ?? (options.trace ? new TraceBuilder(options.trace) : undefined);
+  const opts = withDefaults(options as InternalApplyOptions);
+  const tracer = opts.tracer ?? (opts.trace ? new TraceBuilder(opts.trace) : undefined);
   const actionValidation = validateAction(actionElement);
   if (!actionValidation.valid) throw actionValidation.error!;
 
@@ -263,7 +266,7 @@ export const applyAction = (
   });
 
   if (matches.length === 0) {
-    if (options.strict) {
+    if (opts.strict) {
       const error = new OverlayError(
         `Action target "${targetExpression}" matched zero nodes (strict mode)`,
         { action: actionElement },
@@ -286,14 +289,18 @@ export const applyAction = (
       matchCount: 0,
       normalizedPaths: [],
     });
-    return targetElement;
+    return opts.immutable ? cloneDeep(targetElement) : targetElement;
   }
+
+  // clone once, then apply the action mutably to the clone
+  const workingElement = opts.immutable ? cloneDeep(targetElement) : targetElement;
+  const mutatingOptions: InternalApplyOptions = { ...opts, immutable: false };
 
   try {
     // remove action
     const removeValue = actionElement.removeField;
     if (removeValue !== undefined && toValue(removeValue) === true) {
-      const result = applyRemoveAction(normalizedPaths, targetElement, options);
+      const result = applyRemoveAction(normalizedPaths, workingElement, mutatingOptions);
       tracer?.action({
         target: targetExpression,
         type: 'remove',
@@ -311,8 +318,8 @@ export const applyAction = (
       const result = applyUpdateAction(
         normalizedPaths,
         actionElement.update as Element,
-        targetElement,
-        options,
+        workingElement,
+        mutatingOptions,
       );
 
       tracer?.action({
@@ -330,7 +337,12 @@ export const applyAction = (
       const nodesValidation = validateTargetNodes(matches);
       if (!nodesValidation.valid) throw nodesValidation.error!;
       const copyExpression = toValue(actionElement.copy) as string;
-      const result = applyCopyAction(normalizedPaths, copyExpression, targetElement, options);
+      const result = applyCopyAction(
+        normalizedPaths,
+        copyExpression,
+        workingElement,
+        mutatingOptions,
+      );
 
       tracer?.action({
         target: targetExpression,
@@ -349,7 +361,7 @@ export const applyAction = (
       normalizedPaths,
     });
 
-    return targetElement;
+    return workingElement;
   } catch (error: unknown) {
     // enrich OverlayError with action context, preserving original stack
     if (error instanceof OverlayError && !error.action) {
@@ -371,7 +383,15 @@ export const applyAction = (
 
 /**
  * Applies an entire overlay document to a target element.
- * Immutable — returns a new element with all actions applied sequentially.
+ *
+ * Immutable by default. The target is cloned once up front and all actions are
+ * applied to the clone sequentially, so the returned element is always
+ * independent of the input, including when no action changes anything. Pass
+ * `immutable: false` to apply the actions in place.
+ *
+ * When the target is a `ParseResultElement`, that parse result is returned with
+ * its result element replaced by the new tree; the original result element is
+ * left unmutated.
  *
  * @public
  */
@@ -397,15 +417,18 @@ export const applyOverlay = <T extends Element | ParseResultElement>(
     target = targetElement;
   }
 
-  if (!isArrayElement(overlay.actions)) {
-    return targetElement;
-  }
+  const opts = withDefaults(options as InternalApplyOptions);
+  const tracer = opts.trace ? new TraceBuilder(opts.trace) : undefined;
+  const internalOptions: InternalApplyOptions = tracer ? { ...opts, tracer } : opts;
+  // clone once, then apply the actions mutably to the clone
+  const mutatingOptions: InternalApplyOptions = { ...internalOptions, immutable: false };
 
-  const tracer = options.trace ? new TraceBuilder(options.trace) : undefined;
-  const internalOptions: InternalApplyOptions = tracer ? { ...options, tracer } : options;
+  target = opts.immutable ? cloneDeep(target) : target;
 
-  for (const action of overlay.actions) {
-    target = applyAction(action as ActionElement, target, internalOptions);
+  if (isArrayElement(overlay.actions)) {
+    for (const action of overlay.actions) {
+      target = applyAction(action as ActionElement, target, mutatingOptions);
+    }
   }
 
   if (targetElement instanceof ParseResultElement) {
