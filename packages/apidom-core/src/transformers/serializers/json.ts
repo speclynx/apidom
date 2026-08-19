@@ -11,6 +11,7 @@ import {
 import ShortUniqueId from 'short-unique-id';
 
 import toValue from './value.ts';
+import setProperty from '../../util.ts';
 
 interface JSONElementStyle {
   indent?: number;
@@ -53,7 +54,7 @@ const toPojo = (element: Element, sentinels: Map<string, string>, nonce: string)
       const obj: Record<string, unknown> = {};
       node.forEach((value, key) => {
         const k = isElement(key) ? toValue(key) : key;
-        if (typeof k === 'string') obj[k] = convert(value);
+        if (typeof k === 'string') setProperty(obj, k, convert(value));
       });
       ancestors.delete(node as object);
       return obj;
