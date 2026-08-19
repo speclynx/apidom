@@ -284,7 +284,7 @@ Passed to `applyActionApiDOM`, `applyOverlayApiDOM`, and `applyOverlay`:
 |---|---|---|---|
 | `deepmerge` | `DeepMergeUserOptions` | `{}` | Custom [deepmerge options](https://github.com/speclynx/apidom/blob/main/packages/apidom-core/src/merge/deepmerge.ts) from `@speclynx/apidom-core`. Default `customMerge` enforces Overlay spec type compatibility. |
 | `strict` | `boolean` | `false` | When `true`, throws `OverlayError` if any action's target JSONPath matches zero nodes. |
-| `immutable` | `boolean` | `true`<br>(`false` in `applyOverlay`) | When `true`, the target is cloned once up front and actions are applied to the clone, so the returned element is always independent of the input, including when no action changes anything. For a `ParseResultElement` target the new parse result shares the children no action can reach, such as annotations. Set to `false` for in-place mutation. |
+| `immutable` | `boolean` | `true`<br>(`false` in `applyOverlay`) | When `true`, the target is cloned once up front and actions are applied to the clone, so the returned element is always independent of the input, including when no action changes anything. For a `ParseResultElement` target the new parse result shares the children no action can reach, such as annotations. Set to `false` for in-place mutation. The one case that cannot be applied in place is a `target: $` action replacing a primitive root with a differently typed value — there the return value is the only carrier, so always use it. |
 | `trace` | `OverlayTrace` | — | When provided, populated in place with action-by-action trace data. See [Tracing](#tracing). |
 
 ### ApplyOverlayOptions
