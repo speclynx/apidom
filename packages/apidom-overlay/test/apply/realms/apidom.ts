@@ -1215,6 +1215,30 @@ describe('applyOverlayApiDOM', function () {
       assert.deepEqual(toValue(result.result!.classes), ['result']);
     });
 
+    specify('should not re-mark the caller result element in immutable mode', function () {
+      const overlay = refractOverlay1({
+        overlay: '1.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        actions: [
+          { target: '$', update: 'replaced' },
+          { target: '$', update: 42 },
+        ],
+      });
+
+      const targetContent = refract('original');
+      targetContent.classes.push('result');
+      const targetParseResult = new ParseResultElement();
+      targetParseResult.push(targetContent);
+
+      applyOverlayApiDOM(overlay, targetParseResult, { immutable: true });
+
+      // the wrapper is cloned shallowly, so the caller's element is shared into
+      // it — restoring the marker for replaceResult must never reach this far
+      assert.deepEqual(toValue(targetContent.classes), ['result']);
+      assert.strictEqual(toValue(targetContent), 'original');
+      assert.strictEqual(targetParseResult.result, targetContent);
+    });
+
     specify('should not duplicate the result marker when it survives', function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
