@@ -493,17 +493,17 @@ export const applyOverlay = <T extends Element | ParseResultElement>(
     }
 
     /**
-     * The slot is located by identity rather than through replaceResult, which
-     * re-derives it from the marker. An earlier action that stripped the marker
-     * off the element still sitting in the wrapper would leave that lookup with
-     * nothing to find, and the new tree would be dropped on the floor.
+     * replaceResult locates the slot by scanning for the marker, so the element
+     * being replaced has to carry one too. An earlier action that stripped the
+     * marker off the element still sitting in the wrapper would otherwise leave
+     * that lookup with nothing to find, and the new tree would be dropped on
+     * the floor.
      */
     if (target !== resultElement) {
-      const content = parseResult.content as Element[];
-      const index = content.indexOf(resultElement!);
-      if (index !== -1) {
-        content[index] = target;
+      if (!includesClasses(resultElement!, ['result'])) {
+        resultElement!.classes.push('result');
       }
+      parseResult.replaceResult(target);
     }
 
     return parseResult as T;
