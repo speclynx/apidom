@@ -320,8 +320,23 @@ describe('diffApiDOM', function () {
   });
 
   context('element identity', function () {
+    const collectMetaValue = (value: unknown, acc: Set<Element>): void => {
+      if (isElement(value)) {
+        collectElements(value, acc);
+      } else if (Array.isArray(value)) {
+        value.forEach((item) => collectMetaValue(item, acc));
+      }
+    };
+
     const collectElements = (element: Element, acc: Set<Element> = new Set()): Set<Element> => {
+      if (acc.has(element)) return acc;
       acc.add(element);
+
+      // meta values are plain JS values that may hold elements; attributes is an element
+      Object.values(element.meta).forEach((value) => collectMetaValue(value, acc));
+      if (element.attributes.length > 0) {
+        collectElements(element.attributes, acc);
+      }
 
       if (isMemberElement(element)) {
         collectElements(element.key as Element, acc);
@@ -339,7 +354,10 @@ describe('diffApiDOM', function () {
       const secondElements = collectElements(second);
       const shared = [...collectElements(first)].filter((element) => secondElements.has(element));
 
-      assert.deepEqual(shared, []);
+      assert.deepEqual(
+        shared.map((element) => element.element),
+        [],
+      );
     };
 
     specify('should not share elements with the right document for added keys', function () {
