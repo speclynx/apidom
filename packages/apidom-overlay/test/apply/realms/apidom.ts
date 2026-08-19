@@ -1129,6 +1129,109 @@ describe('applyOverlayApiDOM', function () {
       assert.deepEqual(toValue(result.result), toValue(targetContent));
     });
 
+    specify('should keep the result element when a primitive root is replaced', function () {
+      const overlay = refractOverlay1({
+        overlay: '1.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        actions: [{ target: '$', update: 'replaced' }],
+      });
+
+      const targetContent = refract('original');
+      targetContent.classes.push('result');
+      const targetParseResult = new ParseResultElement();
+      targetParseResult.push(targetContent);
+
+      const result = applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
+
+      // the replacement carries the update value's meta, so the marker is restored
+      assert.isDefined(result.result);
+      assert.strictEqual(toValue(result.result), 'replaced');
+      assert.deepEqual(toValue(result.result!.classes), ['result']);
+    });
+
+    specify('should keep the result element when a root changes primitive type', function () {
+      const overlay = refractOverlay1({
+        overlay: '1.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        actions: [{ target: '$', update: 42 }],
+      });
+
+      const targetContent = refract('original');
+      targetContent.classes.push('result');
+      const targetParseResult = new ParseResultElement();
+      targetParseResult.push(targetContent);
+
+      const result = applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
+
+      assert.isDefined(result.result);
+      assert.strictEqual(toValue(result.result), 42);
+      assert.deepEqual(toValue(result.result!.classes), ['result']);
+    });
+
+    specify('should keep the result element on a primitive root in immutable mode', function () {
+      const overlay = refractOverlay1({
+        overlay: '1.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        actions: [{ target: '$', update: 'replaced' }],
+      });
+
+      const targetContent = refract('original');
+      targetContent.classes.push('result');
+      const targetParseResult = new ParseResultElement();
+      targetParseResult.push(targetContent);
+
+      const result = applyOverlayApiDOM(overlay, targetParseResult, { immutable: true });
+
+      assert.isDefined(result.result);
+      assert.strictEqual(toValue(result.result), 'replaced');
+      assert.deepEqual(toValue(result.result!.classes), ['result']);
+      // the caller's parse result keeps its own marked result element
+      assert.strictEqual(targetParseResult.result, targetContent);
+      assert.strictEqual(toValue(targetParseResult.result), 'original');
+    });
+
+    specify('should keep the result element across successive root actions', function () {
+      const overlay = refractOverlay1({
+        overlay: '1.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        actions: [
+          { target: '$', update: 'replaced' },
+          { target: '$', update: 42 },
+        ],
+      });
+
+      const targetContent = refract('original');
+      targetContent.classes.push('result');
+      const targetParseResult = new ParseResultElement();
+      targetParseResult.push(targetContent);
+
+      const result = applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
+
+      // the first action strips the marker off the element still in the wrapper,
+      // so the slot must be found by identity rather than re-derived from it
+      assert.isDefined(result.result);
+      assert.strictEqual(toValue(result.result), 42);
+      assert.strictEqual(result.length, 1);
+      assert.deepEqual(toValue(result.result!.classes), ['result']);
+    });
+
+    specify('should not duplicate the result marker when it survives', function () {
+      const overlay = refractOverlay1({
+        overlay: '1.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        actions: [{ target: '$', update: { openapi: '3.1.0' } }],
+      });
+
+      const targetContent = refract({ info: { title: 'API' } });
+      targetContent.classes.push('result');
+      const targetParseResult = new ParseResultElement();
+      targetParseResult.push(targetContent);
+
+      const result = applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
+
+      assert.deepEqual(toValue(result.result!.classes), ['result']);
+    });
+
     specify('should keep the result element on an in-place root update', function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',

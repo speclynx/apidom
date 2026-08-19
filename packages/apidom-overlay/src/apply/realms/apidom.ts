@@ -4,6 +4,7 @@ import {
   ArrayElement,
   isObjectElement,
   isArrayElement,
+  includesClasses,
   cloneDeep,
   cloneShallow,
   ParseResultElement,
@@ -442,6 +443,7 @@ export const applyOverlay = <T extends Element | ParseResultElement>(
   const opts = withDefaults(options as InternalApplyOptions);
 
   let parseResult: ParseResultElement | undefined;
+  let resultElement: Element | undefined;
   let target: Element;
 
   if (targetElement instanceof ParseResultElement) {
@@ -455,7 +457,8 @@ export const applyOverlay = <T extends Element | ParseResultElement>(
      * input instead of copied.
      */
     parseResult = opts.immutable ? cloneShallow(targetElement) : targetElement;
-    target = parseResult.result!;
+    resultElement = parseResult.result!;
+    target = resultElement;
   } else {
     target = targetElement;
   }
@@ -479,9 +482,30 @@ export const applyOverlay = <T extends Element | ParseResultElement>(
   }
 
   if (parseResult !== undefined) {
-    if (target !== parseResult.result) {
-      parseResult.replaceResult(target);
+    /**
+     * The result marker is a class on the element itself, and replacing a
+     * primitive root swaps in the update value's meta wholesale, so an action
+     * can strip it. Restore it before the element goes back into the wrapper,
+     * otherwise the returned parse result has no result element at all.
+     */
+    if (!includesClasses(target, ['result'])) {
+      target.classes.push('result');
     }
+
+    /**
+     * The slot is located by identity rather than through replaceResult, which
+     * re-derives it from the marker. An earlier action that stripped the marker
+     * off the element still sitting in the wrapper would leave that lookup with
+     * nothing to find, and the new tree would be dropped on the floor.
+     */
+    if (target !== resultElement) {
+      const content = parseResult.content as Element[];
+      const index = content.indexOf(resultElement!);
+      if (index !== -1) {
+        content[index] = target;
+      }
+    }
+
     return parseResult as T;
   }
 
