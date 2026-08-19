@@ -188,6 +188,26 @@ describe('serializers', function () {
       });
     });
 
+    context('given a "__proto__" key', function () {
+      specify('should keep it as an own property instead of setting the prototype', function () {
+        const element = new ObjectElement();
+        element.set('__proto__', new ObjectElement({ injected: 'yes' }));
+        element.set('safe', 1);
+
+        const value = serializer(element) as Record<string, unknown>;
+
+        assert.isTrue(Object.hasOwn(value, '__proto__'));
+        // read through the descriptor: `value.__proto__` would also return the
+        // injected object in the broken case, so it proves nothing on its own
+        assert.deepEqual(Object.getOwnPropertyDescriptor(value, '__proto__')!.value, {
+          injected: 'yes',
+        });
+        assert.strictEqual(value.safe, 1);
+        assert.strictEqual(Object.getPrototypeOf(value), Object.prototype);
+        assert.isUndefined(value.injected);
+      });
+    });
+
     context('given primitive value', function () {
       specify('should acts as identify function', function () {
         assert.strictEqual(serializer(1 as any), 1);

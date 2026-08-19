@@ -229,6 +229,18 @@ describe('serializers', function () {
           assert.strictEqual(result, '{"a":{"value":1.5e10},"b":{"value":1.5e10}}');
         });
 
+        context('given a "__proto__" key', function () {
+          specify('should serialize it as a regular member', function () {
+            const element = new ObjectElement();
+            element.set('__proto__', new ObjectElement({ injected: 'yes' }));
+            element.set('safe', 1);
+
+            const result = serialize(element, undefined, undefined, { preserveStyle: true });
+
+            assert.strictEqual(result, '{"__proto__":{"injected":"yes"},"safe":1}');
+          });
+        });
+
         context('given document content shaped like a raw number sentinel', function () {
           const NUL = String.fromCharCode(0);
           const forged = `${NUL}RAW0${NUL}`;
