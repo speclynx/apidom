@@ -1,5 +1,6 @@
 import { assert, expect } from 'chai';
 import { refract, ParseResultElement } from '@speclynx/apidom-datamodel';
+import type { Element, ObjectElement, ArrayElement } from '@speclynx/apidom-datamodel';
 import { toValue, toJSON } from '@speclynx/apidom-core';
 import { refractAction, refractOverlay1 } from '@speclynx/apidom-ns-overlay-1';
 
@@ -528,6 +529,161 @@ describe('applyAction', function () {
       const value = toValue(target) as AnyJson;
 
       assert.isUndefined(value.info.description);
+    });
+  });
+
+  context('element identity', function () {
+    const schemasOf = (element: Element): ObjectElement =>
+      ((element as ObjectElement).get('components') as ObjectElement).get(
+        'schemas',
+      ) as ObjectElement;
+
+    [true, false].forEach(function (immutable) {
+      context(`given immutable=${immutable}`, function () {
+        specify('should not share update elements between matched targets', function () {
+          const action = refractAction({
+            target: "$.components.schemas['A', 'B']",
+            update: { description: 'shared?', nested: { key: 'value' } },
+          });
+          const target = refract({
+            components: { schemas: { A: { type: 'string' }, B: { type: 'string' } } },
+          });
+
+          const result = applyAction(action, target, { immutable });
+          const schemas = schemasOf(result);
+          const a = schemas.get('A') as ObjectElement;
+          const b = schemas.get('B') as ObjectElement;
+
+          assert.notStrictEqual(a.getMember('description')!.key, b.getMember('description')!.key);
+          assert.notStrictEqual(
+            a.getMember('description')!.value,
+            b.getMember('description')!.value,
+          );
+
+          const aNested = a.get('nested') as ObjectElement;
+          const bNested = b.get('nested') as ObjectElement;
+
+          assert.notStrictEqual(aNested, bNested);
+          assert.notStrictEqual(aNested.getMember('key')!.key, bNested.getMember('key')!.key);
+          assert.notStrictEqual(aNested.getMember('key')!.value, bNested.getMember('key')!.value);
+        });
+
+        specify('should not share update elements with the overlay document', function () {
+          const action = refractAction({
+            target: '$.components.schemas.A',
+            update: { description: 'shared?' },
+          });
+          const target = refract({ components: { schemas: { A: { type: 'string' } } } });
+          const update = action.update as ObjectElement;
+
+          const result = applyAction(action, target, { immutable });
+          const a = schemasOf(result).get('A') as ObjectElement;
+
+          assert.notStrictEqual(
+            a.getMember('description')!.key,
+            update.getMember('description')!.key,
+          );
+          assert.notStrictEqual(
+            a.getMember('description')!.value,
+            update.getMember('description')!.value,
+          );
+        });
+
+        specify('should not share copied elements between matched targets and source', function () {
+          const action = refractAction({
+            target: "$.components.schemas['A', 'B']",
+            copy: "$.components.schemas['SourceOne']",
+          });
+          const target = refract({
+            components: {
+              schemas: {
+                A: { type: 'string' },
+                B: { type: 'string' },
+                SourceOne: { title: 'source title' },
+              },
+            },
+          });
+
+          const result = applyAction(action, target, { immutable });
+          const schemas = schemasOf(result);
+          const a = schemas.get('A') as ObjectElement;
+          const b = schemas.get('B') as ObjectElement;
+          const source = schemas.get('SourceOne') as ObjectElement;
+
+          assert.notStrictEqual(a.getMember('title')!.key, b.getMember('title')!.key);
+          assert.notStrictEqual(a.getMember('title')!.key, source.getMember('title')!.key);
+          assert.notStrictEqual(b.getMember('title')!.value, source.getMember('title')!.value);
+        });
+
+        specify('should not share update elements between matched array items', function () {
+          const action = refractAction({
+            target: '$.list[*]',
+            update: { description: 'shared?' },
+          });
+          const target = refract({ list: [{ type: 'string' }, { type: 'string' }] });
+
+          const result = applyAction(action, target, { immutable });
+          const list = (result as ObjectElement).get('list') as ArrayElement;
+          const first = list.get(0) as ObjectElement;
+          const second = list.get(1) as ObjectElement;
+
+          assert.notStrictEqual(
+            first.getMember('description')!.key,
+            second.getMember('description')!.key,
+          );
+          assert.notStrictEqual(
+            first.getMember('description')!.value,
+            second.getMember('description')!.value,
+          );
+        });
+
+        specify('should isolate mutations of a copied property', function () {
+          const action = refractAction({
+            target: "$.components.schemas['A', 'B']",
+            copy: "$.components.schemas['SourceOne']",
+          });
+          const target = refract({
+            components: {
+              schemas: {
+                A: { type: 'string' },
+                B: { type: 'string' },
+                SourceOne: { title: 'source title' },
+              },
+            },
+          });
+
+          const result = applyAction(action, target, { immutable });
+          const schemas = schemasOf(result);
+          const aTitle = (schemas.get('A') as ObjectElement).get('title')!;
+          aTitle.content = 'mutated';
+          const value = toValue(result) as AnyJson;
+
+          assert.strictEqual(value.components.schemas.A.title, 'mutated');
+          assert.strictEqual(value.components.schemas.B.title, 'source title');
+          assert.strictEqual(value.components.schemas.SourceOne.title, 'source title');
+        });
+      });
+    });
+
+    specify('should not alias the input document in immutable mode', function () {
+      const action = refractAction({
+        target: '$.components.schemas.A',
+        copy: '$.components.schemas.SourceOne',
+      });
+      const target = refract({
+        components: {
+          schemas: { A: { type: 'string' }, SourceOne: { title: 'source title' } },
+        },
+      });
+
+      const result = applyAction(action, target, { immutable: true });
+      const aTitle = (schemasOf(result).get('A') as ObjectElement).get('title')!;
+      aTitle.content = 'mutated';
+
+      const value = toValue(target) as AnyJson;
+
+      assert.strictEqual(value.components.schemas.SourceOne.title, 'source title');
+      assert.isUndefined(value.components.schemas.A.title);
     });
   });
 });

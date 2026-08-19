@@ -129,11 +129,19 @@ export const applyUpdateAction = (
   let result = options.immutable ? cloneDeep(targetElement) : targetElement;
 
   for (const normalizedPath of normalizedPaths) {
+    /**
+     * Every matched node gets its own copy of the update value. deepmerge
+     * shallow clones members, so the merged result shares key elements and
+     * non-mergeable values with its source regardless of the clone option —
+     * without this each target would alias every other target, and a copy
+     * action would alias the copy source in the target document.
+     */
+    const clonedUpdateValue = cloneDeep(updateValue);
     const resolved = resolveParent(normalizedPath, result);
 
     if (resolved === null) {
       // targeting root
-      result = mergeValue(result, updateValue, options);
+      result = mergeValue(result, clonedUpdateValue, options);
       continue;
     }
 
@@ -142,12 +150,16 @@ export const applyUpdateAction = (
     if (isObjectElement(parent)) {
       const current = parent.get(key as string);
       if (current !== undefined) {
-        parent.set(key as string, mergeValue(current, updateValue, options));
+        parent.set(key as string, mergeValue(current, clonedUpdateValue, options));
       }
     } else if (isArrayElement(parent)) {
       const current = parent.get(key as number);
       if (current !== undefined) {
-        (parent.content as Element[])[key as number] = mergeValue(current, updateValue, options);
+        (parent.content as Element[])[key as number] = mergeValue(
+          current,
+          clonedUpdateValue,
+          options,
+        );
       }
     }
   }
