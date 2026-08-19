@@ -504,6 +504,33 @@ describe('applyAction', function () {
     });
   });
 
+  context('partial options object', function () {
+    specify('should keep the immutable default when other options are passed', function () {
+      const action = refractAction({
+        target: '$.info',
+        update: { description: 'Added' },
+      });
+      const target = refract({ info: { title: 'Original' } });
+
+      const result = applyAction(action, target, { strict: true });
+
+      assert.strictEqual((toValue(result) as AnyJson).info.description, 'Added');
+      assert.isUndefined((toValue(target) as AnyJson).info.description);
+    });
+
+    specify('should keep the immutable default when immutable is undefined', function () {
+      const action = refractAction({
+        target: '$.info',
+        update: { description: 'Added' },
+      });
+      const target = refract({ info: { title: 'Original' } });
+
+      applyAction(action, target, { immutable: undefined });
+
+      assert.isUndefined((toValue(target) as AnyJson).info.description);
+    });
+  });
+
   context('mutable mode', function () {
     specify('should mutate original target on update', function () {
       const action = refractAction({
@@ -748,6 +775,22 @@ describe('applyOverlayApiDOM', function () {
       assert.strictEqual(value.destination, 'value to move');
       assert.isUndefined(value.source);
       assert.strictEqual(value.other, 'stays');
+    });
+  });
+
+  context('partial options object', function () {
+    specify('should keep the immutable default when other options are passed', function () {
+      const overlay = refractOverlay1({
+        overlay: '1.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        actions: [{ target: '$.info', update: { description: 'Added' } }],
+      });
+      const target = refract({ info: { title: 'Original' } });
+
+      const result = applyOverlayApiDOM(overlay, target, { strict: true });
+
+      assert.strictEqual((toValue(result) as AnyJson).info.description, 'Added');
+      assert.isUndefined((toValue(target) as AnyJson).info.description);
     });
   });
 
