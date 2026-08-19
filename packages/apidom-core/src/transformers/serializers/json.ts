@@ -36,6 +36,43 @@ export interface JSONSerializerOptions {
 const nonceGenerator = new ShortUniqueId({ length: 12 });
 
 /**
+ * Builds a `JSON.stringify` / `yaml.stringify` replacer that terminates on cycles.
+ *
+ * `toValue` returns a genuinely cyclic POJO for a cyclic element tree — it
+ * memoises visited elements and hands back the same object on revisit — and
+ * neither stringifier can represent that. The replacer keeps the chain of
+ * ancestors of the value currently being serialized and emits `null` in place
+ * of any value already in that chain, matching what the style preserving paths
+ * do.
+ *
+ * Only ancestors terminate serialization. A shared reference to an already
+ * serialized sibling is a DAG, not a cycle, and is expanded again.
+ *
+ * @param replacer - user supplied replacer, applied before the cycle check
+ */
+export const createCycleSafeReplacer = (
+  replacer?: (this: unknown, key: string, value: unknown) => unknown,
+) => {
+  const ancestors: unknown[] = [];
+
+  return function cycleSafeReplacer(this: unknown, key: string, value: unknown): unknown {
+    const replaced = typeof replacer === 'function' ? replacer.call(this, key, value) : value;
+
+    if (typeof replaced !== 'object' || replaced === null) return replaced;
+
+    // `this` is the holder of the current value; unwind to it so that only
+    // genuine ancestors remain on the chain
+    while (ancestors.length > 0 && ancestors[ancestors.length - 1] !== this) ancestors.pop();
+
+    if (ancestors.includes(replaced)) return null;
+
+    ancestors.push(replaced);
+
+    return replaced;
+  };
+};
+
+/**
  * Builds a POJO from an ApiDOM element tree. Numbers with rawContent
  * are replaced with sentinel strings; all other values go through toValue().
  */
@@ -119,7 +156,19 @@ const serializer = (
     return serialized;
   }
 
-  return JSON.stringify(toValue(element), replacer, space);
+  const value = toValue(element);
+
+  try {
+    return JSON.stringify(value, replacer, space);
+  } catch (error: unknown) {
+    // a cyclic element tree yields a cyclic POJO; retry with a replacer that
+    // emits null at the cycle. Only this specific failure is retried, and the
+    // native fast path is what runs for every acyclic document.
+    if (error instanceof TypeError && error.message.includes('circular structure')) {
+      return JSON.stringify(value, createCycleSafeReplacer(replacer), space);
+    }
+    throw error;
+  }
 };
 
 export default serializer;

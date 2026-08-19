@@ -26,6 +26,7 @@ import {
 } from '@speclynx/apidom-datamodel';
 
 import toValue from './value.ts';
+import { createCycleSafeReplacer } from './json.ts';
 
 interface YAMLElementStyle {
   scalarStyle?: string;
@@ -269,12 +270,12 @@ const serializer = (
   }
 
   if (directive) {
-    const doc = new Document(toValue(element), allOptions);
+    const doc = new Document(toValue(element), createCycleSafeReplacer(), allOptions);
     doc.directives!.yaml.explicit = true;
     return doc.toString(allOptions);
   }
 
-  return stringify(toValue(element), allOptions);
+  return stringify(toValue(element), createCycleSafeReplacer(), allOptions);
 };
 
 export default serializer;
