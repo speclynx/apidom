@@ -1,0 +1,20 @@
+{
+  "components": {
+    "schemas": {
+      "Animal": {
+        "description": "A living creature",
+        "externalDocs": { "url": "https://example.com/animals" }
+      },
+      "Cat": {
+        "type": "object",
+        "description": "A living creature",
+        "externalDocs": { "url": "https://example.com/animals" }
+      },
+      "Dog": {
+        "type": "object",
+        "description": "A living creature",
+        "externalDocs": { "url": "https://example.com/animals" }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "components": {
+    "defaults": {
+      "operation": {
+        "security": [{ "apiKey": [] }],
+        "x-internal": false
+      }
+    }
+  },
+  "paths": {
+    "/pets": { "get": { "summary": "List pets" } },
+    "/users": { "get": { "summary": "List users", "x-internal": true } }
+  }
+}
