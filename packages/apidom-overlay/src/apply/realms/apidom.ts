@@ -5,6 +5,7 @@ import {
   isObjectElement,
   isArrayElement,
   cloneDeep,
+  cloneShallow,
   ParseResultElement,
 } from '@speclynx/apidom-datamodel';
 import { deepmerge, toValue, type DeepMergeUserOptions } from '@speclynx/apidom-core';
@@ -394,11 +395,13 @@ export const applyAction = (
  * independent of the input, including when no action changes anything. Pass
  * `immutable: false` to apply the actions in place.
  *
- * When the target is a `ParseResultElement`, that parse result is returned with
- * its result element replaced by the new tree, including when no action changed
- * anything. The original result element is never mutated, but it is detached
- * from the parse result. The immutable contract covers the result element, not
- * the parse result wrapper.
+ * When the target is a `ParseResultElement`, a new parse result is returned
+ * carrying the new tree as its result element; the caller's parse result and
+ * its result element are left untouched. Every other child — annotations, and
+ * an `api` element that is not the result element itself — is shared with the
+ * input rather than copied, since no overlay action can reach it.
+ * Under `immutable: false` the caller's parse result is updated in place
+ * instead, with its result element replaced by the new tree.
  *
  * @public
  */
@@ -414,23 +417,38 @@ export const applyOverlay = <T extends Element | ParseResultElement>(
     throw new OverlayError('First argument must be an Overlay 1.x document');
   }
 
+  const opts = withDefaults(options as InternalApplyOptions);
+
+  let parseResult: ParseResultElement | undefined;
   let target: Element;
+
   if (targetElement instanceof ParseResultElement) {
     if (targetElement.result === undefined) {
       throw new OverlayError('Target ParseResultElement contains no result element');
     }
-    target = targetElement.result;
+    /**
+     * Only the result element changes, so the wrapper is cloned shallowly: the
+     * clone gets its own content list, which the new tree replaces the result
+     * element in, and every child the overlay never touches is shared with the
+     * input instead of copied.
+     */
+    parseResult = opts.immutable ? cloneShallow(targetElement) : targetElement;
+    target = parseResult.result!;
   } else {
     target = targetElement;
   }
 
-  const opts = withDefaults(options as InternalApplyOptions);
+  target = opts.immutable ? cloneDeep(target) : target;
+
+  /**
+   * Constructed only once the target has been validated: the constructor writes
+   * a success verdict into the caller's trace object, which must not survive a
+   * throw from the checks above.
+   */
   const tracer = opts.trace ? new TraceBuilder(opts.trace) : undefined;
   const internalOptions: InternalApplyOptions = tracer ? { ...opts, tracer } : opts;
   // clone once, then apply the actions mutably to the clone
   const mutatingOptions: InternalApplyOptions = { ...internalOptions, immutable: false };
-
-  target = opts.immutable ? cloneDeep(target) : target;
 
   if (isArrayElement(overlay.actions)) {
     for (const action of overlay.actions) {
@@ -438,11 +456,11 @@ export const applyOverlay = <T extends Element | ParseResultElement>(
     }
   }
 
-  if (targetElement instanceof ParseResultElement) {
-    if (target !== targetElement.result) {
-      targetElement.replaceResult(target);
+  if (parseResult !== undefined) {
+    if (target !== parseResult.result) {
+      parseResult.replaceResult(target);
     }
-    return targetElement;
+    return parseResult as T;
   }
 
   return target as T;
