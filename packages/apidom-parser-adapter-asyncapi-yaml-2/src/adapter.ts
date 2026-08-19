@@ -46,7 +46,6 @@ export const parse: typeof parseYAML = async (
 
   if (isNotUndefined(result)) {
     const asyncApiElement = refractAsyncApi2(result, { consume: true, ...refractorOpts });
-    asyncApiElement.classes.push('result');
     parseResultElement.replaceResult(asyncApiElement);
   }
 

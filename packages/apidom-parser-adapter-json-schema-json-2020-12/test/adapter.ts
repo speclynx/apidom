@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import { isParseResultElement } from '@speclynx/apidom-datamodel';
-import { sexprs } from '@speclynx/apidom-core';
+import { sexprs, toValue } from '@speclynx/apidom-core';
 import { isJSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2020-12';
 
 import * as adapter from '../src/adapter.ts';
@@ -41,6 +41,12 @@ describe('adapter', function () {
     assert.isTrue(isParseResultElement(parseResult));
     assert.isTrue(isJSONSchemaElement(parseResult.result));
     expect(sexprs(parseResult)).toMatchSnapshot();
+  });
+
+  it('should mark the result element exactly once', async function () {
+    const parseResult = await adapter.parse(jsonSpec, { sourceMap: false });
+
+    assert.deepEqual(toValue(parseResult.result!.classes), ['result']);
   });
 
   context('given zero byte empty file', function () {

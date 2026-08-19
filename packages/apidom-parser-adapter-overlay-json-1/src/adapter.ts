@@ -49,7 +49,6 @@ export const parse: typeof parseJSON = async (
       consume: true,
       ...refractorOpts,
     });
-    overlay1Element.classes.push('result');
     parseResultElement.replaceResult(overlay1Element);
   }
 
