@@ -200,7 +200,6 @@ The diff walks both element trees recursively and generates [JSONPath (RFC 9535)
 | Root structural type change | Throws `OverlayError`. Overlay has no mechanism to replace the root node. |
 | Array insert-at-position | Overlay 1.x has no insert primitive. Positional diffing cascades replacements + appends, which is always correct but may be verbose for large array reorderings. |
 | Array item structural type change | Handled via tail-reconstruct: items from the first type-mismatched index onward are removed and re-appended. Always correct, but produces more actions than a minimal diff. |
-| Shared element references | Action `update` values reference elements from the right document directly. Mutating the right document after calling `diff` will affect the returned overlay. |
 | Reverse diff | The overlay carries no "before" value. It cannot be reversed without the original document. |
 
 ## Overlay spec semantics

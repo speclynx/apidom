@@ -6,6 +6,7 @@ import {
   BooleanElement,
   isObjectElement,
   isArrayElement,
+  cloneDeep,
 } from '@speclynx/apidom-datamodel';
 import { NormalizedPath } from '@speclynx/apidom-json-path';
 import {
@@ -43,7 +44,13 @@ type Segments = (string | number)[];
 const createUpdateAction = (segments: Segments, value: Element): ActionElement => {
   const action = new ActionElement();
   action.target = new StringElement(NormalizedPath.from(segments));
-  action.update = value;
+  /**
+   * Every update value is built from nodes of the right document. Cloning here
+   * keeps the emitted overlay independent of the right document in both
+   * directions, and keeps two overlays diffed against the same right document
+   * from sharing element instances with each other.
+   */
+  action.update = cloneDeep(value);
   return action;
 };
 
@@ -193,8 +200,6 @@ const diffArrays = (
  * - Array items with a structural type change are handled via tail-reconstruct
  *   (remove tail + re-append from right), producing more actions than a minimal diff.
  * - The overlay carries no "before" value, so it cannot be reversed without the original document.
- * - Action `update` values reference elements from `rightElement` directly. Mutating `rightElement`
- *   after calling `diff` will affect the returned overlay.
  *
  * @public
  */

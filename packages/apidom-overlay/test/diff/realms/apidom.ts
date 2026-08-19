@@ -1,7 +1,9 @@
 import { assert } from 'chai';
-import { refract } from '@speclynx/apidom-datamodel';
+import { refract, isElement, isMemberElement } from '@speclynx/apidom-datamodel';
+import type { Element, ObjectElement, ArrayElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 import { isOverlay1Element } from '@speclynx/apidom-ns-overlay-1';
+import type { ActionElement } from '@speclynx/apidom-ns-overlay-1';
 
 import { diffApiDOM } from '../../../src/diff/index.ts';
 import { applyOverlay as applyOverlayApiDOM } from '../../../src/apply/realms/apidom.ts';
@@ -314,6 +316,106 @@ describe('diffApiDOM', function () {
       const value = toValue(overlay) as AnyJson;
 
       assert.strictEqual(value.info.description, 'v1 to v2 migration');
+    });
+  });
+
+  context('element identity', function () {
+    const collectElements = (element: Element, acc: Set<Element> = new Set()): Set<Element> => {
+      acc.add(element);
+
+      if (isMemberElement(element)) {
+        collectElements(element.key as Element, acc);
+        collectElements(element.value as Element, acc);
+      } else if (Array.isArray(element.content)) {
+        (element.content as Element[]).forEach((child) => collectElements(child, acc));
+      } else if (isElement(element.content)) {
+        collectElements(element.content as Element, acc);
+      }
+
+      return acc;
+    };
+
+    const assertDisjoint = (first: Element, second: Element): void => {
+      const secondElements = collectElements(second);
+      const shared = [...collectElements(first)].filter((element) => secondElements.has(element));
+
+      assert.deepEqual(shared, []);
+    };
+
+    specify('should not share elements with the right document for added keys', function () {
+      const left = refract({ info: { title: 'My API' } });
+      const right = refract({ info: { title: 'My API' }, servers: [{ url: '/api' }] });
+
+      const overlay = diffApiDOM(left, right);
+
+      assertDisjoint(overlay, right);
+    });
+
+    specify(
+      'should not share elements with the right document for changed primitives',
+      function () {
+        const left = refract({ info: { title: 'Old Title' } });
+        const right = refract({ info: { title: 'New Title' } });
+
+        const overlay = diffApiDOM(left, right);
+
+        assertDisjoint(overlay, right);
+      },
+    );
+
+    specify(
+      'should not share elements with the right document for structural type changes',
+      function () {
+        const left = refract({ info: { title: 'My API' } });
+        const right = refract({ info: ['My API'] });
+
+        const overlay = diffApiDOM(left, right);
+
+        assertDisjoint(overlay, right);
+      },
+    );
+
+    specify('should not share elements with the right document for appended items', function () {
+      const left = refract({ servers: [{ url: '/api' }] });
+      const right = refract({ servers: [{ url: '/api' }, { url: '/api/v2' }] });
+
+      const overlay = diffApiDOM(left, right);
+
+      assertDisjoint(overlay, right);
+    });
+
+    specify(
+      'should not share elements with the right document for array tail reconstruction',
+      function () {
+        const left = refract({ servers: ['/api', '/api/v2'] });
+        const right = refract({ servers: ['/api', { url: '/api/v2' }] });
+
+        const overlay = diffApiDOM(left, right);
+
+        assertDisjoint(overlay, right);
+      },
+    );
+
+    specify('should not share elements between two diffs of the same documents', function () {
+      const left = refract({ info: { title: 'My API' } });
+      const right = refract({ info: { title: 'My API' }, servers: [{ url: '/api' }] });
+
+      assertDisjoint(diffApiDOM(left, right), diffApiDOM(left, right));
+    });
+
+    specify('should not propagate mutations of the overlay to the right document', function () {
+      const left = refract({ info: { title: 'My API' } });
+      const right = refract({ info: { title: 'My API' }, servers: [{ url: '/api' }] });
+
+      const overlay = diffApiDOM(left, right);
+      const action = overlay.actions!.get(0) as ActionElement;
+      const update = action.update as ObjectElement;
+      ((update.get('servers') as ArrayElement).get(0) as ObjectElement).set('url', 'MUTATED');
+
+      assert.deepEqual(toValue(right), {
+        info: { title: 'My API' },
+        servers: [{ url: '/api' }],
+      });
     });
   });
 });
