@@ -561,6 +561,21 @@ describe('applyAction', function () {
 
       assert.strictEqual(value.info.description, 'Keep');
     });
+
+    specify('should not mutate original target on root update', function () {
+      const action = refractAction({
+        target: '$',
+        update: { openapi: '3.1.0' },
+      });
+      const target = refract({ info: { title: 'API' } });
+
+      const result = applyAction(action, target);
+
+      // the root is transplanted in place on the clone, never on the input
+      assert.notStrictEqual(result, target);
+      assert.isUndefined((toValue(target) as AnyJson).openapi);
+      assert.strictEqual((toValue(result) as AnyJson).openapi, '3.1.0');
+    });
   });
 
   context('partial options object', function () {
@@ -615,6 +630,125 @@ describe('applyAction', function () {
       const value = toValue(target) as AnyJson;
 
       assert.isUndefined(value.info.description);
+    });
+
+    specify('should mutate original target on root update', function () {
+      const action = refractAction({
+        target: '$',
+        update: { openapi: '3.1.0' },
+      });
+      const target = refract({ info: { title: 'API' } });
+
+      const result = applyAction(action, target, { immutable: false });
+      const value = toValue(target) as AnyJson;
+
+      assert.strictEqual(result, target);
+      assert.strictEqual(value.openapi, '3.1.0');
+      assert.strictEqual(value.info.title, 'API');
+    });
+
+    specify('should mutate original array target on root update', function () {
+      const action = refractAction({
+        target: '$',
+        update: ['b'],
+      });
+      const target = refract(['a']);
+
+      const result = applyAction(action, target, { immutable: false });
+
+      assert.strictEqual(result, target);
+      assert.deepEqual(toValue(target), ['a', 'b']);
+    });
+
+    specify('should mutate original target on root copy', function () {
+      const action = refractAction({
+        target: '$',
+        copy: '$.source',
+      });
+      const target = refract({ source: { added: 'value' } });
+
+      const result = applyAction(action, target, { immutable: false });
+      const value = toValue(target) as AnyJson;
+
+      assert.strictEqual(result, target);
+      assert.strictEqual(value.added, 'value');
+    });
+
+    specify('should mutate original target on same-typed root replacement', function () {
+      const action = refractAction({
+        target: '$',
+        update: 'replaced',
+      });
+      const target = refract('original');
+
+      const result = applyAction(action, target, { immutable: false });
+
+      assert.strictEqual(result, target);
+      assert.strictEqual(toValue(target), 'replaced');
+    });
+
+    specify('should preserve root element identity metadata on update', function () {
+      const action = refractAction({
+        target: '$',
+        update: { openapi: '3.1.0' },
+      });
+      const target = refract({ info: { title: 'API' } });
+      target.element = 'customName';
+      target.meta.set('note', 'keep me');
+
+      applyAction(action, target, { immutable: false });
+
+      // transplanting content leaves the target's own identity untouched
+      assert.strictEqual(target.element, 'customName');
+      assert.strictEqual(toValue(target.meta.get('note')), 'keep me');
+      assert.strictEqual((toValue(target) as AnyJson).openapi, '3.1.0');
+    });
+
+    specify('should clear stale meta on same-typed root replacement', function () {
+      const action = refractAction({
+        target: '$',
+        update: 'replaced',
+      });
+      const target = refract('original');
+      target.meta.set('note', 'stale');
+
+      applyAction(action, target, { immutable: false });
+
+      // a replacement carries the update value's meta, not the target's
+      assert.isUndefined(toValue(target.meta.get('note')));
+      assert.strictEqual(toValue(target), 'replaced');
+    });
+
+    specify('should rebind rather than throw on a frozen root', function () {
+      const action = refractAction({
+        target: '$',
+        update: { openapi: '3.1.0' },
+      });
+      const target = refract({ info: { title: 'API' } });
+      target.freeze();
+
+      const result = applyAction(action, target, { immutable: false });
+
+      // a frozen element rejects property assignment, so the transplant is skipped
+      assert.notStrictEqual(result, target);
+      assert.strictEqual((toValue(result) as AnyJson).openapi, '3.1.0');
+      assert.isUndefined((toValue(target) as AnyJson).openapi);
+    });
+
+    specify('should rebind on differently typed root replacement', function () {
+      const action = refractAction({
+        target: '$',
+        update: 42,
+      });
+      const target = refract('original');
+
+      const result = applyAction(action, target, { immutable: false });
+
+      // a primitive root replaced by another element class cannot be
+      // transplanted in place — the return value is the only carrier
+      assert.notStrictEqual(result, target);
+      assert.strictEqual(toValue(result), 42);
+      assert.strictEqual(toValue(target), 'original');
     });
   });
 
@@ -993,6 +1127,32 @@ describe('applyOverlayApiDOM', function () {
       assert.notStrictEqual(result.result, targetContent);
       assert.strictEqual(targetParseResult.result, targetContent);
       assert.deepEqual(toValue(result.result), toValue(targetContent));
+    });
+
+    specify('should keep the result element on an in-place root update', function () {
+      const overlay = refractOverlay1({
+        overlay: '1.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        actions: [
+          { target: '$', update: { openapi: '3.1.0' } },
+          { target: '$.info', update: { version: '2.0.0' } },
+        ],
+      });
+
+      const targetContent = refract({ info: { title: 'Original' } });
+      targetContent.classes.push('result');
+      const targetParseResult = new ParseResultElement();
+      targetParseResult.push(targetContent);
+
+      const result = applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
+      const value = toValue(result.result) as AnyJson;
+
+      // the root action no longer detaches and re-attaches the result element
+      assert.strictEqual(result, targetParseResult);
+      assert.strictEqual(result.result, targetContent);
+      assert.deepEqual(toValue(targetContent.classes), ['result']);
+      assert.strictEqual(value.openapi, '3.1.0');
+      assert.strictEqual(value.info.version, '2.0.0');
     });
 
     specify('should leave the target parse result untouched', function () {

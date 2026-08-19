@@ -154,8 +154,25 @@ export const applyUpdateAction = (
     const resolved = resolveParent(normalizedPath, result);
 
     if (resolved === null) {
-      // targeting root
-      result = mergeValue(result, clonedUpdateValue, opts);
+      /**
+       * Targeting root. There is no parent slot to write the merged element
+       * into, so the merge is transplanted back onto the target itself — every
+       * other target shape updates the document in place and the root must not
+       * be the silent exception. Merging always yields the target's own
+       * constructor, so the transplant is type-safe. Two cases cannot be
+       * written in place and fall back to rebinding: a primitive root replaced
+       * by a differently typed value, and a frozen root, whose properties
+       * cannot be assigned.
+       */
+      const merged = mergeValue(result, clonedUpdateValue, opts);
+
+      if (merged.constructor === result.constructor && !result.isFrozen) {
+        result.content = merged.content;
+        result.meta = merged.meta;
+        result.attributes = merged.attributes;
+      } else {
+        result = merged;
+      }
       continue;
     }
 
@@ -246,7 +263,9 @@ export const applyRemoveAction = (
  * Immutable by default. The target is cloned once up front and the action is
  * applied to the clone, so the returned element is always independent of the
  * input, including when the action changes nothing. Pass `immutable: false` to
- * apply the action in place.
+ * apply the action in place; the one shape that cannot be applied in place is
+ * a `target: $` action replacing a primitive root with a differently typed
+ * value, so the return value is authoritative in both modes.
  *
  * @public
  */
@@ -393,7 +412,10 @@ export const applyAction = (
  * Immutable by default. The target is cloned once up front and all actions are
  * applied to the clone sequentially, so the returned element is always
  * independent of the input, including when no action changes anything. Pass
- * `immutable: false` to apply the actions in place.
+ * `immutable: false` to apply the actions in place; the one shape that cannot
+ * be applied in place is a `target: $` action replacing a primitive root with
+ * a differently typed value, so the return value is authoritative in both
+ * modes.
  *
  * When the target is a `ParseResultElement`, a new parse result is returned
  * carrying the new tree as its result element; the caller's parse result and
