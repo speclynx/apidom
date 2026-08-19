@@ -96,24 +96,26 @@ const rawNumberTag: ScalarTag = {
  * Converts an ApiDOM element tree to YAML library AST nodes,
  * preserving style information from `element.style.yaml`.
  */
-const toYAMLNode = (element: unknown, visited: WeakSet<object>): unknown => {
+const toYAMLNode = (element: unknown, ancestors: WeakSet<object>): unknown => {
   if (!isElement(element)) return element;
 
-  // cycle detection
-  if (visited.has(element as object)) return undefined;
-  visited.add(element as object);
+  // cycle detection — only ancestors form a cycle; a shared reference to an
+  // already serialized sibling is a DAG and must be expanded again
+  if (ancestors.has(element as object)) return undefined;
 
   const style = getStyle(element);
 
   if (isObjectElement(element)) {
+    ancestors.add(element as object);
+
     const map = new YAMLMap();
     map.flow = style.styleGroup === 'Flow';
     applyComments(map, style);
 
     element.forEach((value, key, member) => {
       const memberStyle = isMemberElement(member) ? getStyle(member) : {};
-      const keyNode = toYAMLNode(key, visited);
-      const valueNode = toYAMLNode(value, visited);
+      const keyNode = toYAMLNode(key, ancestors);
+      const valueNode = toYAMLNode(value, ancestors);
       const pair = new Pair(keyNode, valueNode);
 
       if (memberStyle.commentBefore && isNode(keyNode)) {
@@ -126,17 +128,23 @@ const toYAMLNode = (element: unknown, visited: WeakSet<object>): unknown => {
       map.items.push(pair);
     });
 
+    ancestors.delete(element as object);
+
     return map;
   }
 
   if (isArrayElement(element)) {
+    ancestors.add(element as object);
+
     const seq = new YAMLSeq();
     seq.flow = style.styleGroup === 'Flow';
     applyComments(seq, style);
 
     element.forEach((item) => {
-      seq.items.push(toYAMLNode(item, visited));
+      seq.items.push(toYAMLNode(item, ancestors));
     });
+
+    ancestors.delete(element as object);
 
     return seq;
   }

@@ -33,26 +33,31 @@ export interface JSONSerializerOptions {
  * are replaced with sentinel strings; all other values go through toValue().
  */
 const toPojo = (element: Element, sentinels: Map<string, string>): unknown => {
-  const visited = new WeakSet<object>();
+  const ancestors = new WeakSet<object>();
 
   const convert = (node: unknown): unknown => {
     if (!isElement(node)) return node;
 
-    if (visited.has(node as object)) return null;
-    visited.add(node as object);
+    // cycle detection — only ancestors form a cycle; a shared reference to an
+    // already serialized sibling is a DAG and must be expanded again
+    if (ancestors.has(node as object)) return null;
 
     if (isObjectElement(node)) {
+      ancestors.add(node as object);
       const obj: Record<string, unknown> = {};
       node.forEach((value, key) => {
         const k = isElement(key) ? toValue(key) : key;
         if (typeof k === 'string') obj[k] = convert(value);
       });
+      ancestors.delete(node as object);
       return obj;
     }
 
     if (isArrayElement(node)) {
+      ancestors.add(node as object);
       const arr: unknown[] = [];
       node.forEach((item) => arr.push(convert(item)));
+      ancestors.delete(node as object);
       return arr;
     }
 

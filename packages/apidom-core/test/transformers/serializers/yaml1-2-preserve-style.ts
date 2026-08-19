@@ -243,6 +243,55 @@ describe('serializers', function () {
       });
     });
 
+    context('given the same element instance referenced twice', function () {
+      specify('should expand every occurrence', function () {
+        const shared = new ObjectElement({ title: 'shared title' });
+        const element = new ObjectElement({ a: new ObjectElement(), b: new ObjectElement() });
+        (element.get('a') as ObjectElement).set('schema', shared);
+        (element.get('b') as ObjectElement).set('schema', shared);
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(
+          result,
+          'a:\n  schema:\n    title: shared title\nb:\n  schema:\n    title: shared title\n',
+        );
+      });
+    });
+
+    context('given the same element instance referenced twice within an ArrayElement', function () {
+      specify('should expand every occurrence', function () {
+        const shared = new ObjectElement({ title: 'shared title' });
+        const element = new ArrayElement([shared, shared]);
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, '- title: shared title\n- title: shared title\n');
+      });
+    });
+
+    context('given a self-referencing ObjectElement', function () {
+      specify('should terminate and serialize the cycle as null', function () {
+        const element = new ObjectElement({ a: 1 });
+        element.set('self', element);
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'a: 1\nself: null\n');
+      });
+    });
+
+    context('given a self-referencing ArrayElement', function () {
+      specify('should terminate and serialize the cycle as null', function () {
+        const element = new ArrayElement([1]);
+        element.push(element);
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, '- 1\n- null\n');
+      });
+    });
+
     context('given empty ArrayElement', function () {
       specify('should serialize to empty array', function () {
         const element = new ArrayElement([]);
