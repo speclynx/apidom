@@ -370,13 +370,24 @@ describe('serializers', function () {
         assert.strictEqual(result, 'a:\n  title: shared\nb:\n  title: shared\n');
       });
 
-      specify('should still serialize a cycle as null', function () {
+      specify('should represent a cycle with a recursive anchor', function () {
         const element = new ObjectElement({ a: 1 });
         element.set('self', element);
 
         const result = serialize(element, { preserveStyle: true, aliasDuplicateObjects: true });
 
-        assert.strictEqual(result, 'a: 1\nself: null\n');
+        assert.strictEqual(result, '&a1\na: 1\nself: *a1\n');
+      });
+
+      specify('should represent an indirect cycle with a recursive anchor', function () {
+        const a = new ObjectElement({ name: 'a' });
+        const b = new ObjectElement({ name: 'b' });
+        a.set('b', b);
+        b.set('a', a);
+
+        const result = serialize(a, { preserveStyle: true, aliasDuplicateObjects: true });
+
+        assert.strictEqual(result, '&a1\nname: a\nb:\n  name: b\n  a: *a1\n');
       });
     });
 

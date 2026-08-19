@@ -126,13 +126,16 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
 
   const { ancestors, emitted } = context;
 
+  // when aliasDuplicateObjects is enabled every repeat becomes an alias — both a
+  // shared sibling and a cycle, which YAML represents with a recursive anchor.
+  // Nodes are registered before their children are visited so a self-reference
+  // finds them, which is why this precedes the ancestor check.
+  const alreadyEmitted = emitted?.get(element as object);
+  if (alreadyEmitted !== undefined) return toAlias(alreadyEmitted, context);
+
   // cycle detection — only ancestors form a cycle; a shared reference to an
   // already serialized sibling is a DAG and must be expanded again
   if (ancestors.has(element as object)) return undefined;
-
-  // a shared reference becomes an alias when aliasDuplicateObjects is enabled
-  const alreadyEmitted = emitted?.get(element as object);
-  if (alreadyEmitted !== undefined) return toAlias(alreadyEmitted, context);
 
   const style = getStyle(element);
 
@@ -140,6 +143,7 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     ancestors.add(element as object);
 
     const map = new YAMLMap();
+    emitted?.set(element as object, map);
     map.flow = style.styleGroup === 'Flow';
     applyComments(map, style);
 
@@ -160,7 +164,6 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     });
 
     ancestors.delete(element as object);
-    emitted?.set(element as object, map);
 
     return map;
   }
@@ -169,6 +172,7 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     ancestors.add(element as object);
 
     const seq = new YAMLSeq();
+    emitted?.set(element as object, seq);
     seq.flow = style.styleGroup === 'Flow';
     applyComments(seq, style);
 
@@ -177,7 +181,6 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     });
 
     ancestors.delete(element as object);
-    emitted?.set(element as object, seq);
 
     return seq;
   }
