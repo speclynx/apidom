@@ -49,7 +49,6 @@ export const parse: typeof parseJSON = async (
       consume: true,
       ...refractorOpts,
     });
-    arazzoSpecificationElement.classes.push('result');
     parseResultElement.replaceResult(arazzoSpecificationElement);
   }
 

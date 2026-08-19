@@ -46,7 +46,6 @@ export const parse: typeof parseYAML = async (
 
   if (isNotUndefined(result)) {
     const swaggerElement = refractSwagger(result, { consume: true, ...refractorOpts });
-    swaggerElement.classes.push('result');
     parseResultElement.replaceResult(swaggerElement);
   }
 
