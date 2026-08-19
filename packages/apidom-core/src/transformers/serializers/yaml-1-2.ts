@@ -2,6 +2,7 @@ import {
   Document,
   stringify,
   isNode,
+  Alias,
   Scalar,
   YAMLMap,
   YAMLSeq,
@@ -93,15 +94,45 @@ const rawNumberTag: ScalarTag = {
 };
 
 /**
+ * Tracks state across a single serialization: the ancestor chain used for cycle
+ * detection, and — when `aliasDuplicateObjects` is enabled — the container node
+ * emitted for each element instance, so later occurrences become YAML aliases.
+ */
+interface NodeContext {
+  ancestors: WeakSet<object>;
+  emitted?: Map<object, YAMLNode>;
+  anchorCount: number;
+}
+
+/**
+ * Turns an already emitted node into the target of an alias, assigning it an
+ * anchor on first use, and returns the alias referring to it.
+ */
+const toAlias = (node: YAMLNode, context: NodeContext): Alias => {
+  if (typeof node.anchor !== 'string') {
+    context.anchorCount += 1;
+    // eslint-disable-next-line no-param-reassign
+    node.anchor = `a${context.anchorCount}`;
+  }
+  return new Alias(node.anchor);
+};
+
+/**
  * Converts an ApiDOM element tree to YAML library AST nodes,
  * preserving style information from `element.style.yaml`.
  */
-const toYAMLNode = (element: unknown, ancestors: WeakSet<object>): unknown => {
+const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
   if (!isElement(element)) return element;
+
+  const { ancestors, emitted } = context;
 
   // cycle detection — only ancestors form a cycle; a shared reference to an
   // already serialized sibling is a DAG and must be expanded again
   if (ancestors.has(element as object)) return undefined;
+
+  // a shared reference becomes an alias when aliasDuplicateObjects is enabled
+  const alreadyEmitted = emitted?.get(element as object);
+  if (alreadyEmitted !== undefined) return toAlias(alreadyEmitted, context);
 
   const style = getStyle(element);
 
@@ -114,8 +145,8 @@ const toYAMLNode = (element: unknown, ancestors: WeakSet<object>): unknown => {
 
     element.forEach((value, key, member) => {
       const memberStyle = isMemberElement(member) ? getStyle(member) : {};
-      const keyNode = toYAMLNode(key, ancestors);
-      const valueNode = toYAMLNode(value, ancestors);
+      const keyNode = toYAMLNode(key, context);
+      const valueNode = toYAMLNode(value, context);
       const pair = new Pair(keyNode, valueNode);
 
       if (memberStyle.commentBefore && isNode(keyNode)) {
@@ -129,6 +160,7 @@ const toYAMLNode = (element: unknown, ancestors: WeakSet<object>): unknown => {
     });
 
     ancestors.delete(element as object);
+    emitted?.set(element as object, map);
 
     return map;
   }
@@ -141,10 +173,11 @@ const toYAMLNode = (element: unknown, ancestors: WeakSet<object>): unknown => {
     applyComments(seq, style);
 
     element.forEach((item) => {
-      seq.items.push(toYAMLNode(item, ancestors));
+      seq.items.push(toYAMLNode(item, context));
     });
 
     ancestors.delete(element as object);
+    emitted?.set(element as object, seq);
 
     return seq;
   }
@@ -217,7 +250,11 @@ const serializer = (
       allOptions.flowCollectionPadding = style.flowCollectionPadding;
     }
 
-    const rootNode = toYAMLNode(element, new WeakSet());
+    const rootNode = toYAMLNode(element, {
+      ancestors: new WeakSet(),
+      emitted: aliasDuplicateObjects ? new Map() : undefined,
+      anchorCount: 0,
+    });
     const doc = new Document(undefined, { ...allOptions, customTags: [rawNumberTag] });
     doc.contents = rootNode as YAMLNode;
 
