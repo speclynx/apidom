@@ -61,7 +61,7 @@
     "react-dom": "^18.3.1",
     "react-redux": "^9.3.0",
     "swagger-adjust": "^0.7.1",
-    "web-vitals": "^6.1.1"
+    "web-vitals": "^6.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.1.0",
