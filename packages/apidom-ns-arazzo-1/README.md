@@ -158,7 +158,7 @@ import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 import { refractorPluginReplaceEmptyElement, refractArazzoSpecification1 } from '@speclynx/apidom-ns-arazzo-1';
 
 const yamlDefinition = `
-arazzo: 1.0.1
+arazzo: 1.1.0
 info:
 `;
 const apiDOM = await parse(yamlDefinition);

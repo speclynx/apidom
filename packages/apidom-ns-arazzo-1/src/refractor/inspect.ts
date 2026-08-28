@@ -128,8 +128,16 @@ Object.defineProperty(WorkflowElement, 'fixedFields', {
   enumerable: true,
 });
 
+/**
+ * @public
+ * @deprecated Use `ExpressionTypeElement` instead. Criterion Expression Type Object
+ * was renamed to Expression Type Object in Arazzo 1.1.0.
+ */
+const CriterionExpressionTypeElement = ExpressionTypeElement;
+
 export {
   ArazzoElement,
+  CriterionExpressionTypeElement,
   ArazzoSpecification1Element,
   ComponentsElement,
   CriterionElement,

@@ -1,4 +1,4 @@
-// Arazzo 1.0.1 elements
+// Arazzo 1.1.0 elements
 import ArazzoElement from './elements/Arazzo.ts';
 import ArazzoSpecification1Element from './elements/ArazzoSpecification1.ts';
 import ComponentsElement from './elements/Components.ts';

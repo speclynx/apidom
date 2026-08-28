@@ -3,8 +3,10 @@ import { sexprs } from '@speclynx/apidom-core';
 
 import {
   refractStep,
+  isExpressionTypeElement,
   isSelectorElement,
   isStepDependsOnElement,
+  SelectorElement,
   StepElement,
 } from '../../../../src/index.ts';
 
@@ -121,6 +123,23 @@ describe('refractor', function () {
           assert.isTrue(isSelectorElement(stepElement.outputs!.get('userEmail')));
           assert.isFalse(isSelectorElement(stepElement.outputs!.get('rawBody')));
           expect(sexprs(stepElement)).toMatchSnapshot();
+        });
+
+        specify('should refract Selector Object type of Expression Type Object shape', function () {
+          const stepElement = refractStep<StepElement>({
+            stepId: 'getInvoice',
+            outputs: {
+              invoiceNumber: {
+                context: '$response.body',
+                selector: '/Invoice/Header/InvoiceNumber',
+                type: { type: 'xpath', version: 'xpath-30' },
+              },
+            },
+          });
+          const selectorElement = stepElement.outputs!.get('invoiceNumber') as SelectorElement;
+
+          assert.isTrue(isSelectorElement(selectorElement));
+          assert.isTrue(isExpressionTypeElement(selectorElement.type));
         });
       });
     });

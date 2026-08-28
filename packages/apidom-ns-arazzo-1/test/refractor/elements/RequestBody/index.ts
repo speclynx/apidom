@@ -55,6 +55,22 @@ describe('refractor', function () {
         });
       });
 
+      context('given consume option', function () {
+        specify('should refract nested Selector Objects in place', function () {
+          const requestBodyElement = refractRequestBody<RequestBodyElement>(
+            {
+              payload: {
+                items: [{ context: '$inputs.order', selector: '$.items[0]', type: 'jsonpath' }],
+              },
+            },
+            { consume: true },
+          );
+          const payload = requestBodyElement.payload as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+          assert.isTrue(isSelectorElement(payload.get('items').get(0)));
+        });
+      });
+
       context('given payload of Selector Object shape', function () {
         specify('should refract to SelectorElement', function () {
           const requestBodyElement = refractRequestBody<RequestBodyElement>({

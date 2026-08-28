@@ -316,10 +316,14 @@ export {
   isWorkflowSuccessActionsElement,
 } from './predicates.ts';
 
-export { isArazzoSpecificationExtension, isSelectorLikeElement } from './refractor/predicates.ts';
-export type { SelectorLikeElement } from './refractor/predicates.ts';
+export {
+  isArazzoSpecificationExtension,
+  isReusableLikeElement,
+  isSelectorLikeElement,
+} from './refractor/predicates.ts';
+export type { ReusableLikeElement, SelectorLikeElement } from './refractor/predicates.ts';
 
-// Arazzo 1.0.1 elements
+// Arazzo 1.1.0 elements
 export {
   ArazzoElement,
   ArazzoSpecification1Element,
@@ -339,12 +343,7 @@ export {
   SuccessActionElement,
   WorkflowElement,
 } from './refractor/inspect.ts';
-/**
- * @public
- * @deprecated Use `ExpressionTypeElement` instead. Criterion Expression Type Object
- * was renamed to Expression Type Object in Arazzo 1.1.0.
- */
-export { ExpressionTypeElement as CriterionExpressionTypeElement } from './refractor/inspect.ts';
+export { CriterionExpressionTypeElement } from './refractor/inspect.ts';
 export type { FixedField } from './refractor/inspect.ts';
 // NCE types
 export { default as ComponentsFailureActionsElement } from './elements/nces/ComponentsFailureActions.ts';

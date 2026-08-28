@@ -7,6 +7,9 @@ import {
 } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 
+/**
+ * @public
+ */
 export interface ReusableLikeElement extends ObjectElement {
   hasKey: (value: 'reference') => true;
 }
@@ -18,10 +21,16 @@ export const isArazzoSpecificationExtension = (element: MemberElement): boolean 
   return isStringElement(element.key) && startsWith('x-', toValue(element.key) as string);
 };
 
+/**
+ * @public
+ */
 export const isReusableLikeElement = (element: unknown): element is ReusableLikeElement => {
   return isObjectElement(element) && element.hasKey('reference');
 };
 
+/**
+ * @public
+ */
 export interface SelectorLikeElement extends ObjectElement {
   hasKey: (value: 'context' | 'selector' | 'type') => true;
 }
