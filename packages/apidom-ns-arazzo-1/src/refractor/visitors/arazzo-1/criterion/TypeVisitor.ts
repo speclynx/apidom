@@ -16,12 +16,15 @@ export interface TypeVisitorOptions extends BaseSpecificationFallbackVisitorOpti
  * @public
  */
 class TypeVisitor extends BaseSpecificationFallbackVisitor {
-  declare public readonly element: StringElement | ExpressionTypeElement;
+  declare public element: StringElement | ExpressionTypeElement;
 
-  ObjectElement(path: Path<ObjectElement>): ExpressionTypeElement {
+  ObjectElement(path: Path<ObjectElement>) {
     const objectElement = path.node;
     const specPath = ['document', 'objects', 'ExpressionType'];
-    return this.toRefractedElement(specPath, objectElement);
+
+    this.element = this.toRefractedElement(specPath, objectElement);
+
+    path.stop();
   }
 }
 
