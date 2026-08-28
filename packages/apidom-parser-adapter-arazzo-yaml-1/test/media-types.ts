@@ -22,6 +22,14 @@ describe('given adapter is used in parser', function () {
     });
   });
 
+  context('given Arazzo 1.1.0 definition in YAML format', function () {
+    specify('should find appropriate media type', async function () {
+      const mediaType = await parser.findMediaType('arazzo: "1.1.0"');
+
+      assert.strictEqual(mediaType, 'application/vnd.oai.workflows+yaml;version=1.1.0');
+    });
+  });
+
   context('given Arazzo 1.0.A definition in YAML format', function () {
     specify('should not find appropriate media type', async function () {
       const mediaType = await parser.findMediaType('arazzo: "1.0.A"');
