@@ -10,7 +10,8 @@ describe('refractor', function () {
     context('ArazzoSpecification1Element', function () {
       specify('should refract to semantic ApiDOM tree', function () {
         const arazzoSpecification1Element = refractArazzoSpecification1({
-          arazzo: '1.0.1',
+          arazzo: '1.1.0',
+          $self: 'https://api.example.com/workflows/pet-purchase.arazzo.yaml',
           info: {},
           sourceDescriptions: [{}],
           workflows: [{}],

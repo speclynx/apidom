@@ -13,6 +13,7 @@ import ParameterElement from '../elements/Parameter.ts';
 import PayloadReplacementElement from '../elements/PayloadReplacement.ts';
 import RequestBodyElement from '../elements/RequestBody.ts';
 import ReusableElement from '../elements/Reusable.ts';
+import SelectorElement from '../elements/Selector.ts';
 import SourceDescriptionElement from '../elements/SourceDescription.ts';
 import StepElement from '../elements/Step.ts';
 import SuccessActionElement from '../elements/SuccessAction.ts';
@@ -102,6 +103,11 @@ Object.defineProperty(ReusableElement, 'fixedFields', {
   enumerable: true,
 });
 
+Object.defineProperty(SelectorElement, 'fixedFields', {
+  get: () => getFixedFields(resolvedSpec.visitors.document.objects.Selector.fixedFields),
+  enumerable: true,
+});
+
 Object.defineProperty(SourceDescriptionElement, 'fixedFields', {
   get: () => getFixedFields(resolvedSpec.visitors.document.objects.SourceDescription.fixedFields),
   enumerable: true,
@@ -135,6 +141,7 @@ export {
   PayloadReplacementElement,
   RequestBodyElement,
   ReusableElement,
+  SelectorElement,
   SourceDescriptionElement,
   StepElement,
   SuccessActionElement,

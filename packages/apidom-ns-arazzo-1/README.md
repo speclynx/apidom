@@ -4,6 +4,7 @@
 
 - [Arazzo 1.0.0](https://spec.openapis.org/arazzo/v1.0.0.html)
 - [Arazzo 1.0.1](https://spec.openapis.org/arazzo/v1.0.1.html)
+- [Arazzo 1.1.0](https://spec.openapis.org/arazzo/v1.1.0.html)
 
 ## Installation
 
@@ -13,9 +14,9 @@ You can install this package via [npm CLI](https://docs.npmjs.com/cli) by runnin
  $ npm install @speclynx/apidom-ns-arazzo-1
 ```
 
-## Arazzo 1.0.1 namespace
+## Arazzo 1.1.0 namespace
 
-Arazzo 1.0.1 namespace consists of [number of elements](https://github.com/speclynx/apidom/tree/main/packages/apidom-ns-arazzo-1/src/elements) implemented on top
+Arazzo 1.1.0 namespace consists of [number of elements](https://github.com/speclynx/apidom/tree/main/packages/apidom-ns-arazzo-1/src/elements) implemented on top
 of [primitive ones](https://github.com/speclynx/apidom/tree/main/packages/apidom-datamodel/src/primitives).
 
 ```js
@@ -200,6 +201,7 @@ Only fully implemented specification objects should be checked here.
 - [x] [Reusable Object](https://spec.openapis.org/arazzo/latest.html#reusable-object)
 - [x] [Criterion Object](https://spec.openapis.org/arazzo/latest.html#criterion-object)
 - [x] [Expression Type Object](https://spec.openapis.org/arazzo/latest.html#expression-type-object)
+- [x] [Selector Object](https://spec.openapis.org/arazzo/latest.html#selector-object)
 - [x] [Request Body Object](https://spec.openapis.org/arazzo/latest.html#request-body-object)
 - [x] [Payload Replacement Object](https://spec.openapis.org/arazzo/latest.html#payload-replacement-object)
 - [x] [JSON Schema](https://json-schema.org/specification-links#2020-12)

@@ -1,6 +1,7 @@
 import {
   ObjectElement,
   StringElement,
+  NumberElement,
   type Attributes,
   type Meta,
 } from '@speclynx/apidom-datamodel';
@@ -11,6 +12,7 @@ import StepSuccessCriteriaElement from './nces/StepSuccessCriteria.ts';
 import StepOnSuccessElement from './nces/StepOnSuccess.ts';
 import StepOnFailureElement from './nces/StepOnFailure.ts';
 import StepOutputsElement from './nces/StepOutputs.ts';
+import StepDependsOnElement from './nces/StepDependsOn.ts';
 
 /**
  * @public
@@ -51,6 +53,14 @@ class Step extends ObjectElement {
 
   set operationPath(operationPath: StringElement | undefined) {
     this.set('operationPath', operationPath);
+  }
+
+  get channelPath(): StringElement | undefined {
+    return this.get('channelPath') as StringElement | undefined;
+  }
+
+  set channelPath(channelPath: StringElement | undefined) {
+    this.set('channelPath', channelPath);
   }
 
   get workflowId(): StringElement | undefined {
@@ -107,6 +117,38 @@ class Step extends ObjectElement {
 
   set outputs(outputs: StepOutputsElement | undefined) {
     this.set('outputs', outputs);
+  }
+
+  get timeout(): NumberElement | undefined {
+    return this.get('timeout') as NumberElement | undefined;
+  }
+
+  set timeout(timeout: NumberElement | undefined) {
+    this.set('timeout', timeout);
+  }
+
+  get correlationId(): StringElement | undefined {
+    return this.get('correlationId') as StringElement | undefined;
+  }
+
+  set correlationId(correlationId: StringElement | undefined) {
+    this.set('correlationId', correlationId);
+  }
+
+  get action(): StringElement | undefined {
+    return this.get('action') as StringElement | undefined;
+  }
+
+  set action(action: StringElement | undefined) {
+    this.set('action', action);
+  }
+
+  get dependsOn(): StepDependsOnElement | undefined {
+    return this.get('dependsOn') as StepDependsOnElement | undefined;
+  }
+
+  set dependsOn(dependsOn: StepDependsOnElement | undefined) {
+    this.set('dependsOn', dependsOn);
   }
 }
 

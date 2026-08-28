@@ -1,7 +1,12 @@
-import { expect } from 'chai';
+import { assert, expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { refractStep } from '../../../../src/index.ts';
+import {
+  refractStep,
+  isSelectorElement,
+  isStepDependsOnElement,
+  StepElement,
+} from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
@@ -12,6 +17,7 @@ describe('refractor', function () {
           stepId: 'searchForPet',
           operationId: 'getPets',
           operationPath: '{$sourceDescriptions.petstore}/pets',
+          channelPath: '{$sourceDescriptions.asyncOrderApi.url}#/channels/~1orders',
           workflowId: 'uniqueWorkflowId',
           parameters: [
             {
@@ -78,9 +84,44 @@ describe('refractor', function () {
           outputs: {
             petList: '$response.body',
           },
+          timeout: 6000,
+          correlationId: '$inputs.correlationId',
+          action: 'receive',
+          dependsOn: ['placeOrder', '$workflows.other.steps.authStep'],
         });
 
         expect(sexprs(stepElement)).toMatchSnapshot();
+      });
+
+      context('given dependsOn field', function () {
+        specify('should refract to StepDependsOnElement', function () {
+          const stepElement = refractStep<StepElement>({
+            stepId: 'confirmOrder',
+            dependsOn: ['placeOrder'],
+          });
+
+          assert.isTrue(isStepDependsOnElement(stepElement.dependsOn));
+        });
+      });
+
+      context('given outputs with Selector Object values', function () {
+        specify('should refract Selector Object shaped values to SelectorElement', function () {
+          const stepElement = refractStep<StepElement>({
+            stepId: 'getUser',
+            outputs: {
+              userEmail: {
+                context: '$response.body',
+                selector: '$.user.profile.email',
+                type: 'jsonpath',
+              },
+              rawBody: '$response.body',
+            },
+          });
+
+          assert.isTrue(isSelectorElement(stepElement.outputs!.get('userEmail')));
+          assert.isFalse(isSelectorElement(stepElement.outputs!.get('rawBody')));
+          expect(sexprs(stepElement)).toMatchSnapshot();
+        });
       });
     });
   });

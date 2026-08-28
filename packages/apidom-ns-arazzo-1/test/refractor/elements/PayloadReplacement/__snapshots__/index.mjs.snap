@@ -1,7 +1,44 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`refractor elements PayloadReplacementElement given targetSelectorType of Expression Type Object shape and Selector value should refract to ExpressionTypeElement and SelectorElement 1`] = `
+(PayloadReplacementElement
+  (MemberElement
+    (StringElement)
+    (StringElement))
+  (MemberElement
+    (StringElement)
+    (ExpressionTypeElement
+      (MemberElement
+        (StringElement)
+        (StringElement))
+      (MemberElement
+        (StringElement)
+        (StringElement))))
+  (MemberElement
+    (StringElement)
+    (SelectorElement
+      (MemberElement
+        (StringElement)
+        (StringElement))
+      (MemberElement
+        (StringElement)
+        (StringElement))
+      (MemberElement
+        (StringElement)
+        (ExpressionTypeElement
+          (MemberElement
+            (StringElement)
+            (StringElement))
+          (MemberElement
+            (StringElement)
+            (StringElement)))))))
+`;
+
 exports[`refractor elements PayloadReplacementElement should refract to semantic ApiDOM tree 1`] = `
 (PayloadReplacementElement
+  (MemberElement
+    (StringElement)
+    (StringElement))
   (MemberElement
     (StringElement)
     (StringElement))

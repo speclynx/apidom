@@ -1,4 +1,9 @@
-import { ObjectElement, type Attributes, type Meta } from '@speclynx/apidom-datamodel';
+import {
+  ObjectElement,
+  StringElement,
+  type Attributes,
+  type Meta,
+} from '@speclynx/apidom-datamodel';
 
 import ArazzoElement from './Arazzo.ts';
 import InfoElement from './Info.ts';
@@ -22,6 +27,14 @@ class ArazzoSpecification1 extends ObjectElement {
 
   set arazzo(arazzo: ArazzoElement | undefined) {
     this.set('arazzo', arazzo);
+  }
+
+  get $self(): StringElement | undefined {
+    return this.get('$self') as StringElement | undefined;
+  }
+
+  set $self($self: StringElement | undefined) {
+    this.set('$self', $self);
   }
 
   get info(): InfoElement | undefined {

@@ -5,6 +5,7 @@ import {
   type Meta,
 } from '@speclynx/apidom-datamodel';
 
+import SuccessActionParametersElement from './nces/SuccessActionParameters.ts';
 import SuccessActionCriteriaElement from './nces/SuccessActionCriteria.ts';
 
 /**
@@ -46,6 +47,14 @@ class SuccessAction extends ObjectElement {
 
   set stepId(stepId: StringElement | undefined) {
     this.set('stepId', stepId);
+  }
+
+  get parameters(): SuccessActionParametersElement | undefined {
+    return this.get('parameters') as SuccessActionParametersElement | undefined;
+  }
+
+  set parameters(parameters: SuccessActionParametersElement | undefined) {
+    this.set('parameters', parameters);
   }
 
   get criteria(): SuccessActionCriteriaElement | undefined {

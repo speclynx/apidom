@@ -7,6 +7,9 @@ exports[`refractor elements ArazzoSpecification1Element should refract to semant
     (ArazzoElement))
   (MemberElement
     (StringElement)
+    (StringElement))
+  (MemberElement
+    (StringElement)
     (InfoElement))
   (MemberElement
     (StringElement)

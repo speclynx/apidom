@@ -18,6 +18,7 @@ import ParameterElement from '../elements/Parameter.ts';
 import PayloadReplacementElement from '../elements/PayloadReplacement.ts';
 import RequestBodyElement from '../elements/RequestBody.ts';
 import ReusableElement from '../elements/Reusable.ts';
+import SelectorElement from '../elements/Selector.ts';
 import SourceDescriptionElement from '../elements/SourceDescription.ts';
 import StepElement from '../elements/Step.ts';
 import SuccessActionElement from '../elements/SuccessAction.ts';
@@ -185,6 +186,14 @@ export const refractReusable = <T extends Element = ReusableElement>(
   value: unknown,
   options: Omit<RefractorOptions, 'element'> = {},
 ): T => refract(value, { ...options, element: 'reusable' });
+
+/**
+ * @public
+ */
+export const refractSelector = <T extends Element = SelectorElement>(
+  value: unknown,
+  options: Omit<RefractorOptions, 'element'> = {},
+): T => refract(value, { ...options, element: 'selector' });
 
 /**
  * @public

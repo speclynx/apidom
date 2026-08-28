@@ -10,6 +10,7 @@ import ParameterElement from './elements/Parameter.ts';
 import PayloadReplacementElement from './elements/PayloadReplacement.ts';
 import RequestBodyElement from './elements/RequestBody.ts';
 import ReusableElement from './elements/Reusable.ts';
+import SelectorElement from './elements/Selector.ts';
 import SourceDescriptionElement from './elements/SourceDescription.ts';
 import StepElement from './elements/Step.ts';
 import SuccessActionElement from './elements/SuccessAction.ts';
@@ -20,6 +21,7 @@ import ComponentsInputsElement from './elements/nces/ComponentsInputs.ts';
 import ComponentsParametersElement from './elements/nces/ComponentsParameters.ts';
 import ComponentsSuccessActionsElement from './elements/nces/ComponentsSuccessActions.ts';
 import FailureActionCriteriaElement from './elements/nces/FailureActionCriteria.ts';
+import FailureActionParametersElement from './elements/nces/FailureActionParameters.ts';
 import RequestBodyReplacementsElement from './elements/nces/RequestBodyReplacements.ts';
 import SourceDescriptionsElement from './elements/nces/SourceDescriptions.ts';
 import StepDependsOnElement from './elements/nces/StepDependsOn.ts';
@@ -29,6 +31,7 @@ import StepOutputsElement from './elements/nces/StepOutputs.ts';
 import StepParametersElement from './elements/nces/StepParameters.ts';
 import StepSuccessCriteriaElement from './elements/nces/StepSuccessCriteria.ts';
 import SuccessActionCriteriaElement from './elements/nces/SuccessActionCriteria.ts';
+import SuccessActionParametersElement from './elements/nces/SuccessActionParameters.ts';
 import WorkflowDependsOnElement from './elements/nces/WorkflowDependsOn.ts';
 import WorkflowFailureActionsElement from './elements/nces/WorkflowFailureActions.ts';
 import WorkflowOutputsElement from './elements/nces/WorkflowOutputs.ts';
@@ -120,6 +123,12 @@ export const isReusableElement = (element: unknown): element is ReusableElement 
 /**
  * @public
  */
+export const isSelectorElement = (element: unknown): element is SelectorElement =>
+  element instanceof SelectorElement;
+
+/**
+ * @public
+ */
 export const isSourceDescriptionElement = (element: unknown): element is SourceDescriptionElement =>
   element instanceof SourceDescriptionElement;
 
@@ -178,6 +187,13 @@ export const isFailureActionCriteriaElement = (
 /**
  * @public
  */
+export const isFailureActionParametersElement = (
+  element: unknown,
+): element is FailureActionParametersElement => element instanceof FailureActionParametersElement;
+
+/**
+ * @public
+ */
 export const isRequestBodyReplacementsElement = (
   element: unknown,
 ): element is RequestBodyReplacementsElement => element instanceof RequestBodyReplacementsElement;
@@ -232,6 +248,13 @@ export const isStepSuccessCriteriaElement = (
 export const isSuccessActionCriteriaElement = (
   element: unknown,
 ): element is SuccessActionCriteriaElement => element instanceof SuccessActionCriteriaElement;
+
+/**
+ * @public
+ */
+export const isSuccessActionParametersElement = (
+  element: unknown,
+): element is SuccessActionParametersElement => element instanceof SuccessActionParametersElement;
 
 /**
  * @public

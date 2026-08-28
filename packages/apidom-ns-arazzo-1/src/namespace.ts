@@ -12,6 +12,7 @@ import ParameterElement from './elements/Parameter.ts';
 import PayloadReplacementElement from './elements/PayloadReplacement.ts';
 import RequestBodyElement from './elements/RequestBody.ts';
 import ReusableElement from './elements/Reusable.ts';
+import SelectorElement from './elements/Selector.ts';
 import SourceDescriptionElement from './elements/SourceDescription.ts';
 import StepElement from './elements/Step.ts';
 import SuccessActionElement from './elements/SuccessAction.ts';
@@ -35,6 +36,7 @@ const arazzo1: NamespacePlugin = {
     base.register('payloadReplacement', PayloadReplacementElement);
     base.register('requestBody', RequestBodyElement);
     base.register('reusable', ReusableElement);
+    base.register('selector', SelectorElement);
     base.register('sourceDescription', SourceDescriptionElement);
     base.register('step', StepElement);
     base.register('successAction', SuccessActionElement);

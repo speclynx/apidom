@@ -1,7 +1,7 @@
-import { expect } from 'chai';
+import { assert, expect } from 'chai';
 import { sexprs } from '@speclynx/apidom-core';
 
-import { refractWorkflow } from '../../../../src/index.ts';
+import { refractWorkflow, isSelectorElement, WorkflowElement } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
@@ -52,6 +52,24 @@ describe('refractor', function () {
         });
 
         expect(sexprs(workflowElement)).toMatchSnapshot();
+      });
+
+      context('given outputs with Selector Object values', function () {
+        specify('should refract Selector Object shaped values to SelectorElement', function () {
+          const workflowElement = refractWorkflow<WorkflowElement>({
+            workflowId: 'uniqueWorkflowId',
+            outputs: {
+              orderId: {
+                context: '$steps.confirmOrder.outputs.payload',
+                selector: '$.orderId',
+                type: 'jsonpath',
+              },
+            },
+          });
+
+          assert.isTrue(isSelectorElement(workflowElement.outputs!.get('orderId')));
+          expect(sexprs(workflowElement)).toMatchSnapshot();
+        });
       });
     });
   });

@@ -21,3 +21,22 @@ export const isArazzoSpecificationExtension = (element: MemberElement): boolean 
 export const isReusableLikeElement = (element: unknown): element is ReusableLikeElement => {
   return isObjectElement(element) && element.hasKey('reference');
 };
+
+export interface SelectorLikeElement extends ObjectElement {
+  hasKey: (value: 'context' | 'selector' | 'type') => true;
+}
+
+/**
+ * Selector Object is structurally indistinguishable from an arbitrary object literal
+ * in positions typed as `Any | {expression} | Selector Object`. Following the guidance in
+ * https://github.com/OAI/Arazzo-Specification/issues/519, an object is treated as a Selector Object
+ * when it carries all of its REQUIRED fields.
+ */
+export const isSelectorLikeElement = (element: unknown): element is SelectorLikeElement => {
+  return (
+    isObjectElement(element) &&
+    element.hasKey('context') &&
+    element.hasKey('selector') &&
+    element.hasKey('type')
+  );
+};

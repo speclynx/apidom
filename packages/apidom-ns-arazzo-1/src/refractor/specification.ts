@@ -21,10 +21,14 @@ import StepSuccessCriteriaVisitor from './visitors/arazzo-1/step/SuccessCriteria
 import StepOnSuccessVisitor from './visitors/arazzo-1/step/OnSuccessVisitor.ts';
 import StepOnFailureVisitor from './visitors/arazzo-1/step/OnFailureVisitor.ts';
 import StepOutputsVisitor from './visitors/arazzo-1/step/OutputsVisitor.ts';
+import StepDependsOnVisitor from './visitors/arazzo-1/step/DependsOnVisitor.ts';
 import ParameterVisitor from './visitors/arazzo-1/parameter/index.ts';
+import ParameterValueVisitor from './visitors/arazzo-1/parameter/ValueVisitor.ts';
 import SuccessActionVisitor from './visitors/arazzo-1/success-action/index.ts';
+import SuccessActionParametersVisitor from './visitors/arazzo-1/success-action/ParametersVisitor.ts';
 import SuccessActionCriteriaVisitor from './visitors/arazzo-1/success-action/CriteriaVisitor.ts';
 import FailureActionVisitor from './visitors/arazzo-1/failure-action/index.ts';
+import FailureActionParametersVisitor from './visitors/arazzo-1/failure-action/ParametersVisitor.ts';
 import FailureActionCriteriaVisitor from './visitors/arazzo-1/failure-action/CriteriaVisitor.ts';
 import ComponentsVisitor from './visitors/arazzo-1/components/index.ts';
 import ComponentsInputsVisitor from './visitors/arazzo-1/components/InputsVisitor.ts';
@@ -37,9 +41,14 @@ import CriterionVisitor from './visitors/arazzo-1/criterion/index.ts';
 import CriterionTypeVisitor from './visitors/arazzo-1/criterion/TypeVisitor.ts';
 import ExpressionTypeVisitor from './visitors/arazzo-1/expression-type/index.ts';
 import ExpressionTypeVersionVisitor from './visitors/arazzo-1/expression-type/VersionVisitor.ts';
+import SelectorVisitor from './visitors/arazzo-1/selector/index.ts';
+import SelectorTypeVisitor from './visitors/arazzo-1/selector/TypeVisitor.ts';
 import RequestBodyVisitor from './visitors/arazzo-1/request-body/index.ts';
+import RequestBodyPayloadVisitor from './visitors/arazzo-1/request-body/PayloadVisitor.ts';
 import RequestBodyReplacementsVisitor from './visitors/arazzo-1/request-body/Replacements.ts';
 import PayloadReplacementVisitor from './visitors/arazzo-1/payload-replacement/index.ts';
+import PayloadReplacementTargetSelectorTypeVisitor from './visitors/arazzo-1/payload-replacement/TargetSelectorTypeVisitor.ts';
+import PayloadReplacementValueVisitor from './visitors/arazzo-1/payload-replacement/ValueVisitor.ts';
 import JSONSchemaVisitor from './visitors/arazzo-1/json-schema/index.ts';
 import SpecificationExtensionVisitor from './visitors/SpecificationExtensionVisitor.ts';
 import FallbackVisitor from './visitors/FallbackVisitor.ts';
@@ -73,6 +82,7 @@ const specification = {
               element: 'arazzo',
               $visitor: ArazzoSpecificationArazzoVisitor,
             },
+            $self: { $ref: '#/visitors/value' },
             info: {
               $ref: '#/visitors/document/objects/Info',
             },
@@ -126,6 +136,7 @@ const specification = {
             stepId: { $ref: '#/visitors/value' },
             operationId: { $ref: '#/visitors/value' },
             operationPath: { $ref: '#/visitors/value' },
+            channelPath: { $ref: '#/visitors/value' },
             workflowId: { $ref: '#/visitors/value' },
             parameters: StepParametersVisitor,
             requestBody: {
@@ -135,6 +146,10 @@ const specification = {
             onSuccess: StepOnSuccessVisitor,
             onFailure: StepOnFailureVisitor,
             outputs: StepOutputsVisitor,
+            timeout: { $ref: '#/visitors/value' },
+            correlationId: { $ref: '#/visitors/value' },
+            action: { $ref: '#/visitors/value' },
+            dependsOn: StepDependsOnVisitor,
           },
         },
         Parameter: {
@@ -143,7 +158,7 @@ const specification = {
           fixedFields: {
             name: { $ref: '#/visitors/value' },
             in: { $ref: '#/visitors/value' },
-            value: { $ref: '#/visitors/value' },
+            value: ParameterValueVisitor,
           },
         },
         SuccessAction: {
@@ -154,6 +169,7 @@ const specification = {
             type: { $ref: '#/visitors/value' },
             workflowId: { $ref: '#/visitors/value' },
             stepId: { $ref: '#/visitors/value' },
+            parameters: SuccessActionParametersVisitor,
             criteria: SuccessActionCriteriaVisitor,
           },
         },
@@ -165,6 +181,7 @@ const specification = {
             type: { $ref: '#/visitors/value' },
             workflowId: { $ref: '#/visitors/value' },
             stepId: { $ref: '#/visitors/value' },
+            parameters: FailureActionParametersVisitor,
             retryAfter: { $ref: '#/visitors/value' },
             retryLimit: { $ref: '#/visitors/value' },
             criteria: FailureActionCriteriaVisitor,
@@ -205,12 +222,21 @@ const specification = {
             version: ExpressionTypeVersionVisitor,
           },
         },
+        Selector: {
+          element: 'selector',
+          $visitor: SelectorVisitor,
+          fixedFields: {
+            context: { $ref: '#/visitors/value' },
+            selector: { $ref: '#/visitors/value' },
+            type: SelectorTypeVisitor,
+          },
+        },
         RequestBody: {
           element: 'requestBody',
           $visitor: RequestBodyVisitor,
           fixedFields: {
             contentType: { $ref: '#/visitors/value' },
-            payload: { $ref: '#/visitors/value' },
+            payload: RequestBodyPayloadVisitor,
             replacements: RequestBodyReplacementsVisitor,
           },
         },
@@ -219,7 +245,8 @@ const specification = {
           $visitor: PayloadReplacementVisitor,
           fixedFields: {
             target: { $ref: '#/visitors/value' },
-            value: { $ref: '#/visitors/value' },
+            targetSelectorType: PayloadReplacementTargetSelectorTypeVisitor,
+            value: PayloadReplacementValueVisitor,
           },
         },
         JSONSchema: {

@@ -33,6 +33,9 @@ import {
   isComponentsSuccessActionsElement,
   isCriterionElement,
   isExpressionTypeElement,
+  isSelectorElement,
+  isSuccessActionParametersElement,
+  isFailureActionParametersElement,
   isJSONSchemaElement,
   isPayloadReplacementElement,
   isRequestBodyElement,
@@ -70,6 +73,9 @@ import {
   ComponentsSuccessActionsElement,
   CriterionElement,
   ExpressionTypeElement,
+  SelectorElement,
+  SuccessActionParametersElement,
+  FailureActionParametersElement,
   JSONSchemaElement,
   PayloadReplacementElement,
   RequestBodyElement,
@@ -770,6 +776,93 @@ describe('predicates', function () {
         assert.isFalse(isExpressionTypeElement({}));
         assert.isFalse(isExpressionTypeElement([]));
         assert.isFalse(isExpressionTypeElement('string'));
+      });
+    });
+  });
+
+  context('isSelectorElement', function () {
+    context('given SelectorElement instance value', function () {
+      specify('should return true', function () {
+        const element = new SelectorElement();
+
+        assert.isTrue(isSelectorElement(element));
+      });
+    });
+
+    context('given subtype instance value', function () {
+      specify('should return true', function () {
+        class SelectorSubElement extends SelectorElement {}
+
+        assert.isTrue(isSelectorElement(new SelectorSubElement()));
+      });
+    });
+
+    context('given non SelectorElement instance value', function () {
+      specify('should return false', function () {
+        assert.isFalse(isSelectorElement(1));
+        assert.isFalse(isSelectorElement(null));
+        assert.isFalse(isSelectorElement(undefined));
+        assert.isFalse(isSelectorElement({}));
+        assert.isFalse(isSelectorElement([]));
+        assert.isFalse(isSelectorElement('string'));
+      });
+    });
+  });
+
+  context('isSuccessActionParametersElement', function () {
+    context('given SuccessActionParametersElement instance value', function () {
+      specify('should return true', function () {
+        const element = new SuccessActionParametersElement();
+
+        assert.isTrue(isSuccessActionParametersElement(element));
+      });
+    });
+
+    context('given subtype instance value', function () {
+      specify('should return true', function () {
+        class SuccessActionParametersSubElement extends SuccessActionParametersElement {}
+
+        assert.isTrue(isSuccessActionParametersElement(new SuccessActionParametersSubElement()));
+      });
+    });
+
+    context('given non SuccessActionParametersElement instance value', function () {
+      specify('should return false', function () {
+        assert.isFalse(isSuccessActionParametersElement(1));
+        assert.isFalse(isSuccessActionParametersElement(null));
+        assert.isFalse(isSuccessActionParametersElement(undefined));
+        assert.isFalse(isSuccessActionParametersElement({}));
+        assert.isFalse(isSuccessActionParametersElement([]));
+        assert.isFalse(isSuccessActionParametersElement('string'));
+      });
+    });
+  });
+
+  context('isFailureActionParametersElement', function () {
+    context('given FailureActionParametersElement instance value', function () {
+      specify('should return true', function () {
+        const element = new FailureActionParametersElement();
+
+        assert.isTrue(isFailureActionParametersElement(element));
+      });
+    });
+
+    context('given subtype instance value', function () {
+      specify('should return true', function () {
+        class FailureActionParametersSubElement extends FailureActionParametersElement {}
+
+        assert.isTrue(isFailureActionParametersElement(new FailureActionParametersSubElement()));
+      });
+    });
+
+    context('given non FailureActionParametersElement instance value', function () {
+      specify('should return false', function () {
+        assert.isFalse(isFailureActionParametersElement(1));
+        assert.isFalse(isFailureActionParametersElement(null));
+        assert.isFalse(isFailureActionParametersElement(undefined));
+        assert.isFalse(isFailureActionParametersElement({}));
+        assert.isFalse(isFailureActionParametersElement([]));
+        assert.isFalse(isFailureActionParametersElement('string'));
       });
     });
   });
