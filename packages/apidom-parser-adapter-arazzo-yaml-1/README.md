@@ -1,6 +1,11 @@
 # @speclynx/apidom-parser-adapter-arazzo-yaml-1
 
-`@speclynx/apidom-parser-adapter-arazzo-yaml-1-0` is a parser adapter for the [Arazzo 1.0.1 specification](https://spec.openapis.org/arazzo/latest.html#version-1-0-1) in [YAML format](https://yaml.org/spec/1.2/spec.html).
+`@speclynx/apidom-parser-adapter-arazzo-yaml-1` is a parser adapter for the **Arazzo 1.x.y specification** in [YAML format](https://yaml.org/spec/1.2/spec.html) supporting the following versions:
+
+- [Arazzo 1.0.0](https://spec.openapis.org/arazzo/v1.0.0.html)
+- [Arazzo 1.0.1](https://spec.openapis.org/arazzo/v1.0.1.html)
+- [Arazzo 1.1.0](https://spec.openapis.org/arazzo/v1.1.0.html)
+
 Under the hood this adapter uses [apidom-parser-adapter-yaml-1-2](https://github.com/speclynx/apidom/tree/main/packages/apidom-parser-adapter-yaml-1-2)
 to parse a source string into generic ApiDOM in [base ApiDOM namespace](https://github.com/speclynx/apidom/tree/main/packages/apidom#base-namespace)
 which is then refracted with [Arazzo 1.x.y Refractors](https://github.com/speclynx/apidom/tree/main/packages/apidom-ns-arazzo-1#refractors).
@@ -28,16 +33,18 @@ Defines list of media types that this parser adapter recognizes.
   'application/vnd.oai.workflows+yaml;version=1.0.0',
   'application/vnd.oai.workflows;version=1.0.1',
   'application/vnd.oai.workflows+yaml;version=1.0.1',
+  'application/vnd.oai.workflows;version=1.1.0',
+  'application/vnd.oai.workflows+yaml;version=1.1.0',
 ]
 ```
 
 ### detect
 
-[Detection](https://github.com/speclynx/apidom/blob/main/packages/apidom-parser-adapter-arazzo-json-1/src/adapter.ts#L13) is based on a regular expression matching required Arazzo 1.0.0 specification symbols in YAML format.
+[Detection](https://github.com/speclynx/apidom/blob/main/packages/apidom-parser-adapter-arazzo-yaml-1/src/adapter.ts#L17) is based on a regular expression matching required Arazzo 1.x.y specification symbols in YAML format.
 
 ### namespace
 
-This adapter exposes an instance of [Arazzo 1.x.y ApiDOM namespace](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-arazzo-1/README.md#arazzo-101-namespace).
+This adapter exposes an instance of [Arazzo 1.x.y ApiDOM namespace](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-arazzo-1/README.md#arazzo-110-namespace).
 
 ### parse
 
@@ -64,11 +71,11 @@ with [supported media types](#mediatypes).
 import { parse, detect } from '@speclynx/apidom-parser-adapter-arazzo-yaml-1';
 
 // detecting
-await detect('arazzo: 1.0.0'); // => true
+await detect('arazzo: 1.1.0'); // => true
 await detect('test'); // => false
 
 // parsing
-const parseResult = await parse('arazzo: 1.0.0', { sourceMap: true });
+const parseResult = await parse('arazzo: 1.1.0', { sourceMap: true });
 ```
 
 ### Indirect usage
@@ -83,5 +90,5 @@ const parser = new ApiDOMParser();
 
 parser.use(arazzoYamlAdapter);
 
-const parseResult = await parser.parse('arazzo: 1.0.0', { mediaType: arazzoYamlAdapter.mediaTypes.latest('yaml') });
+const parseResult = await parser.parse('arazzo: 1.1.0', { mediaType: arazzoYamlAdapter.mediaTypes.latest('yaml') });
 ```
