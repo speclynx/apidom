@@ -199,7 +199,7 @@ Only fully implemented specification objects should be checked here.
 - [x] [Components Object](https://spec.openapis.org/arazzo/latest.html#components-object)
 - [x] [Reusable Object](https://spec.openapis.org/arazzo/latest.html#reusable-object)
 - [x] [Criterion Object](https://spec.openapis.org/arazzo/latest.html#criterion-object)
-- [x] [Criterion Expression Type Object](https://spec.openapis.org/arazzo/latest.html#criterion-expression-type-object)
+- [x] [Expression Type Object](https://spec.openapis.org/arazzo/latest.html#expression-type-object)
 - [x] [Request Body Object](https://spec.openapis.org/arazzo/latest.html#request-body-object)
 - [x] [Payload Replacement Object](https://spec.openapis.org/arazzo/latest.html#payload-replacement-object)
 - [x] [JSON Schema](https://json-schema.org/specification-links#2020-12)

@@ -32,7 +32,7 @@ import {
   isComponentsParametersElement,
   isComponentsSuccessActionsElement,
   isCriterionElement,
-  isCriterionExpressionTypeElement,
+  isExpressionTypeElement,
   isJSONSchemaElement,
   isPayloadReplacementElement,
   isRequestBodyElement,
@@ -69,7 +69,7 @@ import {
   ComponentsParametersElement,
   ComponentsSuccessActionsElement,
   CriterionElement,
-  CriterionExpressionTypeElement,
+  ExpressionTypeElement,
   JSONSchemaElement,
   PayloadReplacementElement,
   RequestBodyElement,
@@ -745,31 +745,31 @@ describe('predicates', function () {
     });
   });
 
-  context('isCriterionExpressionTypeElement', function () {
-    context('given CriterionExpressionTypeElement instance value', function () {
+  context('isExpressionTypeElement', function () {
+    context('given ExpressionTypeElement instance value', function () {
       specify('should return true', function () {
-        const element = new CriterionExpressionTypeElement();
+        const element = new ExpressionTypeElement();
 
-        assert.isTrue(isCriterionExpressionTypeElement(element));
+        assert.isTrue(isExpressionTypeElement(element));
       });
     });
 
     context('given subtype instance value', function () {
       specify('should return true', function () {
-        class CriterionExpressionTypeSubElement extends CriterionExpressionTypeElement {}
+        class ExpressionTypeSubElement extends ExpressionTypeElement {}
 
-        assert.isTrue(isCriterionExpressionTypeElement(new CriterionExpressionTypeSubElement()));
+        assert.isTrue(isExpressionTypeElement(new ExpressionTypeSubElement()));
       });
     });
 
-    context('given non CriterionExpressionTypeElement instance value', function () {
+    context('given non ExpressionTypeElement instance value', function () {
       specify('should return false', function () {
-        assert.isFalse(isCriterionExpressionTypeElement(1));
-        assert.isFalse(isCriterionExpressionTypeElement(null));
-        assert.isFalse(isCriterionExpressionTypeElement(undefined));
-        assert.isFalse(isCriterionExpressionTypeElement({}));
-        assert.isFalse(isCriterionExpressionTypeElement([]));
-        assert.isFalse(isCriterionExpressionTypeElement('string'));
+        assert.isFalse(isExpressionTypeElement(1));
+        assert.isFalse(isExpressionTypeElement(null));
+        assert.isFalse(isExpressionTypeElement(undefined));
+        assert.isFalse(isExpressionTypeElement({}));
+        assert.isFalse(isExpressionTypeElement([]));
+        assert.isFalse(isExpressionTypeElement('string'));
       });
     });
   });

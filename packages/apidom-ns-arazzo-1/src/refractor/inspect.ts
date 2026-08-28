@@ -5,7 +5,7 @@ import ArazzoElement from '../elements/Arazzo.ts';
 import ArazzoSpecification1Element from '../elements/ArazzoSpecification1.ts';
 import ComponentsElement from '../elements/Components.ts';
 import CriterionElement from '../elements/Criterion.ts';
-import CriterionExpressionTypeElement from '../elements/CriterionExpressionType.ts';
+import ExpressionTypeElement from '../elements/ExpressionType.ts';
 import FailureActionElement from '../elements/FailureAction.ts';
 import InfoElement from '../elements/Info.ts';
 import JSONSchemaElement from '../elements/JSONSchema.ts';
@@ -62,9 +62,8 @@ Object.defineProperty(CriterionElement, 'fixedFields', {
   enumerable: true,
 });
 
-Object.defineProperty(CriterionExpressionTypeElement, 'fixedFields', {
-  get: () =>
-    getFixedFields(resolvedSpec.visitors.document.objects.CriterionExpressionType.fixedFields),
+Object.defineProperty(ExpressionTypeElement, 'fixedFields', {
+  get: () => getFixedFields(resolvedSpec.visitors.document.objects.ExpressionType.fixedFields),
   enumerable: true,
 });
 
@@ -128,7 +127,7 @@ export {
   ArazzoSpecification1Element,
   ComponentsElement,
   CriterionElement,
-  CriterionExpressionTypeElement,
+  ExpressionTypeElement,
   FailureActionElement,
   InfoElement,
   JSONSchemaElement,

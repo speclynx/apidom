@@ -12,6 +12,7 @@ export {
   refractComponents,
   refractCriterion,
   refractCriterionExpressionType,
+  refractExpressionType,
   refractFailureAction,
   refractInfo,
   refractJSONSchema,
@@ -90,13 +91,13 @@ export type {
   TypeVisitorOptions as CriterionTypeVisitorOptions,
 } from './refractor/visitors/arazzo-1/criterion/TypeVisitor.ts';
 export type {
-  default as CriterionExpressionTypeVisitor,
-  CriterionExpressionTypeVisitorOptions,
-} from './refractor/visitors/arazzo-1/criterion-expression-type/index.ts';
+  default as ExpressionTypeVisitor,
+  ExpressionTypeVisitorOptions,
+} from './refractor/visitors/arazzo-1/expression-type/index.ts';
 export type {
-  default as CriterionExpressionTypeVersionVisitor,
-  VersionVisitorOptions as CriterionExpressionTypeVersionVisitorOptions,
-} from './refractor/visitors/arazzo-1/criterion-expression-type/VersionVisitor.ts';
+  default as ExpressionTypeVersionVisitor,
+  VersionVisitorOptions as ExpressionTypeVersionVisitorOptions,
+} from './refractor/visitors/arazzo-1/expression-type/VersionVisitor.ts';
 export type {
   default as FailureActionVisitor,
   FailureActionVisitorOptions,
@@ -236,6 +237,7 @@ export {
   isComponentsSuccessActionsElement,
   isCriterionElement,
   isCriterionExpressionTypeElement,
+  isExpressionTypeElement,
   isFailureActionElement,
   isFailureActionCriteriaElement,
   isInfoElement,
@@ -275,7 +277,7 @@ export {
   ArazzoSpecification1Element,
   ComponentsElement,
   CriterionElement,
-  CriterionExpressionTypeElement,
+  ExpressionTypeElement,
   FailureActionElement,
   InfoElement,
   JSONSchemaElement,
@@ -288,6 +290,12 @@ export {
   SuccessActionElement,
   WorkflowElement,
 } from './refractor/inspect.ts';
+/**
+ * @public
+ * @deprecated Use `ExpressionTypeElement` instead. Criterion Expression Type Object
+ * was renamed to Expression Type Object in Arazzo 1.1.0.
+ */
+export { ExpressionTypeElement as CriterionExpressionTypeElement } from './refractor/inspect.ts';
 export type { FixedField } from './refractor/inspect.ts';
 // NCE types
 export { default as ComponentsFailureActionsElement } from './elements/nces/ComponentsFailureActions.ts';

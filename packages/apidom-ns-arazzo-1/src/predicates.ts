@@ -3,7 +3,7 @@ import ArazzoElement from './elements/Arazzo.ts';
 import ArazzoSpecification1Element from './elements/ArazzoSpecification1.ts';
 import ComponentsElement from './elements/Components.ts';
 import CriterionElement from './elements/Criterion.ts';
-import CriterionExpressionTypeElement from './elements/CriterionExpressionType.ts';
+import ExpressionTypeElement from './elements/ExpressionType.ts';
 import FailureActionElement from './elements/FailureAction.ts';
 import InfoElement from './elements/Info.ts';
 import ParameterElement from './elements/Parameter.ts';
@@ -70,9 +70,15 @@ export const isCriterionElement = (element: unknown): element is CriterionElemen
 /**
  * @public
  */
-export const isCriterionExpressionTypeElement = (
-  element: unknown,
-): element is CriterionExpressionTypeElement => element instanceof CriterionExpressionTypeElement;
+export const isExpressionTypeElement = (element: unknown): element is ExpressionTypeElement =>
+  element instanceof ExpressionTypeElement;
+
+/**
+ * @public
+ * @deprecated Use `isExpressionTypeElement` instead. Criterion Expression Type Object
+ * was renamed to Expression Type Object in Arazzo 1.1.0.
+ */
+export const isCriterionExpressionTypeElement = isExpressionTypeElement;
 
 /**
  * @public

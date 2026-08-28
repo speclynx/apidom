@@ -4,7 +4,7 @@ import ArazzoElement from './elements/Arazzo.ts';
 import ArazzoSpecification1Element from './elements/ArazzoSpecification1.ts';
 import ComponentsElement from './elements/Components.ts';
 import CriterionElement from './elements/Criterion.ts';
-import CriterionExpressionTypeElement from './elements/CriterionExpressionType.ts';
+import ExpressionTypeElement from './elements/ExpressionType.ts';
 import FailureActionElement from './elements/FailureAction.ts';
 import InfoElement from './elements/Info.ts';
 import JSONSchemaElement from './elements/JSONSchema.ts';
@@ -28,7 +28,7 @@ const arazzo1: NamespacePlugin = {
     base.register('arazzoSpecification1', ArazzoSpecification1Element);
     base.register('components', ComponentsElement);
     base.register('criterion', CriterionElement);
-    base.register('criterionExpressionType', CriterionExpressionTypeElement);
+    base.register('expressionType', ExpressionTypeElement);
     base.register('failureAction', FailureActionElement);
     base.register('info', InfoElement);
     base.register('parameter', ParameterElement);

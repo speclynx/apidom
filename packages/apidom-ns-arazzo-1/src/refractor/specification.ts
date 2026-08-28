@@ -35,8 +35,8 @@ import ReusableVisitor from './visitors/arazzo-1/reusable/index.ts';
 import ReusableReferenceVisitor from './visitors/arazzo-1/reusable/ReferenceVisitor.ts';
 import CriterionVisitor from './visitors/arazzo-1/criterion/index.ts';
 import CriterionTypeVisitor from './visitors/arazzo-1/criterion/TypeVisitor.ts';
-import CriterionExpressionTypeVisitor from './visitors/arazzo-1/criterion-expression-type/index.ts';
-import CriterionExpressionTypeVersionVisitor from './visitors/arazzo-1/criterion-expression-type/VersionVisitor.ts';
+import ExpressionTypeVisitor from './visitors/arazzo-1/expression-type/index.ts';
+import ExpressionTypeVersionVisitor from './visitors/arazzo-1/expression-type/VersionVisitor.ts';
 import RequestBodyVisitor from './visitors/arazzo-1/request-body/index.ts';
 import RequestBodyReplacementsVisitor from './visitors/arazzo-1/request-body/Replacements.ts';
 import PayloadReplacementVisitor from './visitors/arazzo-1/payload-replacement/index.ts';
@@ -197,12 +197,12 @@ const specification = {
             type: CriterionTypeVisitor,
           },
         },
-        CriterionExpressionType: {
-          element: 'criterionExpressionType',
-          $visitor: CriterionExpressionTypeVisitor,
+        ExpressionType: {
+          element: 'expressionType',
+          $visitor: ExpressionTypeVisitor,
           fixedFields: {
             type: { $ref: '#/visitors/value' },
-            version: CriterionExpressionTypeVersionVisitor,
+            version: ExpressionTypeVersionVisitor,
           },
         },
         RequestBody: {

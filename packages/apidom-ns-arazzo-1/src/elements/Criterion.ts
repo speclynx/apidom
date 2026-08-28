@@ -5,7 +5,7 @@ import {
   type Meta,
 } from '@speclynx/apidom-datamodel';
 
-import CriterionExpressionTypeElement from './CriterionExpressionType.ts';
+import ExpressionTypeElement from './ExpressionType.ts';
 
 /**
  * @public
@@ -32,11 +32,11 @@ class Criterion extends ObjectElement {
     this.set('condition', condition);
   }
 
-  get type(): StringElement | CriterionExpressionTypeElement | undefined {
-    return this.get('type') as StringElement | CriterionExpressionTypeElement | undefined;
+  get type(): StringElement | ExpressionTypeElement | undefined {
+    return this.get('type') as StringElement | ExpressionTypeElement | undefined;
   }
 
-  set type(type: StringElement | CriterionExpressionTypeElement | undefined) {
+  set type(type: StringElement | ExpressionTypeElement | undefined) {
     this.set('type', type);
   }
 }
