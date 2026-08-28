@@ -1,34 +1,27 @@
-import { Element, ObjectElement } from '@speclynx/apidom-datamodel';
+import { T as stubTrue } from 'ramda';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
 
-import SelectorElement from '../../../../elements/Selector.ts';
-import {
-  BaseSpecificationFallbackVisitor,
-  BaseSpecificationFallbackVisitorOptions,
-} from '../bases.ts';
+import { BaseAlternatingFallbackVisitor, BaseAlternatingFallbackVisitorOptions } from '../bases.ts';
+import AlternatingVisitor from '../../generics/AlternatingVisitor.ts';
 import { isSelectorLikeElement } from '../../../predicates.ts';
 
-/**
- * @public
- */
-export interface ValueVisitorOptions extends BaseSpecificationFallbackVisitorOptions {}
+export type { BaseAlternatingFallbackVisitorOptions as ValueVisitorOptions };
 
 /**
  * @public
  */
-class ValueVisitor extends BaseSpecificationFallbackVisitor {
-  declare public element: Element | SelectorElement;
+class ValueVisitor extends BaseAlternatingFallbackVisitor {
+  constructor(options: BaseAlternatingFallbackVisitorOptions) {
+    super(options);
+    this.alternator = [
+      { predicate: isSelectorLikeElement, specPath: ['document', 'objects', 'Selector'] },
+      { predicate: stubTrue, specPath: ['value'] },
+    ];
+  }
 
   ObjectElement(path: Path<ObjectElement>) {
-    const objectElement = path.node;
-
-    if (isSelectorLikeElement(objectElement)) {
-      this.element = this.toRefractedElement(['document', 'objects', 'Selector'], objectElement);
-      path.stop();
-      return;
-    }
-
-    this.enter(path);
+    AlternatingVisitor.prototype.enter.call(this, path);
   }
 }
 

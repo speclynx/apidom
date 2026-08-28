@@ -1,30 +1,26 @@
-import { StringElement, ObjectElement } from '@speclynx/apidom-datamodel';
+import { T as stubTrue } from 'ramda';
+import { isObjectElement, ObjectElement } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
 
-import ExpressionTypeElement from '../../../../elements/ExpressionType.ts';
-import {
-  BaseSpecificationFallbackVisitor,
-  BaseSpecificationFallbackVisitorOptions,
-} from '../bases.ts';
+import { BaseAlternatingFallbackVisitor, BaseAlternatingFallbackVisitorOptions } from '../bases.ts';
+import AlternatingVisitor from '../../generics/AlternatingVisitor.ts';
+
+export type { BaseAlternatingFallbackVisitorOptions as TargetSelectorTypeVisitorOptions };
 
 /**
  * @public
  */
-export interface TargetSelectorTypeVisitorOptions extends BaseSpecificationFallbackVisitorOptions {}
-
-/**
- * @public
- */
-class TargetSelectorTypeVisitor extends BaseSpecificationFallbackVisitor {
-  declare public element: StringElement | ExpressionTypeElement;
+class TargetSelectorTypeVisitor extends BaseAlternatingFallbackVisitor {
+  constructor(options: BaseAlternatingFallbackVisitorOptions) {
+    super(options);
+    this.alternator = [
+      { predicate: isObjectElement, specPath: ['document', 'objects', 'ExpressionType'] },
+      { predicate: stubTrue, specPath: ['value'] },
+    ];
+  }
 
   ObjectElement(path: Path<ObjectElement>) {
-    const objectElement = path.node;
-    const specPath = ['document', 'objects', 'ExpressionType'];
-
-    this.element = this.toRefractedElement(specPath, objectElement);
-
-    path.stop();
+    AlternatingVisitor.prototype.enter.call(this, path);
   }
 }
 

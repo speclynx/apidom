@@ -34,11 +34,13 @@ export {
   BaseSpecificationFallbackVisitor,
   BaseFixedFieldsFallbackVisitor,
   BaseMapFallbackVisitor,
+  BaseAlternatingFallbackVisitor,
 } from './refractor/visitors/arazzo-1/bases.ts';
 export type {
   BaseSpecificationFallbackVisitorOptions,
   BaseFixedFieldsFallbackVisitorOptions,
   BaseMapFallbackVisitorOptions,
+  BaseAlternatingFallbackVisitorOptions,
 } from './refractor/visitors/arazzo-1/bases.ts';
 
 export { default as FixedFieldsVisitor } from './refractor/visitors/generics/FixedFieldsVisitor.ts';
@@ -47,6 +49,11 @@ export type {
   SpecPath,
 } from './refractor/visitors/generics/FixedFieldsVisitor.ts';
 export { default as MapVisitor } from './refractor/visitors/generics/MapVisitor.ts';
+export { default as AlternatingVisitor } from './refractor/visitors/generics/AlternatingVisitor.ts';
+export type {
+  AlternatingVisitorOptions,
+  Alternator,
+} from './refractor/visitors/generics/AlternatingVisitor.ts';
 export type { MapVisitorOptions } from './refractor/visitors/generics/MapVisitor.ts';
 export { default as PatternedFieldsVisitor } from './refractor/visitors/generics/PatternedFieldsVisitor.ts';
 export type { PatternedFieldsVisitorOptions } from './refractor/visitors/generics/PatternedFieldsVisitor.ts';
