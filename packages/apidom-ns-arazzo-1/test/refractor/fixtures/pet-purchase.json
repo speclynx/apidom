@@ -1,0 +1,141 @@
+{
+  "arazzo": "1.1.0",
+  "$self": "https://api.example.com/workflows/pet-purchase.arazzo.yaml",
+  "info": {
+    "title": "A pet purchasing workflow",
+    "summary": "This Arazzo Description showcases the workflow for how to purchase a pet through a sequence of API calls",
+    "description": "This Arazzo Description walks you through the workflow and steps of `searching` for, `selecting`, and `purchasing` an available pet.\n",
+    "version": "1.0.1"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "petStoreDescription",
+      "url": "https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml",
+      "type": "openapi"
+    },
+    {
+      "name": "asyncOrderApiDescription",
+      "url": "https://raw.githubusercontent.com/OAI/Arazzo-Specification/main/examples/1.1.0/pet-asyncapi.yaml",
+      "type": "asyncapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "loginUserAndRetrievePet",
+      "summary": "Login User and then retrieve pets",
+      "description": "This workflow lays out the steps to login a user and then retrieve pets",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "orderCorrelationId": {
+            "type": "string"
+          }
+        }
+      },
+      "steps": [
+        {
+          "stepId": "loginStep",
+          "description": "This step demonstrates the user login step",
+          "operationId": "$sourceDescriptions.petstoreDescription.loginUser",
+          "parameters": [
+            {
+              "name": "username",
+              "in": "query",
+              "value": "$inputs.username"
+            },
+            {
+              "name": "password",
+              "in": "query",
+              "value": "$inputs.password"
+            }
+          ],
+          "successCriteria": [
+            {
+              "condition": "$statusCode == 200"
+            }
+          ],
+          "outputs": {
+            "tokenExpires": "$response.header.X-Expires-After",
+            "rateLimit": "$response.header.X-Rate-Limit",
+            "sessionToken": "$response.body"
+          }
+        },
+        {
+          "stepId": "getPetStep",
+          "description": "retrieve a pet by status from the GET pets endpoint",
+          "operationPath": "{$sourceDescriptions.petstoreDescription.url}#/paths/~1pet~1findByStatus/get",
+          "parameters": [
+            {
+              "name": "status",
+              "in": "query",
+              "value": "available"
+            },
+            {
+              "name": "Authorization",
+              "in": "header",
+              "value": "$steps.loginStep.outputs.sessionToken"
+            }
+          ],
+          "successCriteria": [
+            {
+              "condition": "$statusCode == 200"
+            }
+          ],
+          "onSuccess": [
+            {
+              "name": "noPetsAvailable",
+              "type": "end",
+              "criteria": [
+                {
+                  "condition": "$response.body#/0 == null"
+                }
+              ]
+            }
+          ],
+          "outputs": {
+            "petId": "$response.body#/0/id"
+          }
+        },
+        {
+          "stepId": "purchasePetStep",
+          "description": "purchase a pet by posting an message on place-order channel",
+          "operationPath": "$sourceDescriptions.asyncOrderApiDescription.placeOrder",
+          "action": "send",
+          "parameters": [
+            {
+              "name": "orderCorrelationId",
+              "in": "header",
+              "value": "$inputs.orderCorrelationId"
+            }
+          ],
+          "requestBody": {
+            "contentType": "application/json",
+            "payload": {
+              "petId": "$steps.getPetStep.outputs.petId"
+            }
+          }
+        },
+        {
+          "stepId": "confirmPetPurchaseStep",
+          "description": "confirm the purchase of a pet",
+          "operationPath": "$sourceDescriptions.asyncOrderApiDescription.confirmOrder",
+          "correlationId": "$inputs.orderCorrelationId",
+          "timeout": 6000,
+          "action": "receive",
+          "outputs": {
+            "orderId": "$message.payload.orderId"
+          }
+        }
+      ],
+      "outputs": {
+        "orderId": "$steps.confirmPetPurchaseStep.outputs.orderId"
+      }
+    }
+  ]
+}

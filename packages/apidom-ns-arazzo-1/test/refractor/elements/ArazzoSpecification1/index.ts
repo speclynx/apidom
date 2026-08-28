@@ -1,9 +1,25 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import { sexprs, toValue } from '@speclynx/apidom-core';
 import { isStringElement } from '@speclynx/apidom-datamodel';
 import { find } from '@speclynx/apidom-traverse';
 
-import { isJSONSchemaElement, refractArazzoSpecification1 } from '../../../../src/index.ts';
+import {
+  isJSONSchemaElement,
+  isSuccessActionElement,
+  isStepElement,
+  refractArazzoSpecification1,
+  ArazzoSpecification1Element,
+  StepElement,
+  WorkflowElement,
+} from '../../../../src/index.ts';
+
+const fixturePath = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../../fixtures/pet-purchase.json',
+);
 
 describe('refractor', function () {
   context('elements', function () {
@@ -39,6 +55,27 @@ describe('refractor', function () {
             toValue(referencingElement!.meta.get('referenced-element')),
             'JSONSchema',
           );
+        });
+      });
+
+      context('given Arazzo 1.1.0 specification example', function () {
+        specify('should refract to semantic ApiDOM tree', function () {
+          const fixture = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+          const arazzoSpecification1Element =
+            refractArazzoSpecification1<ArazzoSpecification1Element>(fixture);
+          const workflow = arazzoSpecification1Element.workflows!.get(0) as WorkflowElement;
+          const steps = workflow.steps!;
+          const confirmStep = steps.get(3) as StepElement;
+
+          assert.strictEqual(
+            toValue(arazzoSpecification1Element.$self),
+            'https://api.example.com/workflows/pet-purchase.arazzo.yaml',
+          );
+          assert.isTrue(isStepElement(confirmStep));
+          assert.strictEqual(toValue(confirmStep.action), 'receive');
+          assert.strictEqual(toValue(confirmStep.timeout), 6000);
+          assert.isTrue(isSuccessActionElement((steps.get(1) as StepElement).onSuccess!.get(0)));
+          expect(sexprs(arazzoSpecification1Element)).toMatchSnapshot();
         });
       });
     });
