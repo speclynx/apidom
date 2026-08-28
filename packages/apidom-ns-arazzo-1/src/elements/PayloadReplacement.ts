@@ -6,6 +6,8 @@ import {
   type Meta,
 } from '@speclynx/apidom-datamodel';
 
+import ExpressionTypeElement from './ExpressionType.ts';
+
 /**
  * @public
  */
@@ -21,6 +23,14 @@ class PayloadReplacement extends ObjectElement {
 
   set target(target: StringElement | undefined) {
     this.set('target', target);
+  }
+
+  get targetSelectorType(): StringElement | ExpressionTypeElement | undefined {
+    return this.get('targetSelectorType') as StringElement | ExpressionTypeElement | undefined;
+  }
+
+  set targetSelectorType(targetSelectorType: StringElement | ExpressionTypeElement | undefined) {
+    this.set('targetSelectorType', targetSelectorType);
   }
 
   get value(): Element | undefined {

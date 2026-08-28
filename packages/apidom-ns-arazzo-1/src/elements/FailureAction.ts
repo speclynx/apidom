@@ -6,6 +6,7 @@ import {
   type Meta,
 } from '@speclynx/apidom-datamodel';
 
+import FailureActionParametersElement from './nces/FailureActionParameters.ts';
 import FailureActionCriteriaElement from './nces/FailureActionCriteria.ts';
 
 /**
@@ -63,6 +64,14 @@ class FailureAction extends ObjectElement {
 
   set retryLimit(retryLimit: NumberElement | undefined) {
     this.set('retryLimit', retryLimit);
+  }
+
+  get parameters(): FailureActionParametersElement | undefined {
+    return this.get('parameters') as FailureActionParametersElement | undefined;
+  }
+
+  set parameters(parameters: FailureActionParametersElement | undefined) {
+    this.set('parameters', parameters);
   }
 
   get criteria(): FailureActionCriteriaElement | undefined {

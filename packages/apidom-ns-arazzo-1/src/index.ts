@@ -12,6 +12,7 @@ export {
   refractComponents,
   refractCriterion,
   refractCriterionExpressionType,
+  refractExpressionType,
   refractFailureAction,
   refractInfo,
   refractJSONSchema,
@@ -19,6 +20,7 @@ export {
   refractPayloadReplacement,
   refractRequestBody,
   refractReusable,
+  refractSelector,
   refractSourceDescription,
   refractStep,
   refractSuccessAction,
@@ -32,11 +34,13 @@ export {
   BaseSpecificationFallbackVisitor,
   BaseFixedFieldsFallbackVisitor,
   BaseMapFallbackVisitor,
+  BaseAlternatingFallbackVisitor,
 } from './refractor/visitors/arazzo-1/bases.ts';
 export type {
   BaseSpecificationFallbackVisitorOptions,
   BaseFixedFieldsFallbackVisitorOptions,
   BaseMapFallbackVisitorOptions,
+  BaseAlternatingFallbackVisitorOptions,
 } from './refractor/visitors/arazzo-1/bases.ts';
 
 export { default as FixedFieldsVisitor } from './refractor/visitors/generics/FixedFieldsVisitor.ts';
@@ -45,6 +49,11 @@ export type {
   SpecPath,
 } from './refractor/visitors/generics/FixedFieldsVisitor.ts';
 export { default as MapVisitor } from './refractor/visitors/generics/MapVisitor.ts';
+export { default as AlternatingVisitor } from './refractor/visitors/generics/AlternatingVisitor.ts';
+export type {
+  AlternatingVisitorOptions,
+  Alternator,
+} from './refractor/visitors/generics/AlternatingVisitor.ts';
 export type { MapVisitorOptions } from './refractor/visitors/generics/MapVisitor.ts';
 export { default as PatternedFieldsVisitor } from './refractor/visitors/generics/PatternedFieldsVisitor.ts';
 export type { PatternedFieldsVisitorOptions } from './refractor/visitors/generics/PatternedFieldsVisitor.ts';
@@ -90,13 +99,13 @@ export type {
   TypeVisitorOptions as CriterionTypeVisitorOptions,
 } from './refractor/visitors/arazzo-1/criterion/TypeVisitor.ts';
 export type {
-  default as CriterionExpressionTypeVisitor,
-  CriterionExpressionTypeVisitorOptions,
-} from './refractor/visitors/arazzo-1/criterion-expression-type/index.ts';
+  default as ExpressionTypeVisitor,
+  ExpressionTypeVisitorOptions,
+} from './refractor/visitors/arazzo-1/expression-type/index.ts';
 export type {
-  default as CriterionExpressionTypeVersionVisitor,
-  VersionVisitorOptions as CriterionExpressionTypeVersionVisitorOptions,
-} from './refractor/visitors/arazzo-1/criterion-expression-type/VersionVisitor.ts';
+  default as ExpressionTypeVersionVisitor,
+  VersionVisitorOptions as ExpressionTypeVersionVisitorOptions,
+} from './refractor/visitors/arazzo-1/expression-type/VersionVisitor.ts';
 export type {
   default as FailureActionVisitor,
   FailureActionVisitorOptions,
@@ -105,6 +114,10 @@ export type {
   default as FailureActionCriteriaVisitor,
   CriteriaVisitorOptions as FailureActionCriteriaVisitorOptions,
 } from './refractor/visitors/arazzo-1/failure-action/CriteriaVisitor.ts';
+export type {
+  default as FailureActionParametersVisitor,
+  ParametersVisitorOptions as FailureActionParametersVisitorOptions,
+} from './refractor/visitors/arazzo-1/failure-action/ParametersVisitor.ts';
 export type {
   default as InfoVisitor,
   InfoVisitorOptions,
@@ -126,13 +139,29 @@ export type {
   ParameterVisitorOptions,
 } from './refractor/visitors/arazzo-1/parameter/index.ts';
 export type {
+  default as ParameterValueVisitor,
+  ValueVisitorOptions as ParameterValueVisitorOptions,
+} from './refractor/visitors/arazzo-1/parameter/ValueVisitor.ts';
+export type {
   default as PayloadReplacementVisitor,
   PayloadReplacementVisitorOptions,
 } from './refractor/visitors/arazzo-1/payload-replacement/index.ts';
 export type {
+  default as PayloadReplacementTargetSelectorTypeVisitor,
+  TargetSelectorTypeVisitorOptions as PayloadReplacementTargetSelectorTypeVisitorOptions,
+} from './refractor/visitors/arazzo-1/payload-replacement/TargetSelectorTypeVisitor.ts';
+export type {
+  default as PayloadReplacementValueVisitor,
+  ValueVisitorOptions as PayloadReplacementValueVisitorOptions,
+} from './refractor/visitors/arazzo-1/payload-replacement/ValueVisitor.ts';
+export type {
   default as RequestBodyVisitor,
   RequestBodyVisitorOptions,
 } from './refractor/visitors/arazzo-1/request-body/index.ts';
+export type {
+  default as RequestBodyPayloadVisitor,
+  PayloadVisitorOptions as RequestBodyPayloadVisitorOptions,
+} from './refractor/visitors/arazzo-1/request-body/PayloadVisitor.ts';
 export type {
   default as RequestBodyReplacementsVisitor,
   ReplacementsVisitorOptions as RequestBodyReplacementsVisitorOptions,
@@ -146,6 +175,14 @@ export type {
   $RefVisitorOptions as ReusableReferenceVisitorOptions,
 } from './refractor/visitors/arazzo-1/reusable/ReferenceVisitor.ts';
 export type {
+  default as SelectorVisitor,
+  SelectorVisitorOptions,
+} from './refractor/visitors/arazzo-1/selector/index.ts';
+export type {
+  default as SelectorTypeVisitor,
+  TypeVisitorOptions as SelectorTypeVisitorOptions,
+} from './refractor/visitors/arazzo-1/selector/TypeVisitor.ts';
+export type {
   default as SourceDescriptionsVisitor,
   SourceDescriptionVisitorOptions,
 } from './refractor/visitors/arazzo-1/source-description/index.ts';
@@ -157,6 +194,10 @@ export type {
   default as StepsVisitor,
   StepVisitorOptions,
 } from './refractor/visitors/arazzo-1/step/index.ts';
+export type {
+  default as StepDependsOnVisitor,
+  StepDependsOnVisitorOptions,
+} from './refractor/visitors/arazzo-1/step/DependsOnVisitor.ts';
 export type {
   default as StepOnFailureVisitor,
   OnFailureVisitorOptions as StepOnFailureVisitorOptions,
@@ -185,6 +226,10 @@ export type {
   default as SuccessActionCriteriaVisitor,
   CriteriaVisitorOptions as SuccessActionCriteriaVisitorOptions,
 } from './refractor/visitors/arazzo-1/success-action/CriteriaVisitor.ts';
+export type {
+  default as SuccessActionParametersVisitor,
+  ParametersVisitorOptions as SuccessActionParametersVisitorOptions,
+} from './refractor/visitors/arazzo-1/success-action/ParametersVisitor.ts';
 export type {
   default as WorkflowVisitor,
   WorkflowVisitorOptions,
@@ -236,8 +281,10 @@ export {
   isComponentsSuccessActionsElement,
   isCriterionElement,
   isCriterionExpressionTypeElement,
+  isExpressionTypeElement,
   isFailureActionElement,
   isFailureActionCriteriaElement,
+  isFailureActionParametersElement,
   isInfoElement,
   isJSONSchemaElement,
   isBooleanJSONSchemaElement,
@@ -246,6 +293,7 @@ export {
   isRequestBodyElement,
   isRequestBodyReplacementsElement,
   isReusableElement,
+  isSelectorElement,
   isSourceDescriptionElement,
   isSourceDescriptionsElement,
   isStepElement,
@@ -257,6 +305,7 @@ export {
   isStepSuccessCriteriaElement,
   isSuccessActionElement,
   isSuccessActionCriteriaElement,
+  isSuccessActionParametersElement,
   isWorkflowElement,
   isWorkflowDependsOnElement,
   isWorkflowFailureActionsElement,
@@ -267,15 +316,20 @@ export {
   isWorkflowSuccessActionsElement,
 } from './predicates.ts';
 
-export { isArazzoSpecificationExtension } from './refractor/predicates.ts';
+export {
+  isArazzoSpecificationExtension,
+  isReusableLikeElement,
+  isSelectorLikeElement,
+} from './refractor/predicates.ts';
+export type { ReusableLikeElement, SelectorLikeElement } from './refractor/predicates.ts';
 
-// Arazzo 1.0.1 elements
+// Arazzo 1.1.0 elements
 export {
   ArazzoElement,
   ArazzoSpecification1Element,
   ComponentsElement,
   CriterionElement,
-  CriterionExpressionTypeElement,
+  ExpressionTypeElement,
   FailureActionElement,
   InfoElement,
   JSONSchemaElement,
@@ -283,11 +337,13 @@ export {
   PayloadReplacementElement,
   RequestBodyElement,
   ReusableElement,
+  SelectorElement,
   SourceDescriptionElement,
   StepElement,
   SuccessActionElement,
   WorkflowElement,
 } from './refractor/inspect.ts';
+export { CriterionExpressionTypeElement } from './refractor/inspect.ts';
 export type { FixedField } from './refractor/inspect.ts';
 // NCE types
 export { default as ComponentsFailureActionsElement } from './elements/nces/ComponentsFailureActions.ts';
@@ -295,6 +351,7 @@ export { default as ComponentsInputsElement } from './elements/nces/ComponentsIn
 export { default as ComponentsParametersElement } from './elements/nces/ComponentsParameters.ts';
 export { default as ComponentsSuccessActionsElement } from './elements/nces/ComponentsSuccessActions.ts';
 export { default as FailureActionCriteriaElement } from './elements/nces/FailureActionCriteria.ts';
+export { default as FailureActionParametersElement } from './elements/nces/FailureActionParameters.ts';
 export { default as RequestBodyReplacementsElement } from './elements/nces/RequestBodyReplacements.ts';
 export { default as SourceDescriptionsElement } from './elements/nces/SourceDescriptions.ts';
 export { default as StepDependsOnElement } from './elements/nces/StepDependsOn.ts';
@@ -304,6 +361,7 @@ export { default as StepOutputsElement } from './elements/nces/StepOutputs.ts';
 export { default as StepParametersElement } from './elements/nces/StepParameters.ts';
 export { default as StepSuccessCriteriaElement } from './elements/nces/StepSuccessCriteria.ts';
 export { default as SuccessActionCriteriaElement } from './elements/nces/SuccessActionCriteria.ts';
+export { default as SuccessActionParametersElement } from './elements/nces/SuccessActionParameters.ts';
 export { default as WorkflowDependsOnElement } from './elements/nces/WorkflowDependsOn.ts';
 export { default as WorkflowFailureActionsElement } from './elements/nces/WorkflowFailureActions.ts';
 export { default as WorkflowOutputsElement } from './elements/nces/WorkflowOutputs.ts';

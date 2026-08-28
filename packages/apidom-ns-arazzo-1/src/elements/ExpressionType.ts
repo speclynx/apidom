@@ -8,10 +8,10 @@ import {
 /**
  * @public
  */
-class CriterionExpressionType extends ObjectElement {
+class ExpressionType extends ObjectElement {
   constructor(content?: Record<string, unknown>, meta?: Meta, attributes?: Attributes) {
     super(content, meta, attributes);
-    this.element = 'criterionExpressionType';
+    this.element = 'expressionType';
   }
 
   get type(): StringElement | undefined {
@@ -31,4 +31,4 @@ class CriterionExpressionType extends ObjectElement {
   }
 }
 
-export default CriterionExpressionType;
+export default ExpressionType;

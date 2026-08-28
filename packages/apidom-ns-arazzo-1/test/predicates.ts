@@ -32,7 +32,10 @@ import {
   isComponentsParametersElement,
   isComponentsSuccessActionsElement,
   isCriterionElement,
-  isCriterionExpressionTypeElement,
+  isExpressionTypeElement,
+  isSelectorElement,
+  isSuccessActionParametersElement,
+  isFailureActionParametersElement,
   isJSONSchemaElement,
   isPayloadReplacementElement,
   isRequestBodyElement,
@@ -69,7 +72,10 @@ import {
   ComponentsParametersElement,
   ComponentsSuccessActionsElement,
   CriterionElement,
-  CriterionExpressionTypeElement,
+  ExpressionTypeElement,
+  SelectorElement,
+  SuccessActionParametersElement,
+  FailureActionParametersElement,
   JSONSchemaElement,
   PayloadReplacementElement,
   RequestBodyElement,
@@ -745,31 +751,118 @@ describe('predicates', function () {
     });
   });
 
-  context('isCriterionExpressionTypeElement', function () {
-    context('given CriterionExpressionTypeElement instance value', function () {
+  context('isExpressionTypeElement', function () {
+    context('given ExpressionTypeElement instance value', function () {
       specify('should return true', function () {
-        const element = new CriterionExpressionTypeElement();
+        const element = new ExpressionTypeElement();
 
-        assert.isTrue(isCriterionExpressionTypeElement(element));
+        assert.isTrue(isExpressionTypeElement(element));
       });
     });
 
     context('given subtype instance value', function () {
       specify('should return true', function () {
-        class CriterionExpressionTypeSubElement extends CriterionExpressionTypeElement {}
+        class ExpressionTypeSubElement extends ExpressionTypeElement {}
 
-        assert.isTrue(isCriterionExpressionTypeElement(new CriterionExpressionTypeSubElement()));
+        assert.isTrue(isExpressionTypeElement(new ExpressionTypeSubElement()));
       });
     });
 
-    context('given non CriterionExpressionTypeElement instance value', function () {
+    context('given non ExpressionTypeElement instance value', function () {
       specify('should return false', function () {
-        assert.isFalse(isCriterionExpressionTypeElement(1));
-        assert.isFalse(isCriterionExpressionTypeElement(null));
-        assert.isFalse(isCriterionExpressionTypeElement(undefined));
-        assert.isFalse(isCriterionExpressionTypeElement({}));
-        assert.isFalse(isCriterionExpressionTypeElement([]));
-        assert.isFalse(isCriterionExpressionTypeElement('string'));
+        assert.isFalse(isExpressionTypeElement(1));
+        assert.isFalse(isExpressionTypeElement(null));
+        assert.isFalse(isExpressionTypeElement(undefined));
+        assert.isFalse(isExpressionTypeElement({}));
+        assert.isFalse(isExpressionTypeElement([]));
+        assert.isFalse(isExpressionTypeElement('string'));
+      });
+    });
+  });
+
+  context('isSelectorElement', function () {
+    context('given SelectorElement instance value', function () {
+      specify('should return true', function () {
+        const element = new SelectorElement();
+
+        assert.isTrue(isSelectorElement(element));
+      });
+    });
+
+    context('given subtype instance value', function () {
+      specify('should return true', function () {
+        class SelectorSubElement extends SelectorElement {}
+
+        assert.isTrue(isSelectorElement(new SelectorSubElement()));
+      });
+    });
+
+    context('given non SelectorElement instance value', function () {
+      specify('should return false', function () {
+        assert.isFalse(isSelectorElement(1));
+        assert.isFalse(isSelectorElement(null));
+        assert.isFalse(isSelectorElement(undefined));
+        assert.isFalse(isSelectorElement({}));
+        assert.isFalse(isSelectorElement([]));
+        assert.isFalse(isSelectorElement('string'));
+      });
+    });
+  });
+
+  context('isSuccessActionParametersElement', function () {
+    context('given SuccessActionParametersElement instance value', function () {
+      specify('should return true', function () {
+        const element = new SuccessActionParametersElement();
+
+        assert.isTrue(isSuccessActionParametersElement(element));
+      });
+    });
+
+    context('given subtype instance value', function () {
+      specify('should return true', function () {
+        class SuccessActionParametersSubElement extends SuccessActionParametersElement {}
+
+        assert.isTrue(isSuccessActionParametersElement(new SuccessActionParametersSubElement()));
+      });
+    });
+
+    context('given non SuccessActionParametersElement instance value', function () {
+      specify('should return false', function () {
+        assert.isFalse(isSuccessActionParametersElement(1));
+        assert.isFalse(isSuccessActionParametersElement(null));
+        assert.isFalse(isSuccessActionParametersElement(undefined));
+        assert.isFalse(isSuccessActionParametersElement({}));
+        assert.isFalse(isSuccessActionParametersElement([]));
+        assert.isFalse(isSuccessActionParametersElement('string'));
+      });
+    });
+  });
+
+  context('isFailureActionParametersElement', function () {
+    context('given FailureActionParametersElement instance value', function () {
+      specify('should return true', function () {
+        const element = new FailureActionParametersElement();
+
+        assert.isTrue(isFailureActionParametersElement(element));
+      });
+    });
+
+    context('given subtype instance value', function () {
+      specify('should return true', function () {
+        class FailureActionParametersSubElement extends FailureActionParametersElement {}
+
+        assert.isTrue(isFailureActionParametersElement(new FailureActionParametersSubElement()));
+      });
+    });
+
+    context('given non FailureActionParametersElement instance value', function () {
+      specify('should return false', function () {
+        assert.isFalse(isFailureActionParametersElement(1));
+        assert.isFalse(isFailureActionParametersElement(null));
+        assert.isFalse(isFailureActionParametersElement(undefined));
+        assert.isFalse(isFailureActionParametersElement({}));
+        assert.isFalse(isFailureActionParametersElement([]));
+        assert.isFalse(isFailureActionParametersElement('string'));
       });
     });
   });

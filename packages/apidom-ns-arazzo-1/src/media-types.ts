@@ -15,7 +15,7 @@ export class ArazzoMediaTypes extends MediaTypes<string> {
     return this.filter((mediaType) => mediaType.includes(effectiveFormat));
   }
 
-  findBy(version = '1.0.1', format: Format = 'generic') {
+  findBy(version = '1.1.0', format: Format = 'generic') {
     const search =
       format === 'generic'
         ? `vnd.oai.workflows;version=${version}`
@@ -40,6 +40,9 @@ const mediaTypes = new ArazzoMediaTypes(
   'application/vnd.oai.workflows;version=1.0.1',
   'application/vnd.oai.workflows+json;version=1.0.1',
   'application/vnd.oai.workflows+yaml;version=1.0.1',
+  'application/vnd.oai.workflows;version=1.1.0',
+  'application/vnd.oai.workflows+json;version=1.1.0',
+  'application/vnd.oai.workflows+yaml;version=1.1.0',
 );
 
 export default mediaTypes;

@@ -5,12 +5,12 @@ import { Path } from '@speclynx/apidom-traverse';
 import { BaseAlternatingFallbackVisitor, BaseAlternatingFallbackVisitorOptions } from '../bases.ts';
 import AlternatingVisitor from '../../generics/AlternatingVisitor.ts';
 
-export type { BaseAlternatingFallbackVisitorOptions as TypeVisitorOptions };
+export type { BaseAlternatingFallbackVisitorOptions as TargetSelectorTypeVisitorOptions };
 
 /**
  * @public
  */
-class TypeVisitor extends BaseAlternatingFallbackVisitor {
+class TargetSelectorTypeVisitor extends BaseAlternatingFallbackVisitor {
   constructor(options: BaseAlternatingFallbackVisitorOptions) {
     super(options);
     this.alternator = [
@@ -24,4 +24,4 @@ class TypeVisitor extends BaseAlternatingFallbackVisitor {
   }
 }
 
-export default TypeVisitor;
+export default TargetSelectorTypeVisitor;

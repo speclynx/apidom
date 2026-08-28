@@ -10,7 +10,7 @@ import ArazzoElement from '../elements/Arazzo.ts';
 import ArazzoSpecification1Element from '../elements/ArazzoSpecification1.ts';
 import ComponentsElement from '../elements/Components.ts';
 import CriterionElement from '../elements/Criterion.ts';
-import CriterionExpressionTypeElement from '../elements/CriterionExpressionType.ts';
+import ExpressionTypeElement from '../elements/ExpressionType.ts';
 import FailureActionElement from '../elements/FailureAction.ts';
 import InfoElement from '../elements/Info.ts';
 import JSONSchemaElement from '../elements/JSONSchema.ts';
@@ -18,6 +18,7 @@ import ParameterElement from '../elements/Parameter.ts';
 import PayloadReplacementElement from '../elements/PayloadReplacement.ts';
 import RequestBodyElement from '../elements/RequestBody.ts';
 import ReusableElement from '../elements/Reusable.ts';
+import SelectorElement from '../elements/Selector.ts';
 import SourceDescriptionElement from '../elements/SourceDescription.ts';
 import StepElement from '../elements/Step.ts';
 import SuccessActionElement from '../elements/SuccessAction.ts';
@@ -118,10 +119,17 @@ export const refractCriterion = <T extends Element = CriterionElement>(
 /**
  * @public
  */
-export const refractCriterionExpressionType = <T extends Element = CriterionExpressionTypeElement>(
+export const refractExpressionType = <T extends Element = ExpressionTypeElement>(
   value: unknown,
   options: Omit<RefractorOptions, 'element'> = {},
-): T => refract(value, { ...options, element: 'criterionExpressionType' });
+): T => refract(value, { ...options, element: 'expressionType' });
+
+/**
+ * @public
+ * @deprecated Use `refractExpressionType` instead. Criterion Expression Type Object
+ * was renamed to Expression Type Object in Arazzo 1.1.0.
+ */
+export const refractCriterionExpressionType = refractExpressionType;
 
 /**
  * @public
@@ -178,6 +186,14 @@ export const refractReusable = <T extends Element = ReusableElement>(
   value: unknown,
   options: Omit<RefractorOptions, 'element'> = {},
 ): T => refract(value, { ...options, element: 'reusable' });
+
+/**
+ * @public
+ */
+export const refractSelector = <T extends Element = SelectorElement>(
+  value: unknown,
+  options: Omit<RefractorOptions, 'element'> = {},
+): T => refract(value, { ...options, element: 'selector' });
 
 /**
  * @public

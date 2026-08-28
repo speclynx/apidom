@@ -10,10 +10,10 @@ import ExpressionTypeElement from './ExpressionType.ts';
 /**
  * @public
  */
-class Criterion extends ObjectElement {
+class Selector extends ObjectElement {
   constructor(content?: Record<string, unknown>, meta?: Meta, attributes?: Attributes) {
     super(content, meta, attributes);
-    this.element = 'criterion';
+    this.element = 'selector';
   }
 
   get context(): StringElement | undefined {
@@ -24,12 +24,12 @@ class Criterion extends ObjectElement {
     this.set('context', context);
   }
 
-  get condition(): StringElement | undefined {
-    return this.get('condition') as StringElement | undefined;
+  get selector(): StringElement | undefined {
+    return this.get('selector') as StringElement | undefined;
   }
 
-  set condition(condition: StringElement | undefined) {
-    this.set('condition', condition);
+  set selector(selector: StringElement | undefined) {
+    this.set('selector', selector);
   }
 
   get type(): StringElement | ExpressionTypeElement | undefined {
@@ -41,4 +41,4 @@ class Criterion extends ObjectElement {
   }
 }
 
-export default Criterion;
+export default Selector;

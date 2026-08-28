@@ -4,6 +4,7 @@ import SpecificationVisitor, { SpecificationVisitorOptions } from '../Specificat
 import FallbackVisitor, { FallbackVisitorOptions } from '../FallbackVisitor.ts';
 import FixedFieldsVisitor, { FixedFieldsVisitorOptions } from '../generics/FixedFieldsVisitor.ts';
 import MapVisitor, { MapVisitorOptions } from '../generics/MapVisitor.ts';
+import AlternatingVisitor, { AlternatingVisitorOptions } from '../generics/AlternatingVisitor.ts';
 
 /**
  * Base class for visitors using Mixin(SpecificationVisitor, FallbackVisitor).
@@ -39,3 +40,15 @@ export const BaseMapFallbackVisitor = Mixin(MapVisitor, FallbackVisitor);
  * @public
  */
 export interface BaseMapFallbackVisitorOptions extends MapVisitorOptions, FallbackVisitorOptions {}
+
+/**
+ * Base class for visitors using Mixin(AlternatingVisitor, FallbackVisitor).
+ * @public
+ */
+export const BaseAlternatingFallbackVisitor = Mixin(AlternatingVisitor, FallbackVisitor);
+
+/**
+ * @public
+ */
+export interface BaseAlternatingFallbackVisitorOptions
+  extends AlternatingVisitorOptions, FallbackVisitorOptions {}

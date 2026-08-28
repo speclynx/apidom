@@ -17,6 +17,20 @@ exports[`refractor elements SuccessActionElement should refract to semantic ApiD
   (MemberElement
     (StringElement)
     (ArrayElement
+      (ParameterElement
+        (MemberElement
+          (StringElement)
+          (StringElement))
+        (MemberElement
+          (StringElement)
+          (StringElement)))
+      (ReusableElement
+        (MemberElement
+          (StringElement)
+          (StringElement)))))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
       (CriterionElement
         (MemberElement
           (StringElement)

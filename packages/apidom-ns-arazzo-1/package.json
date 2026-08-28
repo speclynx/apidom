@@ -1,7 +1,7 @@
 {
   "name": "@speclynx/apidom-ns-arazzo-1",
   "version": "5.1.1",
-  "description": "Arazzo Specification 1.0.1 namespace for ApiDOM.",
+  "description": "Arazzo Specification 1.1.0 namespace for ApiDOM.",
   "keywords": [
     "apidom",
     "api",

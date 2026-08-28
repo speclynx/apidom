@@ -1,7 +1,35 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`refractor elements StepElement given outputs with Selector Object values should refract Selector Object shaped values to SelectorElement 1`] = `
+(StepElement
+  (MemberElement
+    (StringElement)
+    (StringElement))
+  (MemberElement
+    (StringElement)
+    (ObjectElement
+      (MemberElement
+        (StringElement)
+        (SelectorElement
+          (MemberElement
+            (StringElement)
+            (StringElement))
+          (MemberElement
+            (StringElement)
+            (StringElement))
+          (MemberElement
+            (StringElement)
+            (StringElement))))
+      (MemberElement
+        (StringElement)
+        (StringElement)))))
+`;
+
 exports[`refractor elements StepElement should refract to semantic ApiDOM tree 1`] = `
 (StepElement
+  (MemberElement
+    (StringElement)
+    (StringElement))
   (MemberElement
     (StringElement)
     (StringElement))
@@ -141,5 +169,19 @@ exports[`refractor elements StepElement should refract to semantic ApiDOM tree 1
     (ObjectElement
       (MemberElement
         (StringElement)
-        (StringElement)))))
+        (StringElement))))
+  (MemberElement
+    (StringElement)
+    (NumberElement))
+  (MemberElement
+    (StringElement)
+    (StringElement))
+  (MemberElement
+    (StringElement)
+    (StringElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (StringElement)
+      (StringElement))))
 `;

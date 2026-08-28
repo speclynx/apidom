@@ -1,20 +1,21 @@
 import { T as stubTrue } from 'ramda';
-import { isObjectElement, ObjectElement } from '@speclynx/apidom-datamodel';
+import { ObjectElement } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
 
 import { BaseAlternatingFallbackVisitor, BaseAlternatingFallbackVisitorOptions } from '../bases.ts';
 import AlternatingVisitor from '../../generics/AlternatingVisitor.ts';
+import { isSelectorLikeElement } from '../../../predicates.ts';
 
-export type { BaseAlternatingFallbackVisitorOptions as TypeVisitorOptions };
+export type { BaseAlternatingFallbackVisitorOptions as ValueVisitorOptions };
 
 /**
  * @public
  */
-class TypeVisitor extends BaseAlternatingFallbackVisitor {
+class ValueVisitor extends BaseAlternatingFallbackVisitor {
   constructor(options: BaseAlternatingFallbackVisitorOptions) {
     super(options);
     this.alternator = [
-      { predicate: isObjectElement, specPath: ['document', 'objects', 'ExpressionType'] },
+      { predicate: isSelectorLikeElement, specPath: ['document', 'objects', 'Selector'] },
       { predicate: stubTrue, specPath: ['value'] },
     ];
   }
@@ -24,4 +25,4 @@ class TypeVisitor extends BaseAlternatingFallbackVisitor {
   }
 }
 
-export default TypeVisitor;
+export default ValueVisitor;
