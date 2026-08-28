@@ -1,5 +1,175 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`given empty value instead of Components.failureActions.* FailureActionElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ComponentsElement
+      (MemberElement
+        (StringElement)
+        (ObjectElement
+          (MemberElement
+            (StringElement)
+            (FailureActionElement)))))))
+`;
+
+exports[`given empty value instead of Components.inputs.* JSONSchemaElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ComponentsElement
+      (MemberElement
+        (StringElement)
+        (ObjectElement
+          (MemberElement
+            (StringElement)
+            (JSONSchemaElement)))))))
+`;
+
+exports[`given empty value instead of Components.parameters.* ParameterElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ComponentsElement
+      (MemberElement
+        (StringElement)
+        (ObjectElement
+          (MemberElement
+            (StringElement)
+            (ParameterElement)))))))
+`;
+
+exports[`given empty value instead of Components.successActions.* SuccessActionElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ComponentsElement
+      (MemberElement
+        (StringElement)
+        (ObjectElement
+          (MemberElement
+            (StringElement)
+            (SuccessActionElement)))))))
+`;
+
+exports[`given empty value instead of ComponentsElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ComponentsElement)))
+`;
+
+exports[`given empty value instead of ComponentsFailureActionsElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ComponentsElement
+      (MemberElement
+        (StringElement)
+        (ObjectElement)))))
+`;
+
+exports[`given empty value instead of ComponentsInputsElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ComponentsElement
+      (MemberElement
+        (StringElement)
+        (ObjectElement)))))
+`;
+
+exports[`given empty value instead of ComponentsParametersElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ComponentsElement
+      (MemberElement
+        (StringElement)
+        (ObjectElement)))))
+`;
+
+exports[`given empty value instead of ComponentsSuccessActionsElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ComponentsElement
+      (MemberElement
+        (StringElement)
+        (ObjectElement)))))
+`;
+
+exports[`given empty value instead of FailureActionCriteriaElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (ArrayElement
+                  (FailureActionElement
+                    (MemberElement
+                      (StringElement)
+                      (ArrayElement))))))))))))
+`;
+
+exports[`given empty value instead of FailureActionParametersElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (ArrayElement
+                  (FailureActionElement
+                    (MemberElement
+                      (StringElement)
+                      (ArrayElement))))))))))))
+`;
+
 exports[`given empty value instead of InfoElement should replace empty value with semantic element 1`] = `
 (ArazzoSpecification1Element
   (MemberElement
@@ -8,4 +178,468 @@ exports[`given empty value instead of InfoElement should replace empty value wit
   (MemberElement
     (StringElement)
     (InfoElement)))
+`;
+
+exports[`given empty value instead of PayloadReplacementElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (RequestBodyElement
+                  (MemberElement
+                    (StringElement)
+                    (ArrayElement
+                      (PayloadReplacementElement))))))))))))
+`;
+
+exports[`given empty value instead of RequestBodyElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (RequestBodyElement)))))))))
+`;
+
+exports[`given empty value instead of RequestBodyReplacementsElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (RequestBodyElement
+                  (MemberElement
+                    (StringElement)
+                    (ArrayElement)))))))))))
+`;
+
+exports[`given empty value instead of SourceDescriptionElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (SourceDescriptionElement))))
+`;
+
+exports[`given empty value instead of SourceDescriptionsElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement)))
+`;
+
+exports[`given empty value instead of Step.onFailure.* FailureActionElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (ArrayElement
+                  (FailureActionElement))))))))))
+`;
+
+exports[`given empty value instead of Step.onSuccess.* SuccessActionElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (ArrayElement
+                  (SuccessActionElement))))))))))
+`;
+
+exports[`given empty value instead of Step.parameters.* ParameterElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (ArrayElement
+                  (ParameterElement))))))))))
+`;
+
+exports[`given empty value instead of Step.successCriteria.* CriterionElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (ArrayElement
+                  (CriterionElement))))))))))
+`;
+
+exports[`given empty value instead of StepDependsOnElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (ArrayElement)))))))))
+`;
+
+exports[`given empty value instead of StepElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement)))))))
+`;
+
+exports[`given empty value instead of StepOnFailureElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (ArrayElement)))))))))
+`;
+
+exports[`given empty value instead of StepOnSuccessElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (ArrayElement)))))))))
+`;
+
+exports[`given empty value instead of StepOutputsElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (ObjectElement)))))))))
+`;
+
+exports[`given empty value instead of StepParametersElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (ArrayElement)))))))))
+`;
+
+exports[`given empty value instead of StepSuccessCriteriaElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (ArrayElement)))))))))
+`;
+
+exports[`given empty value instead of SuccessActionCriteriaElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (ArrayElement
+                  (SuccessActionElement
+                    (MemberElement
+                      (StringElement)
+                      (ArrayElement))))))))))))
+`;
+
+exports[`given empty value instead of SuccessActionParametersElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement
+            (StepElement
+              (MemberElement
+                (StringElement)
+                (ArrayElement
+                  (SuccessActionElement
+                    (MemberElement
+                      (StringElement)
+                      (ArrayElement))))))))))))
+`;
+
+exports[`given empty value instead of Workflow.inputs JSONSchemaElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (JSONSchemaElement))))))
+`;
+
+exports[`given empty value instead of Workflow.inputs.properties.* JSONSchemaElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (JSONSchemaElement
+            (MemberElement
+              (StringElement)
+              (ObjectElement
+                (MemberElement
+                  (StringElement)
+                  (JSONSchemaElement))))))))))
+`;
+
+exports[`given empty value instead of WorkflowDependsOnElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement))))))
+`;
+
+exports[`given empty value instead of WorkflowElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement))))
+`;
+
+exports[`given empty value instead of WorkflowFailureActionsElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement))))))
+`;
+
+exports[`given empty value instead of WorkflowOutputsElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ObjectElement))))))
+`;
+
+exports[`given empty value instead of WorkflowParametersElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement))))))
+`;
+
+exports[`given empty value instead of WorkflowStepsElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement))))))
+`;
+
+exports[`given empty value instead of WorkflowSuccessActionsElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement
+      (WorkflowElement
+        (MemberElement
+          (StringElement)
+          (ArrayElement))))))
+`;
+
+exports[`given empty value instead of WorkflowsElement should replace empty value with semantic element 1`] = `
+(ArazzoSpecification1Element
+  (MemberElement
+    (StringElement)
+    (ArazzoElement))
+  (MemberElement
+    (StringElement)
+    (ArrayElement)))
 `;
