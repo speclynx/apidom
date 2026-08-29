@@ -19,6 +19,7 @@ import * as url from '../../../util/url.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 import { merge as mergeOptions } from '../../../options/util.ts';
 import dereference, { dereferenceApiDOM } from '../../index.ts';
+import { resolveArazzo$selfField } from './util.ts';
 
 interface DereferenceSourceDescriptionContext {
   baseURI: string;
@@ -232,7 +233,7 @@ export async function dereferenceSourceDescriptions(
   options: ReferenceOptions,
   strategyName: string = 'arazzo-1',
 ): Promise<ParseResultElement[]> {
-  const baseURI = url.sanitize(url.stripHash(parseResultRetrievalURI));
+  const retrievalURI = url.sanitize(url.stripHash(parseResultRetrievalURI));
   const results: ParseResultElement[] = [];
 
   // get API from dereferenced parse result
@@ -268,12 +269,16 @@ export async function dereferenceSourceDescriptions(
   const currentDepth = sharedOpts.sourceDescriptionsDepth ?? 0;
   const visitedUrls: Set<string> = sharedOpts.sourceDescriptionsVisitedUrls ?? new Set();
 
-  // add current file to visited URLs to prevent cycles
+  // base URI for resolving source description URLs honors Arazzo `$self` field
+  const baseURI = resolveArazzo$selfField(retrievalURI, api);
+
+  // add current file to visited URLs to prevent cycles (by retrieval URI and by identity)
+  visitedUrls.add(retrievalURI);
   visitedUrls.add(baseURI);
 
   if (currentDepth >= maxDepth) {
     const annotation = new AnnotationElement(
-      `Maximum dereference depth of ${maxDepth} has been exceeded by file "${baseURI}"`,
+      `Maximum dereference depth of ${maxDepth} has been exceeded by file "${retrievalURI}"`,
     );
     annotation.classes.push('error');
     const parseResult = new ParseResultElement([annotation]);

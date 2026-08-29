@@ -167,6 +167,8 @@ export { Arazzo1DereferenceVisitor };
 export {
   resolveSchema$refField,
   resolveSchema$idField,
+  resolveArazzo$selfField,
+  identifiedBy$self,
   maybeRefractToJSONSchemaElement,
 } from './util.ts';
 export { dereferenceSourceDescriptions } from './source-descriptions.ts';

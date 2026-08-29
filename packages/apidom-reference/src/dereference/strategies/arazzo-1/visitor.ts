@@ -30,7 +30,11 @@ import { parse as parseRuntimeExpression } from '@swaggerexpert/arazzo-runtime-e
 import { isAnchor, uriToAnchor, evaluate as $anchorEvaluate } from './selectors/$anchor.ts';
 import { evaluate as uriEvaluate } from './selectors/uri.ts';
 import { resolveSchema$refField } from '../openapi-3-1/util.ts';
-import { maybeRefractToJSONSchemaElement } from './util.ts';
+import {
+  maybeRefractToJSONSchemaElement,
+  resolveArazzo$selfField,
+  identifiedBy$self,
+} from './util.ts';
 import UnresolvableReferenceError from '../../../errors/UnresolvableReferenceError.ts';
 import MaximumDereferenceDepthError from '../../../errors/MaximumDereferenceDepthError.ts';
 import MaximumResolveDepthError from '../../../errors/MaximumResolveDepthError.ts';
@@ -63,6 +67,13 @@ class Arazzo1DereferenceVisitor {
 
   protected readonly reference: Reference;
 
+  /**
+   * Base URI of the current document for resolving relative references.
+   * Honors the Arazzo `$self` field when present, otherwise falls back
+   * to the retrieval URI (`this.reference.uri`).
+   */
+  protected readonly baseURI: string;
+
   protected readonly options: ReferenceOptions;
 
   protected readonly visited: WeakSet<Element>;
@@ -83,6 +94,10 @@ class Arazzo1DereferenceVisitor {
   }: Arazzo1DereferenceVisitorOptions) {
     this.indirections = indirections;
     this.reference = reference;
+    this.baseURI = resolveArazzo$selfField(
+      reference.uri,
+      (reference.value as ParseResultElement | undefined)?.result,
+    );
     this.options = options;
     this.ancestors = new AncestorLineage(...ancestors);
     this.visited = visited;
@@ -96,7 +111,7 @@ class Arazzo1DereferenceVisitor {
   }
 
   protected toBaseURI(uri: string): string {
-    return url.resolve(this.reference.uri, url.sanitize(url.stripHash(uri)));
+    return url.resolve(this.baseURI, url.sanitize(url.stripHash(uri)));
   }
 
   protected async toReference(uri: string): Promise<Reference> {
@@ -114,6 +129,12 @@ class Arazzo1DereferenceVisitor {
     // we've already processed this Reference in past
     if (refSet.has(baseURI)) {
       return refSet.find(propEq(baseURI, 'uri'))!;
+    }
+
+    // identity-based referencing: URI matches `$self` of an already processed Arazzo document
+    const referenceBy$self = refSet.find(identifiedBy$self(baseURI));
+    if (referenceBy$self !== undefined) {
+      return referenceBy$self;
     }
 
     const parseResult = await parse(url.unsanitize(baseURI), {
@@ -327,15 +348,15 @@ class Arazzo1DereferenceVisitor {
     const indirectionsSize = this.indirections.length;
 
     try {
-      // compute baseURI using rules around $id and $ref keywords
+      // compute baseURI using rules around $self, $id and $ref keywords
       let reference = await this.toReference(url.unsanitize(this.reference.uri));
       let { uri: retrievalURI } = reference;
-      const $refBaseURI = resolveSchema$refField(retrievalURI, referencingElement)!;
+      const $refBaseURI = resolveSchema$refField(this.baseURI, referencingElement)!;
       const $refBaseURIStrippedHash = url.stripHash($refBaseURI);
       const file = new File({ uri: $refBaseURIStrippedHash });
       const isUnknownURI = none((r: Resolver) => r.canRead(file), this.options.resolve.resolvers);
       const isURL = !isUnknownURI;
-      let isInternalReference = url.stripHash(this.reference.uri) === $refBaseURI;
+      let isInternalReference = this.baseURI === $refBaseURI;
       let isExternalReference = !isInternalReference;
 
       // determining reference, proper evaluation and selection mechanism
@@ -365,7 +386,7 @@ class Arazzo1DereferenceVisitor {
         } else {
           // we're assuming here that we're dealing with JSON Pointer here
           retrievalURI = this.toBaseURI($refBaseURI);
-          isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
+          isInternalReference = this.baseURI === retrievalURI;
           isExternalReference = !isInternalReference;
 
           // ignore resolving internal Schema Objects
@@ -395,7 +416,7 @@ class Arazzo1DereferenceVisitor {
         if (isURL && error instanceof EvaluationJsonSchemaUriError) {
           if (isAnchor(uriToAnchor($refBaseURI))) {
             // we're dealing with JSON Schema $anchor here
-            isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
+            isInternalReference = this.baseURI === retrievalURI;
             isExternalReference = !isInternalReference;
 
             // ignore resolving internal Schema Objects
@@ -419,7 +440,7 @@ class Arazzo1DereferenceVisitor {
           } else {
             // we're assuming here that we're dealing with JSON Pointer here
             retrievalURI = this.toBaseURI($refBaseURI);
-            isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
+            isInternalReference = this.baseURI === retrievalURI;
             isExternalReference = !isInternalReference;
 
             // ignore resolving internal Schema Objects

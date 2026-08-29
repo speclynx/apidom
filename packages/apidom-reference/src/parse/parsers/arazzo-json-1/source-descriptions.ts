@@ -19,6 +19,7 @@ import * as url from '../../../util/url.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 import { merge as mergeOptions } from '../../../options/util.ts';
 import parse from '../../index.ts';
+import { resolveArazzo$selfField } from '../../../dereference/strategies/arazzo-1/util.ts';
 
 // shared key for recursion state (works across JSON/YAML parsers)
 const ARAZZO_RECURSION_KEY = 'arazzo-1';
@@ -235,8 +236,12 @@ export async function parseSourceDescriptions(
   const currentDepth = sharedOpts.sourceDescriptionsDepth ?? 0;
   const visitedUrls: Set<string> = sharedOpts.sourceDescriptionsVisitedUrls ?? new Set();
 
-  // add current file to visited URLs to prevent cycles
+  // base URI for resolving source description URLs honors Arazzo `$self` field
+  const baseURI = resolveArazzo$selfField(file.uri, api);
+
+  // add current file to visited URLs to prevent cycles (by retrieval URI and by identity)
   visitedUrls.add(file.uri);
+  visitedUrls.add(baseURI);
 
   if (currentDepth >= maxDepth) {
     const annotation = new AnnotationElement(
@@ -249,7 +254,7 @@ export async function parseSourceDescriptions(
   }
 
   const ctx: ParseSourceDescriptionContext = {
-    baseURI: file.uri,
+    baseURI,
     options,
     currentDepth,
     visitedUrls,

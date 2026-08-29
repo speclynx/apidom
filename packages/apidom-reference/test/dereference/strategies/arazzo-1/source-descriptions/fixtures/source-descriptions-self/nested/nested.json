@@ -1,0 +1,25 @@
+{
+  "arazzo": "1.1.0",
+  "info": {
+    "title": "Nested Workflow",
+    "version": "1.0.0"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "rootWorkflow",
+      "url": "./root.json",
+      "type": "arazzo"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "nestedWorkflow",
+      "steps": [
+        {
+          "stepId": "nestedStep",
+          "workflowId": "$sourceDescriptions.rootWorkflow.rootWorkflow"
+        }
+      ]
+    }
+  ]
+}

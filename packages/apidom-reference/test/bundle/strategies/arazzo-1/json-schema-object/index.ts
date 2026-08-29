@@ -2,11 +2,17 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert } from 'chai';
 import { toValue } from '@speclynx/apidom-core';
-import { Element, includesClasses, isParseResultElement } from '@speclynx/apidom-datamodel';
+import {
+  Element,
+  ParseResultElement,
+  includesClasses,
+  isParseResultElement,
+} from '@speclynx/apidom-datamodel';
 import { mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 
 import { bundle } from '../../../../../src/index.ts';
+import * as url from '../../../../../src/util/url.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootFixturePath = path.join(__dirname, 'fixtures');
@@ -237,6 +243,68 @@ describe('bundle', function () {
                 ),
               ),
               './item.json',
+            );
+          });
+        });
+
+        context('given Arazzo Object with $self keyword', function () {
+          const fixturePath = path.join(rootFixturePath, '$self-base-uri');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+          let bundled: ParseResultElement;
+
+          beforeEach(async function () {
+            bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+          });
+
+          specify('should embed resource resolved against $self base URI', function () {
+            const inputs = toValue(
+              evaluate(bundled.result as Element, '/components/inputs'),
+            ) as Record<string, object>;
+
+            assert.hasAllKeys(inputs, ['User', 'Avatar', 'ex']);
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/components/inputs/ex/$id')),
+              url.fromFileSystemPath(path.join(fixturePath, 'nested', 'ex.json')),
+            );
+          });
+
+          specify('should treat reference to $self as internal', function () {
+            assert.strictEqual(
+              toValue(
+                evaluate(bundled.result as Element, '/components/inputs/ex/properties/avatar/$ref'),
+              ),
+              './root.json#/components/inputs/Avatar',
+            );
+          });
+        });
+
+        context('given external schema resource referencing the entry document', function () {
+          const fixturePath = path.join(rootFixturePath, 'entry-document-ref');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+          let bundled: ParseResultElement;
+
+          beforeEach(async function () {
+            bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+          });
+
+          specify('should not embed the entry document', function () {
+            const inputs = toValue(
+              evaluate(bundled.result as Element, '/components/inputs'),
+            ) as Record<string, object>;
+
+            assert.hasAllKeys(inputs, ['User', 'Avatar', 'ex']);
+          });
+
+          specify('should leave the reference to the entry document unchanged', function () {
+            assert.strictEqual(
+              toValue(
+                evaluate(bundled.result as Element, '/components/inputs/ex/properties/avatar/$ref'),
+              ),
+              './root.json#/components/inputs/Avatar',
             );
           });
         });

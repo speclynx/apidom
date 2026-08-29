@@ -1,12 +1,14 @@
 import path from 'node:path';
 import { assert } from 'chai';
 import { toValue } from '@speclynx/apidom-core';
+import { Element } from '@speclynx/apidom-datamodel';
 import { isJSONSchemaElement, mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 import { fileURLToPath } from 'node:url';
 
 import { dereference, parse, Reference, ReferenceSet } from '../../../../../src/index.ts';
 import { loadJsonFile } from '../../../../helpers.ts';
+import * as url from '../../../../../src/util/url.ts';
 import DereferenceError from '../../../../../src/errors/DereferenceError.ts';
 import UnresolvableReferenceError from '../../../../../src/errors/UnresolvableReferenceError.ts';
 import MaximumDereferenceDepthError from '../../../../../src/errors/MaximumDereferenceDepthError.ts';
@@ -576,6 +578,43 @@ describe('dereference', function () {
             const expected = loadJsonFile(path.join(fixturePath, 'dereferenced.json'));
 
             assert.deepEqual(toValue(actual), expected);
+          });
+        });
+
+        context('given Arazzo Object with $self keyword', function () {
+          const fixturePath = path.join(rootFixturePath, '$self-base-uri');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+          let refSet: ReferenceSet;
+          let actual: Element;
+
+          beforeEach(async function () {
+            refSet = new ReferenceSet();
+            actual = await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: { refSet },
+            });
+          });
+
+          afterEach(function () {
+            refSet.clean();
+          });
+
+          specify('should resolve relative $ref against $self base URI', function () {
+            const expected = loadJsonFile(path.join(fixturePath, 'dereferenced.json'));
+
+            assert.deepEqual(toValue(actual), expected);
+          });
+
+          specify('should resolve reference to $self by identity', function () {
+            const uris = refSet.refs.map((ref) => ref.uri);
+
+            // entry document is registered by its retrieval URI only, not by $self
+            assert.strictEqual(uris.length, 2);
+            assert.include(uris, url.fromFileSystemPath(rootFilePath));
+            assert.include(
+              uris,
+              url.fromFileSystemPath(path.join(fixturePath, 'nested', 'ex.json')),
+            );
           });
         });
 
