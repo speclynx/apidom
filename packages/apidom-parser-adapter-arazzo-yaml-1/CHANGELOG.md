@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.2.0](https://github.com/speclynx/apidom/compare/v5.1.1...v5.2.0) (2026-08-29)
+
+### Features
+
+- **parser-adapter:** add support for Arazzo 1.1.0 ([#499](https://github.com/speclynx/apidom/issues/499)) ([fff3898](https://github.com/speclynx/apidom/commit/fff389825e01daa22e04f7548ea1b05d44beb452)), closes [#297](https://github.com/speclynx/apidom/issues/297)
+
 ## [5.1.1](https://github.com/speclynx/apidom/compare/v5.1.0...v5.1.1) (2026-08-19)
 
 ### Bug Fixes

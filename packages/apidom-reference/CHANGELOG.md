@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.2.0](https://github.com/speclynx/apidom/compare/v5.1.1...v5.2.0) (2026-08-29)
+
+### Features
+
+- **reference:** add support for Arazzo 1.1.0 ([#504](https://github.com/speclynx/apidom/issues/504)) ([1bad06a](https://github.com/speclynx/apidom/commit/1bad06a2a4a7ea7ef57223d4d08a8f60d17eddf2)), closes [#297](https://github.com/speclynx/apidom/issues/297)
+
 ## [5.1.1](https://github.com/speclynx/apidom/compare/v5.1.0...v5.1.1) (2026-08-19)
 
 **Note:** Version bump only for package @speclynx/apidom-reference
