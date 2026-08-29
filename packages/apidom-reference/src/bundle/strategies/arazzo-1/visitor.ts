@@ -45,7 +45,7 @@ import {
   resolveSchema$idField,
   maybeRefractToJSONSchemaElement,
   resolveArazzo$selfField,
-  has$self,
+  identifiedBy$self,
 } from '../../../dereference/strategies/arazzo-1/util.ts';
 import {
   toPascalCase,
@@ -154,7 +154,7 @@ class Arazzo1BundleVisitor {
     }
 
     // identity-based referencing: URI matches `$self` of an already processed Arazzo document
-    const referenceBy$self = refSet.find(has$self(baseURI));
+    const referenceBy$self = refSet.find(identifiedBy$self(baseURI));
     if (referenceBy$self !== undefined) {
       return referenceBy$self;
     }

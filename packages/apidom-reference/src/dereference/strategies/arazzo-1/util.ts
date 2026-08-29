@@ -39,7 +39,7 @@ export const resolveArazzo$selfField = (retrievalURI: string, element: unknown):
  *
  * @public
  */
-export const has$self =
+export const identifiedBy$self =
   (uri: string) =>
   (reference: Reference): boolean => {
     const result = (reference.value as ParseResultElement | undefined)?.result;

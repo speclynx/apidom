@@ -30,7 +30,11 @@ import { parse as parseRuntimeExpression } from '@swaggerexpert/arazzo-runtime-e
 import { isAnchor, uriToAnchor, evaluate as $anchorEvaluate } from './selectors/$anchor.ts';
 import { evaluate as uriEvaluate } from './selectors/uri.ts';
 import { resolveSchema$refField } from '../openapi-3-1/util.ts';
-import { maybeRefractToJSONSchemaElement, resolveArazzo$selfField, has$self } from './util.ts';
+import {
+  maybeRefractToJSONSchemaElement,
+  resolveArazzo$selfField,
+  identifiedBy$self,
+} from './util.ts';
 import UnresolvableReferenceError from '../../../errors/UnresolvableReferenceError.ts';
 import MaximumDereferenceDepthError from '../../../errors/MaximumDereferenceDepthError.ts';
 import MaximumResolveDepthError from '../../../errors/MaximumResolveDepthError.ts';
@@ -128,7 +132,7 @@ class Arazzo1DereferenceVisitor {
     }
 
     // identity-based referencing: URI matches `$self` of an already processed Arazzo document
-    const referenceBy$self = refSet.find(has$self(baseURI));
+    const referenceBy$self = refSet.find(identifiedBy$self(baseURI));
     if (referenceBy$self !== undefined) {
       return referenceBy$self;
     }
