@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 import { dereference, parse, Reference, ReferenceSet } from '../../../../../src/index.ts';
 import { loadJsonFile } from '../../../../helpers.ts';
+import * as url from '../../../../../src/util/url.ts';
 import DereferenceError from '../../../../../src/errors/DereferenceError.ts';
 import UnresolvableReferenceError from '../../../../../src/errors/UnresolvableReferenceError.ts';
 import MaximumDereferenceDepthError from '../../../../../src/errors/MaximumDereferenceDepthError.ts';
@@ -576,6 +577,38 @@ describe('dereference', function () {
             const expected = loadJsonFile(path.join(fixturePath, 'dereferenced.json'));
 
             assert.deepEqual(toValue(actual), expected);
+          });
+        });
+
+        context('given Arazzo Object with $self keyword', function () {
+          const fixturePath = path.join(rootFixturePath, '$self-base-uri');
+
+          specify('should resolve relative $ref against $self base URI', async function () {
+            const rootFilePath = path.join(fixturePath, 'root.json');
+            const actual = await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const expected = loadJsonFile(path.join(fixturePath, 'dereferenced.json'));
+
+            assert.deepEqual(toValue(actual), expected);
+          });
+
+          specify('should resolve reference to $self by identity', async function () {
+            const rootFilePath = path.join(fixturePath, 'root.json');
+            const refSet = new ReferenceSet();
+            await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: { refSet },
+            });
+            const uris = refSet.refs.map((ref) => ref.uri);
+
+            // entry document is registered by its retrieval URI only, not by $self
+            assert.strictEqual(uris.length, 2);
+            assert.include(uris, url.fromFileSystemPath(rootFilePath));
+            assert.include(
+              uris,
+              url.fromFileSystemPath(path.join(fixturePath, 'nested', 'ex.json')),
+            );
           });
         });
 

@@ -4,8 +4,10 @@ import { assert, expect } from 'chai';
 import { isParseResultElement, ParseResultElement } from '@speclynx/apidom-datamodel';
 import { toJSON } from '@speclynx/apidom-core';
 import { mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
+import { isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 
 import { dereference } from '../../../../../src/index.ts';
+import * as url from '../../../../../src/util/url.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootFixturePath = path.join(__dirname, 'fixtures');
@@ -162,6 +164,40 @@ describe('dereference', function () {
             assert.strictEqual(openapi.meta.get('name'), 'petStore');
             assert.strictEqual(openapi.meta.get('type'), 'openapi');
           });
+        });
+
+        context('given Arazzo Object with $self keyword', function () {
+          specify(
+            'should resolve source description URLs against $self base URI',
+            async function () {
+              const uri = path.join(rootFixturePath, 'source-descriptions-self', 'root.json');
+              const dereferenceResult = await dereference(uri, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                dereference: {
+                  strategyOpts: {
+                    'arazzo-1': { sourceDescriptions: true },
+                  },
+                },
+              });
+
+              // root + openapi + nested arazzo
+              assert.strictEqual(dereferenceResult.length, 3);
+
+              const openapi = dereferenceResult.get(1)! as ParseResultElement;
+              assert.strictEqual(
+                openapi.meta.get('retrievalURI'),
+                url.fromFileSystemPath(path.join(path.dirname(uri), 'nested', 'openapi.json')),
+              );
+              assert.isTrue(isOpenApi3_1Element(openapi.api));
+
+              // nested arazzo refers back to root by its $self; detected as cycle by identity
+              const nestedArazzo = dereferenceResult.get(2)! as ParseResultElement;
+              assert.strictEqual(nestedArazzo.length, 2);
+              const rootByIdentity = nestedArazzo.get(1)! as ParseResultElement;
+              assert.isTrue(isParseResultElement(rootByIdentity));
+              assert.include(rootByIdentity.get(0)?.toValue(), 'has already been visited');
+            },
+          );
         });
 
         context('given sourceDescriptionsMaxDepth option', function () {

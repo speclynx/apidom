@@ -1,0 +1,8 @@
+{
+  "type": "object",
+  "properties": {
+    "avatar": {
+      "$ref": "./root.json#/components/inputs/Avatar"
+    }
+  }
+}

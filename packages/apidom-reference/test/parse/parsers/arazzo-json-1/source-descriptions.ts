@@ -3,10 +3,12 @@ import path from 'node:path';
 import { assert } from 'chai';
 import { ParseResultElement, isParseResultElement } from '@speclynx/apidom-datamodel';
 import { parse } from '@speclynx/apidom-parser-adapter-arazzo-json-1';
+import { isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 import { fileURLToPath } from 'node:url';
 
 import { parseSourceDescriptions } from '../../../../src/parse/parsers/arazzo-json-1/index.ts';
 import { options, mergeOptions } from '../../../../src/configuration/saturated.ts';
+import * as url from '../../../../src/util/url.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -156,6 +158,30 @@ describe('parsers', function () {
 
         assert.isString(retrievalURI);
         assert.include(retrievalURI, 'openapi.json');
+      });
+
+      specify('should resolve source description URLs against $self base URI', async function () {
+        const uri = path.join(__dirname, 'fixtures', 'source-descriptions-self', 'root.json');
+        const data = fs.readFileSync(uri).toString();
+        const parseResult = await parse(data);
+
+        const sourceDescriptions = await parseSourceDescriptions(parseResult, uri, options);
+
+        assert.strictEqual(sourceDescriptions.length, 2);
+
+        const openapi = sourceDescriptions[0]! as ParseResultElement;
+        assert.strictEqual(
+          openapi.meta.get('retrievalURI'),
+          url.fromFileSystemPath(path.join(path.dirname(uri), 'nested', 'openapi.json')),
+        );
+        assert.isTrue(isOpenApi3_1Element(openapi.api));
+
+        // nested arazzo refers back to root by its $self; detected as cycle by identity
+        const nestedArazzo = sourceDescriptions[1]! as ParseResultElement;
+        assert.strictEqual(nestedArazzo.length, 2);
+        const rootByIdentity = nestedArazzo.get(1)! as ParseResultElement;
+        assert.isTrue(isParseResultElement(rootByIdentity));
+        assert.include(rootByIdentity.get(0)?.toValue(), 'has already been visited');
       });
     });
   });
