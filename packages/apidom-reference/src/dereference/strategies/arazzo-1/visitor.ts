@@ -30,11 +30,7 @@ import { parse as parseRuntimeExpression } from '@swaggerexpert/arazzo-runtime-e
 import { isAnchor, uriToAnchor, evaluate as $anchorEvaluate } from './selectors/$anchor.ts';
 import { evaluate as uriEvaluate } from './selectors/uri.ts';
 import { resolveSchema$refField } from '../openapi-3-1/util.ts';
-import {
-  maybeRefractToJSONSchemaElement,
-  resolveArazzo$selfField,
-  findReferenceBy$self,
-} from './util.ts';
+import { maybeRefractToJSONSchemaElement, resolveArazzo$selfField, has$self } from './util.ts';
 import UnresolvableReferenceError from '../../../errors/UnresolvableReferenceError.ts';
 import MaximumDereferenceDepthError from '../../../errors/MaximumDereferenceDepthError.ts';
 import MaximumResolveDepthError from '../../../errors/MaximumResolveDepthError.ts';
@@ -67,6 +63,13 @@ class Arazzo1DereferenceVisitor {
 
   protected readonly reference: Reference;
 
+  /**
+   * Base URI of the current document for resolving relative references.
+   * Honors the Arazzo `$self` field when present, otherwise falls back
+   * to the retrieval URI (`this.reference.uri`).
+   */
+  protected readonly baseURI: string;
+
   protected readonly options: ReferenceOptions;
 
   protected readonly visited: WeakSet<Element>;
@@ -87,6 +90,10 @@ class Arazzo1DereferenceVisitor {
   }: Arazzo1DereferenceVisitorOptions) {
     this.indirections = indirections;
     this.reference = reference;
+    this.baseURI = resolveArazzo$selfField(
+      reference.uri,
+      (reference.value as ParseResultElement | undefined)?.result,
+    );
     this.options = options;
     this.ancestors = new AncestorLineage(...ancestors);
     this.visited = visited;
@@ -97,18 +104,6 @@ class Arazzo1DereferenceVisitor {
     const directAncestors = new Set<Element>(ancestorNodes.filter(isElement));
     const ancestorsLineage = new AncestorLineage(...this.ancestors, directAncestors);
     return [ancestorsLineage, directAncestors];
-  }
-
-  /**
-   * Base URI of the current document for resolving relative references.
-   * Honors the Arazzo `$self` field when present, otherwise falls back
-   * to the retrieval URI (`this.reference.uri`).
-   */
-  protected get baseURI(): string {
-    return resolveArazzo$selfField(
-      this.reference.uri,
-      (this.reference.value as ParseResultElement | undefined)?.result,
-    );
   }
 
   protected toBaseURI(uri: string): string {
@@ -133,7 +128,7 @@ class Arazzo1DereferenceVisitor {
     }
 
     // identity-based referencing: URI matches `$self` of an already processed Arazzo document
-    const referenceBy$self = findReferenceBy$self(refSet, baseURI);
+    const referenceBy$self = refSet.find(has$self(baseURI));
     if (referenceBy$self !== undefined) {
       return referenceBy$self;
     }

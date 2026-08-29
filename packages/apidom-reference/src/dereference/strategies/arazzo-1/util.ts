@@ -4,7 +4,6 @@ import { refractJSONSchema, isArazzoSpecification1Element } from '@speclynx/apid
 
 import * as url from '../../../util/url.ts';
 import type Reference from '../../../Reference.ts';
-import type ReferenceSet from '../../../ReferenceSet.ts';
 
 export { resolveSchema$refField, resolveSchema$idField } from '../openapi-3-1/util.ts';
 
@@ -33,20 +32,22 @@ export const resolveArazzo$selfField = (retrievalURI: string, element: unknown):
 };
 
 /**
- * Finds an already registered Reference by the identity (`$self`) of the Arazzo
+ * Predicate matching a Reference by the identity (`$self`) of the Arazzo
  * document it holds, rather than by its retrieval URI. Implements identity-based
  * referencing from Arazzo 1.1.0: a URI matching a loaded document's `$self`
  * refers to that document, regardless of where it was retrieved from.
  *
  * @public
  */
-export const findReferenceBy$self = (refSet: ReferenceSet, uri: string): Reference | undefined =>
-  refSet.refs.find((ref) => {
-    const result = (ref.value as ParseResultElement | undefined)?.result;
+export const has$self =
+  (uri: string) =>
+  (reference: Reference): boolean => {
+    const result = (reference.value as ParseResultElement | undefined)?.result;
     return (
-      isArazzoSpecification1Element(result) && resolveArazzo$selfField(ref.uri, result) === uri
+      isArazzoSpecification1Element(result) &&
+      resolveArazzo$selfField(reference.uri, result) === uri
     );
-  });
+  };
 
 /**
  * Cached version of JSONSchemaElement.refract.

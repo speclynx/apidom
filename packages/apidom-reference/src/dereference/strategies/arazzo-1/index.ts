@@ -168,7 +168,7 @@ export {
   resolveSchema$refField,
   resolveSchema$idField,
   resolveArazzo$selfField,
-  findReferenceBy$self,
+  has$self,
   maybeRefractToJSONSchemaElement,
 } from './util.ts';
 export { dereferenceSourceDescriptions } from './source-descriptions.ts';
