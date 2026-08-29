@@ -289,6 +289,8 @@ Supported media types are:
   'application/vnd.oai.workflows+json;version=1.0.0',
   'application/vnd.oai.workflows;version=1.0.1',
   'application/vnd.oai.workflows+json;version=1.0.1',
+  'application/vnd.oai.workflows;version=1.1.0',
+  'application/vnd.oai.workflows+json;version=1.1.0',
 ]
 ```
 
@@ -303,6 +305,7 @@ Parser-specific options take precedence over global options.
 
   Each parsed source description is added with a `'source-description'` class and metadata (`name`, `type`, `retrievalURI`).
   Only OpenAPI 2.0, OpenAPI 3.0.x, OpenAPI 3.1.x, and Arazzo 1.x documents are accepted as source descriptions.
+  Source description URLs are resolved against the Arazzo document's base URI (its `$self` field when present, otherwise its retrieval URI).
 - **sourceDescriptionsMaxDepth** - Maximum recursion depth for parsing nested Arazzo source descriptions.
   Defaults to `+Infinity`. Circular references are automatically detected and skipped.
 
@@ -442,6 +445,8 @@ Supported media types are:
   'application/vnd.oai.workflows+yaml;version=1.0.0',
   'application/vnd.oai.workflows;version=1.0.1',
   'application/vnd.oai.workflows+yaml;version=1.0.1',
+  'application/vnd.oai.workflows;version=1.1.0',
+  'application/vnd.oai.workflows+yaml;version=1.1.0',
 ]
 ```
 
@@ -456,6 +461,7 @@ Parser-specific options take precedence over global options. See [arazzo-json-1]
 
   Each parsed source description is added with a `'source-description'` class and metadata (`name`, `type`, `retrievalURI`).
   Only OpenAPI 2.0, OpenAPI 3.0.x, OpenAPI 3.1.x, and Arazzo 1.x documents are accepted as source descriptions.
+  Source description URLs are resolved against the Arazzo document's base URI (its `$self` field when present, otherwise its retrieval URI).
 - **sourceDescriptionsMaxDepth** - Maximum recursion depth for parsing nested Arazzo source descriptions.
   Defaults to `+Infinity`. Circular references are automatically detected and skipped.
 
@@ -1607,6 +1613,9 @@ Supported media types:
   'application/vnd.oai.workflows;version=1.0.1',
   'application/vnd.oai.workflows+json;version=1.0.1',
   'application/vnd.oai.workflows+yaml;version=1.0.1',
+  'application/vnd.oai.workflows;version=1.1.0',
+  'application/vnd.oai.workflows+json;version=1.1.0',
+  'application/vnd.oai.workflows+yaml;version=1.1.0',
 ]
 ```
 
@@ -2008,6 +2017,11 @@ Supported media types:
 
 Dereference strategy for dereferencing [Arazzo 1.x](https://spec.openapis.org/arazzo/latest.html) definitions.
 
+Relative references (JSON Schema `$ref` keywords and Source Description URLs) are resolved against the document's
+base URI. Per Arazzo 1.1.0, the base URI is the Arazzo Object's `$self` field when present (itself resolved
+against the retrieval URI when relative), otherwise the retrieval URI. A reference whose URI matches the `$self`
+of an already loaded Arazzo document resolves to that document by identity, without fetching it again.
+
 Supported media types:
 
 ```js
@@ -2018,6 +2032,9 @@ Supported media types:
   'application/vnd.oai.workflows;version=1.0.1',
   'application/vnd.oai.workflows+json;version=1.0.1',
   'application/vnd.oai.workflows+yaml;version=1.0.1',
+  'application/vnd.oai.workflows;version=1.1.0',
+  'application/vnd.oai.workflows+json;version=1.1.0',
+  'application/vnd.oai.workflows+yaml;version=1.1.0',
 ]
 ```
 
@@ -2032,6 +2049,7 @@ Strategy-specific options take precedence over global options.
 
   Each dereferenced source description is added with a `'source-description'` class and metadata (`name`, `type`, `retrievalURI`).
   Only OpenAPI 2.0, OpenAPI 3.0.x, OpenAPI 3.1.x, and Arazzo 1.x documents are accepted as source descriptions.
+  Source description URLs are resolved against the Arazzo document's base URI (its `$self` field when present, otherwise its retrieval URI).
 - **sourceDescriptionsMaxDepth** - Maximum recursion depth for dereferencing nested Arazzo source descriptions.
   Defaults to `+Infinity`. Circular references are automatically detected and skipped.
 
@@ -2940,6 +2958,9 @@ rules, exactly as in the `openapi-3-1` strategy: the external schema **resource*
 resource is embedded once, keyed by its `$id`; references (including `$anchor`, `$dynamicRef`, and
 `$dynamicAnchor`) are never rewritten. Nested external schema resources are embedded flat into the top-level
 `components.inputs`, deduplicated by resource URI. Internal Schema Object references are preserved untouched.
+Schema Object `$ref`s are resolved against the document's base URI — the Arazzo Object's `$self` field when
+present (Arazzo 1.1.0), otherwise the retrieval URI — and references resolving into the entry document
+(including by its `$self` identity) are treated as internal.
 
 Supported media types:
 
@@ -2950,7 +2971,10 @@ Supported media types:
   'application/vnd.oai.workflows+yaml;version=1.0.0',
   'application/vnd.oai.workflows;version=1.0.1',
   'application/vnd.oai.workflows+json;version=1.0.1',
-  'application/vnd.oai.workflows+yaml;version=1.0.1'
+  'application/vnd.oai.workflows+yaml;version=1.0.1',
+  'application/vnd.oai.workflows;version=1.1.0',
+  'application/vnd.oai.workflows+json;version=1.1.0',
+  'application/vnd.oai.workflows+yaml;version=1.1.0',
 ]
 ```
 
@@ -2963,7 +2987,7 @@ import { bundle } from '@speclynx/apidom-reference';
 
 await bundle('/home/user/arazzo.json', {
   parse: {
-    mediaType: 'application/vnd.oai.workflows+json;version=1.0.1',
+    mediaType: 'application/vnd.oai.workflows+json;version=1.1.0',
   },
   bundle: {
     strategyOpts: {
