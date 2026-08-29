@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.2.1](https://github.com/speclynx/apidom/compare/v5.2.0...v5.2.1) (2026-08-29)
+
+### Bug Fixes
+
+- **release:** fix failed v5.2.0 release ([74fe3bd](https://github.com/speclynx/apidom/commit/74fe3bd7702718619070c4fac460551f0cfd37e8))
+
 # [5.2.0](https://github.com/speclynx/apidom/compare/v5.1.1...v5.2.0) (2026-08-29)
 
 ### Features
