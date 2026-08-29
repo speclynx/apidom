@@ -418,9 +418,10 @@ class Arazzo1BundleVisitor {
       // $id graph, and embedding the current document into itself would be wrong.
       // The same holds for a $ref resolving into the entry document (e.g. by its
       // `$self` identity) — it's already part of the bundle.
+      const schemaReferenceURI = url.stripHash(schemaReference.uri);
       if (
-        schemaReference === this.reference ||
-        schemaReference === this.reference.refSet!.rootRef
+        schemaReferenceURI === url.stripHash(this.reference.uri) ||
+        schemaReferenceURI === url.stripHash(this.reference.refSet!.rootRef!.uri)
       ) {
         return;
       }
