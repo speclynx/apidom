@@ -278,6 +278,89 @@ describe('dereference', function () {
           });
         });
 
+        context('given shared source descriptions', function () {
+          const uri = path.join(rootFixturePath, 'shared-a.json');
+
+          const assertSharedDocumentIsReused = (dereferenceResult: ParseResultElement) => {
+            // shared-a + petStore + shared-b
+            assert.strictEqual(dereferenceResult.length, 3);
+
+            const petStore = dereferenceResult.get(1)! as ParseResultElement;
+            assert.isTrue(isOpenApi3_1Element(petStore.api));
+
+            // shared-b reaches the same OpenAPI document through a different path (diamond)
+            const sharedB = dereferenceResult.get(2)! as ParseResultElement;
+            assert.strictEqual(sharedB.get(0)?.element, 'arazzoSpecification1');
+            assert.strictEqual(sharedB.length, 3);
+
+            const petStoreApi = sharedB.get(1)! as ParseResultElement;
+            assert.isTrue(isParseResultElement(petStoreApi));
+            assert.isTrue(petStoreApi.classes.includes('source-description'));
+            assert.strictEqual(petStoreApi.meta.get('name'), 'petStoreApi');
+            assert.strictEqual(
+              petStoreApi.meta.get('retrievalURI'),
+              petStore.meta.get('retrievalURI'),
+            );
+            assert.isUndefined(petStoreApi.api); // not dereferenced again
+            assert.strictEqual(petStoreApi.warnings.length, 0); // not a cycle
+            assert.strictEqual(petStoreApi.meta.get('parseResult'), petStore);
+
+            const annotation = petStoreApi.get(0);
+            assert.strictEqual(annotation?.element, 'annotation');
+            assert.isTrue(annotation?.classes.includes('info'));
+            assert.include(annotation?.toValue(), 'has already been dereferenced');
+
+            // source description element points at the result where the document was dereferenced
+            const sharedBApi: any = sharedB.api!;
+            const sourceDesc = sharedBApi.get('sourceDescriptions').get(0);
+            assert.strictEqual(sourceDesc.meta.get('parseResult'), petStore);
+
+            // reference back to shared-a is still a cycle
+            const sharedA = sharedB.get(2)! as ParseResultElement;
+            assert.isUndefined(sharedA.api);
+            assert.isUndefined(sharedA.meta.get('parseResult'));
+            assert.isTrue(sharedA.get(0)?.classes.includes('warning'));
+            assert.include(sharedA.get(0)?.toValue(), 'has already been visited');
+          };
+
+          specify(
+            'should dereference the shared document once and point later references at it',
+            async function () {
+              const dereferenceResult = await dereference(uri, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                dereference: {
+                  strategyOpts: {
+                    'arazzo-1': { sourceDescriptions: true },
+                  },
+                },
+              });
+
+              assertSharedDocumentIsReused(dereferenceResult);
+            },
+          );
+
+          specify(
+            'should reuse the shared document when enabled on both parser and dereference',
+            async function () {
+              const dereferenceResult = await dereference(uri, {
+                parse: {
+                  mediaType: mediaTypes.latest('json'),
+                  parserOpts: {
+                    'arazzo-json-1': { sourceDescriptions: true },
+                  },
+                },
+                dereference: {
+                  strategyOpts: {
+                    'arazzo-1': { sourceDescriptions: true },
+                  },
+                },
+              });
+
+              assertSharedDocumentIsReused(dereferenceResult);
+            },
+          );
+        });
+
         context('given sourceDescriptions as array of names', function () {
           specify('should dereference only specified source descriptions', async function () {
             const uri = path.join(rootFixturePath, 'root-multi.json');

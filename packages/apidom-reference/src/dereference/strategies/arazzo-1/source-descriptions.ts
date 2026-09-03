@@ -9,6 +9,7 @@ import {
 import {
   isArazzoSpecification1Element,
   isSourceDescriptionElement,
+  SourceDescriptionElement,
 } from '@speclynx/apidom-ns-arazzo-1';
 import { isSwaggerElement } from '@speclynx/apidom-ns-openapi-2';
 import { isOpenApi3_0Element } from '@speclynx/apidom-ns-openapi-3-0';
@@ -26,7 +27,55 @@ interface DereferenceSourceDescriptionContext {
   options: ReferenceOptions;
   strategyName: string;
   currentDepth: number;
-  visitedUrls: Set<string>;
+  // URIs of the documents currently being dereferenced, from the root down to the current one
+  ancestors: string[];
+  // source description results of documents dereferenced so far, keyed by their URIs
+  dereferenced: Map<string, ParseResultElement>;
+}
+
+/**
+ * Validates that the dereferenced document is an OpenAPI or Arazzo document
+ * and that it matches the type declared by the source description.
+ */
+function validateSourceDescriptionAPI(
+  parseResult: ParseResultElement,
+  sourceDescription: SourceDescriptionElement,
+  sourceDescriptionAPI: Element | undefined,
+  retrievalURI: string,
+): void {
+  // only allow OpenAPI and Arazzo as source descriptions
+  const isOpenApi =
+    isSwaggerElement(sourceDescriptionAPI) ||
+    isOpenApi3_0Element(sourceDescriptionAPI) ||
+    isOpenApi3_1Element(sourceDescriptionAPI);
+  const isArazzo = isArazzoSpecification1Element(sourceDescriptionAPI);
+
+  if (!isOpenApi && !isArazzo) {
+    const annotation = new AnnotationElement(
+      `Source description "${retrievalURI}" is not an OpenAPI or Arazzo document`,
+    );
+    annotation.classes.push('warning');
+    parseResult.push(annotation);
+    return;
+  }
+
+  // validate declared type matches actual dereferenced type
+  const declaredType = toValue(sourceDescription.type);
+  if (typeof declaredType === 'string') {
+    if (declaredType === 'openapi' && !isOpenApi) {
+      const annotation = new AnnotationElement(
+        `Source description "${retrievalURI}" declared as "openapi" but dereferenced as Arazzo document`,
+      );
+      annotation.classes.push('warning');
+      parseResult.push(annotation);
+    } else if (declaredType === 'arazzo' && !isArazzo) {
+      const annotation = new AnnotationElement(
+        `Source description "${retrievalURI}" declared as "arazzo" but dereferenced as OpenAPI document`,
+      );
+      annotation.classes.push('warning');
+      parseResult.push(annotation);
+    }
+  }
 }
 
 /**
@@ -69,8 +118,8 @@ async function dereferenceSourceDescription(
   const retrievalURI = url.sanitize(url.stripHash(url.resolve(ctx.baseURI, sourceDescriptionURI)));
   parseResult.setMetaProperty('retrievalURI', retrievalURI);
 
-  // skip if already visited (cycle detection)
-  if (ctx.visitedUrls.has(retrievalURI)) {
+  // skip if the document is still being dereferenced higher up the chain (cycle detection)
+  if (ctx.ancestors.includes(retrievalURI)) {
     const annotation = new AnnotationElement(
       `Source description "${retrievalURI}" has already been visited. Skipping to prevent cycle`,
     );
@@ -78,7 +127,25 @@ async function dereferenceSourceDescription(
     parseResult.push(annotation);
     return parseResult;
   }
-  ctx.visitedUrls.add(retrievalURI);
+
+  // a document reached again through a different path is a shared dependency, not a cycle;
+  // point at the result where it was dereferenced instead of dereferencing it again
+  const existingDereferenceResult = ctx.dereferenced.get(retrievalURI);
+  if (existingDereferenceResult !== undefined) {
+    const annotation = new AnnotationElement(
+      `Source description "${retrievalURI}" has already been dereferenced. Reusing existing dereference result`,
+    );
+    annotation.classes.push('info');
+    parseResult.push(annotation);
+    parseResult.meta.set('parseResult', existingDereferenceResult);
+    validateSourceDescriptionAPI(
+      parseResult,
+      sourceDescription,
+      existingDereferenceResult.api,
+      retrievalURI,
+    );
+    return parseResult;
+  }
 
   // check if source description was already parsed (e.g., during parse phase with sourceDescriptions: true)
   const existingParseResult = sourceDescription.meta.get('parseResult');
@@ -103,7 +170,8 @@ async function dereferenceSourceDescription(
               [ctx.strategyName]: {
                 sourceDescriptions: true,
                 sourceDescriptionsDepth: ctx.currentDepth + 1,
-                sourceDescriptionsVisitedUrls: ctx.visitedUrls,
+                sourceDescriptionsAncestors: ctx.ancestors,
+                sourceDescriptionsDereferenced: ctx.dereferenced,
               },
             },
           },
@@ -125,7 +193,8 @@ async function dereferenceSourceDescription(
               [ctx.strategyName]: {
                 sourceDescriptions: true,
                 sourceDescriptionsDepth: ctx.currentDepth + 1,
-                sourceDescriptionsVisitedUrls: ctx.visitedUrls,
+                sourceDescriptionsAncestors: ctx.ancestors,
+                sourceDescriptionsDereferenced: ctx.dereferenced,
               },
             },
           },
@@ -148,40 +217,12 @@ async function dereferenceSourceDescription(
     return parseResult;
   }
 
-  // only allow OpenAPI and Arazzo as source descriptions
+  // register dereferenced document (by retrieval URI and by identity) for later references to it
   const { api: sourceDescriptionAPI } = parseResult;
-  const isOpenApi =
-    isSwaggerElement(sourceDescriptionAPI) ||
-    isOpenApi3_0Element(sourceDescriptionAPI) ||
-    isOpenApi3_1Element(sourceDescriptionAPI);
-  const isArazzo = isArazzoSpecification1Element(sourceDescriptionAPI);
+  ctx.dereferenced.set(retrievalURI, parseResult);
+  ctx.dereferenced.set(resolveArazzo$selfField(retrievalURI, sourceDescriptionAPI), parseResult);
 
-  if (!isOpenApi && !isArazzo) {
-    const annotation = new AnnotationElement(
-      `Source description "${retrievalURI}" is not an OpenAPI or Arazzo document`,
-    );
-    annotation.classes.push('warning');
-    parseResult.push(annotation);
-    return parseResult;
-  }
-
-  // validate declared type matches actual dereferenced type
-  const declaredType = toValue(sourceDescription.type);
-  if (typeof declaredType === 'string') {
-    if (declaredType === 'openapi' && !isOpenApi) {
-      const annotation = new AnnotationElement(
-        `Source description "${retrievalURI}" declared as "openapi" but dereferenced as Arazzo document`,
-      );
-      annotation.classes.push('warning');
-      parseResult.push(annotation);
-    } else if (declaredType === 'arazzo' && !isArazzo) {
-      const annotation = new AnnotationElement(
-        `Source description "${retrievalURI}" declared as "arazzo" but dereferenced as OpenAPI document`,
-      );
-      annotation.classes.push('warning');
-      parseResult.push(annotation);
-    }
-  }
+  validateSourceDescriptionAPI(parseResult, sourceDescription, sourceDescriptionAPI, retrievalURI);
 
   return parseResult;
 }
@@ -193,6 +234,13 @@ async function dereferenceSourceDescription(
  * SourceDescriptionElement's meta as 'parseResult' for easy access,
  * regardless of success or failure. On failure, the ParseResultElement
  * contains annotations explaining what went wrong.
+ *
+ * A document referenced from more than one place is dereferenced only once.
+ * Every later source description referencing it gets its own result carrying
+ * an 'info' annotation and a 'parseResult' meta pointing at the result where
+ * the document was dereferenced; that result is also what gets attached to the
+ * SourceDescriptionElement's meta. A document referencing one of its ancestors
+ * forms a cycle and is skipped with a 'warning' annotation instead.
  *
  * @param parseResult - ParseResult containing a parsed (optionally dereferenced) Arazzo specification
  * @param parseResultRetrievalURI - URI from which the parseResult was retrieved
@@ -267,14 +315,9 @@ export async function dereferenceSourceDescriptions(
   // recursion state comes from strategy-specific options
   const sharedOpts = options?.dereference?.strategyOpts?.[strategyName] ?? {};
   const currentDepth = sharedOpts.sourceDescriptionsDepth ?? 0;
-  const visitedUrls: Set<string> = sharedOpts.sourceDescriptionsVisitedUrls ?? new Set();
-
-  // base URI for resolving source description URLs honors Arazzo `$self` field
-  const baseURI = resolveArazzo$selfField(retrievalURI, api);
-
-  // add current file to visited URLs to prevent cycles (by retrieval URI and by identity)
-  visitedUrls.add(retrievalURI);
-  visitedUrls.add(baseURI);
+  const ancestors: string[] = sharedOpts.sourceDescriptionsAncestors ?? [];
+  const dereferenced: Map<string, ParseResultElement> =
+    sharedOpts.sourceDescriptionsDereferenced ?? new Map();
 
   if (currentDepth >= maxDepth) {
     const annotation = new AnnotationElement(
@@ -286,12 +329,16 @@ export async function dereferenceSourceDescriptions(
     return [parseResult];
   }
 
+  // base URI for resolving source description URLs honors Arazzo `$self` field
+  const baseURI = resolveArazzo$selfField(retrievalURI, api);
+
   const ctx: DereferenceSourceDescriptionContext = {
     baseURI,
     options,
     strategyName,
     currentDepth,
-    visitedUrls,
+    ancestors,
+    dereferenced,
   };
 
   // determine which source descriptions to dereference (array filters by name)
@@ -307,15 +354,26 @@ export async function dereferenceSourceDescriptions(
       })
     : api.sourceDescriptions;
 
-  // process sequentially to ensure proper cycle detection with shared visitedUrls
-  for (const sourceDescription of sourceDescriptions) {
-    const sourceDescriptionDereferenceResult = await dereferenceSourceDescription(
-      sourceDescription,
-      ctx,
-    );
-    // always attach result (even on failure - contains annotations)
-    sourceDescription.meta.set('parseResult', sourceDescriptionDereferenceResult);
-    results.push(sourceDescriptionDereferenceResult);
+  // current file is an ancestor (by retrieval URI and by identity) of everything dereferenced below
+  ancestors.push(retrievalURI, baseURI);
+  try {
+    // process sequentially to ensure proper cycle detection with shared ancestors
+    for (const sourceDescription of sourceDescriptions) {
+      const sourceDescriptionDereferenceResult = await dereferenceSourceDescription(
+        sourceDescription,
+        ctx,
+      );
+      // always attach result (even on failure - contains annotations);
+      // a shared document attaches the result where it was dereferenced
+      sourceDescription.meta.set(
+        'parseResult',
+        sourceDescriptionDereferenceResult.meta.get('parseResult') ??
+          sourceDescriptionDereferenceResult,
+      );
+      results.push(sourceDescriptionDereferenceResult);
+    }
+  } finally {
+    ancestors.splice(-2, 2);
   }
 
   return results;
