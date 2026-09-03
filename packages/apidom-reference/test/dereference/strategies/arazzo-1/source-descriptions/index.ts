@@ -8,6 +8,10 @@ import { isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 
 import { dereference } from '../../../../../src/index.ts';
 import * as url from '../../../../../src/util/url.ts';
+import {
+  assertSharedSourceDescription,
+  assertCyclicSourceDescription,
+} from '../../../../helpers.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootFixturePath = path.join(__dirname, 'fixtures');
@@ -276,6 +280,72 @@ describe('dereference', function () {
             assert.isTrue(annotation?.classes.includes('warning'));
             assert.include(annotation?.toValue(), 'has already been visited');
           });
+        });
+
+        context('given shared source descriptions', function () {
+          const uri = path.join(rootFixturePath, 'shared-a.json');
+
+          const assertSharedDocumentIsReused = (dereferenceResult: ParseResultElement) => {
+            // shared-a + petStore + shared-b
+            assert.strictEqual(dereferenceResult.length, 3);
+
+            const petStore = dereferenceResult.get(1)! as ParseResultElement;
+            assert.isTrue(isOpenApi3_1Element(petStore.api));
+
+            // shared-b reaches the same OpenAPI document through a different path (diamond)
+            const sharedB = dereferenceResult.get(2)! as ParseResultElement;
+            assert.strictEqual(sharedB.get(0)?.element, 'arazzoSpecification1');
+            assert.strictEqual(sharedB.length, 3);
+
+            const petStoreApi = sharedB.get(1)! as ParseResultElement;
+            assert.strictEqual(petStoreApi.meta.get('name'), 'petStoreApi');
+            assertSharedSourceDescription(petStoreApi, petStore, 'dereferenced');
+
+            // source description element points at the result where the document was dereferenced
+            const sharedBApi: any = sharedB.api!;
+            const sourceDesc = sharedBApi.get('sourceDescriptions').get(0);
+            assert.strictEqual(sourceDesc.meta.get('parseResult'), petStore);
+
+            // reference back to shared-a is still a cycle
+            assertCyclicSourceDescription(sharedB.get(2)! as ParseResultElement);
+          };
+
+          specify(
+            'should dereference the shared document once and point later references at it',
+            async function () {
+              const dereferenceResult = await dereference(uri, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                dereference: {
+                  strategyOpts: {
+                    'arazzo-1': { sourceDescriptions: true },
+                  },
+                },
+              });
+
+              assertSharedDocumentIsReused(dereferenceResult);
+            },
+          );
+
+          specify(
+            'should reuse the shared document when enabled on both parser and dereference',
+            async function () {
+              const dereferenceResult = await dereference(uri, {
+                parse: {
+                  mediaType: mediaTypes.latest('json'),
+                  parserOpts: {
+                    'arazzo-json-1': { sourceDescriptions: true },
+                  },
+                },
+                dereference: {
+                  strategyOpts: {
+                    'arazzo-1': { sourceDescriptions: true },
+                  },
+                },
+              });
+
+              assertSharedDocumentIsReused(dereferenceResult);
+            },
+          );
         });
 
         context('given sourceDescriptions as array of names', function () {

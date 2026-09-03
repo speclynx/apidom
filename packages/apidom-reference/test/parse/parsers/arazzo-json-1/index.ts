@@ -410,7 +410,7 @@ describe('parsers', function () {
               const annotation = sdParseResult.get(1);
               assert.strictEqual(annotation?.element, 'annotation');
               assert.isTrue(annotation?.classes.includes('warning'));
-              assert.include(annotation?.toValue(), 'declared as "openapi" but parsed as Arazzo');
+              assert.include(annotation?.toValue(), 'declared as "openapi" but is an Arazzo');
             },
           );
 
@@ -442,7 +442,7 @@ describe('parsers', function () {
               const annotation = sdParseResult.get(1);
               assert.strictEqual(annotation?.element, 'annotation');
               assert.isTrue(annotation?.classes.includes('warning'));
-              assert.include(annotation?.toValue(), 'declared as "arazzo" but parsed as OpenAPI');
+              assert.include(annotation?.toValue(), 'declared as "arazzo" but is an OpenAPI');
             },
           );
         });
