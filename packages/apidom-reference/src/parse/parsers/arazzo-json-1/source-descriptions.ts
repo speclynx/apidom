@@ -100,7 +100,6 @@ async function parseSourceDescription(
       sourceDescription,
       sharedParseResult.api,
       retrievalURI,
-      'parsed',
     );
     return parseResult;
   }
@@ -145,13 +144,7 @@ async function parseSourceDescription(
     ctx.parsed.set(documentURI, parseResult);
   }
 
-  validateSourceDescriptionAPI(
-    parseResult,
-    sourceDescription,
-    sourceDescriptionAPI,
-    retrievalURI,
-    'parsed',
-  );
+  validateSourceDescriptionAPI(parseResult, sourceDescription, sourceDescriptionAPI, retrievalURI);
 
   return parseResult;
 }

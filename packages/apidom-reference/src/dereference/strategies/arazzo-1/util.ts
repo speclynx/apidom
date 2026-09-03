@@ -61,7 +61,6 @@ export const validateSourceDescriptionAPI = (
   sourceDescription: SourceDescriptionElement,
   sourceDescriptionAPI: Element | undefined,
   retrievalURI: string,
-  verb: 'parsed' | 'dereferenced',
 ): void => {
   // only allow OpenAPI and Arazzo as source descriptions
   const isOpenApi =
@@ -84,13 +83,13 @@ export const validateSourceDescriptionAPI = (
   if (typeof declaredType === 'string') {
     if (declaredType === 'openapi' && !isOpenApi) {
       const annotation = new AnnotationElement(
-        `Source description "${retrievalURI}" declared as "openapi" but ${verb} as Arazzo document`,
+        `Source description "${retrievalURI}" declared as "openapi" but is an Arazzo document`,
       );
       annotation.classes.push('warning');
       parseResult.push(annotation);
     } else if (declaredType === 'arazzo' && !isArazzo) {
       const annotation = new AnnotationElement(
-        `Source description "${retrievalURI}" declared as "arazzo" but ${verb} as OpenAPI document`,
+        `Source description "${retrievalURI}" declared as "arazzo" but is an OpenAPI document`,
       );
       annotation.classes.push('warning');
       parseResult.push(annotation);

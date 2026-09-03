@@ -98,7 +98,6 @@ async function dereferenceSourceDescription(
       sourceDescription,
       sharedDereferenceResult.api,
       retrievalURI,
-      'dereferenced',
     );
     return parseResult;
   }
@@ -179,13 +178,7 @@ async function dereferenceSourceDescription(
     ctx.dereferenced.set(documentURI, parseResult);
   }
 
-  validateSourceDescriptionAPI(
-    parseResult,
-    sourceDescription,
-    sourceDescriptionAPI,
-    retrievalURI,
-    'dereferenced',
-  );
+  validateSourceDescriptionAPI(parseResult, sourceDescription, sourceDescriptionAPI, retrievalURI);
 
   return parseResult;
 }
