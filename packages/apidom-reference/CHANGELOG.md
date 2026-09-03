@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.2.2](https://github.com/speclynx/apidom/compare/v5.2.1...v5.2.2) (2026-09-03)
+
+### Bug Fixes
+
+- **reference:** distinguish shared source descriptions from cycles ([#518](https://github.com/speclynx/apidom/issues/518)) ([b66bac4](https://github.com/speclynx/apidom/commit/b66bac4f5f8f91f5cc1010fb8dd12aed399d5dfa)), closes [usearazzo/arazzo-toolkit#139](https://github.com/usearazzo/arazzo-toolkit/issues/139)
+
 ## [5.2.1](https://github.com/speclynx/apidom/compare/v5.2.0...v5.2.1) (2026-08-29)
 
 **Note:** Version bump only for package @speclynx/apidom-reference
