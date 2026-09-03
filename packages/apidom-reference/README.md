@@ -309,6 +309,12 @@ Parser-specific options take precedence over global options.
 - **sourceDescriptionsMaxDepth** - Maximum recursion depth for parsing nested Arazzo source descriptions.
   Defaults to `+Infinity`. Circular references are automatically detected and skipped.
 
+  A document referenced from more than one place (e.g., one OpenAPI description shared by several Arazzo documents)
+  is parsed only once. Every later source description referencing it gets its own `ParseResultElement` with the usual
+  metadata, an `'info'` annotation, and a `'parseResult'` meta pointing at the `ParseResultElement` where the document was parsed.
+  The `SourceDescriptionElement`'s `'parseResult'` meta points at that same `ParseResultElement`, so the parsed
+  document is reachable from every source description that references it.
+
 ##### Error handling
 
 The source descriptions parsing uses annotations instead of throwing errors, allowing parsing to continue
@@ -464,6 +470,12 @@ Parser-specific options take precedence over global options. See [arazzo-json-1]
   Source description URLs are resolved against the Arazzo document's base URI (its `$self` field when present, otherwise its retrieval URI).
 - **sourceDescriptionsMaxDepth** - Maximum recursion depth for parsing nested Arazzo source descriptions.
   Defaults to `+Infinity`. Circular references are automatically detected and skipped.
+
+  A document referenced from more than one place (e.g., one OpenAPI description shared by several Arazzo documents)
+  is parsed only once. Every later source description referencing it gets its own `ParseResultElement` with the usual
+  metadata, an `'info'` annotation, and a `'parseResult'` meta pointing at the `ParseResultElement` where the document was parsed.
+  The `SourceDescriptionElement`'s `'parseResult'` meta points at that same `ParseResultElement`, so the parsed
+  document is reachable from every source description that references it.
 
 ##### Error handling
 

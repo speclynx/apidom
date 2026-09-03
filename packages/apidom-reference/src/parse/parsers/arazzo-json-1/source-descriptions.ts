@@ -8,6 +8,7 @@ import {
 import {
   isArazzoSpecification1Element,
   isSourceDescriptionElement,
+  SourceDescriptionElement,
 } from '@speclynx/apidom-ns-arazzo-1';
 import { isSwaggerElement } from '@speclynx/apidom-ns-openapi-2';
 import { isOpenApi3_0Element } from '@speclynx/apidom-ns-openapi-3-0';
@@ -28,7 +29,55 @@ interface ParseSourceDescriptionContext {
   baseURI: string;
   options: ReferenceOptions;
   currentDepth: number;
-  visitedUrls: Set<string>;
+  // URIs of the documents currently being parsed, from the root down to the current one
+  ancestors: string[];
+  // source description results of documents parsed so far, keyed by their URIs
+  parsed: Map<string, ParseResultElement>;
+}
+
+/**
+ * Validates that the parsed document is an OpenAPI or Arazzo document
+ * and that it matches the type declared by the source description.
+ */
+function validateSourceDescriptionAPI(
+  parseResult: ParseResultElement,
+  sourceDescription: SourceDescriptionElement,
+  sourceDescriptionAPI: Element | undefined,
+  retrievalURI: string,
+): void {
+  // only allow OpenAPI and Arazzo as source descriptions
+  const isOpenApi =
+    isSwaggerElement(sourceDescriptionAPI) ||
+    isOpenApi3_0Element(sourceDescriptionAPI) ||
+    isOpenApi3_1Element(sourceDescriptionAPI);
+  const isArazzo = isArazzoSpecification1Element(sourceDescriptionAPI);
+
+  if (!isOpenApi && !isArazzo) {
+    const annotation = new AnnotationElement(
+      `Source description "${retrievalURI}" is not an OpenAPI or Arazzo document`,
+    );
+    annotation.classes.push('warning');
+    parseResult.push(annotation);
+    return;
+  }
+
+  // validate declared type matches actual parsed type
+  const declaredType = toValue(sourceDescription.type);
+  if (typeof declaredType === 'string') {
+    if (declaredType === 'openapi' && !isOpenApi) {
+      const annotation = new AnnotationElement(
+        `Source description "${retrievalURI}" declared as "openapi" but parsed as Arazzo document`,
+      );
+      annotation.classes.push('warning');
+      parseResult.push(annotation);
+    } else if (declaredType === 'arazzo' && !isArazzo) {
+      const annotation = new AnnotationElement(
+        `Source description "${retrievalURI}" declared as "arazzo" but parsed as OpenAPI document`,
+      );
+      annotation.classes.push('warning');
+      parseResult.push(annotation);
+    }
+  }
 }
 
 /**
@@ -71,8 +120,8 @@ async function parseSourceDescription(
   const retrievalURI = url.sanitize(url.stripHash(url.resolve(ctx.baseURI, sourceDescriptionURI)));
   parseResult.setMetaProperty('retrievalURI', retrievalURI);
 
-  // skip if already visited (cycle detection)
-  if (ctx.visitedUrls.has(retrievalURI)) {
+  // skip if the document is still being parsed higher up the chain (cycle detection)
+  if (ctx.ancestors.includes(retrievalURI)) {
     const annotation = new AnnotationElement(
       `Source description "${retrievalURI}" has already been visited. Skipping to prevent cycle`,
     );
@@ -80,7 +129,25 @@ async function parseSourceDescription(
     parseResult.push(annotation);
     return parseResult;
   }
-  ctx.visitedUrls.add(retrievalURI);
+
+  // a document reached again through a different path is a shared dependency, not a cycle;
+  // point at the result where it was parsed instead of parsing it again
+  const existingParseResult = ctx.parsed.get(retrievalURI);
+  if (existingParseResult !== undefined) {
+    const annotation = new AnnotationElement(
+      `Source description "${retrievalURI}" has already been parsed. Reusing existing parse result`,
+    );
+    annotation.classes.push('info');
+    parseResult.push(annotation);
+    parseResult.meta.set('parseResult', existingParseResult);
+    validateSourceDescriptionAPI(
+      parseResult,
+      sourceDescription,
+      existingParseResult.api,
+      retrievalURI,
+    );
+    return parseResult;
+  }
 
   try {
     const sourceDescriptionParseResult = await parse(
@@ -94,7 +161,8 @@ async function parseSourceDescription(
             sourceDescriptions: true,
             [ARAZZO_RECURSION_KEY]: {
               sourceDescriptionsDepth: ctx.currentDepth + 1,
-              sourceDescriptionsVisitedUrls: ctx.visitedUrls,
+              sourceDescriptionsAncestors: ctx.ancestors,
+              sourceDescriptionsParsed: ctx.parsed,
             },
           },
         },
@@ -115,40 +183,12 @@ async function parseSourceDescription(
     return parseResult;
   }
 
-  // only allow OpenAPI and Arazzo as source descriptions
+  // register parsed document (by retrieval URI and by identity) for later references to it
   const { api: sourceDescriptionAPI } = parseResult;
-  const isOpenApi =
-    isSwaggerElement(sourceDescriptionAPI) ||
-    isOpenApi3_0Element(sourceDescriptionAPI) ||
-    isOpenApi3_1Element(sourceDescriptionAPI);
-  const isArazzo = isArazzoSpecification1Element(sourceDescriptionAPI);
+  ctx.parsed.set(retrievalURI, parseResult);
+  ctx.parsed.set(resolveArazzo$selfField(retrievalURI, sourceDescriptionAPI), parseResult);
 
-  if (!isOpenApi && !isArazzo) {
-    const annotation = new AnnotationElement(
-      `Source description "${retrievalURI}" is not an OpenAPI or Arazzo document`,
-    );
-    annotation.classes.push('warning');
-    parseResult.push(annotation);
-    return parseResult;
-  }
-
-  // validate declared type matches actual parsed type
-  const declaredType = toValue(sourceDescription.type);
-  if (typeof declaredType === 'string') {
-    if (declaredType === 'openapi' && !isOpenApi) {
-      const annotation = new AnnotationElement(
-        `Source description "${retrievalURI}" declared as "openapi" but parsed as Arazzo document`,
-      );
-      annotation.classes.push('warning');
-      parseResult.push(annotation);
-    } else if (declaredType === 'arazzo' && !isArazzo) {
-      const annotation = new AnnotationElement(
-        `Source description "${retrievalURI}" declared as "arazzo" but parsed as OpenAPI document`,
-      );
-      annotation.classes.push('warning');
-      parseResult.push(annotation);
-    }
-  }
+  validateSourceDescriptionAPI(parseResult, sourceDescription, sourceDescriptionAPI, retrievalURI);
 
   return parseResult;
 }
@@ -160,6 +200,13 @@ async function parseSourceDescription(
  * SourceDescriptionElement's meta as 'parseResult' for easy access,
  * regardless of success or failure. On failure, the ParseResultElement
  * contains annotations explaining what went wrong.
+ *
+ * A document referenced from more than one place is parsed only once.
+ * Every later source description referencing it gets its own result carrying
+ * an 'info' annotation and a 'parseResult' meta pointing at the result where
+ * the document was parsed; that result is also what gets attached to the
+ * SourceDescriptionElement's meta. A document referencing one of its ancestors
+ * forms a cycle and is skipped with a 'warning' annotation instead.
  *
  * @param parseResult - ParseResult containing an Arazzo specification
  * @param parseResultRetrievalURI - URI from which the parseResult was retrieved
@@ -234,14 +281,8 @@ export async function parseSourceDescriptions(
   // recursion state comes from shared key (works across JSON/YAML)
   const sharedOpts = options?.parse?.parserOpts?.[ARAZZO_RECURSION_KEY] ?? {};
   const currentDepth = sharedOpts.sourceDescriptionsDepth ?? 0;
-  const visitedUrls: Set<string> = sharedOpts.sourceDescriptionsVisitedUrls ?? new Set();
-
-  // base URI for resolving source description URLs honors Arazzo `$self` field
-  const baseURI = resolveArazzo$selfField(file.uri, api);
-
-  // add current file to visited URLs to prevent cycles (by retrieval URI and by identity)
-  visitedUrls.add(file.uri);
-  visitedUrls.add(baseURI);
+  const ancestors: string[] = sharedOpts.sourceDescriptionsAncestors ?? [];
+  const parsed: Map<string, ParseResultElement> = sharedOpts.sourceDescriptionsParsed ?? new Map();
 
   if (currentDepth >= maxDepth) {
     const annotation = new AnnotationElement(
@@ -253,11 +294,15 @@ export async function parseSourceDescriptions(
     return [parseResult];
   }
 
+  // base URI for resolving source description URLs honors Arazzo `$self` field
+  const baseURI = resolveArazzo$selfField(file.uri, api);
+
   const ctx: ParseSourceDescriptionContext = {
     baseURI,
     options,
     currentDepth,
-    visitedUrls,
+    ancestors,
+    parsed,
   };
 
   // determine which source descriptions to parse (array filters by name)
@@ -273,12 +318,22 @@ export async function parseSourceDescriptions(
       })
     : api.sourceDescriptions;
 
-  // process sequentially to ensure proper cycle detection with shared visitedUrls
-  for (const sourceDescription of sourceDescriptions) {
-    const sourceDescriptionParseResult = await parseSourceDescription(sourceDescription, ctx);
-    // always attach result (even on failure - contains annotations)
-    sourceDescription.meta.set('parseResult', sourceDescriptionParseResult);
-    results.push(sourceDescriptionParseResult);
+  // current file is an ancestor (by retrieval URI and by identity) of everything parsed below
+  ancestors.push(file.uri, baseURI);
+  try {
+    // process sequentially to ensure proper cycle detection with shared ancestors
+    for (const sourceDescription of sourceDescriptions) {
+      const sourceDescriptionParseResult = await parseSourceDescription(sourceDescription, ctx);
+      // always attach result (even on failure - contains annotations);
+      // a shared document attaches the result where it was parsed
+      sourceDescription.meta.set(
+        'parseResult',
+        sourceDescriptionParseResult.meta.get('parseResult') ?? sourceDescriptionParseResult,
+      );
+      results.push(sourceDescriptionParseResult);
+    }
+  } finally {
+    ancestors.splice(-2, 2);
   }
 
   return results;

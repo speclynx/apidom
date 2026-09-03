@@ -1,0 +1,30 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "Root Workflow",
+    "version": "1.0.0"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "petStore",
+      "url": "./openapi.json",
+      "type": "openapi"
+    },
+    {
+      "name": "nested",
+      "url": "./nested.json",
+      "type": "arazzo"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "rootWorkflow",
+      "steps": [
+        {
+          "stepId": "rootStep",
+          "operationId": "petStore.getPets"
+        }
+      ]
+    }
+  ]
+}

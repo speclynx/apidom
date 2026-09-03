@@ -1,0 +1,16 @@
+arazzo: "1.0.1"
+info:
+  title: Nested Workflow
+  version: "1.0.0"
+sourceDescriptions:
+  - name: petStoreApi
+    url: "./openapi.yaml"
+    type: openapi
+  - name: root
+    url: "./root.yaml"
+    type: arazzo
+workflows:
+  - workflowId: nestedWorkflow
+    steps:
+      - stepId: nestedStep
+        operationId: petStoreApi.getPets

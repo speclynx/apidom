@@ -143,6 +143,55 @@ describe('parsers', function () {
         assert.isTrue(isParseResultElement(attachedParseResult));
         assert.strictEqual(attachedParseResult.api?.element, 'openApi3_1');
       });
+
+      specify(
+        'should parse a shared document once and point later references at it',
+        async function () {
+          const uri = path.join(__dirname, 'fixtures', 'source-descriptions-shared', 'root.yaml');
+          const data = fs.readFileSync(uri).toString();
+          const parseResult = await parse(data);
+
+          const sourceDescriptions = await parseSourceDescriptions(parseResult, uri, options);
+
+          assert.strictEqual(sourceDescriptions.length, 2);
+
+          const petStore = sourceDescriptions[0]! as ParseResultElement;
+          assert.strictEqual(petStore.api?.element, 'openApi3_1');
+
+          // nested reaches the same OpenAPI document through a different path (diamond)
+          const nested = sourceDescriptions[1]! as ParseResultElement;
+          assert.strictEqual(nested.length, 3);
+
+          const petStoreApi = nested.get(1)! as ParseResultElement;
+          assert.isTrue(isParseResultElement(petStoreApi));
+          assert.isTrue(petStoreApi.classes.includes('source-description'));
+          assert.strictEqual(petStoreApi.meta.get('name'), 'petStoreApi');
+          assert.strictEqual(
+            petStoreApi.meta.get('retrievalURI'),
+            petStore.meta.get('retrievalURI'),
+          );
+          assert.isUndefined(petStoreApi.api); // not parsed again
+          assert.strictEqual(petStoreApi.warnings.length, 0); // not a cycle
+          assert.strictEqual(petStoreApi.meta.get('parseResult'), petStore);
+
+          const annotation = petStoreApi.get(0);
+          assert.strictEqual(annotation?.element, 'annotation');
+          assert.isTrue(annotation?.classes.includes('info'));
+          assert.include(annotation?.toValue(), 'has already been parsed');
+
+          // source description element points at the result where the document was parsed
+          const nestedApi: any = nested.api!;
+          const sourceDesc = nestedApi.get('sourceDescriptions').get(0);
+          assert.strictEqual(sourceDesc.meta.get('parseResult'), petStore);
+
+          // reference back to root is still a cycle
+          const root = nested.get(2)! as ParseResultElement;
+          assert.isUndefined(root.api);
+          assert.isUndefined(root.meta.get('parseResult'));
+          assert.isTrue(root.get(0)?.classes.includes('warning'));
+          assert.include(root.get(0)?.toValue(), 'has already been visited');
+        },
+      );
     });
   });
 });
