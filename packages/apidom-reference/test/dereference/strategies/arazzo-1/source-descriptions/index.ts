@@ -8,6 +8,10 @@ import { isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 
 import { dereference } from '../../../../../src/index.ts';
 import * as url from '../../../../../src/util/url.ts';
+import {
+  assertSharedSourceDescription,
+  assertCyclicSourceDescription,
+} from '../../../../helpers.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootFixturePath = path.join(__dirname, 'fixtures');
@@ -294,21 +298,8 @@ describe('dereference', function () {
             assert.strictEqual(sharedB.length, 3);
 
             const petStoreApi = sharedB.get(1)! as ParseResultElement;
-            assert.isTrue(isParseResultElement(petStoreApi));
-            assert.isTrue(petStoreApi.classes.includes('source-description'));
             assert.strictEqual(petStoreApi.meta.get('name'), 'petStoreApi');
-            assert.strictEqual(
-              petStoreApi.meta.get('retrievalURI'),
-              petStore.meta.get('retrievalURI'),
-            );
-            assert.isUndefined(petStoreApi.api); // not dereferenced again
-            assert.strictEqual(petStoreApi.warnings.length, 0); // not a cycle
-            assert.strictEqual(petStoreApi.meta.get('parseResult'), petStore);
-
-            const annotation = petStoreApi.get(0);
-            assert.strictEqual(annotation?.element, 'annotation');
-            assert.isTrue(annotation?.classes.includes('info'));
-            assert.include(annotation?.toValue(), 'has already been dereferenced');
+            assertSharedSourceDescription(petStoreApi, petStore, 'dereferenced');
 
             // source description element points at the result where the document was dereferenced
             const sharedBApi: any = sharedB.api!;
@@ -316,11 +307,7 @@ describe('dereference', function () {
             assert.strictEqual(sourceDesc.meta.get('parseResult'), petStore);
 
             // reference back to shared-a is still a cycle
-            const sharedA = sharedB.get(2)! as ParseResultElement;
-            assert.isUndefined(sharedA.api);
-            assert.isUndefined(sharedA.meta.get('parseResult'));
-            assert.isTrue(sharedA.get(0)?.classes.includes('warning'));
-            assert.include(sharedA.get(0)?.toValue(), 'has already been visited');
+            assertCyclicSourceDescription(sharedB.get(2)! as ParseResultElement);
           };
 
           specify(

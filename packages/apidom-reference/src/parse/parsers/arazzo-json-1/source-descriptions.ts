@@ -8,11 +8,7 @@ import {
 import {
   isArazzoSpecification1Element,
   isSourceDescriptionElement,
-  SourceDescriptionElement,
 } from '@speclynx/apidom-ns-arazzo-1';
-import { isSwaggerElement } from '@speclynx/apidom-ns-openapi-2';
-import { isOpenApi3_0Element } from '@speclynx/apidom-ns-openapi-3-0';
-import { isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 import { toValue } from '@speclynx/apidom-core';
 
 import File from '../../../File.ts';
@@ -20,7 +16,11 @@ import * as url from '../../../util/url.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 import { merge as mergeOptions } from '../../../options/util.ts';
 import parse from '../../index.ts';
-import { resolveArazzo$selfField } from '../../../dereference/strategies/arazzo-1/util.ts';
+import {
+  arazzoDocumentURIs,
+  resolveArazzo$selfField,
+  validateSourceDescriptionAPI,
+} from '../../../dereference/strategies/arazzo-1/util.ts';
 
 // shared key for recursion state (works across JSON/YAML parsers)
 const ARAZZO_RECURSION_KEY = 'arazzo-1';
@@ -33,51 +33,6 @@ interface ParseSourceDescriptionContext {
   ancestors: string[];
   // source description results of documents parsed so far, keyed by their URIs
   parsed: Map<string, ParseResultElement>;
-}
-
-/**
- * Validates that the parsed document is an OpenAPI or Arazzo document
- * and that it matches the type declared by the source description.
- */
-function validateSourceDescriptionAPI(
-  parseResult: ParseResultElement,
-  sourceDescription: SourceDescriptionElement,
-  sourceDescriptionAPI: Element | undefined,
-  retrievalURI: string,
-): void {
-  // only allow OpenAPI and Arazzo as source descriptions
-  const isOpenApi =
-    isSwaggerElement(sourceDescriptionAPI) ||
-    isOpenApi3_0Element(sourceDescriptionAPI) ||
-    isOpenApi3_1Element(sourceDescriptionAPI);
-  const isArazzo = isArazzoSpecification1Element(sourceDescriptionAPI);
-
-  if (!isOpenApi && !isArazzo) {
-    const annotation = new AnnotationElement(
-      `Source description "${retrievalURI}" is not an OpenAPI or Arazzo document`,
-    );
-    annotation.classes.push('warning');
-    parseResult.push(annotation);
-    return;
-  }
-
-  // validate declared type matches actual parsed type
-  const declaredType = toValue(sourceDescription.type);
-  if (typeof declaredType === 'string') {
-    if (declaredType === 'openapi' && !isOpenApi) {
-      const annotation = new AnnotationElement(
-        `Source description "${retrievalURI}" declared as "openapi" but parsed as Arazzo document`,
-      );
-      annotation.classes.push('warning');
-      parseResult.push(annotation);
-    } else if (declaredType === 'arazzo' && !isArazzo) {
-      const annotation = new AnnotationElement(
-        `Source description "${retrievalURI}" declared as "arazzo" but parsed as OpenAPI document`,
-      );
-      annotation.classes.push('warning');
-      parseResult.push(annotation);
-    }
-  }
 }
 
 /**
@@ -132,19 +87,20 @@ async function parseSourceDescription(
 
   // a document reached again through a different path is a shared dependency, not a cycle;
   // point at the result where it was parsed instead of parsing it again
-  const existingParseResult = ctx.parsed.get(retrievalURI);
-  if (existingParseResult !== undefined) {
+  const sharedParseResult = ctx.parsed.get(retrievalURI);
+  if (sharedParseResult !== undefined) {
     const annotation = new AnnotationElement(
       `Source description "${retrievalURI}" has already been parsed. Reusing existing parse result`,
     );
     annotation.classes.push('info');
     parseResult.push(annotation);
-    parseResult.meta.set('parseResult', existingParseResult);
+    parseResult.meta.set('parseResult', sharedParseResult);
     validateSourceDescriptionAPI(
       parseResult,
       sourceDescription,
-      existingParseResult.api,
+      sharedParseResult.api,
       retrievalURI,
+      'parsed',
     );
     return parseResult;
   }
@@ -183,12 +139,19 @@ async function parseSourceDescription(
     return parseResult;
   }
 
-  // register parsed document (by retrieval URI and by identity) for later references to it
+  // register parsed document for later references to it
   const { api: sourceDescriptionAPI } = parseResult;
-  ctx.parsed.set(retrievalURI, parseResult);
-  ctx.parsed.set(resolveArazzo$selfField(retrievalURI, sourceDescriptionAPI), parseResult);
+  for (const documentURI of arazzoDocumentURIs(retrievalURI, sourceDescriptionAPI)) {
+    ctx.parsed.set(documentURI, parseResult);
+  }
 
-  validateSourceDescriptionAPI(parseResult, sourceDescription, sourceDescriptionAPI, retrievalURI);
+  validateSourceDescriptionAPI(
+    parseResult,
+    sourceDescription,
+    sourceDescriptionAPI,
+    retrievalURI,
+    'parsed',
+  );
 
   return parseResult;
 }
@@ -281,8 +244,12 @@ export async function parseSourceDescriptions(
   // recursion state comes from shared key (works across JSON/YAML)
   const sharedOpts = options?.parse?.parserOpts?.[ARAZZO_RECURSION_KEY] ?? {};
   const currentDepth = sharedOpts.sourceDescriptionsDepth ?? 0;
-  const ancestors: string[] = sharedOpts.sourceDescriptionsAncestors ?? [];
   const parsed: Map<string, ParseResultElement> = sharedOpts.sourceDescriptionsParsed ?? new Map();
+  // current file is an ancestor of everything parsed below
+  const ancestors: string[] = [
+    ...(sharedOpts.sourceDescriptionsAncestors ?? []),
+    ...arazzoDocumentURIs(file.uri, api),
+  ];
 
   if (currentDepth >= maxDepth) {
     const annotation = new AnnotationElement(
@@ -294,11 +261,9 @@ export async function parseSourceDescriptions(
     return [parseResult];
   }
 
-  // base URI for resolving source description URLs honors Arazzo `$self` field
-  const baseURI = resolveArazzo$selfField(file.uri, api);
-
   const ctx: ParseSourceDescriptionContext = {
-    baseURI,
+    // base URI for resolving source description URLs honors Arazzo `$self` field
+    baseURI: resolveArazzo$selfField(file.uri, api),
     options,
     currentDepth,
     ancestors,
@@ -318,22 +283,16 @@ export async function parseSourceDescriptions(
       })
     : api.sourceDescriptions;
 
-  // current file is an ancestor (by retrieval URI and by identity) of everything parsed below
-  ancestors.push(file.uri, baseURI);
-  try {
-    // process sequentially to ensure proper cycle detection with shared ancestors
-    for (const sourceDescription of sourceDescriptions) {
-      const sourceDescriptionParseResult = await parseSourceDescription(sourceDescription, ctx);
-      // always attach result (even on failure - contains annotations);
-      // a shared document attaches the result where it was parsed
-      sourceDescription.meta.set(
-        'parseResult',
-        sourceDescriptionParseResult.meta.get('parseResult') ?? sourceDescriptionParseResult,
-      );
-      results.push(sourceDescriptionParseResult);
-    }
-  } finally {
-    ancestors.splice(-2, 2);
+  // process sequentially to ensure proper cycle detection with shared state
+  for (const sourceDescription of sourceDescriptions) {
+    const sourceDescriptionParseResult = await parseSourceDescription(sourceDescription, ctx);
+    // always attach result (even on failure - contains annotations);
+    // a shared document attaches the result where it was parsed
+    sourceDescription.meta.set(
+      'parseResult',
+      sourceDescriptionParseResult.meta.get('parseResult') ?? sourceDescriptionParseResult,
+    );
+    results.push(sourceDescriptionParseResult);
   }
 
   return results;

@@ -1,6 +1,18 @@
-import { Element, ParseResultElement, isPrimitiveElement } from '@speclynx/apidom-datamodel';
+import {
+  Element,
+  ParseResultElement,
+  AnnotationElement,
+  isPrimitiveElement,
+} from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
-import { refractJSONSchema, isArazzoSpecification1Element } from '@speclynx/apidom-ns-arazzo-1';
+import {
+  refractJSONSchema,
+  isArazzoSpecification1Element,
+  SourceDescriptionElement,
+} from '@speclynx/apidom-ns-arazzo-1';
+import { isSwaggerElement } from '@speclynx/apidom-ns-openapi-2';
+import { isOpenApi3_0Element } from '@speclynx/apidom-ns-openapi-3-0';
+import { isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 
 import * as url from '../../../util/url.ts';
 import type Reference from '../../../Reference.ts';
@@ -29,6 +41,61 @@ export const resolveArazzo$selfField = (retrievalURI: string, element: unknown):
   }
 
   return url.resolve(retrievalURI, url.sanitize(url.stripHash($self)));
+};
+
+/**
+ * URIs an Arazzo document is known by: its retrieval URI and, when the
+ * document carries a `$self` field resolving elsewhere, its identity.
+ */
+export const arazzoDocumentURIs = (retrievalURI: string, element: unknown): string[] => {
+  const identity = resolveArazzo$selfField(retrievalURI, element);
+  return identity === retrievalURI ? [retrievalURI] : [retrievalURI, identity];
+};
+
+/**
+ * Annotates a source description result when the document is not an OpenAPI
+ * or Arazzo document, or does not match the type the source description declares.
+ */
+export const validateSourceDescriptionAPI = (
+  parseResult: ParseResultElement,
+  sourceDescription: SourceDescriptionElement,
+  sourceDescriptionAPI: Element | undefined,
+  retrievalURI: string,
+  verb: 'parsed' | 'dereferenced',
+): void => {
+  // only allow OpenAPI and Arazzo as source descriptions
+  const isOpenApi =
+    isSwaggerElement(sourceDescriptionAPI) ||
+    isOpenApi3_0Element(sourceDescriptionAPI) ||
+    isOpenApi3_1Element(sourceDescriptionAPI);
+  const isArazzo = isArazzoSpecification1Element(sourceDescriptionAPI);
+
+  if (!isOpenApi && !isArazzo) {
+    const annotation = new AnnotationElement(
+      `Source description "${retrievalURI}" is not an OpenAPI or Arazzo document`,
+    );
+    annotation.classes.push('warning');
+    parseResult.push(annotation);
+    return;
+  }
+
+  // validate declared type matches actual type
+  const declaredType = toValue(sourceDescription.type);
+  if (typeof declaredType === 'string') {
+    if (declaredType === 'openapi' && !isOpenApi) {
+      const annotation = new AnnotationElement(
+        `Source description "${retrievalURI}" declared as "openapi" but ${verb} as Arazzo document`,
+      );
+      annotation.classes.push('warning');
+      parseResult.push(annotation);
+    } else if (declaredType === 'arazzo' && !isArazzo) {
+      const annotation = new AnnotationElement(
+        `Source description "${retrievalURI}" declared as "arazzo" but ${verb} as OpenAPI document`,
+      );
+      annotation.classes.push('warning');
+      parseResult.push(annotation);
+    }
+  }
 };
 
 /**

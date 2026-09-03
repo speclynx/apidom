@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 import { parseSourceDescriptions } from '../../../../src/parse/parsers/arazzo-yaml-1/index.ts';
 import { options, mergeOptions } from '../../../../src/configuration/saturated.ts';
+import { assertSharedSourceDescription, assertCyclicSourceDescription } from '../../../helpers.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -163,21 +164,8 @@ describe('parsers', function () {
           assert.strictEqual(nested.length, 3);
 
           const petStoreApi = nested.get(1)! as ParseResultElement;
-          assert.isTrue(isParseResultElement(petStoreApi));
-          assert.isTrue(petStoreApi.classes.includes('source-description'));
           assert.strictEqual(petStoreApi.meta.get('name'), 'petStoreApi');
-          assert.strictEqual(
-            petStoreApi.meta.get('retrievalURI'),
-            petStore.meta.get('retrievalURI'),
-          );
-          assert.isUndefined(petStoreApi.api); // not parsed again
-          assert.strictEqual(petStoreApi.warnings.length, 0); // not a cycle
-          assert.strictEqual(petStoreApi.meta.get('parseResult'), petStore);
-
-          const annotation = petStoreApi.get(0);
-          assert.strictEqual(annotation?.element, 'annotation');
-          assert.isTrue(annotation?.classes.includes('info'));
-          assert.include(annotation?.toValue(), 'has already been parsed');
+          assertSharedSourceDescription(petStoreApi, petStore, 'parsed');
 
           // source description element points at the result where the document was parsed
           const nestedApi: any = nested.api!;
@@ -185,11 +173,7 @@ describe('parsers', function () {
           assert.strictEqual(sourceDesc.meta.get('parseResult'), petStore);
 
           // reference back to root is still a cycle
-          const root = nested.get(2)! as ParseResultElement;
-          assert.isUndefined(root.api);
-          assert.isUndefined(root.meta.get('parseResult'));
-          assert.isTrue(root.get(0)?.classes.includes('warning'));
-          assert.include(root.get(0)?.toValue(), 'has already been visited');
+          assertCyclicSourceDescription(nested.get(2)! as ParseResultElement);
         },
       );
     });
