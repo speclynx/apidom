@@ -94,10 +94,12 @@ class ApiDOMEvaluationRealm extends EvaluationRealm {
   }
 
   override compare(left: unknown, operator: string, right: unknown): boolean {
-    // Handle Nothing (undefined) comparisons
+    // Handle Nothing (undefined) comparisons (RFC 9535 §2.3.5.2.2)
+    // `<=` and `>=` are defined by composition (`a < b || a == b`), so Nothing <= Nothing holds.
     if (left === undefined || right === undefined) {
-      if (operator === '==') return left === undefined && right === undefined;
-      if (operator === '!=') return !(left === undefined && right === undefined);
+      const bothNothing = left === undefined && right === undefined;
+      if (operator === '==' || operator === '<=' || operator === '>=') return bothNothing;
+      if (operator === '!=') return !bothNothing;
       return false;
     }
 
