@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { ObjectElement, NumberElement } from '@speclynx/apidom-datamodel';
+import { ObjectElement, ArrayElement, NumberElement } from '@speclynx/apidom-datamodel';
 
 import { evaluate } from '../src/index.ts';
 
@@ -32,6 +32,69 @@ describe('apidom-json-path', function () {
           new NumberElement(2),
           new NumberElement(3),
         ]);
+      });
+    });
+
+    context('given comparison expressions', function () {
+      context('given Nothing on both sides', function () {
+        // https://github.com/swaggerexpert/jsonpath/issues/144
+        const arrayElement = new ArrayElement([{}]);
+
+        specify('should select with == operator', function () {
+          assert.deepEqual(evaluate(arrayElement, '$[?@.a == @.b]'), [new ObjectElement({})]);
+        });
+
+        specify('should not select with != operator', function () {
+          assert.deepEqual(evaluate(arrayElement, '$[?@.a != @.b]'), []);
+        });
+
+        specify('should select with <= operator', function () {
+          assert.deepEqual(evaluate(arrayElement, '$[?@.a <= @.b]'), [new ObjectElement({})]);
+        });
+
+        specify('should select with >= operator', function () {
+          assert.deepEqual(evaluate(arrayElement, '$[?@.a >= @.b]'), [new ObjectElement({})]);
+        });
+
+        specify('should not select with < operator', function () {
+          assert.deepEqual(evaluate(arrayElement, '$[?@.a < @.b]'), []);
+        });
+
+        specify('should not select with > operator', function () {
+          assert.deepEqual(evaluate(arrayElement, '$[?@.a > @.b]'), []);
+        });
+      });
+
+      context('given Nothing on one side only', function () {
+        const arrayElement = new ArrayElement([{ a: 1 }]);
+
+        specify('should not select with == operator', function () {
+          assert.deepEqual(evaluate(arrayElement, '$[?@.a == @.b]'), []);
+        });
+
+        specify('should select with != operator', function () {
+          assert.deepEqual(evaluate(arrayElement, '$[?@.a != @.b]'), [new ObjectElement({ a: 1 })]);
+        });
+
+        specify('should not select with <= operator', function () {
+          assert.deepEqual(evaluate(arrayElement, '$[?@.a <= @.b]'), []);
+          assert.deepEqual(evaluate(arrayElement, '$[?@.b <= @.a]'), []);
+        });
+
+        specify('should not select with >= operator', function () {
+          assert.deepEqual(evaluate(arrayElement, '$[?@.a >= @.b]'), []);
+          assert.deepEqual(evaluate(arrayElement, '$[?@.b >= @.a]'), []);
+        });
+
+        specify('should not select with < operator', function () {
+          assert.deepEqual(evaluate(arrayElement, '$[?@.a < @.b]'), []);
+          assert.deepEqual(evaluate(arrayElement, '$[?@.b < @.a]'), []);
+        });
+
+        specify('should not select with > operator', function () {
+          assert.deepEqual(evaluate(arrayElement, '$[?@.a > @.b]'), []);
+          assert.deepEqual(evaluate(arrayElement, '$[?@.b > @.a]'), []);
+        });
       });
     });
 
