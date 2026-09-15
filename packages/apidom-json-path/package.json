@@ -57,7 +57,7 @@
     "@babel/runtime-corejs3": "^8.0.0",
     "@speclynx/apidom-datamodel": "5.2.2",
     "@speclynx/apidom-error": "5.2.2",
-    "@swaggerexpert/jsonpath": "^4.0.4"
+    "@swaggerexpert/jsonpath": "^4.0.5"
   },
   "files": [
     "src/**/*.mjs",
