@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-ns-asyncapi-2",
-  "version": "5.2.3",
+  "version": "5.2.4",
   "description": "AsyncAPI 2.x.y namespace for ApiDOM.",
   "keywords": [
     "apidom",
@@ -61,10 +61,10 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^8.0.0",
-    "@speclynx/apidom-core": "5.2.3",
-    "@speclynx/apidom-datamodel": "5.2.3",
-    "@speclynx/apidom-ns-json-schema-draft-7": "5.2.3",
-    "@speclynx/apidom-traverse": "5.2.3",
+    "@speclynx/apidom-core": "5.2.4",
+    "@speclynx/apidom-datamodel": "5.2.4",
+    "@speclynx/apidom-ns-json-schema-draft-7": "5.2.4",
+    "@speclynx/apidom-traverse": "5.2.4",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.1.0",
     "ts-mixer": "^6.0.4"

@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.2.4](https://github.com/speclynx/apidom/compare/v5.2.3...v5.2.4) (2026-09-15)
+
+**Note:** Version bump only for package @speclynx/apidom-json-path
+
 ## [5.2.3](https://github.com/speclynx/apidom/compare/v5.2.2...v5.2.3) (2026-09-15)
 
 ### Bug Fixes
