@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.2.3](https://github.com/speclynx/apidom/compare/v5.2.2...v5.2.3) (2026-09-15)
+
+### Bug Fixes
+
+- **json-path:** make <= and >= true when both operands are Nothing ([#528](https://github.com/speclynx/apidom/issues/528)) ([5fe9d88](https://github.com/speclynx/apidom/commit/5fe9d88efea3d377af7b282c079eee7113f642e9)), closes [swaggerexpert/jsonpath#150](https://github.com/swaggerexpert/jsonpath/issues/150)
+
 ## [5.2.2](https://github.com/speclynx/apidom/compare/v5.2.1...v5.2.2) (2026-09-03)
 
 **Note:** Version bump only for package @speclynx/apidom-json-path
