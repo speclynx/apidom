@@ -2910,11 +2910,15 @@ inlined in place. Example Object `externalValue` content is inlined, and an exte
 **Schema Objects** are a [JSON Schema 2020-12](https://json-schema.org/draft/2020-12) dialect and are
 bundled per the [JSON Schema Compound Document](https://json-schema.org/blog/posts/bundling-json-schema-compound-documents)
 rules: the external schema **resource** is embedded verbatim into `components.schemas` carrying its `$id`
-(one is assigned from the retrieval URI when absent), and the referencing `$ref` is left **unchanged** — it
-keeps resolving against the embedded resource's `$id`. The whole external resource is embedded once, keyed by
-its `$id`; references (including `$anchor`, `$dynamicRef`, and `$dynamicAnchor`) are never rewritten. Nested
-external schema resources are embedded flat into the top-level `components.schemas`, deduplicated by resource
-URI. Internal Schema Object references are preserved untouched.
+(one is assigned from the retrieval URI when absent). The referencing `$ref` is **rebased** onto the embedded
+resource's `$id` (keeping any `$anchor` or JSON Pointer fragment) whenever it resolves to a different URI —
+e.g. `./ex.json#/$defs/Pet` becomes `https://example.com/schemas/pets#/$defs/Pet` — since once embedded the
+resource is reachable only by its `$id`; a `$ref` that already resolves to that `$id` is left unchanged. The
+whole external resource is embedded once, keyed by its `$id`; `$anchor`, `$dynamicRef`, and `$dynamicAnchor`
+inside the embedded resource are preserved verbatim. Nested external `$ref`s inside an embedded resource are
+bundled the same way — the nested resource is embedded flat into the top-level `components.schemas`,
+deduplicated by resource URI, and the nested `$ref` is rebased onto its `$id` when needed. Internal Schema
+Object references are preserved untouched.
 
 Multiple references to the **same** external target are collapsed into a single component; distinct targets
 each get their own component, even when their content happens to be identical. Internal Reference Objects are
@@ -2971,11 +2975,15 @@ The only external references Arazzo defines are **JSON Schema Objects** — a
 external documents that are intentionally kept external — neither is bundled.) Schema Objects are therefore
 bundled per the [JSON Schema Compound Document](https://json-schema.org/blog/posts/bundling-json-schema-compound-documents)
 rules, exactly as in the `openapi-3-1` strategy: the external schema **resource** is embedded verbatim into
-`components.inputs` carrying its `$id` (one is assigned from the retrieval URI when absent), and the referencing
-`$ref` is left **unchanged** — it keeps resolving against the embedded resource's `$id`. The whole external
-resource is embedded once, keyed by its `$id`; references (including `$anchor`, `$dynamicRef`, and
-`$dynamicAnchor`) are never rewritten. Nested external schema resources are embedded flat into the top-level
-`components.inputs`, deduplicated by resource URI. Internal Schema Object references are preserved untouched.
+`components.inputs` carrying its `$id` (one is assigned from the retrieval URI when absent). The referencing
+`$ref` is **rebased** onto the embedded resource's `$id` (keeping any `$anchor` or JSON Pointer fragment)
+whenever it resolves to a different URI — e.g. `./ex.json#/$defs/Pet` becomes
+`https://example.com/schemas/pets#/$defs/Pet` — since once embedded the resource is reachable only by its `$id`;
+a `$ref` that already resolves to that `$id` is left unchanged. The whole external resource is embedded once,
+keyed by its `$id`; `$anchor`, `$dynamicRef`, and `$dynamicAnchor` inside the embedded resource are preserved
+verbatim. Nested external `$ref`s inside an embedded resource are bundled the same way — the nested resource is
+embedded flat into the top-level `components.inputs`, deduplicated by resource URI, and the nested `$ref` is
+rebased onto its `$id` when needed. Internal Schema Object references are preserved untouched.
 Schema Object `$ref`s are resolved against the document's base URI — the Arazzo Object's `$self` field when
 present (Arazzo 1.1.0), otherwise the retrieval URI — and references resolving into the entry document
 (including by its `$self` identity) are treated as internal.
