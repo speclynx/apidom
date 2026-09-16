@@ -2914,10 +2914,11 @@ rules: the external schema **resource** is embedded verbatim into `components.sc
 resource's `$id` (keeping any `$anchor` or JSON Pointer fragment) whenever it resolves to a different URI —
 e.g. `./ex.json#/$defs/Pet` becomes `https://example.com/schemas/pets#/$defs/Pet` — since once embedded the
 resource is reachable only by its `$id`; a `$ref` that already resolves to that `$id` is left unchanged. The
-whole external resource is embedded once, keyed by its `$id`; references inside the embedded resource
-(including `$anchor`, `$dynamicRef`, and `$dynamicAnchor`) are never rewritten. Nested external schema
-resources are embedded flat into the top-level `components.schemas`, deduplicated by resource URI. Internal
-Schema Object references are preserved untouched.
+whole external resource is embedded once, keyed by its `$id`; `$anchor`, `$dynamicRef`, and `$dynamicAnchor`
+inside the embedded resource are preserved verbatim. Nested external `$ref`s inside an embedded resource are
+bundled the same way — the nested resource is embedded flat into the top-level `components.schemas`,
+deduplicated by resource URI, and the nested `$ref` is rebased onto its `$id` when needed. Internal Schema
+Object references are preserved untouched.
 
 Multiple references to the **same** external target are collapsed into a single component; distinct targets
 each get their own component, even when their content happens to be identical. Internal Reference Objects are
@@ -2979,9 +2980,10 @@ rules, exactly as in the `openapi-3-1` strategy: the external schema **resource*
 whenever it resolves to a different URI — e.g. `./ex.json#/$defs/Pet` becomes
 `https://example.com/schemas/pets#/$defs/Pet` — since once embedded the resource is reachable only by its `$id`;
 a `$ref` that already resolves to that `$id` is left unchanged. The whole external resource is embedded once,
-keyed by its `$id`; references inside the embedded resource (including `$anchor`, `$dynamicRef`, and
-`$dynamicAnchor`) are never rewritten. Nested external schema resources are embedded flat into the top-level
-`components.inputs`, deduplicated by resource URI. Internal Schema Object references are preserved untouched.
+keyed by its `$id`; `$anchor`, `$dynamicRef`, and `$dynamicAnchor` inside the embedded resource are preserved
+verbatim. Nested external `$ref`s inside an embedded resource are bundled the same way — the nested resource is
+embedded flat into the top-level `components.inputs`, deduplicated by resource URI, and the nested `$ref` is
+rebased onto its `$id` when needed. Internal Schema Object references are preserved untouched.
 Schema Object `$ref`s are resolved against the document's base URI — the Arazzo Object's `$self` field when
 present (Arazzo 1.1.0), otherwise the retrieval URI — and references resolving into the entry document
 (including by its `$self` identity) are treated as internal.
