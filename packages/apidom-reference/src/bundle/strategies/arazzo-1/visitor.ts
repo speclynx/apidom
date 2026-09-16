@@ -48,8 +48,9 @@ import {
   identifiedBy$self,
 } from '../../../dereference/strategies/arazzo-1/util.ts';
 import {
-  toPascalCase,
+  rebaseSchema$ref,
   sanitizeComponentName,
+  toPascalCase,
   uniqueName as resolveUniqueName,
 } from '../../util.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
@@ -332,9 +333,10 @@ class Arazzo1BundleVisitor {
    * a JSON Schema 2020-12 dialect — the only external reference type Arazzo
    * defines. They are bundled per the JSON Schema Compound Document rules: the
    * external schema RESOURCE is embedded verbatim into `components.inputs`
-   * (carrying its `$id`), and the referencing `$ref` is left UNCHANGED — it
-   * keeps resolving against the embedded resource's `$id`. This mirrors the
-   * openapi-3-1 strategy's Schema Object handling.
+   * (carrying its `$id`), and the referencing `$ref` is rebased onto that `$id`
+   * when it resolves to a different URI (a location-based `$ref` to a
+   * self-identifying resource); otherwise it is left unchanged. This mirrors
+   * the openapi-3-1 strategy's Schema Object handling.
    */
   public async JSONSchemaElement(path: Path<Element>) {
     const referencingElement = path.node as JSONSchemaElement;
@@ -440,16 +442,23 @@ class Arazzo1BundleVisitor {
       const field = cf.inputs.name;
       const canonicalKey = `${field}\t${resourceBaseURI}`;
 
-      // resource already embedded (or being embedded) — leave the referencing
-      // $ref untouched and stop. This also terminates circular external schema
+      // a location-based $ref to a self-identifying resource is rebased onto the
+      // resource's $id (keeping its fragment) — once embedded, the resource is
+      // reachable only by its $id. A $ref already resolving to that $id is left
+      // as written. See rebaseSchema$ref for the spec trade-off.
+      const rebased$ref = rebaseSchema$ref($refBaseURI, resourceBaseURI);
+
+      // resource already embedded (or being embedded) — point the referencing
+      // $ref at it and stop. This also terminates circular external schema
       // references, since the assignment is reserved BEFORE recursion.
       if (this.assignments.has(canonicalKey)) {
+        if (rebased$ref !== undefined) referencingElement.set('$ref', rebased$ref);
         path.skip();
         return;
       }
 
-      // own a copy of the resource and ensure it carries a $id so the unchanged
-      // $ref still resolves against it once embedded
+      // own a copy of the resource and ensure it carries a $id so the referencing
+      // $ref resolves against it once embedded
       const embeddedElement = cloneDeep(resourceRoot);
       if (!isStringElement(embeddedElement.$id)) {
         embeddedElement.set('$id', resourceBaseURI);
@@ -488,8 +497,8 @@ class Arazzo1BundleVisitor {
       // place the embedded resource into the entry document's components.inputs
       this.ensureInputsField().set(componentName, bundledElement);
 
-      // the referencing $ref is left UNCHANGED — it resolves against the
-      // embedded resource's $id
+      // point the referencing $ref at the embedded resource's $id
+      if (rebased$ref !== undefined) referencingElement.set('$ref', rebased$ref);
       path.skip();
     } catch (error: unknown) {
       this.handleError(

@@ -67,7 +67,7 @@ describe('bundle', function () {
             assert.isTrue(includesClasses(inputs, ['components-inputs']));
           });
 
-          specify('should leave the referencing $ref unchanged', async function () {
+          specify('should rebase the referencing $ref onto the resource $id', async function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
@@ -76,7 +76,7 @@ describe('bundle', function () {
               toValue(
                 evaluate(bundled.result as Element, '/components/inputs/User/properties/pet/$ref'),
               ),
-              './ex.json#/$defs/Pet',
+              'https://example.com/schemas/pets#/$defs/Pet',
             );
           });
 
@@ -97,7 +97,7 @@ describe('bundle', function () {
           const fixturePath = path.join(rootFixturePath, 'external-id-uri');
           const rootFilePath = path.join(fixturePath, 'root.json');
 
-          specify('should embed the resource and leave the $ref unchanged', async function () {
+          specify('should embed the resource and rebase the $ref onto its $id', async function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
@@ -108,7 +108,7 @@ describe('bundle', function () {
             );
             assert.strictEqual(
               toValue(evaluate(bundled.result as Element, '/components/inputs/Pet/$ref')),
-              './ex.json',
+              'https://example.com/schemas/pet',
             );
           });
         });
@@ -133,7 +133,7 @@ describe('bundle', function () {
             );
           });
 
-          specify('should leave the $anchor reference unchanged', async function () {
+          specify('should rebase the $anchor reference onto the resource $id', async function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
@@ -145,7 +145,7 @@ describe('bundle', function () {
                   '/components/inputs/User/properties/profile/$ref',
                 ),
               ),
-              './ex.json#user-profile',
+              'https://example.com/schemas/user#user-profile',
             );
           });
         });
@@ -175,6 +175,17 @@ describe('bundle', function () {
               '#node',
             );
           });
+
+          specify('should rebase the referencing $ref onto the resource $id', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/components/inputs/Tree/$ref')),
+              'https://example.com/schemas/tree',
+            );
+          });
         });
 
         context('given two references to the same external schema resource', function () {
@@ -192,7 +203,7 @@ describe('bundle', function () {
             assert.hasAllKeys(inputs, ['Cat', 'Dog', 'pets']);
           });
 
-          specify('should leave both referencing $refs unchanged', async function () {
+          specify('should rebase both referencing $refs onto the resource $id', async function () {
             const bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
@@ -204,13 +215,13 @@ describe('bundle', function () {
                   '/components/inputs/Cat/properties/friend/$ref',
                 ),
               ),
-              './ex.json#/$defs/Pet',
+              'https://example.com/schemas/pets#/$defs/Pet',
             );
             assert.strictEqual(
               toValue(
                 evaluate(bundled.result as Element, '/components/inputs/Dog/properties/rival/$ref'),
               ),
-              './ex.json#/$defs/Pet',
+              'https://example.com/schemas/pets#/$defs/Pet',
             );
           });
         });
@@ -363,6 +374,20 @@ describe('bundle', function () {
             assert.isDefined(embedded);
             assert.match(embedded!.$id as string, /ex\.json$/);
           });
+
+          specify(
+            'should leave the $ref unchanged as it already resolves to the assigned $id',
+            async function () {
+              const bundled = await bundle(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+
+              assert.strictEqual(
+                toValue(evaluate(bundled.result as Element, '/components/inputs/Pet/$ref')),
+                './ex.json',
+              );
+            },
+          );
         });
 
         context('given internal Schema Object references only', function () {
