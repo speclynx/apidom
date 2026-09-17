@@ -455,6 +455,48 @@ describe('bundle', function () {
           });
         });
 
+        context(
+          'given an external Schema Object resource without a $id carrying a relative $ref',
+          function () {
+            const fixturePath = path.join(rootFixturePath, 'id-assignment-nested');
+            const rootFilePath = path.join(fixturePath, 'root.json');
+
+            specify('should assign $ids derived from the retrieval URIs', async function () {
+              const bundled = await bundle(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              const schemas = toValue(
+                evaluate(bundled.result as Element, '/components/schemas'),
+              ) as Record<string, { $id?: string }>;
+              const $ids = Object.values(schemas).map((schema) => schema.$id);
+
+              assert.sameMembers($ids, ['schemas/ex.json', 'schemas/tag.json']);
+            });
+
+            specify('should dereference the bundled document in place', async function () {
+              const bundled = await bundle(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              // the $ref nested in the embedded resource must resolve against the $id the
+              // bundler assigned after refraction, not against the entry document
+              const dereferenced = await dereferenceApiDOM(bundled, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                resolve: { baseURI: rootFilePath },
+                dereference: { immutable: false },
+              });
+              const tag = toValue(
+                evaluate(
+                  dereferenced.result as Element,
+                  '/paths/~1pets/get/responses/200/content/application~1json/schema/properties/tag',
+                ),
+              ) as { $id?: string; type?: string };
+
+              assert.strictEqual(tag.type, 'string');
+              assert.match(tag.$id as string, /schemas\/tag\.json$/);
+            });
+          },
+        );
+
         context('given internal Schema Object references only', function () {
           const fixturePath = path.join(rootFixturePath, 'internal-only');
           const rootFilePath = path.join(fixturePath, 'root.json');

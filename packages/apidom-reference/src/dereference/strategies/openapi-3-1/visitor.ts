@@ -37,8 +37,9 @@ import {
   refractOperation,
 } from '@speclynx/apidom-ns-openapi-3-1';
 
-import { isAnchor, uriToAnchor, evaluate as $anchorEvaluate } from './selectors/$anchor.ts';
-import { evaluate as uriEvaluate, type Schema$idIndex } from './selectors/uri.ts';
+import { isAnchor, uriToAnchor, locate as $anchorLocate } from './selectors/$anchor.ts';
+import { locate as uriLocate, type Schema$idIndex } from './selectors/uri.ts';
+import { locate as jsonPointerLocate } from './selectors/json-pointer.ts';
 import MaximumDereferenceDepthError from '../../../errors/MaximumDereferenceDepthError.ts';
 import MaximumResolveDepthError from '../../../errors/MaximumResolveDepthError.ts';
 import UnresolvableReferenceError from '../../../errors/UnresolvableReferenceError.ts';
@@ -49,7 +50,7 @@ import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
 import File from '../../../File.ts';
 import Resolver from '../../../resolve/resolvers/Resolver.ts';
-import { resolveSchema$refField, maybeRefractToSchemaElement } from './util.ts';
+import { resolveSchema$ids, resolveSchema$refField, maybeRefractToSchemaElement } from './util.ts';
 import { AncestorLineage } from '../../util.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 
@@ -64,6 +65,7 @@ export interface OpenAPI3_1DereferenceVisitorOptions {
   readonly schema$idIndex?: Schema$idIndex;
   readonly ancestors?: AncestorLineage<Element>;
   readonly visited?: WeakSet<Element>;
+  readonly ancestorSchema$ids?: string[];
 }
 
 /**
@@ -87,6 +89,15 @@ class OpenAPI3_1DereferenceVisitor {
   protected readonly visited: WeakSet<Element>;
 
   /**
+   * `$id`s of the JSON Schema elements enclosing the traversal root within its
+   * document (outermost first). Empty when the root is the document itself; a
+   * nested visitor traversing a fragment is seeded with the `$id`s of the
+   * schemas the fragment sits under, so the `$ref`s and `$id`s within resolve
+   * against the same base as they would from the document root.
+   */
+  protected readonly ancestorSchema$ids: string[];
+
+  /**
    * Tracks element ancestors across dive-deep traversal boundaries.
    * Used for cycle detection: if a referenced element is found in
    * the ancestor lineage, a circular reference is detected.
@@ -101,6 +112,7 @@ class OpenAPI3_1DereferenceVisitor {
     schema$idIndex = new WeakMap(),
     ancestors = new AncestorLineage(),
     visited = new WeakSet(),
+    ancestorSchema$ids = [],
   }: OpenAPI3_1DereferenceVisitorOptions) {
     this.indirections = indirections;
     this.reference = reference;
@@ -109,6 +121,7 @@ class OpenAPI3_1DereferenceVisitor {
     this.schema$idIndex = schema$idIndex;
     this.ancestors = new AncestorLineage(...ancestors);
     this.visited = visited;
+    this.ancestorSchema$ids = ancestorSchema$ids;
   }
 
   protected toAncestorLineage(path: Path<Element>): [AncestorLineage<Element>, Set<Element>] {
@@ -838,7 +851,8 @@ class OpenAPI3_1DereferenceVisitor {
       // compute baseURI using rules around $id and $ref keywords
       let reference = await this.toReference(url.unsanitize(this.reference.uri));
       let { uri: retrievalURI } = reference;
-      const $refBaseURI = resolveSchema$refField(retrievalURI, referencingElement)!;
+      const schemaBaseURI = resolveSchema$ids(retrievalURI, this.ancestorSchema$ids);
+      const $refBaseURI = resolveSchema$refField(schemaBaseURI, path)!;
       const $refBaseURIStrippedHash = url.stripHash($refBaseURI);
       const file = new File({ uri: $refBaseURIStrippedHash });
       const isUnknownURI = none((r: Resolver) => r.canRead(file), this.options.resolve.resolvers);
@@ -848,6 +862,8 @@ class OpenAPI3_1DereferenceVisitor {
 
       // determining reference, proper evaluation and selection mechanism
       let referencedElement: Element;
+      // $ids of the schemas enclosing the referenced element within its document
+      let ancestorSchema$ids: string[];
 
       try {
         if (isUnknownURI || isURL) {
@@ -857,10 +873,11 @@ class OpenAPI3_1DereferenceVisitor {
           const referenceAsSchema = maybeRefractToSchemaElement(
             (reference.value as ParseResultElement).result as Element,
           );
-          referencedElement = uriEvaluate(selector, referenceAsSchema, {
-            baseURI: reference.uri,
-            index: this.schema$idIndex,
-          })!;
+          ({ element: referencedElement, ancestorSchema$ids } = uriLocate(
+            selector,
+            referenceAsSchema,
+            { baseURI: reference.uri, index: this.schema$idIndex },
+          ));
           referencedElement = maybeRefractToSchemaElement(referencedElement);
 
           // ignore resolving internal Schema Objects
@@ -895,7 +912,10 @@ class OpenAPI3_1DereferenceVisitor {
           const referenceAsSchema = maybeRefractToSchemaElement(
             (reference.value as ParseResultElement).result as Element,
           );
-          referencedElement = jsonPointerEvaluate(referenceAsSchema, selector);
+          ({ element: referencedElement, ancestorSchema$ids } = jsonPointerLocate(
+            referenceAsSchema,
+            selector,
+          ));
           referencedElement = maybeRefractToSchemaElement(referencedElement);
         }
       } catch (error) {
@@ -925,7 +945,10 @@ class OpenAPI3_1DereferenceVisitor {
             const referenceAsSchema = maybeRefractToSchemaElement(
               (reference.value as ParseResultElement).result as Element,
             );
-            referencedElement = $anchorEvaluate(selector, referenceAsSchema)!;
+            ({ element: referencedElement, ancestorSchema$ids } = $anchorLocate(
+              selector,
+              referenceAsSchema,
+            ));
             referencedElement = maybeRefractToSchemaElement(referencedElement);
           } else {
             // we're assuming here that we're dealing with JSON Pointer here
@@ -949,7 +972,10 @@ class OpenAPI3_1DereferenceVisitor {
             const referenceAsSchema = maybeRefractToSchemaElement(
               (reference.value as ParseResultElement).result as Element,
             );
-            referencedElement = jsonPointerEvaluate(referenceAsSchema, selector);
+            ({ element: referencedElement, ancestorSchema$ids } = jsonPointerLocate(
+              referenceAsSchema,
+              selector,
+            ));
             referencedElement = maybeRefractToSchemaElement(referencedElement);
           }
         } else {
@@ -1032,6 +1058,7 @@ class OpenAPI3_1DereferenceVisitor {
           schema$idIndex: this.schema$idIndex,
           visited: this.visited,
           ancestors: ancestorsLineage,
+          ancestorSchema$ids,
         });
         referencedElement = await traverseAsync(referencedElement, visitor, {
           mutable: true,

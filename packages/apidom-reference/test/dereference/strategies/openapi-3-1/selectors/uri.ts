@@ -1,10 +1,11 @@
 import { assert } from 'chai';
-import { Element } from '@speclynx/apidom-datamodel';
+import { Element, ObjectElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 import { refractOpenApi3_1 } from '@speclynx/apidom-ns-openapi-3-1';
 
 import {
   evaluate,
+  locate,
   EvaluationJsonSchemaUriError,
 } from '../../../../../src/dereference/strategies/openapi-3-1/selectors/uri.ts';
 
@@ -51,6 +52,65 @@ describe('dereference', function () {
               () => evaluate('https://example.com/unknown', document),
               EvaluationJsonSchemaUriError,
             );
+          });
+
+          context('locate', function () {
+            const nested = refractOpenApi3_1({
+              openapi: '3.1.0',
+              components: {
+                schemas: {
+                  User: {
+                    $id: './users/',
+                    properties: {
+                      profile: {
+                        $id: 'profile.json',
+                        $defs: { Avatar: { $anchor: 'avatar', properties: { url: {} } } },
+                      },
+                    },
+                  },
+                },
+              },
+            }) as Element;
+            const options = { baseURI: 'https://example.com/docs/root.json' };
+
+            specify('should report enclosing $ids of schema matched by $id', function () {
+              const location = locate(
+                'https://example.com/docs/users/profile.json',
+                nested,
+                options,
+              );
+
+              assert.strictEqual(
+                toValue((location.element as ObjectElement).get('$id')),
+                'profile.json',
+              );
+              assert.deepEqual(location.ancestorSchema$ids, ['./users/']);
+            });
+
+            specify('should report enclosing $ids of fragment addressed by pointer', function () {
+              const location = locate(
+                'https://example.com/docs/users/profile.json#/$defs/Avatar/properties/url',
+                nested,
+                options,
+              );
+
+              assert.deepEqual(toValue(location.element), {});
+              assert.deepEqual(location.ancestorSchema$ids, ['./users/', 'profile.json']);
+            });
+
+            specify('should report enclosing $ids of fragment addressed by $anchor', function () {
+              const location = locate(
+                'https://example.com/docs/users/profile.json#avatar',
+                nested,
+                options,
+              );
+
+              assert.strictEqual(
+                toValue((location.element as ObjectElement).get('$anchor')),
+                'avatar',
+              );
+              assert.deepEqual(location.ancestorSchema$ids, ['./users/', 'profile.json']);
+            });
           });
         });
       });

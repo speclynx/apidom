@@ -1,0 +1,26 @@
+[
+  {
+    "openapi": "3.1.2",
+    "components": {
+      "schemas": {
+        "User": {
+          "type": "object",
+          "properties": {
+            "login": {
+              "type": "string"
+            },
+            "profile": {
+              "type": "object",
+              "properties": {
+                "avatar": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+]

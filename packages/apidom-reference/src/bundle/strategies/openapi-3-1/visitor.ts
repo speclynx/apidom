@@ -12,7 +12,7 @@ import {
 } from '@speclynx/apidom-datamodel';
 import { toValue, toYAML, fixedFields } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
-import { traverseAsync, type Path } from '@speclynx/apidom-traverse';
+import { traverseAsync, Path } from '@speclynx/apidom-traverse';
 import {
   evaluate as jsonPointerEvaluate,
   escape,
@@ -310,15 +310,12 @@ class OpenAPI3_1BundleVisitor {
    * isn't relocated, an absolute `$id` on the schema's ancestor chain pins its
    * base, or the hoisted document sits next to the entry document.
    */
-  protected relocatedSchemaBaseURI(
-    schemaElement: SchemaElement,
-    $refBaseURI: string,
-  ): string | undefined {
+  protected relocatedSchemaBaseURI(path: Path<Element>, $refBaseURI: string): string | undefined {
     if (this.relocationBaseURI === undefined) return undefined;
-    if (resolveSchema$refField(this.relocationBaseURI, schemaElement) === $refBaseURI) {
+    if (resolveSchema$refField(this.relocationBaseURI, path) === $refBaseURI) {
       return undefined;
     }
-    return resolveSchemaBaseURI(this.relocationBaseURI, schemaElement);
+    return resolveSchemaBaseURI(this.relocationBaseURI, path);
   }
 
   /**
@@ -801,7 +798,7 @@ class OpenAPI3_1BundleVisitor {
       // toReference) so an internal $ref needs no resolution and never trips the
       // resolve.maxDepth guard, matching how ReferenceElement returns early.
       const retrievalURI = this.reference.uri;
-      const $refBaseURI = resolveSchema$refField(retrievalURI, referencingElement)!;
+      const $refBaseURI = resolveSchema$refField(retrievalURI, path)!;
       const $refBaseURIStrippedHash = url.stripHash($refBaseURI);
       const file = new File({ uri: $refBaseURIStrippedHash });
       const isUnknownURI = none((r: Resolver) => r.canRead(file), this.options.resolve.resolvers);
@@ -881,8 +878,9 @@ class OpenAPI3_1BundleVisitor {
       const resourceRoot = maybeRefractToSchemaElement(
         (schemaReference.value as ParseResultElement).result as Element,
       ) as SchemaElement;
+      const resourceRootPath = new Path<Element>(resourceRoot, undefined, null, undefined, false);
       const resourceBaseURI =
-        resolveSchema$idField(url.stripHash(schemaReference.uri), resourceRoot) ??
+        resolveSchema$idField(url.stripHash(schemaReference.uri), resourceRootPath) ??
         url.stripHash(schemaReference.uri);
 
       const field = cf.schemas.name;
@@ -897,7 +895,7 @@ class OpenAPI3_1BundleVisitor {
       // (inside a hoisted Response, Parameter, Path Item, ...) is instead
       // rewritten to address the embedded resource from the base it will have
       // there, otherwise it dangles once placed. See relocateSchema$ref.
-      const relocatedBaseURI = this.relocatedSchemaBaseURI(referencingElement, $refBaseURI);
+      const relocatedBaseURI = this.relocatedSchemaBaseURI(path, $refBaseURI);
       const rebased$ref =
         relocatedBaseURI === undefined
           ? rebaseSchema$ref($refBaseURI, resourceBaseURI)

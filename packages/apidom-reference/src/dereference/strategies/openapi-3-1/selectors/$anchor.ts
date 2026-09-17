@@ -5,6 +5,7 @@ import { find } from '@speclynx/apidom-traverse';
 import { isJSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2020-12';
 
 import { getHash } from '../../../../util/url.ts';
+import { collectSchema$ids, type SchemaLocation } from '../util.ts';
 import EvaluationJsonSchema$anchorError from '../../../../errors/EvaluationJsonSchema$anchorError.ts';
 import InvalidJsonSchema$anchorError from '../../../../errors/InvalidJsonSchema$anchorError.ts';
 
@@ -41,10 +42,11 @@ export const parse = (anchor: string): string => {
 };
 
 /**
- * Evaluates JSON Schema $anchor against ApiDOM fragment.
+ * Locates the schema identified by JSON Schema $anchor within ApiDOM fragment,
+ * along with the `$id`s of the schemas enclosing it (`element` included).
  * @public
  */
-export const evaluate = <T extends Element>(anchor: string, element: T): Element | undefined => {
+export const locate = <T extends Element>(anchor: string, element: T): SchemaLocation => {
   const token = parse(anchor);
 
   const resultPath = find(
@@ -57,8 +59,15 @@ export const evaluate = <T extends Element>(anchor: string, element: T): Element
     throw new EvaluationJsonSchema$anchorError(`Evaluation failed on token: "${token}"`);
   }
 
-  return resultPath.node;
+  return { element: resultPath.node, ancestorSchema$ids: collectSchema$ids(resultPath.parentPath) };
 };
+
+/**
+ * Evaluates JSON Schema $anchor against ApiDOM fragment.
+ * @public
+ */
+export const evaluate = <T extends Element>(anchor: string, element: T): Element | undefined =>
+  locate(anchor, element).element;
 
 export { EvaluationJsonSchema$anchorError, InvalidJsonSchema$anchorError };
 export { default as JsonSchema$anchorError } from '../../../../errors/JsonSchema$anchorError.ts';
