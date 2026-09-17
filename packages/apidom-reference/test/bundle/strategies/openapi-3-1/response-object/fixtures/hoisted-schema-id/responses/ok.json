@@ -1,0 +1,19 @@
+{
+  "description": "ok",
+  "content": {
+    "application/json": {
+      "schema": {
+        "$id": "https://example.com/schemas/pointer",
+        "$ref": "#/$defs/Inner",
+        "$defs": { "Inner": { "type": "integer" } }
+      }
+    },
+    "application/vnd.anchor+json": {
+      "schema": {
+        "$id": "https://example.com/schemas/anchor",
+        "$ref": "#inner",
+        "$defs": { "Inner": { "$anchor": "inner", "type": "string" } }
+      }
+    }
+  }
+}

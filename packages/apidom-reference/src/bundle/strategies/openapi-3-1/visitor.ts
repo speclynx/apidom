@@ -3,6 +3,7 @@ import {
   isElement,
   isObjectElement,
   isStringElement,
+  isParseResultElement,
   Element,
   ObjectElement,
   ParseResultElement,
@@ -834,15 +835,41 @@ class OpenAPI3_1BundleVisitor {
       // as a canonical URI / URL against the current document's $id graph; if
       // that fails, fall back to fetching the external document and resolving
       // the fragment there as a $anchor or JSON Pointer.
+      //
+      // the fragment being traversed is searched before the whole document:
+      // content hoisted out of an external document (a Response, Parameter, Path
+      // Item, ...) is refracted with its own semantics, so the Schema Objects it
+      // contains are indexed, whereas the external document as a whole is parsed
+      // generically and refracted as a bare JSON Schema, which leaves those Schema
+      // Objects (under `content`, `schema`, ...) unrecognized and their `$id`s out
+      // of the index
+      const documentElement = (this.reference.value as ParseResultElement).result as Element;
+      const rootNode = path.getAncestorNodes().at(-1) ?? path.node;
+      const fragmentElement = isParseResultElement(rootNode)
+        ? (rootNode.result as Element)
+        : rootNode;
+      const uriEvaluateOptions = { baseURI: retrievalURI, index: this.schema$idIndex };
       let schemaReference = this.reference;
       try {
-        const referenceAsSchema = maybeRefractToSchemaElement(
-          (schemaReference.value as ParseResultElement).result as Element,
-        );
-        uriEvaluate($refBaseURI, referenceAsSchema, {
-          baseURI: retrievalURI,
-          index: this.schema$idIndex,
-        });
+        try {
+          uriEvaluate(
+            $refBaseURI,
+            maybeRefractToSchemaElement(fragmentElement),
+            uriEvaluateOptions,
+          );
+        } catch (error) {
+          if (
+            !(error instanceof EvaluationJsonSchemaUriError) ||
+            fragmentElement === documentElement
+          ) {
+            throw error;
+          }
+          uriEvaluate(
+            $refBaseURI,
+            maybeRefractToSchemaElement(documentElement),
+            uriEvaluateOptions,
+          );
+        }
       } catch (error) {
         if (isURL && error instanceof EvaluationJsonSchemaUriError) {
           if (isAnchor(uriToAnchor($refBaseURI))) {

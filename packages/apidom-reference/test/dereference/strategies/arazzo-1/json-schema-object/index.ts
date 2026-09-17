@@ -641,6 +641,36 @@ describe('dereference', function () {
           },
         );
 
+        context(
+          'given single JSONSchemaElement with relative $id enclosed by $id keyword passed to dereferenceApiDOM',
+          function () {
+            const fixturePath = path.join(rootFixturePath, '$id-uri-enclosing-relative');
+
+            // the fragment's own $id resolves against the enclosing $id known only
+            // through the refraction-time metadata; the $ref resolves against that
+            specify('should resolve $ref within the fragment $id resource', async function () {
+              const rootFilePath = path.join(fixturePath, 'root.json');
+              const parseResult = await parse(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              const schemaElement = evaluate<Element>(
+                parseResult.api,
+                '/components/inputs/Root/$defs/Identified',
+              );
+              const dereferenced = await dereferenceApiDOM(schemaElement, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                resolve: { baseURI: rootFilePath },
+              });
+
+              assert.deepEqual(toValue(dereferenced), {
+                type: 'integer',
+                $id: 'identified',
+                $defs: { Inner: { type: 'integer' } },
+              });
+            });
+          },
+        );
+
         context('given JSON Schema Objects with $id keyword pointing externally', function () {
           const fixturePath = path.join(rootFixturePath, '$id-uri-external');
 

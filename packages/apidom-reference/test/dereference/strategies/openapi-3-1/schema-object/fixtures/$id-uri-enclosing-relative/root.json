@@ -1,0 +1,21 @@
+{
+  "openapi": "3.1.2",
+  "components": {
+    "schemas": {
+      "Root": {
+        "$id": "https://example.com/root/",
+        "$defs": {
+          "Identified": {
+            "$id": "identified",
+            "$ref": "#/$defs/Inner",
+            "$defs": {
+              "Inner": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+[
+  {
+    "openapi": "3.1.0",
+    "info": {
+      "title": "response-object external-schema-id",
+      "version": "1.0.0"
+    },
+    "paths": {
+      "/pets": {
+        "get": {
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "integer",
+                    "$id": "https://example.com/schemas/pointer",
+                    "$defs": {
+                      "Inner": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                "application/vnd.anchor+json": {
+                  "schema": {
+                    "$anchor": "inner",
+                    "type": "string",
+                    "$id": "https://example.com/schemas/anchor",
+                    "$defs": {
+                      "Inner": {
+                        "$anchor": "inner",
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+]

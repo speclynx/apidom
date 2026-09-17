@@ -41,6 +41,23 @@ describe('dereference', function () {
             assert.deepEqual(toValue(actual), expected);
           });
         });
+
+        context('given external Response Object with a self-identifying schema', function () {
+          const fixturePath = path.join(rootFixturePath, 'external-schema-id');
+
+          specify('should dereference', async function () {
+            // the schema's $ref resolves within the resource its absolute $id
+            // identifies, which lives in the external Response Object, not in
+            // the external document refracted as a JSON Schema
+            const rootFilePath = path.join(fixturePath, 'root.json');
+            const actual = await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const expected = loadJsonFile(path.join(fixturePath, 'dereferenced.json'));
+
+            assert.deepEqual(toValue(actual), expected);
+          });
+        });
       });
     });
   });

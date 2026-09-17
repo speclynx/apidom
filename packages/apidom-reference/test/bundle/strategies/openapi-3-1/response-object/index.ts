@@ -54,6 +54,65 @@ describe('bundle', function () {
           });
         });
 
+        context('given a hoisted Response Object with a self-identifying schema', function () {
+          const fixturePath = path.join(rootFixturePath, 'hoisted-schema-id');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+          const schemaPointer = (mediaType: string) =>
+            `/components/responses/ok/content/${mediaType.replace('/', '~1')}/schema`;
+
+          specify('should leave the $ref resolving against the schema $id', async function () {
+            // the $ref resolves within the resource the schema's absolute $id
+            // identifies; that resource is hoisted along with the Response
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.strictEqual(
+              toValue(
+                evaluate(bundled.result as Element, `${schemaPointer('application/json')}/$ref`),
+              ),
+              '#/$defs/Inner',
+            );
+            assert.strictEqual(
+              toValue(
+                evaluate(
+                  bundled.result as Element,
+                  `${schemaPointer('application/vnd.anchor+json')}/$ref`,
+                ),
+              ),
+              '#inner',
+            );
+          });
+
+          specify('should not embed the schema into components/schemas', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.notProperty(
+              toValue(evaluate(bundled.result as Element, '/components')) as object,
+              'schemas',
+            );
+          });
+
+          specify('should produce a dereferenceable bundle', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const dereferenced = await dereferenceApiDOM(bundled, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              resolve: { baseURI: rootFilePath },
+              dereference: { immutable: false },
+            });
+            const content = toValue(
+              evaluate(dereferenced.result as Element, '/components/responses/ok/content'),
+            ) as Record<string, { schema: Record<string, unknown> }>;
+
+            assert.strictEqual(content['application/json'].schema.type, 'integer');
+            assert.strictEqual(content['application/vnd.anchor+json'].schema.type, 'string');
+          });
+        });
+
         context('given a hoisted Response Object with relative schema $refs', function () {
           const fixturePath = path.join(rootFixturePath, 'relocated-schema-ref');
           const rootFilePath = path.join(fixturePath, 'root.json');
