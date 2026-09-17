@@ -43,8 +43,9 @@ export const collectSchema$ids = (path: Path<Element>): string[] =>
  * `$id`s of the schemas enclosing a traversal root that is a fragment detached
  * from its document, read from the `ancestorsSchemaIdentifiers` meta the JSON
  * Schema refractors record. The meta also carries the root's own `$id`, which
- * the ancestor walk contributes itself, so it is dropped. Bridges dereferencing
- * of detached fragments until the meta is removed from the refractors.
+ * the ancestor walk contributes itself, so it is dropped. A detached fragment
+ * has no live ancestors, so the meta is the only carrier of its lexical
+ * context; this is the one reader of it the refractors must keep serving.
  */
 export const detachedRootSchema$ids = (root: Element | undefined): string[] => {
   const meta = root?.meta.get('ancestorsSchemaIdentifiers');
