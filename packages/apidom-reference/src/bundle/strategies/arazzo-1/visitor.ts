@@ -169,6 +169,19 @@ class Arazzo1BundleVisitor {
     this.schema$idIndex = schema$idIndex;
   }
 
+  /**
+   * Base URI of the entry document — its `$self` when present, otherwise its
+   * retrieval URI. It is the base against which a relative `$id` written into
+   * `components.inputs` resolves.
+   */
+  protected get entryBaseURI(): string {
+    const rootRef = this.reference.refSet!.rootRef!;
+    return resolveArazzo$selfField(
+      url.stripHash(rootRef.uri),
+      (rootRef.value as ParseResultElement | undefined)?.result,
+    );
+  }
+
   protected toBaseURI(uri: string): string {
     return url.resolve(this.baseURI, url.sanitize(url.stripHash(uri)));
   }
@@ -519,12 +532,8 @@ class Arazzo1BundleVisitor {
         return;
       }
 
-      // own a copy of the resource and ensure it carries a $id so the referencing
-      // $ref resolves against it once embedded
+      // own a copy of the resource
       const embeddedElement = cloneDeep(resourceRoot);
-      if (!isStringElement(embeddedElement.$id)) {
-        embeddedElement.set('$id', resourceBaseURI);
-      }
 
       // the embedded thing is the WHOLE resource (keyed by its $id), so its name
       // is derived from the resource URI
@@ -552,6 +561,17 @@ class Arazzo1BundleVisitor {
       const bundledElement = (await traverseAsync(embeddedElement, visitor, {
         mutable: true,
       })) as JSONSchemaElement;
+
+      // an external resource without a $id of its own is identified by its
+      // retrieval URI (JSON Schema 2020-12 §9.1.1). Write it as a URI-reference
+      // relative to the entry document's base URI — the base of components.inputs,
+      // hence of the embedded $id (§8.2.1) — so the bundle carries no absolute
+      // (filesystem) path and stays self-contained when moved as a directory
+      // tree. Assigned AFTER the resource's own $refs are bundled: those resolve
+      // against its retrieval URI, not against the entry document.
+      if (!isStringElement(bundledElement.$id)) {
+        bundledElement.set('$id', url.relative(this.entryBaseURI, resourceBaseURI));
+      }
 
       // annotate the embedded resource with info about its origin
       if (isElement(bundledElement)) {

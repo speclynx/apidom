@@ -917,12 +917,8 @@ class OpenAPI3_1BundleVisitor {
         return;
       }
 
-      // own a copy of the resource and ensure it carries a $id so the referencing
-      // $ref resolves against it once embedded
+      // own a copy of the resource
       const embeddedElement = cloneDeep(resourceRoot);
-      if (!isStringElement(embeddedElement.$id)) {
-        embeddedElement.set('$id', resourceBaseURI);
-      }
 
       // the embedded thing is the WHOLE resource (keyed by its $id), so its name
       // is derived from the resource URI, not the $ref fragment — passing a root
@@ -952,6 +948,17 @@ class OpenAPI3_1BundleVisitor {
       const bundledElement = (await traverseAsync(embeddedElement, visitor, {
         mutable: true,
       })) as SchemaElement;
+
+      // an external resource without a $id of its own is identified by its
+      // retrieval URI (JSON Schema 2020-12 §9.1.1). Write it as a URI-reference
+      // relative to the entry document's base URI — the base of components.schemas,
+      // hence of the embedded $id (§8.2.1) — so the bundle carries no absolute
+      // (filesystem) path and stays self-contained when moved as a directory
+      // tree. Assigned AFTER the resource's own $refs are bundled: those resolve
+      // against its retrieval URI, not against the entry document.
+      if (!isStringElement(bundledElement.$id)) {
+        bundledElement.set('$id', url.relative(this.entryURI, resourceBaseURI));
+      }
 
       // annotate the embedded resource with info about its origin
       bundledElement.meta.set('ref-origin', schemaReference.uri);
