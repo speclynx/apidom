@@ -209,6 +209,29 @@ describe('bundle', function () {
           );
         });
 
+        context('given a hoisted Path Item Object with a relative schema $ref', function () {
+          const fixturePath = path.join(rootFixturePath, 'relocated-schema-ref');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should rewrite the $ref relative to the entry document', async function () {
+            // once hoisted, the schema's base URI is the entry document's, so a
+            // `$ref` written against `paths/pets.json` would dangle
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.strictEqual(
+              toValue(
+                evaluate(
+                  bundled.result as Element,
+                  '/components/pathItems/pets/get/responses/200/content/application~1json/schema/$ref',
+                ),
+              ),
+              'paths/schemas/pet.json',
+            );
+          });
+        });
+
         context('given an external Path Item chain exceeding bundle.maxDepth', function () {
           const fixturePath = path.join(rootFixturePath, 'max-depth');
           const rootFilePath = path.join(fixturePath, 'root.json');

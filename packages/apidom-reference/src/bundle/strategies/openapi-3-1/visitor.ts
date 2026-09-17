@@ -68,10 +68,12 @@ import {
 import {
   resolveSchema$refField,
   resolveSchema$idField,
+  resolveSchemaBaseURI,
   maybeRefractToSchemaElement,
 } from '../../../dereference/strategies/openapi-3-1/util.ts';
 import {
   rebaseSchema$ref,
+  relocateSchema$ref,
   sanitizeComponentName,
   toPascalCase,
   uniqueName as resolveUniqueName,
@@ -139,6 +141,7 @@ export interface OpenAPI3_1BundleVisitorOptions {
   readonly refractCache?: WeakMap<Element, Map<string, Element>>;
   readonly schema$idIndex?: Schema$idIndex;
   readonly placements?: ComponentPlacement[];
+  readonly relocationBaseURI?: string;
 }
 
 /**
@@ -213,6 +216,15 @@ class OpenAPI3_1BundleVisitor {
    */
   protected readonly placements: ComponentPlacement[];
 
+  /**
+   * The base URI the traversed content will have once placed into the entry
+   * document, when placement changes it: content hoisted out of a non-schema
+   * document (a Response, Parameter, Path Item, ...) trades that document's
+   * base URI for the entry document's. Unset for the entry document itself and
+   * for embedded schema resources, whose `$id` carries their base along.
+   */
+  protected readonly relocationBaseURI: string | undefined;
+
   constructor({
     reference,
     options,
@@ -221,6 +233,7 @@ class OpenAPI3_1BundleVisitor {
     refractCache = new WeakMap(),
     schema$idIndex = new WeakMap(),
     placements = [],
+    relocationBaseURI,
   }: OpenAPI3_1BundleVisitorOptions) {
     this.reference = reference;
     this.options = options;
@@ -229,6 +242,7 @@ class OpenAPI3_1BundleVisitor {
     this.refractCache = refractCache;
     this.schema$idIndex = schema$idIndex;
     this.placements = placements;
+    this.relocationBaseURI = relocationBaseURI;
   }
 
   protected getRefracted(source: Element, type: string): Element | undefined {
@@ -287,6 +301,24 @@ class OpenAPI3_1BundleVisitor {
    */
   protected normalizeSelfReference(ref: string): string {
     return ref.startsWith('#') ? ref : url.getHash(ref);
+  }
+
+  /**
+   * The base URI the given Schema Object's `$ref` will be resolved against once
+   * the content is placed into the entry document, or `undefined` when the
+   * `$ref` as written resolves to `$refBaseURI` from there as well: the content
+   * isn't relocated, an absolute `$id` on the schema's ancestor chain pins its
+   * base, or the hoisted document sits next to the entry document.
+   */
+  protected relocatedSchemaBaseURI(
+    schemaElement: SchemaElement,
+    $refBaseURI: string,
+  ): string | undefined {
+    if (this.relocationBaseURI === undefined) return undefined;
+    if (resolveSchema$refField(this.relocationBaseURI, schemaElement) === $refBaseURI) {
+      return undefined;
+    }
+    return resolveSchemaBaseURI(this.relocationBaseURI, schemaElement);
   }
 
   /**
@@ -572,7 +604,9 @@ class OpenAPI3_1BundleVisitor {
       if (!this.reservedNames.has(field)) this.reservedNames.set(field, new Set<string>());
       this.reservedNames.get(field)!.add(componentName);
 
-      // own a copy of the fragment and bundle its own external references
+      // own a copy of the fragment and bundle its own external references; the
+      // fragment ends up in the entry document, so that is where its content
+      // resolves relative references from
       const hoistedElement = cloneDeep(referencedElement);
       const visitor = new OpenAPI3_1BundleVisitor({
         reference,
@@ -582,6 +616,7 @@ class OpenAPI3_1BundleVisitor {
         refractCache: this.refractCache,
         schema$idIndex: this.schema$idIndex,
         placements: this.placements,
+        relocationBaseURI: this.entryURI,
       });
       const bundledElement = await traverseAsync(hoistedElement, visitor, { mutable: true });
 
@@ -698,7 +733,9 @@ class OpenAPI3_1BundleVisitor {
       if (!this.reservedNames.has(field)) this.reservedNames.set(field, new Set<string>());
       this.reservedNames.get(field)!.add(componentName);
 
-      // own a copy of the fragment and bundle its own external references
+      // own a copy of the fragment and bundle its own external references; the
+      // Path Item ends up in the entry document, so that is where its content
+      // resolves relative references from
       const hoistedElement = cloneDeep(referencedElement) as PathItemElement;
       const visitor = new OpenAPI3_1BundleVisitor({
         reference,
@@ -708,6 +745,7 @@ class OpenAPI3_1BundleVisitor {
         refractCache: this.refractCache,
         schema$idIndex: this.schema$idIndex,
         placements: this.placements,
+        relocationBaseURI: this.entryURI,
       });
       const bundledElement = (await traverseAsync(hoistedElement, visitor, {
         mutable: true,
@@ -854,7 +892,21 @@ class OpenAPI3_1BundleVisitor {
       // resource's $id (keeping its fragment) — once embedded, the resource is
       // reachable only by its $id. A $ref already resolving to that $id is left
       // as written. See rebaseSchema$ref for the spec trade-off.
-      const rebased$ref = rebaseSchema$ref($refBaseURI, resourceBaseURI);
+      //
+      // a $ref whose base URI changes on relocation into the entry document
+      // (inside a hoisted Response, Parameter, Path Item, ...) is instead
+      // rewritten to address the embedded resource from the base it will have
+      // there, otherwise it dangles once placed. See relocateSchema$ref.
+      const relocatedBaseURI = this.relocatedSchemaBaseURI(referencingElement, $refBaseURI);
+      const rebased$ref =
+        relocatedBaseURI === undefined
+          ? rebaseSchema$ref($refBaseURI, resourceBaseURI)
+          : relocateSchema$ref(
+              $refBaseURI,
+              resourceBaseURI,
+              relocatedBaseURI,
+              isStringElement(resourceRoot.$id),
+            );
 
       // resource already embedded (or being embedded) — point the referencing
       // $ref at it and stop. This also terminates circular external schema

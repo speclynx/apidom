@@ -2920,6 +2920,14 @@ bundled the same way — the nested resource is embedded flat into the top-level
 deduplicated by resource URI, and the nested `$ref` is rebased onto its `$id` when needed. Internal Schema
 Object references are preserved untouched.
 
+A Schema Object carried inside a hoisted component (a Response, Parameter, Request Body, Path Item, ...) changes
+its base URI on relocation — from the hoisted document's to the entry document's — so a location-based `$ref`
+in it is rewritten to address the embedded resource from the entry document: by the resource's declared `$id`,
+or, when the `$id` was assigned from the retrieval URI, by a URI reference relative to the entry document
+(e.g. `./pet.json` inside `responses/ok.json` becomes `responses/pet.json`), keeping any fragment. A `$ref`
+that resolves to the same URI from the entry document — under an absolute `$id`, or from a hoisted document
+sitting next to the entry document — is left as written.
+
 Multiple references to the **same** external target are collapsed into a single component; distinct targets
 each get their own component, even when their content happens to be identical. Internal Reference Objects are
 preserved untouched; only a self-file reference (e.g. `./root.json#/components/parameters/userId`) is

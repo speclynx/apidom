@@ -72,3 +72,31 @@ export const rebaseSchema$ref = ($refURI: string, resourceURI: string): string |
   const fragment = url.getHash($refURI);
   return fragment === '#' ? resourceURI : `${resourceURI}${fragment}`;
 };
+
+/**
+ * Computes the `$ref` value addressing an embedded JSON Schema resource from a
+ * Schema Object whose base URI changes when it is relocated into the entry
+ * document — one carried inside a hoisted Response, Parameter, Path Item, etc.
+ * `$refURI` and `resourceURI` are as in `rebaseSchema$ref`; `baseURI` is the
+ * base the `$ref` resolves against after relocation.
+ *
+ * A resource that identifies itself (`isResourceIdentified`, i.e. it declares a
+ * `$id`) is addressed by that `$id`, exactly as `rebaseSchema$ref` does. A
+ * resource identified only by its retrieval URI is addressed by a URI reference
+ * relative to `baseURI`: it then resolves to the `$id` assigned from that
+ * retrieval URI wherever the bundle is placed, and no absolute retrieval
+ * location leaks into the `$ref`. The `$anchor` or JSON Pointer fragment is
+ * kept in both cases.
+ *
+ * @public
+ */
+export const relocateSchema$ref = (
+  $refURI: string,
+  resourceURI: string,
+  baseURI: string,
+  isResourceIdentified: boolean,
+): string => {
+  const target = isResourceIdentified ? resourceURI : url.relative(baseURI, resourceURI);
+  const fragment = url.getHash($refURI);
+  return fragment === '#' ? target : `${target}${fragment}`;
+};
