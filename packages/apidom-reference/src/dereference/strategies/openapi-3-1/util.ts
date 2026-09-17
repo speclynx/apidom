@@ -59,7 +59,7 @@ export const resolveSchemaBaseURI = (baseURI: string, path: Path<Element>): stri
 
 /**
  * Resolves the `$ref` of the schema against its base URI (see
- * `resolveSchemaBaseURI`), or returns `undefined` when the schema has no `$ref`.
+ * `resolveSchemaBaseURI`), or returns `undefined` when the schema has no string `$ref`.
  *
  * @public
  */
@@ -67,7 +67,7 @@ export const resolveSchema$refField = (
   schemaBaseURI: string,
   schemaElement: JSONSchemaElement,
 ): string | undefined => {
-  if (typeof schemaElement.$ref === 'undefined') {
+  if (!isStringElement(schemaElement.$ref)) {
     return undefined;
   }
 
@@ -80,7 +80,7 @@ export const resolveSchema$refField = (
 
 /**
  * Resolves the `$id` of the schema against `baseURI`, the base URI in effect
- * where the schema sits, or returns `undefined` when the schema declares no `$id`.
+ * where the schema sits, or returns `undefined` when the schema declares no string `$id`.
  *
  * @public
  */
@@ -88,7 +88,7 @@ export const resolveSchema$idField = (
   baseURI: string,
   schemaElement: JSONSchemaElement,
 ): string | undefined => {
-  if (typeof schemaElement.$id === 'undefined') {
+  if (!isStringElement(schemaElement.$id)) {
     return undefined;
   }
 
