@@ -1,0 +1,24 @@
+{
+  "openapi": "3.1.2",
+  "components": {
+    "schemas": {
+      "Pet": {
+        "$id": "pet.json",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "pet": {
+            "$ref": "./nested/pet.json"
+          }
+        }
+      }
+    }
+  }
+}

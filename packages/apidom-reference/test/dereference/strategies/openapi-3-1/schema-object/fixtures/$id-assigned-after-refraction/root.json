@@ -1,0 +1,23 @@
+{
+  "openapi": "3.1.2",
+  "components": {
+    "schemas": {
+      "Pet": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "pet": {
+            "$ref": "urn:example:pet"
+          }
+        }
+      }
+    }
+  }
+}

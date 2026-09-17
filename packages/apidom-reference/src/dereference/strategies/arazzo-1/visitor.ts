@@ -28,7 +28,7 @@ import {
 import { parse as parseRuntimeExpression } from '@swaggerexpert/arazzo-runtime-expression';
 
 import { isAnchor, uriToAnchor, evaluate as $anchorEvaluate } from './selectors/$anchor.ts';
-import { evaluate as uriEvaluate } from './selectors/uri.ts';
+import { evaluate as uriEvaluate, type Schema$idIndex } from './selectors/uri.ts';
 import { resolveSchema$refField } from '../openapi-3-1/util.ts';
 import {
   maybeRefractToJSONSchemaElement,
@@ -55,6 +55,7 @@ export interface Arazzo1DereferenceVisitorOptions {
   readonly reference: Reference;
   readonly options: ReferenceOptions;
   readonly indirections?: Element[];
+  readonly schema$idIndex?: Schema$idIndex;
   readonly ancestors?: AncestorLineage<Element>;
   readonly visited?: WeakSet<Element>;
 }
@@ -76,6 +77,12 @@ class Arazzo1DereferenceVisitor {
 
   protected readonly options: ReferenceOptions;
 
+  /**
+   * Index of `$id`-bearing schemas per document, shared across nested visitors
+   * of a single dereference run so it never outlives mutations of the documents.
+   */
+  protected readonly schema$idIndex: Schema$idIndex;
+
   protected readonly visited: WeakSet<Element>;
 
   /**
@@ -89,6 +96,7 @@ class Arazzo1DereferenceVisitor {
     reference,
     options,
     indirections = [],
+    schema$idIndex = new WeakMap(),
     ancestors = new AncestorLineage(),
     visited = new WeakSet(),
   }: Arazzo1DereferenceVisitorOptions) {
@@ -99,6 +107,7 @@ class Arazzo1DereferenceVisitor {
       (reference.value as ParseResultElement | undefined)?.result,
     );
     this.options = options;
+    this.schema$idIndex = schema$idIndex;
     this.ancestors = new AncestorLineage(...ancestors);
     this.visited = visited;
   }
@@ -370,7 +379,10 @@ class Arazzo1DereferenceVisitor {
           const referenceAsSchema = maybeRefractToJSONSchemaElement(
             (reference.value as ParseResultElement).result as Element,
           );
-          referencedElement = uriEvaluate(selector, referenceAsSchema)!;
+          referencedElement = uriEvaluate(selector, referenceAsSchema, {
+            baseURI: this.baseURI,
+            index: this.schema$idIndex,
+          })!;
           referencedElement = maybeRefractToJSONSchemaElement(referencedElement);
 
           // ignore resolving internal Schema Objects
@@ -539,6 +551,7 @@ class Arazzo1DereferenceVisitor {
           reference,
           indirections: [...this.indirections],
           options: this.options,
+          schema$idIndex: this.schema$idIndex,
           visited: this.visited,
           ancestors: ancestorsLineage,
         });

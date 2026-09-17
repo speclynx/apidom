@@ -38,7 +38,7 @@ import {
 } from '@speclynx/apidom-ns-openapi-3-1';
 
 import { isAnchor, uriToAnchor, evaluate as $anchorEvaluate } from './selectors/$anchor.ts';
-import { evaluate as uriEvaluate } from './selectors/uri.ts';
+import { evaluate as uriEvaluate, type Schema$idIndex } from './selectors/uri.ts';
 import MaximumDereferenceDepthError from '../../../errors/MaximumDereferenceDepthError.ts';
 import MaximumResolveDepthError from '../../../errors/MaximumResolveDepthError.ts';
 import UnresolvableReferenceError from '../../../errors/UnresolvableReferenceError.ts';
@@ -61,6 +61,7 @@ export interface OpenAPI3_1DereferenceVisitorOptions {
   readonly options: ReferenceOptions;
   readonly indirections?: Element[];
   readonly refractCache?: WeakMap<Element, Element>;
+  readonly schema$idIndex?: Schema$idIndex;
   readonly ancestors?: AncestorLineage<Element>;
   readonly visited?: WeakSet<Element>;
 }
@@ -77,6 +78,12 @@ class OpenAPI3_1DereferenceVisitor {
 
   protected readonly refractCache: WeakMap<Element, Element>;
 
+  /**
+   * Index of `$id`-bearing schemas per document, shared across nested visitors
+   * of a single dereference run so it never outlives mutations of the documents.
+   */
+  protected readonly schema$idIndex: Schema$idIndex;
+
   protected readonly visited: WeakSet<Element>;
 
   /**
@@ -91,6 +98,7 @@ class OpenAPI3_1DereferenceVisitor {
     options,
     indirections = [],
     refractCache = new WeakMap(),
+    schema$idIndex = new WeakMap(),
     ancestors = new AncestorLineage(),
     visited = new WeakSet(),
   }: OpenAPI3_1DereferenceVisitorOptions) {
@@ -98,6 +106,7 @@ class OpenAPI3_1DereferenceVisitor {
     this.reference = reference;
     this.options = options;
     this.refractCache = refractCache;
+    this.schema$idIndex = schema$idIndex;
     this.ancestors = new AncestorLineage(...ancestors);
     this.visited = visited;
   }
@@ -386,6 +395,7 @@ class OpenAPI3_1DereferenceVisitor {
           indirections: [...this.indirections],
           options: this.options,
           refractCache: this.refractCache,
+          schema$idIndex: this.schema$idIndex,
           visited: this.visited,
           ancestors: ancestorsLineage,
         });
@@ -572,6 +582,7 @@ class OpenAPI3_1DereferenceVisitor {
           indirections: [...this.indirections],
           options: this.options,
           refractCache: this.refractCache,
+          schema$idIndex: this.schema$idIndex,
           visited: this.visited,
           ancestors: ancestorsLineage,
         });
@@ -846,7 +857,10 @@ class OpenAPI3_1DereferenceVisitor {
           const referenceAsSchema = maybeRefractToSchemaElement(
             (reference.value as ParseResultElement).result as Element,
           );
-          referencedElement = uriEvaluate(selector, referenceAsSchema)!;
+          referencedElement = uriEvaluate(selector, referenceAsSchema, {
+            baseURI: reference.uri,
+            index: this.schema$idIndex,
+          })!;
           referencedElement = maybeRefractToSchemaElement(referencedElement);
 
           // ignore resolving internal Schema Objects
@@ -1015,6 +1029,7 @@ class OpenAPI3_1DereferenceVisitor {
           indirections: [...this.indirections],
           options: this.options,
           refractCache: this.refractCache,
+          schema$idIndex: this.schema$idIndex,
           visited: this.visited,
           ancestors: ancestorsLineage,
         });

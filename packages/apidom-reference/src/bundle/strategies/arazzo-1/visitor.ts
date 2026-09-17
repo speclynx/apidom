@@ -39,7 +39,10 @@ import {
   uriToAnchor,
   evaluate as $anchorEvaluate,
 } from '../../../dereference/strategies/arazzo-1/selectors/$anchor.ts';
-import { evaluate as uriEvaluate } from '../../../dereference/strategies/arazzo-1/selectors/uri.ts';
+import {
+  evaluate as uriEvaluate,
+  type Schema$idIndex,
+} from '../../../dereference/strategies/arazzo-1/selectors/uri.ts';
 import {
   resolveSchema$refField,
   resolveSchema$idField,
@@ -81,6 +84,7 @@ export interface Arazzo1BundleVisitorOptions {
   readonly assignments?: Map<string, string>;
   readonly reservedNames?: Map<string, Set<string>>;
   readonly placements?: InputPlacement[];
+  readonly schema$idIndex?: Schema$idIndex;
 }
 
 /**
@@ -138,12 +142,20 @@ class Arazzo1BundleVisitor {
    */
   protected readonly placements: InputPlacement[];
 
+  /**
+   * Index of `$id`-bearing schemas per document, shared across the entry document
+   * and every external document visitor of a single bundle run so it never
+   * outlives mutations of the documents (e.g. the final placement of inputs).
+   */
+  protected readonly schema$idIndex: Schema$idIndex;
+
   constructor({
     reference,
     options,
     assignments = new Map<string, string>(),
     reservedNames = new Map<string, Set<string>>(),
     placements = [],
+    schema$idIndex = new WeakMap(),
   }: Arazzo1BundleVisitorOptions) {
     this.reference = reference;
     this.baseURI = resolveArazzo$selfField(
@@ -154,6 +166,7 @@ class Arazzo1BundleVisitor {
     this.assignments = assignments;
     this.reservedNames = reservedNames;
     this.placements = placements;
+    this.schema$idIndex = schema$idIndex;
   }
 
   protected toBaseURI(uri: string): string {
@@ -437,7 +450,10 @@ class Arazzo1BundleVisitor {
         const referenceAsSchema = maybeRefractToJSONSchemaElement(
           (schemaReference.value as ParseResultElement).result as Element,
         );
-        uriEvaluate($refBaseURI, referenceAsSchema);
+        uriEvaluate($refBaseURI, referenceAsSchema, {
+          baseURI: this.baseURI,
+          index: this.schema$idIndex,
+        });
       } catch (error) {
         if (isURL && error instanceof EvaluationJsonSchemaUriError) {
           if (isAnchor(uriToAnchor($refBaseURI))) {
@@ -531,6 +547,7 @@ class Arazzo1BundleVisitor {
         assignments: this.assignments,
         reservedNames: this.reservedNames,
         placements: this.placements,
+        schema$idIndex: this.schema$idIndex,
       });
       const bundledElement = (await traverseAsync(embeddedElement, visitor, {
         mutable: true,
