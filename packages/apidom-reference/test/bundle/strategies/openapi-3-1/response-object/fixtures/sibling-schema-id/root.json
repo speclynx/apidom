@@ -1,0 +1,13 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "response-object sibling-schema-id", "version": "1.0.0" },
+  "paths": {
+    "/pets": {
+      "get": {
+        "responses": {
+          "200": { "$ref": "./ext.json#/components/responses/Ok" }
+        }
+      }
+    }
+  }
+}

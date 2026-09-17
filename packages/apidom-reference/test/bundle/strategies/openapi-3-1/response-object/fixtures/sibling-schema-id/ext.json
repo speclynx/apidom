@@ -1,0 +1,36 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "response-object sibling-schema-id external", "version": "1.0.0" },
+  "components": {
+    "responses": {
+      "Ok": {
+        "description": "ok",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "https://example.com/schemas/x" }
+          },
+          "application/vnd.inner+json": {
+            "schema": { "$ref": "https://example.com/schemas/x#/$defs/Inner" }
+          },
+          "application/vnd.owner+json": {
+            "schema": { "$ref": "https://example.com/schemas/owner" }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "X": {
+        "$id": "https://example.com/schemas/x",
+        "type": "integer",
+        "$defs": { "Inner": { "type": "string" } }
+      },
+      "Owner": {
+        "$id": "https://example.com/schemas/owner",
+        "type": "object",
+        "properties": {
+          "pet": { "$ref": "https://example.com/schemas/x" }
+        }
+      }
+    }
+  }
+}
