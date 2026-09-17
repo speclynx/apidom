@@ -269,6 +269,48 @@ export const resolve = (from: string, to: string): string => {
 };
 
 /**
+ * Computes the URI reference that resolves to `to` against `from` — the inverse
+ * of `resolve`: `resolve(from, relative(from, to)) === to`. The reference is
+ * relative to the directory of `from` (its last path segment is the document,
+ * not a directory). When the two URIs differ in scheme or authority, or either
+ * has no hierarchical path (e.g. a URN), no relative form exists and `to` is
+ * returned unchanged.
+ * @public
+ */
+export const relative = (from: string, to: string): string => {
+  const fromURL = new URL(from, 'resolve://');
+  const toURL = new URL(to, 'resolve://');
+
+  if (
+    fromURL.protocol !== toURL.protocol ||
+    fromURL.host !== toURL.host ||
+    !fromURL.pathname.startsWith('/') ||
+    !toURL.pathname.startsWith('/')
+  ) {
+    return to;
+  }
+
+  const fromSegments = fromURL.pathname.split('/').slice(0, -1);
+  const toSegments = toURL.pathname.split('/');
+  let common = 0;
+  while (
+    common < fromSegments.length &&
+    common < toSegments.length - 1 &&
+    fromSegments[common] === toSegments[common]
+  ) {
+    common += 1;
+  }
+
+  const segments = [...fromSegments.slice(common).map(() => '..'), ...toSegments.slice(common)];
+  // a leading segment with a colon would be parsed as a scheme
+  if (segments[0].includes(':')) {
+    segments.unshift('.');
+  }
+
+  return segments.join('/') + toURL.search + toURL.hash;
+};
+
+/**
  * Sanitizes/Encodes URI to it's url encoded form.
  *
  * The functional will compensate with the usecase when
