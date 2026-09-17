@@ -101,6 +101,34 @@ describe('dereference', function () {
             });
           },
         );
+
+        context(
+          'given single SchemaElement enclosed by $id keyword passed to dereferenceApiDOM',
+          function () {
+            const fixturePath = path.join(__dirname, 'fixtures', '$id-uri-enclosing', 'root.json');
+
+            // the fragment is detached from the document, so the enclosing $id is
+            // only known through the refraction-time metadata
+            specify('should resolve $ref against the enclosing $id', async function () {
+              const parseResult = await parse(fixturePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              const schemaElement = evaluate<SchemaElement>(
+                parseResult.api,
+                '/components/schemas/User/properties/profile',
+              );
+              const dereferenced = await dereferenceApiDOM(schemaElement, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                resolve: { baseURI: fixturePath },
+              });
+
+              assert.deepEqual(toValue(dereferenced), {
+                type: 'object',
+                properties: { avatar: { type: 'string' } },
+              });
+            });
+          },
+        );
       });
     });
   });

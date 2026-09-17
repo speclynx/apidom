@@ -1,4 +1,5 @@
 import { reduce } from 'ramda';
+import { isString } from 'ramda-adjunct';
 import { Element, isPrimitiveElement, isStringElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 import type { Path } from '@speclynx/apidom-traverse';
@@ -37,6 +38,21 @@ export const schema$idsOf = (nodes: readonly unknown[]): string[] =>
  */
 export const collectSchema$ids = (path: Path<Element>): string[] =>
   schema$idsOf([...path.getAncestorNodes().reverse(), path.node]);
+
+/**
+ * `$id`s of the schemas enclosing a traversal root that is a fragment detached
+ * from its document, read from the `ancestorsSchemaIdentifiers` meta the JSON
+ * Schema refractors record. The meta also carries the root's own `$id`, which
+ * the ancestor walk contributes itself, so it is dropped. Bridges dereferencing
+ * of detached fragments until the meta is removed from the refractors.
+ */
+export const detachedRootSchema$ids = (root: Element | undefined): string[] => {
+  const meta = root?.meta.get('ancestorsSchemaIdentifiers');
+  const $ids = Array.isArray(meta) ? meta.filter(isString) : [];
+  const own$id = isJSONSchemaElementWith$id(root) ? toValue(root.$id) : undefined;
+
+  return $ids.length > 0 && $ids.at(-1) === own$id ? $ids.slice(0, -1) : $ids;
+};
 
 /**
  * Resolves a chain of `$id`s (outermost first) against `baseURI`, each `$id`

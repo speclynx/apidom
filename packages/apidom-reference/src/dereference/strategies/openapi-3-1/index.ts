@@ -1,5 +1,5 @@
 import { propEq } from 'ramda';
-import { Element, cloneDeep } from '@speclynx/apidom-datamodel';
+import { Element, ParseResultElement, cloneDeep } from '@speclynx/apidom-datamodel';
 import { traverseAsync } from '@speclynx/apidom-traverse';
 import { isOpenApi3_1Element, mediaTypes } from '@speclynx/apidom-ns-openapi-3-1';
 
@@ -8,6 +8,7 @@ import File from '../../../File.ts';
 import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
 import OpenAPI3_1DereferenceVisitor from './visitor.ts';
+import { detachedRootSchema$ids } from './util.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 
 export type {
@@ -96,7 +97,13 @@ class OpenAPI3_1DereferenceStrategy extends DereferenceStrategy {
     }
 
     const shouldDetectCircular = ['error', 'replace'].includes(options.dereference.circular);
-    const visitor = new OpenAPI3_1DereferenceVisitor({ reference: reference!, options });
+    const visitor = new OpenAPI3_1DereferenceVisitor({
+      reference: reference!,
+      options,
+      ancestorSchema$ids: detachedRootSchema$ids(
+        (refSet.rootRef!.value as ParseResultElement).result,
+      ),
+    });
 
     const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
       mutable: true,
