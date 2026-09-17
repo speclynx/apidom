@@ -445,9 +445,13 @@ class OpenAPI3_1BundleVisitor {
    * traversals are rooted at fragments), so leaving it marks the moment the
    * whole entry document has been visited and the collected fragments can be
    * placed into its Components Object without the traversal descending into them.
+   * Guarded on the node so that a traversal rooted at any other Parse Result
+   * never flushes the shared placements early.
    */
   public readonly ParseResultElement = {
-    leave: (): void => {
+    leave: (path: Path<Element>): void => {
+      if (path.node !== this.entryParseResult) return;
+
       for (const { field, name, element } of this.placements) {
         this.ensureComponentsField(field).set(name, element);
       }

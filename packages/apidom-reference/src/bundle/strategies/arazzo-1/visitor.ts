@@ -359,9 +359,13 @@ class Arazzo1BundleVisitor {
    * traversals are rooted at schema resources), so leaving it marks the moment
    * the whole entry document has been visited and the collected resources can
    * be placed into `components.inputs` without the traversal descending into them.
+   * Guarded on the node so that a traversal rooted at any other Parse Result
+   * never flushes the shared placements early.
    */
   public readonly ParseResultElement = {
-    leave: (): void => {
+    leave: (path: Path<Element>): void => {
+      if (path.node !== this.entryParseResult) return;
+
       for (const { name, element } of this.placements) {
         this.ensureInputsField().set(name, element);
       }
