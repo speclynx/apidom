@@ -4,7 +4,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert } from 'chai';
 import { toValue } from '@speclynx/apidom-core';
-import { Element, includesClasses, isParseResultElement } from '@speclynx/apidom-datamodel';
+import {
+  Element,
+  ParseResultElement,
+  includesClasses,
+  isParseResultElement,
+} from '@speclynx/apidom-datamodel';
 import { mediaTypes } from '@speclynx/apidom-ns-openapi-3-1';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 
