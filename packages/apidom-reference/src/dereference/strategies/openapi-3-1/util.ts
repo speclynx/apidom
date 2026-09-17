@@ -54,6 +54,30 @@ export const resolveSchema$idField = (
 };
 
 /**
+ * Resolves the base URI a Schema Object's `$ref` is resolved against: the
+ * document base URI (`retrievalURI`), refined by each `$id` on the schema's
+ * ancestor chain in turn.
+ *
+ * @public
+ */
+export const resolveSchemaBaseURI = (
+  retrievalURI: string,
+  schemaElement: JSONSchemaElement,
+): string => {
+  const ancestorsSchemaIdentifiers = schemaElement.meta.get(
+    'ancestorsSchemaIdentifiers',
+  ) as string[];
+
+  return reduce(
+    (acc: string, $id: string): string => {
+      return url.resolve(acc, url.sanitize(url.stripHash($id)));
+    },
+    retrievalURI,
+    ancestorsSchemaIdentifiers,
+  );
+};
+
+/**
  * Cached version of SchemaElement.refract.
  */
 export const refractToSchemaElement = <T extends Element>(element: T) => {

@@ -8,6 +8,7 @@ import {
   getBasename,
   getHash,
   resolve,
+  relative,
   stripHash,
   sanitize,
   unsanitize,
@@ -259,6 +260,75 @@ describe('util', function () {
             resolve('http://example.com/one%20with%20spaces/', './two'),
             'http://example.com/one%20with%20spaces/two',
           );
+        });
+      });
+    });
+
+    context('relative', function () {
+      context('given URIs under the same hierarchy', function () {
+        specify('should compute a reference relative to the directory of from', function () {
+          assert.strictEqual(relative('/one/root.json', '/one/two/three.json'), 'two/three.json');
+          assert.strictEqual(relative('/one/two/root.json', '/one/three.json'), '../three.json');
+          assert.strictEqual(relative('/one/root.json', '/one/root.json'), 'root.json');
+          assert.strictEqual(relative('/one/a.json', '/one/b.json'), 'b.json');
+          assert.strictEqual(relative('http://example.com', 'http://example.com/a.json'), 'a.json');
+          assert.strictEqual(
+            relative('http://example.com/api/root.json', 'http://example.com/schemas/pet.json'),
+            '../schemas/pet.json',
+          );
+          assert.strictEqual(
+            relative('file:///one/root.json', 'file:///one/two/three.json#/$defs/Pet'),
+            'two/three.json#/$defs/Pet',
+          );
+        });
+
+        specify('should be the inverse of resolve', function () {
+          const from = 'http://example.com/api/v1/root.json';
+          const to = 'http://example.com/schemas/pet.json?v=2#/$defs/Pet';
+
+          assert.strictEqual(resolve(from, relative(from, to)), to);
+        });
+      });
+
+      context('given a leading segment that would parse as a scheme', function () {
+        specify('should prefix the reference with a dot segment', function () {
+          assert.strictEqual(relative('/one/root.json', '/one/a:b.json'), './a:b.json');
+        });
+      });
+
+      context('given a directory target', function () {
+        specify('should produce a reference ending with a slash', function () {
+          assert.strictEqual(relative('/one/root.json', '/one/'), './');
+          assert.strictEqual(relative('/one/two/root.json', '/one/'), '../');
+          assert.strictEqual(relative('/one/root.json', '/one/two/'), 'two/');
+        });
+      });
+
+      context('given URIs with different scheme or authority', function () {
+        specify('should return the target unchanged', function () {
+          assert.strictEqual(
+            relative('/one/root.json', 'http://example.com/pet.json'),
+            'http://example.com/pet.json',
+          );
+          assert.strictEqual(
+            relative('http://example.com/root.json', 'http://other.com/pet.json'),
+            'http://other.com/pet.json',
+          );
+          assert.strictEqual(
+            relative('http://alice@example.com/root.json', 'http://bob@example.com/pet.json'),
+            'http://bob@example.com/pet.json',
+          );
+          assert.strictEqual(
+            relative('http://example.com/root.json', 'http://alice:pw@example.com/pet.json'),
+            'http://alice:pw@example.com/pet.json',
+          );
+        });
+      });
+
+      context('given a non-hierarchical URI', function () {
+        specify('should return the target unchanged', function () {
+          assert.strictEqual(relative('/one/root.json', 'urn:uuid:pet'), 'urn:uuid:pet');
+          assert.strictEqual(relative('urn:uuid:root', 'urn:uuid:pet'), 'urn:uuid:pet');
         });
       });
     });

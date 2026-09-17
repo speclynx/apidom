@@ -1,0 +1,14 @@
+{
+  "description": "ok",
+  "content": {
+    "application/json": {
+      "schema": { "$ref": "./pet.json" }
+    },
+    "application/vnd.name+json": {
+      "schema": { "$ref": "./pet.json#/$defs/Name" }
+    },
+    "application/vnd.owner+json": {
+      "schema": { "$id": "nested/", "$ref": "./owner.json" }
+    }
+  }
+}
