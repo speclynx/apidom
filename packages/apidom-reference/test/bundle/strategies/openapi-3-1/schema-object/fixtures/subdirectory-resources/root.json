@@ -1,0 +1,20 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "external schema resources in a subdirectory", "version": "1.0.0" },
+  "paths": {
+    "/orders": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "orders",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "./schemas/order.json" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

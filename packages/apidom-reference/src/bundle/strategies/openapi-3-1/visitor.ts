@@ -115,6 +115,17 @@ const componentFieldElementByField: Record<string, new () => ObjectElement> = {
 };
 
 /**
+ * A bundled element awaiting placement into the entry document's Components
+ * Object field.
+ * @public
+ */
+export interface ComponentPlacement {
+  readonly field: string;
+  readonly name: string;
+  readonly element: Element;
+}
+
+/**
  * @public
  */
 export interface OpenAPI3_1BundleVisitorOptions {
@@ -123,6 +134,7 @@ export interface OpenAPI3_1BundleVisitorOptions {
   readonly assignments?: Map<string, string>;
   readonly reservedNames?: Map<string, Set<string>>;
   readonly refractCache?: WeakMap<Element, Map<string, Element>>;
+  readonly placements?: ComponentPlacement[];
 }
 
 /**
@@ -180,18 +192,30 @@ class OpenAPI3_1BundleVisitor {
    */
   protected readonly refractCache: WeakMap<Element, Map<string, Element>>;
 
+  /**
+   * Bundled fragments waiting to be placed into the entry document's
+   * Components Object, shared across the entry document and every external
+   * document visitor. Placement is deferred until the entry document traversal
+   * completes: the traversal walks live content, so placing a fragment mid-way
+   * would make it descend into the fragment and re-bundle its `$ref`s against
+   * the entry document's base URI instead of the fragment's own.
+   */
+  protected readonly placements: ComponentPlacement[];
+
   constructor({
     reference,
     options,
     assignments = new Map<string, string>(),
     reservedNames = new Map<string, Set<string>>(),
     refractCache = new WeakMap(),
+    placements = [],
   }: OpenAPI3_1BundleVisitorOptions) {
     this.reference = reference;
     this.options = options;
     this.assignments = assignments;
     this.reservedNames = reservedNames;
     this.refractCache = refractCache;
+    this.placements = placements;
   }
 
   protected getRefracted(source: Element, type: string): Element | undefined {
@@ -379,13 +403,16 @@ class OpenAPI3_1BundleVisitor {
 
   /**
    * Computes a collision-free component name within the target field. A name is
-   * taken if it's already placed in components or reserved by a component that
-   * is still being bundled (reserved before recursion).
+   * taken if it's already present in the entry document's components or reserved
+   * by a component that is still being bundled (reserved before recursion).
    */
   protected uniqueName(candidate: string, field: string): string {
-    const fieldElement = this.ensureComponentsField(field);
+    const fieldElement = this.entryResult.components?.get(field);
     const reserved = this.reservedNames.get(field) ?? new Set<string>();
-    return resolveUniqueName(candidate, (name) => fieldElement.hasKey(name) || reserved.has(name));
+    return resolveUniqueName(
+      candidate,
+      (name) => (isObjectElement(fieldElement) && fieldElement.hasKey(name)) || reserved.has(name),
+    );
   }
 
   /**
@@ -412,6 +439,21 @@ class OpenAPI3_1BundleVisitor {
     // append (never prepend) so the result element stays ahead of annotations
     (this.entryParseResult.content as Element[]).push(annotation);
   }
+
+  /**
+   * The entry document traversal is rooted at its Parse Result (nested
+   * traversals are rooted at fragments), so leaving it marks the moment the
+   * whole entry document has been visited and the collected fragments can be
+   * placed into its Components Object without the traversal descending into them.
+   */
+  public readonly ParseResultElement = {
+    leave: (): void => {
+      for (const { field, name, element } of this.placements) {
+        this.ensureComponentsField(field).set(name, element);
+      }
+      this.placements.length = 0;
+    },
+  };
 
   public async ReferenceElement(path: Path<Element>) {
     const referencingElement = path.node as ReferenceElement;
@@ -520,6 +562,7 @@ class OpenAPI3_1BundleVisitor {
         assignments: this.assignments,
         reservedNames: this.reservedNames,
         refractCache: this.refractCache,
+        placements: this.placements,
       });
       const bundledElement = await traverseAsync(hoistedElement, visitor, { mutable: true });
 
@@ -528,8 +571,8 @@ class OpenAPI3_1BundleVisitor {
         bundledElement.meta.set('ref-origin', reference.uri);
       }
 
-      // place the bundled fragment into the entry document's components
-      this.ensureComponentsField(field).set(componentName, bundledElement);
+      // queue the bundled fragment for placement into the entry document's components
+      this.placements.push({ field, name: componentName, element: bundledElement });
 
       // rewrite the referencing element to point at the hoisted fragment
       referencingElement.set('$ref', internalPointer);
@@ -644,6 +687,7 @@ class OpenAPI3_1BundleVisitor {
         assignments: this.assignments,
         reservedNames: this.reservedNames,
         refractCache: this.refractCache,
+        placements: this.placements,
       });
       const bundledElement = (await traverseAsync(hoistedElement, visitor, {
         mutable: true,
@@ -654,8 +698,8 @@ class OpenAPI3_1BundleVisitor {
       // internal `#/components/pathItems/...` pointer by the child traversal
       bundledElement.meta.set('ref-origin', reference.uri);
 
-      // place the bundled Path Item into the entry document's components
-      this.ensureComponentsField(field).set(componentName, bundledElement);
+      // queue the bundled Path Item for placement into the entry document's components
+      this.placements.push({ field, name: componentName, element: bundledElement });
 
       // rewrite the referencing Path Item to point at the hoisted one, keeping
       // any sibling fields (e.g. summary, description) next to the $ref
@@ -827,6 +871,7 @@ class OpenAPI3_1BundleVisitor {
         assignments: this.assignments,
         reservedNames: this.reservedNames,
         refractCache: this.refractCache,
+        placements: this.placements,
       });
       const bundledElement = (await traverseAsync(embeddedElement, visitor, {
         mutable: true,
@@ -835,8 +880,8 @@ class OpenAPI3_1BundleVisitor {
       // annotate the embedded resource with info about its origin
       bundledElement.meta.set('ref-origin', schemaReference.uri);
 
-      // place the embedded resource into the entry document's components
-      this.ensureComponentsField(field).set(componentName, bundledElement);
+      // queue the embedded resource for placement into the entry document's components
+      this.placements.push({ field, name: componentName, element: bundledElement });
 
       // point the referencing $ref at the embedded resource's $id
       if (rebased$ref !== undefined) referencingElement.set('$ref', rebased$ref);
