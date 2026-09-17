@@ -466,6 +466,26 @@ describe('dereference', function () {
           },
         );
 
+        context(
+          'given Schema Objects referencing a fragment enclosed by a different $id chain',
+          function () {
+            const fixturePath = path.join(rootFixturePath, '$id-uri-enclosing-transplant');
+
+            // the referencing schema is visited first and sits under no $id, while the
+            // fragment sits under one (and references a schema that sits under none);
+            // the $refs inside must resolve against the bases of their own locations
+            specify('should dereference', async function () {
+              const rootFilePath = path.join(fixturePath, 'root.json');
+              const actual = await dereference(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              const expected = loadJsonFile(path.join(fixturePath, 'dereferenced.json'));
+
+              assert.deepEqual(toValue(actual), expected);
+            });
+          },
+        );
+
         context('given Schema Objects with $id keyword pointing to external files', function () {
           const fixturePath = path.join(rootFixturePath, '$id-uri-external');
 

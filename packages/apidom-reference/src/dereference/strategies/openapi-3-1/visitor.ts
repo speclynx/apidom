@@ -51,6 +51,7 @@ import ReferenceSet from '../../../ReferenceSet.ts';
 import File from '../../../File.ts';
 import Resolver from '../../../resolve/resolvers/Resolver.ts';
 import {
+  schema$idsOf,
   resolveSchema$ids,
   resolveSchemaBaseURI,
   resolveSchema$refField,
@@ -856,10 +857,10 @@ class OpenAPI3_1DereferenceVisitor {
       // compute baseURI using rules around $id and $ref keywords
       let reference = await this.toReference(url.unsanitize(this.reference.uri));
       let { uri: retrievalURI } = reference;
-      const schemaBaseURI = resolveSchemaBaseURI(
-        resolveSchema$ids(retrievalURI, this.ancestorSchema$ids),
-        path,
-      );
+      // base URI in effect at the traversal root: the document base refined by
+      // the $ids of the schemas enclosing the root when the root is a fragment
+      const rootBaseURI = resolveSchema$ids(retrievalURI, this.ancestorSchema$ids);
+      const schemaBaseURI = resolveSchemaBaseURI(rootBaseURI, path);
       const $refBaseURI = resolveSchema$refField(schemaBaseURI, referencingElement)!;
       const $refBaseURIStrippedHash = url.stripHash($refBaseURI);
       const file = new File({ uri: $refBaseURIStrippedHash });
@@ -1045,9 +1046,16 @@ class OpenAPI3_1DereferenceVisitor {
        */
       const isNonEntryDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
       const shouldDetectCircular = ['error', 'replace'].includes(this.options.dereference.circular);
+      // content transplanted into the referencing site is traversed under that
+      // site's $id chain; a fragment enclosed by a different chain has its own
+      // $refs resolved in place first, by a nested visitor seeded with that chain
+      const hasDifferentEnclosingBase =
+        resolveSchema$ids(reference.uri, ancestorSchema$ids) !==
+        resolveSchema$ids(rootBaseURI, schema$idsOf(path.getAncestorNodes().reverse()));
       if (
         (isExternalReference ||
           isNonEntryDocument ||
+          hasDifferentEnclosingBase ||
           (isSchemaElement(referencedElement) && isStringElement(referencedElement.$ref)) ||
           (shouldDetectCircular && !this.visited.has(referencedElement))) &&
         !ancestorsLineage.includesCycle(referencedElement)

@@ -31,6 +31,7 @@ import { isAnchor, uriToAnchor, locate as $anchorLocate } from './selectors/$anc
 import { locate as uriLocate, type Schema$idIndex } from './selectors/uri.ts';
 import { locate as jsonPointerLocate } from '../openapi-3-1/selectors/json-pointer.ts';
 import {
+  schema$idsOf,
   resolveSchema$ids,
   resolveSchemaBaseURI,
   resolveSchema$refField,
@@ -377,10 +378,10 @@ class Arazzo1DereferenceVisitor {
       // compute baseURI using rules around $self, $id and $ref keywords
       let reference = await this.toReference(url.unsanitize(this.reference.uri));
       let { uri: retrievalURI } = reference;
-      const schemaBaseURI = resolveSchemaBaseURI(
-        resolveSchema$ids(this.baseURI, this.ancestorSchema$ids),
-        path,
-      );
+      // base URI in effect at the traversal root: the document base refined by
+      // the $ids of the schemas enclosing the root when the root is a fragment
+      const rootBaseURI = resolveSchema$ids(this.baseURI, this.ancestorSchema$ids);
+      const schemaBaseURI = resolveSchemaBaseURI(rootBaseURI, path);
       const $refBaseURI = resolveSchema$refField(schemaBaseURI, referencingElement)!;
       const $refBaseURIStrippedHash = url.stripHash($refBaseURI);
       const file = new File({ uri: $refBaseURIStrippedHash });
@@ -566,9 +567,18 @@ class Arazzo1DereferenceVisitor {
        */
       const isNonEntryDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
       const shouldDetectCircular = ['error', 'replace'].includes(this.options.dereference.circular);
+      // content transplanted into the referencing site is traversed under that
+      // site's $id chain; a fragment enclosed by a different chain has its own
+      // $refs resolved in place first, by a nested visitor seeded with that chain
+      const hasDifferentEnclosingBase =
+        resolveSchema$ids(
+          resolveArazzo$selfField(reference.uri, (reference.value as ParseResultElement).result),
+          ancestorSchema$ids,
+        ) !== resolveSchema$ids(rootBaseURI, schema$idsOf(path.getAncestorNodes().reverse()));
       if (
         (isExternalReference ||
           isNonEntryDocument ||
+          hasDifferentEnclosingBase ||
           (isJSONSchemaElement(referencedElement) && isStringElement(referencedElement.$ref)) ||
           (shouldDetectCircular && !this.visited.has(referencedElement))) &&
         !ancestorsLineage.includesCycle(referencedElement)
