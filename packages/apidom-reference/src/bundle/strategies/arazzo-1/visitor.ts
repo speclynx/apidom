@@ -175,10 +175,9 @@ class Arazzo1BundleVisitor {
    * `components.inputs` resolves.
    */
   protected get entryBaseURI(): string {
-    const rootRef = this.reference.refSet!.rootRef!;
     return resolveArazzo$selfField(
-      url.stripHash(rootRef.uri),
-      (rootRef.value as ParseResultElement | undefined)?.result,
+      url.stripHash(this.reference.refSet!.rootRef!.uri),
+      this.entryResult,
     );
   }
 
@@ -562,13 +561,12 @@ class Arazzo1BundleVisitor {
         mutable: true,
       })) as JSONSchemaElement;
 
-      // an external resource without a $id of its own is identified by its
-      // retrieval URI (JSON Schema 2020-12 §9.1.1). Write it as a URI-reference
-      // relative to the entry document's base URI — the base of components.inputs,
-      // hence of the embedded $id (§8.2.1) — so the bundle carries no absolute
-      // (filesystem) path and stays self-contained when moved as a directory
-      // tree. Assigned AFTER the resource's own $refs are bundled: those resolve
-      // against its retrieval URI, not against the entry document.
+      // a resource without its own $id is identified by its retrieval URI; write
+      // it relative to the entry document (the base of components.inputs) so the
+      // bundle carries no absolute filesystem path and stays relocatable. Assigned
+      // after the nested traversal so a reader deriving a schema's base from live
+      // $ids (see #540) never resolves the resource's own $refs against the entry
+      // document.
       if (!isStringElement(bundledElement.$id)) {
         bundledElement.set('$id', url.relative(this.entryBaseURI, resourceBaseURI));
       }

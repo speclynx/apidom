@@ -265,17 +265,11 @@ describe('bundle', function () {
           const rootFilePath = path.join(fixturePath, 'root.json');
 
           let bundled: ParseResultElement;
-          let tmpDir: string;
 
           beforeEach(async function () {
             bundled = await bundle(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'apidom-bundle-'));
-          });
-
-          afterEach(function () {
-            fs.rmSync(tmpDir, { recursive: true, force: true });
           });
 
           specify('should resolve nested $refs against the embedded resource', function () {
@@ -326,22 +320,28 @@ describe('bundle', function () {
           });
 
           specify('should stay self-contained when moved elsewhere', async function () {
-            const movedFilePath = path.join(tmpDir, 'root.json');
-            fs.writeFileSync(movedFilePath, JSON.stringify(toValue(bundled.result)));
+            const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'apidom-bundle-'));
 
-            const dereferenced = await dereference(movedFilePath, {
-              parse: { mediaType: mediaTypes.latest('json') },
-            });
+            try {
+              const movedFilePath = path.join(tmpDir, 'root.json');
+              fs.writeFileSync(movedFilePath, JSON.stringify(toValue(bundled.result)));
 
-            assert.strictEqual(
-              toValue(
-                evaluate(
-                  dereferenced.result as Element,
-                  '/components/inputs/Order/properties/item/properties/sku/type',
+              const dereferenced = await dereference(movedFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+
+              assert.strictEqual(
+                toValue(
+                  evaluate(
+                    dereferenced.result as Element,
+                    '/components/inputs/Order/properties/item/properties/sku/type',
+                  ),
                 ),
-              ),
-              'string',
-            );
+                'string',
+              );
+            } finally {
+              fs.rmSync(tmpDir, { recursive: true, force: true });
+            }
           });
         });
 

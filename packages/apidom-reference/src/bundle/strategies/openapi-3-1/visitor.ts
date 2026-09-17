@@ -949,13 +949,12 @@ class OpenAPI3_1BundleVisitor {
         mutable: true,
       })) as SchemaElement;
 
-      // an external resource without a $id of its own is identified by its
-      // retrieval URI (JSON Schema 2020-12 §9.1.1). Write it as a URI-reference
-      // relative to the entry document's base URI — the base of components.schemas,
-      // hence of the embedded $id (§8.2.1) — so the bundle carries no absolute
-      // (filesystem) path and stays self-contained when moved as a directory
-      // tree. Assigned AFTER the resource's own $refs are bundled: those resolve
-      // against its retrieval URI, not against the entry document.
+      // a resource without its own $id is identified by its retrieval URI; write
+      // it relative to the entry document (the base of components.schemas) so the
+      // bundle carries no absolute filesystem path and stays relocatable. Assigned
+      // after the nested traversal so a reader deriving a schema's base from live
+      // $ids (see #540) never resolves the resource's own $refs against the entry
+      // document.
       if (!isStringElement(bundledElement.$id)) {
         bundledElement.set('$id', url.relative(this.entryURI, resourceBaseURI));
       }
