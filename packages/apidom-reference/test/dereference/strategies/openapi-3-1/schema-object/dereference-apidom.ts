@@ -129,6 +129,40 @@ describe('dereference', function () {
             });
           },
         );
+
+        context(
+          'given single SchemaElement with relative $id enclosed by $id keyword passed to dereferenceApiDOM',
+          function () {
+            const fixturePath = path.join(
+              __dirname,
+              'fixtures',
+              '$id-uri-enclosing-relative',
+              'root.json',
+            );
+
+            // the fragment's own $id resolves against the enclosing $id known only
+            // through the refraction-time metadata; the $ref resolves against that
+            specify('should resolve $ref within the fragment $id resource', async function () {
+              const parseResult = await parse(fixturePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              const schemaElement = evaluate<SchemaElement>(
+                parseResult.api,
+                '/components/schemas/Root/$defs/Identified',
+              );
+              const dereferenced = await dereferenceApiDOM(schemaElement, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                resolve: { baseURI: fixturePath },
+              });
+
+              assert.deepEqual(toValue(dereferenced), {
+                type: 'integer',
+                $id: 'identified',
+                $defs: { Inner: { type: 'integer' } },
+              });
+            });
+          },
+        );
       });
     });
   });
