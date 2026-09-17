@@ -63,6 +63,16 @@ import type { ReferenceOptions } from '../../../options/index.ts';
 const cf = fixedFields(ComponentsElement, { indexed: true });
 
 /**
+ * A bundled JSON Schema resource awaiting placement into the entry document's
+ * `components.inputs`.
+ * @public
+ */
+export interface InputPlacement {
+  readonly name: string;
+  readonly element: Element;
+}
+
+/**
  * @public
  */
 export interface Arazzo1BundleVisitorOptions {
@@ -70,6 +80,7 @@ export interface Arazzo1BundleVisitorOptions {
   readonly options: ReferenceOptions;
   readonly assignments?: Map<string, string>;
   readonly reservedNames?: Map<string, Set<string>>;
+  readonly placements?: InputPlacement[];
 }
 
 /**
@@ -117,11 +128,22 @@ class Arazzo1BundleVisitor {
    */
   protected readonly reservedNames: Map<string, Set<string>>;
 
+  /**
+   * Embedded resources waiting to be placed into the entry document's
+   * `components.inputs`, shared across the entry document and every external
+   * document visitor. Placement is deferred until the entry document traversal
+   * completes: the traversal walks live content, so placing a resource mid-way
+   * would make it descend into the resource and re-bundle its `$ref`s against
+   * the entry document's base URI instead of the resource's own.
+   */
+  protected readonly placements: InputPlacement[];
+
   constructor({
     reference,
     options,
     assignments = new Map<string, string>(),
     reservedNames = new Map<string, Set<string>>(),
+    placements = [],
   }: Arazzo1BundleVisitorOptions) {
     this.reference = reference;
     this.baseURI = resolveArazzo$selfField(
@@ -131,6 +153,7 @@ class Arazzo1BundleVisitor {
     this.options = options;
     this.assignments = assignments;
     this.reservedNames = reservedNames;
+    this.placements = placements;
   }
 
   protected toBaseURI(uri: string): string {
@@ -293,14 +316,18 @@ class Arazzo1BundleVisitor {
 
   /**
    * Computes a collision-free component name within `components.inputs`. A name
-   * is taken if it's already placed in inputs or reserved by a component that is
-   * still being bundled (reserved before recursion).
+   * is taken if it's already present in the entry document's inputs or reserved
+   * by a component that is still being bundled (reserved before recursion).
    */
   protected uniqueName(candidate: string): string {
     const field = cf.inputs.name;
-    const inputs = this.ensureInputsField();
+    const { components } = this.entryResult;
+    const inputs = isObjectElement(components) ? components.get(field) : undefined;
     const reserved = this.reservedNames.get(field) ?? new Set<string>();
-    return resolveUniqueName(candidate, (name) => inputs.hasKey(name) || reserved.has(name));
+    return resolveUniqueName(
+      candidate,
+      (name) => (isObjectElement(inputs) && inputs.hasKey(name)) || reserved.has(name),
+    );
   }
 
   /**
@@ -327,6 +354,25 @@ class Arazzo1BundleVisitor {
     // append (never prepend) so the result element stays ahead of annotations
     (this.entryParseResult.content as Element[]).push(annotation);
   }
+
+  /**
+   * The entry document traversal is rooted at its Parse Result (nested
+   * traversals are rooted at schema resources), so leaving it marks the moment
+   * the whole entry document has been visited and the collected resources can
+   * be placed into `components.inputs` without the traversal descending into them.
+   * Guarded on the node so that a traversal rooted at any other Parse Result
+   * never flushes the shared placements early.
+   */
+  public readonly ParseResultElement = {
+    leave: (path: Path<Element>): void => {
+      if (path.node !== this.entryParseResult) return;
+
+      for (const { name, element } of this.placements) {
+        this.ensureInputsField().set(name, element);
+      }
+      this.placements.length = 0;
+    },
+  };
 
   /**
    * JSON Schema Objects in Arazzo (used by Input Objects and inline schemas) are
@@ -484,6 +530,7 @@ class Arazzo1BundleVisitor {
         options: this.options,
         assignments: this.assignments,
         reservedNames: this.reservedNames,
+        placements: this.placements,
       });
       const bundledElement = (await traverseAsync(embeddedElement, visitor, {
         mutable: true,
@@ -494,8 +541,8 @@ class Arazzo1BundleVisitor {
         bundledElement.meta.set('ref-origin', schemaReference.uri);
       }
 
-      // place the embedded resource into the entry document's components.inputs
-      this.ensureInputsField().set(componentName, bundledElement);
+      // queue the embedded resource for placement into the entry document's components.inputs
+      this.placements.push({ name: componentName, element: bundledElement });
 
       // point the referencing $ref at the embedded resource's $id
       if (rebased$ref !== undefined) referencingElement.set('$ref', rebased$ref);

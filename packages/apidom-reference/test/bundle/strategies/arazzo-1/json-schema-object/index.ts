@@ -258,6 +258,40 @@ describe('bundle', function () {
           });
         });
 
+        context('given external schema resources living in a subdirectory', function () {
+          const fixturePath = path.join(rootFixturePath, 'subdirectory-resources');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should resolve nested $refs against the embedded resource', async function () {
+            // the embedded `order` resource is placed into the entry document's
+            // components; the outer traversal must not re-bundle its `./item.json`
+            // against the entry document's base URI
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const inputs = toValue(
+              evaluate(bundled.result as Element, '/components/inputs'),
+            ) as Record<string, object>;
+
+            assert.hasAllKeys(inputs, ['Order', 'order', 'item']);
+          });
+
+          specify(
+            'should embed each resource once with its subdirectory origin',
+            async function () {
+              const bundled = await bundle(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              const item = evaluate<Element>(bundled.result as Element, '/components/inputs/item');
+
+              assert.strictEqual(
+                toValue(item.meta.get('ref-origin')),
+                url.fromFileSystemPath(path.join(fixturePath, 'schemas', 'item.json')),
+              );
+            },
+          );
+        });
+
         context('given Arazzo Object with $self keyword', function () {
           const fixturePath = path.join(rootFixturePath, '$self-base-uri');
           const rootFilePath = path.join(fixturePath, 'root.json');

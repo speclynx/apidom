@@ -7,6 +7,7 @@ import { mediaTypes } from '@speclynx/apidom-ns-openapi-3-1';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 
 import { bundle } from '../../../../../src/index.ts';
+import * as url from '../../../../../src/util/url.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootFixturePath = path.join(__dirname, 'fixtures');
@@ -257,6 +258,40 @@ describe('bundle', function () {
               './item.json',
             );
           });
+        });
+
+        context('given external schema resources living in a subdirectory', function () {
+          const fixturePath = path.join(rootFixturePath, 'subdirectory-resources');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should resolve nested $refs against the embedded resource', async function () {
+            // the embedded `order` resource is placed into the entry document's
+            // components; the outer traversal must not re-bundle its `./item.json`
+            // against the entry document's base URI
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const schemas = toValue(
+              evaluate(bundled.result as Element, '/components/schemas'),
+            ) as Record<string, object>;
+
+            assert.hasAllKeys(schemas, ['order', 'item']);
+          });
+
+          specify(
+            'should embed each resource once with its subdirectory origin',
+            async function () {
+              const bundled = await bundle(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              const item = evaluate<Element>(bundled.result as Element, '/components/schemas/item');
+
+              assert.strictEqual(
+                toValue(item.meta.get('ref-origin')),
+                url.fromFileSystemPath(path.join(fixturePath, 'schemas', 'item.json')),
+              );
+            },
+          );
         });
 
         context('given circular external schema resources', function () {
