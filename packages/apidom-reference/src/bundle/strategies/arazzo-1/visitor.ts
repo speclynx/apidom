@@ -169,6 +169,18 @@ class Arazzo1BundleVisitor {
     this.schema$idIndex = schema$idIndex;
   }
 
+  /**
+   * Base URI of the entry document — its `$self` when present, otherwise its
+   * retrieval URI. It is the base against which a relative `$id` written into
+   * `components.inputs` resolves.
+   */
+  protected get entryBaseURI(): string {
+    return resolveArazzo$selfField(
+      url.stripHash(this.reference.refSet!.rootRef!.uri),
+      this.entryResult,
+    );
+  }
+
   protected toBaseURI(uri: string): string {
     return url.resolve(this.baseURI, url.sanitize(url.stripHash(uri)));
   }
@@ -519,12 +531,8 @@ class Arazzo1BundleVisitor {
         return;
       }
 
-      // own a copy of the resource and ensure it carries a $id so the referencing
-      // $ref resolves against it once embedded
+      // own a copy of the resource
       const embeddedElement = cloneDeep(resourceRoot);
-      if (!isStringElement(embeddedElement.$id)) {
-        embeddedElement.set('$id', resourceBaseURI);
-      }
 
       // the embedded thing is the WHOLE resource (keyed by its $id), so its name
       // is derived from the resource URI
@@ -552,6 +560,16 @@ class Arazzo1BundleVisitor {
       const bundledElement = (await traverseAsync(embeddedElement, visitor, {
         mutable: true,
       })) as JSONSchemaElement;
+
+      // a resource without its own $id is identified by its retrieval URI; write
+      // it relative to the entry document (the base of components.inputs) so the
+      // bundle carries no absolute filesystem path and stays relocatable. Assigned
+      // after the nested traversal so a reader deriving a schema's base from live
+      // $ids (see #540) never resolves the resource's own $refs against the entry
+      // document.
+      if (!isStringElement(bundledElement.$id)) {
+        bundledElement.set('$id', url.relative(this.entryBaseURI, resourceBaseURI));
+      }
 
       // annotate the embedded resource with info about its origin
       if (isElement(bundledElement)) {

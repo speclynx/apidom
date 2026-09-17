@@ -1,12 +1,19 @@
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert } from 'chai';
 import { toValue } from '@speclynx/apidom-core';
-import { Element, includesClasses, isParseResultElement } from '@speclynx/apidom-datamodel';
+import {
+  Element,
+  ParseResultElement,
+  includesClasses,
+  isParseResultElement,
+} from '@speclynx/apidom-datamodel';
 import { mediaTypes } from '@speclynx/apidom-ns-openapi-3-1';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 
-import { bundle, dereferenceApiDOM } from '../../../../../src/index.ts';
+import { bundle, dereference, dereferenceApiDOM } from '../../../../../src/index.ts';
 import * as url from '../../../../../src/util/url.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -264,13 +271,18 @@ describe('bundle', function () {
           const fixturePath = path.join(rootFixturePath, 'subdirectory-resources');
           const rootFilePath = path.join(fixturePath, 'root.json');
 
-          specify('should resolve nested $refs against the embedded resource', async function () {
+          let bundled: ParseResultElement;
+
+          beforeEach(async function () {
+            bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+          });
+
+          specify('should resolve nested $refs against the embedded resource', function () {
             // the embedded `order` resource is placed into the entry document's
             // components; the outer traversal must not re-bundle its `./item.json`
             // against the entry document's base URI
-            const bundled = await bundle(rootFilePath, {
-              parse: { mediaType: mediaTypes.latest('json') },
-            });
             const schemas = toValue(
               evaluate(bundled.result as Element, '/components/schemas'),
             ) as Record<string, object>;
@@ -278,20 +290,71 @@ describe('bundle', function () {
             assert.hasAllKeys(schemas, ['order', 'item']);
           });
 
-          specify(
-            'should embed each resource once with its subdirectory origin',
-            async function () {
-              const bundled = await bundle(rootFilePath, {
+          specify('should embed each resource once with its subdirectory origin', function () {
+            const item = evaluate<Element>(bundled.result as Element, '/components/schemas/item');
+
+            assert.strictEqual(
+              toValue(item.meta.get('ref-origin')),
+              url.fromFileSystemPath(path.join(fixturePath, 'schemas', 'item.json')),
+            );
+          });
+
+          specify('should assign $ids relative to the entry document', function () {
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/components/schemas/order/$id')),
+              'schemas/order.json',
+            );
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/components/schemas/item/$id')),
+              'schemas/item.json',
+            );
+            assert.strictEqual(
+              toValue(
+                evaluate(
+                  bundled.result as Element,
+                  '/components/schemas/order/properties/item/$ref',
+                ),
+              ),
+              './item.json',
+            );
+          });
+
+          specify('should leave the referencing $ref unchanged', function () {
+            assert.strictEqual(
+              toValue(
+                evaluate(
+                  bundled.result as Element,
+                  '/paths/~1orders/get/responses/200/content/application~1json/schema/$ref',
+                ),
+              ),
+              './schemas/order.json',
+            );
+          });
+
+          specify('should stay self-contained when moved elsewhere', async function () {
+            const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'apidom-bundle-'));
+
+            try {
+              const movedFilePath = path.join(tmpDir, 'root.json');
+              fs.writeFileSync(movedFilePath, JSON.stringify(toValue(bundled.result)));
+
+              const dereferenced = await dereference(movedFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
               });
-              const item = evaluate<Element>(bundled.result as Element, '/components/schemas/item');
 
               assert.strictEqual(
-                toValue(item.meta.get('ref-origin')),
-                url.fromFileSystemPath(path.join(fixturePath, 'schemas', 'item.json')),
+                toValue(
+                  evaluate(
+                    dereferenced.result as Element,
+                    '/paths/~1orders/get/responses/200/content/application~1json/schema/properties/item/properties/sku/type',
+                  ),
+                ),
+                'string',
               );
-            },
-          );
+            } finally {
+              fs.rmSync(tmpDir, { recursive: true, force: true });
+            }
+          });
         });
 
         context('given circular external schema resources', function () {
@@ -348,7 +411,7 @@ describe('bundle', function () {
             ) as Record<string, { $id?: string }>;
             const [name] = Object.keys(schemas);
 
-            assert.match(schemas[name].$id as string, /ex\.json$/);
+            assert.strictEqual(schemas[name].$id, 'ex.json');
           });
 
           specify(

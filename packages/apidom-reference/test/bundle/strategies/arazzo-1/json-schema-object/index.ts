@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert } from 'chai';
@@ -11,7 +13,7 @@ import {
 import { mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 
-import { bundle } from '../../../../../src/index.ts';
+import { bundle, dereference } from '../../../../../src/index.ts';
 import * as url from '../../../../../src/util/url.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -262,13 +264,18 @@ describe('bundle', function () {
           const fixturePath = path.join(rootFixturePath, 'subdirectory-resources');
           const rootFilePath = path.join(fixturePath, 'root.json');
 
-          specify('should resolve nested $refs against the embedded resource', async function () {
+          let bundled: ParseResultElement;
+
+          beforeEach(async function () {
+            bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+          });
+
+          specify('should resolve nested $refs against the embedded resource', function () {
             // the embedded `order` resource is placed into the entry document's
             // components; the outer traversal must not re-bundle its `./item.json`
             // against the entry document's base URI
-            const bundled = await bundle(rootFilePath, {
-              parse: { mediaType: mediaTypes.latest('json') },
-            });
             const inputs = toValue(
               evaluate(bundled.result as Element, '/components/inputs'),
             ) as Record<string, object>;
@@ -276,20 +283,66 @@ describe('bundle', function () {
             assert.hasAllKeys(inputs, ['Order', 'order', 'item']);
           });
 
-          specify(
-            'should embed each resource once with its subdirectory origin',
-            async function () {
-              const bundled = await bundle(rootFilePath, {
+          specify('should embed each resource once with its subdirectory origin', function () {
+            const item = evaluate<Element>(bundled.result as Element, '/components/inputs/item');
+
+            assert.strictEqual(
+              toValue(item.meta.get('ref-origin')),
+              url.fromFileSystemPath(path.join(fixturePath, 'schemas', 'item.json')),
+            );
+          });
+
+          specify('should assign $ids relative to the entry document', function () {
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/components/inputs/order/$id')),
+              'schemas/order.json',
+            );
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/components/inputs/item/$id')),
+              'schemas/item.json',
+            );
+            assert.strictEqual(
+              toValue(
+                evaluate(
+                  bundled.result as Element,
+                  '/components/inputs/order/properties/item/$ref',
+                ),
+              ),
+              './item.json',
+            );
+          });
+
+          specify('should leave the referencing $ref unchanged', function () {
+            assert.strictEqual(
+              toValue(evaluate(bundled.result as Element, '/components/inputs/Order/$ref')),
+              './schemas/order.json',
+            );
+          });
+
+          specify('should stay self-contained when moved elsewhere', async function () {
+            const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'apidom-bundle-'));
+
+            try {
+              const movedFilePath = path.join(tmpDir, 'root.json');
+              fs.writeFileSync(movedFilePath, JSON.stringify(toValue(bundled.result)));
+
+              const dereferenced = await dereference(movedFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
               });
-              const item = evaluate<Element>(bundled.result as Element, '/components/inputs/item');
 
               assert.strictEqual(
-                toValue(item.meta.get('ref-origin')),
-                url.fromFileSystemPath(path.join(fixturePath, 'schemas', 'item.json')),
+                toValue(
+                  evaluate(
+                    dereferenced.result as Element,
+                    '/components/inputs/Order/properties/item/properties/sku/type',
+                  ),
+                ),
+                'string',
               );
-            },
-          );
+            } finally {
+              fs.rmSync(tmpDir, { recursive: true, force: true });
+            }
+          });
         });
 
         context('given Arazzo Object with $self keyword', function () {
@@ -311,7 +364,7 @@ describe('bundle', function () {
             assert.hasAllKeys(inputs, ['User', 'Avatar', 'ex']);
             assert.strictEqual(
               toValue(evaluate(bundled.result as Element, '/components/inputs/ex/$id')),
-              url.fromFileSystemPath(path.join(fixturePath, 'nested', 'ex.json')),
+              'ex.json',
             );
           });
 
@@ -406,7 +459,7 @@ describe('bundle', function () {
             const embedded = Object.values(inputs).find((schema) => typeof schema.$id === 'string');
 
             assert.isDefined(embedded);
-            assert.match(embedded!.$id as string, /ex\.json$/);
+            assert.strictEqual(embedded!.$id, 'ex.json');
           });
 
           specify(

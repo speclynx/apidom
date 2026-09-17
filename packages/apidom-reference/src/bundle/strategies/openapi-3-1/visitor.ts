@@ -917,12 +917,8 @@ class OpenAPI3_1BundleVisitor {
         return;
       }
 
-      // own a copy of the resource and ensure it carries a $id so the referencing
-      // $ref resolves against it once embedded
+      // own a copy of the resource
       const embeddedElement = cloneDeep(resourceRoot);
-      if (!isStringElement(embeddedElement.$id)) {
-        embeddedElement.set('$id', resourceBaseURI);
-      }
 
       // the embedded thing is the WHOLE resource (keyed by its $id), so its name
       // is derived from the resource URI, not the $ref fragment — passing a root
@@ -952,6 +948,16 @@ class OpenAPI3_1BundleVisitor {
       const bundledElement = (await traverseAsync(embeddedElement, visitor, {
         mutable: true,
       })) as SchemaElement;
+
+      // a resource without its own $id is identified by its retrieval URI; write
+      // it relative to the entry document (the base of components.schemas) so the
+      // bundle carries no absolute filesystem path and stays relocatable. Assigned
+      // after the nested traversal so a reader deriving a schema's base from live
+      // $ids (see #540) never resolves the resource's own $refs against the entry
+      // document.
+      if (!isStringElement(bundledElement.$id)) {
+        bundledElement.set('$id', url.relative(this.entryURI, resourceBaseURI));
+      }
 
       // annotate the embedded resource with info about its origin
       bundledElement.meta.set('ref-origin', schemaReference.uri);

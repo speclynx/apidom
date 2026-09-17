@@ -2909,8 +2909,10 @@ inlined in place. Example Object `externalValue` content is inlined, and an exte
 
 **Schema Objects** are a [JSON Schema 2020-12](https://json-schema.org/draft/2020-12) dialect and are
 bundled per the [JSON Schema Compound Document](https://json-schema.org/blog/posts/bundling-json-schema-compound-documents)
-rules: the external schema **resource** is embedded verbatim into `components.schemas` carrying its `$id`
-(one is assigned from the retrieval URI when absent). The referencing `$ref` is **rebased** onto the embedded
+rules: the external schema **resource** is embedded verbatim into `components.schemas` carrying its `$id`.
+A resource without a `$id` of its own gets one assigned as a URI-reference relative to the entry document's
+base URI (e.g. `schemas/ex.json`), so the bundle carries no absolute filesystem paths and stays self-contained
+when moved as a directory tree. The referencing `$ref` is **rebased** onto the embedded
 resource's `$id` (keeping any `$anchor` or JSON Pointer fragment) whenever it resolves to a different URI —
 e.g. `./ex.json#/$defs/Pet` becomes `https://example.com/schemas/pets#/$defs/Pet` — since once embedded the
 resource is reachable only by its `$id`; a `$ref` that already resolves to that `$id` is left unchanged. The
@@ -2983,7 +2985,8 @@ The only external references Arazzo defines are **JSON Schema Objects** — a
 external documents that are intentionally kept external — neither is bundled.) Schema Objects are therefore
 bundled per the [JSON Schema Compound Document](https://json-schema.org/blog/posts/bundling-json-schema-compound-documents)
 rules, exactly as in the `openapi-3-1` strategy: the external schema **resource** is embedded verbatim into
-`components.inputs` carrying its `$id` (one is assigned from the retrieval URI when absent). The referencing
+`components.inputs` carrying its `$id`. A resource without a `$id` of its own is assigned one relative to the
+entry document's base URI (its `$self` when present), e.g. `schemas/ex.json`. The referencing
 `$ref` is **rebased** onto the embedded resource's `$id` (keeping any `$anchor` or JSON Pointer fragment)
 whenever it resolves to a different URI — e.g. `./ex.json#/$defs/Pet` becomes
 `https://example.com/schemas/pets#/$defs/Pet` — since once embedded the resource is reachable only by its `$id`;
