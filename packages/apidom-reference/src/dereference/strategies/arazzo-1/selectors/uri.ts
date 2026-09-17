@@ -1,4 +1,5 @@
 export {
+  locate,
   evaluate,
   EvaluationJsonSchemaUriError,
   JsonSchemaUriError,

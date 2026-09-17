@@ -1,0 +1,13 @@
+{
+  "$id": "./deep/",
+  "$defs": {
+    "UserProfile": {
+      "type": "object",
+      "properties": {
+        "avatar": {
+          "$ref": "./avatar.json"
+        }
+      }
+    }
+  }
+}

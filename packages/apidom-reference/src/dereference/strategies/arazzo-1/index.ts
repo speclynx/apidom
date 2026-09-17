@@ -13,6 +13,7 @@ import File from '../../../File.ts';
 import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
 import Arazzo1DereferenceVisitor from './visitor.ts';
+import { detachedRootSchema$ids } from '../openapi-3-1/util.ts';
 import { dereferenceSourceDescriptions } from './source-descriptions.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 
@@ -102,7 +103,13 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
     }
 
     const shouldDetectCircular = ['error', 'replace'].includes(options.dereference.circular);
-    const visitor = new Arazzo1DereferenceVisitor({ reference, options });
+    const visitor = new Arazzo1DereferenceVisitor({
+      reference,
+      options,
+      ancestorSchema$ids: detachedRootSchema$ids(
+        (refSet.rootRef!.value as ParseResultElement).result,
+      ),
+    });
     const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
       mutable: true,
       ...(shouldDetectCircular && { skipVisited: 'skip' as const }),

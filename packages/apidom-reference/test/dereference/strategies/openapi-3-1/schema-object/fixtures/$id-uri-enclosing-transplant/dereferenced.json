@@ -1,0 +1,59 @@
+[
+  {
+    "openapi": "3.1.2",
+    "components": {
+      "schemas": {
+        "B": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "string",
+              "title": "right x"
+            },
+            "y": {
+              "type": "object",
+              "properties": {
+                "z": {
+                  "type": "boolean",
+                  "title": "right z"
+                }
+              }
+            }
+          }
+        },
+        "A": {
+          "$id": "a/",
+          "$defs": {
+            "Inner": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "string",
+                  "title": "right x"
+                },
+                "y": {
+                  "type": "object",
+                  "properties": {
+                    "z": {
+                      "type": "boolean",
+                      "title": "right z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "C": {
+          "type": "object",
+          "properties": {
+            "z": {
+              "type": "boolean",
+              "title": "right z"
+            }
+          }
+        }
+      }
+    }
+  }
+]

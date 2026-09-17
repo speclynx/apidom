@@ -1,0 +1,25 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "external schema resource without a $id carrying a relative $ref",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/pets": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas/ex.json"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

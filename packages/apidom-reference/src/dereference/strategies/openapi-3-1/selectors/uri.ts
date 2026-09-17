@@ -1,17 +1,19 @@
-import { reduce } from 'ramda';
 import { isUndefined } from 'ramda-adjunct';
-import { Element, isStringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
-import { filter, type Path } from '@speclynx/apidom-traverse';
-import { isJSONSchemaElement, JSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2020-12';
-import {
-  URIFragmentIdentifier,
-  evaluate as jsonPointerEvaluate,
-} from '@speclynx/apidom-json-pointer';
+import { Element } from '@speclynx/apidom-datamodel';
+import { filter } from '@speclynx/apidom-traverse';
+import { JSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2020-12';
+import { URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
 
 import * as url from '../../../../util/url.ts';
 import EvaluationJsonSchemaUriError from '../../../../errors/EvaluationJsonSchemaUriError.ts';
-import { isAnchor, uriToAnchor, evaluate as $anchorEvaluate } from './$anchor.ts';
+import {
+  isJSONSchemaElementWith$id,
+  collectSchema$ids,
+  resolveSchema$ids,
+  type SchemaLocation,
+} from '../util.ts';
+import { isAnchor, uriToAnchor, locate as $anchorLocate } from './$anchor.ts';
+import { locate as jsonPointerLocate } from './json-pointer.ts';
 
 /**
  * Index of `$id`-bearing schemas per document root. Each entry pairs a schema with
@@ -38,28 +40,49 @@ export interface EvaluateOptions {
   readonly index?: Schema$idIndex;
 }
 
-const isJSONSchemaElementWith$id = (element: Element): element is JSONSchemaElement =>
-  isJSONSchemaElement(element) && isStringElement(element.$id);
-
-// the $ids are read from the elements themselves rather than from refraction-time
-// metadata, so a $id assigned after refraction (e.g. by the bundler) is honored
-const collectSchema$ids = (path: Path<Element>): string[] => {
-  const $ids: string[] = [];
-
-  for (let current: Path<Element> | null = path; current !== null; current = current.parentPath) {
-    if (isJSONSchemaElementWith$id(current.node)) {
-      $ids.unshift(toValue(current.node.$id) as string);
-    }
-  }
-
-  return $ids;
-};
-
 const indexSchema$ids = (element: Element) =>
   filter(element, (path) => isJSONSchemaElementWith$id(path.node)).map((path) => ({
     schema: path.node as JSONSchemaElement,
     $ids: collectSchema$ids(path),
   }));
+
+/**
+ * Locates the schema addressed by JSON Schema $ref containing unknown URI within
+ * ApiDOM fragment, along with the `$id`s of the schemas enclosing it.
+ * @public
+ */
+export const locate = <T extends Element>(
+  uri: string,
+  element: T,
+  options: EvaluateOptions = {},
+): SchemaLocation => {
+  const uriStrippedHash = url.stripHash(uri);
+  const { baseURI = uriStrippedHash, index = new WeakMap() } = options;
+
+  if (!index.has(element)) {
+    index.set(element, indexSchema$ids(element));
+  }
+
+  // search for the schema whose canonical URI matches
+  const entry = index
+    .get(element)!
+    .find(({ $ids }) => resolveSchema$ids(baseURI, $ids) === uriStrippedHash);
+
+  if (isUndefined(entry)) {
+    throw new EvaluationJsonSchemaUriError(`Evaluation failed on URI: "${uri}"`);
+  }
+
+  // the fragment is resolved within the matched schema, whose own $id is the
+  // last of its chain; the fragment walk contributes it again when descending
+  const fragmentLocation = isAnchor(uriToAnchor(uri))
+    ? $anchorLocate(uriToAnchor(uri), entry.schema)
+    : jsonPointerLocate(entry.schema, URIFragmentIdentifier.fromURIReference(uri));
+
+  return {
+    element: fragmentLocation.element,
+    ancestorSchema$ids: [...entry.$ids.slice(0, -1), ...fragmentLocation.ancestorSchema$ids],
+  };
+};
 
 /**
  * Evaluates JSON Schema $ref containing unknown URI against ApiDOM fragment.
@@ -69,35 +92,8 @@ export const evaluate = <T extends Element>(
   uri: string,
   element: T,
   options: EvaluateOptions = {},
-): Element | undefined => {
-  const uriStrippedHash = url.stripHash(uri);
-  const { baseURI = uriStrippedHash, index = new WeakMap() } = options;
+): Element | undefined => locate(uri, element, options).element;
 
-  if (!index.has(element)) {
-    index.set(element, indexSchema$ids(element));
-  }
-
-  // search for the schema whose canonical URI matches
-  const entry = index.get(element)!.find(({ $ids }) => {
-    const canonicalURI = reduce(
-      (acc: string, $id: string): string => url.resolve(acc, url.sanitize(url.stripHash($id))),
-      baseURI,
-      $ids,
-    );
-    return canonicalURI === uriStrippedHash;
-  });
-
-  if (isUndefined(entry)) {
-    throw new EvaluationJsonSchemaUriError(`Evaluation failed on URI: "${uri}"`);
-  }
-
-  if (isAnchor(uriToAnchor(uri))) {
-    // we're dealing with JSON Schema $anchor here
-    return $anchorEvaluate(uriToAnchor(uri), entry.schema);
-  }
-
-  return jsonPointerEvaluate(entry.schema, URIFragmentIdentifier.fromURIReference(uri));
-};
-
+export type { SchemaLocation } from '../util.ts';
 export { EvaluationJsonSchemaUriError };
 export { default as JsonSchemaUriError } from '../../../../errors/JsonSchemaUriError.ts';

@@ -1,80 +1,115 @@
 import { reduce } from 'ramda';
-import { Element, isPrimitiveElement } from '@speclynx/apidom-datamodel';
+import { isString } from 'ramda-adjunct';
+import { Element, isPrimitiveElement, isStringElement } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
-import { JSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2020-12';
+import type { Path } from '@speclynx/apidom-traverse';
+import { isJSONSchemaElement, JSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2020-12';
 import { refractSchema } from '@speclynx/apidom-ns-openapi-3-1';
 
 import * as url from '../../../util/url.ts';
 
 /**
+ * A schema located within a document, together with the `$id`s of the JSON Schema
+ * elements enclosing it (outermost first; the located schema's own `$id` excluded).
  * @public
  */
-export const resolveSchema$refField = (retrievalURI: string, schemaElement: JSONSchemaElement) => {
-  if (typeof schemaElement.$ref === 'undefined') {
+export interface SchemaLocation {
+  readonly element: Element;
+  readonly ancestorSchema$ids: string[];
+}
+
+/**
+ * Whether the element is a JSON Schema element declaring a `$id`.
+ */
+export const isJSONSchemaElementWith$id = (element: unknown): element is JSONSchemaElement =>
+  isJSONSchemaElement(element) && isStringElement(element.$id);
+
+/**
+ * `$id`s declared by the JSON Schema elements among `nodes`, in order.
+ */
+export const schema$idsOf = (nodes: readonly unknown[]): string[] =>
+  nodes.filter(isJSONSchemaElementWith$id).map((node) => toValue(node.$id) as string);
+
+/**
+ * `$id`s of the JSON Schema elements on `path` (outermost first, the node itself
+ * included). The `$id`s are read from the elements themselves rather than from
+ * refraction-time metadata, so a `$id` assigned after refraction (e.g. by the
+ * bundler) is honored.
+ */
+export const collectSchema$ids = (path: Path<Element>): string[] =>
+  schema$idsOf([...path.getAncestorNodes().reverse(), path.node]);
+
+/**
+ * `$id`s of the schemas enclosing a traversal root that is a fragment detached
+ * from its document, read from the `ancestorsSchemaIdentifiers` meta the JSON
+ * Schema refractors record. The meta also carries the root's own `$id`, which
+ * the ancestor walk contributes itself, so it is dropped. A detached fragment
+ * has no live ancestors, so the meta is the only carrier of its lexical
+ * context; this is the one reader of it the refractors must keep serving.
+ */
+export const detachedRootSchema$ids = (root: Element | undefined): string[] => {
+  const meta = root?.meta.get('ancestorsSchemaIdentifiers');
+  const $ids = Array.isArray(meta) ? meta.filter(isString) : [];
+  const own$id = isJSONSchemaElementWith$id(root) ? toValue(root.$id) : undefined;
+
+  return $ids.length > 0 && $ids.at(-1) === own$id ? $ids.slice(0, -1) : $ids;
+};
+
+/**
+ * Resolves a chain of `$id`s (outermost first) against `baseURI`, each `$id`
+ * refining the base the next one resolves against.
+ */
+export const resolveSchema$ids = (baseURI: string, $ids: readonly string[]): string =>
+  reduce(
+    (acc: string, $id: string): string => url.resolve(acc, url.sanitize(url.stripHash($id))),
+    baseURI,
+    $ids,
+  );
+
+/**
+ * Resolves the base URI of the schema at `path`: `baseURI` (the base URI in
+ * effect at the traversal root) refined by each `$id` on the schema's ancestor
+ * chain in turn, the schema's own `$id` included.
+ */
+export const resolveSchemaBaseURI = (baseURI: string, path: Path<Element>): string =>
+  resolveSchema$ids(baseURI, collectSchema$ids(path));
+
+/**
+ * Resolves the `$ref` of the schema against its base URI (see
+ * `resolveSchemaBaseURI`), or returns `undefined` when the schema has no string `$ref`.
+ *
+ * @public
+ */
+export const resolveSchema$refField = (
+  schemaBaseURI: string,
+  schemaElement: JSONSchemaElement,
+): string | undefined => {
+  if (!isStringElement(schemaElement.$ref)) {
     return undefined;
   }
 
-  const hash = url.getHash(toValue(schemaElement.$ref) as string);
-  const ancestorsSchemaIdentifiers = schemaElement.meta.get(
-    'ancestorsSchemaIdentifiers',
-  ) as string[];
-  const $refBaseURI = reduce(
-    (acc: string, uri: string): string => {
-      return url.resolve(acc, url.sanitize(url.stripHash(uri)));
-    },
-    retrievalURI,
-    [...ancestorsSchemaIdentifiers, toValue(schemaElement.$ref) as string],
-  );
+  const $ref = toValue(schemaElement.$ref) as string;
+  const hash = url.getHash($ref);
+  const $refBaseURI = resolveSchema$ids(schemaBaseURI, [$ref]);
 
   return `${$refBaseURI}${hash === '#' ? '' : hash}`;
 };
 
 /**
- * @public
- */
-export const resolveSchema$idField = (
-  retrievalURI: string,
-  schemaElement: JSONSchemaElement,
-): string | undefined => {
-  if (typeof schemaElement.$id === 'undefined') {
-    return undefined;
-  }
-
-  const ancestorsSchemaIdentifiers = schemaElement.meta.get(
-    'ancestorsSchemaIdentifiers',
-  ) as string[];
-
-  return reduce(
-    (acc: string, $id: string): string => {
-      return url.resolve(acc, url.sanitize(url.stripHash($id)));
-    },
-    retrievalURI,
-    ancestorsSchemaIdentifiers,
-  );
-};
-
-/**
- * Resolves the base URI a Schema Object's `$ref` is resolved against: the
- * document base URI (`retrievalURI`), refined by each `$id` on the schema's
- * ancestor chain in turn.
+ * Resolves the `$id` of the schema against `baseURI`, the base URI in effect
+ * where the schema sits, or returns `undefined` when the schema declares no string `$id`.
  *
  * @public
  */
-export const resolveSchemaBaseURI = (
-  retrievalURI: string,
+export const resolveSchema$idField = (
+  baseURI: string,
   schemaElement: JSONSchemaElement,
-): string => {
-  const ancestorsSchemaIdentifiers = schemaElement.meta.get(
-    'ancestorsSchemaIdentifiers',
-  ) as string[];
+): string | undefined => {
+  if (!isStringElement(schemaElement.$id)) {
+    return undefined;
+  }
 
-  return reduce(
-    (acc: string, $id: string): string => {
-      return url.resolve(acc, url.sanitize(url.stripHash($id)));
-    },
-    retrievalURI,
-    ancestorsSchemaIdentifiers,
-  );
+  return resolveSchema$ids(baseURI, [toValue(schemaElement.$id) as string]);
 };
 
 /**

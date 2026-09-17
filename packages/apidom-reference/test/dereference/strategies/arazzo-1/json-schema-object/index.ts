@@ -6,7 +6,13 @@ import { isJSONSchemaElement, mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 import { fileURLToPath } from 'node:url';
 
-import { dereference, parse, Reference, ReferenceSet } from '../../../../../src/index.ts';
+import {
+  dereference,
+  dereferenceApiDOM,
+  parse,
+  Reference,
+  ReferenceSet,
+} from '../../../../../src/index.ts';
 import { loadJsonFile } from '../../../../helpers.ts';
 import * as url from '../../../../../src/util/url.ts';
 import DereferenceError from '../../../../../src/errors/DereferenceError.ts';
@@ -563,6 +569,74 @@ describe('dereference', function () {
               const expected = loadJsonFile(path.join(fixturePath, 'dereferenced.json'));
 
               assert.deepEqual(toValue(actual), expected);
+            });
+          },
+        );
+
+        context(
+          'given JSON Schema Objects with $id keyword in enclosing Schema Object of external file',
+          function () {
+            const fixturePath = path.join(rootFixturePath, '$id-uri-enclosing-external');
+
+            // the referenced fragment sits under a $id it doesn't declare itself, so its
+            // nested $ref must resolve against that enclosing $id, not the retrieval URI
+            specify('should dereference', async function () {
+              const rootFilePath = path.join(fixturePath, 'root.json');
+              const actual = await dereference(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              const expected = loadJsonFile(path.join(fixturePath, 'dereferenced.json'));
+
+              assert.deepEqual(toValue(actual), expected);
+            });
+          },
+        );
+
+        context(
+          'given JSON Schema Objects referencing a fragment enclosed by a different $id chain',
+          function () {
+            const fixturePath = path.join(rootFixturePath, '$id-uri-enclosing-transplant');
+
+            // the referencing schema is visited first and sits under no $id, while the
+            // fragment sits under one (and references a schema that sits under none);
+            // the $refs inside must resolve against the bases of their own locations
+            specify('should dereference', async function () {
+              const rootFilePath = path.join(fixturePath, 'root.json');
+              const actual = await dereference(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              const expected = loadJsonFile(path.join(fixturePath, 'dereferenced.json'));
+
+              assert.deepEqual(toValue(actual), expected);
+            });
+          },
+        );
+
+        context(
+          'given single JSONSchemaElement enclosed by $id keyword passed to dereferenceApiDOM',
+          function () {
+            const fixturePath = path.join(rootFixturePath, '$id-uri-enclosing');
+
+            // the fragment is detached from the document, so the enclosing $id is
+            // only known through the refraction-time metadata
+            specify('should resolve $ref against the enclosing $id', async function () {
+              const rootFilePath = path.join(fixturePath, 'root.json');
+              const parseResult = await parse(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              const schemaElement = evaluate<Element>(
+                parseResult.api,
+                '/components/inputs/User/properties/profile',
+              );
+              const dereferenced = await dereferenceApiDOM(schemaElement, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                resolve: { baseURI: rootFilePath },
+              });
+
+              assert.deepEqual(toValue(dereferenced), {
+                type: 'object',
+                properties: { avatar: { type: 'string' } },
+              });
             });
           },
         );

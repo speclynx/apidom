@@ -2,6 +2,7 @@ export {
   isAnchor,
   uriToAnchor,
   parse,
+  locate,
   evaluate,
   EvaluationJsonSchema$anchorError,
   InvalidJsonSchema$anchorError,

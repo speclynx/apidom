@@ -17,7 +17,11 @@ import { isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 import * as url from '../../../util/url.ts';
 import type Reference from '../../../Reference.ts';
 
-export { resolveSchema$refField, resolveSchema$idField } from '../openapi-3-1/util.ts';
+export {
+  resolveSchema$refField,
+  resolveSchema$idField,
+  resolveSchemaBaseURI,
+} from '../openapi-3-1/util.ts';
 
 /**
  * Computes the base URI of an Arazzo document per Arazzo 1.1.0 rules.

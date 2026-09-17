@@ -46,6 +46,7 @@ import {
 import {
   resolveSchema$refField,
   resolveSchema$idField,
+  resolveSchemaBaseURI,
   maybeRefractToJSONSchemaElement,
   resolveArazzo$selfField,
   identifiedBy$self,
@@ -424,7 +425,8 @@ class Arazzo1BundleVisitor {
       // current document's base URI is derived directly (not via toReference)
       // so an internal $ref needs no resolution and never trips the
       // resolve.maxDepth guard.
-      const $refBaseURI = resolveSchema$refField(this.baseURI, referencingElement)!;
+      const schemaBaseURI = resolveSchemaBaseURI(this.baseURI, path);
+      const $refBaseURI = resolveSchema$refField(schemaBaseURI, referencingElement)!;
       const $refBaseURIStrippedHash = url.stripHash($refBaseURI);
       const file = new File({ uri: $refBaseURIStrippedHash });
       const isUnknownURI = none((r: Resolver) => r.canRead(file), this.options.resolve.resolvers);

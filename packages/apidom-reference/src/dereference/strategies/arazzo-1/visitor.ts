@@ -27,9 +27,15 @@ import {
 } from '@speclynx/apidom-ns-arazzo-1';
 import { parse as parseRuntimeExpression } from '@swaggerexpert/arazzo-runtime-expression';
 
-import { isAnchor, uriToAnchor, evaluate as $anchorEvaluate } from './selectors/$anchor.ts';
-import { evaluate as uriEvaluate, type Schema$idIndex } from './selectors/uri.ts';
-import { resolveSchema$refField } from '../openapi-3-1/util.ts';
+import { isAnchor, uriToAnchor, locate as $anchorLocate } from './selectors/$anchor.ts';
+import { locate as uriLocate, type Schema$idIndex } from './selectors/uri.ts';
+import { locate as jsonPointerLocate } from '../openapi-3-1/selectors/json-pointer.ts';
+import {
+  schema$idsOf,
+  resolveSchema$ids,
+  resolveSchemaBaseURI,
+  resolveSchema$refField,
+} from '../openapi-3-1/util.ts';
 import {
   maybeRefractToJSONSchemaElement,
   resolveArazzo$selfField,
@@ -58,6 +64,7 @@ export interface Arazzo1DereferenceVisitorOptions {
   readonly schema$idIndex?: Schema$idIndex;
   readonly ancestors?: AncestorLineage<Element>;
   readonly visited?: WeakSet<Element>;
+  readonly ancestorSchema$ids?: string[];
 }
 
 /**
@@ -86,6 +93,15 @@ class Arazzo1DereferenceVisitor {
   protected readonly visited: WeakSet<Element>;
 
   /**
+   * `$id`s of the JSON Schema elements enclosing the traversal root within its
+   * document (outermost first). Empty when the root is the document itself; a
+   * nested visitor traversing a fragment is seeded with the `$id`s of the
+   * schemas the fragment sits under, so the `$ref`s and `$id`s within resolve
+   * against the same base as they would from the document root.
+   */
+  protected readonly ancestorSchema$ids: string[];
+
+  /**
    * Tracks element ancestors across dive-deep traversal boundaries.
    * Used for cycle detection: if a referenced element is found in
    * the ancestor lineage, a circular reference is detected.
@@ -99,6 +115,7 @@ class Arazzo1DereferenceVisitor {
     schema$idIndex = new WeakMap(),
     ancestors = new AncestorLineage(),
     visited = new WeakSet(),
+    ancestorSchema$ids = [],
   }: Arazzo1DereferenceVisitorOptions) {
     this.indirections = indirections;
     this.reference = reference;
@@ -110,6 +127,7 @@ class Arazzo1DereferenceVisitor {
     this.schema$idIndex = schema$idIndex;
     this.ancestors = new AncestorLineage(...ancestors);
     this.visited = visited;
+    this.ancestorSchema$ids = ancestorSchema$ids;
   }
 
   protected toAncestorLineage(path: Path<Element>): [AncestorLineage<Element>, Set<Element>] {
@@ -360,7 +378,11 @@ class Arazzo1DereferenceVisitor {
       // compute baseURI using rules around $self, $id and $ref keywords
       let reference = await this.toReference(url.unsanitize(this.reference.uri));
       let { uri: retrievalURI } = reference;
-      const $refBaseURI = resolveSchema$refField(this.baseURI, referencingElement)!;
+      // base URI in effect at the traversal root: the document base refined by
+      // the $ids of the schemas enclosing the root when the root is a fragment
+      const rootBaseURI = resolveSchema$ids(this.baseURI, this.ancestorSchema$ids);
+      const schemaBaseURI = resolveSchemaBaseURI(rootBaseURI, path);
+      const $refBaseURI = resolveSchema$refField(schemaBaseURI, referencingElement)!;
       const $refBaseURIStrippedHash = url.stripHash($refBaseURI);
       const file = new File({ uri: $refBaseURIStrippedHash });
       const isUnknownURI = none((r: Resolver) => r.canRead(file), this.options.resolve.resolvers);
@@ -370,6 +392,8 @@ class Arazzo1DereferenceVisitor {
 
       // determining reference, proper evaluation and selection mechanism
       let referencedElement: Element;
+      // $ids of the schemas enclosing the referenced element within its document
+      let ancestorSchema$ids: string[];
 
       try {
         if (isUnknownURI || isURL) {
@@ -379,10 +403,11 @@ class Arazzo1DereferenceVisitor {
           const referenceAsSchema = maybeRefractToJSONSchemaElement(
             (reference.value as ParseResultElement).result as Element,
           );
-          referencedElement = uriEvaluate(selector, referenceAsSchema, {
-            baseURI: this.baseURI,
-            index: this.schema$idIndex,
-          })!;
+          ({ element: referencedElement, ancestorSchema$ids } = uriLocate(
+            selector,
+            referenceAsSchema,
+            { baseURI: this.baseURI, index: this.schema$idIndex },
+          ));
           referencedElement = maybeRefractToJSONSchemaElement(referencedElement);
 
           // ignore resolving internal Schema Objects
@@ -417,7 +442,10 @@ class Arazzo1DereferenceVisitor {
           const referenceAsSchema = maybeRefractToJSONSchemaElement(
             (reference.value as ParseResultElement).result as Element,
           );
-          referencedElement = jsonPointerEvaluate(referenceAsSchema, selector);
+          ({ element: referencedElement, ancestorSchema$ids } = jsonPointerLocate(
+            referenceAsSchema,
+            selector,
+          ));
           referencedElement = maybeRefractToJSONSchemaElement(referencedElement);
         }
       } catch (error) {
@@ -447,7 +475,10 @@ class Arazzo1DereferenceVisitor {
             const referenceAsSchema = maybeRefractToJSONSchemaElement(
               (reference.value as ParseResultElement).result as Element,
             );
-            referencedElement = $anchorEvaluate(selector, referenceAsSchema)!;
+            ({ element: referencedElement, ancestorSchema$ids } = $anchorLocate(
+              selector,
+              referenceAsSchema,
+            ));
             referencedElement = maybeRefractToJSONSchemaElement(referencedElement);
           } else {
             // we're assuming here that we're dealing with JSON Pointer here
@@ -471,7 +502,10 @@ class Arazzo1DereferenceVisitor {
             const referenceAsSchema = maybeRefractToJSONSchemaElement(
               (reference.value as ParseResultElement).result as Element,
             );
-            referencedElement = jsonPointerEvaluate(referenceAsSchema, selector);
+            ({ element: referencedElement, ancestorSchema$ids } = jsonPointerLocate(
+              referenceAsSchema,
+              selector,
+            ));
             referencedElement = maybeRefractToJSONSchemaElement(referencedElement);
           }
         } else {
@@ -533,9 +567,18 @@ class Arazzo1DereferenceVisitor {
        */
       const isNonEntryDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
       const shouldDetectCircular = ['error', 'replace'].includes(this.options.dereference.circular);
+      // content transplanted into the referencing site is traversed under that
+      // site's $id chain; a fragment enclosed by a different chain has its own
+      // $refs resolved in place first, by a nested visitor seeded with that chain
+      const hasDifferentEnclosingBase =
+        resolveSchema$ids(
+          resolveArazzo$selfField(reference.uri, (reference.value as ParseResultElement).result),
+          ancestorSchema$ids,
+        ) !== resolveSchema$ids(rootBaseURI, schema$idsOf(path.getAncestorNodes().reverse()));
       if (
         (isExternalReference ||
           isNonEntryDocument ||
+          hasDifferentEnclosingBase ||
           (isJSONSchemaElement(referencedElement) && isStringElement(referencedElement.$ref)) ||
           (shouldDetectCircular && !this.visited.has(referencedElement))) &&
         !ancestorsLineage.includesCycle(referencedElement)
@@ -554,6 +597,7 @@ class Arazzo1DereferenceVisitor {
           schema$idIndex: this.schema$idIndex,
           visited: this.visited,
           ancestors: ancestorsLineage,
+          ancestorSchema$ids,
         });
         referencedElement = await traverseAsync(referencedElement, visitor, {
           mutable: true,
