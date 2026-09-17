@@ -42,7 +42,7 @@ describe('dereference', function () {
           });
         });
 
-        context('given external and containing a self-identifying schema', function () {
+        context('given external Response Object with a self-identifying schema', function () {
           const fixturePath = path.join(rootFixturePath, 'external-schema-id');
 
           specify('should dereference', async function () {
