@@ -72,5 +72,6 @@ export const locate = <T extends Element>(anchor: string, element: T): SchemaLoc
 export const evaluate = <T extends Element>(anchor: string, element: T): Element | undefined =>
   locate(anchor, element).element;
 
+export type { SchemaLocation } from '../util.ts';
 export { EvaluationJsonSchema$anchorError, InvalidJsonSchema$anchorError };
 export { default as JsonSchema$anchorError } from '../../../../errors/JsonSchema$anchorError.ts';

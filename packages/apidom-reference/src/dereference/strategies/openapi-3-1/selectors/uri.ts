@@ -94,5 +94,6 @@ export const evaluate = <T extends Element>(
   options: EvaluateOptions = {},
 ): Element | undefined => locate(uri, element, options).element;
 
+export type { SchemaLocation } from '../util.ts';
 export { EvaluationJsonSchemaUriError };
 export { default as JsonSchemaUriError } from '../../../../errors/JsonSchemaUriError.ts';

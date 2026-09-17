@@ -19,14 +19,12 @@ export interface SchemaLocation {
 
 /**
  * Whether the element is a JSON Schema element declaring a `$id`.
- * @public
  */
 export const isJSONSchemaElementWith$id = (element: unknown): element is JSONSchemaElement =>
   isJSONSchemaElement(element) && isStringElement(element.$id);
 
 /**
  * `$id`s declared by the JSON Schema elements among `nodes`, in order.
- * @public
  */
 export const schema$idsOf = (nodes: readonly unknown[]): string[] =>
   nodes.filter(isJSONSchemaElementWith$id).map((node) => toValue(node.$id) as string);
@@ -36,7 +34,6 @@ export const schema$idsOf = (nodes: readonly unknown[]): string[] =>
  * included). The `$id`s are read from the elements themselves rather than from
  * refraction-time metadata, so a `$id` assigned after refraction (e.g. by the
  * bundler) is honored.
- * @public
  */
 export const collectSchema$ids = (path: Path<Element>): string[] =>
   schema$idsOf([...path.getAncestorNodes().reverse(), path.node]);
@@ -44,7 +41,6 @@ export const collectSchema$ids = (path: Path<Element>): string[] =>
 /**
  * Resolves a chain of `$id`s (outermost first) against `baseURI`, each `$id`
  * refining the base the next one resolves against.
- * @public
  */
 export const resolveSchema$ids = (baseURI: string, $ids: readonly string[]): string =>
   reduce(
@@ -57,8 +53,6 @@ export const resolveSchema$ids = (baseURI: string, $ids: readonly string[]): str
  * Resolves the base URI of the schema at `path`: `baseURI` (the base URI in
  * effect at the traversal root) refined by each `$id` on the schema's ancestor
  * chain in turn, the schema's own `$id` included.
- *
- * @public
  */
 export const resolveSchemaBaseURI = (baseURI: string, path: Path<Element>): string =>
   resolveSchema$ids(baseURI, collectSchema$ids(path));

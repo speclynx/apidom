@@ -11,7 +11,6 @@ import { schema$idsOf, type SchemaLocation } from '../util.ts';
  * Locates the element addressed by JSON Pointer within ApiDOM fragment, along
  * with the `$id`s of the schemas enclosing it: the elements the pointer walks
  * through on its way to the target, the search root included.
- * @public
  */
 export const locate = <T extends Element>(element: T, jsonPointer: JSONPointer): SchemaLocation => {
   const trace: Partial<EvaluationTrace> = { steps: [] };
