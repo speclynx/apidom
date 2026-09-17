@@ -850,6 +850,8 @@ class OpenAPI3_1BundleVisitor {
         : rootNode;
       const uriEvaluateOptions = { baseURI: retrievalURI, index: this.schema$idIndex };
       let schemaReference = this.reference;
+      let resourceRoot: SchemaElement;
+      let resourceBaseURI: string;
       try {
         try {
           uriEvaluate(
@@ -857,6 +859,13 @@ class OpenAPI3_1BundleVisitor {
             maybeRefractToSchemaElement(fragmentElement),
             uriEvaluateOptions,
           );
+          // a $ref that resolves (by $id/$anchor/pointer) within the traversed
+          // content is internal even when its URI form (e.g. a URN or absolute
+          // $id) is not a bare fragment: the $id resource travels with the content
+          // wherever it is placed. Leave it untouched — it resolves against the
+          // in-content $id graph, and embedding the content into itself would be
+          // wrong.
+          return;
         } catch (error) {
           if (
             !(error instanceof EvaluationJsonSchemaUriError) ||
@@ -864,52 +873,45 @@ class OpenAPI3_1BundleVisitor {
           ) {
             throw error;
           }
-          uriEvaluate(
-            $refBaseURI,
-            maybeRefractToSchemaElement(documentElement),
+          const documentAsSchema = maybeRefractToSchemaElement(documentElement);
+          uriEvaluate($refBaseURI, documentAsSchema, uriEvaluateOptions);
+          // the $id resource sits in the current document but outside the
+          // traversed fragment, so it stays behind once the fragment is placed
+          // into the entry document. The resource to embed is that $id-bearing
+          // schema, addressed by its canonical URI (the $ref without fragment).
+          resourceRoot = uriEvaluate(
+            $refBaseURIStrippedHash,
+            documentAsSchema,
             uriEvaluateOptions,
-          );
+          ) as SchemaElement;
+          resourceBaseURI = $refBaseURIStrippedHash;
         }
       } catch (error) {
         if (isURL && error instanceof EvaluationJsonSchemaUriError) {
+          schemaReference = await this.toReference(url.unsanitize($refBaseURI));
+          const referenceAsSchema = maybeRefractToSchemaElement(
+            (schemaReference.value as ParseResultElement).result as Element,
+          );
           if (isAnchor(uriToAnchor($refBaseURI))) {
-            schemaReference = await this.toReference(url.unsanitize($refBaseURI));
             const selector = uriToAnchor($refBaseURI);
-            const referenceAsSchema = maybeRefractToSchemaElement(
-              (schemaReference.value as ParseResultElement).result as Element,
-            );
             $anchorEvaluate(selector, referenceAsSchema);
           } else {
-            schemaReference = await this.toReference(url.unsanitize($refBaseURI));
             const selector = URIFragmentIdentifier.fromURIReference($refBaseURI);
-            const referenceAsSchema = maybeRefractToSchemaElement(
-              (schemaReference.value as ParseResultElement).result as Element,
-            );
             jsonPointerEvaluate(referenceAsSchema, selector);
           }
+
+          // the resource to embed is the WHOLE external document (its root
+          // schema), identified by its $id. A $ref into a fragment of the
+          // document embeds the entire document resource once; the fragment
+          // keeps resolving against the embedded $id.
+          resourceRoot = referenceAsSchema as SchemaElement;
+          resourceBaseURI =
+            resolveSchema$idField(url.stripHash(schemaReference.uri), resourceRoot) ??
+            url.stripHash(schemaReference.uri);
         } else {
           throw error;
         }
       }
-
-      // a $ref that resolves (by $id/$anchor/pointer) within the current document
-      // is internal even when its URI form (e.g. a URN or absolute $id) is not a
-      // bare fragment. Leave it untouched — it resolves against the in-document
-      // $id graph, and embedding the current document into itself would be wrong.
-      if (url.stripHash(schemaReference.uri) === url.stripHash(this.reference.uri)) {
-        return;
-      }
-
-      // the resource to embed is the WHOLE external document (its root schema),
-      // identified by its $id. A $ref into a fragment of the document embeds the
-      // entire document resource once; the fragment keeps resolving against the
-      // embedded $id.
-      const resourceRoot = maybeRefractToSchemaElement(
-        (schemaReference.value as ParseResultElement).result as Element,
-      ) as SchemaElement;
-      const resourceBaseURI =
-        resolveSchema$idField(url.stripHash(schemaReference.uri), resourceRoot) ??
-        url.stripHash(schemaReference.uri);
 
       const field = cf.schemas.name;
       const canonicalKey = `${field}\t${resourceBaseURI}`;
