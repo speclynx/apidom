@@ -908,6 +908,8 @@ class OpenAPI3_1DereferenceVisitor {
             ) {
               throw error;
             }
+            // the document index is rooted at the document, so the located chain
+            // is already document-relative and takes no prefix
             ({ element: referencedElement, ancestorSchema$ids } = uriLocate(
               selector,
               maybeRefractToSchemaElement(documentElement),
