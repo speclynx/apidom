@@ -281,9 +281,12 @@ export const relative = (from: string, to: string): string => {
   const fromURL = new URL(from, 'resolve://');
   const toURL = new URL(to, 'resolve://');
 
+  // the authority is host plus userinfo; a relative reference keeps both from `from`
   if (
     fromURL.protocol !== toURL.protocol ||
     fromURL.host !== toURL.host ||
+    fromURL.username !== toURL.username ||
+    fromURL.password !== toURL.password ||
     !fromURL.pathname.startsWith('/') ||
     !toURL.pathname.startsWith('/')
   ) {

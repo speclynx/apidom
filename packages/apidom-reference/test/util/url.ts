@@ -314,6 +314,14 @@ describe('util', function () {
             relative('http://example.com/root.json', 'http://other.com/pet.json'),
             'http://other.com/pet.json',
           );
+          assert.strictEqual(
+            relative('http://alice@example.com/root.json', 'http://bob@example.com/pet.json'),
+            'http://bob@example.com/pet.json',
+          );
+          assert.strictEqual(
+            relative('http://example.com/root.json', 'http://alice:pw@example.com/pet.json'),
+            'http://alice:pw@example.com/pet.json',
+          );
         });
       });
 
