@@ -12,7 +12,7 @@ import {
 } from '@speclynx/apidom-datamodel';
 import { toValue, toYAML, fixedFields } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
-import { traverseAsync, Path } from '@speclynx/apidom-traverse';
+import { traverseAsync, type Path } from '@speclynx/apidom-traverse';
 import {
   evaluate as jsonPointerEvaluate,
   escape,
@@ -312,10 +312,11 @@ class OpenAPI3_1BundleVisitor {
    */
   protected relocatedSchemaBaseURI(path: Path<Element>, $refBaseURI: string): string | undefined {
     if (this.relocationBaseURI === undefined) return undefined;
-    if (resolveSchema$refField(this.relocationBaseURI, path) === $refBaseURI) {
+    const relocatedBaseURI = resolveSchemaBaseURI(this.relocationBaseURI, path);
+    if (resolveSchema$refField(relocatedBaseURI, path.node as SchemaElement) === $refBaseURI) {
       return undefined;
     }
-    return resolveSchemaBaseURI(this.relocationBaseURI, path);
+    return relocatedBaseURI;
   }
 
   /**
@@ -798,7 +799,8 @@ class OpenAPI3_1BundleVisitor {
       // toReference) so an internal $ref needs no resolution and never trips the
       // resolve.maxDepth guard, matching how ReferenceElement returns early.
       const retrievalURI = this.reference.uri;
-      const $refBaseURI = resolveSchema$refField(retrievalURI, path)!;
+      const schemaBaseURI = resolveSchemaBaseURI(retrievalURI, path);
+      const $refBaseURI = resolveSchema$refField(schemaBaseURI, referencingElement)!;
       const $refBaseURIStrippedHash = url.stripHash($refBaseURI);
       const file = new File({ uri: $refBaseURIStrippedHash });
       const isUnknownURI = none((r: Resolver) => r.canRead(file), this.options.resolve.resolvers);
@@ -878,9 +880,8 @@ class OpenAPI3_1BundleVisitor {
       const resourceRoot = maybeRefractToSchemaElement(
         (schemaReference.value as ParseResultElement).result as Element,
       ) as SchemaElement;
-      const resourceRootPath = new Path<Element>(resourceRoot, undefined, null, undefined, false);
       const resourceBaseURI =
-        resolveSchema$idField(url.stripHash(schemaReference.uri), resourceRootPath) ??
+        resolveSchema$idField(url.stripHash(schemaReference.uri), resourceRoot) ??
         url.stripHash(schemaReference.uri);
 
       const field = cf.schemas.name;

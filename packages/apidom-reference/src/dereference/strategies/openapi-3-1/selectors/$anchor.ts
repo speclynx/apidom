@@ -5,7 +5,7 @@ import { find } from '@speclynx/apidom-traverse';
 import { isJSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2020-12';
 
 import { getHash } from '../../../../util/url.ts';
-import { collectSchema$ids, type SchemaLocation } from '../util.ts';
+import { schema$idsOf, type SchemaLocation } from '../util.ts';
 import EvaluationJsonSchema$anchorError from '../../../../errors/EvaluationJsonSchema$anchorError.ts';
 import InvalidJsonSchema$anchorError from '../../../../errors/InvalidJsonSchema$anchorError.ts';
 
@@ -43,7 +43,7 @@ export const parse = (anchor: string): string => {
 
 /**
  * Locates the schema identified by JSON Schema $anchor within ApiDOM fragment,
- * along with the `$id`s of the schemas enclosing it (`element` included).
+ * along with the `$id`s of the schemas enclosing it, the search root included.
  * @public
  */
 export const locate = <T extends Element>(anchor: string, element: T): SchemaLocation => {
@@ -59,7 +59,10 @@ export const locate = <T extends Element>(anchor: string, element: T): SchemaLoc
     throw new EvaluationJsonSchema$anchorError(`Evaluation failed on token: "${token}"`);
   }
 
-  return { element: resultPath.node, ancestorSchema$ids: collectSchema$ids(resultPath.parentPath) };
+  return {
+    element: resultPath.node,
+    ancestorSchema$ids: schema$idsOf(resultPath.getAncestorNodes().reverse()),
+  };
 };
 
 /**

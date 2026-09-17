@@ -50,7 +50,12 @@ import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
 import File from '../../../File.ts';
 import Resolver from '../../../resolve/resolvers/Resolver.ts';
-import { resolveSchema$ids, resolveSchema$refField, maybeRefractToSchemaElement } from './util.ts';
+import {
+  resolveSchema$ids,
+  resolveSchemaBaseURI,
+  resolveSchema$refField,
+  maybeRefractToSchemaElement,
+} from './util.ts';
 import { AncestorLineage } from '../../util.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 
@@ -851,8 +856,11 @@ class OpenAPI3_1DereferenceVisitor {
       // compute baseURI using rules around $id and $ref keywords
       let reference = await this.toReference(url.unsanitize(this.reference.uri));
       let { uri: retrievalURI } = reference;
-      const schemaBaseURI = resolveSchema$ids(retrievalURI, this.ancestorSchema$ids);
-      const $refBaseURI = resolveSchema$refField(schemaBaseURI, path)!;
+      const schemaBaseURI = resolveSchemaBaseURI(
+        resolveSchema$ids(retrievalURI, this.ancestorSchema$ids),
+        path,
+      );
+      const $refBaseURI = resolveSchema$refField(schemaBaseURI, referencingElement)!;
       const $refBaseURIStrippedHash = url.stripHash($refBaseURI);
       const file = new File({ uri: $refBaseURIStrippedHash });
       const isUnknownURI = none((r: Resolver) => r.canRead(file), this.options.resolve.resolvers);

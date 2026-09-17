@@ -30,7 +30,11 @@ import { parse as parseRuntimeExpression } from '@swaggerexpert/arazzo-runtime-e
 import { isAnchor, uriToAnchor, locate as $anchorLocate } from './selectors/$anchor.ts';
 import { locate as uriLocate, type Schema$idIndex } from './selectors/uri.ts';
 import { locate as jsonPointerLocate } from '../openapi-3-1/selectors/json-pointer.ts';
-import { resolveSchema$ids, resolveSchema$refField } from '../openapi-3-1/util.ts';
+import {
+  resolveSchema$ids,
+  resolveSchemaBaseURI,
+  resolveSchema$refField,
+} from '../openapi-3-1/util.ts';
 import {
   maybeRefractToJSONSchemaElement,
   resolveArazzo$selfField,
@@ -373,8 +377,11 @@ class Arazzo1DereferenceVisitor {
       // compute baseURI using rules around $self, $id and $ref keywords
       let reference = await this.toReference(url.unsanitize(this.reference.uri));
       let { uri: retrievalURI } = reference;
-      const schemaBaseURI = resolveSchema$ids(this.baseURI, this.ancestorSchema$ids);
-      const $refBaseURI = resolveSchema$refField(schemaBaseURI, path)!;
+      const schemaBaseURI = resolveSchemaBaseURI(
+        resolveSchema$ids(this.baseURI, this.ancestorSchema$ids),
+        path,
+      );
+      const $refBaseURI = resolveSchema$refField(schemaBaseURI, referencingElement)!;
       const $refBaseURIStrippedHash = url.stripHash($refBaseURI);
       const file = new File({ uri: $refBaseURIStrippedHash });
       const isUnknownURI = none((r: Resolver) => r.canRead(file), this.options.resolve.resolvers);

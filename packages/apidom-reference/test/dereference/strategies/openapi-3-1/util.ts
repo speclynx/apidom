@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import { Element } from '@speclynx/apidom-datamodel';
-import { find, Path } from '@speclynx/apidom-traverse';
+import { find, type Path } from '@speclynx/apidom-traverse';
 import { refractOpenApi3_1, SchemaElement } from '@speclynx/apidom-ns-openapi-3-1';
 
 import {
@@ -54,10 +54,6 @@ describe('dereference', function () {
           specify('should include the $id of the schema itself', function () {
             assert.deepEqual(collectSchema$ids(userPath), ['./users/']);
           });
-
-          specify('should return empty list for null path', function () {
-            assert.deepEqual(collectSchema$ids(null), []);
-          });
         });
 
         context('resolveSchema$ids', function () {
@@ -83,22 +79,28 @@ describe('dereference', function () {
         });
 
         context('resolveSchema$refField', function () {
-          specify('should resolve $ref against enclosing $ids', function () {
+          specify('should resolve $ref against schema base URI', function () {
             assert.strictEqual(
-              resolveSchema$refField(baseURI, petPath),
+              resolveSchema$refField(
+                resolveSchemaBaseURI(baseURI, petPath),
+                petPath.node as SchemaElement,
+              ),
               'https://example.com/docs/pets/pet.json#/$defs/Pet',
             );
           });
 
-          specify('should keep fragment of $ref resolved against own $id chain', function () {
+          specify('should keep fragment of $ref', function () {
             assert.strictEqual(
-              resolveSchema$refField(baseURI, avatarPath),
+              resolveSchema$refField(
+                resolveSchemaBaseURI(baseURI, avatarPath),
+                avatarPath.node as SchemaElement,
+              ),
               'https://example.com/docs/users/profile.json#/$defs/Avatar',
             );
           });
 
           specify('should return undefined when $ref is not defined', function () {
-            assert.isUndefined(resolveSchema$refField(baseURI, userPath));
+            assert.isUndefined(resolveSchema$refField(baseURI, userPath.node as SchemaElement));
           });
 
           specify('should honor $id assigned after refraction', function () {
@@ -110,11 +112,12 @@ describe('dereference', function () {
               '$id',
               'schemas/pet.json',
             );
+            const tagPath = pathOf(assigned, 'components/schemas/Pet/properties/tag');
 
             assert.strictEqual(
               resolveSchema$refField(
-                baseURI,
-                pathOf(assigned, 'components/schemas/Pet/properties/tag'),
+                resolveSchemaBaseURI(baseURI, tagPath),
+                tagPath.node as SchemaElement,
               ),
               'https://example.com/docs/schemas/tag.json',
             );
@@ -122,33 +125,34 @@ describe('dereference', function () {
 
           specify('should resolve $ref of programmatically created schema', function () {
             const schemaElement = new SchemaElement({ $ref: './pet.json' });
-            const rootPath = new Path<Element>(schemaElement, undefined, null, undefined, false);
 
             assert.strictEqual(
-              resolveSchema$refField(baseURI, rootPath),
+              resolveSchema$refField(baseURI, schemaElement),
               'https://example.com/docs/pet.json',
             );
           });
         });
 
         context('resolveSchema$idField', function () {
-          specify('should resolve canonical URI of schema with $id', function () {
+          specify('should resolve $id against base URI in effect at the schema', function () {
             assert.strictEqual(
-              resolveSchema$idField(baseURI, profilePath),
+              resolveSchema$idField(
+                resolveSchemaBaseURI(baseURI, userPath),
+                profilePath.node as SchemaElement,
+              ),
               'https://example.com/docs/users/profile.json',
             );
           });
 
           specify('should return undefined when $id is not defined', function () {
-            assert.isUndefined(resolveSchema$idField(baseURI, petPath));
+            assert.isUndefined(resolveSchema$idField(baseURI, petPath.node as SchemaElement));
           });
 
           specify('should resolve $id of programmatically created schema', function () {
             const schemaElement = new SchemaElement({ $id: 'pet.json' });
-            const rootPath = new Path<Element>(schemaElement, undefined, null, undefined, false);
 
             assert.strictEqual(
-              resolveSchema$idField(baseURI, rootPath),
+              resolveSchema$idField(baseURI, schemaElement),
               'https://example.com/docs/pet.json',
             );
           });

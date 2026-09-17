@@ -10,7 +10,7 @@ import {
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
 import { toValue, toYAML, fixedFields } from '@speclynx/apidom-core';
-import { traverseAsync, Path } from '@speclynx/apidom-traverse';
+import { traverseAsync, type Path } from '@speclynx/apidom-traverse';
 import {
   evaluate as jsonPointerEvaluate,
   escape,
@@ -46,6 +46,7 @@ import {
 import {
   resolveSchema$refField,
   resolveSchema$idField,
+  resolveSchemaBaseURI,
   maybeRefractToJSONSchemaElement,
   resolveArazzo$selfField,
   identifiedBy$self,
@@ -424,7 +425,8 @@ class Arazzo1BundleVisitor {
       // current document's base URI is derived directly (not via toReference)
       // so an internal $ref needs no resolution and never trips the
       // resolve.maxDepth guard.
-      const $refBaseURI = resolveSchema$refField(this.baseURI, path)!;
+      const schemaBaseURI = resolveSchemaBaseURI(this.baseURI, path);
+      const $refBaseURI = resolveSchema$refField(schemaBaseURI, referencingElement)!;
       const $refBaseURIStrippedHash = url.stripHash($refBaseURI);
       const file = new File({ uri: $refBaseURIStrippedHash });
       const isUnknownURI = none((r: Resolver) => r.canRead(file), this.options.resolve.resolvers);
@@ -509,9 +511,8 @@ class Arazzo1BundleVisitor {
       const resourceRoot = maybeRefractToJSONSchemaElement(
         (schemaReference.value as ParseResultElement).result as Element,
       ) as JSONSchemaElement;
-      const resourceRootPath = new Path<Element>(resourceRoot, undefined, null, undefined, false);
       const resourceBaseURI =
-        resolveSchema$idField(url.stripHash(schemaReference.uri), resourceRootPath) ??
+        resolveSchema$idField(url.stripHash(schemaReference.uri), resourceRoot) ??
         url.stripHash(schemaReference.uri);
 
       const field = cf.inputs.name;

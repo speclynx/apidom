@@ -38,17 +38,8 @@ export const schema$idsOf = (nodes: readonly unknown[]): string[] =>
  * bundler) is honored.
  * @public
  */
-export const collectSchema$ids = (path: Path<Element> | null): string[] => {
-  const $ids: string[] = [];
-
-  for (let current = path; current !== null; current = current.parentPath) {
-    if (isJSONSchemaElementWith$id(current.node)) {
-      $ids.unshift(toValue(current.node.$id) as string);
-    }
-  }
-
-  return $ids;
-};
+export const collectSchema$ids = (path: Path<Element>): string[] =>
+  schema$idsOf([...path.getAncestorNodes().reverse(), path.node]);
 
 /**
  * Resolves a chain of `$id`s (outermost first) against `baseURI`, each `$id`
@@ -73,40 +64,41 @@ export const resolveSchemaBaseURI = (baseURI: string, path: Path<Element>): stri
   resolveSchema$ids(baseURI, collectSchema$ids(path));
 
 /**
- * Resolves the `$ref` of the schema at `path` against the schema's base URI,
- * or returns `undefined` when the schema has no `$ref`.
+ * Resolves the `$ref` of the schema against its base URI (see
+ * `resolveSchemaBaseURI`), or returns `undefined` when the schema has no `$ref`.
  *
  * @public
  */
 export const resolveSchema$refField = (
-  baseURI: string,
-  path: Path<Element>,
+  schemaBaseURI: string,
+  schemaElement: JSONSchemaElement,
 ): string | undefined => {
-  const $ref = (path.node as JSONSchemaElement).$ref;
-
-  if (typeof $ref === 'undefined') {
+  if (typeof schemaElement.$ref === 'undefined') {
     return undefined;
   }
 
-  const $refValue = toValue($ref) as string;
-  const hash = url.getHash($refValue);
-  const $refBaseURI = resolveSchema$ids(baseURI, [...collectSchema$ids(path), $refValue]);
+  const $ref = toValue(schemaElement.$ref) as string;
+  const hash = url.getHash($ref);
+  const $refBaseURI = resolveSchema$ids(schemaBaseURI, [$ref]);
 
   return `${$refBaseURI}${hash === '#' ? '' : hash}`;
 };
 
 /**
- * Resolves the canonical URI of the schema at `path`, or returns `undefined`
- * when the schema declares no `$id`.
+ * Resolves the `$id` of the schema against `baseURI`, the base URI in effect
+ * where the schema sits, or returns `undefined` when the schema declares no `$id`.
  *
  * @public
  */
-export const resolveSchema$idField = (baseURI: string, path: Path<Element>): string | undefined => {
-  if (typeof (path.node as JSONSchemaElement).$id === 'undefined') {
+export const resolveSchema$idField = (
+  baseURI: string,
+  schemaElement: JSONSchemaElement,
+): string | undefined => {
+  if (typeof schemaElement.$id === 'undefined') {
     return undefined;
   }
 
-  return resolveSchemaBaseURI(baseURI, path);
+  return resolveSchema$ids(baseURI, [toValue(schemaElement.$id) as string]);
 };
 
 /**
