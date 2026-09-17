@@ -3,7 +3,7 @@ import util from 'node:util';
 import { assert } from 'chai';
 import { Element } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
-import { isSchemaElement, mediaTypes } from '@speclynx/apidom-ns-openapi-3-1';
+import { isSchemaElement, mediaTypes, SchemaElement } from '@speclynx/apidom-ns-openapi-3-1';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 import { fileURLToPath } from 'node:url';
 
@@ -478,6 +478,75 @@ describe('dereference', function () {
             });
           },
         );
+
+        context(
+          'given Schema Objects with relative $id keyword and $ref sharing its basename',
+          function () {
+            const fixturePath = path.join(rootFixturePath, '$id-relative-sibling');
+
+            specify(
+              'should resolve the $ref against the document URI, not the $id',
+              async function () {
+                // a relative $id resolves against the document's retrieval URI; it
+                // must not match a $ref only because the two share a basename
+                const rootFilePath = path.join(fixturePath, 'root.json');
+                const actual = await dereference(rootFilePath, {
+                  parse: { mediaType: mediaTypes.latest('json') },
+                });
+                const expected = loadJsonFile(path.join(fixturePath, 'dereferenced.json'));
+
+                assert.deepEqual(toValue(actual), expected);
+              },
+            );
+          },
+        );
+
+        context('given Schema Objects with $id keyword assigned after refraction', function () {
+          const fixturePath = path.join(rootFixturePath, '$id-assigned-after-refraction');
+          const uri = 'https://example.com/root.json';
+
+          const parseWith$id = async ($id: string) => {
+            const rootFilePath = path.join(fixturePath, 'root.json');
+            const parseResult = await parse(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            // the $id is set on the element, so refraction-time metadata knows nothing about it
+            evaluate<SchemaElement>(parseResult.result as Element, '/components/schemas/Pet').set(
+              '$id',
+              $id,
+            );
+            return new ReferenceSet({ refs: [new Reference({ uri, value: parseResult })] });
+          };
+
+          specify('should dereference $ref matching the assigned $id', async function () {
+            const refSet = await parseWith$id('urn:example:pet');
+            const actual = await dereference(uri, { dereference: { refSet } });
+
+            assert.deepEqual(
+              toValue(
+                evaluate(actual.result as Element, '/components/schemas/User/properties/pet'),
+              ),
+              {
+                $id: 'urn:example:pet',
+                type: 'object',
+                properties: { name: { type: 'string' } },
+              },
+            );
+          });
+
+          specify('should not match $ref against a different assigned $id', async function () {
+            const refSet = await parseWith$id('urn:example:other');
+
+            try {
+              await dereference(uri, { dereference: { refSet } });
+              assert.fail('should throw DereferenceError');
+            } catch (error: any) {
+              assert.instanceOf(error, UnresolvableReferenceError);
+              // @ts-ignore
+              assert.instanceOf(error.cause, EvaluationJsonSchemaUriError);
+            }
+          });
+        });
 
         context('given Schema Objects with unresolvable $id values', function () {
           const fixturePath = path.join(rootFixturePath, '$id-unresolvable');

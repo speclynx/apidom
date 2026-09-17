@@ -6,7 +6,7 @@ import { Element, includesClasses, isParseResultElement } from '@speclynx/apidom
 import { mediaTypes } from '@speclynx/apidom-ns-openapi-3-1';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 
-import { bundle } from '../../../../../src/index.ts';
+import { bundle, dereferenceApiDOM } from '../../../../../src/index.ts';
 import * as url from '../../../../../src/util/url.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -369,6 +369,27 @@ describe('bundle', function () {
               );
             },
           );
+
+          specify('should dereference the bundled document in place', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            // dereferencing the bundled ApiDOM without re-parsing it must resolve
+            // the $ref against the embedded resource by its assigned $id
+            const dereferenced = await dereferenceApiDOM(bundled, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              resolve: { baseURI: rootFilePath },
+              dereference: { immutable: false },
+            });
+            const schema = toValue(
+              evaluate(
+                dereferenced.result as Element,
+                '/paths/~1pets/get/responses/200/content/application~1json/schema',
+              ),
+            ) as { $id?: string };
+
+            assert.match(schema.$id as string, /ex\.json$/);
+          });
         });
 
         context('given internal Schema Object references only', function () {

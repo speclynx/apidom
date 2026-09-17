@@ -61,7 +61,10 @@ import {
   uriToAnchor,
   evaluate as $anchorEvaluate,
 } from '../../../dereference/strategies/openapi-3-1/selectors/$anchor.ts';
-import { evaluate as uriEvaluate } from '../../../dereference/strategies/openapi-3-1/selectors/uri.ts';
+import {
+  evaluate as uriEvaluate,
+  type Schema$idIndex,
+} from '../../../dereference/strategies/openapi-3-1/selectors/uri.ts';
 import {
   resolveSchema$refField,
   resolveSchema$idField,
@@ -134,6 +137,7 @@ export interface OpenAPI3_1BundleVisitorOptions {
   readonly assignments?: Map<string, string>;
   readonly reservedNames?: Map<string, Set<string>>;
   readonly refractCache?: WeakMap<Element, Map<string, Element>>;
+  readonly schema$idIndex?: Schema$idIndex;
   readonly placements?: ComponentPlacement[];
 }
 
@@ -193,6 +197,13 @@ class OpenAPI3_1BundleVisitor {
   protected readonly refractCache: WeakMap<Element, Map<string, Element>>;
 
   /**
+   * Index of `$id`-bearing schemas per document, shared across the entry document
+   * and every external document visitor of a single bundle run so it never
+   * outlives mutations of the documents (e.g. the final placement of components).
+   */
+  protected readonly schema$idIndex: Schema$idIndex;
+
+  /**
    * Bundled fragments waiting to be placed into the entry document's
    * Components Object, shared across the entry document and every external
    * document visitor. Placement is deferred until the entry document traversal
@@ -208,6 +219,7 @@ class OpenAPI3_1BundleVisitor {
     assignments = new Map<string, string>(),
     reservedNames = new Map<string, Set<string>>(),
     refractCache = new WeakMap(),
+    schema$idIndex = new WeakMap(),
     placements = [],
   }: OpenAPI3_1BundleVisitorOptions) {
     this.reference = reference;
@@ -215,6 +227,7 @@ class OpenAPI3_1BundleVisitor {
     this.assignments = assignments;
     this.reservedNames = reservedNames;
     this.refractCache = refractCache;
+    this.schema$idIndex = schema$idIndex;
     this.placements = placements;
   }
 
@@ -567,6 +580,7 @@ class OpenAPI3_1BundleVisitor {
         assignments: this.assignments,
         reservedNames: this.reservedNames,
         refractCache: this.refractCache,
+        schema$idIndex: this.schema$idIndex,
         placements: this.placements,
       });
       const bundledElement = await traverseAsync(hoistedElement, visitor, { mutable: true });
@@ -692,6 +706,7 @@ class OpenAPI3_1BundleVisitor {
         assignments: this.assignments,
         reservedNames: this.reservedNames,
         refractCache: this.refractCache,
+        schema$idIndex: this.schema$idIndex,
         placements: this.placements,
       });
       const bundledElement = (await traverseAsync(hoistedElement, visitor, {
@@ -787,7 +802,10 @@ class OpenAPI3_1BundleVisitor {
         const referenceAsSchema = maybeRefractToSchemaElement(
           (schemaReference.value as ParseResultElement).result as Element,
         );
-        uriEvaluate($refBaseURI, referenceAsSchema);
+        uriEvaluate($refBaseURI, referenceAsSchema, {
+          baseURI: retrievalURI,
+          index: this.schema$idIndex,
+        });
       } catch (error) {
         if (isURL && error instanceof EvaluationJsonSchemaUriError) {
           if (isAnchor(uriToAnchor($refBaseURI))) {
@@ -876,6 +894,7 @@ class OpenAPI3_1BundleVisitor {
         assignments: this.assignments,
         reservedNames: this.reservedNames,
         refractCache: this.refractCache,
+        schema$idIndex: this.schema$idIndex,
         placements: this.placements,
       });
       const bundledElement = (await traverseAsync(embeddedElement, visitor, {
