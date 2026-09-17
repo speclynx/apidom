@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.2.5](https://github.com/speclynx/apidom/compare/v5.2.4...v5.2.5) (2026-09-17)
+
+### Bug Fixes
+
+- **reference:** assign relative $id to embedded schema resources ([#543](https://github.com/speclynx/apidom/issues/543)) ([3ba02e8](https://github.com/speclynx/apidom/commit/3ba02e82ea22a93b40d04c43ec190810a0f4b177)), closes [#531](https://github.com/speclynx/apidom/issues/531)
+- **reference:** defer bundle placement until entry traversal ends ([#538](https://github.com/speclynx/apidom/issues/538)) ([e70f735](https://github.com/speclynx/apidom/commit/e70f73503f21074dda67928d223842df1bdf43f9)), closes [#535](https://github.com/speclynx/apidom/issues/535)
+- **reference:** embed sibling $id schemas of hoisted OAS 3.1 content ([#547](https://github.com/speclynx/apidom/issues/547)) ([65d0998](https://github.com/speclynx/apidom/commit/65d09986191ea5dfb12ee63b78a56bba8ca18057)), closes [#546](https://github.com/speclynx/apidom/issues/546)
+- **reference:** rebase schema $ref onto embedded resource $id ([#532](https://github.com/speclynx/apidom/issues/532)) ([840c89c](https://github.com/speclynx/apidom/commit/840c89cdddab270ac6cdc389fc27c8be24e4a857)), closes [#530](https://github.com/speclynx/apidom/issues/530) [#531](https://github.com/speclynx/apidom/issues/531) [usearazzo/arazzo-toolkit#158](https://github.com/usearazzo/arazzo-toolkit/issues/158)
+- **reference:** relocate schema $refs in hoisted OAS 3.1 components ([#542](https://github.com/speclynx/apidom/issues/542)) ([71e067b](https://github.com/speclynx/apidom/commit/71e067b019f809f37a08cb185d61a75d9d07715b)), closes [#537](https://github.com/speclynx/apidom/issues/537)
+- **reference:** resolve schema $id lookups against document base URI ([#539](https://github.com/speclynx/apidom/issues/539)) ([e4763fa](https://github.com/speclynx/apidom/commit/e4763fada3b569c5811b1a8f02014017ef1d2679)), closes [#536](https://github.com/speclynx/apidom/issues/536)
+- **reference:** resolve schema $id within referenced OAS 3.1 fragments ([#545](https://github.com/speclynx/apidom/issues/545)) ([c69ab53](https://github.com/speclynx/apidom/commit/c69ab531bde79a10bdd7406d9c8f56ea7536436b)), closes [#541](https://github.com/speclynx/apidom/issues/541)
+
 ## [5.2.4](https://github.com/speclynx/apidom/compare/v5.2.3...v5.2.4) (2026-09-15)
 
 **Note:** Version bump only for package @speclynx/apidom-reference
