@@ -16,8 +16,11 @@ import { isAnchor, uriToAnchor, evaluate as $anchorEvaluate } from './$anchor.ts
 /**
  * Index of `$id`-bearing schemas per document root. Each entry pairs a schema with
  * the `$id`s of its enclosing schema resources (outermost first, including its own).
- * The index is only valid as long as the document is not mutated, so callers scope
- * it to a single dereference/bundle run instead of sharing it globally.
+ * The index is populated once per document and never refreshed, so callers scope it
+ * to a single dereference/bundle run instead of sharing it globally. Within a run the
+ * `$id` graph of an indexed document is stable: the bundle strategies mutate deep
+ * clones and place components only after the entry traversal ends, and the
+ * dereference strategies only replace `$ref`-bearing schemas.
  * @public
  */
 export type Schema$idIndex = WeakMap<Element, { schema: JSONSchemaElement; $ids: string[] }[]>;
