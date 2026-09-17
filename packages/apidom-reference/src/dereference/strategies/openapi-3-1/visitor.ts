@@ -57,7 +57,6 @@ import {
   resolveSchemaBaseURI,
   resolveSchema$refField,
   maybeRefractToSchemaElement,
-  type SchemaLocation,
 } from './util.ts';
 import { AncestorLineage } from '../../util.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
@@ -198,48 +197,6 @@ class OpenAPI3_1DereferenceVisitor {
     }
 
     return mutableReference;
-  }
-
-  /**
-   * Locates the schema identified by `uri` within the `$id` graph of the current
-   * document, along with the `$id`s of the schemas enclosing it in that document,
-   * throwing `EvaluationJsonSchemaUriError` when no schema is identified by `uri`.
-   *
-   * The fragment being traversed is searched before the whole document. A
-   * fragment referenced from another document (a Response, Parameter, Path
-   * Item, ...) is refracted with its own semantics, so the Schema Objects it
-   * contains are indexed. The referenced document as a whole is parsed
-   * generically and refracted as a bare JSON Schema, which leaves those Schema
-   * Objects (under `content`, `schema`, ...) unrecognized and their `$id`s out
-   * of the index.
-   */
-  protected locateSchemaURI(uri: string, path: Path<Element>): SchemaLocation {
-    const documentElement = (this.reference.value as ParseResultElement).result as Element;
-    const rootNode = path.getAncestorNodes().at(-1) ?? path.node;
-    const fragmentElement = isParseResultElement(rootNode)
-      ? (rootNode.result as Element)
-      : rootNode;
-
-    try {
-      // the fragment's $ids resolve against the base its enclosing chain leaves
-      // in effect, which that chain then also prefixes for the located schema
-      const location = uriLocate(uri, maybeRefractToSchemaElement(fragmentElement), {
-        baseURI: resolveSchema$ids(this.reference.uri, this.ancestorSchema$ids),
-        index: this.schema$idIndex,
-      });
-      return {
-        element: location.element,
-        ancestorSchema$ids: [...this.ancestorSchema$ids, ...location.ancestorSchema$ids],
-      };
-    } catch (error) {
-      if (!(error instanceof EvaluationJsonSchemaUriError) || fragmentElement === documentElement) {
-        throw error;
-      }
-      return uriLocate(uri, maybeRefractToSchemaElement(documentElement), {
-        baseURI: this.reference.uri,
-        index: this.schema$idIndex,
-      });
-    }
   }
 
   /**
@@ -922,10 +879,41 @@ class OpenAPI3_1DereferenceVisitor {
         if (isUnknownURI || isURL) {
           // we're dealing with canonical URI or URL with possible fragment
           retrievalURI = this.toBaseURI($refBaseURI);
-          ({ element: referencedElement, ancestorSchema$ids } = this.locateSchemaURI(
-            $refBaseURI,
-            path,
-          ));
+          const selector = $refBaseURI;
+          // the fragment being traversed is searched before the whole document: a
+          // fragment referenced from another document (a Response, Parameter, Path
+          // Item, ...) is refracted with its own semantics, so the Schema Objects it
+          // contains are indexed, whereas the referenced document as a whole is
+          // parsed generically and refracted as a bare JSON Schema, which leaves
+          // those Schema Objects (under `content`, `schema`, ...) unrecognized and
+          // their `$id`s out of the index
+          const documentElement = (reference.value as ParseResultElement).result as Element;
+          const rootNode = path.getAncestorNodes().at(-1) ?? path.node;
+          const fragmentElement = isParseResultElement(rootNode)
+            ? (rootNode.result as Element)
+            : rootNode;
+          try {
+            // the fragment's $ids resolve against the base its enclosing chain
+            // leaves in effect, which then also prefixes the located schema's chain
+            ({ element: referencedElement, ancestorSchema$ids } = uriLocate(
+              selector,
+              maybeRefractToSchemaElement(fragmentElement),
+              { baseURI: rootBaseURI, index: this.schema$idIndex },
+            ));
+            ancestorSchema$ids = [...this.ancestorSchema$ids, ...ancestorSchema$ids];
+          } catch (error) {
+            if (
+              !(error instanceof EvaluationJsonSchemaUriError) ||
+              fragmentElement === documentElement
+            ) {
+              throw error;
+            }
+            ({ element: referencedElement, ancestorSchema$ids } = uriLocate(
+              selector,
+              maybeRefractToSchemaElement(documentElement),
+              { baseURI: reference.uri, index: this.schema$idIndex },
+            ));
+          }
           referencedElement = maybeRefractToSchemaElement(referencedElement);
 
           // ignore resolving internal Schema Objects

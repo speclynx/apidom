@@ -321,35 +321,6 @@ class OpenAPI3_1BundleVisitor {
   }
 
   /**
-   * Evaluates `uri` against the `$id` graph of the current document, throwing
-   * `EvaluationJsonSchemaUriError` when no schema in it is identified by `uri`.
-   *
-   * The fragment being traversed is searched before the whole document. Content
-   * hoisted out of an external document (a Response, Parameter, Path Item, ...)
-   * is refracted with its own semantics, so the Schema Objects it contains are
-   * indexed. The external document as a whole is parsed generically and refracted
-   * as a bare JSON Schema, which leaves those Schema Objects (under `content`,
-   * `schema`, ...) unrecognized and their `$id`s out of the index.
-   */
-  protected evaluateSchemaURI(uri: string, path: Path<Element>): void {
-    const options = { baseURI: this.reference.uri, index: this.schema$idIndex };
-    const documentElement = (this.reference.value as ParseResultElement).result as Element;
-    const rootNode = path.getAncestorNodes().at(-1) ?? path.node;
-    const fragmentElement = isParseResultElement(rootNode)
-      ? (rootNode.result as Element)
-      : rootNode;
-
-    try {
-      uriEvaluate(uri, maybeRefractToSchemaElement(fragmentElement), options);
-    } catch (error) {
-      if (!(error instanceof EvaluationJsonSchemaUriError) || fragmentElement === documentElement) {
-        throw error;
-      }
-      uriEvaluate(uri, maybeRefractToSchemaElement(documentElement), options);
-    }
-  }
-
-  /**
    * Handles an error according to the `bundle.continueOnError` option.
    *
    * For new errors: wraps in UnresolvableReferenceError with structured
@@ -864,9 +835,41 @@ class OpenAPI3_1BundleVisitor {
       // as a canonical URI / URL against the current document's $id graph; if
       // that fails, fall back to fetching the external document and resolving
       // the fragment there as a $anchor or JSON Pointer.
+      //
+      // the fragment being traversed is searched before the whole document:
+      // content hoisted out of an external document (a Response, Parameter, Path
+      // Item, ...) is refracted with its own semantics, so the Schema Objects it
+      // contains are indexed, whereas the external document as a whole is parsed
+      // generically and refracted as a bare JSON Schema, which leaves those Schema
+      // Objects (under `content`, `schema`, ...) unrecognized and their `$id`s out
+      // of the index
+      const documentElement = (this.reference.value as ParseResultElement).result as Element;
+      const rootNode = path.getAncestorNodes().at(-1) ?? path.node;
+      const fragmentElement = isParseResultElement(rootNode)
+        ? (rootNode.result as Element)
+        : rootNode;
+      const uriEvaluateOptions = { baseURI: retrievalURI, index: this.schema$idIndex };
       let schemaReference = this.reference;
       try {
-        this.evaluateSchemaURI($refBaseURI, path);
+        try {
+          uriEvaluate(
+            $refBaseURI,
+            maybeRefractToSchemaElement(fragmentElement),
+            uriEvaluateOptions,
+          );
+        } catch (error) {
+          if (
+            !(error instanceof EvaluationJsonSchemaUriError) ||
+            fragmentElement === documentElement
+          ) {
+            throw error;
+          }
+          uriEvaluate(
+            $refBaseURI,
+            maybeRefractToSchemaElement(documentElement),
+            uriEvaluateOptions,
+          );
+        }
       } catch (error) {
         if (isURL && error instanceof EvaluationJsonSchemaUriError) {
           if (isAnchor(uriToAnchor($refBaseURI))) {
