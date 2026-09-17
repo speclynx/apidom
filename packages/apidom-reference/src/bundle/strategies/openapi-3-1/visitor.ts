@@ -407,7 +407,8 @@ class OpenAPI3_1BundleVisitor {
    * by a component that is still being bundled (reserved before recursion).
    */
   protected uniqueName(candidate: string, field: string): string {
-    const fieldElement = this.entryResult.components?.get(field);
+    const { components } = this.entryResult;
+    const fieldElement = isObjectElement(components) ? components.get(field) : undefined;
     const reserved = this.reservedNames.get(field) ?? new Set<string>();
     return resolveUniqueName(
       candidate,

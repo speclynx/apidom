@@ -321,7 +321,8 @@ class Arazzo1BundleVisitor {
    */
   protected uniqueName(candidate: string): string {
     const field = cf.inputs.name;
-    const inputs = this.entryResult.components?.get(field);
+    const { components } = this.entryResult;
+    const inputs = isObjectElement(components) ? components.get(field) : undefined;
     const reserved = this.reservedNames.get(field) ?? new Set<string>();
     return resolveUniqueName(
       candidate,
