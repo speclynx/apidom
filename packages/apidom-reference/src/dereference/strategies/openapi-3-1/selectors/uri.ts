@@ -31,8 +31,10 @@ export type Schema$idIndex = WeakMap<Element, { schema: JSONSchemaElement; $ids:
 export interface EvaluateOptions {
   /**
    * URI the `$id`s of the document resolve against (its retrieval URI or `$self`).
+   * Defaults to the evaluated URI itself, which only matches schemas identified by an
+   * absolute `$id`; pass the document's base URI to match relative `$id`s correctly.
    */
-  readonly baseURI: string;
+  readonly baseURI?: string;
   readonly index?: Schema$idIndex;
 }
 
@@ -66,9 +68,10 @@ const indexSchema$ids = (element: Element) =>
 export const evaluate = <T extends Element>(
   uri: string,
   element: T,
-  { baseURI, index = new WeakMap() }: EvaluateOptions,
+  options: EvaluateOptions = {},
 ): Element | undefined => {
   const uriStrippedHash = url.stripHash(uri);
+  const { baseURI = uriStrippedHash, index = new WeakMap() } = options;
 
   if (!index.has(element)) {
     index.set(element, indexSchema$ids(element));
