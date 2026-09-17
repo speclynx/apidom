@@ -2,6 +2,7 @@ import { propEq, none } from 'ramda';
 import {
   isElement,
   isStringElement,
+  isParseResultElement,
   Element,
   RefElement,
   BooleanElement,
@@ -400,14 +401,27 @@ class Arazzo1DereferenceVisitor {
           // we're dealing with canonical URI or URL with possible fragment
           retrievalURI = this.toBaseURI($refBaseURI);
           const selector = $refBaseURI;
-          const referenceAsSchema = maybeRefractToJSONSchemaElement(
-            (reference.value as ParseResultElement).result as Element,
-          );
+          const documentElement = (reference.value as ParseResultElement).result as Element;
+          const referenceAsSchema = maybeRefractToJSONSchemaElement(documentElement);
+          // a document that is itself a fragment detached from its source carries
+          // the $ids enclosing it only as `ancestorSchema$ids`: its $ids are then
+          // indexed against the base that chain leaves in effect, and the chain
+          // prefixes the one of the located schema. A nested visitor rooted at a
+          // fragment of a whole document indexes that document against its own base.
+          const rootNode = path.getAncestorNodes().at(-1) ?? path.node;
+          const isDocumentRoot =
+            (isParseResultElement(rootNode) ? rootNode.result : rootNode) === documentElement;
           ({ element: referencedElement, ancestorSchema$ids } = uriLocate(
             selector,
             referenceAsSchema,
-            { baseURI: this.baseURI, index: this.schema$idIndex },
+            {
+              baseURI: isDocumentRoot ? rootBaseURI : this.baseURI,
+              index: this.schema$idIndex,
+            },
           ));
+          if (isDocumentRoot) {
+            ancestorSchema$ids = [...this.ancestorSchema$ids, ...ancestorSchema$ids];
+          }
           referencedElement = maybeRefractToJSONSchemaElement(referencedElement);
 
           // ignore resolving internal Schema Objects
