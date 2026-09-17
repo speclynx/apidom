@@ -302,8 +302,9 @@ export const relative = (from: string, to: string): string => {
   }
 
   const segments = [...fromSegments.slice(common).map(() => '..'), ...toSegments.slice(common)];
-  // a leading segment with a colon would be parsed as a scheme
-  if (segments[0].includes(':')) {
+  // a leading segment with a colon would be parsed as a scheme, and an empty
+  // reference (`to` is the directory of `from`) would resolve back to `from`
+  if (segments[0].includes(':') || segments.join('/') === '') {
     segments.unshift('.');
   }
 

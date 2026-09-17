@@ -270,6 +270,8 @@ describe('util', function () {
           assert.strictEqual(relative('/one/root.json', '/one/two/three.json'), 'two/three.json');
           assert.strictEqual(relative('/one/two/root.json', '/one/three.json'), '../three.json');
           assert.strictEqual(relative('/one/root.json', '/one/root.json'), 'root.json');
+          assert.strictEqual(relative('/one/a.json', '/one/b.json'), 'b.json');
+          assert.strictEqual(relative('http://example.com', 'http://example.com/a.json'), 'a.json');
           assert.strictEqual(
             relative('http://example.com/api/root.json', 'http://example.com/schemas/pet.json'),
             '../schemas/pet.json',
@@ -291,6 +293,14 @@ describe('util', function () {
       context('given a leading segment that would parse as a scheme', function () {
         specify('should prefix the reference with a dot segment', function () {
           assert.strictEqual(relative('/one/root.json', '/one/a:b.json'), './a:b.json');
+        });
+      });
+
+      context('given a directory target', function () {
+        specify('should produce a reference ending with a slash', function () {
+          assert.strictEqual(relative('/one/root.json', '/one/'), './');
+          assert.strictEqual(relative('/one/two/root.json', '/one/'), '../');
+          assert.strictEqual(relative('/one/root.json', '/one/two/'), 'two/');
         });
       });
 
