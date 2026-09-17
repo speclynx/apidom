@@ -16,9 +16,10 @@ import { isAnchor, uriToAnchor, locate as $anchorLocate } from './$anchor.ts';
 import { locate as jsonPointerLocate } from './json-pointer.ts';
 
 /**
- * Index of `$id`-bearing schemas per document root. Each entry pairs a schema with
- * the `$id`s of its enclosing schema resources (outermost first, including its own).
- * The index is populated once per document and never refreshed, so callers scope it
+ * Index of `$id`-bearing schemas per indexed element (a document root, or the
+ * fragment a visitor traverses). Each entry pairs a schema with the `$id`s of its
+ * enclosing schema resources (outermost first, including its own). The index is
+ * populated once per element and never refreshed, so callers scope it
  * to a single dereference/bundle run instead of sharing it globally. Within a run the
  * `$id` graph of an indexed document is stable: the bundle strategies mutate deep
  * clones and place components only after the entry traversal ends, and the
