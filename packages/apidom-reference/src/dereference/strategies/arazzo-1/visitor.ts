@@ -339,16 +339,14 @@ class Arazzo1DereferenceVisitor {
         );
       }
     } catch (error: unknown) {
-      if (!(error instanceof ApiDOMStructuredError)) throw error;
       this.handleError(
-        error.message,
-        error,
+        `Error while dereferencing Reusable Object. Cannot resolve reference "${runtimeExpression}": ${(error as Error).message}`,
+        error as Error,
         referencingElement,
         'reference',
         runtimeExpression,
         path,
       );
-      path.skip();
       return;
     }
 
