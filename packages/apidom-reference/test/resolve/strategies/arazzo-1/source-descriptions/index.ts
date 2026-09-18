@@ -29,6 +29,24 @@ describe('resolve', function () {
           });
         });
 
+        context('given source description with external references', function () {
+          specify('should resolve documents referenced by source description', async function () {
+            const uri = path.join(rootFixturePath, 'root-external.json');
+            const refSet = await resolve(uri, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: {
+                strategyOpts: {
+                  'arazzo-1': { sourceDescriptions: true },
+                },
+              },
+            });
+
+            // arazzo document + openapi source description + schema referenced by it
+            assert.strictEqual(refSet.size, 3);
+            assert.isTrue(refSet.has(path.join(rootFixturePath, 'schemas', 'pet.json')));
+          });
+        });
+
         context('given sourceDescriptions disabled', function () {
           specify('should resolve only arazzo document', async function () {
             const uri = path.join(rootFixturePath, 'root.json');

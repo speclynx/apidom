@@ -11,8 +11,10 @@ import {
   isSourceDescriptionElement,
 } from '@speclynx/apidom-ns-arazzo-1';
 import { toValue } from '@speclynx/apidom-core';
+import { assocPath } from 'ramda';
 
 import * as url from '../../../util/url.ts';
+import ReferenceSet from '../../../ReferenceSet.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 import { merge as mergeOptions } from '../../../options/util.ts';
 import dereference, { dereferenceApiDOM } from '../../index.ts';
@@ -105,6 +107,12 @@ async function dereferenceSourceDescription(
   // check if source description was already parsed (e.g., during parse phase with sourceDescriptions: true)
   const existingParseResult = sourceDescription.meta.get('parseResult');
 
+  // caller-supplied refSet is rooted at the entry document, but strategies dereference
+  // the root of the refSet; give the source description a refSet of its own
+  const parentRefSet = ctx.options.dereference.refSet;
+  const refSet = parentRefSet === null ? null : new ReferenceSet();
+  const options = assocPath(['dereference', 'refSet'], refSet, ctx.options);
+
   try {
     let sourceDescriptionDereferenced: ParseResultElement;
 
@@ -112,7 +120,7 @@ async function dereferenceSourceDescription(
       // use existing parsed result - just dereference it (no re-fetch/re-parse)
       sourceDescriptionDereferenced = await dereferenceApiDOM(
         existingParseResult,
-        mergeOptions(ctx.options, {
+        mergeOptions(options, {
           parse: {
             mediaType: 'text/plain', // allow dereference strategy detection via ApiDOM inspection
           },
@@ -136,7 +144,7 @@ async function dereferenceSourceDescription(
       // no existing parse result - fetch, parse, and dereference
       sourceDescriptionDereferenced = await dereference(
         retrievalURI,
-        mergeOptions(ctx.options, {
+        mergeOptions(options, {
           parse: {
             mediaType: 'text/plain', // allow parser plugin detection
           },
@@ -156,6 +164,9 @@ async function dereferenceSourceDescription(
         }),
       );
     }
+
+    // report documents reachable through the source description to the caller-supplied refSet
+    if (parentRefSet !== null && refSet !== null) parentRefSet.merge(refSet);
 
     // merge dereferenced result into our parse result
     for (const item of sourceDescriptionDereferenced) {

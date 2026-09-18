@@ -6,7 +6,7 @@ import { toJSON } from '@speclynx/apidom-core';
 import { mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
 import { isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 
-import { dereference } from '../../../../../src/index.ts';
+import { dereference, ReferenceSet } from '../../../../../src/index.ts';
 import * as url from '../../../../../src/util/url.ts';
 import {
   assertSharedSourceDescription,
@@ -56,6 +56,26 @@ describe('dereference', function () {
             const sdResult = dereferenceResult.get(1)! as ParseResultElement;
 
             expect(toJSON(sdResult.api!, undefined, 2)).toMatchSnapshot();
+          });
+
+          specify('should dereference source description given refSet option', async function () {
+            const uri = path.join(rootFixturePath, 'root.json');
+            const refSet = new ReferenceSet();
+            const dereferenceResult = await dereference(uri, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: {
+                refSet,
+                strategyOpts: {
+                  'arazzo-1': { sourceDescriptions: true },
+                },
+              },
+            });
+
+            const sdResult = dereferenceResult.get(1)! as ParseResultElement;
+
+            assert.isTrue(isOpenApi3_1Element(sdResult.api));
+            assert.strictEqual(refSet.rootRef!.uri, uri);
+            assert.isTrue(refSet.has(path.join(rootFixturePath, 'openapi.json')));
           });
 
           specify(
