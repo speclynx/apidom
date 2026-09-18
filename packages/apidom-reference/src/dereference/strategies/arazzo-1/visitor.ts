@@ -300,37 +300,55 @@ class Arazzo1DereferenceVisitor {
     }
     const runtimeExpression = toValue(referencingElement.reference) as string;
 
-    // parse the runtime expression
-    const { result, tree } = parseRuntimeExpression(runtimeExpression);
-
-    if (!result.success) {
-      throw new ApiDOMStructuredError(
-        `Invalid Reusable Object reference format: "${runtimeExpression}"`,
-        { runtimeExpression },
-      );
-    }
-
-    // ReusableElement can only reference components
-    if (tree.type !== 'ComponentsExpression') {
-      throw new ApiDOMStructuredError(
-        `Reusable Object reference "${runtimeExpression}" must be a components expression`,
-        { runtimeExpression },
-      );
-    }
-
-    // evaluate runtime expression as JSON Pointer to get the referenced element
-    const jsonPointer = jsonPointerCompile(['components', tree.componentType, tree.componentName]);
     let referencedElement: Element;
+
     try {
-      referencedElement = jsonPointerEvaluate<Element>(
-        (this.reference.value as ParseResultElement).result as ArazzoSpecification1Element,
-        jsonPointer,
+      // parse the runtime expression
+      const { result, tree } = parseRuntimeExpression(runtimeExpression);
+
+      if (!result.success) {
+        throw new ApiDOMStructuredError(
+          `Invalid Reusable Object reference format: "${runtimeExpression}"`,
+          { runtimeExpression },
+        );
+      }
+
+      // ReusableElement can only reference components
+      if (tree.type !== 'ComponentsExpression') {
+        throw new ApiDOMStructuredError(
+          `Reusable Object reference "${runtimeExpression}" must be a components expression`,
+          { runtimeExpression },
+        );
+      }
+
+      // evaluate runtime expression as JSON Pointer to get the referenced element
+      const jsonPointer = jsonPointerCompile([
+        'components',
+        tree.componentType,
+        tree.componentName,
+      ]);
+      try {
+        referencedElement = jsonPointerEvaluate<Element>(
+          (this.reference.value as ParseResultElement).result as ArazzoSpecification1Element,
+          jsonPointer,
+        );
+      } catch {
+        throw new ApiDOMStructuredError(
+          `Reusable Object reference "${runtimeExpression}" cannot be resolved`,
+          { runtimeExpression },
+        );
+      }
+    } catch (error: unknown) {
+      this.handleError(
+        (error as Error).message,
+        error as Error,
+        referencingElement,
+        'reference',
+        runtimeExpression,
+        path,
       );
-    } catch {
-      throw new ApiDOMStructuredError(
-        `Reusable Object reference "${runtimeExpression}" cannot be resolved`,
-        { runtimeExpression },
-      );
+      path.skip();
+      return;
     }
 
     /**

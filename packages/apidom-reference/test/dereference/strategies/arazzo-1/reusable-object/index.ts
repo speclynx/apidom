@@ -6,7 +6,7 @@ import { mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
 
 import { loadJsonFile } from '../../../../helpers.ts';
 import { dereference } from '../../../../../src/index.ts';
-import DereferenceError from '../../../../../src/errors/DereferenceError.ts';
+import UnresolvableReferenceError from '../../../../../src/errors/UnresolvableReferenceError.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootFixturePath = path.join(__dirname, 'fixtures');
@@ -116,16 +116,16 @@ describe('dereference', function () {
         context('given Reusable Elements referencing inputs', function () {
           const fixturePath = path.join(rootFixturePath, 'inputs-not-referenceable');
 
-          specify('should throw DereferenceError', async function () {
+          specify('should throw UnresolvableReferenceError', async function () {
             const rootFilePath = path.join(fixturePath, 'root.json');
 
             try {
               await dereference(rootFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
               });
-              assert.fail('should throw DereferenceError');
+              assert.fail('should throw UnresolvableReferenceError');
             } catch (error: unknown) {
-              assert.instanceOf(error, DereferenceError);
+              assert.instanceOf(error, UnresolvableReferenceError);
             }
           });
         });
@@ -133,16 +133,16 @@ describe('dereference', function () {
         context('given Reusable Elements with unresolvable reference', function () {
           const fixturePath = path.join(rootFixturePath, 'unresolvable-reference');
 
-          specify('should throw DereferenceError', async function () {
+          specify('should throw UnresolvableReferenceError', async function () {
             const rootFilePath = path.join(fixturePath, 'root.json');
 
             try {
               await dereference(rootFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
               });
-              assert.fail('should throw DereferenceError');
+              assert.fail('should throw UnresolvableReferenceError');
             } catch (error: unknown) {
-              assert.instanceOf(error, DereferenceError);
+              assert.instanceOf(error, UnresolvableReferenceError);
             }
           });
         });
@@ -150,17 +150,58 @@ describe('dereference', function () {
         context('given Reusable Elements with invalid runtime expression', function () {
           const fixturePath = path.join(rootFixturePath, 'invalid-runtime-expression');
 
-          specify('should throw DereferenceError', async function () {
+          specify('should throw UnresolvableReferenceError', async function () {
             const rootFilePath = path.join(fixturePath, 'root.json');
 
             try {
               await dereference(rootFilePath, {
                 parse: { mediaType: mediaTypes.latest('json') },
               });
-              assert.fail('should throw DereferenceError');
+              assert.fail('should throw UnresolvableReferenceError');
             } catch (error: unknown) {
-              assert.instanceOf(error, DereferenceError);
+              assert.instanceOf(error, UnresolvableReferenceError);
             }
+          });
+        });
+
+        context('given continueOnError option', function () {
+          const rootFilePath = path.join(rootFixturePath, 'continue-on-error', 'root.json');
+          const expectedParameters = [
+            { reference: '$components.parameters.nonExistent' },
+            { reference: '$inputs.limit' },
+            { name: 'limit', in: 'query', value: 10 },
+          ];
+
+          specify('should skip unresolvable Reusable Elements', async function () {
+            const actual = await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: { continueOnError: true },
+            });
+            const [{ workflows }] = toValue(actual) as any;
+
+            assert.deepEqual(workflows[0].steps[0].parameters, expectedParameters);
+          });
+
+          specify('should call the callback with UnresolvableReferenceError', async function () {
+            const errors: UnresolvableReferenceError[] = [];
+            const actual = await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: {
+                continueOnError: (error: UnresolvableReferenceError) => errors.push(error),
+              },
+            });
+            const [{ workflows }] = toValue(actual) as any;
+
+            assert.deepEqual(workflows[0].steps[0].parameters, expectedParameters);
+            assert.lengthOf(errors, 2);
+            errors.forEach((error) => assert.instanceOf(error, UnresolvableReferenceError));
+            assert.deepEqual(
+              errors.map((error: any) => [error.refFieldName, error.refFieldValue]),
+              [
+                ['reference', '$components.parameters.nonExistent'],
+                ['reference', '$inputs.limit'],
+              ],
+            );
           });
         });
 
