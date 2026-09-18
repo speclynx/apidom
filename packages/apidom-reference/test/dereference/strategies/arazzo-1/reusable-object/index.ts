@@ -169,6 +169,7 @@ describe('dereference', function () {
           const expectedParameters = [
             { reference: '$components.parameters.nonExistent' },
             { reference: '$inputs.limit' },
+            { reference: 'invalid-expression' },
             { name: 'limit', in: 'query', value: 10 },
           ];
 
@@ -193,13 +194,14 @@ describe('dereference', function () {
             const [{ workflows }] = toValue(actual) as any;
 
             assert.deepEqual(workflows[0].steps[0].parameters, expectedParameters);
-            assert.lengthOf(errors, 2);
+            assert.lengthOf(errors, 3);
             errors.forEach((error) => assert.instanceOf(error, UnresolvableReferenceError));
             assert.deepEqual(
               errors.map((error: any) => [error.refFieldName, error.refFieldValue]),
               [
                 ['reference', '$components.parameters.nonExistent'],
                 ['reference', '$inputs.limit'],
+                ['reference', 'invalid-expression'],
               ],
             );
           });

@@ -26,6 +26,9 @@
               "reference": "$inputs.limit"
             },
             {
+              "reference": "invalid-expression"
+            },
+            {
               "reference": "$components.parameters.limit"
             }
           ]
