@@ -339,9 +339,10 @@ class Arazzo1DereferenceVisitor {
         );
       }
     } catch (error: unknown) {
+      if (!(error instanceof ApiDOMStructuredError)) throw error;
       this.handleError(
-        (error as Error).message,
-        error as Error,
+        error.message,
+        error,
         referencingElement,
         'reference',
         runtimeExpression,
