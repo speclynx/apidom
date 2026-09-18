@@ -125,6 +125,28 @@ describe('dereference', function () {
             assert.isTrue(isParseResultElement(sdResult));
             assert.isTrue(sdResult.classes.includes('source-description'));
           });
+
+          specify('should dereference source description given refSet option', async function () {
+            const uri = path.join(rootFixturePath, 'root.json');
+            const dereferenceResult = await dereference(uri, {
+              parse: {
+                mediaType: mediaTypes.latest('json'),
+                parserOpts: {
+                  'arazzo-json-1': { sourceDescriptions: true },
+                },
+              },
+              dereference: {
+                refSet: new ReferenceSet(),
+                strategyOpts: {
+                  'arazzo-1': { sourceDescriptions: true },
+                },
+              },
+            });
+
+            const sdResult = dereferenceResult.get(1)! as ParseResultElement;
+
+            assert.isTrue(isOpenApi3_1Element(sdResult.api));
+          });
         });
 
         context('given sourceDescriptions disabled', function () {

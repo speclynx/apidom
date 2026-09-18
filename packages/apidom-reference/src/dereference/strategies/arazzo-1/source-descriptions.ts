@@ -14,6 +14,7 @@ import { toValue } from '@speclynx/apidom-core';
 import { assocPath } from 'ramda';
 
 import * as url from '../../../util/url.ts';
+import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 import { merge as mergeOptions } from '../../../options/util.ts';
@@ -110,7 +111,19 @@ async function dereferenceSourceDescription(
   // caller-supplied refSet is rooted at the entry document, but strategies dereference
   // the root of the refSet; give the source description a refSet of its own
   const parentRefSet = ctx.options.dereference.refSet;
-  const refSet = parentRefSet === null ? null : new ReferenceSet();
+  let refSet: ReferenceSet | null = null;
+  if (parentRefSet !== null) {
+    refSet = new ReferenceSet();
+    // keep references cached by the caller, re-rooted at the source description
+    const cachedValue =
+      parentRefSet.find((ref) => ref.uri === retrievalURI)?.value ?? existingParseResult;
+    if (isParseResultElement(cachedValue)) {
+      refSet.add(new Reference({ uri: retrievalURI, value: cachedValue }));
+      for (const ref of parentRefSet.values()) {
+        refSet.add(new Reference({ ...ref, refSet: undefined }));
+      }
+    }
+  }
   const options = assocPath(['dereference', 'refSet'], refSet, ctx.options);
 
   try {
@@ -166,7 +179,10 @@ async function dereferenceSourceDescription(
     }
 
     // report documents reachable through the source description to the caller-supplied refSet
-    if (parentRefSet !== null && refSet !== null) parentRefSet.merge(refSet);
+    if (parentRefSet !== null && refSet !== null) {
+      parentRefSet.merge(refSet);
+      parentRefSet.circular ||= refSet.circular;
+    }
 
     // merge dereferenced result into our parse result
     for (const item of sourceDescriptionDereferenced) {

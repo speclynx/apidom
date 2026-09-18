@@ -1,9 +1,11 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert } from 'chai';
+import { ParseResultElement } from '@speclynx/apidom-datamodel';
 import { mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
+import { isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 
-import { resolve } from '../../../../../src/index.ts';
+import { resolve, dereference } from '../../../../../src/index.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootFixturePath = path.join(__dirname, 'fixtures');
@@ -44,6 +46,28 @@ describe('resolve', function () {
             // arazzo document + openapi source description + schema referenced by it
             assert.strictEqual(refSet.size, 3);
             assert.isTrue(refSet.has(path.join(rootFixturePath, 'schemas', 'pet.json')));
+          });
+
+          specify('should allow dereferencing from resolved refSet only', async function () {
+            const uri = path.join(rootFixturePath, 'root.json');
+            const options = {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: {
+                strategyOpts: {
+                  'arazzo-1': { sourceDescriptions: true },
+                },
+              },
+            };
+            const refSet = await resolve(uri, options);
+            const dereferenceResult = await dereference(uri, {
+              ...options,
+              resolve: { resolvers: [] },
+              dereference: { ...options.dereference, refSet },
+            });
+
+            const sdResult = dereferenceResult.get(1)! as ParseResultElement;
+
+            assert.isTrue(isOpenApi3_1Element(sdResult.api));
           });
         });
 
