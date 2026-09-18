@@ -2072,7 +2072,7 @@ Strategy-specific options take precedence over global options.
   document is reachable from every source description that references it.
 
   When a pre-computed `dereference.refSet` is provided, source descriptions reuse the documents it already contains,
-  and every document reached through a successfully dereferenced source description is added to it.
+  and every document reached through a source description is added to it.
   This is also how resolving with `sourceDescriptions` enabled reports the documents behind source descriptions.
 
 ###### Error handling

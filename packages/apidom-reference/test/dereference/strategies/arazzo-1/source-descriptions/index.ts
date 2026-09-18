@@ -74,8 +74,8 @@ describe('dereference', function () {
             const sdResult = dereferenceResult.get(1)! as ParseResultElement;
 
             assert.isTrue(isOpenApi3_1Element(sdResult.api));
-            assert.strictEqual(refSet.rootRef!.uri, uri);
-            assert.isTrue(refSet.has(path.join(rootFixturePath, 'openapi.json')));
+            assert.strictEqual(refSet.rootRef!.uri, url.sanitize(uri));
+            assert.isTrue(refSet.has(url.sanitize(path.join(rootFixturePath, 'openapi.json'))));
           });
 
           specify(

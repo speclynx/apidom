@@ -18,6 +18,7 @@ import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 import { merge as mergeOptions } from '../../../options/util.ts';
+import parse from '../../../parse/index.ts';
 import dereference, { dereferenceApiDOM } from '../../index.ts';
 import {
   arazzoDocumentURIs,
@@ -112,22 +113,28 @@ async function dereferenceSourceDescription(
   // the root of the refSet; give the source description a refSet of its own
   const parentRefSet = ctx.options.dereference.refSet;
   let refSet: ReferenceSet | null = null;
-  if (parentRefSet !== null) {
-    refSet = new ReferenceSet();
-    // keep references cached by the caller, re-rooted at the source description
-    const cachedValue =
-      parentRefSet.find((ref) => ref.uri === retrievalURI)?.value ?? existingParseResult;
-    if (isParseResultElement(cachedValue)) {
-      refSet.add(new Reference({ uri: retrievalURI, value: cachedValue }));
+
+  try {
+    let sourceDescriptionDereferenced: ParseResultElement;
+
+    if (parentRefSet !== null) {
+      // keep references cached by the caller, re-rooted at the source description
+      const cachedValue = parentRefSet.find((ref) => ref.uri === retrievalURI)?.value;
+      const value =
+        cachedValue ??
+        (isParseResultElement(existingParseResult)
+          ? existingParseResult
+          : await parse(
+              retrievalURI,
+              mergeOptions(ctx.options, { parse: { mediaType: 'text/plain' } }),
+            ));
+      refSet = new ReferenceSet();
+      refSet.add(new Reference({ uri: retrievalURI, value }));
       for (const ref of parentRefSet.values()) {
         refSet.add(new Reference({ ...ref, refSet: undefined }));
       }
     }
-  }
-  const options = assocPath(['dereference', 'refSet'], refSet, ctx.options);
-
-  try {
-    let sourceDescriptionDereferenced: ParseResultElement;
+    const options = assocPath(['dereference', 'refSet'], refSet, ctx.options);
 
     if (isParseResultElement(existingParseResult)) {
       // use existing parsed result - just dereference it (no re-fetch/re-parse)
@@ -178,12 +185,6 @@ async function dereferenceSourceDescription(
       );
     }
 
-    // report documents reachable through the source description to the caller-supplied refSet
-    if (parentRefSet !== null && refSet !== null) {
-      parentRefSet.merge(refSet);
-      parentRefSet.circular ||= refSet.circular;
-    }
-
     // merge dereferenced result into our parse result
     for (const item of sourceDescriptionDereferenced) {
       parseResult.push(item);
@@ -197,6 +198,12 @@ async function dereferenceSourceDescription(
     annotation.classes.push('error');
     parseResult.push(annotation);
     return parseResult;
+  } finally {
+    // report documents reached through the source description to the caller-supplied refSet
+    if (parentRefSet !== null && refSet !== null) {
+      parentRefSet.merge(refSet);
+      parentRefSet.circular ||= refSet.circular;
+    }
   }
 
   // register dereferenced document for later references to it
