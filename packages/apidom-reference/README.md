@@ -2496,16 +2496,16 @@ await dereference('/home/user/oas.json', {
 // errors is an array of UnresolvableReferenceError instances
 ```
 
-Each `UnresolvableReferenceError` (extends `DereferenceError`) carries structured context:
+Each `UnresolvableReferenceError` (extends `ResolveError`) carries structured context:
 
 | Property | Type | Description |
 |---|---|---|
 | `message` | `string` | Contextual description (e.g., "Error while dereferencing Reference Object. Cannot resolve $ref ...") |
-| `type` | `string` | Element type that failed (e.g., `"reference"`, `"pathItem"`, `"schema"`, `"link"`, `"example"`) |
+| `type` | `string` | Element type that failed (e.g., `"reference"`, `"pathItem"`, `"schema"`, `"link"`, `"example"`, `"reusable"`) |
 | `uri` | `string` | Document URI where the error occurred |
 | `location` | `string` | JSON Pointer to the element within the document |
 | `codeFrame` | `string` | YAML snippet of the referencing element |
-| `refFieldName` | `string` | Reference field name (e.g., `"$ref"`, `"operationRef"`, `"externalValue"`) |
+| `refFieldName` | `string` | Reference field name (e.g., `"$ref"`, `"operationRef"`, `"externalValue"`, `"reference"`) |
 | `refFieldValue` | `string` | Reference field value |
 | `trace` | `Array` | Chain of reference hops from entry document to the failure |
 | `cause` | `Error` | The underlying error |
