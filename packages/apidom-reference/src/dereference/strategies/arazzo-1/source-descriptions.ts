@@ -165,12 +165,6 @@ async function dereferenceSourceDescription(
       );
     }
 
-    // report documents reached through the source description to the caller-supplied refSet
-    if (parentRefSet !== null && refSet !== null) {
-      parentRefSet.merge(refSet);
-      parentRefSet.circular ||= refSet.circular;
-    }
-
     // merge dereferenced result into our parse result
     for (const item of sourceDescriptionDereferenced) {
       parseResult.push(item);
@@ -184,6 +178,13 @@ async function dereferenceSourceDescription(
     annotation.classes.push('error');
     parseResult.push(annotation);
     return parseResult;
+  } finally {
+    // report documents reached through the source description to the caller-supplied refSet,
+    // even when dereferencing it failed
+    if (parentRefSet !== null && refSet !== null) {
+      parentRefSet.merge(refSet);
+      parentRefSet.circular ||= refSet.circular;
+    }
   }
 
   // register dereferenced document for later references to it

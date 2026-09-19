@@ -48,6 +48,24 @@ describe('resolve', function () {
               refSet.has(url.sanitize(path.join(rootFixturePath, 'schemas', 'pet.json'))),
             );
           });
+
+          specify('should resolve source description that fails to dereference', async function () {
+            const uri = path.join(rootFixturePath, 'root-unresolvable.json');
+            const refSet = await resolve(uri, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: {
+                strategyOpts: {
+                  'arazzo-1': { sourceDescriptions: true },
+                },
+              },
+            });
+
+            // arazzo document + openapi source description
+            assert.strictEqual(refSet.size, 2);
+            assert.isTrue(
+              refSet.has(url.sanitize(path.join(rootFixturePath, 'openapi-unresolvable.json'))),
+            );
+          });
         });
 
         context('given sourceDescriptions disabled', function () {
