@@ -6,7 +6,7 @@ import { toJSON } from '@speclynx/apidom-core';
 import { mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
 import { isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 
-import { dereference } from '../../../../../src/index.ts';
+import { dereference, ReferenceSet } from '../../../../../src/index.ts';
 import * as url from '../../../../../src/util/url.ts';
 import {
   assertSharedSourceDescription,
@@ -58,6 +58,26 @@ describe('dereference', function () {
             expect(toJSON(sdResult.api!, undefined, 2)).toMatchSnapshot();
           });
 
+          specify('should dereference source description given refSet option', async function () {
+            const uri = path.join(rootFixturePath, 'root.json');
+            const refSet = new ReferenceSet();
+            const dereferenceResult = await dereference(uri, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: {
+                refSet,
+                strategyOpts: {
+                  'arazzo-1': { sourceDescriptions: true },
+                },
+              },
+            });
+
+            const sdResult = dereferenceResult.get(1)! as ParseResultElement;
+
+            assert.isTrue(isOpenApi3_1Element(sdResult.api));
+            assert.strictEqual(refSet.rootRef!.uri, url.sanitize(uri));
+            assert.isTrue(refSet.has(url.sanitize(path.join(rootFixturePath, 'openapi.json'))));
+          });
+
           specify(
             'should set retrievalURI metadata on source description result',
             async function () {
@@ -104,6 +124,28 @@ describe('dereference', function () {
             const sdResult = dereferenceResult.get(1)!;
             assert.isTrue(isParseResultElement(sdResult));
             assert.isTrue(sdResult.classes.includes('source-description'));
+          });
+
+          specify('should dereference source description given refSet option', async function () {
+            const uri = path.join(rootFixturePath, 'root.json');
+            const dereferenceResult = await dereference(uri, {
+              parse: {
+                mediaType: mediaTypes.latest('json'),
+                parserOpts: {
+                  'arazzo-json-1': { sourceDescriptions: true },
+                },
+              },
+              dereference: {
+                refSet: new ReferenceSet(),
+                strategyOpts: {
+                  'arazzo-1': { sourceDescriptions: true },
+                },
+              },
+            });
+
+            const sdResult = dereferenceResult.get(1)! as ParseResultElement;
+
+            assert.isTrue(isOpenApi3_1Element(sdResult.api));
           });
         });
 

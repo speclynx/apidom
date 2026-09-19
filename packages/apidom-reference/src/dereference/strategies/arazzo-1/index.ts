@@ -116,6 +116,23 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
     });
 
     /**
+     * If immutable option is set, replay refs from the refSet.
+     * Replayed before source descriptions are dereferenced, so they can reuse the refs.
+     */
+    if (options.dereference.immutable) {
+      mutableRefSet.refs
+        .filter((ref) => ref.uri.startsWith('immutable://'))
+        .map(
+          (ref) =>
+            new Reference({
+              ...ref,
+              uri: ref.uri.replace(/^immutable:\/\//, ''),
+            }),
+        )
+        .forEach((ref) => immutableRefSet.add(ref));
+    }
+
+    /**
      * Dereference source descriptions if option is enabled.
      */
     const shouldDereferenceSourceDescriptions =
@@ -138,22 +155,6 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
         this.name,
       );
       parseResult.push(...sourceDescriptions);
-    }
-
-    /**
-     * If immutable option is set, replay refs from the refSet.
-     */
-    if (options.dereference.immutable) {
-      mutableRefSet.refs
-        .filter((ref) => ref.uri.startsWith('immutable://'))
-        .map(
-          (ref) =>
-            new Reference({
-              ...ref,
-              uri: ref.uri.replace(/^immutable:\/\//, ''),
-            }),
-        )
-        .forEach((ref) => immutableRefSet.add(ref));
     }
 
     /**

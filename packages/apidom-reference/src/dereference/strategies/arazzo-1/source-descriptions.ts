@@ -11,11 +11,15 @@ import {
   isSourceDescriptionElement,
 } from '@speclynx/apidom-ns-arazzo-1';
 import { toValue } from '@speclynx/apidom-core';
+import { assocPath } from 'ramda';
 
 import * as url from '../../../util/url.ts';
+import Reference from '../../../Reference.ts';
+import ReferenceSet from '../../../ReferenceSet.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 import { merge as mergeOptions } from '../../../options/util.ts';
-import dereference, { dereferenceApiDOM } from '../../index.ts';
+import parse from '../../../parse/index.ts';
+import { dereferenceApiDOM } from '../../index.ts';
 import {
   arazzoDocumentURIs,
   resolveArazzo$selfField,
@@ -105,57 +109,66 @@ async function dereferenceSourceDescription(
   // check if source description was already parsed (e.g., during parse phase with sourceDescriptions: true)
   const existingParseResult = sourceDescription.meta.get('parseResult');
 
-  try {
-    let sourceDescriptionDereferenced: ParseResultElement;
+  const parentRefSet = ctx.options.dereference.refSet;
+  let refSet: ReferenceSet | null = null;
 
-    if (isParseResultElement(existingParseResult)) {
-      // use existing parsed result - just dereference it (no re-fetch/re-parse)
-      sourceDescriptionDereferenced = await dereferenceApiDOM(
-        existingParseResult,
-        mergeOptions(ctx.options, {
-          parse: {
-            mediaType: 'text/plain', // allow dereference strategy detection via ApiDOM inspection
-          },
-          resolve: { baseURI: retrievalURI },
-          dereference: {
-            strategyOpts: {
-              // nested documents should dereference all their source descriptions
-              // (parent's name filter doesn't apply to nested documents)
-              // set at strategy-specific level to override any inherited filters
-              [ctx.strategyName]: {
-                sourceDescriptions: true,
-                sourceDescriptionsDepth: ctx.currentDepth + 1,
-                sourceDescriptionsAncestors: ctx.ancestors,
-                sourceDescriptionsDereferenced: ctx.dereferenced,
-              },
-            },
-          },
-        }),
-      );
+  try {
+    // source description document comes from, in order of preference:
+    // caller-supplied refSet, parse phase, or is fetched and parsed now
+    const cachedReference = parentRefSet?.find((ref) => ref.uri === retrievalURI);
+    let sourceDescriptionParseResult: ParseResultElement;
+    let isFreshlyParsed = false;
+
+    if (cachedReference !== undefined) {
+      sourceDescriptionParseResult = cachedReference.value as ParseResultElement;
+    } else if (isParseResultElement(existingParseResult)) {
+      sourceDescriptionParseResult = existingParseResult;
     } else {
-      // no existing parse result - fetch, parse, and dereference
-      sourceDescriptionDereferenced = await dereference(
+      sourceDescriptionParseResult = await parse(
         retrievalURI,
         mergeOptions(ctx.options, {
-          parse: {
-            mediaType: 'text/plain', // allow parser plugin detection
-          },
-          dereference: {
-            strategyOpts: {
-              // nested documents should dereference all their source descriptions
-              // (parent's name filter doesn't apply to nested documents)
-              // set at strategy-specific level to override any inherited filters
-              [ctx.strategyName]: {
-                sourceDescriptions: true,
-                sourceDescriptionsDepth: ctx.currentDepth + 1,
-                sourceDescriptionsAncestors: ctx.ancestors,
-                sourceDescriptionsDereferenced: ctx.dereferenced,
-              },
-            },
-          },
+          parse: { mediaType: 'text/plain' }, // allow parser plugin detection
         }),
       );
+      isFreshlyParsed = true;
     }
+
+    // caller-supplied refSet is rooted at the entry document, but strategies dereference
+    // the root of the refSet; re-root its references at the source description
+    if (parentRefSet !== null) {
+      refSet = new ReferenceSet({
+        refs: [
+          new Reference({ uri: retrievalURI, value: sourceDescriptionParseResult }),
+          ...parentRefSet.refs.map((ref) => new Reference({ ...ref, refSet: undefined })),
+        ],
+      });
+    }
+
+    const sourceDescriptionDereferenced = await dereferenceApiDOM(
+      sourceDescriptionParseResult,
+      mergeOptions(assocPath(['dereference', 'refSet'], refSet, ctx.options), {
+        parse: {
+          mediaType: 'text/plain', // allow dereference strategy detection via ApiDOM inspection
+        },
+        resolve: { baseURI: retrievalURI },
+        dereference: {
+          // freshly parsed document not reported to any refSet can be dereferenced in mutable mode
+          immutable:
+            ctx.options.dereference.immutable && !(isFreshlyParsed && parentRefSet === null),
+          strategyOpts: {
+            // nested documents should dereference all their source descriptions
+            // (parent's name filter doesn't apply to nested documents)
+            // set at strategy-specific level to override any inherited filters
+            [ctx.strategyName]: {
+              sourceDescriptions: true,
+              sourceDescriptionsDepth: ctx.currentDepth + 1,
+              sourceDescriptionsAncestors: ctx.ancestors,
+              sourceDescriptionsDereferenced: ctx.dereferenced,
+            },
+          },
+        },
+      }),
+    );
 
     // merge dereferenced result into our parse result
     for (const item of sourceDescriptionDereferenced) {
@@ -170,6 +183,13 @@ async function dereferenceSourceDescription(
     annotation.classes.push('error');
     parseResult.push(annotation);
     return parseResult;
+  } finally {
+    // report documents reached through the source description to the caller-supplied refSet,
+    // even when dereferencing it failed
+    if (parentRefSet !== null && refSet !== null) {
+      parentRefSet.merge(refSet);
+      parentRefSet.circular ||= refSet.circular;
+    }
   }
 
   // register dereferenced document for later references to it
