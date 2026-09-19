@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.2.6](https://github.com/speclynx/apidom/compare/v5.2.5...v5.2.6) (2026-09-19)
+
+### Bug Fixes
+
+- **reference:** honour continueOnError for Arazzo Reusable Objects ([#552](https://github.com/speclynx/apidom/issues/552)) ([2bcd675](https://github.com/speclynx/apidom/commit/2bcd675d16fc1bf3fc5079fdee37419c1d84017c)), closes [#550](https://github.com/speclynx/apidom/issues/550)
+- **reference:** isolate refSet of Arazzo source descriptions ([#553](https://github.com/speclynx/apidom/issues/553)) ([ac21c16](https://github.com/speclynx/apidom/commit/ac21c165104e604aa59f027a8d78645c8bd9ca66)), closes [#551](https://github.com/speclynx/apidom/issues/551)
+
 ## [5.2.5](https://github.com/speclynx/apidom/compare/v5.2.4...v5.2.5) (2026-09-17)
 
 ### Bug Fixes
