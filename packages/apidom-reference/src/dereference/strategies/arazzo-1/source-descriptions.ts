@@ -14,10 +14,12 @@ import { toValue } from '@speclynx/apidom-core';
 import { assocPath } from 'ramda';
 
 import * as url from '../../../util/url.ts';
+import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 import { merge as mergeOptions } from '../../../options/util.ts';
-import dereference, { dereferenceApiDOM } from '../../index.ts';
+import parse from '../../../parse/index.ts';
+import { dereferenceApiDOM } from '../../index.ts';
 import {
   arazzoDocumentURIs,
   resolveArazzo$selfField,
@@ -107,63 +109,59 @@ async function dereferenceSourceDescription(
   // check if source description was already parsed (e.g., during parse phase with sourceDescriptions: true)
   const existingParseResult = sourceDescription.meta.get('parseResult');
 
-  // caller-supplied refSet is rooted at the entry document, but strategies dereference
-  // the root of the refSet; give the source description a refSet of its own
   const parentRefSet = ctx.options.dereference.refSet;
-  const refSet = parentRefSet === null ? null : new ReferenceSet();
-  const options = assocPath(['dereference', 'refSet'], refSet, ctx.options);
+  let refSet: ReferenceSet | null = null;
 
   try {
-    let sourceDescriptionDereferenced: ParseResultElement;
+    // reuse the document cached by the caller or parsed during parse phase (no re-fetch/re-parse)
+    const cachedParseResult =
+      parentRefSet?.find((ref) => ref.uri === retrievalURI)?.value ?? existingParseResult;
+    const sourceDescriptionParseResult = isParseResultElement(cachedParseResult)
+      ? cachedParseResult
+      : await parse(
+          retrievalURI,
+          mergeOptions(ctx.options, {
+            parse: { mediaType: 'text/plain' }, // allow parser plugin detection
+          }),
+        );
 
-    if (isParseResultElement(existingParseResult)) {
-      // use existing parsed result - just dereference it (no re-fetch/re-parse)
-      sourceDescriptionDereferenced = await dereferenceApiDOM(
-        existingParseResult,
-        mergeOptions(options, {
-          parse: {
-            mediaType: 'text/plain', // allow dereference strategy detection via ApiDOM inspection
-          },
-          resolve: { baseURI: retrievalURI },
-          dereference: {
-            strategyOpts: {
-              // nested documents should dereference all their source descriptions
-              // (parent's name filter doesn't apply to nested documents)
-              // set at strategy-specific level to override any inherited filters
-              [ctx.strategyName]: {
-                sourceDescriptions: true,
-                sourceDescriptionsDepth: ctx.currentDepth + 1,
-                sourceDescriptionsAncestors: ctx.ancestors,
-                sourceDescriptionsDereferenced: ctx.dereferenced,
-              },
-            },
-          },
-        }),
-      );
-    } else {
-      // no existing parse result - fetch, parse, and dereference
-      sourceDescriptionDereferenced = await dereference(
-        retrievalURI,
-        mergeOptions(options, {
-          parse: {
-            mediaType: 'text/plain', // allow parser plugin detection
-          },
-          dereference: {
-            strategyOpts: {
-              // nested documents should dereference all their source descriptions
-              // (parent's name filter doesn't apply to nested documents)
-              // set at strategy-specific level to override any inherited filters
-              [ctx.strategyName]: {
-                sourceDescriptions: true,
-                sourceDescriptionsDepth: ctx.currentDepth + 1,
-                sourceDescriptionsAncestors: ctx.ancestors,
-                sourceDescriptionsDereferenced: ctx.dereferenced,
-              },
-            },
-          },
-        }),
-      );
+    // caller-supplied refSet is rooted at the entry document, but strategies dereference
+    // the root of the refSet; re-root its references at the source description
+    if (parentRefSet !== null) {
+      refSet = new ReferenceSet({
+        refs: [
+          new Reference({ uri: retrievalURI, value: sourceDescriptionParseResult }),
+          ...parentRefSet.refs.map((ref) => new Reference({ ...ref, refSet: undefined })),
+        ],
+      });
     }
+
+    const sourceDescriptionDereferenced = await dereferenceApiDOM(
+      sourceDescriptionParseResult,
+      mergeOptions(assocPath(['dereference', 'refSet'], refSet, ctx.options), {
+        parse: {
+          mediaType: 'text/plain', // allow dereference strategy detection via ApiDOM inspection
+        },
+        resolve: { baseURI: retrievalURI },
+        dereference: {
+          // freshly parsed document not reported to any refSet can be dereferenced in mutable mode
+          immutable:
+            ctx.options.dereference.immutable &&
+            (parentRefSet !== null || isParseResultElement(cachedParseResult)),
+          strategyOpts: {
+            // nested documents should dereference all their source descriptions
+            // (parent's name filter doesn't apply to nested documents)
+            // set at strategy-specific level to override any inherited filters
+            [ctx.strategyName]: {
+              sourceDescriptions: true,
+              sourceDescriptionsDepth: ctx.currentDepth + 1,
+              sourceDescriptionsAncestors: ctx.ancestors,
+              sourceDescriptionsDereferenced: ctx.dereferenced,
+            },
+          },
+        },
+      }),
+    );
 
     // merge dereferenced result into our parse result
     for (const item of sourceDescriptionDereferenced) {
