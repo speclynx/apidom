@@ -113,17 +113,25 @@ async function dereferenceSourceDescription(
   let refSet: ReferenceSet | null = null;
 
   try {
-    // reuse the document cached by the caller or parsed during parse phase (no re-fetch/re-parse)
-    const cachedParseResult =
-      parentRefSet?.find((ref) => ref.uri === retrievalURI)?.value ?? existingParseResult;
-    const sourceDescriptionParseResult = isParseResultElement(cachedParseResult)
-      ? cachedParseResult
-      : await parse(
-          retrievalURI,
-          mergeOptions(ctx.options, {
-            parse: { mediaType: 'text/plain' }, // allow parser plugin detection
-          }),
-        );
+    // source description document comes from, in order of preference:
+    // caller-supplied refSet, parse phase, or is fetched and parsed now
+    const cachedReference = parentRefSet?.find((ref) => ref.uri === retrievalURI);
+    let sourceDescriptionParseResult: ParseResultElement;
+    let isFreshlyParsed = false;
+
+    if (cachedReference !== undefined) {
+      sourceDescriptionParseResult = cachedReference.value as ParseResultElement;
+    } else if (isParseResultElement(existingParseResult)) {
+      sourceDescriptionParseResult = existingParseResult;
+    } else {
+      sourceDescriptionParseResult = await parse(
+        retrievalURI,
+        mergeOptions(ctx.options, {
+          parse: { mediaType: 'text/plain' }, // allow parser plugin detection
+        }),
+      );
+      isFreshlyParsed = true;
+    }
 
     // caller-supplied refSet is rooted at the entry document, but strategies dereference
     // the root of the refSet; re-root its references at the source description
@@ -146,8 +154,7 @@ async function dereferenceSourceDescription(
         dereference: {
           // freshly parsed document not reported to any refSet can be dereferenced in mutable mode
           immutable:
-            ctx.options.dereference.immutable &&
-            (parentRefSet !== null || isParseResultElement(cachedParseResult)),
+            ctx.options.dereference.immutable && !(isFreshlyParsed && parentRefSet === null),
           strategyOpts: {
             // nested documents should dereference all their source descriptions
             // (parent's name filter doesn't apply to nested documents)
