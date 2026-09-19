@@ -2071,8 +2071,7 @@ Strategy-specific options take precedence over global options.
   The `SourceDescriptionElement`'s `'parseResult'` meta points at that same `ParseResultElement`, so the dereferenced
   document is reachable from every source description that references it.
 
-  When a pre-computed `dereference.refSet` is provided, source descriptions reuse the documents it already contains,
-  and every document reached through a source description is added to it.
+  When `dereference.refSet` is provided, every document reached through a dereferenced source description is added to it.
   This is also how resolving with `sourceDescriptions` enabled reports the documents behind source descriptions.
 
 ###### Error handling

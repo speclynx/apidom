@@ -1,11 +1,9 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert } from 'chai';
-import { ParseResultElement } from '@speclynx/apidom-datamodel';
 import { mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
-import { isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 
-import { resolve, dereference } from '../../../../../src/index.ts';
+import { resolve } from '../../../../../src/index.ts';
 import * as url from '../../../../../src/util/url.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -49,46 +47,6 @@ describe('resolve', function () {
             assert.isTrue(
               refSet.has(url.sanitize(path.join(rootFixturePath, 'schemas', 'pet.json'))),
             );
-          });
-
-          specify('should resolve source description that fails to dereference', async function () {
-            const uri = path.join(rootFixturePath, 'root-unresolvable.json');
-            const refSet = await resolve(uri, {
-              parse: { mediaType: mediaTypes.latest('json') },
-              dereference: {
-                strategyOpts: {
-                  'arazzo-1': { sourceDescriptions: true },
-                },
-              },
-            });
-
-            // arazzo document + openapi source description
-            assert.strictEqual(refSet.size, 2);
-            assert.isTrue(
-              refSet.has(url.sanitize(path.join(rootFixturePath, 'openapi-unresolvable.json'))),
-            );
-          });
-
-          specify('should allow dereferencing from resolved refSet only', async function () {
-            const uri = path.join(rootFixturePath, 'root.json');
-            const options = {
-              parse: { mediaType: mediaTypes.latest('json') },
-              dereference: {
-                strategyOpts: {
-                  'arazzo-1': { sourceDescriptions: true },
-                },
-              },
-            };
-            const refSet = await resolve(uri, options);
-            const dereferenceResult = await dereference(uri, {
-              ...options,
-              resolve: { resolvers: [] },
-              dereference: { ...options.dereference, refSet },
-            });
-
-            const sdResult = dereferenceResult.get(1)! as ParseResultElement;
-
-            assert.isTrue(isOpenApi3_1Element(sdResult.api));
           });
         });
 
