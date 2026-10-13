@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.2.7](https://github.com/speclynx/apidom/compare/v5.2.6...v5.2.7) (2026-10-13)
+
+### Bug Fixes
+
+- **reference:** drop process polyfill dependency ([#584](https://github.com/speclynx/apidom/issues/584)) ([ecc62de](https://github.com/speclynx/apidom/commit/ecc62de070eee7db4a7c47d2f2380c783d9f10b7))
+
 ## [5.2.6](https://github.com/speclynx/apidom/compare/v5.2.5...v5.2.6) (2026-09-19)
 
 ### Bug Fixes
