@@ -333,7 +333,12 @@ const analyze = (cst: Tree, { sourceMap = false, style = false } = {}): ParseRes
     annotations: [],
   };
 
-  const result = transform(cursor, transformers, ctx);
+  let result;
+  try {
+    result = transform(cursor, transformers, ctx);
+  } finally {
+    cursor.delete();
+  }
 
   // Handle case where there's no document, only errors
   if (result === null) {
