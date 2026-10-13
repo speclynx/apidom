@@ -23,11 +23,16 @@ const analyze = (cst: Tree, { sourceMap = false, style = false } = {}): ParseRes
   const referenceManager = new YamlReferenceManager();
 
   // Pass 1: CST -> YAML AST (direct cursor-based transformation)
-  const yamlAst = transformCstToYamlAst(cursor, {
-    schema,
-    sourceMap,
-    referenceManager,
-  });
+  let yamlAst;
+  try {
+    yamlAst = transformCstToYamlAst(cursor, {
+      schema,
+      sourceMap,
+      referenceManager,
+    });
+  } finally {
+    cursor.delete();
+  }
 
   // Pass 2: YAML AST -> ApiDOM (direct transformation)
   return transformYamlAstToApiDOM(yamlAst, { sourceMap, style });
