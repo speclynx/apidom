@@ -1,4 +1,3 @@
-import process from 'process';
 import { pathSatisfies, propOr, pipe, test, last } from 'ramda';
 import { isUndefined, replaceAll, isNotUndefined, trimCharsEnd } from 'ramda-adjunct';
 
@@ -13,7 +12,8 @@ import { isUndefined, replaceAll, isNotUndefined, trimCharsEnd } from 'ramda-adj
  */
 export type WindowsPredicate = () => boolean;
 
-const isWindows: WindowsPredicate = () => pathSatisfies(test(/^win/), ['platform'], process);
+const isWindows: WindowsPredicate = () =>
+  pathSatisfies(test(/^win/), ['platform'], globalThis.process);
 
 /**
  * Returns the protocol of the given URL, or `undefined` if it has no protocol.
@@ -238,8 +238,10 @@ export const stripHash = (uri: string): string => {
  * @public
  */
 export const cwd = (): string => {
+  const { process } = globalThis;
+
   // @ts-ignore
-  if (process.browser) {
+  if (typeof process?.cwd !== 'function' || process.browser) {
     return stripHash(globalThis.location.href);
   }
 
