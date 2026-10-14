@@ -1,5 +1,6 @@
 import { Element, ParseResultElement, cloneDeep } from '@speclynx/apidom-datamodel';
 import { isOverlay1Element, mediaTypes } from '@speclynx/apidom-ns-overlay-1';
+import { traverseAsync } from '@speclynx/apidom-traverse';
 
 import DereferenceStrategy, { DereferenceStrategyOptions } from '../DereferenceStrategy.ts';
 import File from '../../../File.ts';
@@ -7,7 +8,7 @@ import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 import { dereferenceExtends } from './extends.ts';
-import { dereferenceReusableActions } from './reusable-actions.ts';
+import Overlay1DereferenceVisitor from './visitor.ts';
 
 export type {
   default as DereferenceStrategy,
@@ -93,11 +94,11 @@ class Overlay1DereferenceStrategy extends DereferenceStrategy {
     const dereferencedElement = reference.value as ParseResultElement;
 
     /**
-     * Reusable Action References are internal references only.
+     * Reusable Action References only occur within `actions`, so the root element is never
+     * replaced and traversing it keeps reported locations relative to the document.
      */
-    if (options.resolve.internal) {
-      dereferenceReusableActions(dereferencedElement, reference.uri, options);
-    }
+    const visitor = new Overlay1DereferenceVisitor({ reference, options });
+    await traverseAsync(dereferencedElement.result!, visitor, { mutable: true });
 
     /**
      * Dereference extends target if option is enabled.
@@ -141,7 +142,8 @@ class Overlay1DereferenceStrategy extends DereferenceStrategy {
 }
 
 export { dereferenceExtends } from './extends.ts';
-export { dereferenceReusableActions } from './reusable-actions.ts';
+export { Overlay1DereferenceVisitor };
+export type { Overlay1DereferenceVisitorOptions } from './visitor.ts';
 export { resolveReusableActionReference } from './reusable-action-reference.ts';
 
 export default Overlay1DereferenceStrategy;
