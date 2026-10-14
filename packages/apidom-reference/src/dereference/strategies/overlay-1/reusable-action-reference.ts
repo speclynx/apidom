@@ -2,11 +2,13 @@ import { cloneDeep } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 import { parse, URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
-
-import ActionElement from './elements/Action.ts';
-import Overlay1Element from './elements/Overlay1.ts';
-import ReusableActionReferenceElement from './elements/ReusableActionReference.ts';
-import { isActionElement, isReusableActionElement } from './predicates.ts';
+import {
+  ActionElement,
+  isActionElement,
+  isReusableActionElement,
+  type Overlay1Element,
+  type ReusableActionReferenceElement,
+} from '@speclynx/apidom-ns-overlay-1';
 
 const decodeComponentKey = ($ref: string): string => {
   // same-document reference whose JSON Pointer is /components/actions/<name> (RFC 6901 §6)

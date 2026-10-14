@@ -16,8 +16,8 @@ import {
   type Overlay1Element,
   isOverlay1Element,
   isReusableActionReferenceElement,
-  resolveReusableActionReference,
 } from '@speclynx/apidom-ns-overlay-1';
+import { resolveReusableActionReference } from '@speclynx/apidom-reference/dereference/strategies/overlay-1';
 
 import OverlayError from '../../errors/OverlayError.ts';
 import { validateAction, validateTargetNodes } from '../../validate.ts';

@@ -1,13 +1,10 @@
 import { ParseResultElement, isArrayElement } from '@speclynx/apidom-datamodel';
-import {
-  isOverlay1Element,
-  isReusableActionReferenceElement,
-  resolveReusableActionReference,
-} from '@speclynx/apidom-ns-overlay-1';
+import { isOverlay1Element, isReusableActionReferenceElement } from '@speclynx/apidom-ns-overlay-1';
 import { toValue, toYAML } from '@speclynx/apidom-core';
 
 import type { ReferenceOptions } from '../../../options/index.ts';
 import UnresolvableReferenceError from '../../../errors/UnresolvableReferenceError.ts';
+import { resolveReusableActionReference } from './reusable-action-reference.ts';
 
 /**
  * Replaces Reusable Action References (Overlay 1.2.0) in the `actions` field
