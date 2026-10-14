@@ -7,25 +7,35 @@ import Overlay1Element from './elements/Overlay1.ts';
 import ReusableActionReferenceElement from './elements/ReusableActionReference.ts';
 import { isActionElement, isReusableActionElement } from './predicates.ts';
 
-const REF_PREFIX = '#/components/actions/';
+const POINTER_PREFIX = '/components/actions/';
 
 const decodeComponentKey = ($ref: string): string => {
-  if (!$ref.startsWith(REF_PREFIX)) {
+  if (!$ref.startsWith('#')) {
     throw new ApiDOMStructuredError(
-      `Reusable Action Reference "${$ref}" must point to "${REF_PREFIX}<name>"`,
+      `Reusable Action Reference "${$ref}" must point to "#${POINTER_PREFIX}<name>"`,
       { $ref },
     );
   }
 
-  let token: string;
+  // the JSON Pointer is the percent-decoded fragment (RFC 6901 §6)
+  let pointer: string;
   try {
-    token = decodeURIComponent($ref.slice(REF_PREFIX.length));
+    pointer = decodeURIComponent($ref.slice(1));
   } catch {
     throw new ApiDOMStructuredError(
       `Reusable Action Reference "${$ref}" is not a valid URI fragment`,
       { $ref },
     );
   }
+
+  if (!pointer.startsWith(POINTER_PREFIX)) {
+    throw new ApiDOMStructuredError(
+      `Reusable Action Reference "${$ref}" must point to "#${POINTER_PREFIX}<name>"`,
+      { $ref },
+    );
+  }
+
+  const token = pointer.slice(POINTER_PREFIX.length);
 
   // a single JSON Pointer token: "/" must be "~1" and "~" must be "~0" (RFC 6901 §3)
   if (token === '' || token.includes('/') || /~(?![01])/.test(token)) {
