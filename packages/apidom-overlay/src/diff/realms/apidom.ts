@@ -35,7 +35,7 @@ export interface DiffOptions {
 }
 
 const defaultDiffOptions = {
-  overlay: '1.1.0',
+  overlay: '1.2.0',
   info: { title: 'API diff', version: '0.0.0' },
 } as const;
 
@@ -191,7 +191,7 @@ const diffArrays = (
  * Produces an {@link Overlay1Element} that, when applied to `leftElement`, yields `rightElement`.
  *
  * Known limitations:
- * - Identical documents produce an overlay with an empty `actions` array. Overlay 1.1.0 §3
+ * - Identical documents produce an overlay with an empty `actions` array. Overlay 1.x §3
  *   requires `actions` to be non-empty; callers should guard against the no-diff case.
  * - Root-level structural type change (e.g. object root → array root) throws {@link OverlayError}
  *   because Overlay has no mechanism to replace the root node.
