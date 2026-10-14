@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
-import { toJSON, toYAML } from '@speclynx/apidom-core';
+import { toJSON, toYAML, toValue } from '@speclynx/apidom-core';
 
 import applyOverlay from '../../../src/apply/realms/uri.ts';
 import OverlayError from '../../../src/errors/OverlayError.ts';
@@ -41,6 +41,28 @@ describe('applyOverlay (URI-level)', function () {
       assert.include(output, '  "openapi"');
 
       expect(output).toMatchSnapshot();
+    });
+  });
+
+  context('given Overlay 1.2.0 document', function () {
+    specify('should resolve extends against $self and apply reusable actions', async function () {
+      const overlayURI = path.join(fixturesDir, 'overlay-1-2-0', 'overlays', 'overlay.yaml');
+      const parseResult = await applyOverlay(overlayURI);
+
+      assert.deepEqual(toValue(parseResult.api), {
+        openapi: '3.1.0',
+        info: { title: 'Pets', version: '1.0.0' },
+        paths: {
+          '/pets': {
+            get: {
+              responses: {
+                '200': { description: 'OK' },
+                '404': { description: 'Not Found' },
+              },
+            },
+          },
+        },
+      });
     });
   });
 

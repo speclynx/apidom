@@ -1,0 +1,13 @@
+{
+  "overlay": "1.2.0",
+  "info": {
+    "title": "Unresolvable reusable action reference",
+    "version": "1.0.0"
+  },
+  "actions": [
+    {
+      "$ref": "#/components/actions/missing",
+      "target": "$.info"
+    }
+  ]
+}

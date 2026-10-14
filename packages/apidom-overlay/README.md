@@ -1,8 +1,8 @@
 # @speclynx/apidom-overlay
 
-`@speclynx/apidom-overlay` applies [Overlay 1.x.y](https://spec.openapis.org/overlay/v1.1.0.html) documents to API definitions
+`@speclynx/apidom-overlay` applies [Overlay 1.x.y](https://spec.openapis.org/overlay/v1.2.0.html) documents to API definitions
 and can generate overlays by diffing two API documents.
-The [Overlay Specification](https://spec.openapis.org/overlay/v1.1.0.html) defines a mechanism for modifying
+The [Overlay Specification](https://spec.openapis.org/overlay/v1.2.0.html) defines a mechanism for modifying
 existing API documents without directly editing the original, using [JSONPath (RFC 9535)](https://www.rfc-editor.org/rfc/rfc9535.html)
 expressions to target specific nodes and apply updates, copies, or removals.
 
@@ -48,7 +48,7 @@ import { refractOverlay1 } from '@speclynx/apidom-ns-overlay-1';
 import { applyOverlayApiDOM } from '@speclynx/apidom-overlay';
 
 const overlay = refractOverlay1({
-  overlay: '1.1.0',
+  overlay: '1.2.0',
   info: { title: 'My overlay', version: '1.0.0' },
   actions: [
     { target: '$.info', update: { description: 'Added by overlay' } },
@@ -90,7 +90,7 @@ import { applyOverlayPOJO, applyActionPOJO } from '@speclynx/apidom-overlay';
 // full overlay
 const result = applyOverlayPOJO(
   {
-    overlay: '1.1.0',
+    overlay: '1.2.0',
     info: { title: 'My overlay', version: '1.0.0' },
     actions: [
       { target: '$.info.title', update: 'Renamed API' },
@@ -198,7 +198,7 @@ The diff walks both element trees recursively and generates [JSONPath (RFC 9535)
 
 | Limitation | Details |
 |---|---|
-| Empty actions on identical documents | By default, identical inputs produce an overlay with an empty `actions` array (Overlay 1.1.0 §3 requires non-empty). Use `onEmptyDiff: 'throw'` to turn this into an `OverlayError` instead. |
+| Empty actions on identical documents | By default, identical inputs produce an overlay with an empty `actions` array (Overlay 1.x §3 requires non-empty). Use `onEmptyDiff: 'throw'` to turn this into an `OverlayError` instead. |
 | Root structural type change | Throws `OverlayError`. Overlay has no mechanism to replace the root node. |
 | Array insert-at-position | Overlay 1.x has no insert primitive. Positional diffing cascades replacements + appends, which is always correct but may be verbose for large array reorderings. |
 | Array item structural type change | Handled via tail-reconstruct: items from the first type-mismatched index onward are removed and re-appended. Always correct, but produces more actions than a minimal diff. |
@@ -206,7 +206,7 @@ The diff walks both element trees recursively and generates [JSONPath (RFC 9535)
 
 ## Overlay spec semantics
 
-The implementation follows [Overlay 1.1.0](https://spec.openapis.org/overlay/v1.1.0.html) merge rules:
+The implementation follows [Overlay 1.2.0](https://spec.openapis.org/overlay/v1.2.0.html) merge rules:
 
 | Scenario | Behavior |
 |---|---|
@@ -218,6 +218,8 @@ The implementation follows [Overlay 1.1.0](https://spec.openapis.org/overlay/v1.
 | Multiple targets | All must be the same type (all objects, all arrays, or all primitives) |
 | `remove: true` | Removes matched nodes; when combined with `update`, the update has no effect |
 | Action ordering | Applied sequentially — each action modifies the result of the previous |
+| Reusable Action Reference | Resolved against `components.actions` of the same overlay and applied as the resulting Action; the reference supplies `target` and its `description` wins. Unresolvable references throw `OverlayError` |
+| `$self` | When applying from file/URL, a relative `extends` is resolved against `$self` (itself resolved against the overlay's URI) |
 
 ## Tracing
 
