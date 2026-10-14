@@ -486,7 +486,20 @@ export const applyOverlay = <T extends Element | ParseResultElement>(
         try {
           actionElement = resolveReusableActionReference(action, overlay);
         } catch (error: unknown) {
-          throw new OverlayError((error as Error).message, { cause: error as Error });
+          const overlayError = new OverlayError((error as Error).message, {
+            cause: error as Error,
+          });
+
+          tracer?.action({
+            target: String(toValue(action.target) ?? ''),
+            type: 'noop',
+            matchCount: 0,
+            normalizedPaths: [],
+            success: false,
+            error: overlayError,
+          });
+
+          throw overlayError;
         }
       }
 
