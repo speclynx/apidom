@@ -90,6 +90,16 @@ describe('resolveReusableActionReference', function () {
     assert.isTrue(toValue(resolve(overlay).removeField));
   });
 
+  specify('should percent-decode the whole fragment', function () {
+    ['#/comp%6Fnents/actions/errorResponse', '#%2Fcomponents%2Factions%2FerrorResponse'].forEach(
+      ($ref) => {
+        const overlay = createOverlay({ $ref, target: '$' });
+
+        assert.isTrue(isActionElement(resolve(overlay)));
+      },
+    );
+  });
+
   specify('should resolve reusable action without fields', function () {
     const overlay = createOverlay(
       { $ref: '#/components/actions/empty', target: '$' },
