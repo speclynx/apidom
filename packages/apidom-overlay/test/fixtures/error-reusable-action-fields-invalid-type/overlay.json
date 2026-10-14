@@ -1,0 +1,20 @@
+{
+  "overlay": "1.2.0",
+  "info": {
+    "title": "Reusable action fields of invalid type",
+    "version": "1.0.0"
+  },
+  "components": {
+    "actions": {
+      "bad": {
+        "fields": "not-an-object"
+      }
+    }
+  },
+  "actions": [
+    {
+      "$ref": "#/components/actions/bad",
+      "target": "$.paths['/pets'].get.responses"
+    }
+  ]
+}

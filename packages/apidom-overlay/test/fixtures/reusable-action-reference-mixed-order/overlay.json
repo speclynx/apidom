@@ -1,0 +1,36 @@
+{
+  "overlay": "1.2.0",
+  "info": {
+    "title": "References applied in order with plain actions",
+    "version": "1.0.0"
+  },
+  "components": {
+    "actions": {
+      "errorResponse": {
+        "fields": {
+          "update": {
+            "404": {
+              "description": "Not Found"
+            }
+          }
+        }
+      }
+    }
+  },
+  "actions": [
+    {
+      "target": "$.paths['/internal']",
+      "remove": true
+    },
+    {
+      "$ref": "#/components/actions/errorResponse",
+      "target": "$.paths.*.get.responses"
+    },
+    {
+      "target": "$.info",
+      "update": {
+        "title": "Pets (public)"
+      }
+    }
+  ]
+}

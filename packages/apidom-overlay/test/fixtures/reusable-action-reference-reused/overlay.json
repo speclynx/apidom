@@ -1,0 +1,30 @@
+{
+  "overlay": "1.2.0",
+  "info": {
+    "title": "Reuse one reusable action for several targets",
+    "version": "1.0.0"
+  },
+  "components": {
+    "actions": {
+      "errorResponse": {
+        "fields": {
+          "update": {
+            "404": {
+              "description": "Not Found"
+            }
+          }
+        }
+      }
+    }
+  },
+  "actions": [
+    {
+      "$ref": "#/components/actions/errorResponse",
+      "target": "$.paths['/pets'].get.responses"
+    },
+    {
+      "$ref": "#/components/actions/errorResponse",
+      "target": "$.paths['/internal'].get.responses"
+    }
+  ]
+}

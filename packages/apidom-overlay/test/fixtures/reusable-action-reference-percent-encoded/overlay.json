@@ -1,0 +1,26 @@
+{
+  "overlay": "1.2.0",
+  "info": {
+    "title": "Percent-encoded reference fragment",
+    "version": "1.0.0"
+  },
+  "components": {
+    "actions": {
+      "error response": {
+        "fields": {
+          "update": {
+            "404": {
+              "description": "Not Found"
+            }
+          }
+        }
+      }
+    }
+  },
+  "actions": [
+    {
+      "$ref": "#/comp%6Fnents/actions/error%20response",
+      "target": "$.paths['/pets'].get.responses"
+    }
+  ]
+}
