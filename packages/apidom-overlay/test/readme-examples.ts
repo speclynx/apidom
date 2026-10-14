@@ -43,7 +43,7 @@ describe('README examples', function () {
   });
 
   context('applying to ApiDOM elements', function () {
-    specify('applyOverlayApiDOM example', function () {
+    specify('applyOverlayApiDOM example', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'My overlay', version: '1.0.0' },
@@ -57,7 +57,7 @@ describe('README examples', function () {
         info: { title: 'Original', version: '1.0.0' },
       });
 
-      const result = applyOverlayApiDOM(overlay, target);
+      const result = await applyOverlayApiDOM(overlay, target);
       const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.info.title, 'Renamed API');
@@ -83,8 +83,8 @@ describe('README examples', function () {
   });
 
   context('applying to plain JavaScript objects (POJO)', function () {
-    specify('applyOverlayPOJO example', function () {
-      const result = applyOverlayPOJO(
+    specify('applyOverlayPOJO example', async function () {
+      const result = (await applyOverlayPOJO(
         {
           overlay: '1.1.0',
           info: { title: 'My overlay', version: '1.0.0' },
@@ -94,7 +94,7 @@ describe('README examples', function () {
           openapi: '3.1.0',
           info: { title: 'Original', version: '1.0.0' },
         },
-      ) as AnyJson;
+      )) as AnyJson;
 
       assert.strictEqual(result.info.title, 'Renamed API');
       assert.strictEqual(result.info.version, '1.0.0');

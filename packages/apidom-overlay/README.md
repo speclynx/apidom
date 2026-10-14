@@ -38,9 +38,14 @@ const yaml = toYAML(result.api, { preserveStyle: true });
 ### Applying to ApiDOM elements
 
 `applyOverlayApiDOM` applies an entire overlay document to a target element. Accepts `Overlay1Element`
-or `ParseResultElement`. Immutable by default. Returns a new element, even when no action
+or `ParseResultElement`. Immutable by default. Returns a promise of a new element, even when no action
 changes anything. When the target is a `ParseResultElement`, a new parse result is returned
 and the one passed in is left untouched.
+
+All overlay-level functions (`applyOverlay`, `applyOverlayApiDOM` and `applyOverlayPOJO`) are asynchronous:
+the overlay is dereferenced with [@speclynx/apidom-reference](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference)
+before any action is applied, so Overlay 1.2.0 Reusable Action References are applied as the Action Objects they resolve to.
+Applying a single action (`applyActionApiDOM`, `applyActionPOJO`) stays synchronous.
 
 ```js
 import { refract } from '@speclynx/apidom-datamodel';
@@ -60,7 +65,7 @@ const target = refract({
   info: { title: 'Original', version: '1.0.0' },
 });
 
-const result = applyOverlayApiDOM(overlay, target);
+const result = await applyOverlayApiDOM(overlay, target);
 ```
 
 `applyActionApiDOM` applies a single overlay action. Useful for programmatic, step-by-step application.
@@ -88,7 +93,7 @@ no need to manually refract or serialize.
 import { applyOverlayPOJO, applyActionPOJO } from '@speclynx/apidom-overlay';
 
 // full overlay
-const result = applyOverlayPOJO(
+const result = await applyOverlayPOJO(
   {
     overlay: '1.2.0',
     info: { title: 'My overlay', version: '1.0.0' },
@@ -137,7 +142,7 @@ const overlay = diffApiDOM(left, right, {
 });
 
 // overlay is an Overlay1Element — serialize or apply it directly
-const updated = applyOverlayApiDOM(overlay, left);
+const updated = await applyOverlayApiDOM(overlay, left);
 console.log(toValue(updated)); // equals toValue(right)
 ```
 
@@ -218,7 +223,7 @@ The implementation follows [Overlay 1.2.0](https://spec.openapis.org/overlay/v1.
 | Multiple targets | All must be the same type (all objects, all arrays, or all primitives) |
 | `remove: true` | Removes matched nodes; when combined with `update`, the update has no effect |
 | Action ordering | Applied sequentially — each action modifies the result of the previous |
-| Reusable Action Reference | Resolved against `components.actions` of the same overlay and applied as the resulting Action; the reference supplies `target` and its `description` wins. Unresolvable references throw `OverlayError` |
+| Reusable Action Reference | Resolved by dereferencing the overlay before any action is applied: the reference becomes the Action from `components.actions` of the same overlay, supplying `target`, and its `description` wins. Unresolvable references reject with `OverlayError` and no action is applied |
 | `$self` | When applying from file/URL, a relative `extends` is resolved against `$self` (itself resolved against the overlay's URI) |
 
 ## Tracing
@@ -231,7 +236,7 @@ information about every action applied.
 import { applyOverlayApiDOM } from '@speclynx/apidom-overlay';
 
 const trace = {};
-const result = applyOverlayApiDOM(overlay, target, { trace });
+const result = await applyOverlayApiDOM(overlay, target, { trace });
 
 console.log(trace.failed);   // false
 console.log(trace.message);  // 'Overlay was successfully applied'
@@ -250,7 +255,7 @@ When an action fails, the trace captures the error before it is re-thrown:
 ```js
 const trace = {};
 try {
-  applyOverlayApiDOM(overlay, target, { trace });
+  await applyOverlayApiDOM(overlay, target, { trace });
 } catch (error) {
   console.log(trace.failed);                // true
   console.log(trace.failedAt);              // index of the failed action
@@ -273,7 +278,7 @@ await applyOverlay('/path/to/overlay.yaml', undefined, { trace });
 
 // POJO
 const trace = {};
-applyOverlayPOJO(overlay, target, { trace });
+await applyOverlayPOJO(overlay, target, { trace });
 ```
 
 ## Options
@@ -291,8 +296,11 @@ Passed to `applyActionApiDOM`, `applyOverlayApiDOM`, and `applyOverlay`:
 
 ### ApplyOverlayOptions
 
-Extends `ApplyOptions` with all [`@speclynx/apidom-reference` options](https://github.com/speclynx/apidom/blob/main/packages/apidom-reference/README.md)
-for controlling parsing, resolving, and dereferencing of the overlay and target documents.
+Passed to `applyOverlay`, `applyOverlayApiDOM`, and `applyOverlayPOJO`. Extends `ApplyOptions` with a `reference` field:
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `reference` | `PartialDeep<ReferenceOptions>` | — | [`@speclynx/apidom-reference` options](https://github.com/speclynx/apidom/blob/main/packages/apidom-reference/README.md) for dereferencing the overlay (and, in `applyOverlay`, for parsing the overlay and target documents). |
 
 ### DiffOverlayOptions
 

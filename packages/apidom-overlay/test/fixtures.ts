@@ -7,6 +7,7 @@ import { toValue } from '@speclynx/apidom-core';
 import { refractOverlay1 } from '@speclynx/apidom-ns-overlay-1';
 
 import { applyOverlayApiDOM, diffApiDOM } from '../src/index.ts';
+import assertRejects from './assert-rejects.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, 'fixtures');
@@ -46,7 +47,7 @@ describe('overlay application fixtures', function () {
 
   context('success cases', function () {
     for (const fixture of successFixtures) {
-      specify(fixture, function () {
+      specify(fixture, async function () {
         const dir = path.join(fixturesDir, fixture);
         const overlay = JSON.parse(fs.readFileSync(path.join(dir, 'overlay.json'), 'utf-8'));
         const target = JSON.parse(fs.readFileSync(path.join(dir, 'target.json'), 'utf-8'));
@@ -54,7 +55,7 @@ describe('overlay application fixtures', function () {
 
         const overlayElement = refractOverlay1(overlay);
         const targetElement = refract(target);
-        const result = applyOverlayApiDOM(overlayElement, targetElement);
+        const result = await applyOverlayApiDOM(overlayElement, targetElement);
 
         assert.deepEqual(toValue(result), expected);
       });
@@ -63,7 +64,7 @@ describe('overlay application fixtures', function () {
 
   context('error cases', function () {
     for (const fixture of errorFixtures) {
-      specify(fixture, function () {
+      specify(fixture, async function () {
         const dir = path.join(fixturesDir, fixture);
         const overlay = JSON.parse(fs.readFileSync(path.join(dir, 'overlay.json'), 'utf-8'));
         const target = JSON.parse(fs.readFileSync(path.join(dir, 'target.json'), 'utf-8'));
@@ -72,8 +73,8 @@ describe('overlay application fixtures', function () {
         const overlayElement = refractOverlay1(overlay);
         const targetElement = refract(target);
 
-        assert.throws(
-          () => applyOverlayApiDOM(overlayElement, targetElement),
+        await assertRejects(
+          applyOverlayApiDOM(overlayElement, targetElement),
           Error,
           new RegExp(error.message, 'i'),
         );
@@ -83,7 +84,7 @@ describe('overlay application fixtures', function () {
 
   context('diff round-trip', function () {
     for (const fixture of successFixtures) {
-      specify(fixture, function () {
+      specify(fixture, async function () {
         const dir = path.join(fixturesDir, fixture);
         const target = JSON.parse(fs.readFileSync(path.join(dir, 'target.json'), 'utf-8'));
         const expected = JSON.parse(fs.readFileSync(path.join(dir, 'expected.json'), 'utf-8'));
@@ -92,7 +93,7 @@ describe('overlay application fixtures', function () {
         const rightElement = refract(expected);
 
         const overlay = diffApiDOM(leftElement, rightElement);
-        const result = applyOverlayApiDOM(overlay, leftElement);
+        const result = await applyOverlayApiDOM(overlay, leftElement);
 
         assert.deepEqual(toValue(result), expected);
       });

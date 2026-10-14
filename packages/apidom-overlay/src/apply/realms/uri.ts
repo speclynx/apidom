@@ -5,17 +5,11 @@ import {
   mergeOptions,
   type ApiDOMReferenceOptions as ReferenceOptions,
 } from '@speclynx/apidom-reference';
-import type { PartialDeep } from 'type-fest';
 
-import { applyOverlay as applyOverlayApiDOM, type ApplyOptions } from './apidom.ts';
+import { applyOverlay as applyOverlayApiDOM, type ApplyOverlayOptions } from './apidom.ts';
 import OverlayError from '../../errors/OverlayError.ts';
 
-/**
- * @public
- */
-export interface ApplyOverlayOptions extends ApplyOptions {
-  readonly reference?: PartialDeep<ReferenceOptions>;
-}
+export type { ApplyOverlayOptions };
 
 const defaultReferenceOptions = {
   parse: {
@@ -100,7 +94,11 @@ const applyOverlay = async (
   return applyOverlayApiDOM(overlayParseResult, targetParseResult, {
     ...options,
     immutable: options.immutable ?? defaultOptions.immutable,
-  }) as ParseResultElement;
+    reference: {
+      ...options.reference,
+      resolve: { ...options.reference?.resolve, baseURI: overlayURI },
+    },
+  });
 };
 
 export default applyOverlay;

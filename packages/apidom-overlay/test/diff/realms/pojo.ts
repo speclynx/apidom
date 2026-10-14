@@ -46,12 +46,12 @@ describe('diffPOJO', function () {
 
     specify(
       'should produce overlay that when applied via applyOverlayPOJO yields right',
-      function () {
+      async function () {
         const left = { openapi: '3.1.0', info: { title: 'Old', version: '1.0.0' } };
         const right = { openapi: '3.1.0', info: { title: 'New', version: '2.0.0' } };
 
         const overlay = diffPOJO(left, right) as AnyJson;
-        const result = applyOverlayPOJO(overlay, left);
+        const result = await applyOverlayPOJO(overlay, left);
 
         assert.deepEqual(result, right);
       },

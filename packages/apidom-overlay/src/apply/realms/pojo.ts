@@ -6,6 +6,7 @@ import {
   applyAction as applyActionApiDOM,
   applyOverlay as applyOverlayApiDOM,
   type ApplyOptions,
+  type ApplyOverlayOptions,
 } from './apidom.ts';
 
 /**
@@ -33,13 +34,13 @@ export const applyAction = (
  *
  * @public
  */
-export const applyOverlay = (
+export const applyOverlay = async (
   overlay: Record<string, unknown>,
   target: Record<string, unknown>,
-  options?: ApplyOptions,
-): unknown =>
+  options?: ApplyOverlayOptions,
+): Promise<unknown> =>
   toValue(
-    applyOverlayApiDOM(refractOverlay1(overlay), refract(target), {
+    await applyOverlayApiDOM(refractOverlay1(overlay), refract(target), {
       ...options,
       immutable: false,
     }),

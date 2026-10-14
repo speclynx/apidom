@@ -15,9 +15,12 @@ import {
   type ActionElement,
   type Overlay1Element,
   isOverlay1Element,
-  isReusableActionReferenceElement,
 } from '@speclynx/apidom-ns-overlay-1';
-import { resolveReusableActionReference } from '@speclynx/apidom-reference/dereference/strategies/overlay-1';
+import {
+  dereferenceApiDOM,
+  type ApiDOMReferenceOptions as ReferenceOptions,
+} from '@speclynx/apidom-reference';
+import type { PartialDeep } from 'type-fest';
 
 import OverlayError from '../../errors/OverlayError.ts';
 import { validateAction, validateTargetNodes } from '../../validate.ts';
@@ -32,6 +35,13 @@ export interface ApplyOptions {
   readonly strict?: boolean;
   readonly immutable?: boolean;
   readonly trace?: OverlayTrace;
+}
+
+/**
+ * @public
+ */
+export interface ApplyOverlayOptions extends ApplyOptions {
+  readonly reference?: PartialDeep<ReferenceOptions>;
 }
 
 /**
@@ -428,18 +438,33 @@ export const applyAction = (
  * Under `immutable: false` the caller's parse result is updated in place
  * instead, with its result element replaced by the new tree.
  *
+ * The overlay is dereferenced first (`options.reference` configures
+ * `@speclynx/apidom-reference`), so Reusable Action References are applied as
+ * the Action Objects they resolve to. The overlay itself is never mutated.
+ *
  * @public
  */
-export const applyOverlay = <T extends Element | ParseResultElement>(
+export const applyOverlay = async <T extends Element | ParseResultElement>(
   overlayElement: Overlay1Element | ParseResultElement,
   targetElement: T,
-  options: ApplyOptions = defaultApplyOptions,
-): T => {
+  options: ApplyOverlayOptions = defaultApplyOptions,
+): Promise<T> => {
   const overlay =
     overlayElement instanceof ParseResultElement ? overlayElement.api : overlayElement;
 
   if (!isOverlay1Element(overlay)) {
     throw new OverlayError('First argument must be an Overlay 1.x document');
+  }
+
+  /**
+   * References (Overlay 1.2.0) are resolved by dereferencing before the target is
+   * touched, so an unresolvable reference fails the overlay without applying any action.
+   */
+  let dereferencedOverlay: Overlay1Element;
+  try {
+    dereferencedOverlay = await dereferenceApiDOM(overlay, options.reference ?? {});
+  } catch (error: unknown) {
+    throw new OverlayError((error as Error).message, { cause: error as Error });
   }
 
   const opts = withDefaults(options as InternalApplyOptions);
@@ -477,33 +502,9 @@ export const applyOverlay = <T extends Element | ParseResultElement>(
   // clone once, then apply the actions mutably to the clone
   const mutatingOptions: InternalApplyOptions = { ...internalOptions, immutable: false };
 
-  if (isArrayElement(overlay.actions)) {
-    for (const action of overlay.actions) {
-      let actionElement = action as ActionElement;
-
-      // Overlay 1.2.0 references left in place when the overlay was not dereferenced
-      if (isReusableActionReferenceElement(action)) {
-        try {
-          actionElement = resolveReusableActionReference(action, overlay);
-        } catch (error: unknown) {
-          const overlayError = new OverlayError((error as Error).message, {
-            cause: error as Error,
-          });
-
-          tracer?.action({
-            target: String(toValue(action.target) ?? ''),
-            type: 'noop',
-            matchCount: 0,
-            normalizedPaths: [],
-            success: false,
-            error: overlayError,
-          });
-
-          throw overlayError;
-        }
-      }
-
-      target = applyAction(actionElement, target, mutatingOptions);
+  if (isArrayElement(dereferencedOverlay.actions)) {
+    for (const action of dereferencedOverlay.actions) {
+      target = applyAction(action as ActionElement, target, mutatingOptions);
     }
   }
 

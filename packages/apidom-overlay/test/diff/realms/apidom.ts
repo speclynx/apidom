@@ -63,15 +63,18 @@ describe('diffApiDOM', function () {
       assert.strictEqual(value.actions[0].update, 'New Title');
     });
 
-    specify('should produce an overlay that when applied yields the right document', function () {
-      const left = refract({ info: { title: 'Old Title', version: '1.0.0' } });
-      const right = refract({ info: { title: 'New Title', version: '1.0.0' } });
+    specify(
+      'should produce an overlay that when applied yields the right document',
+      async function () {
+        const left = refract({ info: { title: 'Old Title', version: '1.0.0' } });
+        const right = refract({ info: { title: 'New Title', version: '1.0.0' } });
 
-      const overlay = diffApiDOM(left, right);
-      const result = toValue(applyOverlayApiDOM(overlay, left)) as AnyJson;
+        const overlay = diffApiDOM(left, right);
+        const result = toValue(await applyOverlayApiDOM(overlay, left)) as AnyJson;
 
-      assert.deepEqual(result, toValue(right));
-    });
+        assert.deepEqual(result, toValue(right));
+      },
+    );
   });
 
   context('given documents with an added field', function () {
@@ -87,14 +90,17 @@ describe('diffApiDOM', function () {
       assert.deepEqual(value.actions[0].update, { description: 'Docs' });
     });
 
-    specify('should produce an overlay that when applied yields the right document', function () {
-      const left = refract({ info: { title: 'My API', version: '1.0.0' } });
-      const right = refract({ info: { title: 'My API', version: '1.0.0', description: 'Docs' } });
+    specify(
+      'should produce an overlay that when applied yields the right document',
+      async function () {
+        const left = refract({ info: { title: 'My API', version: '1.0.0' } });
+        const right = refract({ info: { title: 'My API', version: '1.0.0', description: 'Docs' } });
 
-      const result = toValue(applyOverlayApiDOM(diffApiDOM(left, right), left)) as AnyJson;
+        const result = toValue(await applyOverlayApiDOM(diffApiDOM(left, right), left)) as AnyJson;
 
-      assert.deepEqual(result, toValue(right));
-    });
+        assert.deepEqual(result, toValue(right));
+      },
+    );
   });
 
   context('given documents with a removed field', function () {
@@ -110,14 +116,17 @@ describe('diffApiDOM', function () {
       assert.strictEqual(value.actions[0].remove, true);
     });
 
-    specify('should produce an overlay that when applied yields the right document', function () {
-      const left = refract({ info: { title: 'My API', version: '1.0.0', description: 'Docs' } });
-      const right = refract({ info: { title: 'My API', version: '1.0.0' } });
+    specify(
+      'should produce an overlay that when applied yields the right document',
+      async function () {
+        const left = refract({ info: { title: 'My API', version: '1.0.0', description: 'Docs' } });
+        const right = refract({ info: { title: 'My API', version: '1.0.0' } });
 
-      const result = toValue(applyOverlayApiDOM(diffApiDOM(left, right), left)) as AnyJson;
+        const result = toValue(await applyOverlayApiDOM(diffApiDOM(left, right), left)) as AnyJson;
 
-      assert.deepEqual(result, toValue(right));
-    });
+        assert.deepEqual(result, toValue(right));
+      },
+    );
   });
 
   context('given documents with array changes', function () {
@@ -136,16 +145,21 @@ describe('diffApiDOM', function () {
         assert.deepEqual(value.actions[0].update, [{ url: 'https://staging.example.com' }]);
       });
 
-      specify('should produce an overlay that when applied yields the right document', function () {
-        const left = refract({ servers: [{ url: 'https://api.example.com' }] });
-        const right = refract({
-          servers: [{ url: 'https://api.example.com' }, { url: 'https://staging.example.com' }],
-        });
+      specify(
+        'should produce an overlay that when applied yields the right document',
+        async function () {
+          const left = refract({ servers: [{ url: 'https://api.example.com' }] });
+          const right = refract({
+            servers: [{ url: 'https://api.example.com' }, { url: 'https://staging.example.com' }],
+          });
 
-        const result = toValue(applyOverlayApiDOM(diffApiDOM(left, right), left)) as AnyJson;
+          const result = toValue(
+            await applyOverlayApiDOM(diffApiDOM(left, right), left),
+          ) as AnyJson;
 
-        assert.deepEqual(result, toValue(right));
-      });
+          assert.deepEqual(result, toValue(right));
+        },
+      );
     });
 
     context('item removed', function () {
@@ -163,16 +177,21 @@ describe('diffApiDOM', function () {
         assert.strictEqual(value.actions[0].remove, true);
       });
 
-      specify('should produce an overlay that when applied yields the right document', function () {
-        const left = refract({
-          servers: [{ url: 'https://api.example.com' }, { url: 'https://staging.example.com' }],
-        });
-        const right = refract({ servers: [{ url: 'https://api.example.com' }] });
+      specify(
+        'should produce an overlay that when applied yields the right document',
+        async function () {
+          const left = refract({
+            servers: [{ url: 'https://api.example.com' }, { url: 'https://staging.example.com' }],
+          });
+          const right = refract({ servers: [{ url: 'https://api.example.com' }] });
 
-        const result = toValue(applyOverlayApiDOM(diffApiDOM(left, right), left)) as AnyJson;
+          const result = toValue(
+            await applyOverlayApiDOM(diffApiDOM(left, right), left),
+          ) as AnyJson;
 
-        assert.deepEqual(result, toValue(right));
-      });
+          assert.deepEqual(result, toValue(right));
+        },
+      );
     });
 
     context('item changed in place', function () {
@@ -188,25 +207,35 @@ describe('diffApiDOM', function () {
         assert.strictEqual(value.actions[0].update, 'https://prod.example.com');
       });
 
-      specify('should produce an overlay that when applied yields the right document', function () {
-        const left = refract({ servers: [{ url: 'https://staging.example.com' }] });
-        const right = refract({ servers: [{ url: 'https://prod.example.com' }] });
+      specify(
+        'should produce an overlay that when applied yields the right document',
+        async function () {
+          const left = refract({ servers: [{ url: 'https://staging.example.com' }] });
+          const right = refract({ servers: [{ url: 'https://prod.example.com' }] });
 
-        const result = toValue(applyOverlayApiDOM(diffApiDOM(left, right), left)) as AnyJson;
+          const result = toValue(
+            await applyOverlayApiDOM(diffApiDOM(left, right), left),
+          ) as AnyJson;
 
-        assert.deepEqual(result, toValue(right));
-      });
+          assert.deepEqual(result, toValue(right));
+        },
+      );
     });
 
     context('middle item removed (cascading positional replacement)', function () {
-      specify('should produce an overlay that when applied yields the right document', function () {
-        const left = refract({ tags: ['a', 'b', 'c'] });
-        const right = refract({ tags: ['a', 'c'] });
+      specify(
+        'should produce an overlay that when applied yields the right document',
+        async function () {
+          const left = refract({ tags: ['a', 'b', 'c'] });
+          const right = refract({ tags: ['a', 'c'] });
 
-        const result = toValue(applyOverlayApiDOM(diffApiDOM(left, right), left)) as AnyJson;
+          const result = toValue(
+            await applyOverlayApiDOM(diffApiDOM(left, right), left),
+          ) as AnyJson;
 
-        assert.deepEqual(result, toValue(right));
-      });
+          assert.deepEqual(result, toValue(right));
+        },
+      );
     });
 
     context('multiple items appended', function () {
@@ -222,14 +251,19 @@ describe('diffApiDOM', function () {
         assert.deepEqual(value.actions[0].update, ['b', 'c', 'd']);
       });
 
-      specify('should produce an overlay that when applied yields the right document', function () {
-        const left = refract({ tags: ['a'] });
-        const right = refract({ tags: ['a', 'b', 'c', 'd'] });
+      specify(
+        'should produce an overlay that when applied yields the right document',
+        async function () {
+          const left = refract({ tags: ['a'] });
+          const right = refract({ tags: ['a', 'b', 'c', 'd'] });
 
-        const result = toValue(applyOverlayApiDOM(diffApiDOM(left, right), left)) as AnyJson;
+          const result = toValue(
+            await applyOverlayApiDOM(diffApiDOM(left, right), left),
+          ) as AnyJson;
 
-        assert.deepEqual(result, toValue(right));
-      });
+          assert.deepEqual(result, toValue(right));
+        },
+      );
     });
   });
 
@@ -248,14 +282,17 @@ describe('diffApiDOM', function () {
       assert.deepEqual(value.actions[1].update, { count: 'one' });
     });
 
-    specify('should produce an overlay that when applied yields the right document', function () {
-      const left = refract({ info: { count: 1 } });
-      const right = refract({ info: { count: 'one' } });
+    specify(
+      'should produce an overlay that when applied yields the right document',
+      async function () {
+        const left = refract({ info: { count: 1 } });
+        const right = refract({ info: { count: 'one' } });
 
-      const result = toValue(applyOverlayApiDOM(diffApiDOM(left, right), left)) as AnyJson;
+        const result = toValue(await applyOverlayApiDOM(diffApiDOM(left, right), left)) as AnyJson;
 
-      assert.deepEqual(result, toValue(right));
-    });
+        assert.deepEqual(result, toValue(right));
+      },
+    );
   });
 
   context('given documents with a changed scalar root', function () {
@@ -267,14 +304,14 @@ describe('diffApiDOM', function () {
       assert.strictEqual(action.update, 'replaced');
     });
 
-    specify('should round-trip through a ParseResultElement target', function () {
+    specify('should round-trip through a ParseResultElement target', async function () {
       const left = refract('original');
       left.classes.push('result');
       const parseResult = new ParseResultElement();
       parseResult.push(left);
 
       const overlay = diffApiDOM(refract('original'), refract('replaced'));
-      const result = applyOverlayApiDOM(overlay, parseResult, { immutable: false });
+      const result = await applyOverlayApiDOM(overlay, parseResult, { immutable: false });
 
       // replacing a primitive root swaps in the update value's meta wholesale,
       // so the parse result must still be able to find its result element
