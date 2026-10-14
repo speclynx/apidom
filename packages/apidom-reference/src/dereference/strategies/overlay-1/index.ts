@@ -144,6 +144,5 @@ class Overlay1DereferenceStrategy extends DereferenceStrategy {
 export { dereferenceExtends } from './extends.ts';
 export { Overlay1DereferenceVisitor };
 export type { Overlay1DereferenceVisitorOptions } from './visitor.ts';
-export { resolveReusableActionReference } from './reusable-action-reference.ts';
 
 export default Overlay1DereferenceStrategy;
