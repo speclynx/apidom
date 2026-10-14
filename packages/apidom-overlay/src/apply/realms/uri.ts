@@ -3,6 +3,7 @@ import { isOverlay1Element } from '@speclynx/apidom-ns-overlay-1';
 import {
   parse,
   mergeOptions,
+  url,
   type ApiDOMReferenceOptions as ReferenceOptions,
 } from '@speclynx/apidom-reference';
 
@@ -96,7 +97,8 @@ const applyOverlay = async (
     immutable: options.immutable ?? defaultOptions.immutable,
     reference: {
       ...options.reference,
-      resolve: { ...options.reference?.resolve, baseURI: overlayURI },
+      // same normalization `parse` applies, so reference errors report the parsed document's URI
+      resolve: { ...options.reference?.resolve, baseURI: url.sanitize(url.stripHash(overlayURI)) },
     },
   });
 };

@@ -2,6 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import { toJSON, toYAML, toValue } from '@speclynx/apidom-core';
+import { url } from '@speclynx/apidom-reference';
 
 import applyOverlay from '../../../src/apply/realms/uri.ts';
 import OverlayError from '../../../src/errors/OverlayError.ts';
@@ -63,6 +64,27 @@ describe('applyOverlay (URI-level)', function () {
           },
         },
       });
+    });
+  });
+
+  context('given Overlay 1.2.0 document with unresolvable reference', function () {
+    specify('should report the normalized overlay URI', async function () {
+      const overlayURI = path.join(
+        fixturesDir,
+        'overlay-1-2-0',
+        'overlays',
+        'overlay unresolvable.yaml',
+      );
+
+      try {
+        await applyOverlay(overlayURI);
+        assert.fail('Should have thrown');
+      } catch (error: unknown) {
+        assert.instanceOf(error, OverlayError);
+        const { uri } = (error as OverlayError).cause as { uri: string };
+        assert.strictEqual(uri, url.sanitize(overlayURI));
+        assert.include(uri, 'overlay%20unresolvable.yaml');
+      }
     });
   });
 
