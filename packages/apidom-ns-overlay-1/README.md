@@ -4,6 +4,7 @@
 
 - [Overlay 1.0.0](https://spec.openapis.org/overlay/v1.0.0.html)
 - [Overlay 1.1.0](https://spec.openapis.org/overlay/v1.1.0.html)
+- [Overlay 1.2.0](https://spec.openapis.org/overlay/v1.2.0.html)
 
 ## Installation
 
@@ -13,9 +14,9 @@ You can install this package via [npm CLI](https://docs.npmjs.com/cli) by runnin
  $ npm install @speclynx/apidom-ns-overlay-1
 ```
 
-## Overlay 1.1.0 namespace
+## Overlay 1.2.0 namespace
 
-Overlay 1.1.0 namespace consists of [a number of elements](https://github.com/speclynx/apidom/tree/main/packages/apidom-ns-overlay-1/src/elements) implemented on top
+Overlay 1.2.0 namespace consists of [a number of elements](https://github.com/speclynx/apidom/tree/main/packages/apidom-ns-overlay-1/src/elements) implemented on top
 of [primitive ones](https://github.com/speclynx/apidom/tree/main/packages/apidom-datamodel/src/primitives).
 
 ```js
@@ -185,7 +186,10 @@ const overlayElement = refractOverlay1(apiDOM.result, {
 
 Only fully implemented specification objects should be checked here.
 
-- [x] [Overlay Specification Object](https://spec.openapis.org/overlay/v1.1.0.html#overlay-object)
-- [x] [Info Object](https://spec.openapis.org/overlay/v1.1.0.html#info-object)
-- [x] [Action Object](https://spec.openapis.org/overlay/v1.1.0.html#action-object)
-- [x] [Specification extensions](https://spec.openapis.org/overlay/v1.1.0.html#specification-extensions)
+- [x] [Overlay Specification Object](https://spec.openapis.org/overlay/v1.2.0.html#overlay-object)
+- [x] [Info Object](https://spec.openapis.org/overlay/v1.2.0.html#info-object)
+- [x] [Components Object](https://spec.openapis.org/overlay/v1.2.0.html#components-object)
+- [x] [Action Object](https://spec.openapis.org/overlay/v1.2.0.html#action-object)
+- [x] [Reusable Action Object](https://spec.openapis.org/overlay/v1.2.0.html#reusable-action-object)
+- [x] [Reusable Action Reference Object](https://spec.openapis.org/overlay/v1.2.0.html#reusable-action-reference-object)
+- [x] [Specification extensions](https://spec.openapis.org/overlay/v1.2.0.html#specification-extensions)

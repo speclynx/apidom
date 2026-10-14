@@ -10,6 +10,9 @@ import OverlayElement from '../elements/Overlay.ts';
 import Overlay1Element from '../elements/Overlay1.ts';
 import InfoElement from '../elements/Info.ts';
 import ActionElement from '../elements/Action.ts';
+import ComponentsElement from '../elements/Components.ts';
+import ReusableActionElement from '../elements/ReusableAction.ts';
+import ReusableActionReferenceElement from '../elements/ReusableActionReference.ts';
 
 /**
  * @public
@@ -102,5 +105,29 @@ export const refractAction = <T extends Element = ActionElement>(
   value: unknown,
   options: Omit<RefractorOptions, 'element'> = {},
 ): T => refract(value, { ...options, element: 'action' });
+
+/**
+ * @public
+ */
+export const refractComponents = <T extends Element = ComponentsElement>(
+  value: unknown,
+  options: Omit<RefractorOptions, 'element'> = {},
+): T => refract(value, { ...options, element: 'components' });
+
+/**
+ * @public
+ */
+export const refractReusableAction = <T extends Element = ReusableActionElement>(
+  value: unknown,
+  options: Omit<RefractorOptions, 'element'> = {},
+): T => refract(value, { ...options, element: 'reusableAction' });
+
+/**
+ * @public
+ */
+export const refractReusableActionReference = <T extends Element = ReusableActionReferenceElement>(
+  value: unknown,
+  options: Omit<RefractorOptions, 'element'> = {},
+): T => refract(value, { ...options, element: 'reusableActionReference' });
 
 export default refract;

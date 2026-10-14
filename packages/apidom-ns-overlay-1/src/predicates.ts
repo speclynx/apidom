@@ -1,10 +1,14 @@
-// Overlay 1.1.0 elements
+// Overlay 1.x.y elements
 import OverlayElement from './elements/Overlay.ts';
 import Overlay1Element from './elements/Overlay1.ts';
 import InfoElement from './elements/Info.ts';
 import ActionElement from './elements/Action.ts';
+import ComponentsElement from './elements/Components.ts';
+import ReusableActionElement from './elements/ReusableAction.ts';
+import ReusableActionReferenceElement from './elements/ReusableActionReference.ts';
 // NCE types
 import ActionsElement from './elements/nces/Actions.ts';
+import ComponentsActionsElement from './elements/nces/ComponentsActions.ts';
 
 /**
  * @public
@@ -35,3 +39,28 @@ export const isActionElement = (element: unknown): element is ActionElement =>
  */
 export const isActionsElement = (element: unknown): element is ActionsElement =>
   element instanceof ActionsElement;
+
+/**
+ * @public
+ */
+export const isComponentsElement = (element: unknown): element is ComponentsElement =>
+  element instanceof ComponentsElement;
+
+/**
+ * @public
+ */
+export const isReusableActionElement = (element: unknown): element is ReusableActionElement =>
+  element instanceof ReusableActionElement;
+
+/**
+ * @public
+ */
+export const isReusableActionReferenceElement = (
+  element: unknown,
+): element is ReusableActionReferenceElement => element instanceof ReusableActionReferenceElement;
+
+/**
+ * @public
+ */
+export const isComponentsActionsElement = (element: unknown): element is ComponentsActionsElement =>
+  element instanceof ComponentsActionsElement;

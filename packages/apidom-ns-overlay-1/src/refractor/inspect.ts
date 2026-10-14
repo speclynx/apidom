@@ -5,6 +5,9 @@ import OverlayElement from '../elements/Overlay.ts';
 import Overlay1Element from '../elements/Overlay1.ts';
 import InfoElement from '../elements/Info.ts';
 import ActionElement from '../elements/Action.ts';
+import ComponentsElement from '../elements/Components.ts';
+import ReusableActionElement from '../elements/ReusableAction.ts';
+import ReusableActionReferenceElement from '../elements/ReusableActionReference.ts';
 import specification from './specification.ts';
 
 /**
@@ -50,4 +53,28 @@ Object.defineProperty(ActionElement, 'fixedFields', {
   enumerable: true,
 });
 
-export { OverlayElement, Overlay1Element, InfoElement, ActionElement };
+Object.defineProperty(ComponentsElement, 'fixedFields', {
+  get: () => getFixedFields(resolvedSpec.visitors.document.objects.Components.fixedFields),
+  enumerable: true,
+});
+
+Object.defineProperty(ReusableActionElement, 'fixedFields', {
+  get: () => getFixedFields(resolvedSpec.visitors.document.objects.ReusableAction.fixedFields),
+  enumerable: true,
+});
+
+Object.defineProperty(ReusableActionReferenceElement, 'fixedFields', {
+  get: () =>
+    getFixedFields(resolvedSpec.visitors.document.objects.ReusableActionReference.fixedFields),
+  enumerable: true,
+});
+
+export {
+  OverlayElement,
+  Overlay1Element,
+  InfoElement,
+  ActionElement,
+  ComponentsElement,
+  ReusableActionElement,
+  ReusableActionReferenceElement,
+};
