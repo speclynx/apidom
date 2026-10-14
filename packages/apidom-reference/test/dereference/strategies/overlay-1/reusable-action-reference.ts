@@ -1,16 +1,16 @@
-import { assert, expect } from 'chai';
+import { assert } from 'chai';
 import { toValue } from '@speclynx/apidom-core';
-import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 
 import {
   refractOverlay1,
   isActionElement,
   type Overlay1Element,
   type ReusableActionElement,
-  type ReusableActionReferenceElement,
+  type ActionElement,
 } from '@speclynx/apidom-ns-overlay-1';
 
-import { resolveReusableActionReference } from '../../../../src/dereference/strategies/overlay-1/index.ts';
+import { dereferenceApiDOM } from '../../../../src/index.ts';
+import UnresolvableReferenceError from '../../../../src/errors/UnresolvableReferenceError.ts';
 
 const createOverlay = (
   reference: Record<string, unknown>,
@@ -31,41 +31,44 @@ const createOverlay = (
     components: { actions },
   });
 
-const resolve = (overlay: Overlay1Element) =>
-  resolveReusableActionReference(
-    overlay.actions!.get(0) as ReusableActionReferenceElement,
-    overlay,
+const resolve = async (overlay: Overlay1Element) => {
+  const dereferenced = await dereferenceApiDOM(overlay, { resolve: { baseURI: '/overlay.json' } });
+
+  return dereferenced.actions!.get(0) as ActionElement;
+};
+
+describe('dereference Reusable Action Reference', function () {
+  specify(
+    'should resolve to an Action with reference target and reusable fields',
+    async function () {
+      const overlay = createOverlay({
+        $ref: '#/components/actions/errorResponse',
+        target: '$.paths.*.get.responses',
+      });
+      const actionElement = await resolve(overlay);
+
+      assert.isTrue(isActionElement(actionElement));
+      assert.deepEqual(toValue(actionElement), {
+        target: '$.paths.*.get.responses',
+        description: 'Adds an error response',
+        update: { '404': { description: 'Not Found' } },
+      });
+    },
   );
 
-describe('resolveReusableActionReference', function () {
-  specify('should resolve to an Action with reference target and reusable fields', function () {
-    const overlay = createOverlay({
-      $ref: '#/components/actions/errorResponse',
-      target: '$.paths.*.get.responses',
-    });
-    const actionElement = resolve(overlay);
-
-    assert.isTrue(isActionElement(actionElement));
-    assert.deepEqual(toValue(actionElement), {
-      target: '$.paths.*.get.responses',
-      description: 'Adds an error response',
-      update: { '404': { description: 'Not Found' } },
-    });
-  });
-
-  specify('should prefer the reference description', function () {
+  specify('should prefer the reference description', async function () {
     const overlay = createOverlay({
       $ref: '#/components/actions/errorResponse',
       target: '$',
       description: 'Overridden',
     });
 
-    assert.strictEqual(toValue(resolve(overlay).description), 'Overridden');
+    assert.strictEqual(toValue((await resolve(overlay)).description), 'Overridden');
   });
 
-  specify('should not share elements with the overlay', function () {
+  specify('should not share elements with the overlay', async function () {
     const overlay = createOverlay({ $ref: '#/components/actions/errorResponse', target: '$' });
-    const actionElement = resolve(overlay);
+    const actionElement = await resolve(overlay);
     const reusableAction = overlay.components!.actions!.get(
       'errorResponse',
     ) as ReusableActionElement;
@@ -73,41 +76,42 @@ describe('resolveReusableActionReference', function () {
     assert.notStrictEqual(actionElement.update, reusableAction.fields!.update);
   });
 
-  specify('should decode escaped component names', function () {
+  specify('should decode escaped component names', async function () {
     const overlay = createOverlay(
       { $ref: '#/components/actions/error-response~1v1~0beta', target: '$' },
       { 'error-response/v1~beta': { fields: { remove: true } } },
     );
 
-    assert.isTrue(toValue(resolve(overlay).removeField));
+    assert.isTrue(toValue((await resolve(overlay)).removeField));
   });
 
-  specify('should percent-decode the fragment', function () {
+  specify('should percent-decode the fragment', async function () {
     const overlay = createOverlay(
       { $ref: '#/components/actions/error%20response', target: '$' },
       { 'error response': { fields: { remove: true } } },
     );
 
-    assert.isTrue(toValue(resolve(overlay).removeField));
+    assert.isTrue(toValue((await resolve(overlay)).removeField));
   });
 
-  specify('should percent-decode the whole fragment', function () {
-    ['#/comp%6Fnents/actions/errorResponse', '#%2Fcomponents%2Factions%2FerrorResponse'].forEach(
-      ($ref) => {
-        const overlay = createOverlay({ $ref, target: '$' });
+  specify('should percent-decode the whole fragment', async function () {
+    for (const $ref of [
+      '#/comp%6Fnents/actions/errorResponse',
+      '#%2Fcomponents%2Factions%2FerrorResponse',
+    ]) {
+      const overlay = createOverlay({ $ref, target: '$' });
 
-        assert.isTrue(isActionElement(resolve(overlay)));
-      },
-    );
+      assert.isTrue(isActionElement(await resolve(overlay)));
+    }
   });
 
-  specify('should resolve reusable action without fields', function () {
+  specify('should resolve reusable action without fields', async function () {
     const overlay = createOverlay(
       { $ref: '#/components/actions/empty', target: '$' },
       { empty: {} },
     );
 
-    assert.deepEqual(toValue(resolve(overlay)), { target: '$' });
+    assert.deepEqual(toValue(await resolve(overlay)), { target: '$' });
   });
 
   context('given invalid reference', function () {
@@ -145,10 +149,15 @@ describe('resolveReusableActionReference', function () {
     ];
 
     cases.forEach(([title, reference, actions]) => {
-      specify(`should throw on ${title}`, function () {
+      specify(`should throw on ${title}`, async function () {
         const overlay = createOverlay(reference, actions);
 
-        expect(() => resolve(overlay)).to.throw(ApiDOMStructuredError);
+        try {
+          await resolve(overlay);
+          assert.fail('should throw UnresolvableReferenceError');
+        } catch (error: unknown) {
+          assert.instanceOf(error, UnresolvableReferenceError);
+        }
       });
     });
   });
