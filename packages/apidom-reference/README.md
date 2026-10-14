@@ -543,6 +543,8 @@ Supported media types are:
   'application/vnd.oai.overlay+json;version=1.0.0',
   'application/vnd.oai.overlay;version=1.1.0',
   'application/vnd.oai.overlay+json;version=1.1.0',
+  'application/vnd.oai.overlay;version=1.2.0',
+  'application/vnd.oai.overlay+json;version=1.2.0',
 ]
 ```
 
@@ -556,6 +558,7 @@ Parser-specific options take precedence over global options.
 
   The parsed extends document is added with an `'extends'` class and `retrievalURI` metadata.
   A `ParseResultElement` is also attached to the extends element's meta as `'parseResult'`.
+  The `extends` URI is resolved against the Overlay document's base URI (its `$self` field when present, otherwise its retrieval URI).
 
 ##### Error handling
 
@@ -656,6 +659,8 @@ Supported media types are:
   'application/vnd.oai.overlay+yaml;version=1.0.0',
   'application/vnd.oai.overlay;version=1.1.0',
   'application/vnd.oai.overlay+yaml;version=1.1.0',
+  'application/vnd.oai.overlay;version=1.2.0',
+  'application/vnd.oai.overlay+yaml;version=1.2.0',
 ]
 ```
 
@@ -669,6 +674,7 @@ Parser-specific options take precedence over global options. See [overlay-json-1
 
   The parsed extends document is added with an `'extends'` class and `retrievalURI` metadata.
   A `ParseResultElement` is also attached to the extends element's meta as `'parseResult'`.
+  The `extends` URI is resolved against the Overlay document's base URI (its `$self` field when present, otherwise its retrieval URI).
 
 ##### Error handling
 
@@ -1645,6 +1651,9 @@ Supported media types:
   'application/vnd.oai.overlay;version=1.1.0',
   'application/vnd.oai.overlay+json;version=1.1.0',
   'application/vnd.oai.overlay+yaml;version=1.1.0',
+  'application/vnd.oai.overlay;version=1.2.0',
+  'application/vnd.oai.overlay+json;version=1.2.0',
+  'application/vnd.oai.overlay+yaml;version=1.2.0',
 ]
 ```
 
@@ -2192,7 +2201,7 @@ dereferenceSourceDescriptions(
 
 ##### [overlay-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/dereference/strategies/overlay-1)
 
-Dereference strategy for dereferencing [Overlay 1.x](https://spec.openapis.org/overlay/v1.1.0.html) definitions.
+Dereference strategy for dereferencing [Overlay 1.x](https://spec.openapis.org/overlay/v1.2.0.html) definitions.
 
 Supported media types:
 
@@ -2204,6 +2213,9 @@ Supported media types:
   'application/vnd.oai.overlay;version=1.1.0',
   'application/vnd.oai.overlay+json;version=1.1.0',
   'application/vnd.oai.overlay+yaml;version=1.1.0',
+  'application/vnd.oai.overlay;version=1.2.0',
+  'application/vnd.oai.overlay+json;version=1.2.0',
+  'application/vnd.oai.overlay+yaml;version=1.2.0',
 ]
 ```
 
@@ -2218,6 +2230,7 @@ Strategy-specific options take precedence over global options.
   The dereferenced extends document is added with an `'extends'` class and `retrievalURI` metadata.
   If the extends target was already parsed during the parse phase, it will be dereferenced in place
   without re-fetching.
+  The `extends` URI is resolved against the Overlay document's base URI (its `$self` field when present, otherwise its retrieval URI).
 
 ###### Error handling
 

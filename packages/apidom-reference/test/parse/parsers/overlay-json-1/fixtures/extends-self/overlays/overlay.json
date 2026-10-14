@@ -1,0 +1,17 @@
+{
+  "overlay": "1.2.0",
+  "$self": "../specs/overlay.json",
+  "info": {
+    "title": "Overlay with $self",
+    "version": "1.0.0"
+  },
+  "extends": "openapi.json",
+  "actions": [
+    {
+      "target": "$.info",
+      "update": {
+        "x-overlay-applied": true
+      }
+    }
+  ]
+}

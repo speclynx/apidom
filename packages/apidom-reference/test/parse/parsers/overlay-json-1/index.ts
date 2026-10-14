@@ -8,6 +8,7 @@ import {
   hasElementSourceMap,
 } from '@speclynx/apidom-datamodel';
 import { mediaTypes } from '@speclynx/apidom-parser-adapter-overlay-json-1';
+import { isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 import { fileURLToPath } from 'node:url';
 
 import File from '../../../../src/File.ts';
@@ -236,6 +237,36 @@ describe('parsers', function () {
 
             assert.isString(retrievalURI);
             assert.include(retrievalURI, 'openapi.json');
+          });
+        });
+
+        context('given $self field', function () {
+          specify('should resolve extends against $self', async function () {
+            const uri = path.join(
+              __dirname,
+              'fixtures',
+              'extends-self',
+              'overlays',
+              'overlay.json',
+            );
+            const parseResult = await parse(uri, {
+              parse: {
+                parserOpts: {
+                  'overlay-json-1': { extends: true },
+                },
+              },
+            });
+            const extendsParseResult = parseResult.get(1)! as ParseResultElement;
+            const expectedURI = path.join(
+              __dirname,
+              'fixtures',
+              'extends-self',
+              'specs',
+              'openapi.json',
+            );
+
+            assert.strictEqual(extendsParseResult.meta.get('retrievalURI'), expectedURI);
+            assert.isTrue(isOpenApi3_1Element(extendsParseResult.api));
           });
         });
 

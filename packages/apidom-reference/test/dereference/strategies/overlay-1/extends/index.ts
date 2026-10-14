@@ -4,6 +4,7 @@ import { assert, expect } from 'chai';
 import { isParseResultElement, ParseResultElement } from '@speclynx/apidom-datamodel';
 import { toJSON } from '@speclynx/apidom-core';
 import { mediaTypes, Overlay1Element } from '@speclynx/apidom-ns-overlay-1';
+import { isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 
 import { dereference, dereferenceApiDOM } from '../../../../../src/index.ts';
 
@@ -84,6 +85,25 @@ describe('dereference', function () {
             const extendsResult = dereferenceResult.get(1)! as ParseResultElement;
 
             expect(toJSON(extendsResult.api!, undefined, 2)).toMatchSnapshot();
+          });
+        });
+
+        context('given $self field', function () {
+          specify('should resolve extends against $self', async function () {
+            const uri = path.join(rootFixturePath, 'self', 'overlays', 'overlay.json');
+            const dereferenceResult = await dereference(uri, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: {
+                strategyOpts: {
+                  'overlay-1': { extends: true },
+                },
+              },
+            });
+            const extendsResult = dereferenceResult.get(1)! as ParseResultElement;
+            const expectedURI = path.join(rootFixturePath, 'self', 'specs', 'openapi.json');
+
+            assert.strictEqual(extendsResult.meta.get('retrievalURI'), expectedURI);
+            assert.isTrue(isOpenApi3_1Element(extendsResult.api));
           });
         });
 

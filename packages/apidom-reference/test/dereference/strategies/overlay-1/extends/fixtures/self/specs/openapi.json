@@ -1,0 +1,26 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Sample API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/pets": {
+      "get": {
+        "summary": "List pets",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PetList"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "PetList": {
+        "description": "A list of pets"
+      }
+    }
+  }
+}
