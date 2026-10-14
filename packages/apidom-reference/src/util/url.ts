@@ -263,9 +263,9 @@ export const resolve = (from: string, to: string): string => {
   const resolvedUrl = new URL(to, new URL(from, 'resolve://'));
 
   if (resolvedUrl.protocol === 'resolve:') {
-    // `from` is a relative URL.
-    const { pathname, search, hash } = resolvedUrl;
-    return pathname + search + hash;
+    // `from` is a relative URL; a network-path reference (`//host/path`) keeps its authority
+    const { host, pathname, search, hash } = resolvedUrl;
+    return (host ? `//${host}` : '') + pathname + search + hash;
   }
   return resolvedUrl.toString();
 };

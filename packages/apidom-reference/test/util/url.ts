@@ -245,6 +245,13 @@ describe('util', function () {
         });
       });
 
+      context('given relative from and network-path reference', function () {
+        specify('should keep the authority of the reference', function () {
+          assert.strictEqual(resolve('/one/two/three', '//example.com/four'), '//example.com/four');
+          assert.strictEqual(resolve('//example.com/one/two', 'three'), '//example.com/one/three');
+        });
+      });
+
       context('given URL with invalid URL characters', function () {
         specify('should percent encode the URL', function () {
           assert.strictEqual(
