@@ -58,35 +58,10 @@ isOverlay1Element(overlayElement); // => true
 
 Overlay 1.2.0 allows `actions` to contain [Reusable Action Reference Objects](https://spec.openapis.org/overlay/v1.2.0.html#reusable-action-reference-object)
 pointing to [Reusable Action Objects](https://spec.openapis.org/overlay/v1.2.0.html#reusable-action-object) defined in `components.actions`.
-Refracting keeps them as `ReusableActionReferenceElement`. `resolveReusableActionReference` turns a reference into the `ActionElement` it stands for:
-the reference supplies `target` (and `description`, which takes precedence), the reusable action supplies the rest of the fields.
+Refracting keeps them as `ReusableActionReferenceElement`; resolving them into Action Objects is done by the overlay-1
+dereference strategy of [@speclynx/apidom-reference](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference).
 As the specification requires, `$ref` must be a same-document reference of the form `#/components/actions/<name>`;
-external references (relative or absolute URLs) are deliberately not supported and are rejected.
-
-```js
-import {
-  refractOverlay1,
-  resolveReusableActionReference,
-} from '@speclynx/apidom-ns-overlay-1';
-
-const overlayElement = refractOverlay1({
-  overlay: '1.2.0',
-  info: { title: 'Error responses', version: '1.0.0' },
-  components: {
-    actions: {
-      errorResponse: {
-        fields: { update: { '404': { description: 'Not Found' } } },
-      },
-    },
-  },
-  actions: [{ $ref: '#/components/actions/errorResponse', target: '$.paths.*.get.responses' }],
-});
-
-resolveReusableActionReference(overlayElement.actions.get(0), overlayElement);
-// => ActionElement({ target: '$.paths.*.get.responses', update: { '404': { description: 'Not Found' } } })
-```
-
-An `ApiDOMStructuredError` is thrown when the reference is malformed or the referenced reusable action does not exist.
+external references (relative or absolute URLs) are deliberately not supported.
 
 ## Traversal
 

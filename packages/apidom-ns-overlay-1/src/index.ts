@@ -111,8 +111,6 @@ export {
 } from './refractor/predicates.ts';
 export type { ReusableActionReferenceLikeElement } from './refractor/predicates.ts';
 
-export { resolveReusableActionReference } from './reusable-action-reference.ts';
-
 // Overlay 1.x.y elements
 export {
   OverlayElement,

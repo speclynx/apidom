@@ -4,12 +4,13 @@ import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 
 import {
   refractOverlay1,
-  resolveReusableActionReference,
   isActionElement,
   type Overlay1Element,
   type ReusableActionElement,
   type ReusableActionReferenceElement,
-} from '../src/index.ts';
+} from '@speclynx/apidom-ns-overlay-1';
+
+import { resolveReusableActionReference } from '../../../../src/dereference/strategies/overlay-1/index.ts';
 
 const createOverlay = (
   reference: Record<string, unknown>,
