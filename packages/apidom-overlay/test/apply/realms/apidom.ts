@@ -1319,6 +1319,28 @@ describe('applyOverlayApiDOM', function () {
       assert.deepEqual(trace, {} as OverlayTrace);
     });
 
+    specify('should record an unresolvable Reusable Action Reference in the trace', function () {
+      const overlay = refractOverlay1({
+        overlay: '1.2.0',
+        info: { title: 'Test', version: '1.0.0' },
+        actions: [
+          { target: '$.title', update: 'Updated' },
+          { $ref: '#/components/actions/missing', target: '$.title' },
+        ],
+      });
+
+      const trace = {} as OverlayTrace;
+
+      assert.throws(() => applyOverlayApiDOM(overlay, refract({ title: 'Original' }), { trace }));
+      assert.isTrue(trace.failed);
+      assert.strictEqual(trace.failedAt, 1);
+      assert.lengthOf(trace.actions, 2);
+      assert.strictEqual(trace.actions[1].target, '$.title');
+      assert.isFalse(trace.actions[1].success);
+      assert.instanceOf(trace.actions[1].error, OverlayError);
+      assert.strictEqual(trace.message, trace.actions[1].error!.message);
+    });
+
     specify('should keep the api class on the replaced result element', function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
