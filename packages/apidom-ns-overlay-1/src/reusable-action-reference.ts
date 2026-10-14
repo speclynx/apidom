@@ -80,12 +80,6 @@ export const resolveReusableActionReference = (
     );
   }
 
-  if (referenceElement.target === undefined) {
-    throw new ApiDOMStructuredError(`Reusable Action Reference "${$ref}" must define "target"`, {
-      $ref,
-    });
-  }
-
   const key = decodeComponentKey($ref);
   const reusableAction = overlayElement.components?.actions?.get(key);
 
@@ -114,7 +108,9 @@ export const resolveReusableActionReference = (
 
   const { target, description } = referenceElement;
 
-  actionElement.set('target', cloneDeep(target));
+  if (target !== undefined) {
+    actionElement.set('target', cloneDeep(target));
+  }
   if (isActionElement(fields)) {
     fields.forEach((value, keyElement) => {
       actionElement.set(toValue(keyElement) as string, cloneDeep(value));
