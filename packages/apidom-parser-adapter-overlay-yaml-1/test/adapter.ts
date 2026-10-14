@@ -5,7 +5,12 @@ import { assert, expect } from 'chai';
 import dedent from 'dedent';
 import { isParseResultElement, hasElementSourceMap } from '@speclynx/apidom-datamodel';
 import { sexprs, toValue } from '@speclynx/apidom-core';
-import { isOverlay1Element } from '@speclynx/apidom-ns-overlay-1';
+import {
+  isOverlay1Element,
+  isReusableActionElement,
+  isReusableActionReferenceElement,
+  type Overlay1Element,
+} from '@speclynx/apidom-ns-overlay-1';
 
 import * as adapter from '../src/adapter.ts';
 
@@ -104,6 +109,34 @@ describe('adapter', function () {
       assert.equal(infoValue.endLine, 1);
       assert.equal(infoValue.endCharacter, 5);
       assert.equal(infoValue.endOffset, 20);
+    });
+  });
+
+  context('given Overlay 1.2.0 definition', function () {
+    specify('should refract reusable actions and references', async function () {
+      const yamlSource = dedent`
+          overlay: 1.2.0
+          $self: https://example.com/overlays/errors.overlay.yaml
+          info:
+            title: Error responses
+            version: 1.0.0
+          components:
+            actions:
+              errorResponse:
+                fields:
+                  update:
+                    '404':
+                      description: Not Found
+          actions:
+            - $ref: '#/components/actions/errorResponse'
+              target: $.paths.*.get.responses
+        `;
+      const api = (await adapter.parse(yamlSource)).api as Overlay1Element;
+
+      assert.isTrue(isOverlay1Element(api));
+      assert.isTrue(isReusableActionReferenceElement(api.actions!.get(0)));
+      assert.isTrue(isReusableActionElement(api.components!.actions!.get('errorResponse')));
+      assert.strictEqual(toValue(api.$self), 'https://example.com/overlays/errors.overlay.yaml');
     });
   });
 
