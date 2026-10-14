@@ -60,6 +60,8 @@ Overlay 1.2.0 allows `actions` to contain [Reusable Action Reference Objects](ht
 pointing to [Reusable Action Objects](https://spec.openapis.org/overlay/v1.2.0.html#reusable-action-object) defined in `components.actions`.
 Refracting keeps them as `ReusableActionReferenceElement`. `resolveReusableActionReference` turns a reference into the `ActionElement` it stands for:
 the reference supplies `target` (and `description`, which takes precedence), the reusable action supplies the rest of the fields.
+As the specification requires, `$ref` must be a same-document reference of the form `#/components/actions/<name>`;
+external references (relative or absolute URLs) are deliberately not supported and are rejected.
 
 ```js
 import {
