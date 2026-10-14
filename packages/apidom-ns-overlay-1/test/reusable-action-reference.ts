@@ -114,6 +114,23 @@ describe('resolveReusableActionReference', function () {
         { $ref: '#/components/actions/bad', target: '$' },
         { bad: { fields: { target: '$.info', remove: true } } },
       ],
+      [
+        'non-object reusable fields',
+        { $ref: '#/components/actions/bad', target: '$' },
+        { bad: { fields: 'not-an-object' } },
+      ],
+      [
+        'update next to $ref',
+        { $ref: '#/components/actions/errorResponse', target: '$', update: { a: 1 } },
+      ],
+      [
+        'copy next to $ref',
+        { $ref: '#/components/actions/errorResponse', target: '$', copy: '$.a' },
+      ],
+      [
+        'remove next to $ref',
+        { $ref: '#/components/actions/errorResponse', target: '$', remove: true },
+      ],
     ];
 
     cases.forEach(([title, reference, actions]) => {

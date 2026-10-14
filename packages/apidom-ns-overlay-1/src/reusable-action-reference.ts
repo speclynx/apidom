@@ -59,6 +59,17 @@ export const resolveReusableActionReference = (
     throw new ApiDOMStructuredError('Reusable Action Reference "$ref" field must be a string');
   }
 
+  // only `target`, `description` and extensions may accompany `$ref`
+  const disallowedField = ['update', 'copy', 'remove'].find((field) =>
+    referenceElement.hasKey(field),
+  );
+  if (disallowedField !== undefined) {
+    throw new ApiDOMStructuredError(
+      `Reusable Action Reference "${$ref}" must not define "${disallowedField}"`,
+      { $ref },
+    );
+  }
+
   const key = decodeComponentKey($ref);
   const reusableAction = overlayElement.components?.actions?.get(key);
 
@@ -69,6 +80,12 @@ export const resolveReusableActionReference = (
   }
 
   const { fields } = reusableAction;
+
+  if (fields !== undefined && !isActionElement(fields)) {
+    throw new ApiDOMStructuredError(`Reusable Action "${key}" must define "fields" as an object`, {
+      $ref,
+    });
+  }
 
   if (isActionElement(fields) && fields.hasKey('target')) {
     throw new ApiDOMStructuredError(
