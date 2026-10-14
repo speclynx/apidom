@@ -11,6 +11,7 @@ import {
   applyOverlay as applyOverlayApiDOM,
 } from '../../../src/apply/realms/apidom.ts';
 import OverlayError from '../../../src/errors/OverlayError.ts';
+import { UnresolvableReferenceError } from '@speclynx/apidom-reference';
 import type { OverlayTrace } from '../../../src/apply/trace/types.ts';
 import assertRejects from '../../assert-rejects.ts';
 
@@ -1321,6 +1322,24 @@ describe('applyOverlayApiDOM', function () {
         OverlayError,
       );
       assert.deepEqual(trace, {} as OverlayTrace);
+    });
+
+    specify('should pass reference options to dereferencing', async function () {
+      const overlay = refractOverlay1({
+        overlay: '1.2.0',
+        info: { title: 'Test', version: '1.0.0' },
+        actions: [{ $ref: '#/components/actions/missing', target: '$.title' }],
+      });
+      const errors: Error[] = [];
+
+      await assertRejects(
+        applyOverlayApiDOM(overlay, refract({ title: 'Original' }), {
+          reference: { dereference: { continueOnError: (error: Error) => errors.push(error) } },
+        }),
+        OverlayError,
+      );
+      assert.lengthOf(errors, 1);
+      assert.instanceOf(errors[0], UnresolvableReferenceError);
     });
 
     specify('should reject a Reusable Action Reference without target', async function () {
