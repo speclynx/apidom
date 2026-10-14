@@ -2207,7 +2207,8 @@ Dereference strategy for dereferencing [Overlay 1.x](https://spec.openapis.org/o
 in `actions` are replaced with the Action Objects they resolve to in `components.actions`. The reference provides `target`,
 and its `description` takes precedence over the one from the reusable action's `fields`. Every resolved Action Object
 carries `ref-fields`, `ref-origin` and `ref-type` meta. Reusable Action References are same-document references,
-so they are only dereferenced when `resolve.internal` is `true` (the default). Unresolvable references
+so they are only dereferenced when `resolve.internal` is `true` (the default). As the specification requires,
+external references (relative or absolute URLs in `$ref`) are not supported and are reported as unresolvable. Unresolvable references
 raise `UnresolvableReferenceError`, honoring the `dereference.continueOnError` option; when errors are continued on,
 the reference is left in place.
 
