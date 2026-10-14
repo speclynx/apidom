@@ -150,7 +150,7 @@ const overlay = diffPOJO(
   { info: { title: 'Old', version: '1.0.0' } },
   { info: { title: 'New', version: '2.0.0' } },
 );
-// overlay is a plain object: { overlay: '1.1.0', info: {...}, actions: [...] }
+// overlay is a plain object: { overlay: '1.2.0', info: {...}, actions: [...] }
 ```
 
 `diffOverlay` parses two documents from file paths or URLs and returns an `Overlay1Element`.
@@ -179,7 +179,7 @@ const overlay = await diffOverlay(
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `overlay` | `string` | `'1.1.0'` | Version string written to the `overlay` field. Configurable because 1.0.0 and 1.1.0 have slightly different semantics. |
+| `overlay` | `string` | `'1.2.0'` | Version string written to the `overlay` field. Generated overlays use no 1.2.0-only features, so pass `'1.1.0'` (or `'1.0.0'`) to target an older version. |
 | `info.title` | `string` | `'API diff'` | Title for the generated overlay's `info` object. |
 | `info.version` | `string` | `'0.0.0'` | Version for the generated overlay's `info` object. |
 | `info.description` | `string` | — | Optional description for the overlay's `info` object. |
@@ -300,7 +300,7 @@ Passed to `diffOverlay`. Extends `DiffOptions` with a `reference` field:
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `overlay` | `string` | `'1.1.0'` | Inherited from `DiffOptions`. See [DiffOptions](#diffoptions). |
+| `overlay` | `string` | `'1.2.0'` | Inherited from `DiffOptions`. See [DiffOptions](#diffoptions). |
 | `info` | `object` | — | Inherited from `DiffOptions`. |
 | `extends` | `string` | `leftURI` | When omitted, automatically set to `leftURI` so the overlay points back to the base document. |
 | `reference` | `PartialDeep<ReferenceOptions>` | — | [`@speclynx/apidom-reference` options](https://github.com/speclynx/apidom/blob/main/packages/apidom-reference/README.md) for parsing the left and right documents. |

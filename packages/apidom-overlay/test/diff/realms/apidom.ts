@@ -333,7 +333,7 @@ describe('diffApiDOM', function () {
       const overlay = diffApiDOM(left, right);
       const value = toValue(overlay) as AnyJson;
 
-      assert.strictEqual(value.overlay, '1.1.0');
+      assert.strictEqual(value.overlay, '1.2.0');
       assert.strictEqual(value.info.title, 'API diff');
       assert.strictEqual(value.info.version, '0.0.0');
     });
