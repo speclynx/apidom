@@ -49,8 +49,13 @@ export async function dereferenceExtends(
     return;
   }
 
+  // Overlay 1.2.0: `$self` (itself resolved against the retrieval URI) is the base URI
+  const selfElement = api.get('$self');
+  const baseURI = isStringElement(selfElement)
+    ? url.resolve(file.uri, toValue(selfElement) as string)
+    : file.uri;
   const extendsURI = toValue(extendsElement) as string;
-  const retrievalURI = url.sanitize(url.stripHash(url.resolve(file.uri, extendsURI)));
+  const retrievalURI = url.sanitize(url.stripHash(url.resolve(baseURI, extendsURI)));
 
   const extendsDereferenceResult = new ParseResultElement();
   extendsDereferenceResult.classes.push('extends');
