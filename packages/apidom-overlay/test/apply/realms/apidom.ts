@@ -1319,6 +1319,21 @@ describe('applyOverlayApiDOM', function () {
       assert.deepEqual(trace, {} as OverlayTrace);
     });
 
+    specify('should reject a Reusable Action Reference without target', function () {
+      const overlay = refractOverlay1({
+        overlay: '1.2.0',
+        info: { title: 'Test', version: '1.0.0' },
+        components: { actions: { removeTitle: { fields: { remove: true } } } },
+        actions: [{ $ref: '#/components/actions/removeTitle' }],
+      });
+
+      assert.throws(
+        () => applyOverlayApiDOM(overlay, refract({ title: 'Original' })),
+        OverlayError,
+        /target/,
+      );
+    });
+
     specify('should record an unresolvable Reusable Action Reference in the trace', function () {
       const overlay = refractOverlay1({
         overlay: '1.2.0',
