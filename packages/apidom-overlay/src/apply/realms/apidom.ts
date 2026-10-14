@@ -15,6 +15,8 @@ import {
   type ActionElement,
   type Overlay1Element,
   isOverlay1Element,
+  isReusableActionReferenceElement,
+  resolveReusableActionReference,
 } from '@speclynx/apidom-ns-overlay-1';
 
 import OverlayError from '../../errors/OverlayError.ts';
@@ -477,7 +479,18 @@ export const applyOverlay = <T extends Element | ParseResultElement>(
 
   if (isArrayElement(overlay.actions)) {
     for (const action of overlay.actions) {
-      target = applyAction(action as ActionElement, target, mutatingOptions);
+      let actionElement = action as ActionElement;
+
+      // Overlay 1.2.0 references left in place when the overlay was not dereferenced
+      if (isReusableActionReferenceElement(action)) {
+        try {
+          actionElement = resolveReusableActionReference(action, overlay);
+        } catch (error: unknown) {
+          throw new OverlayError((error as Error).message, { cause: error as Error });
+        }
+      }
+
+      target = applyAction(actionElement, target, mutatingOptions);
     }
   }
 

@@ -1,0 +1,25 @@
+{
+  "overlay": "1.2.0",
+  "info": {
+    "title": "Reusable action reference with escaped component key",
+    "version": "1.0.0"
+  },
+  "components": {
+    "actions": {
+      "remove/path~v1": {
+        "description": "Removes a path",
+        "fields": {
+          "description": "Remove path",
+          "remove": true
+        }
+      }
+    }
+  },
+  "actions": [
+    {
+      "$ref": "#/components/actions/remove~1path~0v1",
+      "target": "$.paths['/internal']",
+      "description": "Remove internal path"
+    }
+  ]
+}

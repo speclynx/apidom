@@ -1,0 +1,23 @@
+{
+  "overlay": "1.2.0",
+  "info": {
+    "title": "Reusable action with target in fields",
+    "version": "1.0.0"
+  },
+  "components": {
+    "actions": {
+      "removeInfo": {
+        "fields": {
+          "target": "$.info",
+          "remove": true
+        }
+      }
+    }
+  },
+  "actions": [
+    {
+      "$ref": "#/components/actions/removeInfo",
+      "target": "$.paths"
+    }
+  ]
+}

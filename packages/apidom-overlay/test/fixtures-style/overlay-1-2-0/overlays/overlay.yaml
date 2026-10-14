@@ -1,0 +1,16 @@
+overlay: 1.2.0
+$self: ../specs/overlay.yaml
+info:
+  title: Error responses
+  version: 1.0.0
+extends: target.yaml
+components:
+  actions:
+    errorResponse:
+      fields:
+        update:
+          '404':
+            description: Not Found
+actions:
+  - $ref: '#/components/actions/errorResponse'
+    target: $.paths.*.get.responses
