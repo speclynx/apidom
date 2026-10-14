@@ -4,7 +4,12 @@ import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import { isParseResultElement } from '@speclynx/apidom-datamodel';
 import { sexprs, toValue } from '@speclynx/apidom-core';
-import { isOverlay1Element } from '@speclynx/apidom-ns-overlay-1';
+import {
+  isOverlay1Element,
+  isReusableActionElement,
+  isReusableActionReferenceElement,
+  type Overlay1Element,
+} from '@speclynx/apidom-ns-overlay-1';
 
 import * as adapter from '../src/adapter.ts';
 
@@ -82,6 +87,30 @@ describe('adapter', function () {
       const parseResult = await adapter.parse(' a ', { sourceMap: true });
 
       assert.isTrue(parseResult.isEmpty);
+    });
+  });
+
+  context('given Overlay 1.2.0 definition', function () {
+    specify('should refract reusable actions and references', async function () {
+      const jsonSource = JSON.stringify({
+        overlay: '1.2.0',
+        $self: 'https://example.com/overlays/errors.overlay.json',
+        info: { title: 'Error responses', version: '1.0.0' },
+        components: {
+          actions: {
+            errorResponse: { fields: { update: { '404': { description: 'Not Found' } } } },
+          },
+        },
+        actions: [
+          { $ref: '#/components/actions/errorResponse', target: '$.paths.*.get.responses' },
+        ],
+      });
+      const api = (await adapter.parse(jsonSource)).api as Overlay1Element;
+
+      assert.isTrue(isOverlay1Element(api));
+      assert.isTrue(isReusableActionReferenceElement(api.actions!.get(0)));
+      assert.isTrue(isReusableActionElement(api.components!.actions!.get('errorResponse')));
+      assert.strictEqual(toValue(api.$self), 'https://example.com/overlays/errors.overlay.json');
     });
   });
 

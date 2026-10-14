@@ -1,6 +1,6 @@
 # @speclynx/apidom-parser-adapter-overlay-json-1
 
-`@speclynx/apidom-parser-adapter-overlay-json-1` is a parser adapter for the [Overlay 1.1.0 specification](https://spec.openapis.org/overlay/v1.1.0.html) in [JSON format](https://www.json.org/json-en.html).
+`@speclynx/apidom-parser-adapter-overlay-json-1` is a parser adapter for the [Overlay 1.x.y specification](https://spec.openapis.org/overlay/v1.2.0.html) in [JSON format](https://www.json.org/json-en.html).
 Under the hood this adapter uses [apidom-parser-adapter-json](https://github.com/speclynx/apidom/tree/main/packages/apidom-parser-adapter-json)
 to parse a source string into generic ApiDOM in [base ApiDOM namespace](https://github.com/speclynx/apidom/tree/main/packages/apidom#base-namespace)
 which is then refracted with [Overlay 1.x.y Refractors](https://github.com/speclynx/apidom/tree/main/packages/apidom-ns-overlay-1#refractors).
@@ -28,16 +28,18 @@ Defines list of media types that this parser adapter recognizes.
   'application/vnd.oai.overlay+json;version=1.0.0',
   'application/vnd.oai.overlay;version=1.1.0',
   'application/vnd.oai.overlay+json;version=1.1.0',
+  'application/vnd.oai.overlay;version=1.2.0',
+  'application/vnd.oai.overlay+json;version=1.2.0',
 ]
 ```
 
 ### detect
 
-[Detection](https://github.com/speclynx/apidom/blob/main/packages/apidom-parser-adapter-overlay-json-1/src/adapter.ts#L13) is based on a regular expression matching required Overlay 1.1.0 specification symbols in JSON format.
+[Detection](https://github.com/speclynx/apidom/blob/main/packages/apidom-parser-adapter-overlay-json-1/src/adapter.ts#L13) is based on a regular expression matching required Overlay 1.x.y specification symbols in JSON format.
 
 ### namespace
 
-This adapter exposes an instance of [Overlay 1.x.y ApiDOM namespace](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-overlay-1/README.md#overlay-110-namespace).
+This adapter exposes an instance of [Overlay 1.x.y ApiDOM namespace](https://github.com/speclynx/apidom/blob/main/packages/apidom-ns-overlay-1/README.md#overlay-120-namespace).
 
 ### parse
 
@@ -64,11 +66,11 @@ with [supported media types](#mediatypes).
 import { parse, detect } from '@speclynx/apidom-parser-adapter-overlay-json-1';
 
 // detecting
-await detect('{"overlay": "1.1.0"}'); // => true
+await detect('{"overlay": "1.2.0"}'); // => true
 await detect('test'); // => false
 
 // parsing
-const parseResult = await parse('{"overlay": "1.1.0"}', { sourceMap: true });
+const parseResult = await parse('{"overlay": "1.2.0"}', { sourceMap: true });
 ```
 
 ### Indirect usage
@@ -83,5 +85,5 @@ const parser = new ApiDOMParser();
 
 parser.use(overlayJsonAdapter);
 
-const parseResult = await parser.parse('{"overlay": "1.1.0"}', { mediaType: overlayJsonAdapter.mediaTypes.latest('json') });
+const parseResult = await parser.parse('{"overlay": "1.2.0"}', { mediaType: overlayJsonAdapter.mediaTypes.latest('json') });
 ```
