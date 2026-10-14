@@ -1,0 +1,21 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Pets (public)",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/pets": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    }
+  }
+}

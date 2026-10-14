@@ -1,0 +1,22 @@
+{
+  "overlay": "1.2.0",
+  "info": {
+    "title": "Reusable remove action",
+    "version": "1.0.0"
+  },
+  "components": {
+    "actions": {
+      "removeNode": {
+        "fields": {
+          "remove": true
+        }
+      }
+    }
+  },
+  "actions": [
+    {
+      "$ref": "#/components/actions/removeNode",
+      "target": "$.paths['/internal']"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "overlay": "1.2.0",
+  "info": {
+    "title": "Reusable copy action",
+    "version": "1.0.0"
+  },
+  "components": {
+    "actions": {
+      "copyPetResponses": {
+        "fields": {
+          "copy": "$.paths['/pets'].get.responses"
+        }
+      }
+    }
+  },
+  "actions": [
+    {
+      "$ref": "#/components/actions/copyPetResponses",
+      "target": "$.paths['/internal'].get.responses"
+    }
+  ]
+}

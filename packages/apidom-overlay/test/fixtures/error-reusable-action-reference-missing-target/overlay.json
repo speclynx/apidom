@@ -1,0 +1,25 @@
+{
+  "overlay": "1.2.0",
+  "info": {
+    "title": "Reference without target",
+    "version": "1.0.0"
+  },
+  "components": {
+    "actions": {
+      "errorResponse": {
+        "fields": {
+          "update": {
+            "404": {
+              "description": "Not Found"
+            }
+          }
+        }
+      }
+    }
+  },
+  "actions": [
+    {
+      "$ref": "#/components/actions/errorResponse"
+    }
+  ]
+}
