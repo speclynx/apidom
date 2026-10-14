@@ -22,6 +22,14 @@ describe('given adapter is used in parser', function () {
     });
   });
 
+  context('given Overlay 1.2.0 definition in JSON format', function () {
+    specify('should find appropriate media type', async function () {
+      const mediaType = await parser.findMediaType('{"overlay": "1.2.0"}');
+
+      assert.strictEqual(mediaType, 'application/vnd.oai.overlay+json;version=1.2.0');
+    });
+  });
+
   context('given Overlay 1.0.A definition in JSON format', function () {
     specify('should not find appropriate media type', async function () {
       const mediaType = await parser.findMediaType('{"overlay": "1.0.A"}');
