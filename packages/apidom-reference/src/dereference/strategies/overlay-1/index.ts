@@ -7,6 +7,7 @@ import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 import { dereferenceExtends } from './extends.ts';
+import { dereferenceReusableActions } from './reusable-actions.ts';
 
 export type {
   default as DereferenceStrategy,
@@ -92,6 +93,13 @@ class Overlay1DereferenceStrategy extends DereferenceStrategy {
     const dereferencedElement = reference.value as ParseResultElement;
 
     /**
+     * Reusable Action References are internal references only.
+     */
+    if (options.resolve.internal) {
+      dereferenceReusableActions(dereferencedElement, reference.uri, options);
+    }
+
+    /**
      * Dereference extends target if option is enabled.
      */
     const shouldDereferenceExtends =
@@ -133,5 +141,6 @@ class Overlay1DereferenceStrategy extends DereferenceStrategy {
 }
 
 export { dereferenceExtends } from './extends.ts';
+export { dereferenceReusableActions } from './reusable-actions.ts';
 
 export default Overlay1DereferenceStrategy;
