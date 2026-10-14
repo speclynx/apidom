@@ -1,51 +1,34 @@
 import { cloneDeep } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
+import { parse, URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
 
 import ActionElement from './elements/Action.ts';
 import Overlay1Element from './elements/Overlay1.ts';
 import ReusableActionReferenceElement from './elements/ReusableActionReference.ts';
 import { isActionElement, isReusableActionElement } from './predicates.ts';
 
-const POINTER_PREFIX = '/components/actions/';
-
 const decodeComponentKey = ($ref: string): string => {
-  if (!$ref.startsWith('#')) {
+  // same-document reference whose JSON Pointer is /components/actions/<name> (RFC 6901 §6)
+  const { result, tree } = $ref.startsWith('#')
+    ? parse(URIFragmentIdentifier.from($ref))
+    : { result: { success: false }, tree: undefined };
+
+  if (
+    !result.success ||
+    tree === undefined ||
+    tree.length !== 3 ||
+    tree[0] !== 'components' ||
+    tree[1] !== 'actions' ||
+    tree[2] === ''
+  ) {
     throw new ApiDOMStructuredError(
-      `Reusable Action Reference "${$ref}" must point to "#${POINTER_PREFIX}<name>"`,
+      `Reusable Action Reference "${$ref}" must point to "#/components/actions/<name>"`,
       { $ref },
     );
   }
 
-  // the JSON Pointer is the percent-decoded fragment (RFC 6901 §6)
-  let pointer: string;
-  try {
-    pointer = decodeURIComponent($ref.slice(1));
-  } catch {
-    throw new ApiDOMStructuredError(
-      `Reusable Action Reference "${$ref}" is not a valid URI fragment`,
-      { $ref },
-    );
-  }
-
-  if (!pointer.startsWith(POINTER_PREFIX)) {
-    throw new ApiDOMStructuredError(
-      `Reusable Action Reference "${$ref}" must point to "#${POINTER_PREFIX}<name>"`,
-      { $ref },
-    );
-  }
-
-  const token = pointer.slice(POINTER_PREFIX.length);
-
-  // a single JSON Pointer token: "/" must be "~1" and "~" must be "~0" (RFC 6901 §3)
-  if (token === '' || token.includes('/') || /~(?![01])/.test(token)) {
-    throw new ApiDOMStructuredError(
-      `Reusable Action Reference "${$ref}" must contain a single escaped component name`,
-      { $ref },
-    );
-  }
-
-  return token.replaceAll('~1', '/').replaceAll('~0', '~');
+  return tree[2];
 };
 
 /**
