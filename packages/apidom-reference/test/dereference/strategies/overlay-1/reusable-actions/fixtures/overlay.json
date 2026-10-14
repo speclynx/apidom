@@ -1,0 +1,44 @@
+{
+  "overlay": "1.2.0",
+  "info": {
+    "title": "Overlay with reusable actions",
+    "version": "1.0.0"
+  },
+  "components": {
+    "actions": {
+      "errorResponse": {
+        "description": "Reusable error response",
+        "fields": {
+          "description": "Adds an error response",
+          "update": {
+            "404": {
+              "description": "Not Found"
+            }
+          }
+        }
+      },
+      "remove/internal": {
+        "fields": {
+          "remove": true
+        }
+      }
+    }
+  },
+  "actions": [
+    {
+      "target": "$.info",
+      "update": {
+        "x-overlay-applied": true
+      }
+    },
+    {
+      "$ref": "#/components/actions/errorResponse",
+      "target": "$.paths.*.get.responses",
+      "description": "Adds an error response to GET operations"
+    },
+    {
+      "$ref": "#/components/actions/remove~1internal",
+      "target": "$.paths['/internal']"
+    }
+  ]
+}
