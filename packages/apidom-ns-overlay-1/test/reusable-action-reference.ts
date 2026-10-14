@@ -119,6 +119,7 @@ describe('resolveReusableActionReference', function () {
       ['empty name', { $ref: '#/components/actions/', target: '$' }],
       ['malformed percent-encoding', { $ref: '#/components/actions/%E0%A4%A', target: '$' }],
       ['missing component', { $ref: '#/components/actions/missing', target: '$' }],
+      ['missing target', { $ref: '#/components/actions/errorResponse' }],
       [
         'target in reusable fields',
         { $ref: '#/components/actions/bad', target: '$' },
