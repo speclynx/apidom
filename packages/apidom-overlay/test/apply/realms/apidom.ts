@@ -12,6 +12,7 @@ import {
 } from '../../../src/apply/realms/apidom.ts';
 import OverlayError from '../../../src/errors/OverlayError.ts';
 import type { OverlayTrace } from '../../../src/apply/trace/types.ts';
+import assertRejects from '../../assert-rejects.ts';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyJson = Record<string, any>;
@@ -910,7 +911,7 @@ describe('applyAction', function () {
 
 describe('applyOverlayApiDOM', function () {
   context('sequential action ordering', function () {
-    specify('should apply actions in order — last write wins', function () {
+    specify('should apply actions in order — last write wins', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -922,13 +923,13 @@ describe('applyOverlayApiDOM', function () {
       });
       const target = refract({ info: { title: 'Original' } });
 
-      const result = applyOverlayApiDOM(overlay, target);
+      const result = await applyOverlayApiDOM(overlay, target);
       const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.info.title, 'Third');
     });
 
-    specify('should allow remove followed by recreate', function () {
+    specify('should allow remove followed by recreate', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -941,13 +942,13 @@ describe('applyOverlayApiDOM', function () {
         info: { title: 'API', description: 'Original description' },
       });
 
-      const result = applyOverlayApiDOM(overlay, target);
+      const result = await applyOverlayApiDOM(overlay, target);
       const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.info.description, 'Recreated');
     });
 
-    specify('should allow copy followed by remove (move pattern)', function () {
+    specify('should allow copy followed by remove (move pattern)', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -962,7 +963,7 @@ describe('applyOverlayApiDOM', function () {
         other: 'stays',
       });
 
-      const result = applyOverlayApiDOM(overlay, target);
+      const result = await applyOverlayApiDOM(overlay, target);
       const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.destination, 'value to move');
@@ -972,7 +973,7 @@ describe('applyOverlayApiDOM', function () {
   });
 
   context('partial options object', function () {
-    specify('should keep the immutable default when other options are passed', function () {
+    specify('should keep the immutable default when other options are passed', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -980,7 +981,7 @@ describe('applyOverlayApiDOM', function () {
       });
       const target = refract({ info: { title: 'Original' } });
 
-      const result = applyOverlayApiDOM(overlay, target, { strict: true });
+      const result = await applyOverlayApiDOM(overlay, target, { strict: true });
 
       assert.strictEqual((toValue(result) as AnyJson).info.description, 'Added');
       assert.isUndefined((toValue(target) as AnyJson).info.description);
@@ -988,7 +989,7 @@ describe('applyOverlayApiDOM', function () {
   });
 
   context('empty actions', function () {
-    specify('should return target unchanged', function () {
+    specify('should return target unchanged', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -996,7 +997,7 @@ describe('applyOverlayApiDOM', function () {
       });
       const target = refract({ info: { title: 'Unchanged' } });
 
-      const result = applyOverlayApiDOM(overlay, target);
+      const result = await applyOverlayApiDOM(overlay, target);
       const value = toValue(result) as AnyJson;
 
       assert.strictEqual(value.info.title, 'Unchanged');
@@ -1005,14 +1006,14 @@ describe('applyOverlayApiDOM', function () {
   });
 
   context('missing actions field', function () {
-    specify('should return an independent clone', function () {
+    specify('should return an independent clone', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
       });
       const target = refract({ info: { title: 'Unchanged' } });
 
-      const result = applyOverlayApiDOM(overlay, target);
+      const result = await applyOverlayApiDOM(overlay, target);
 
       assert.deepEqual(toValue(result), toValue(target));
       assert.notStrictEqual(result, target);
@@ -1022,19 +1023,19 @@ describe('applyOverlayApiDOM', function () {
       assert.strictEqual((toValue(target) as AnyJson).info.title, 'Unchanged');
     });
 
-    specify('should return the target itself in mutable mode', function () {
+    specify('should return the target itself in mutable mode', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
       });
       const target = refract({ info: { title: 'Unchanged' } });
 
-      assert.strictEqual(applyOverlayApiDOM(overlay, target, { immutable: false }), target);
+      assert.strictEqual(await applyOverlayApiDOM(overlay, target, { immutable: false }), target);
     });
   });
 
   context('realistic overlay scenario', function () {
-    specify('should produce correct result', function () {
+    specify('should produce correct result', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Documentation overlay', version: '1.0.0' },
@@ -1070,26 +1071,26 @@ describe('applyOverlayApiDOM', function () {
         tags: [{ name: 'pets', description: 'Pet operations' }],
       });
 
-      const result = applyOverlayApiDOM(overlay, target);
+      const result = await applyOverlayApiDOM(overlay, target);
 
       expect(toJSON(result, undefined, 2)).toMatchSnapshot();
     });
   });
 
   context('non-overlay element', function () {
-    specify('should throw OverlayError', function () {
+    specify('should throw OverlayError', async function () {
       const notOverlay = refract({ not: 'an overlay' });
       const target = refract({ info: { title: 'API' } });
 
-      assert.throws(
-        () => applyOverlayApiDOM(notOverlay as unknown as Overlay1Element, target),
+      await assertRejects(
+        applyOverlayApiDOM(notOverlay as unknown as Overlay1Element, target),
         OverlayError,
       );
     });
   });
 
   context('generic ParseResultElement target (no api class)', function () {
-    specify('should apply overlay to generic JSON/YAML target', function () {
+    specify('should apply overlay to generic JSON/YAML target', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -1101,14 +1102,14 @@ describe('applyOverlayApiDOM', function () {
       const targetParseResult = new ParseResultElement();
       targetParseResult.push(targetContent);
 
-      const result = applyOverlayApiDOM(overlay, targetParseResult);
+      const result = await applyOverlayApiDOM(overlay, targetParseResult);
       const value = toValue(result.result) as AnyJson;
 
       assert.strictEqual(value.title, 'Updated');
       assert.strictEqual(value.version, '1.0.0');
     });
 
-    specify('should return a new parse result even when nothing is applied', function () {
+    specify('should return a new parse result even when nothing is applied', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -1120,7 +1121,7 @@ describe('applyOverlayApiDOM', function () {
       const targetParseResult = new ParseResultElement();
       targetParseResult.push(targetContent);
 
-      const result = applyOverlayApiDOM(overlay, targetParseResult);
+      const result = await applyOverlayApiDOM(overlay, targetParseResult);
 
       // neither the parse result wrapper nor its result element is the caller's
       assert.notStrictEqual(result, targetParseResult);
@@ -1129,7 +1130,7 @@ describe('applyOverlayApiDOM', function () {
       assert.deepEqual(toValue(result.result), toValue(targetContent));
     });
 
-    specify('should keep the result element when a primitive root is replaced', function () {
+    specify('should keep the result element when a primitive root is replaced', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -1141,7 +1142,7 @@ describe('applyOverlayApiDOM', function () {
       const targetParseResult = new ParseResultElement();
       targetParseResult.push(targetContent);
 
-      const result = applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
+      const result = await applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
 
       // the replacement carries the update value's meta, so the marker is restored
       assert.isDefined(result.result);
@@ -1149,7 +1150,7 @@ describe('applyOverlayApiDOM', function () {
       assert.deepEqual(toValue(result.result!.classes), ['result']);
     });
 
-    specify('should keep the result element when a root changes primitive type', function () {
+    specify('should keep the result element when a root changes primitive type', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -1161,36 +1162,39 @@ describe('applyOverlayApiDOM', function () {
       const targetParseResult = new ParseResultElement();
       targetParseResult.push(targetContent);
 
-      const result = applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
+      const result = await applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
 
       assert.isDefined(result.result);
       assert.strictEqual(toValue(result.result), 42);
       assert.deepEqual(toValue(result.result!.classes), ['result']);
     });
 
-    specify('should keep the result element on a primitive root in immutable mode', function () {
-      const overlay = refractOverlay1({
-        overlay: '1.1.0',
-        info: { title: 'Test', version: '1.0.0' },
-        actions: [{ target: '$', update: 'replaced' }],
-      });
+    specify(
+      'should keep the result element on a primitive root in immutable mode',
+      async function () {
+        const overlay = refractOverlay1({
+          overlay: '1.1.0',
+          info: { title: 'Test', version: '1.0.0' },
+          actions: [{ target: '$', update: 'replaced' }],
+        });
 
-      const targetContent = refract('original');
-      targetContent.classes.push('result');
-      const targetParseResult = new ParseResultElement();
-      targetParseResult.push(targetContent);
+        const targetContent = refract('original');
+        targetContent.classes.push('result');
+        const targetParseResult = new ParseResultElement();
+        targetParseResult.push(targetContent);
 
-      const result = applyOverlayApiDOM(overlay, targetParseResult, { immutable: true });
+        const result = await applyOverlayApiDOM(overlay, targetParseResult, { immutable: true });
 
-      assert.isDefined(result.result);
-      assert.strictEqual(toValue(result.result), 'replaced');
-      assert.deepEqual(toValue(result.result!.classes), ['result']);
-      // the caller's parse result keeps its own marked result element
-      assert.strictEqual(targetParseResult.result, targetContent);
-      assert.strictEqual(toValue(targetParseResult.result), 'original');
-    });
+        assert.isDefined(result.result);
+        assert.strictEqual(toValue(result.result), 'replaced');
+        assert.deepEqual(toValue(result.result!.classes), ['result']);
+        // the caller's parse result keeps its own marked result element
+        assert.strictEqual(targetParseResult.result, targetContent);
+        assert.strictEqual(toValue(targetParseResult.result), 'original');
+      },
+    );
 
-    specify('should keep the result element across successive root actions', function () {
+    specify('should keep the result element across successive root actions', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -1205,7 +1209,7 @@ describe('applyOverlayApiDOM', function () {
       const targetParseResult = new ParseResultElement();
       targetParseResult.push(targetContent);
 
-      const result = applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
+      const result = await applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
 
       // the first action strips the marker off the element still in the wrapper,
       // so the slot must be found by identity rather than re-derived from it
@@ -1215,7 +1219,7 @@ describe('applyOverlayApiDOM', function () {
       assert.deepEqual(toValue(result.result!.classes), ['result']);
     });
 
-    specify('should not re-mark the caller result element in immutable mode', function () {
+    specify('should not re-mark the caller result element in immutable mode', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -1230,7 +1234,7 @@ describe('applyOverlayApiDOM', function () {
       const targetParseResult = new ParseResultElement();
       targetParseResult.push(targetContent);
 
-      applyOverlayApiDOM(overlay, targetParseResult, { immutable: true });
+      await applyOverlayApiDOM(overlay, targetParseResult, { immutable: true });
 
       // the wrapper is cloned shallowly, so the caller's element is shared into
       // it — restoring the marker for replaceResult must never reach this far
@@ -1239,7 +1243,7 @@ describe('applyOverlayApiDOM', function () {
       assert.strictEqual(targetParseResult.result, targetContent);
     });
 
-    specify('should not duplicate the result marker when it survives', function () {
+    specify('should not duplicate the result marker when it survives', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -1251,12 +1255,12 @@ describe('applyOverlayApiDOM', function () {
       const targetParseResult = new ParseResultElement();
       targetParseResult.push(targetContent);
 
-      const result = applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
+      const result = await applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
 
       assert.deepEqual(toValue(result.result!.classes), ['result']);
     });
 
-    specify('should keep the result element on an in-place root update', function () {
+    specify('should keep the result element on an in-place root update', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -1271,7 +1275,7 @@ describe('applyOverlayApiDOM', function () {
       const targetParseResult = new ParseResultElement();
       targetParseResult.push(targetContent);
 
-      const result = applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
+      const result = await applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
       const value = toValue(result.result) as AnyJson;
 
       // the root action no longer detaches and re-attaches the result element
@@ -1282,7 +1286,7 @@ describe('applyOverlayApiDOM', function () {
       assert.strictEqual(value.info.version, '2.0.0');
     });
 
-    specify('should leave the target parse result untouched', function () {
+    specify('should leave the target parse result untouched', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -1294,7 +1298,7 @@ describe('applyOverlayApiDOM', function () {
       const targetParseResult = new ParseResultElement();
       targetParseResult.push(targetContent);
 
-      const result = applyOverlayApiDOM(overlay, targetParseResult);
+      const result = await applyOverlayApiDOM(overlay, targetParseResult);
 
       assert.instanceOf(result, ParseResultElement);
       assert.notStrictEqual(result, targetParseResult);
@@ -1303,7 +1307,7 @@ describe('applyOverlayApiDOM', function () {
       assert.strictEqual((toValue(targetParseResult.result) as AnyJson).title, 'Original');
     });
 
-    specify('should not touch the trace when the target has no result element', function () {
+    specify('should not touch the trace when the target has no result element', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -1312,14 +1316,14 @@ describe('applyOverlayApiDOM', function () {
 
       const trace = {} as OverlayTrace;
 
-      assert.throws(
-        () => applyOverlayApiDOM(overlay, new ParseResultElement(), { trace }),
+      await assertRejects(
+        applyOverlayApiDOM(overlay, new ParseResultElement(), { trace }),
         OverlayError,
       );
       assert.deepEqual(trace, {} as OverlayTrace);
     });
 
-    specify('should reject a Reusable Action Reference without target', function () {
+    specify('should reject a Reusable Action Reference without target', async function () {
       const overlay = refractOverlay1({
         overlay: '1.2.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -1327,14 +1331,14 @@ describe('applyOverlayApiDOM', function () {
         actions: [{ $ref: '#/components/actions/removeTitle' }],
       });
 
-      assert.throws(
-        () => applyOverlayApiDOM(overlay, refract({ title: 'Original' })),
+      await assertRejects(
+        applyOverlayApiDOM(overlay, refract({ title: 'Original' })),
         OverlayError,
         /target/,
       );
     });
 
-    specify('should record an unresolvable Reusable Action Reference in the trace', function () {
+    specify('should fail before applying any action on unresolvable reference', async function () {
       const overlay = refractOverlay1({
         overlay: '1.2.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -1345,18 +1349,18 @@ describe('applyOverlayApiDOM', function () {
       });
 
       const trace = {} as OverlayTrace;
+      const target = refract({ title: 'Original' });
 
-      assert.throws(() => applyOverlayApiDOM(overlay, refract({ title: 'Original' }), { trace }));
-      assert.isTrue(trace.failed);
-      assert.strictEqual(trace.failedAt, 1);
-      assert.lengthOf(trace.actions, 2);
-      assert.strictEqual(trace.actions[1].target, '$.title');
-      assert.isFalse(trace.actions[1].success);
-      assert.instanceOf(trace.actions[1].error, OverlayError);
-      assert.strictEqual(trace.message, trace.actions[1].error!.message);
+      await assertRejects(
+        applyOverlayApiDOM(overlay, target, { trace, immutable: false }),
+        OverlayError,
+        /cannot be resolved/,
+      );
+      assert.deepEqual(toValue(target), { title: 'Original' });
+      assert.deepEqual(trace, {} as OverlayTrace);
     });
 
-    specify('should keep the api class on the replaced result element', function () {
+    specify('should keep the api class on the replaced result element', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -1369,13 +1373,13 @@ describe('applyOverlayApiDOM', function () {
       const targetParseResult = new ParseResultElement();
       targetParseResult.push(targetContent);
 
-      const result = applyOverlayApiDOM(overlay, targetParseResult);
+      const result = await applyOverlayApiDOM(overlay, targetParseResult);
 
       assert.strictEqual(result.api, result.result);
       assert.strictEqual((toValue(result.api) as AnyJson).title, 'Updated');
     });
 
-    specify('should share the children the overlay cannot touch', function () {
+    specify('should share the children the overlay cannot touch', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -1391,12 +1395,12 @@ describe('applyOverlayApiDOM', function () {
       targetParseResult.push(targetContent);
       targetParseResult.push(annotation);
 
-      const result = applyOverlayApiDOM(overlay, targetParseResult);
+      const result = await applyOverlayApiDOM(overlay, targetParseResult);
 
       assert.strictEqual(result.warnings.first, annotation);
     });
 
-    specify('should update the target parse result in place when mutable', function () {
+    specify('should update the target parse result in place when mutable', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -1408,14 +1412,14 @@ describe('applyOverlayApiDOM', function () {
       const targetParseResult = new ParseResultElement();
       targetParseResult.push(targetContent);
 
-      const result = applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
+      const result = await applyOverlayApiDOM(overlay, targetParseResult, { immutable: false });
 
       assert.strictEqual(result, targetParseResult);
       assert.strictEqual(result.result, targetContent);
       assert.strictEqual((toValue(targetParseResult.result) as AnyJson).title, 'Updated');
     });
 
-    specify('should return ParseResultElement when given ParseResultElement', function () {
+    specify('should return ParseResultElement when given ParseResultElement', async function () {
       const overlay = refractOverlay1({
         overlay: '1.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -1427,7 +1431,7 @@ describe('applyOverlayApiDOM', function () {
       const targetParseResult = new ParseResultElement();
       targetParseResult.push(targetContent);
 
-      const result = applyOverlayApiDOM(overlay, targetParseResult);
+      const result = await applyOverlayApiDOM(overlay, targetParseResult);
 
       assert.instanceOf(result, ParseResultElement);
     });

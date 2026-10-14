@@ -147,7 +147,7 @@ describe('tracing', function () {
   });
 
   context('applyOverlay', function () {
-    specify('should trace all actions in order', function () {
+    specify('should trace all actions in order', async function () {
       const trace = {} as OverlayTrace;
       const overlay = refractOverlay1({
         overlay: '1.1.0',
@@ -162,7 +162,7 @@ describe('tracing', function () {
         info: { title: 'API', version: '1.0.0' },
       });
 
-      applyOverlay(overlay, target, { trace });
+      await applyOverlay(overlay, target, { trace });
 
       assert.lengthOf(trace.actions, 3);
       assert.strictEqual(trace.actions[0].type, 'update');
@@ -173,7 +173,7 @@ describe('tracing', function () {
       assert.strictEqual(trace.message, 'Overlay was successfully applied');
     });
 
-    specify('should mark failed overlay with failedAt index', function () {
+    specify('should mark failed overlay with failedAt index', async function () {
       const trace = {} as OverlayTrace;
       const overlay = refractOverlay1({
         overlay: '1.1.0',
@@ -186,7 +186,7 @@ describe('tracing', function () {
       const target = refract({ info: { title: 'API' } });
 
       try {
-        applyOverlay(overlay, target, { trace });
+        await applyOverlay(overlay, target, { trace });
         assert.fail('Should have thrown');
       } catch {
         // expected
@@ -199,7 +199,7 @@ describe('tracing', function () {
       assert.strictEqual(trace.failedAt, 1);
     });
 
-    specify('should initialize trace even with empty actions', function () {
+    specify('should initialize trace even with empty actions', async function () {
       const trace = {} as OverlayTrace;
       const overlay = refractOverlay1({
         overlay: '1.1.0',
@@ -208,7 +208,7 @@ describe('tracing', function () {
       });
       const target = refract({ info: { title: 'API' } });
 
-      applyOverlay(overlay, target, { trace });
+      await applyOverlay(overlay, target, { trace });
 
       assert.deepEqual(trace.actions, []);
       assert.isFalse(trace.failed);

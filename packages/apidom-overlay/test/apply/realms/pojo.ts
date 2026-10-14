@@ -28,8 +28,8 @@ describe('applyAction (POJO)', function () {
 });
 
 describe('applyOverlay (POJO)', function () {
-  specify('should apply full overlay document', function () {
-    const result = applyOverlay(
+  specify('should apply full overlay document', async function () {
+    const result = (await applyOverlay(
       {
         overlay: '1.1.0',
         info: { title: 'Test overlay', version: '1.0.0' },
@@ -42,7 +42,7 @@ describe('applyOverlay (POJO)', function () {
         openapi: '3.1.0',
         info: { title: 'Original', version: '1.0.0' },
       },
-    ) as AnyJson;
+    )) as AnyJson;
 
     assert.strictEqual(result.info.title, 'Renamed');
     assert.strictEqual(result.info.description, 'Added');
