@@ -2,6 +2,7 @@ import { ArrayElement, Element } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
 
 import ActionsElement from '../../../elements/nces/Actions.ts';
+import { isReusableActionReferenceLikeElement } from '../../predicates.ts';
 import {
   BaseSpecificationFallbackVisitor,
   BaseSpecificationFallbackVisitorOptions,
@@ -26,7 +27,9 @@ class ActionsVisitor extends BaseSpecificationFallbackVisitor {
   ArrayElement(path: Path<ArrayElement>) {
     const arrayElement = path.node;
     arrayElement.forEach((item: Element): void => {
-      const specPath = ['document', 'objects', 'Action'];
+      const specPath = isReusableActionReferenceLikeElement(item)
+        ? ['document', 'objects', 'ReusableActionReference']
+        : ['document', 'objects', 'Action'];
       const element = this.toRefractedElement(specPath, item);
 
       this.element.push(element);

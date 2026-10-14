@@ -1,5 +1,10 @@
 import { startsWith } from 'ramda';
-import { MemberElement, isStringElement } from '@speclynx/apidom-datamodel';
+import {
+  MemberElement,
+  ObjectElement,
+  isStringElement,
+  isObjectElement,
+} from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 
 /**
@@ -7,4 +12,20 @@ import { toValue } from '@speclynx/apidom-core';
  */
 export const isOverlaySpecificationExtension = (element: MemberElement): boolean => {
   return isStringElement(element.key) && startsWith('x-', toValue(element.key) as string);
+};
+
+/**
+ * @public
+ */
+export interface ReusableActionReferenceLikeElement extends ObjectElement {
+  hasKey: (value: '$ref') => true;
+}
+
+/**
+ * @public
+ */
+export const isReusableActionReferenceLikeElement = (
+  element: unknown,
+): element is ReusableActionReferenceLikeElement => {
+  return isObjectElement(element) && element.hasKey('$ref');
 };

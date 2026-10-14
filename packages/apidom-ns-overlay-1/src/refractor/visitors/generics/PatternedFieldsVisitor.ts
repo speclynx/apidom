@@ -1,0 +1,99 @@
+import { F as stubFalse } from 'ramda';
+import { ObjectElement, Element, MemberElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import { Path } from '@speclynx/apidom-traverse';
+import { toValue } from '@speclynx/apidom-core';
+
+import type { SpecPath } from './FixedFieldsVisitor.ts';
+import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
+import { isOverlaySpecificationExtension } from '../../predicates.ts';
+
+export type { SpecPath };
+
+/**
+ * @public
+ */
+export interface PatternedFieldsVisitorOptions extends SpecificationVisitorOptions {
+  readonly specPath: SpecPath;
+  readonly ignoredFields?: string[];
+  readonly fieldPatternPredicate?: (...args: unknown[]) => boolean;
+  readonly canSupportSpecificationExtensions?: boolean;
+  readonly specificationExtensionPredicate?: typeof isOverlaySpecificationExtension;
+}
+
+/**
+ * @public
+ */
+class PatternedFieldsVisitor extends SpecificationVisitor {
+  protected specPath: SpecPath;
+
+  protected ignoredFields: string[];
+
+  protected fieldPatternPredicate: (value: unknown) => boolean = stubFalse;
+
+  protected canSupportSpecificationExtensions: boolean = false;
+
+  protected specificationExtensionPredicate = isOverlaySpecificationExtension;
+
+  constructor({
+    specPath,
+    ignoredFields,
+    fieldPatternPredicate,
+    canSupportSpecificationExtensions,
+    specificationExtensionPredicate,
+    ...rest
+  }: PatternedFieldsVisitorOptions) {
+    super({ ...rest });
+    this.specPath = specPath;
+    this.ignoredFields = ignoredFields || [];
+
+    if (typeof fieldPatternPredicate === 'function') {
+      this.fieldPatternPredicate = fieldPatternPredicate;
+    }
+    if (typeof canSupportSpecificationExtensions === 'boolean') {
+      this.canSupportSpecificationExtensions = canSupportSpecificationExtensions;
+    }
+    if (typeof specificationExtensionPredicate === 'function') {
+      this.specificationExtensionPredicate = specificationExtensionPredicate;
+    }
+  }
+
+  ObjectElement(path: Path<ObjectElement>) {
+    const objectElement = path.node;
+    // @ts-ignore
+    objectElement.forEach((value: Element, key: Element, memberElement: MemberElement) => {
+      if (
+        this.canSupportSpecificationExtensions &&
+        this.specificationExtensionPredicate(memberElement)
+      ) {
+        const extensionElement = this.toRefractedElement(['document', 'extension'], memberElement);
+        (this.element as ObjectElement).push(extensionElement);
+      } else if (
+        !this.ignoredFields.includes(toValue(key) as string) &&
+        this.fieldPatternPredicate(toValue(key))
+      ) {
+        const specPath = this.specPath(value);
+        const patternedFieldElement = this.toRefractedElement(specPath, value);
+        const newMemberElement = new MemberElement(
+          this.consume ? key : cloneDeep(key),
+          patternedFieldElement,
+        );
+        this.copyMetaAndAttributes(memberElement, newMemberElement);
+        newMemberElement.classes.push('patterned-field');
+        (this.element as ObjectElement).push(newMemberElement);
+        // consume: release processed generic subtree
+        if (this.consume && this.consumeSafe && !memberElement.isFrozen)
+          memberElement.value = undefined;
+      } else if (!this.ignoredFields.includes(toValue(key) as string)) {
+        (this.element as ObjectElement).push(
+          this.consume ? memberElement : cloneDeep(memberElement),
+        );
+      }
+    });
+
+    this.copyMetaAndAttributes(objectElement, this.element);
+
+    path.stop();
+  }
+}
+
+export default PatternedFieldsVisitor;

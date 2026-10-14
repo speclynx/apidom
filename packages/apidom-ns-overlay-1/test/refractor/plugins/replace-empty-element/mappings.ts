@@ -61,3 +61,37 @@ describe('given Overlay definition with empty values', function () {
     expect(infoValue!.endOffset).to.equal(20);
   });
 });
+
+describe('given empty value instead of ComponentsElement', function () {
+  it('should replace empty value with semantic element', async function () {
+    const yamlDefinition = dedent`
+      overlay: 1.2.0
+      components:
+    `;
+    const apiDOM = await parse(yamlDefinition);
+    const overlay1Element = refractOverlay1(apiDOM.result, {
+      plugins: [refractorPluginReplaceEmptyElement()],
+    });
+
+    expect(sexprs(overlay1Element)).toMatchSnapshot();
+  });
+});
+
+describe('given empty values inside ComponentsElement', function () {
+  it('should replace empty values with semantic elements', async function () {
+    const yamlDefinition = dedent`
+      overlay: 1.2.0
+      components:
+        actions:
+          emptyAction:
+          emptyFields:
+            fields:
+    `;
+    const apiDOM = await parse(yamlDefinition);
+    const overlay1Element = refractOverlay1(apiDOM.result, {
+      plugins: [refractorPluginReplaceEmptyElement()],
+    });
+
+    expect(sexprs(overlay1Element)).toMatchSnapshot();
+  });
+});

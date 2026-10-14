@@ -15,11 +15,14 @@ import { Path, getNodeType } from '@speclynx/apidom-traverse';
 import { toValue } from '@speclynx/apidom-core';
 
 /**
- * Overlay 1.1.0 specification elements.
+ * Overlay 1.x.y specification elements.
  */
 import InfoElement from '../../elements/Info.ts';
 import ActionElement from '../../elements/Action.ts';
+import ComponentsElement from '../../elements/Components.ts';
+import ReusableActionElement from '../../elements/ReusableAction.ts';
 import Actions from '../../elements/nces/Actions.ts';
+import ComponentsActions from '../../elements/nces/ComponentsActions.ts';
 
 /**
  * This plugin is specific to YAML 1.2 format, which allows defining key-value pairs
@@ -70,10 +73,20 @@ const schema: Record<string, Record<string, ElementFactory>> = {
     info: (content, meta, attributes) => new InfoElement(content, meta, attributes),
     actions: (content, meta, attributes) =>
       new Actions(content as unknown as Array<unknown> | undefined, meta, attributes),
+    components: (content, meta, attributes) => new ComponentsElement(content, meta, attributes),
+  },
+  ComponentsElement: {
+    actions: (content, meta, attributes) => new ComponentsActions(content, meta, attributes),
+  },
+  ReusableActionElement: {
+    fields: (content, meta, attributes) => new ActionElement(content, meta, attributes),
   },
   // non-concrete types handling (NCEs)
   [Actions.primaryClass]: {
     '<*>': (content, meta, attributes) => new ActionElement(content, meta, attributes),
+  },
+  [ComponentsActions.primaryClass]: {
+    '[key: *]': (content, meta, attributes) => new ReusableActionElement(content, meta, attributes),
   },
 };
 

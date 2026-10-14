@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`refractor elements ReusableActionReferenceElement should refract to semantic ApiDOM tree 1`] = `
+(ReusableActionReferenceElement
+  (MemberElement
+    (StringElement)
+    (StringElement))
+  (MemberElement
+    (StringElement)
+    (StringElement))
+  (MemberElement
+    (StringElement)
+    (StringElement))
+  (MemberElement
+    (StringElement)
+    (StringElement)))
+`;

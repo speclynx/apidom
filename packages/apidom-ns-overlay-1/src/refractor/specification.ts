@@ -4,6 +4,11 @@ import OverlayActionsVisitor from './visitors/overlay-1/ActionsVisitor.ts';
 import InfoVisitor from './visitors/overlay-1/info/index.ts';
 import InfoVersionVisitor from './visitors/overlay-1/info/VersionVisitor.ts';
 import ActionVisitor from './visitors/overlay-1/action/index.ts';
+import ComponentsVisitor from './visitors/overlay-1/components/index.ts';
+import ComponentsActionsVisitor from './visitors/overlay-1/components/ActionsVisitor.ts';
+import ReusableActionVisitor from './visitors/overlay-1/reusable-action/index.ts';
+import ReusableActionReferenceVisitor from './visitors/overlay-1/reusable-action-reference/index.ts';
+import ReusableActionReference$RefVisitor from './visitors/overlay-1/reusable-action-reference/$RefVisitor.ts';
 import SpecificationExtensionVisitor from './visitors/SpecificationExtensionVisitor.ts';
 import FallbackVisitor from './visitors/FallbackVisitor.ts';
 
@@ -32,11 +37,15 @@ const specification = {
               element: 'overlay',
               $visitor: OverlayOverlayVisitor,
             },
+            $self: { $ref: '#/visitors/value' },
             info: {
               $ref: '#/visitors/document/objects/Info',
             },
             extends: { $ref: '#/visitors/value' },
             actions: OverlayActionsVisitor,
+            components: {
+              $ref: '#/visitors/document/objects/Components',
+            },
           },
         },
         Info: {
@@ -57,6 +66,32 @@ const specification = {
             update: { $ref: '#/visitors/value' },
             copy: { $ref: '#/visitors/value' },
             remove: { $ref: '#/visitors/value', alias: 'removeField' },
+          },
+        },
+        Components: {
+          element: 'components',
+          $visitor: ComponentsVisitor,
+          fixedFields: {
+            actions: ComponentsActionsVisitor,
+          },
+        },
+        ReusableAction: {
+          element: 'reusableAction',
+          $visitor: ReusableActionVisitor,
+          fixedFields: {
+            description: { $ref: '#/visitors/value' },
+            fields: {
+              $ref: '#/visitors/document/objects/Action',
+            },
+          },
+        },
+        ReusableActionReference: {
+          element: 'reusableActionReference',
+          $visitor: ReusableActionReferenceVisitor,
+          fixedFields: {
+            $ref: ReusableActionReference$RefVisitor,
+            target: { $ref: '#/visitors/value' },
+            description: { $ref: '#/visitors/value' },
           },
         },
       },

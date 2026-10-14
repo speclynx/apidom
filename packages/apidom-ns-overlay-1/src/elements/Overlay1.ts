@@ -7,6 +7,7 @@ import {
 
 import OverlayElement from './Overlay.ts';
 import InfoElement from './Info.ts';
+import ComponentsElement from './Components.ts';
 import Actions from './nces/Actions.ts';
 
 /**
@@ -25,6 +26,14 @@ class Overlay1 extends ObjectElement {
 
   set overlay(overlay: OverlayElement | undefined) {
     this.set('overlay', overlay);
+  }
+
+  get $self(): StringElement | undefined {
+    return this.get('$self') as StringElement | undefined;
+  }
+
+  set $self($self: StringElement | undefined) {
+    this.set('$self', $self);
   }
 
   get info(): InfoElement | undefined {
@@ -49,6 +58,14 @@ class Overlay1 extends ObjectElement {
 
   set actions(actions: Actions | undefined) {
     this.set('actions', actions);
+  }
+
+  get components(): ComponentsElement | undefined {
+    return this.get('components') as ComponentsElement | undefined;
+  }
+
+  set components(components: ComponentsElement | undefined) {
+    this.set('components', components);
   }
 }
 

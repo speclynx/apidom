@@ -10,6 +10,16 @@ exports[`given empty value instead of Actions should replace empty value with se
     (ArrayElement)))
 `;
 
+exports[`given empty value instead of ComponentsElement should replace empty value with semantic element 1`] = `
+(Overlay1Element
+  (MemberElement
+    (StringElement)
+    (OverlayElement))
+  (MemberElement
+    (StringElement)
+    (ComponentsElement)))
+`;
+
 exports[`given empty value instead of InfoElement should replace empty value with semantic element 1`] = `
 (Overlay1Element
   (MemberElement
@@ -18,4 +28,26 @@ exports[`given empty value instead of InfoElement should replace empty value wit
   (MemberElement
     (StringElement)
     (InfoElement)))
+`;
+
+exports[`given empty values inside ComponentsElement should replace empty values with semantic elements 1`] = `
+(Overlay1Element
+  (MemberElement
+    (StringElement)
+    (OverlayElement))
+  (MemberElement
+    (StringElement)
+    (ComponentsElement
+      (MemberElement
+        (StringElement)
+        (ObjectElement
+          (MemberElement
+            (StringElement)
+            (ReusableActionElement))
+          (MemberElement
+            (StringElement)
+            (ReusableActionElement
+              (MemberElement
+                (StringElement)
+                (ActionElement)))))))))
 `;

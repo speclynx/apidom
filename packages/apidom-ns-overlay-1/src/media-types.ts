@@ -15,7 +15,7 @@ export class OverlayMediaTypes extends MediaTypes<string> {
     return this.filter((mediaType) => mediaType.includes(effectiveFormat));
   }
 
-  findBy(version = '1.1.0', format: Format = 'generic') {
+  findBy(version = '1.2.0', format: Format = 'generic') {
     const search =
       format === 'generic'
         ? `vnd.oai.overlay;version=${version}`
@@ -40,6 +40,9 @@ const mediaTypes = new OverlayMediaTypes(
   'application/vnd.oai.overlay;version=1.1.0',
   'application/vnd.oai.overlay+json;version=1.1.0',
   'application/vnd.oai.overlay+yaml;version=1.1.0',
+  'application/vnd.oai.overlay;version=1.2.0',
+  'application/vnd.oai.overlay+json;version=1.2.0',
+  'application/vnd.oai.overlay+yaml;version=1.2.0',
 );
 
 export default mediaTypes;
