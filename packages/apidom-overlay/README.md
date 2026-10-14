@@ -264,6 +264,10 @@ try {
 }
 ```
 
+`applyOverlay`, `applyOverlayApiDOM` and `applyOverlayPOJO` dereference the overlay before any action runs.
+If that fails, for example because of an unresolvable Reusable Action Reference, the promise rejects with
+`OverlayError` and the trace object is left untouched, since no action was attempted.
+
 Tracing works across all API levels — ApiDOM elements, file/URL, and POJO:
 
 ```js
