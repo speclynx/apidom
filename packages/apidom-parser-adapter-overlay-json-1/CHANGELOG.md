@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0](https://github.com/speclynx/apidom/compare/v5.2.7...v6.0.0) (2026-10-15)
+
+### Features
+
+- **parser-adapter-overlay-json-1:** support Overlay 1.2.0 ([e65ef24](https://github.com/speclynx/apidom/commit/e65ef24acc0f32bd4b1ebe71195b6996d0ab4756))
+
 ## [5.2.7](https://github.com/speclynx/apidom/compare/v5.2.6...v5.2.7) (2026-10-13)
 
 **Note:** Version bump only for package @speclynx/apidom-parser-adapter-overlay-json-1

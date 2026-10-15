@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0](https://github.com/speclynx/apidom/compare/v5.2.7...v6.0.0) (2026-10-15)
+
+### Bug Fixes
+
+- **ns-overlay-1:** percent-decode whole reusable action fragment ([635d76a](https://github.com/speclynx/apidom/commit/635d76a8cebf9982f720128ed944a47b1d3216ab))
+- **ns-overlay-1:** reject invalid reusable action references ([106977f](https://github.com/speclynx/apidom/commit/106977f8287ec46a16f83015f846533d0dad822b))
+- **ns-overlay-1:** require target on reusable action references ([d8bdd4e](https://github.com/speclynx/apidom/commit/d8bdd4e210ecbf898ec8b75bda9c42d7342d4c74))
+
+### Features
+
+- **ns-overlay-1:** add Overlay 1.2.0 elements ([8019a0c](https://github.com/speclynx/apidom/commit/8019a0c2b1cb8ba8f9e99199b2f941873ed91439))
+- **ns-overlay-1:** resolve reusable action references ([b2eeb0b](https://github.com/speclynx/apidom/commit/b2eeb0b0e0b4123f97c9dd8da19a82f440fdc300))
+
+### Reverts
+
+- Revert "fix(ns-overlay-1): require target on reusable action references" ([fdd0922](https://github.com/speclynx/apidom/commit/fdd092279656bd4f72e64d387c5c45fed134aa1a))
+
 ## [5.2.7](https://github.com/speclynx/apidom/compare/v5.2.6...v5.2.7) (2026-10-13)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-overlay-1

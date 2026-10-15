@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0](https://github.com/speclynx/apidom/compare/v5.2.7...v6.0.0) (2026-10-15)
+
+### Bug Fixes
+
+- **reference:** keep authority of network-path references ([14eb9a1](https://github.com/speclynx/apidom/commit/14eb9a10ae78e80a2b06b7d711eec54f375e1c0b))
+- **reference:** keep source position of dereferenced action refs ([1501cd0](https://github.com/speclynx/apidom/commit/1501cd074f99901e24ae74d66861bf0f18f839b3))
+
+### Features
+
+- **reference:** dereference overlay reusable action references ([ee5d4e1](https://github.com/speclynx/apidom/commit/ee5d4e1fbaf816318901707fe05100a9cadb72bd))
+- **reference:** resolve overlay extends against $self ([d002292](https://github.com/speclynx/apidom/commit/d00229286bcad30b30cd2df9080e8762f2a46b6a))
+
 ## [5.2.7](https://github.com/speclynx/apidom/compare/v5.2.6...v5.2.7) (2026-10-13)
 
 ### Bug Fixes

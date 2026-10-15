@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0](https://github.com/speclynx/apidom/compare/v5.2.7...v6.0.0) (2026-10-15)
+
+**Note:** Version bump only for package @speclynx/apidom-ns-openapi-2
+
 ## [5.2.7](https://github.com/speclynx/apidom/compare/v5.2.6...v5.2.7) (2026-10-13)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-openapi-2

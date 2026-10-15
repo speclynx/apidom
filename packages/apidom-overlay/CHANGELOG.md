@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0](https://github.com/speclynx/apidom/compare/v5.2.7...v6.0.0) (2026-10-15)
+
+### Bug Fixes
+
+- **overlay:** guard apply against reference options ([90a51c0](https://github.com/speclynx/apidom/commit/90a51c0d55b1446bab68d1b3cae07b2f352711b6))
+- **overlay:** normalize overlay URI used for dereferencing ([627fc01](https://github.com/speclynx/apidom/commit/627fc0177749dbcdccb3df2877f85c5f3770cc94))
+- **overlay:** trace unresolvable reusable action references ([28f66b6](https://github.com/speclynx/apidom/commit/28f66b63b185c65056f3dd0647721685b8fa5fa3))
+
+### Features
+
+- **overlay:** apply reusable action references ([3518793](https://github.com/speclynx/apidom/commit/35187935737810b65e7f15c0422a20bd409add91))
+- **overlay:** dereference overlays before applying them ([ad0b84b](https://github.com/speclynx/apidom/commit/ad0b84b4c0121403d8156a3f8521ccb4cf87bc44))
+- **overlay:** emit Overlay 1.2.0 from diff by default ([56fd656](https://github.com/speclynx/apidom/commit/56fd656fd4f3da97826d6be4dd534bdc29363f97))
+
+### BREAKING CHANGES
+
+- **overlay:** applyOverlayApiDOM and applyOverlayPOJO now return a
+  Promise. Await their results. The new `reference` option configures
+  dereferencing of the overlay.
+
 ## [5.2.7](https://github.com/speclynx/apidom/compare/v5.2.6...v5.2.7) (2026-10-13)
 
 **Note:** Version bump only for package @speclynx/apidom-overlay

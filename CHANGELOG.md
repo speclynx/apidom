@@ -3,6 +3,41 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0](https://github.com/speclynx/apidom/compare/v5.2.7...v6.0.0) (2026-10-15)
+
+### Bug Fixes
+
+- **ns-overlay-1:** percent-decode whole reusable action fragment ([635d76a](https://github.com/speclynx/apidom/commit/635d76a8cebf9982f720128ed944a47b1d3216ab))
+- **ns-overlay-1:** reject invalid reusable action references ([106977f](https://github.com/speclynx/apidom/commit/106977f8287ec46a16f83015f846533d0dad822b))
+- **ns-overlay-1:** require target on reusable action references ([d8bdd4e](https://github.com/speclynx/apidom/commit/d8bdd4e210ecbf898ec8b75bda9c42d7342d4c74))
+- **overlay:** guard apply against reference options ([90a51c0](https://github.com/speclynx/apidom/commit/90a51c0d55b1446bab68d1b3cae07b2f352711b6))
+- **overlay:** normalize overlay URI used for dereferencing ([627fc01](https://github.com/speclynx/apidom/commit/627fc0177749dbcdccb3df2877f85c5f3770cc94))
+- **overlay:** trace unresolvable reusable action references ([28f66b6](https://github.com/speclynx/apidom/commit/28f66b63b185c65056f3dd0647721685b8fa5fa3))
+- **reference:** keep authority of network-path references ([14eb9a1](https://github.com/speclynx/apidom/commit/14eb9a10ae78e80a2b06b7d711eec54f375e1c0b))
+- **reference:** keep source position of dereferenced action refs ([1501cd0](https://github.com/speclynx/apidom/commit/1501cd074f99901e24ae74d66861bf0f18f839b3))
+
+### Features
+
+- **ns-overlay-1:** add Overlay 1.2.0 elements ([8019a0c](https://github.com/speclynx/apidom/commit/8019a0c2b1cb8ba8f9e99199b2f941873ed91439))
+- **ns-overlay-1:** resolve reusable action references ([b2eeb0b](https://github.com/speclynx/apidom/commit/b2eeb0b0e0b4123f97c9dd8da19a82f440fdc300))
+- **overlay:** apply reusable action references ([3518793](https://github.com/speclynx/apidom/commit/35187935737810b65e7f15c0422a20bd409add91))
+- **overlay:** dereference overlays before applying them ([ad0b84b](https://github.com/speclynx/apidom/commit/ad0b84b4c0121403d8156a3f8521ccb4cf87bc44))
+- **overlay:** emit Overlay 1.2.0 from diff by default ([56fd656](https://github.com/speclynx/apidom/commit/56fd656fd4f3da97826d6be4dd534bdc29363f97))
+- **parser-adapter-overlay-json-1:** support Overlay 1.2.0 ([e65ef24](https://github.com/speclynx/apidom/commit/e65ef24acc0f32bd4b1ebe71195b6996d0ab4756))
+- **parser-adapter-overlay-yaml-1:** support Overlay 1.2.0 ([b5f3072](https://github.com/speclynx/apidom/commit/b5f30722995bb3dabf2445f789242f7a70ff8df0))
+- **reference:** dereference overlay reusable action references ([ee5d4e1](https://github.com/speclynx/apidom/commit/ee5d4e1fbaf816318901707fe05100a9cadb72bd))
+- **reference:** resolve overlay extends against $self ([d002292](https://github.com/speclynx/apidom/commit/d00229286bcad30b30cd2df9080e8762f2a46b6a))
+
+### Reverts
+
+- Revert "fix(ns-overlay-1): require target on reusable action references" ([fdd0922](https://github.com/speclynx/apidom/commit/fdd092279656bd4f72e64d387c5c45fed134aa1a))
+
+### BREAKING CHANGES
+
+- **overlay:** applyOverlayApiDOM and applyOverlayPOJO now return a
+  Promise. Await their results. The new `reference` option configures
+  dereferencing of the overlay.
+
 ## [5.2.7](https://github.com/speclynx/apidom/compare/v5.2.6...v5.2.7) (2026-10-13)
 
 ### Bug Fixes
