@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.2](https://github.com/speclynx/apidom/compare/v6.0.1...v6.0.2) (2026-10-15)
+
+### Bug Fixes
+
+- **ns-overlay-1:** annotate reusable action refs with ref element ([#598](https://github.com/speclynx/apidom/issues/598)) ([edc412d](https://github.com/speclynx/apidom/commit/edc412deff995a7d0972cae89016c329ba881fc6))
+
 ## [6.0.1](https://github.com/speclynx/apidom/compare/v6.0.0...v6.0.1) (2026-10-15)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-overlay-1
