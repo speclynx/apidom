@@ -54,6 +54,27 @@ describe('dereference', function () {
             );
           });
 
+          specify('should keep the source position of the reference', async function () {
+            const uri = path.join(rootFixturePath, 'overlay.json');
+            const parseResult = await parse(uri, {
+              parse: {
+                ...parseOptions,
+                parserOpts: { 'overlay-json-1': { sourceMap: true, strict: false } },
+              },
+            });
+            const referenceElement = (parseResult.api as Overlay1Element).actions!.get(1)!;
+            const dereferenced = await dereferenceApiDOM(parseResult, {
+              parse: parseOptions,
+              resolve: { baseURI: uri },
+            });
+            const actionElement = (dereferenced.api as Overlay1Element).actions!.get(1)!;
+
+            assert.isTrue(isReusableActionReferenceElement(referenceElement));
+            assert.isNumber(referenceElement.startLine);
+            assert.strictEqual(actionElement.startLine, referenceElement.startLine);
+            assert.strictEqual(actionElement.endOffset, referenceElement.endOffset);
+          });
+
           specify('should not mutate the original parse result', async function () {
             const uri = path.join(rootFixturePath, 'overlay.json');
             const parseResult = await parse(uri, { parse: parseOptions });
