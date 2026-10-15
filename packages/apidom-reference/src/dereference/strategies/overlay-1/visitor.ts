@@ -1,4 +1,10 @@
-import { Element, ParseResultElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import {
+  Element,
+  ParseResultElement,
+  SourceMapElement,
+  cloneDeep,
+  hasElementSourceMap,
+} from '@speclynx/apidom-datamodel';
 import { toValue, toYAML } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 import {
@@ -148,6 +154,11 @@ class Overlay1DereferenceVisitor {
       if (typeof continueOnError === 'function') continueOnError(unresolvedError);
       path.skip();
       return;
+    }
+
+    // the action takes the place of the reference in `actions`, so it inherits its source position
+    if (hasElementSourceMap(referencingElement)) {
+      SourceMapElement.transfer(referencingElement, actionElement);
     }
 
     // annotate with info about original referencing element
