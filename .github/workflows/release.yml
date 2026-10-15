@@ -45,13 +45,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
       - name: Publish monorepo npm packages
-        # Provenance signing intermittently fails with TLOG_CREATE_ENTRY_ERROR (409) when Rekor
-        # answers after the sigstore client timeout and the client retries the same entry.
+        # Provenance signing fails with TLOG_CREATE_ENTRY_ERROR (409) when lerna publishes
+        # independent packages concurrently: the v6.0.2 and v6.0.3 releases both failed on the
+        # first pair published in parallel (apidom-json-path and apidom-json-pointer), on every
+        # retry. Publishing one package at a time keeps provenance signing sequential.
         # `from-package` only publishes versions missing from the registry, and a new attempt
         # signs a fresh attestation, so retrying the whole step is safe.
         run: |
           for attempt in 1 2 3; do
-            npx lerna publish from-package --no-private --yes && exit 0
+            npx lerna publish from-package --no-private --yes --concurrency 1 && exit 0
             echo "::warning::lerna publish attempt ${attempt} failed"
             # lerna leaves a temporary gitHead in package.json files when publishing aborts
             git checkout -- package.json 'packages/*/package.json'
