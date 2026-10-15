@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.3](https://github.com/speclynx/apidom/compare/v6.0.2...v6.0.3) (2026-10-15)
+
+**Note:** Version bump only for package @speclynx/apidom-parser-adapter-openapi-yaml-3-1
+
 ## [6.0.2](https://github.com/speclynx/apidom/compare/v6.0.1...v6.0.2) (2026-10-15)
 
 **Note:** Version bump only for package @speclynx/apidom-parser-adapter-openapi-yaml-3-1

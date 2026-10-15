@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.3](https://github.com/speclynx/apidom/compare/v6.0.2...v6.0.3) (2026-10-15)
+
+### Bug Fixes
+
+- **release:** reset package manifests between publish retries in CI ([#599](https://github.com/speclynx/apidom/issues/599)) ([bdd3b38](https://github.com/speclynx/apidom/commit/bdd3b38f9705303a1a845b90fdb0183bfc1a06bd))
+
 ## [6.0.2](https://github.com/speclynx/apidom/compare/v6.0.1...v6.0.2) (2026-10-15)
 
 ### Bug Fixes
