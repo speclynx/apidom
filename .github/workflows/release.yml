@@ -53,6 +53,8 @@ jobs:
           for attempt in 1 2 3; do
             npx lerna publish from-package --no-private --yes && exit 0
             echo "::warning::lerna publish attempt ${attempt} failed"
+            # lerna leaves a temporary gitHead in package.json files when publishing aborts
+            git checkout -- package.json 'packages/*/package.json'
             sleep 30
           done
           exit 1
