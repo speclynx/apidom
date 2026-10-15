@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.5](https://github.com/speclynx/apidom/compare/v6.0.4...v6.0.5) (2026-10-15)
+
+### Bug Fixes
+
+- **release:** raise sigstore timeout when publishing with lerna ([#602](https://github.com/speclynx/apidom/issues/602)) ([fd1e244](https://github.com/speclynx/apidom/commit/fd1e2447147fdddad034e58289bea4e75424b785)), closes [#601](https://github.com/speclynx/apidom/issues/601)
+
 ## [6.0.4](https://github.com/speclynx/apidom/compare/v6.0.3...v6.0.4) (2026-10-15)
 
 ### Bug Fixes
