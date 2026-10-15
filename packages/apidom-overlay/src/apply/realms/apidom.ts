@@ -15,6 +15,7 @@ import {
   type ActionElement,
   type Overlay1Element,
   isOverlay1Element,
+  isReusableActionReferenceElement,
 } from '@speclynx/apidom-ns-overlay-1';
 import {
   dereferenceApiDOM,
@@ -462,9 +463,23 @@ export const applyOverlay = async <T extends Element | ParseResultElement>(
    */
   let dereferencedOverlay: Overlay1Element;
   try {
-    dereferencedOverlay = await dereferenceApiDOM(overlay, options.reference ?? {});
+    // always immutable: dereferencing must never modify the caller's overlay
+    dereferencedOverlay = await dereferenceApiDOM(overlay, {
+      ...options.reference,
+      dereference: { ...options.reference?.dereference, immutable: true },
+    });
   } catch (error: unknown) {
     throw new OverlayError((error as Error).message, { cause: error as Error });
+  }
+
+  // references left in place (`continueOnError`, `resolve.internal: false`) cannot be applied
+  const unresolvedReference = isArrayElement(dereferencedOverlay.actions)
+    ? (dereferencedOverlay.actions.content as Element[]).find(isReusableActionReferenceElement)
+    : undefined;
+  if (isReusableActionReferenceElement(unresolvedReference)) {
+    throw new OverlayError(
+      `Overlay contains unresolved Reusable Action Reference "${toValue(unresolvedReference.$ref)}"`,
+    );
   }
 
   const opts = withDefaults(options as InternalApplyOptions);

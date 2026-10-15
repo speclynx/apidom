@@ -2,7 +2,11 @@ import { assert, expect } from 'chai';
 import { refract, ParseResultElement } from '@speclynx/apidom-datamodel';
 import type { Element, ObjectElement, ArrayElement } from '@speclynx/apidom-datamodel';
 import { toValue, toJSON } from '@speclynx/apidom-core';
-import { refractAction, refractOverlay1 } from '@speclynx/apidom-ns-overlay-1';
+import {
+  refractAction,
+  refractOverlay1,
+  isReusableActionReferenceElement,
+} from '@speclynx/apidom-ns-overlay-1';
 
 import type { Overlay1Element } from '@speclynx/apidom-ns-overlay-1';
 
@@ -1340,6 +1344,46 @@ describe('applyOverlayApiDOM', function () {
       );
       assert.lengthOf(errors, 1);
       assert.instanceOf(errors[0], UnresolvableReferenceError);
+    });
+
+    specify('should not mutate the overlay when dereferencing mutably', async function () {
+      const overlay = refractOverlay1({
+        overlay: '1.2.0',
+        info: { title: 'Test', version: '1.0.0' },
+        components: { actions: { rename: { fields: { update: 'Updated' } } } },
+        actions: [{ $ref: '#/components/actions/rename', target: '$.title' }],
+      });
+
+      await applyOverlayApiDOM(overlay, refract({ title: 'Original' }), {
+        reference: { dereference: { immutable: false } },
+      });
+
+      assert.isTrue(isReusableActionReferenceElement(overlay.actions!.get(0)));
+    });
+
+    specify('should reject unresolved references before applying any action', async function () {
+      const overlay = refractOverlay1({
+        overlay: '1.2.0',
+        info: { title: 'Test', version: '1.0.0' },
+        actions: [
+          { target: '$.title', update: 'Updated' },
+          { $ref: '#/components/actions/missing', target: '$.title' },
+        ],
+      });
+      const target = refract({ title: 'Original' });
+      const trace = {} as OverlayTrace;
+
+      await assertRejects(
+        applyOverlayApiDOM(overlay, target, {
+          immutable: false,
+          trace,
+          reference: { dereference: { continueOnError: true } },
+        }),
+        OverlayError,
+        /unresolved Reusable Action Reference/,
+      );
+      assert.deepEqual(toValue(target), { title: 'Original' });
+      assert.deepEqual(trace, {} as OverlayTrace);
     });
 
     specify('should reject a Reusable Action Reference without target', async function () {
