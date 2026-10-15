@@ -3,6 +3,7 @@ import { Path } from '@speclynx/apidom-traverse';
 
 import ActionsElement from '../../../elements/nces/Actions.ts';
 import { isReusableActionReferenceLikeElement } from '../../predicates.ts';
+import { isReusableActionReferenceElement } from '../../../predicates.ts';
 import {
   BaseSpecificationFallbackVisitor,
   BaseSpecificationFallbackVisitorOptions,
@@ -31,6 +32,10 @@ class ActionsVisitor extends BaseSpecificationFallbackVisitor {
         ? ['document', 'objects', 'ReusableActionReference']
         : ['document', 'objects', 'Action'];
       const element = this.toRefractedElement(specPath, item);
+
+      if (isReusableActionReferenceElement(element)) {
+        element.meta.set('referenced-element', 'reusableAction');
+      }
 
       this.element.push(element);
     });

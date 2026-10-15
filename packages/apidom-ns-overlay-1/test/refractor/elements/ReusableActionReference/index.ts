@@ -1,8 +1,8 @@
 import { assert, expect } from 'chai';
-import { sexprs } from '@speclynx/apidom-core';
+import { sexprs, toValue } from '@speclynx/apidom-core';
 import { includesClasses } from '@speclynx/apidom-datamodel';
 
-import { refractReusableActionReference } from '../../../../src/index.ts';
+import { refractOverlay1, refractReusableActionReference } from '../../../../src/index.ts';
 
 describe('refractor', function () {
   context('elements', function () {
@@ -24,6 +24,25 @@ describe('refractor', function () {
         });
 
         assert.isTrue(includesClasses(referenceElement.$ref!, ['reference-value']));
+      });
+
+      context('given in Overlay actions', function () {
+        specify('should annotate with referenced-element meta', function () {
+          const overlay1Element = refractOverlay1({
+            overlay: '1.2.0',
+            actions: [
+              { $ref: '#/components/actions/errorResponse', target: '$.info' },
+              { target: '$.info', remove: true },
+            ],
+          });
+          const [referenceElement, actionElement] = overlay1Element.actions!;
+
+          assert.strictEqual(
+            toValue(referenceElement.meta.get('referenced-element')),
+            'reusableAction',
+          );
+          assert.isFalse(actionElement.meta.hasKey('referenced-element'));
+        });
       });
     });
   });
