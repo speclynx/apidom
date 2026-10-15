@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.6](https://github.com/speclynx/apidom/compare/v6.0.5...v6.0.6) (2026-10-15)
+
+### Bug Fixes
+
+- **release:** pass sigstore timeout as a number via publishConfig ([#603](https://github.com/speclynx/apidom/issues/603)) ([3bb44d9](https://github.com/speclynx/apidom/commit/3bb44d9a924741a1f8bbbccebae9b6a2a7cd557b)), closes [#602](https://github.com/speclynx/apidom/issues/602) [#602](https://github.com/speclynx/apidom/issues/602)
+
 ## [6.0.5](https://github.com/speclynx/apidom/compare/v6.0.4...v6.0.5) (2026-10-15)
 
 **Note:** Version bump only for package @speclynx/apidom-reference
