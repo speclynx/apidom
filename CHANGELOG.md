@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.4](https://github.com/speclynx/apidom/compare/v6.0.3...v6.0.4) (2026-10-15)
+
+### Bug Fixes
+
+- **release:** publish packages serially to avoid provenance clashes ([#601](https://github.com/speclynx/apidom/issues/601)) ([e3274fe](https://github.com/speclynx/apidom/commit/e3274fe9a64338f4c4ff5f93706b69be50a20827))
+
 ## [6.0.3](https://github.com/speclynx/apidom/compare/v6.0.2...v6.0.3) (2026-10-15)
 
 ### Bug Fixes
