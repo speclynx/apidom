@@ -165,7 +165,8 @@ export const formatBlockLiteral = (content: string): string => {
   const indentation = getIndentation(content);
   const chompingIndicator = getChompingIndicator(content);
   const normalized = normalizeLineBreaks(content);
-  const lines = tail(normalized.split('\n')); // first line only contains indicators
+  // first line only contains indicators; a final line break ends the last line, it doesn't start a new one
+  const lines = tail(normalized.replace(/\n$/, '').split('\n'));
   const transducer = compose(map(trimCharsStart(indentation)), map(concatRight('\n')));
   // @ts-ignore
   const deindented: string = transduce(transducer, concat, '', lines);
@@ -181,14 +182,19 @@ export const formatBlockFolded = (content: string): string => {
   const indentation = getIndentation(content);
   const chompingIndicator = getChompingIndicator(content);
   const normalized = normalizeLineBreaks(content);
-  const lines = tail(normalized.split('\n')); // first line only contains indicators
+  // first line only contains indicators; a final line break ends the last line, it doesn't start a new one
+  const lines = tail(normalized.replace(/\n$/, '').split('\n'));
   const transducer = compose(map(trimCharsStart(indentation)), map(concatRight('\n')));
   // @ts-ignore
   const deindented: string = transduce(transducer, concat, '', lines);
-  // leading empty lines are preserved as-is; folding applies only between content lines
+  // leading and trailing line breaks are preserved as-is; folding applies only between content lines
   const leadingLineBreaks = deindented.match(/^\n*(?=[^\n])/)?.[0] ?? '';
+  const rest = deindented.slice(leadingLineBreaks.length);
+  const trailingLineBreaks = rest.match(/\n*$/)![0];
   const collapsed =
-    leadingLineBreaks + collapseLineBreakToSpace(deindented.slice(leadingLineBreaks.length));
+    leadingLineBreaks +
+    collapseLineBreakToSpace(rest.slice(0, rest.length - trailingLineBreaks.length)) +
+    trailingLineBreaks;
 
   return chomp(chompingIndicator, collapsed);
 };

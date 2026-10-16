@@ -362,6 +362,39 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/612
+  context('given block scalar with keep chomping at end of document', function () {
+    specify('should keep single final line break in literal style', async function () {
+      const result = await adapter.parse('d: |+\n  Line one.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n');
+    });
+
+    specify('should keep trailing empty lines in literal style', async function () {
+      const result = await adapter.parse('d: |+\n  Line one.\n\n\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n\n\n');
+    });
+
+    specify('should keep trailing empty lines in folded style', async function () {
+      const result = await adapter.parse('d: >+\n  Line one.\n  Line two.\n\n\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one. Line two.\n\n\n');
+    });
+
+    specify('should parse empty content as empty string', async function () {
+      const result = await adapter.parse('d: |+\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '');
+    });
+
+    specify('should keep empty lines of empty-only content', async function () {
+      const result = await adapter.parse('d: |+\n\n\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '\n\n');
+    });
+  });
+
   // https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35
   context('given YAML 1.2 with more than 32768 lines', function () {
     specify('should parse', async function () {
