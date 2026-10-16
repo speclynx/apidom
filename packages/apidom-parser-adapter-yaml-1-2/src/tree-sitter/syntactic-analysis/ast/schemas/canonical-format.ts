@@ -1,5 +1,5 @@
-import { tail, pathOr, map, pipe, trim, split, join, curry, replace } from 'ramda';
-import { isInteger, trimStart, isEmptyString, repeatStr } from 'ramda-adjunct';
+import { tail, pathOr, pipe, trim, curry, replace } from 'ramda';
+import { isInteger, isEmptyString, repeatStr } from 'ramda-adjunct';
 import { unraw } from 'unraw';
 
 /**
@@ -112,24 +112,25 @@ const chomp = (
 // @ts-ignore
 const normalizeLineBreaks = (val: string) => val.replace(/\r\n/g, '\n');
 
-// prevent escaped line breaks from being converted to a space
-const preventLineBreakCollapseToSpace = (val: string) => val.replace(/\\\n\s*/g, '');
-
-// collapse line breaks into spaces
-const collapseLineBreakToSpace = (val: string) => {
-  /**
-   * Safari doesn't support negative lookbehind, thus we use mimicking technique:
-   *
-   * - https://blog.stevenlevithan.com/archives/mimic-lookbehind-javascript
-   *
-   * Ideally we want to use following replace, but that's not currently possible:
-   *
-   * .replace(/[^\n]\n([^\n]+)/g, (match: string, p1: string) => ` ${p1.trimLeft()}`)
-   */
-  return val
-    .replace(/(\n)?\n([^\n]+)/g, (match, p1, p2) => (p1 ? match : ` ${p2.trimStart()}`))
-    .replace(/[\n]{2}/g, '\n');
-};
+// folds the line breaks of a flow scalar the way the yaml package does (YAML 1.2 §6.5, §7.3):
+// white space around a line break is dropped, a single line break becomes a space and every
+// further one a line break; with escapes (double-quoted style), escape sequences are left for
+// unescaping and an escaped line break is dropped together with the next line's indentation
+const foldFlowLines = curry((escapes: boolean, text: string): string =>
+  text.replace(
+    // a white space run not followed by a line break is consumed whole, which keeps the search
+    // linear instead of rescanning the run from every position in it
+    escapes
+      ? /\\(?:\n[ \t]*|[^])|[ \t]*\n(?:[ \t]*\n)*[ \t]*|[ \t]+/g
+      : /[ \t]*\n(?:[ \t]*\n)*[ \t]*|[ \t]+/g,
+    (match: string) => {
+      if (match.startsWith('\\')) return match[1] === '\n' ? '' : match;
+      if (!match.includes('\n')) return match;
+      const lineBreaks = match.split('\n').length - 1;
+      return lineBreaks === 1 ? ' ' : '\n'.repeat(lineBreaks - 1);
+    },
+  ),
+);
 
 // folds the line break between two lines into a space; empty lines between them stay as line
 // breaks, and a line break next to a more-indented line isn't folded (YAML 1.2 §6.5)
@@ -151,14 +152,7 @@ const removeQuotes = curry((quoteType, val) =>
  * Formats Flow Scalar Plain style.
  * https://yaml.org/spec/1.2/spec.html#id2788859
  */
-export const formatFlowPlain = pipe(
-  normalizeLineBreaks,
-  trim,
-  collapseLineBreakToSpace,
-  split('\n'),
-  map(trimStart),
-  join('\n'),
-);
+export const formatFlowPlain = pipe(normalizeLineBreaks, trim, foldFlowLines(false));
 
 /**
  * Formats Flow Scalar Single-Quoted style.
@@ -168,10 +162,7 @@ export const formatFlowPlain = pipe(
 export const formatFlowSingleQuoted = pipe(
   normalizeLineBreaks,
   trim,
-  collapseLineBreakToSpace,
-  split('\n'),
-  map(trimStart),
-  join('\n'),
+  foldFlowLines(false),
   removeQuotes("'"),
   replace(/''/g, "'"),
 );
@@ -183,12 +174,8 @@ export const formatFlowSingleQuoted = pipe(
 export const formatFlowDoubleQuoted = pipe(
   normalizeLineBreaks,
   trim,
-  preventLineBreakCollapseToSpace,
-  collapseLineBreakToSpace,
+  foldFlowLines(true),
   unraw,
-  split('\n'),
-  map(trimStart),
-  join('\n'),
   removeQuotes('"'),
 );
 
