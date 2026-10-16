@@ -36,10 +36,10 @@ const getIndentation = (content: string): string => {
   return repeatStr(' ', implicitIndentationIndicator);
 };
 
-// splits a block scalar body into deindented content lines and trailing lines (YAML 1.2 §8.1.1.2),
-// the same way the yaml package does: trailing lines are the whitespace-only lines after the last
-// content line, minus any up to and including the last one indented deeper than the block, which
-// are content; without any content line, all lines are trailing
+// splits a block scalar body into deindented content lines and trailing lines (YAML 1.2 §8.1.1.2):
+// trailing lines are the whitespace-only lines after the last content line, minus any up to and
+// including the last one indented deeper than the block, which are content; without any content
+// line, all lines are trailing
 const splitBlockScalar = (
   content: string,
   chomping: '+' | '-' | undefined,
@@ -111,7 +111,7 @@ const chomp = (
 // @ts-ignore
 const normalizeLineBreaks = (val: string) => val.replace(/\r\n/g, '\n');
 
-// folds the line breaks of a flow scalar the way the yaml package does (YAML 1.2 §6.5, §7.3):
+// folds the line breaks of a flow scalar (YAML 1.2 §6.5, §7.3):
 // white space around a line break is dropped, a single line break becomes a space and every
 // further one a line break; with escapes (double-quoted style), escape sequences are left for
 // unescaping and an escaped line break is dropped together with the next line's indentation
