@@ -393,6 +393,41 @@ describe('adapter', function () {
       const { d } = toValue(result.result) as { d: string };
       assert.strictEqual(d, '\n\n');
     });
+
+    specify('should keep trailing empty lines with CRLF line breaks', async function () {
+      const result = await adapter.parse('d: |+\r\n  Line one.\r\n\r\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n\n');
+    });
+
+    specify('should keep single final line break in folded style', async function () {
+      const result = await adapter.parse('d: >+\n  Line one.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n');
+    });
+
+    specify('should fold around empty line in folded style', async function () {
+      const result = await adapter.parse('d: >+\n  Line one.\n\n  Line two.\n\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\nLine two.\n\n');
+    });
+
+    specify('should keep trailing empty lines of sequence item', async function () {
+      const result = await adapter.parse('- |+\n  Line one.\n\n');
+      assert.deepEqual(toValue(result.result), ['Line one.\n\n']);
+    });
+
+    specify('should not change strip chomping in folded style', async function () {
+      const result = await adapter.parse('d: >-\n  Line one.\n  Line two.\n\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one. Line two.');
+    });
+
+    specify('should not change clip chomping in folded style', async function () {
+      const result = await adapter.parse('d: >\n  Line one.\n  Line two.\n\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one. Line two.\n');
+    });
   });
 
   // https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35
