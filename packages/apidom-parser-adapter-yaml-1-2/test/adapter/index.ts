@@ -333,6 +333,42 @@ describe('adapter', function () {
       const { k } = toValue(result.result) as { k: string };
       assert.strictEqual(k.length, 200002);
     });
+
+    specify('should fold scalars in flow sequence', async function () {
+      const result = await adapter.parse(
+        'k: [Line one. \n  Line two., "Line three. \n  Line four."]\n',
+      );
+      assert.deepEqual(toValue(result.result), {
+        k: ['Line one. Line two.', 'Line three. Line four.'],
+      });
+    });
+
+    specify('should fold scalar in flow mapping', async function () {
+      const result = await adapter.parse("{k: 'Line one.\n\n  Line two.'}\n");
+      assert.deepEqual(toValue(result.result), { k: 'Line one.\nLine two.' });
+    });
+
+    specify('should fold explicit key', async function () {
+      const result = await adapter.parse('? "Line one. \n  Line two."\n: v\n');
+      assert.deepEqual(toValue(result.result), { 'Line one. Line two.': 'v' });
+    });
+
+    specify('should fold sequence item', async function () {
+      const result = await adapter.parse('- Line one. \n  Line two.\n');
+      assert.deepEqual(toValue(result.result), ['Line one. Line two.']);
+    });
+
+    specify('should fold with CRLF line breaks', async function () {
+      const result = await adapter.parse('k: "Line one. \r\n  \r\n  Line two."\r\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, 'Line one.\nLine two.');
+    });
+
+    specify('should fold around hex and unicode escapes', async function () {
+      const result = await adapter.parse('k: "\\x41 \n  \\u00e9"\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, 'A é');
+    });
   });
 
   // https://github.com/speclynx/apidom/issues/610
