@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import {
   ObjectElement,
+  StringElement,
   isObjectElement,
   isParseResultElement,
   isStringElement,
@@ -427,6 +428,78 @@ describe('adapter', function () {
       const result = await adapter.parse('d: >\n  Line one.\n  Line two.\n\n');
       const { d } = toValue(result.result) as { d: string };
       assert.strictEqual(d, 'Line one. Line two.\n');
+    });
+  });
+
+  // https://github.com/speclynx/apidom/issues/612
+  context('given block scalar with keep chomping followed by another node', function () {
+    specify('should keep trailing empty lines before next key', async function () {
+      const result = await adapter.parse('d: |+\n  Line one.\n\n\nb: 1\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n\n\n');
+    });
+
+    specify('should keep trailing empty lines before next key in folded style', async function () {
+      const result = await adapter.parse('d: >+\n  Line one.\n  Line two.\n\nb: 1\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one. Line two.\n\n');
+    });
+
+    specify('should keep trailing empty lines before next sequence item', async function () {
+      const result = await adapter.parse('- |+\n  Line one.\n\n- 1\n');
+      assert.deepEqual(toValue(result.result), ['Line one.\n\n', 1]);
+    });
+
+    specify('should keep trailing empty lines before comment', async function () {
+      const result = await adapter.parse('d: |+\n  Line one.\n\n# comment\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n\n');
+    });
+
+    specify('should keep trailing empty lines with CRLF line breaks', async function () {
+      const result = await adapter.parse('d: |+\r\n  Line one.\r\n\r\n\r\nb: 1\r\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n\n\n');
+    });
+
+    specify('should not keep line breaks without trailing empty lines', async function () {
+      const result = await adapter.parse('d: |+\n  Line one.\nb: 1\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n');
+    });
+
+    specify('should not change clip chomping before next key', async function () {
+      const result = await adapter.parse('d: |\n  Line one.\n\n\nb: 1\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n');
+    });
+
+    specify('should not change source map of block scalar', async function () {
+      const result = await adapter.parse('d: |+\n  Line one.\n\nb: 1\n', { sourceMap: true });
+      const d = (result.result as ObjectElement).get('d') as StringElement;
+      assert.strictEqual(d.endOffset, 17);
+    });
+
+    specify('should keep trailing empty lines of last nested value', async function () {
+      const result = await adapter.parse('a:\n  d: |+\n    Line one.\n\nb: 1\n');
+      assert.deepEqual(toValue(result.result), { a: { d: 'Line one.\n\n' }, b: 1 });
+    });
+
+    specify('should keep trailing empty lines in sequence item mapping', async function () {
+      const result = await adapter.parse('- a: |+\n    Line one.\n\n  b: 1\n- 2\n');
+      assert.deepEqual(toValue(result.result), [{ a: 'Line one.\n\n', b: 1 }, 2]);
+    });
+
+    specify('should keep trailing empty lines before document end marker', async function () {
+      const result = await adapter.parse('d: |+\n  Line one.\n\n...\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n\n');
+    });
+
+    specify('should not keep empty lines after comment', async function () {
+      const result = await adapter.parse('d: |+\n  Line one.\n\n# comment\n\nb: 1\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n\n');
     });
   });
 

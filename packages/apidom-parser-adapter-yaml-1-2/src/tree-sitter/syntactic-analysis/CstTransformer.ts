@@ -780,8 +780,24 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
         ? YamlStyle.Folded
         : YamlStyle.Plain;
 
+    // trailing empty lines belong to the block scalar (keep chomping), but the CST node
+    // ends at its last content character when another node follows; every line between
+    // the end of the node and the next node in source order is empty
+    let trailingLineBreaks = '';
+    if (!info.text.endsWith('\n')) {
+      // a cursor copy walks up in constant time per step, unlike Node#parent
+      const following = cursor.copy();
+      let hasNext = following.gotoNextSibling();
+      while (!hasNext && following.gotoParent()) {
+        hasNext = following.gotoNextSibling();
+      }
+      const nextRow = hasNext ? following.startPosition.row : info.endPosition.row + 1;
+      following.delete();
+      trailingLineBreaks = '\n'.repeat(Math.max(nextRow - info.endPosition.row, 1));
+    }
+
     const scalarNode = new YamlScalar({
-      content: info.text,
+      content: info.text + trailingLineBreaks,
       anchor,
       tag,
       ...toPositionProps(info),
