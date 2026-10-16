@@ -503,6 +503,62 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/567
+  context('given block scalar with more-indented lines', function () {
+    specify('should keep extra indentation in literal style', async function () {
+      const result = await adapter.parse(
+        'd: |\n  Literal block\n    * indented item\n  Last line.\n',
+      );
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Literal block\n  * indented item\nLast line.\n');
+    });
+
+    specify('should keep extra indentation with explicit indentation indicator', async function () {
+      const result = await adapter.parse('d: |4-\n    Line one.\n      Line two.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n  Line two.');
+    });
+  });
+
+  // https://github.com/speclynx/apidom/issues/610
+  context('given block scalar with explicit indentation indicator', function () {
+    specify('should apply indicator relative to mapping key', async function () {
+      const result = await adapter.parse('a:\n  d: |1\n     Line one.\n');
+      assert.deepEqual(toValue(result.result), { a: { d: '  Line one.\n' } });
+    });
+
+    specify('should apply indicator relative to key followed by another key', async function () {
+      const result = await adapter.parse('a:\n  d: |1\n     Line one.\n  e: 1\n');
+      assert.deepEqual(toValue(result.result), { a: { d: '  Line one.\n', e: 1 } });
+    });
+
+    specify('should apply indicator relative to key with anchor and tag', async function () {
+      const result = await adapter.parse('a:\n  d: &x !!str |2\n      Line one.\n');
+      assert.deepEqual(toValue(result.result), { a: { d: '  Line one.\n' } });
+    });
+
+    specify('should apply indicator in folded style', async function () {
+      const result = await adapter.parse('d: >1\n   Line one.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '  Line one.\n');
+    });
+
+    specify('should apply indicator relative to sequence item', async function () {
+      const result = await adapter.parse('- |1\n   Line one.\n');
+      assert.deepEqual(toValue(result.result), ['  Line one.\n']);
+    });
+
+    specify('should apply indicator relative to explicit key', async function () {
+      const result = await adapter.parse('? |1\n   Line one.\n: v\n');
+      assert.deepEqual(toValue(result.result), { '  Line one.\n': 'v' });
+    });
+
+    specify('should apply indicator at top level', async function () {
+      const result = await adapter.parse('|1\n  Line one.\n');
+      assert.strictEqual(toValue(result.result), ' Line one.\n');
+    });
+  });
+
   // https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35
   context('given YAML 1.2 with more than 32768 lines', function () {
     specify('should parse', async function () {

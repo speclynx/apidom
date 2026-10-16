@@ -16,7 +16,6 @@ import {
   trimStart,
   trimEnd,
   isUndefined,
-  trimCharsStart,
   isEmptyString,
   repeatStr,
   concatRight,
@@ -57,6 +56,12 @@ const getIndentation = (content: string): string => {
   );
   return repeatStr(' ', implicitIndentationIndicator);
 };
+
+// removes the indentation from a content line; a whitespace-only line is an empty line
+const deindent =
+  (indentation: string) =>
+  (line: string): string =>
+    /^ *$/.test(line) ? '' : line.slice(Math.min(indentation.length, line.search(/[^ ]/)));
 
 const getChompingIndicator = (content: string): '+' | '-' | undefined => {
   const matches = content.match(blockStyleRegExp);
@@ -167,7 +172,7 @@ export const formatBlockLiteral = (content: string): string => {
   const normalized = normalizeLineBreaks(content);
   // first line only contains indicators; a final line break ends the last line, it doesn't start a new one
   const lines = tail(normalized.replace(/\n$/, '').split('\n'));
-  const transducer = compose(map(trimCharsStart(indentation)), map(concatRight('\n')));
+  const transducer = compose(map(deindent(indentation)), map(concatRight('\n')));
   // @ts-ignore
   const deindented: string = transduce(transducer, concat, '', lines);
 
@@ -184,7 +189,7 @@ export const formatBlockFolded = (content: string): string => {
   const normalized = normalizeLineBreaks(content);
   // first line only contains indicators; a final line break ends the last line, it doesn't start a new one
   const lines = tail(normalized.replace(/\n$/, '').split('\n'));
-  const transducer = compose(map(trimCharsStart(indentation)), map(concatRight('\n')));
+  const transducer = compose(map(deindent(indentation)), map(concatRight('\n')));
   // @ts-ignore
   const deindented: string = transduce(transducer, concat, '', lines);
   // leading and trailing line breaks are preserved as-is; folding applies only between content lines
