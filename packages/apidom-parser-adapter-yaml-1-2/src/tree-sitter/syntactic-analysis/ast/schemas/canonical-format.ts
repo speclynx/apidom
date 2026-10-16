@@ -10,6 +10,7 @@ import {
   split,
   join,
   curry,
+  replace,
 } from 'ramda';
 import {
   isInteger,
@@ -156,6 +157,7 @@ export const formatFlowSingleQuoted = pipe(
   map(trimStart),
   join('\n'),
   removeQuotes("'"),
+  replace(/''/g, "'"),
 );
 
 /**
