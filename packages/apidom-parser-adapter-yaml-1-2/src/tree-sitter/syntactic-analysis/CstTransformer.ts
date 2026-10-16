@@ -58,6 +58,7 @@ const getCursorInfo = (cursor: TreeCursor): CursorInfo => ({
 
 // TreeCursor#copy() in web-tree-sitter 0.27.1 doesn't marshal the cursor it's called on, so it
 // copies whichever cursor or node was marshalled last; resetTo() marshals both cursors
+// https://github.com/tree-sitter/tree-sitter/issues/6045
 const copyCursor = (cursor: TreeCursor): TreeCursor => {
   const copy = cursor.currentNode.tree.walk();
   copy.resetTo(cursor);
