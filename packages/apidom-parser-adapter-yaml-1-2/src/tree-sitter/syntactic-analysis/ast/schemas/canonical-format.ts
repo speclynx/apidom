@@ -143,25 +143,26 @@ const foldLines = (text: string): string => {
   return folded;
 };
 
-const escapeCodes: Record<string, string> = {
-  '0': '\0',
-  a: '\x07',
-  b: '\b',
-  e: '\x1b',
-  f: '\f',
-  n: '\n',
-  r: '\r',
-  t: '\t',
-  v: '\v',
-  N: '\u0085',
-  _: '\u00a0',
-  L: '\u2028',
-  P: '\u2029',
-  ' ': ' ',
-  '"': '"',
-  '/': '/',
-  '\\': '\\',
-  '\t': '\t',
+// escaped characters of YAML 1.2 §5.7, productions [42] to [58]
+const escapedCharacters: Record<string, string> = {
+  '0': '\u0000', // null
+  a: '\u0007', // bell
+  b: '\u0008', // backspace
+  t: '\u0009', // horizontal tab
+  '\t': '\u0009', // horizontal tab
+  n: '\u000a', // line feed
+  v: '\u000b', // vertical tab
+  f: '\u000c', // form feed
+  r: '\u000d', // carriage return
+  e: '\u001b', // escape
+  ' ': '\u0020', // space
+  '"': '\u0022', // double quote
+  '/': '\u002f', // slash
+  '\\': '\u005c', // backslash
+  N: '\u0085', // next line
+  _: '\u00a0', // non-breaking space
+  L: '\u2028', // line separator
+  P: '\u2029', // paragraph separator
 };
 
 // unescapes the escape sequences of a double-quoted scalar (YAML 1.2 §5.7); an escape sequence
@@ -171,7 +172,7 @@ const unescapeDoubleQuoted = (text: string): string =>
     /\\(?:x([0-9a-fA-F]{2})|u([0-9a-fA-F]{4})|U([0-9a-fA-F]{8})|([^]))/g,
     (match: string, x?: string, u?: string, U?: string, char?: string) => {
       const hex = x ?? u ?? U;
-      if (hex === undefined) return escapeCodes[char!] ?? match;
+      if (hex === undefined) return escapedCharacters[char!] ?? match;
       const codePoint = parseInt(hex, 16);
       return codePoint <= 0x10ffff ? String.fromCodePoint(codePoint) : match;
     },
