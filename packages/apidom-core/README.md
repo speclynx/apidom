@@ -633,7 +633,8 @@ represent the element's current value; when the value was changed without updati
 raw content, the serializer falls back to preserving only the format category (exponential, hex,
 octal, fractional digits), letting the underlying yaml library normalize the exact representation
 (e.g., `1.0e10` becomes `1e+10`). Empty nodes (e.g. `key:` with no value) are written back empty
-rather than as `""`, as long as their value is still an empty string.
+rather than as `""`, as long as their value is still an empty string and they have no explicit tag
+other than `!!null`.
 
 ```js
 import { toYAML } from '@speclynx/apidom-core';

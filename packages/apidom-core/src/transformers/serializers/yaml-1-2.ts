@@ -33,6 +33,7 @@ interface YAMLElementStyle {
   scalarStyle?: string;
   styleGroup?: string;
   rawContent?: string;
+  tag?: string;
   indent?: number;
   flowCollectionPadding?: boolean;
   comment?: string;
@@ -199,9 +200,13 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
   const scalarType = style.scalarStyle ? scalarStyleMap[style.scalarStyle] : undefined;
 
   const scalar = new Scalar(toValue(element));
-  // an empty node (YAML 1.2 §7.2) is parsed as an empty string; while it's still empty, write it
-  // back as a null with no content instead of as ""
-  if (scalar.value === '' && includesClasses(element, ['yaml-e-node'])) {
+  // an untagged empty node (YAML 1.2 §7.2) is a null parsed as an empty string; while it's still
+  // empty, write it back as a null with no content instead of as ""
+  if (
+    scalar.value === '' &&
+    includesClasses(element, ['yaml-e-node']) &&
+    (style.tag === undefined || style.tag === '!!null')
+  ) {
     scalar.value = null;
     scalar.source = '';
   }
