@@ -27,11 +27,13 @@ import { unraw } from 'unraw';
  * Helpers.
  */
 
-const blockStyleRegExp = /^(?<style>[|>])(?<chomping>[+-]?)(?<indentation>[0-9]*)\s/;
+// indentation and chomping indicators may appear in either order (YAML 1.2 §8.1.1)
+const blockStyleRegExp = /^(?<style>[|>])(?<indicators>[+-]?[0-9]?|[0-9][+-])\s/;
 
 const getIndentationIndicator = (content: string): number | undefined => {
   const matches = content.match(blockStyleRegExp);
-  const indicator = pathOr('', ['groups', 'indentation'], matches);
+  const indicators: string = pathOr('', ['groups', 'indicators'], matches);
+  const indicator = indicators.replace(/[+-]/, '');
 
   return isEmptyString(indicator) ? undefined : parseInt(indicator, 10);
 };
@@ -56,9 +58,10 @@ const getIndentation = (content: string): string => {
 
 const getChompingIndicator = (content: string): '+' | '-' | undefined => {
   const matches = content.match(blockStyleRegExp);
-  const indicator = pathOr('', ['groups', 'chomping'], matches);
+  const indicators: string = pathOr('', ['groups', 'indicators'], matches);
+  const indicator = indicators.replace(/[0-9]/, '');
 
-  return isEmptyString(indicator) ? undefined : indicator;
+  return isEmptyString(indicator) ? undefined : (indicator as '+' | '-');
 };
 
 const chomp = (indicator: '+' | '-' | undefined, content: string): string => {

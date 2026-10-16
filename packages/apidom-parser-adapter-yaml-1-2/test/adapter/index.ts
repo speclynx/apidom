@@ -215,6 +215,39 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/610
+  context('given block scalar with indentation indicator before chomping indicator', function () {
+    specify('should apply both indicators to literal style', async function () {
+      const result = await adapter.parse('d: |2-\n  Line one.\n  Line two.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\nLine two.');
+    });
+
+    specify('should apply both indicators with leading empty line', async function () {
+      const result = await adapter.parse('d: |2-\n\n  Line one.\n\n  Line two.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '\nLine one.\n\nLine two.');
+    });
+
+    specify('should apply both indicators to folded style', async function () {
+      const result = await adapter.parse('d: >2-\n  Line one.\n  Line two.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one. Line two.');
+    });
+
+    specify('should apply keep chomping indicator', async function () {
+      const result = await adapter.parse('d: >2+\n  Line one.\n  Line two.\n\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one. Line two.\n\n');
+    });
+
+    specify('should still apply indicators in chomping-first order', async function () {
+      const result = await adapter.parse('d: |-2\n\n  Line one.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '\nLine one.');
+    });
+  });
+
   // https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35
   context('given YAML 1.2 with more than 32768 lines', function () {
     specify('should parse', async function () {
