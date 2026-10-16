@@ -272,6 +272,12 @@ describe('adapter', function () {
       const { d } = toValue(result.result) as { d: string };
       assert.strictEqual(d, '\nLine one.\nLine two.\n');
     });
+
+    specify('should not change keep chomping of empty-only content', async function () {
+      const result = await adapter.parse('d: >2+\n\n\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '\n\n');
+    });
   });
 
   // https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35

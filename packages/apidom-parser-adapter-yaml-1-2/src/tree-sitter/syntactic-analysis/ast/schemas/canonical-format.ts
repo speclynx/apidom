@@ -183,7 +183,7 @@ export const formatBlockFolded = (content: string): string => {
   // @ts-ignore
   const deindented: string = transduce(transducer, concat, '', lines);
   // leading empty lines are preserved as-is; folding applies only between content lines
-  const leadingLineBreaks = deindented.match(/^\n*/)![0];
+  const leadingLineBreaks = deindented.match(/^\n*(?=[^\n])/)?.[0] ?? '';
   const collapsed =
     leadingLineBreaks + collapseLineBreakToSpace(deindented.slice(leadingLineBreaks.length));
 
