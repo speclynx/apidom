@@ -11,7 +11,7 @@ import {
 } from '@speclynx/apidom-datamodel';
 
 import YamlTagError from '../../src/tree-sitter/syntactic-analysis/ast/errors/YamlTagError.ts';
-import { toValue, sexprs } from '@speclynx/apidom-core';
+import { toValue, toYAML, sexprs } from '@speclynx/apidom-core';
 
 import * as adapter from '../../src/adapter.ts';
 
@@ -205,6 +205,38 @@ describe('adapter', function () {
       const result = await adapter.parse("' '");
       const expected = toValue(result) as string[];
       assert.strictEqual(expected[0], ' ');
+    });
+  });
+
+  // https://github.com/speclynx/apidom/issues/625
+  context('given single-quote scalar with escaped single quotes', function () {
+    specify('should unescape single quote', async function () {
+      const result = await adapter.parse("title: 'The user''s phone number'\n");
+      const { title } = toValue(result.result) as { title: string };
+      assert.strictEqual(title, "The user's phone number");
+    });
+
+    specify('should unescape every escaped single quote', async function () {
+      const result = await adapter.parse("a: '''x'''''\n");
+      const { a } = toValue(result.result) as { a: string };
+      assert.strictEqual(a, "'x''");
+    });
+
+    specify('should unescape single quote in multi-line scalar', async function () {
+      const result = await adapter.parse("a: 'it''s\n  two lines'\n");
+      const { a } = toValue(result.result) as { a: string };
+      assert.strictEqual(a, "it's two lines");
+    });
+
+    specify('should unescape single quote in mapping key', async function () {
+      const result = await adapter.parse("'it''s': v\n");
+      assert.deepEqual(toValue(result.result), { "it's": 'v' });
+    });
+
+    specify('should serialize back without doubling escapes', async function () {
+      const result = await adapter.parse("title: 'The user''s phone number'\n", { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, "title: 'The user''s phone number'\n");
     });
   });
 
