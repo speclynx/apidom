@@ -241,6 +241,12 @@ describe('adapter', function () {
       assert.strictEqual(d, 'Line one. Line two.\n\n');
     });
 
+    specify('should apply both indicators when followed by a comment', async function () {
+      const result = await adapter.parse('d: |2- # comment\n  Line one.\n  Line two.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\nLine two.');
+    });
+
     specify('should still apply indicators in chomping-first order', async function () {
       const result = await adapter.parse('d: |-2\n\n  Line one.\n');
       const { d } = toValue(result.result) as { d: string };
