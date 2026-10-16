@@ -800,9 +800,12 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       while (!hasNext && following.gotoParent()) {
         hasNext = following.gotoNextSibling();
       }
-      const nextRow = hasNext ? following.startPosition.row : info.endPosition.row + 1;
+      // without a next node the scalar ends the input, so there are no empty lines to add
+      if (hasNext) {
+        const emptyLines = following.startPosition.row - info.endPosition.row;
+        trailingLineBreaks = '\n'.repeat(Math.max(emptyLines, 1));
+      }
       following.delete();
-      trailingLineBreaks = '\n'.repeat(Math.max(nextRow - info.endPosition.row, 1));
     }
 
     // an explicit indentation indicator is relative to the parent node's indentation: the

@@ -1,26 +1,5 @@
-import {
-  tail,
-  compose,
-  pathOr,
-  map,
-  concat,
-  transduce,
-  pipe,
-  trim,
-  split,
-  join,
-  curry,
-  replace,
-} from 'ramda';
-import {
-  isInteger,
-  trimStart,
-  trimEnd,
-  isUndefined,
-  isEmptyString,
-  repeatStr,
-  concatRight,
-} from 'ramda-adjunct';
+import { tail, pathOr, map, pipe, trim, split, join, curry, replace } from 'ramda';
+import { isInteger, trimStart, isUndefined, isEmptyString, repeatStr } from 'ramda-adjunct';
 import { unraw } from 'unraw';
 
 /**
@@ -58,11 +37,20 @@ const getIndentation = (content: string): string => {
   return repeatStr(' ', implicitIndentationIndicator);
 };
 
-// removes the indentation from a content line; a whitespace-only line is an empty line
-const deindent =
-  (indentation: string) =>
-  (line: string): string =>
-    /^ *$/.test(line) ? '' : line.slice(Math.min(indentation.length, line.search(/[^ ]/)));
+// deindented lines of a block scalar without its header, each followed by a line break; spaces
+// beyond the indentation are kept, also on whitespace-only lines, unless the block has no content
+const deindentBlockLines = (content: string): string => {
+  const indentation = getIndentation(content);
+  const lines = tail(normalizeLineBreaks(content).split('\n'));
+  const hasContent = lines.some((line) => /[^ ]/.test(line));
+  const deindented = lines.map((line) =>
+    hasContent ? line.slice(Math.min(indentation.length, line.search(/[^ ]|$/))) : '',
+  );
+  // a final line break ends the last line instead of starting a new one, and a final
+  // whitespace-only line within the indentation and without a line break isn't a line
+  if (deindented.at(-1) === '') deindented.pop();
+  return deindented.map((line) => `${line}\n`).join('');
+};
 
 const getChompingIndicator = (content: string): '+' | '-' | undefined => {
   const matches = content.match(blockStyleRegExp);
@@ -75,12 +63,12 @@ const getChompingIndicator = (content: string): '+' | '-' | undefined => {
 const chomp = (indicator: '+' | '-' | undefined, content: string): string => {
   // clip (single newline at end, none for empty content)
   if (isUndefined(indicator)) {
-    const trimmed = trimEnd(content);
-    return isEmptyString(trimmed) ? '' : `${trimmed}\n`;
+    const stripped = content.replace(/\n+$/, '');
+    return isEmptyString(stripped) ? '' : `${stripped}\n`;
   }
   // strip (no newline at end)
   if (indicator === '-') {
-    return trimEnd(content);
+    return content.replace(/\n+$/, '');
   }
   // keep (all newlines from end)
   if (indicator === '+') {
@@ -181,14 +169,8 @@ export const formatFlowDoubleQuoted = pipe(
  * https://yaml.org/spec/1.2/spec.html#id2795688
  */
 export const formatBlockLiteral = (content: string): string => {
-  const indentation = getIndentation(content);
   const chompingIndicator = getChompingIndicator(content);
-  const normalized = normalizeLineBreaks(content);
-  // first line only contains indicators; a final line break ends the last line, it doesn't start a new one
-  const lines = tail(normalized.replace(/\n$/, '').split('\n'));
-  const transducer = compose(map(deindent(indentation)), map(concatRight('\n')));
-  // @ts-ignore
-  const deindented: string = transduce(transducer, concat, '', lines);
+  const deindented = deindentBlockLines(content);
 
   return chomp(chompingIndicator, deindented);
 };
@@ -198,14 +180,8 @@ export const formatBlockLiteral = (content: string): string => {
  * https://yaml.org/spec/1.2/spec.html#id2796251
  */
 export const formatBlockFolded = (content: string): string => {
-  const indentation = getIndentation(content);
   const chompingIndicator = getChompingIndicator(content);
-  const normalized = normalizeLineBreaks(content);
-  // first line only contains indicators; a final line break ends the last line, it doesn't start a new one
-  const lines = tail(normalized.replace(/\n$/, '').split('\n'));
-  const transducer = compose(map(deindent(indentation)), map(concatRight('\n')));
-  // @ts-ignore
-  const deindented: string = transduce(transducer, concat, '', lines);
+  const deindented = deindentBlockLines(content);
   // leading and trailing line breaks are preserved as-is; folding applies only between content lines
   const leadingLineBreaks = deindented.match(/^\n*(?=[^\n])/)?.[0] ?? '';
   const rest = deindented.slice(leadingLineBreaks.length);

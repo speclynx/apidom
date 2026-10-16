@@ -673,6 +673,57 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/618
+  context('given block scalar with trailing whitespace', function () {
+    specify('should keep trailing spaces with clip chomping', async function () {
+      const result = await adapter.parse('d: |\n  Line one.  \n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.  \n');
+    });
+
+    specify('should keep trailing tab with strip chomping', async function () {
+      const result = await adapter.parse('d: |-\n  Line one.\t\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\t');
+    });
+
+    specify('should keep spaces of whitespace-only line beyond indentation', async function () {
+      const result = await adapter.parse('d: |2\n    \n  Line one.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '  \nLine one.\n');
+    });
+
+    specify('should keep last whitespace-only line beyond indentation', async function () {
+      const result = await adapter.parse('d: |\n  Line one.\n   \n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n \n');
+    });
+
+    specify('should empty whitespace-only lines of block without content', async function () {
+      const result = await adapter.parse('d: |2+\n   \n  \n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '\n\n');
+    });
+
+    specify('should not fold whitespace-only line beyond indentation', async function () {
+      const result = await adapter.parse('d: >\n  Line one.\n   \n  Line two.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n \nLine two.\n');
+    });
+
+    specify('should ignore unterminated whitespace-only last line', async function () {
+      const result = await adapter.parse('d: |+\n  Line one.\n  ');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n');
+    });
+
+    specify('should keep unterminated last line beyond indentation', async function () {
+      const result = await adapter.parse('d: |+\n  Line one.\n    ');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n  \n');
+    });
+  });
+
   // https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35
   context('given YAML 1.2 with more than 32768 lines', function () {
     specify('should parse', async function () {
