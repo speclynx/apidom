@@ -457,9 +457,9 @@ describe('adapter', function () {
     });
 
     specify('should keep trailing empty lines with CRLF line breaks', async function () {
-      const result = await adapter.parse('d: |+\r\n  Line one.\r\n\r\nb: 1\r\n');
+      const result = await adapter.parse('d: |+\r\n  Line one.\r\n\r\n\r\nb: 1\r\n');
       const { d } = toValue(result.result) as { d: string };
-      assert.strictEqual(d, 'Line one.\n\n');
+      assert.strictEqual(d, 'Line one.\n\n\n');
     });
 
     specify('should not keep line breaks without trailing empty lines', async function () {
@@ -478,6 +478,28 @@ describe('adapter', function () {
       const result = await adapter.parse('d: |+\n  Line one.\n\nb: 1\n', { sourceMap: true });
       const d = (result.result as ObjectElement).get('d') as StringElement;
       assert.strictEqual(d.endOffset, 17);
+    });
+
+    specify('should keep trailing empty lines of last nested value', async function () {
+      const result = await adapter.parse('a:\n  d: |+\n    Line one.\n\nb: 1\n');
+      assert.deepEqual(toValue(result.result), { a: { d: 'Line one.\n\n' }, b: 1 });
+    });
+
+    specify('should keep trailing empty lines in sequence item mapping', async function () {
+      const result = await adapter.parse('- a: |+\n    Line one.\n\n  b: 1\n- 2\n');
+      assert.deepEqual(toValue(result.result), [{ a: 'Line one.\n\n', b: 1 }, 2]);
+    });
+
+    specify('should keep trailing empty lines before document end marker', async function () {
+      const result = await adapter.parse('d: |+\n  Line one.\n\n...\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n\n');
+    });
+
+    specify('should not keep empty lines after comment', async function () {
+      const result = await adapter.parse('d: |+\n  Line one.\n\n# comment\n\nb: 1\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n\n');
     });
   });
 
