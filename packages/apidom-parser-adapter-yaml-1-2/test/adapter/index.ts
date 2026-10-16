@@ -264,6 +264,27 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/631
+  context('given empty node serialized back with preserveStyle', function () {
+    specify('should write it back empty', async function () {
+      const result = await adapter.parse('a:\nb:   \nc:\n  - \n', { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, 'a:\nb:\nc:\n  - \n');
+    });
+
+    specify('should write it back empty with null tag', async function () {
+      const result = await adapter.parse('a: !!null\n', { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, 'a:\n');
+    });
+
+    specify('should write it back as empty string with str tag', async function () {
+      const result = await adapter.parse('a: !!str\n', { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, 'a: ""\n');
+    });
+  });
+
   context('given double-quote scalar containing only space characters', function () {
     specify('should parse all space characters', async function () {
       const result = await adapter.parse('" "');

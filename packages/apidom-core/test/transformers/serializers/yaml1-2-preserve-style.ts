@@ -452,6 +452,30 @@ describe('serializers', function () {
         assert.strictEqual(result, 'a: x\n');
       });
 
+      specify('should write it back empty with null tag', function () {
+        const element = new ObjectElement();
+        const value = emptyNode();
+        value.style = { yaml: { scalarStyle: 'Plain', tag: '!!null' } };
+        element.set('a', value);
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'a:\n');
+      });
+
+      specify('should write it as "" with other explicit tag', function () {
+        const element = new ObjectElement();
+        const value = emptyNode();
+        value.style = { yaml: { scalarStyle: 'Plain', tag: '!!str' } };
+        element.set('a', value);
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'a: ""\n');
+      });
+
       specify('should write empty string without the class as ""', function () {
         const element = new ObjectElement({ a: '' });
         element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
