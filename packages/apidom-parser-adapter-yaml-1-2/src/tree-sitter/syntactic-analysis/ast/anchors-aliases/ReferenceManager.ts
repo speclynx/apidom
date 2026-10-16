@@ -12,8 +12,15 @@ class ReferenceManager {
   }
 
   resolveAlias(alias: YamlAlias): YamlScalar {
+    const { startLine, startCharacter, startOffset, endLine, endCharacter, endOffset } = alias;
     return new YamlScalar({
       content: alias.content,
+      startLine,
+      startCharacter,
+      startOffset,
+      endLine,
+      endCharacter,
+      endOffset,
       style: YamlStyle.Plain,
       styleGroup: YamlStyleGroup.Flow,
     });
