@@ -280,6 +280,38 @@ describe('adapter', function () {
     });
   });
 
+  context('given block scalar without indentation indicator and leading empty lines', function () {
+    specify('should detect indentation in literal style', async function () {
+      const result = await adapter.parse('d: |\n\n\n  Line one.\n  Line two.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '\n\nLine one.\nLine two.\n');
+    });
+
+    specify('should detect indentation in folded style', async function () {
+      const result = await adapter.parse('d: >-\n\n  Line one.\n  Line two.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '\nLine one. Line two.');
+    });
+
+    specify('should skip whitespace-only leading lines', async function () {
+      const result = await adapter.parse('d: |\n \n  Line one.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '\nLine one.\n');
+    });
+
+    specify('should skip leading empty lines with CRLF line breaks', async function () {
+      const result = await adapter.parse('d: |\r\n\r\n  Line one.\r\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '\nLine one.\n');
+    });
+
+    specify('should strip spaces of whitespace-only content', async function () {
+      const result = await adapter.parse('d: >+\n   \n  \n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '\n\n');
+    });
+  });
+
   // https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35
   context('given YAML 1.2 with more than 32768 lines', function () {
     specify('should parse', async function () {
