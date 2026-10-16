@@ -1,6 +1,5 @@
 import { tail, pathOr, pipe, trim, curry, replace } from 'ramda';
 import { isInteger, isEmptyString, repeatStr } from 'ramda-adjunct';
-import { unraw } from 'unraw';
 
 /**
  * Helpers.
@@ -37,10 +36,10 @@ const getIndentation = (content: string): string => {
   return repeatStr(' ', implicitIndentationIndicator);
 };
 
-// splits a block scalar body into deindented content lines and trailing lines (YAML 1.2 §8.1.1.2),
-// the same way the yaml package does: trailing lines are the whitespace-only lines after the last
-// content line, minus any up to and including the last one indented deeper than the block, which
-// are content; without any content line, all lines are trailing
+// splits a block scalar body into deindented content lines and trailing lines (YAML 1.2 §8.1.1.2):
+// trailing lines are the whitespace-only lines after the last content line, minus any up to and
+// including the last one indented deeper than the block, which are content; without any content
+// line, all lines are trailing
 const splitBlockScalar = (
   content: string,
   chomping: '+' | '-' | undefined,
@@ -112,7 +111,7 @@ const chomp = (
 // @ts-ignore
 const normalizeLineBreaks = (val: string) => val.replace(/\r\n/g, '\n');
 
-// folds the line breaks of a flow scalar the way the yaml package does (YAML 1.2 §6.5, §7.3):
+// folds the line breaks of a flow scalar (YAML 1.2 §6.5, §7.3):
 // white space around a line break is dropped, a single line break becomes a space and every
 // further one a line break; with escapes (double-quoted style), escape sequences are left for
 // unescaping and an escaped line break is dropped together with the next line's indentation
@@ -143,6 +142,41 @@ const foldLines = (text: string): string => {
   }
   return folded;
 };
+
+// escaped characters of YAML 1.2 §5.7, productions [42] to [58]
+const escapedCharacters: Record<string, string> = {
+  '0': '\u0000', // null
+  a: '\u0007', // bell
+  b: '\u0008', // backspace
+  t: '\u0009', // horizontal tab
+  '\t': '\u0009', // horizontal tab
+  n: '\u000a', // line feed
+  v: '\u000b', // vertical tab
+  f: '\u000c', // form feed
+  r: '\u000d', // carriage return
+  e: '\u001b', // escape
+  ' ': '\u0020', // space
+  '"': '\u0022', // double quote
+  '/': '\u002f', // slash
+  '\\': '\u005c', // backslash
+  N: '\u0085', // next line
+  _: '\u00a0', // non-breaking space
+  L: '\u2028', // line separator
+  P: '\u2029', // paragraph separator
+};
+
+// unescapes the escape sequences of a double-quoted scalar (YAML 1.2 §5.7); an escape sequence
+// outside of the spec is kept as-is
+const unescapeDoubleQuoted = (text: string): string =>
+  text.replace(
+    /\\(?:x([0-9a-fA-F]{2})|u([0-9a-fA-F]{4})|U([0-9a-fA-F]{8})|([^]))/g,
+    (match: string, x?: string, u?: string, U?: string, char?: string) => {
+      const hex = x ?? u ?? U;
+      if (hex === undefined) return escapedCharacters[char!] ?? match;
+      const codePoint = parseInt(hex, 16);
+      return codePoint <= 0x10ffff ? String.fromCodePoint(codePoint) : match;
+    },
+  );
 
 const removeQuotes = curry((quoteType, val) =>
   val.replace(new RegExp(`^${quoteType}`), '').replace(new RegExp(`${quoteType}$`), ''),
@@ -175,7 +209,7 @@ export const formatFlowDoubleQuoted = pipe(
   normalizeLineBreaks,
   trim,
   foldFlowLines(true),
-  unraw,
+  unescapeDoubleQuoted,
   removeQuotes('"'),
 );
 
