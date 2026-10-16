@@ -254,6 +254,26 @@ describe('adapter', function () {
     });
   });
 
+  context('given folded block scalar with leading empty lines', function () {
+    specify('should preserve single leading empty line', async function () {
+      const result = await adapter.parse('d: >2-\n\n  Line one.\n  Line two.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '\nLine one. Line two.');
+    });
+
+    specify('should preserve multiple leading empty lines', async function () {
+      const result = await adapter.parse('d: >2\n\n\n  Line one.\n  Line two.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '\n\nLine one. Line two.\n');
+    });
+
+    specify('should fold content lines after leading empty line', async function () {
+      const result = await adapter.parse('d: >2\n\n  Line one.\n\n  Line two.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '\nLine one.\nLine two.\n');
+    });
+  });
+
   // https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35
   context('given YAML 1.2 with more than 32768 lines', function () {
     specify('should parse', async function () {
