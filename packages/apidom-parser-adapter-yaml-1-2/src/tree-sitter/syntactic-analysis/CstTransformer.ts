@@ -33,9 +33,6 @@ interface CursorInfo {
 
 interface TransformContext {
   sourceMap: boolean;
-  // source text from `sourceStartIndex` to the end of input (text of the CST root node)
-  source: string;
-  sourceStartIndex: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schema: any;
   referenceManager: YamlReferenceManager;
@@ -784,11 +781,17 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
         : YamlStyle.Plain;
 
     // trailing empty lines belong to the block scalar (keep chomping), but the CST node
-    // ends at its last content character when another node follows
-    const followingEmptyLines = info.text.endsWith('\n')
-      ? ''
-      : ctx.source.slice(info.endIndex - ctx.sourceStartIndex).match(/^(?: *\r?\n)*/)![0];
-    const trailingLineBreaks = followingEmptyLines.replace(/[^\n]/g, '');
+    // ends at its last content character when another node follows; every line between
+    // the end of the node and the next node in source order is empty
+    let trailingLineBreaks = '';
+    if (!info.text.endsWith('\n')) {
+      let following = cursor.currentNode;
+      while (following.nextSibling === null && following.parent !== null) {
+        following = following.parent;
+      }
+      const nextRow = following.nextSibling?.startPosition.row ?? info.endPosition.row + 1;
+      trailingLineBreaks = '\n'.repeat(Math.max(nextRow - info.endPosition.row, 1));
+    }
 
     const scalarNode = new YamlScalar({
       content: info.text + trailingLineBreaks,
