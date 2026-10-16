@@ -1,26 +1,5 @@
-import {
-  tail,
-  compose,
-  pathOr,
-  map,
-  concat,
-  transduce,
-  pipe,
-  trim,
-  split,
-  join,
-  curry,
-  replace,
-} from 'ramda';
-import {
-  isInteger,
-  trimStart,
-  trimEnd,
-  isUndefined,
-  isEmptyString,
-  repeatStr,
-  concatRight,
-} from 'ramda-adjunct';
+import { tail, pathOr, map, pipe, trim, split, join, curry, replace } from 'ramda';
+import { isInteger, trimStart, isEmptyString, repeatStr } from 'ramda-adjunct';
 import { unraw } from 'unraw';
 
 /**
@@ -58,11 +37,43 @@ const getIndentation = (content: string): string => {
   return repeatStr(' ', implicitIndentationIndicator);
 };
 
-// removes the indentation from a content line; a whitespace-only line is an empty line
-const deindent =
-  (indentation: string) =>
-  (line: string): string =>
-    /^ *$/.test(line) ? '' : line.slice(Math.min(indentation.length, line.search(/[^ ]/)));
+// splits a block scalar body into deindented content lines and trailing lines (YAML 1.2 §8.1.1.2),
+// the same way the yaml package does: trailing lines are the whitespace-only lines after the last
+// content line, minus any up to and including the last one indented deeper than the block, which
+// are content; without any content line, all lines are trailing
+const splitBlockScalar = (
+  content: string,
+  chomping: '+' | '-' | undefined,
+): { lines: string[]; trailing: string[] } => {
+  const indentation = getIndentation(content).length;
+  const normalized = normalizeLineBreaks(content);
+  const body = normalized.includes('\n') ? normalized.slice(normalized.indexOf('\n') + 1) : '';
+  const lines = body === '' ? [] : body.split('\n');
+  const deindent = (line: string): string =>
+    line.slice(Math.min(indentation, line.search(/[^ ]|$/)));
+
+  // without keep chomping, trailing whitespace-only lines not indented deeper than the first
+  // content line don't belong to the block scalar
+  const firstContent = lines.find((line) => /[^ ]/.test(line));
+  if (chomping !== '+' && firstContent !== undefined) {
+    const contentIndentation = firstContent.search(/[^ ]/);
+    while (/^ *$/.test(lines.at(-1)!) && lines.at(-1)!.length <= contentIndentation) lines.pop();
+  }
+
+  let chompStart = lines.length;
+  while (chompStart > 0 && /^ *$/.test(lines[chompStart - 1])) chompStart -= 1;
+  if (chompStart === 0) return { lines: [], trailing: lines.map(deindent) };
+  for (let i = lines.length - 1; i >= chompStart; i -= 1) {
+    if (lines[i].length > indentation) {
+      chompStart = i + 1;
+      break;
+    }
+  }
+  return {
+    lines: lines.slice(0, chompStart).map(deindent),
+    trailing: lines.slice(chompStart).map(deindent),
+  };
+};
 
 const getChompingIndicator = (content: string): '+' | '-' | undefined => {
   const matches = content.match(blockStyleRegExp);
@@ -72,21 +83,26 @@ const getChompingIndicator = (content: string): '+' | '-' | undefined => {
   return isEmptyString(indicator) ? undefined : (indicator as '+' | '-');
 };
 
-const chomp = (indicator: '+' | '-' | undefined, content: string): string => {
-  // clip (single newline at end, none for empty content)
-  if (isUndefined(indicator)) {
-    const trimmed = trimEnd(content);
-    return isEmptyString(trimmed) ? '' : `${trimmed}\n`;
+const chomp = (
+  indicator: '+' | '-' | undefined,
+  value: string,
+  { lines, trailing }: { lines: string[]; trailing: string[] },
+): string => {
+  // a block without content is empty, unless keep chomping preserves its line breaks
+  if (lines.length === 0) {
+    return indicator === '+' && trailing.length > 0
+      ? '\n'.repeat(Math.max(1, trailing.length - 1))
+      : '';
   }
   // strip (no newline at end)
-  if (indicator === '-') {
-    return trimEnd(content);
-  }
-  // keep (all newlines from end)
+  if (indicator === '-') return value;
+  // keep (trailing lines and a newline at end)
   if (indicator === '+') {
-    return content;
+    const kept = value + trailing.map((line) => `\n${line}`).join('');
+    return kept.endsWith('\n') ? kept : `${kept}\n`;
   }
-  return content;
+  // clip (single newline at end)
+  return `${value}\n`;
 };
 
 /**
@@ -181,16 +197,10 @@ export const formatFlowDoubleQuoted = pipe(
  * https://yaml.org/spec/1.2/spec.html#id2795688
  */
 export const formatBlockLiteral = (content: string): string => {
-  const indentation = getIndentation(content);
-  const chompingIndicator = getChompingIndicator(content);
-  const normalized = normalizeLineBreaks(content);
-  // first line only contains indicators; a final line break ends the last line, it doesn't start a new one
-  const lines = tail(normalized.replace(/\n$/, '').split('\n'));
-  const transducer = compose(map(deindent(indentation)), map(concatRight('\n')));
-  // @ts-ignore
-  const deindented: string = transduce(transducer, concat, '', lines);
+  const chomping = getChompingIndicator(content);
+  const split = splitBlockScalar(content, chomping);
 
-  return chomp(chompingIndicator, deindented);
+  return chomp(chomping, split.lines.join('\n'), split);
 };
 
 /**
@@ -198,22 +208,12 @@ export const formatBlockLiteral = (content: string): string => {
  * https://yaml.org/spec/1.2/spec.html#id2796251
  */
 export const formatBlockFolded = (content: string): string => {
-  const indentation = getIndentation(content);
-  const chompingIndicator = getChompingIndicator(content);
-  const normalized = normalizeLineBreaks(content);
-  // first line only contains indicators; a final line break ends the last line, it doesn't start a new one
-  const lines = tail(normalized.replace(/\n$/, '').split('\n'));
-  const transducer = compose(map(deindent(indentation)), map(concatRight('\n')));
-  // @ts-ignore
-  const deindented: string = transduce(transducer, concat, '', lines);
-  // leading and trailing line breaks are preserved as-is; folding applies only between content lines
-  const leadingLineBreaks = deindented.match(/^\n*(?=[^\n])/)?.[0] ?? '';
-  const rest = deindented.slice(leadingLineBreaks.length);
-  const trailingLineBreaks = rest.match(/\n*$/)![0];
-  const collapsed =
-    leadingLineBreaks +
-    foldLines(rest.slice(0, rest.length - trailingLineBreaks.length)) +
-    trailingLineBreaks;
+  const chomping = getChompingIndicator(content);
+  const split = splitBlockScalar(content, chomping);
+  // leading line breaks are preserved as-is; folding applies only between content lines
+  const text = split.lines.join('\n');
+  const leadingLineBreaks = text.match(/^\n*/)![0];
+  const folded = leadingLineBreaks + foldLines(text.slice(leadingLineBreaks.length));
 
-  return chomp(chompingIndicator, collapsed);
+  return chomp(chomping, folded, split);
 };
