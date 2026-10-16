@@ -371,6 +371,47 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/635
+  context('given double-quoted escape sequences', function () {
+    specify('should decode YAML-only escapes', async function () {
+      const result = await adapter.parse('k: "\\a\\e\\N\\_\\L\\P"\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, '\x07\x1b\u0085\u00a0\u2028\u2029');
+    });
+
+    specify('should decode 8-digit unicode escape', async function () {
+      const result = await adapter.parse('k: "\\U0001F600"\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, '😀');
+    });
+
+    specify('should decode escapes shared with JavaScript', async function () {
+      const result = await adapter.parse(
+        'k: "\\0\\b\\t\\n\\v\\f\\r\\ \\"\\/\\\\\\x41\\u00e9\\uD83D\\uDE00"\n',
+      );
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, '\0\b\t\n\v\f\r "/\\Aé😀');
+    });
+
+    specify('should decode escaped tab', async function () {
+      const result = await adapter.parse('k: "a\\\tb"\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, 'a\tb');
+    });
+
+    specify('should decode null escape followed by digit', async function () {
+      const result = await adapter.parse('k: "\\01"\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, '\x001');
+    });
+
+    specify('should keep out of range unicode escape', async function () {
+      const result = await adapter.parse('k: "\\U00110000"\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, '\\U00110000');
+    });
+  });
+
   // https://github.com/speclynx/apidom/issues/610
   context('given block scalar with indentation indicator before chomping indicator', function () {
     specify('should apply both indicators to literal style', async function () {
