@@ -597,6 +597,48 @@ describe('adapter', function () {
       const { d } = toValue(result.result) as { d: string };
       assert.strictEqual(d, 'Line one. Line two.\n\nLine three.\n');
     });
+
+    specify('should not fold line breaks around tab started line', async function () {
+      const result = await adapter.parse('d: >\n  Line one.\n  \tTab started.\n  Line two.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n\tTab started.\nLine two.\n');
+    });
+
+    specify('should not fold line breaks between more-indented lines', async function () {
+      const result = await adapter.parse(
+        'd: >\n  Line one.\n    More one.\n    More two.\n  Line two.\n',
+      );
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n  More one.\n  More two.\nLine two.\n');
+    });
+
+    specify('should keep all empty lines around more-indented line', async function () {
+      const result = await adapter.parse(
+        'd: >\n  Line one.\n\n\n    More indented.\n\n\n  Line two.\n',
+      );
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n\n\n  More indented.\n\n\nLine two.\n');
+    });
+
+    specify('should keep more-indented last line with keep chomping', async function () {
+      const result = await adapter.parse('d: >+\n  Line one.\n    More indented.\n\n\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n  More indented.\n\n\n');
+    });
+
+    specify('should keep more-indented last line with strip chomping', async function () {
+      const result = await adapter.parse('d: >-\n  Line one.\n    More indented.\n\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n  More indented.');
+    });
+
+    specify('should not fold line breaks around more-indented line with CRLF', async function () {
+      const result = await adapter.parse(
+        'd: >\r\n  Line one.\r\n    More indented.\r\n  Line two.\r\n',
+      );
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n  More indented.\nLine two.\n');
+    });
   });
 
   // https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35
