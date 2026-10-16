@@ -433,7 +433,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
     ctx: TransformContext,
     siblings: SiblingContext,
   ): TransformResult[] | YamlScalar {
-    // Check if there's a kind node (scalar, mapping, or sequence)
+    // Check if there's a kind node (scalar, mapping, sequence or alias)
     let hasKindNode = false;
     let lastChildInfo: CursorInfo | null = null;
 
@@ -444,7 +444,8 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
         if (
           childInfo.type.endsWith('scalar') ||
           childInfo.type.endsWith('mapping') ||
-          childInfo.type.endsWith('sequence')
+          childInfo.type.endsWith('sequence') ||
+          childInfo.type === 'alias'
         ) {
           hasKindNode = true;
         }
@@ -840,7 +841,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
   alias(cursor: TreeCursor, ctx: TransformContext): YamlScalar {
     const info = getCursorInfo(cursor);
-    const alias = new YamlAlias({ content: info.text });
+    const alias = new YamlAlias({ content: info.text, ...toPositionProps(info) });
     return ctx.referenceManager.resolveAlias(alias);
   },
 

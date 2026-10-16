@@ -193,10 +193,34 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/617
   context('given an alias', function () {
     specify('should analyze alias as string', async function () {
       const result = await adapter.parse('*alias');
       assert.isTrue(isStringElement(result.result));
+      assert.strictEqual(toValue(result.result), '*alias');
+    });
+
+    specify('should analyze alias as mapping value', async function () {
+      const result = await adapter.parse('d: &a x\ne: *a\n');
+      assert.deepEqual(toValue(result.result), { d: 'x', e: '*a' });
+    });
+
+    specify('should analyze alias as sequence item', async function () {
+      const result = await adapter.parse('- *a\n- 1\n');
+      assert.deepEqual(toValue(result.result), ['*a', 1]);
+    });
+
+    specify('should analyze alias in flow mapping', async function () {
+      const result = await adapter.parse('{a: *x}\n');
+      assert.deepEqual(toValue(result.result), { a: '*x' });
+    });
+
+    specify('should generate source map for alias', async function () {
+      const result = await adapter.parse('d: &a x\ne: *a\n', { sourceMap: true });
+      const e = (result.result as ObjectElement).get('e') as StringElement;
+      assert.strictEqual(e.startOffset, 11);
+      assert.strictEqual(e.endOffset, 13);
     });
   });
 
