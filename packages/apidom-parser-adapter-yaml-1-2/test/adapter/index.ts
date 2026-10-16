@@ -722,6 +722,60 @@ describe('adapter', function () {
       const { d } = toValue(result.result) as { d: string };
       assert.strictEqual(d, 'Line one.\n  \n');
     });
+
+    specify('should keep line break of keep chomped whitespace-only block', async function () {
+      const result = await adapter.parse('d: |+\n  ');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '\n');
+    });
+
+    specify('should drop trailing line not indented deeper than content', async function () {
+      const result = await adapter.parse('d: |2-\n    Line one.\n   \n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '  Line one.');
+    });
+
+    specify(
+      'should drop unterminated trailing line not indented deeper than content',
+      async function () {
+        const result = await adapter.parse('d: >2\n    Line one.\n   ');
+        const { d } = toValue(result.result) as { d: string };
+        assert.strictEqual(d, '  Line one.\n');
+      },
+    );
+
+    specify('should keep spaces of trailing line with keep chomping', async function () {
+      const result = await adapter.parse('d: |2+\n    Line one.\n   \n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '  Line one.\n \n');
+    });
+
+    specify(
+      'should keep spaces of trailing lines before empty line with keep chomping',
+      async function () {
+        const result = await adapter.parse('d: |+\n  Line one.\n   \n\n');
+        const { d } = toValue(result.result) as { d: string };
+        assert.strictEqual(d, 'Line one.\n \n\n');
+      },
+    );
+
+    specify('should keep whitespace-only line with CRLF line breaks', async function () {
+      const result = await adapter.parse('d: |\r\n  Line one.\r\n   \r\n  Line two.\r\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n \nLine two.\n');
+    });
+
+    specify('should keep trailing spaces in folded style with strip chomping', async function () {
+      const result = await adapter.parse('d: >-\n  Line one.  \n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.  ');
+    });
+
+    specify('should keep trailing spaces in folded style with keep chomping', async function () {
+      const result = await adapter.parse('d: >+\n  Line one.  \n\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.  \n\n');
+    });
   });
 
   // https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35
