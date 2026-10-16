@@ -56,6 +56,15 @@ const getCursorInfo = (cursor: TreeCursor): CursorInfo => ({
   fieldName: cursor.currentFieldName,
 });
 
+// TreeCursor#copy() in web-tree-sitter 0.27.1 doesn't marshal the cursor it's called on, so it
+// copies whichever cursor or node was marshalled last; resetTo() marshals both cursors
+// https://github.com/tree-sitter/tree-sitter/issues/6045
+const copyCursor = (cursor: TreeCursor): TreeCursor => {
+  const copy = cursor.currentNode.tree.walk();
+  copy.resetTo(cursor);
+  return copy;
+};
+
 // Flat position properties extracted from CursorInfo
 interface PositionProps {
   startLine: number;
@@ -786,7 +795,7 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
     let trailingLineBreaks = '';
     if (!info.text.endsWith('\n')) {
       // a cursor copy walks up in constant time per step, unlike Node#parent
-      const following = cursor.copy();
+      const following = copyCursor(cursor);
       let hasNext = following.gotoNextSibling();
       while (!hasNext && following.gotoParent()) {
         hasNext = following.gotoNextSibling();
