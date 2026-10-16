@@ -28,6 +28,8 @@ const analyze = (cst: Tree, { sourceMap = false, style = false } = {}): ParseRes
     yamlAst = transformCstToYamlAst(cursor, {
       schema,
       sourceMap,
+      source: cst.rootNode.text,
+      sourceStartIndex: cst.rootNode.startIndex,
       referenceManager,
     });
   } finally {
