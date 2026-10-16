@@ -1,6 +1,5 @@
 import { tail, pathOr, pipe, trim, curry, replace } from 'ramda';
 import { isInteger, isEmptyString, repeatStr } from 'ramda-adjunct';
-import { unraw } from 'unraw';
 
 /**
  * Helpers.
@@ -144,6 +143,40 @@ const foldLines = (text: string): string => {
   return folded;
 };
 
+const escapeCodes: Record<string, string> = {
+  '0': '\0',
+  a: '\x07',
+  b: '\b',
+  e: '\x1b',
+  f: '\f',
+  n: '\n',
+  r: '\r',
+  t: '\t',
+  v: '\v',
+  N: '\u0085',
+  _: '\u00a0',
+  L: '\u2028',
+  P: '\u2029',
+  ' ': ' ',
+  '"': '"',
+  '/': '/',
+  '\\': '\\',
+  '\t': '\t',
+};
+
+// unescapes the escape sequences of a double-quoted scalar (YAML 1.2 §5.7); an escape sequence
+// outside of the spec is kept as-is
+const unescapeDoubleQuoted = (text: string): string =>
+  text.replace(
+    /\\(?:x([0-9a-fA-F]{2})|u([0-9a-fA-F]{4})|U([0-9a-fA-F]{8})|([^]))/g,
+    (match: string, x?: string, u?: string, U?: string, char?: string) => {
+      const hex = x ?? u ?? U;
+      if (hex === undefined) return escapeCodes[char!] ?? match;
+      const codePoint = parseInt(hex, 16);
+      return codePoint <= 0x10ffff ? String.fromCodePoint(codePoint) : match;
+    },
+  );
+
 const removeQuotes = curry((quoteType, val) =>
   val.replace(new RegExp(`^${quoteType}`), '').replace(new RegExp(`${quoteType}$`), ''),
 );
@@ -175,7 +208,7 @@ export const formatFlowDoubleQuoted = pipe(
   normalizeLineBreaks,
   trim,
   foldFlowLines(true),
-  unraw,
+  unescapeDoubleQuoted,
   removeQuotes('"'),
 );
 
