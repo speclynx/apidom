@@ -7,3 +7,4 @@ isolate-*.log
 .log*
 !.claude/
 .claude/settings.local.json
+.mcp.json
