@@ -327,6 +327,12 @@ describe('adapter', function () {
       const { k } = toValue(result.result) as { k: string };
       assert.strictEqual(k, 'Line one.\\ Line two.');
     });
+
+    specify('should fold long white space run in linear time', async function () {
+      const result = await adapter.parse(`k: "a${' '.repeat(200000)}b"\n`);
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k.length, 200002);
+    });
   });
 
   // https://github.com/speclynx/apidom/issues/610

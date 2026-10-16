@@ -118,9 +118,14 @@ const normalizeLineBreaks = (val: string) => val.replace(/\r\n/g, '\n');
 // unescaping and an escaped line break is dropped together with the next line's indentation
 const foldFlowLines = curry((escapes: boolean, text: string): string =>
   text.replace(
-    escapes ? /\\(?:\n[ \t]*|[^])|[ \t]*\n(?:[ \t]*\n)*[ \t]*/g : /[ \t]*\n(?:[ \t]*\n)*[ \t]*/g,
+    // a white space run not followed by a line break is consumed whole, which keeps the search
+    // linear instead of rescanning the run from every position in it
+    escapes
+      ? /\\(?:\n[ \t]*|[^])|[ \t]*\n(?:[ \t]*\n)*[ \t]*|[ \t]+/g
+      : /[ \t]*\n(?:[ \t]*\n)*[ \t]*|[ \t]+/g,
     (match: string) => {
       if (match.startsWith('\\')) return match[1] === '\n' ? '' : match;
+      if (!match.includes('\n')) return match;
       const lineBreaks = match.split('\n').length - 1;
       return lineBreaks === 1 ? ' ' : '\n'.repeat(lineBreaks - 1);
     },
