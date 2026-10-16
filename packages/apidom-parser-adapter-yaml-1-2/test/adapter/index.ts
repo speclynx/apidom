@@ -405,6 +405,18 @@ describe('adapter', function () {
       assert.strictEqual(k, '\x001');
     });
 
+    specify('should not decode escape after escaped backslash', async function () {
+      const result = await adapter.parse('k: "\\\\n\\\\U0001F600\\\\\\x41"\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, '\\n\\U0001F600\\A');
+    });
+
+    specify('should decode escapes next to folded and escaped line breaks', async function () {
+      const result = await adapter.parse('k: "\\e\n  \\N\\\n  \\_\n\n  \\L"\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, '\x1b \u0085\u00a0\n\u2028');
+    });
+
     specify('should keep out of range unicode escape', async function () {
       const result = await adapter.parse('k: "\\U00110000"\n');
       const { k } = toValue(result.result) as { k: string };
