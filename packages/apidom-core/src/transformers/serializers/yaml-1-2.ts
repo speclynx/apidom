@@ -23,6 +23,7 @@ import {
   isLinkElement,
   isStringElement,
   isMemberElement,
+  includesClasses,
 } from '@speclynx/apidom-datamodel';
 
 import toValue from './value.ts';
@@ -198,6 +199,12 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
   const scalarType = style.scalarStyle ? scalarStyleMap[style.scalarStyle] : undefined;
 
   const scalar = new Scalar(toValue(element));
+  // an empty node (YAML 1.2 §7.2) is parsed as an empty string; while it's still empty, write it
+  // back as a null with no content instead of as ""
+  if (scalar.value === '' && includesClasses(element, ['yaml-e-node'])) {
+    scalar.value = null;
+    scalar.source = '';
+  }
   if (scalarType) {
     scalar.type = scalarType;
   }
