@@ -559,6 +559,46 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/567
+  context('given folded block scalar with more-indented lines', function () {
+    specify('should not fold line breaks around more-indented lines', async function () {
+      const result = await adapter.parse(
+        'd: >-\n  Typically printed\n    * Routing number\n    * Account number\n  This is sensitive\n',
+      );
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(
+        d,
+        'Typically printed\n  * Routing number\n  * Account number\nThis is sensitive',
+      );
+    });
+
+    specify('should keep empty lines around more-indented line', async function () {
+      const result = await adapter.parse(
+        'd: >\n  Line one.\n\n    More indented.\n\n  Line two.\n',
+      );
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one.\n\n  More indented.\n\nLine two.\n');
+    });
+
+    specify('should fold lines before more-indented line', async function () {
+      const result = await adapter.parse('d: >\n  Line one.\n  Line two.\n    More indented.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one. Line two.\n  More indented.\n');
+    });
+
+    specify('should keep more-indented first line', async function () {
+      const result = await adapter.parse('d: >2\n   More indented.\n  Line one.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, ' More indented.\nLine one.\n');
+    });
+
+    specify('should turn empty lines between lines into line breaks', async function () {
+      const result = await adapter.parse('d: >\n  Line one.\n  Line two.\n\n\n  Line three.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, 'Line one. Line two.\n\nLine three.\n');
+    });
+  });
+
   // https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35
   context('given YAML 1.2 with more than 32768 lines', function () {
     specify('should parse', async function () {
