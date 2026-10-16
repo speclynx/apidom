@@ -343,6 +343,23 @@ describe('adapter', function () {
       const { d } = toValue(result.result) as { d: string };
       assert.strictEqual(d, '');
     });
+
+    specify('should parse clip as empty string when followed by another key', async function () {
+      const result = await adapter.parse('d: |\nb: 1\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '');
+    });
+
+    specify('should parse whitespace-only content as empty string', async function () {
+      const result = await adapter.parse('d: |\n  \n  \n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '');
+    });
+
+    specify('should parse sequence items as empty strings', async function () {
+      const result = await adapter.parse('- |\n- >\n');
+      assert.deepEqual(toValue(result.result), ['', '']);
+    });
   });
 
   // https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35
