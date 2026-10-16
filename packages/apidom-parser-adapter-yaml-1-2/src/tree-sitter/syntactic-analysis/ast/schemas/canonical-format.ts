@@ -114,6 +114,18 @@ const collapseLineBreakToSpace = (val: string) => {
     .replace(/[\n]{2}/g, '\n');
 };
 
+// folds the line break between two lines into a space; empty lines between them stay as line
+// breaks, and a line break next to a more-indented line isn't folded (YAML 1.2 §6.5)
+const foldLines = (text: string): string => {
+  const parts = text.split(/\n(\n*)/); // lines alternating with the empty lines between them
+  let folded = parts[0];
+  for (let i = 1; i < parts.length; i += 2) {
+    const moreIndented = /^[ \t]/.test(parts[i - 1]) || /^[ \t]/.test(parts[i + 1]);
+    folded += (moreIndented ? `\n${parts[i]}` : parts[i] || ' ') + parts[i + 1];
+  }
+  return folded;
+};
+
 const removeQuotes = curry((quoteType, val) =>
   val.replace(new RegExp(`^${quoteType}`), '').replace(new RegExp(`${quoteType}$`), ''),
 );
@@ -198,7 +210,7 @@ export const formatBlockFolded = (content: string): string => {
   const trailingLineBreaks = rest.match(/\n*$/)![0];
   const collapsed =
     leadingLineBreaks +
-    collapseLineBreakToSpace(rest.slice(0, rest.length - trailingLineBreaks.length)) +
+    foldLines(rest.slice(0, rest.length - trailingLineBreaks.length)) +
     trailingLineBreaks;
 
   return chomp(chompingIndicator, collapsed);
