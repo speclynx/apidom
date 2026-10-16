@@ -46,8 +46,10 @@ const getIndentation = (content: string): string => {
     return repeatStr(' ', explicitIndentationIndicator);
   }
 
-  // we assume indentation indicator from first non-empty line (YAML 1.2 §8.1.1.1)
-  const firstLine = tail(content.split('\n')).find((line) => !/^ *\r?$/.test(line)) ?? '';
+  // we assume indentation indicator from first non-empty line (YAML 1.2 §8.1.1.1);
+  // with no non-empty line, the first line is used so that its spaces are still stripped
+  const lines = tail(content.split('\n'));
+  const firstLine = lines.find((line) => !/^ *\r?$/.test(line)) ?? pathOr('', [0], lines);
   const implicitIndentationIndicator = pathOr(
     0,
     ['groups', 'indentation', 'length'],

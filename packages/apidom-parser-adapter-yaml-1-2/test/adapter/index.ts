@@ -304,6 +304,12 @@ describe('adapter', function () {
       const { d } = toValue(result.result) as { d: string };
       assert.strictEqual(d, '\nLine one.\n');
     });
+
+    specify('should strip spaces of whitespace-only content', async function () {
+      const result = await adapter.parse('d: >+\n   \n  \n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '\n\n');
+    });
   });
 
   // https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35
