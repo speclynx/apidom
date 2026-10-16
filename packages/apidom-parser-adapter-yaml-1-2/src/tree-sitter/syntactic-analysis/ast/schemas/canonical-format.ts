@@ -28,7 +28,7 @@ import { unraw } from 'unraw';
  */
 
 // indentation and chomping indicators may appear in either order (YAML 1.2 §8.1.1)
-const blockStyleRegExp = /^(?<style>[|>])(?<indicators>[+-]?[0-9]?|[0-9][+-])\s/;
+const blockStyleRegExp = /^(?<style>[|>])(?<indicators>[+-]?[0-9]?|[0-9][+-])(?:\s|$)/;
 
 const getIndentationIndicator = (content: string): number | undefined => {
   const matches = content.match(blockStyleRegExp);
@@ -67,9 +67,10 @@ const getChompingIndicator = (content: string): '+' | '-' | undefined => {
 };
 
 const chomp = (indicator: '+' | '-' | undefined, content: string): string => {
-  // clip (single newline at end)
+  // clip (single newline at end, none for empty content)
   if (isUndefined(indicator)) {
-    return `${trimEnd(content)}\n`;
+    const trimmed = trimEnd(content);
+    return isEmptyString(trimmed) ? '' : `${trimmed}\n`;
   }
   // strip (no newline at end)
   if (indicator === '-') {

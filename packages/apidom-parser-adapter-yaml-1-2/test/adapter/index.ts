@@ -312,6 +312,56 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/613
+  context('given empty block scalar', function () {
+    specify('should parse literal style as empty string', async function () {
+      const result = await adapter.parse('d: |\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '');
+    });
+
+    specify('should parse folded style with empty lines as empty string', async function () {
+      const result = await adapter.parse('d: >\n\n\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '');
+    });
+
+    specify('should parse as empty string when followed by another key', async function () {
+      const result = await adapter.parse('d: |-\nb: 1\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '');
+    });
+
+    specify('should parse as empty string at end of input', async function () {
+      const result = await adapter.parse('d: |2-');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '');
+    });
+
+    specify('should parse as empty string when header has comment', async function () {
+      const result = await adapter.parse('d: | # comment\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '');
+    });
+
+    specify('should parse clip as empty string when followed by another key', async function () {
+      const result = await adapter.parse('d: |\nb: 1\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '');
+    });
+
+    specify('should parse whitespace-only content as empty string', async function () {
+      const result = await adapter.parse('d: |\n  \n  \n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '');
+    });
+
+    specify('should parse sequence items as empty strings', async function () {
+      const result = await adapter.parse('- |\n- >\n');
+      assert.deepEqual(toValue(result.result), ['', '']);
+    });
+  });
+
   // https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35
   context('given YAML 1.2 with more than 32768 lines', function () {
     specify('should parse', async function () {
