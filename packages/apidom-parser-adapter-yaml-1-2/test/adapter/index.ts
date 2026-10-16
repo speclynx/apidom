@@ -527,13 +527,21 @@ describe('adapter', function () {
       assert.deepEqual(toValue(result.result), { a: { d: '  Line one.\n' } });
     });
 
-    specify(
-      'should apply indicator relative to nested key followed by another key',
-      async function () {
-        const result = await adapter.parse('a:\n  d: |2-\n\n    Line one.\n  e: 1\n');
-        assert.deepEqual(toValue(result.result), { a: { d: '\nLine one.', e: 1 } });
-      },
-    );
+    specify('should apply indicator relative to key followed by another key', async function () {
+      const result = await adapter.parse('a:\n  d: |1\n     Line one.\n  e: 1\n');
+      assert.deepEqual(toValue(result.result), { a: { d: '  Line one.\n', e: 1 } });
+    });
+
+    specify('should apply indicator relative to key with anchor and tag', async function () {
+      const result = await adapter.parse('a:\n  d: &x !!str |2\n      Line one.\n');
+      assert.deepEqual(toValue(result.result), { a: { d: '  Line one.\n' } });
+    });
+
+    specify('should apply indicator in folded style', async function () {
+      const result = await adapter.parse('d: >1\n   Line one.\n');
+      const { d } = toValue(result.result) as { d: string };
+      assert.strictEqual(d, '  Line one.\n');
+    });
 
     specify('should apply indicator relative to sequence item', async function () {
       const result = await adapter.parse('- |1\n   Line one.\n');
