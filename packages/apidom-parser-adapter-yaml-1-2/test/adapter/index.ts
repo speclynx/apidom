@@ -272,6 +272,63 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/628
+  context('given multi-line flow scalar', function () {
+    specify('should turn whitespace-only line into line break', async function () {
+      const result = await adapter.parse('k: Line one.\n  \n  Line two.\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, 'Line one.\nLine two.');
+    });
+
+    specify('should drop trailing space before line break', async function () {
+      const result = await adapter.parse('k: Line one. \n  Line two.\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, 'Line one. Line two.');
+    });
+
+    specify('should keep empty line after whitespace-only line', async function () {
+      const result = await adapter.parse('k: Line one.\n  \n\n  Line two.\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, 'Line one.\n\nLine two.');
+    });
+
+    specify('should drop trailing tab in single-quoted style', async function () {
+      const result = await adapter.parse("k: 'Line one.\t\n  Line two.'\n");
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, 'Line one. Line two.');
+    });
+
+    specify('should keep escaped space before line break', async function () {
+      const result = await adapter.parse('k: "Line one.\\ \n  Line two."\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, 'Line one.  Line two.');
+    });
+
+    specify('should keep escaped tab after escaped line feed', async function () {
+      const result = await adapter.parse('k: "\\n\\tLine one."\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, '\n\tLine one.');
+    });
+
+    specify('should join lines at escaped line break', async function () {
+      const result = await adapter.parse('k: "Line one.\\\n    Line two."\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, 'Line one.Line two.');
+    });
+
+    specify('should fold empty line after escaped line break', async function () {
+      const result = await adapter.parse('k: "Line one.\\\n\n  Line two."\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, 'Line one. Line two.');
+    });
+
+    specify('should not treat escaped backslash as escaped line break', async function () {
+      const result = await adapter.parse('k: "Line one.\\\\\n  Line two."\n');
+      const { k } = toValue(result.result) as { k: string };
+      assert.strictEqual(k, 'Line one.\\ Line two.');
+    });
+  });
+
   // https://github.com/speclynx/apidom/issues/610
   context('given block scalar with indentation indicator before chomping indicator', function () {
     specify('should apply both indicators to literal style', async function () {
