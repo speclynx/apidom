@@ -57,15 +57,11 @@ const getIndentation = (content: string): string => {
   return repeatStr(' ', implicitIndentationIndicator);
 };
 
-// removes exactly the indentation from a content line; a whitespace-only line is an empty line
+// removes the indentation from a content line; a whitespace-only line is an empty line
 const deindent =
   (indentation: string) =>
-  (line: string): string => {
-    const leadingSpaces = line.search(/[^ ]|$/);
-    return leadingSpaces === line.length
-      ? ''
-      : line.slice(Math.min(indentation.length, leadingSpaces));
-  };
+  (line: string): string =>
+    /^ *$/.test(line) ? '' : line.slice(Math.min(indentation.length, line.search(/[^ ]/)));
 
 const getChompingIndicator = (content: string): '+' | '-' | undefined => {
   const matches = content.match(blockStyleRegExp);

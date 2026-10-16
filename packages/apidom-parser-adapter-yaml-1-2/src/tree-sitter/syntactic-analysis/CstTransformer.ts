@@ -806,25 +806,14 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
     }
 
     // an explicit indentation indicator is relative to the parent node's indentation: the
-    // column of the enclosing mapping pair or sequence item (0 at top level); content lines
-    // are rebased to it so that the indicator can be applied to them as is
-    const ancestor = copyCursor(cursor);
-    let parentIndentation = 0;
-    while (ancestor.gotoParent()) {
-      if (
-        ancestor.nodeType === 'block_mapping_pair' ||
-        ancestor.nodeType === 'block_sequence_item'
-      ) {
-        parentIndentation = ancestor.startPosition.column;
-        break;
-      }
-    }
-    ancestor.delete();
-    const [header, ...lines] = info.text.split('\n');
-    const rebased = [
-      header,
-      ...lines.map((line) => line.slice(Math.min(parentIndentation, line.search(/[^ ]|$/)))),
-    ].join('\n');
+    // column of the mapping pair or sequence item holding the block node (0 at top level);
+    // content lines are rebased to it so that the indicator can be applied to them as is
+    const holder = cursor.currentNode.parent?.parent;
+    const parentIndentation =
+      holder?.type === 'block_mapping_pair' || holder?.type === 'block_sequence_item'
+        ? holder.startPosition.column
+        : 0;
+    const rebased = info.text.replace(new RegExp(`\n {0,${parentIndentation}}`, 'g'), '\n');
 
     const scalarNode = new YamlScalar({
       content: rebased + trailingLineBreaks,
