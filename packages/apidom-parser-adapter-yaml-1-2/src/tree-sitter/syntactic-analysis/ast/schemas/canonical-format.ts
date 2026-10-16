@@ -46,8 +46,8 @@ const getIndentation = (content: string): string => {
     return repeatStr(' ', explicitIndentationIndicator);
   }
 
-  // we assume indentation indicator from first line
-  const firstLine = pathOr('', [1], content.split('\n'));
+  // we assume indentation indicator from first non-empty line (YAML 1.2 §8.1.1.1)
+  const firstLine = tail(content.split('\n')).find((line) => !/^ *\r?$/.test(line)) ?? '';
   const implicitIndentationIndicator = pathOr(
     0,
     ['groups', 'indentation', 'length'],
