@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import {
   ObjectElement,
+  ArrayElement,
   MemberElement,
   StringElement,
   isArrayElement,
@@ -383,6 +384,56 @@ describe('adapter', function () {
       (result.result as ObjectElement).set('d', 'changed');
       (result.result as ObjectElement).get('d')!.style = { yaml: { scalarStyle: 'Folded' } };
       assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), 'd: >-\n  changed\n');
+    });
+  });
+
+  // https://github.com/speclynx/apidom/issues/663
+  context('given flow scalar serialized back with preserveStyle', function () {
+    const long = 'word '.repeat(20).trim();
+
+    specify('should write long flow scalars back as written', async function () {
+      for (const source of [
+        `a: ${long}\n`,
+        `a: '${long} it''s'\n`,
+        `a: "${long} \\t"\n`,
+        `'${long}': 1\n`,
+      ]) {
+        const result = await adapter.parse(source, { style: true });
+        assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), source);
+      }
+    });
+
+    specify('should write line breaks back re-indented', async function () {
+      const result = await adapter.parse('a: multi\n    line\n\n     more\n', { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, 'a: multi\n  line\n\n  more\n');
+    });
+
+    specify('should write text that has another value where written from value', async function () {
+      const result = await adapter.parse('a: x, y\nb: [1]\n', { style: true });
+      const root = result.result as ObjectElement;
+      (root.get('b') as ArrayElement).push(root.get('a'));
+      assert.strictEqual(toYAML(root, { preserveStyle: true }), 'a: x, y\nb: [1, "x, y"]\n');
+    });
+
+    specify('should write multi-line key from value', async function () {
+      for (const [source, expected] of [
+        ["? 'a\n  b'\n: v\n", "'a b': v\n"],
+        ['- ? a\n    b\n  : c\n', '- a b: c\n'],
+        ["[ ? 'x\n  y' : z ]\n", "[ 'x y': z ]\n"],
+      ]) {
+        const result = await adapter.parse(source, { style: true });
+        assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), expected);
+      }
+    });
+
+    specify('should refold a changed value', async function () {
+      const result = await adapter.parse('d: a long text\n', { style: true });
+      (result.result as ObjectElement).get('d')!.content = long;
+      assert.strictEqual(
+        toYAML(result.result!, { preserveStyle: true }),
+        'd: word word word word word word word word word word word word word word word\n  word word word word word\n',
+      );
     });
   });
 

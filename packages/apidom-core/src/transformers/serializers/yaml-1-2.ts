@@ -209,6 +209,38 @@ const rawBlockScalarTag: ScalarTag = {
   },
 };
 
+// the YAML library refolds a long flow scalar; a flow scalar is boxed with its source text and
+// emitted as that text, its continuation lines re-indented (the white space starting them isn't part
+// of the value, YAML 1.2 §7.3), while the text still has the value where it's written
+class RawFlowScalar {
+  constructor(
+    public value: string,
+    public text: string,
+  ) {}
+}
+
+const rawFlowScalarTag: ScalarTag = {
+  tag: 'tag:yaml.org,2002:str',
+  default: true,
+  identify: (value: unknown): boolean => value instanceof RawFlowScalar,
+  resolve: (str: string): string => str,
+  stringify: (item, ctx, onComment, onChompKeep): string => {
+    const { value, text } = item.value as RawFlowScalar;
+    const str = text.replace(/\n[ \t]*/g, `\n${ctx.indent}`).replace(/^[ \t]+$/gm, '');
+    if (str === stringifyString({ ...item, value }, ctx)) return str;
+    // text the library wouldn't write is checked: an implicit key is on one line (YAML 1.2 §7.4.1),
+    // and the text has the value in a flow sequence for a key or a node in a flow collection, or on
+    // its own
+    if (!(ctx.implicitKey && str.includes('\n'))) {
+      const inFlow = ctx.inFlow || ctx.implicitKey;
+      const doc = parseDocument(inFlow ? `[${str}]\n` : `${str}\n`);
+      const parsed = doc.errors.length === 0 ? doc.toJS() : undefined;
+      if ((inFlow ? parsed?.[0] : parsed) === value) return str;
+    }
+    return stringifyString({ ...item, value }, ctx, onComment, onChompKeep);
+  },
+};
+
 /**
  * Tracks state across a single serialization: the ancestor chain used for cycle
  * detection, and — when `aliasDuplicateObjects` is enabled — the container node
@@ -398,6 +430,15 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     scalar.value = new RawBlockScalar(scalar.value, text);
   }
 
+  if (
+    style.styleGroup === 'Flow' &&
+    typeof style.rawContent === 'string' &&
+    typeof scalar.value === 'string' &&
+    scalar.value !== ''
+  ) {
+    scalar.value = new RawFlowScalar(scalar.value, style.rawContent.replace(/\r\n/g, '\n'));
+  }
+
   applyComments(scalar, style);
   if (!isEmptyNode) {
     applyTag(scalar, element, style);
@@ -449,7 +490,13 @@ const serializer = (
     });
     const doc = new Document(undefined, {
       ...allOptions,
-      customTags: [rawNumberTag, taggedStringTag, emptyNodePropertiesTag, rawBlockScalarTag],
+      customTags: [
+        rawNumberTag,
+        taggedStringTag,
+        emptyNodePropertiesTag,
+        rawBlockScalarTag,
+        rawFlowScalarTag,
+      ],
     });
     doc.contents = rootNode as YAMLNode;
     const { documentComment } = getStyle(element);

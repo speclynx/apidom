@@ -654,7 +654,9 @@ the root node are written back too; comments on the lines after a root scalar or
 written as the document's comment, after a blank line. A block scalar (`|`, `>`) is written back as written, with its
 original line breaks and indicators and re-indented under its parent, as long as that text still has
 the element's value where it is written; otherwise, the block is written from the value, folded at `lineWidth`
-(pass `lineWidth: 0` to disable folding). A single
+(pass `lineWidth: 0` to disable folding). Flow scalars (plain, `'…'`, `"…"`) are written back as written too,
+with their line breaks and continuation lines re-indented, as long as that text has the element's value where
+it is written. A single
 pair in a flow sequence (e.g. `[a: 1]`) is written back as a pair while its mapping still has one pair,
 unless `aliasDuplicateObjects` is used.
 
