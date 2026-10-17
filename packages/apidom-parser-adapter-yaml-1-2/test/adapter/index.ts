@@ -345,6 +345,12 @@ describe('adapter', function () {
       }
     });
 
+    specify('should write comments before, on and after the root line back', async function () {
+      const result = await adapter.parse('# top\n[a] # c\n# d\n# e\n', { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, '# top\n[a] # c\n\n# d\n# e\n');
+    });
+
     specify('should write comment on a later line back as document comment', async function () {
       const result = await adapter.parse('a # c\n# after\n', { style: true });
       assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), 'a # c\n\n# after\n');
