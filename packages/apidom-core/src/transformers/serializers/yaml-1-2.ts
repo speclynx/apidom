@@ -17,7 +17,7 @@ import {
   type ToStringOptions,
   type Tags,
 } from 'yaml';
-import { stringifyString } from 'yaml/util';
+import { stringifyString, stringTag } from 'yaml/util';
 import {
   Element,
   isElement,
@@ -133,32 +133,42 @@ const rawNumberTag: ScalarTag = {
   stringify: (item): string => (item.value as RawNumber).raw,
 };
 
-// the YAML library writes a block scalar's indentation indicator for content two columns right of the
-// parent node, which is where a sequence item's content is; a mapping key's or value's content is an
-// indentation step right of the parent (YAML 1.2 §8.1.1.1), so their indicator is that step, and
-// as an indicator is one digit, content of a step over 9 is moved to the 9th column
-const pairScalars = new WeakSet<object>();
+type StringifyContext = Parameters<NonNullable<ScalarTag['stringify']>>[1];
 
-const withIndentationIndicator = (item: Scalar, indentStep: string, str: string): string => {
-  if (!pairScalars.has(item) || !/^[|>]2/.test(str)) return str;
-  const indicator = Math.min(indentStep.length, 9);
-  const [header, ...lines] = str.split('\n');
-  return [
-    header.replace(/^([|>])2/, `$1${indicator}`),
-    ...lines.map((line) => line.slice(indentStep.length - indicator)),
-  ].join('\n');
+// the YAML library writes a block scalar's indentation indicator for content two columns right of
+// the parent node, as a sequence item's is; a mapping entry's content is an indentation step right of
+// it (YAML 1.2 §8.1.1.1), so a mapping entry's indicator is that step, at most 9 (one digit) with
+// deeper content moved left to match
+const entryScalars = new WeakSet<Scalar>();
+
+const stringifyStr = (
+  item: Scalar,
+  value: string,
+  ctx: StringifyContext,
+  onComment?: () => void,
+  onChompKeep?: () => void,
+): string => {
+  const str = stringifyString({ ...item, value }, ctx, onComment, onChompKeep);
+  if (!entryScalars.has(item) || !/^[|>]2/.test(str)) return str;
+  const indicator = Math.min(ctx.indentStep.length, 9);
+  const moved = new RegExp(`\n {${ctx.indentStep.length - indicator}}`, 'g');
+  return `${str[0]}${indicator}${str.slice(2)}`.replace(moved, '\n');
 };
 
-// the indicator of every scalar the library writes
-const withLibraryIndentationIndicator = (tag: Tags[number]): Tags[number] => {
-  if (typeof tag === 'string' || !(tag as ScalarTag).stringify) return tag;
-  const { stringify } = tag as ScalarTag;
-  return {
-    ...(tag as ScalarTag),
-    stringify: (item, ctx, onComment, onChompKeep): string =>
-      withIndentationIndicator(item, ctx.indentStep, stringify!(item, ctx, onComment, onChompKeep)),
-  };
+const entryStringTag: ScalarTag = {
+  ...stringTag,
+  stringify: (item, ctx, onComment, onChompKeep): string =>
+    stringifyStr(
+      item,
+      item.value as string,
+      { actualString: true, ...ctx },
+      onComment,
+      onChompKeep,
+    ),
 };
+
+const withEntryStringTag = (tags: Tags): Tags =>
+  tags.map((tag) => (tag === stringTag ? entryStringTag : tag));
 
 // the YAML library quotes a plain string that would otherwise resolve to another type (e.g. 1,
 // true), but an explicit tag already makes it a string; tagged strings are boxed and emitted
@@ -173,12 +183,7 @@ const taggedStringTag: ScalarTag = {
   identify: (value: unknown): boolean => value instanceof TaggedString,
   resolve: (str: string): string => str,
   stringify: (item, ctx, onComment, onChompKeep): string =>
-    stringifyString(
-      { ...item, value: (item.value as TaggedString).value },
-      ctx,
-      onComment,
-      onChompKeep,
-    ),
+    stringifyStr(item, (item.value as TaggedString).value, ctx, onComment, onChompKeep),
 };
 
 // a node with no content written by the YAML library: an empty node with properties (anchor, tag),
@@ -235,11 +240,7 @@ const rawBlockScalarTag: ScalarTag = {
       );
       if (columns.every((column) => hasValue(str, value, column))) return str;
     }
-    return withIndentationIndicator(
-      item,
-      ctx.indentStep,
-      stringifyString({ ...item, value }, ctx, onComment, onChompKeep),
-    );
+    return stringifyStr(item, value, ctx, onComment, onChompKeep);
   },
 };
 
@@ -271,7 +272,7 @@ const rawFlowScalarTag: ScalarTag = {
       const parsed = doc.errors.length === 0 ? doc.toJS() : undefined;
       if ((inFlow ? parsed?.[0] : parsed) === value) return str;
     }
-    return stringifyString({ ...item, value }, ctx, onComment, onChompKeep);
+    return stringifyStr(item, value, ctx, onComment, onChompKeep);
   },
 };
 
@@ -547,10 +548,12 @@ const serializer = (
     doc = new Document(undefined, {
       ...allOptions,
       customTags: (tags) => [
-        ...[...tags, rawNumberTag, taggedStringTag, rawTextTag, rawFlowScalarTag].map(
-          withLibraryIndentationIndicator,
-        ),
+        ...withEntryStringTag(tags),
+        rawNumberTag,
+        taggedStringTag,
+        rawTextTag,
         rawBlockScalarTag,
+        rawFlowScalarTag,
       ],
     });
     doc.contents = rootNode as YAMLNode;
@@ -559,7 +562,7 @@ const serializer = (
   } else {
     doc = new Document(toValue(element), createCycleSafeReplacer(), {
       ...allOptions,
-      customTags: (tags) => tags.map(withLibraryIndentationIndicator),
+      customTags: withEntryStringTag,
     });
   }
 
@@ -567,8 +570,8 @@ const serializer = (
   if ((allOptions.indent ?? 2) !== 2) {
     visit(doc, {
       Pair: (_, pair) => {
-        if (isScalar(pair.key)) pairScalars.add(pair.key);
-        if (isScalar(pair.value)) pairScalars.add(pair.value);
+        if (isScalar(pair.key)) entryScalars.add(pair.key);
+        if (isScalar(pair.value)) entryScalars.add(pair.value);
       },
     });
   }
