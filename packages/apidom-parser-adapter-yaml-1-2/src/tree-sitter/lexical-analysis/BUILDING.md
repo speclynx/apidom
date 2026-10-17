@@ -9,6 +9,7 @@
 | `0002-deep-nesting.patch` | [tree-sitter-grammars/tree-sitter-yaml#47](https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/47) (`ebf98e2`) | out-of-bounds write when serializing the scanner state of deeply nested documents |
 | `0003-flow-explicit-key-without-value.patch` | [speclynx/apidom#648](https://github.com/speclynx/apidom/issues/648) | explicit flow pair without a value (e.g. `{ ? a }`) being a syntax error |
 | `0004-block-scalar-header-comment.patch` | [speclynx/apidom#626](https://github.com/speclynx/apidom/issues/626) | a header comment ending a block scalar whose content is indented past the comment (e.g. `>- # c` + deeper content) |
+| `0005-block-scalar-indentation.patch` | [speclynx/apidom#641](https://github.com/speclynx/apidom/issues/641) | a comment after a block scalar ending up in its value: indentation detection stopping at a leading empty line (or the `\n` of a `\r\n` line break), and a top-level indentation indicator counted from column -1 |
 
 A patch taken from an upstream pull request is that pull request's change on top of `a1c4812`. Once it's merged
 upstream, move the base commit past it and delete the patch.

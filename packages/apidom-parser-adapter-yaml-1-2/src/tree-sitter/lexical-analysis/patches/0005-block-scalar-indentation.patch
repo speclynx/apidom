@@ -1,0 +1,76 @@
+diff --git a/src/scanner.c b/src/scanner.c
+index f788854..91febfc 100644
+--- a/src/scanner.c
++++ b/src/scanner.c
+@@ -713,7 +713,8 @@ static bool scn_blk_str_bgn(Scanner *scanner, TSLexer *lexer, TSSymbol result_sy
+     }
+     mrk_end(scanner, lexer);
+     if (ind != -1) {
+-        ind += cur_ind;
++        // a top-level block scalar's indentation indicator counts from column 0
++        ind += cur_ind < 0 ? 0 : cur_ind;
+     } else {
+         ind = cur_ind;
+         while (is_wsp(lexer->lookahead)) {
+@@ -732,10 +733,11 @@ static bool scn_blk_str_bgn(Scanner *scanner, TSLexer *lexer, TSSymbol result_sy
+             if (lexer->lookahead == ' ') {
+                 adv(scanner, lexer);
+             } else if (is_nwl(lexer->lookahead)) {
+-                if (scanner->cur_col - 1 < ind) {
+-                    break;
++                // leading empty lines don't decide the indentation, the first non-empty line does
++                // (YAML 1.2 §8.1.1.1); this includes the \n of a \r\n line break
++                if (scanner->cur_col - 1 > ind) {
++                    ind = scanner->cur_col - 1;
+                 }
+-                ind = scanner->cur_col - 1;
+                 adv_nwl(scanner, lexer);
+             } else {
+                 if (scanner->cur_col - 1 > ind) {
+diff --git a/test/corpus/08_blocks.txt b/test/corpus/08_blocks.txt
+index 21b74d4..463931f 100644
+--- a/test/corpus/08_blocks.txt
++++ b/test/corpus/08_blocks.txt
+@@ -803,3 +803,42 @@ Block scalar header comment with deeper content
+           (block_node
+             (block_scalar
+               (comment))))))))
++
++================================================================================
++Block scalar leading empty line and less indented comment
++================================================================================
++- |
++
++  y
++ # t
++- z
++
++--------------------------------------------------------------------------------
++
++(stream
++  (document
++    (block_node
++      (block_sequence
++        (block_sequence_item
++          (block_node
++            (block_scalar)))
++        (comment)
++        (block_sequence_item
++          (flow_node
++            (plain_scalar
++              (string_scalar))))))))
++
++================================================================================
++Top-level block scalar indentation indicator and column 0 comment
++================================================================================
++|1
++  a
++# c
++
++--------------------------------------------------------------------------------
++
++(stream
++  (document
++    (block_node
++      (block_scalar)))
++  (comment))
