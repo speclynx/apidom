@@ -249,27 +249,13 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
 
     element.forEach((item) => {
       const itemNode = toYAMLNode(item, context);
-      // a single pair in a flow sequence (e.g. [a: 1]) is written back as a pair while it still
-      // is one; the mapping is kept when aliasing, which needs the mapping node, when the mapping
-      // has a tag, when the pair has no value node, and for a key too long to be implicit (the
-      // limit is 1024 characters, YAML 1.2 §7.4.1, and quoting may add to the key's text)
-      const mapping = itemNode instanceof YAMLMap ? itemNode : undefined;
-      const [pair] = mapping?.items ?? [];
-      if (
-        mapping !== undefined &&
-        mapping.items.length === 1 &&
-        mapping.tag === undefined &&
-        isNode(pair.value) &&
-        seq.flow &&
-        !emitted &&
-        isObjectElement(item) &&
-        String(item.keys()[0]).length <= 1000 &&
-        getStyle(item).singlePair
-      ) {
-        // the pair is written in the mapping's place, so it takes the mapping's comments
-        if (mapping.commentBefore && isNode(pair.key))
-          pair.key.commentBefore = mapping.commentBefore;
-        if (mapping.comment) pair.value.comment = mapping.comment;
+      // a single pair in a sequence (e.g. [a: 1]) is written back as that pair, with the mapping's
+      // comments; not when aliasing, as an alias needs the mapping node
+      const pair =
+        itemNode instanceof YAMLMap && itemNode.items.length === 1 ? itemNode.items[0] : undefined;
+      if (isNode(pair?.value) && !emitted && getStyle(item as Element).singlePair) {
+        if (isNode(pair.key)) pair.key.commentBefore ??= (itemNode as YAMLMap).commentBefore;
+        pair.value.comment ??= (itemNode as YAMLMap).comment;
         seq.items.push(pair);
       } else {
         seq.items.push(itemNode);

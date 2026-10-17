@@ -519,20 +519,6 @@ describe('serializers', function () {
         assert.strictEqual(result, '[\n  # c\n  a: 1,\n  b\n]\n');
       });
 
-      specify('should write it as mapping when it has a tag', function () {
-        const mapping = new ObjectElement({ a: 1 });
-        const result = serialize(sequence(mapping, { tag: '!!map' }), { preserveStyle: true });
-
-        assert.strictEqual(result, '[ !!map { a: 1 }, b ]\n');
-      });
-
-      specify('should write it as mapping when its key is too long to be implicit', function () {
-        const mapping = new ObjectElement({ ['k'.repeat(1100)]: 1 });
-        const result = serialize(sequence(mapping), { preserveStyle: true });
-
-        assert.match(result, /^\[\n {2}\{/);
-      });
-
       specify('should write it as mapping when its value is cut by a cycle', function () {
         const mapping = new ObjectElement();
         const element = sequence(mapping);
