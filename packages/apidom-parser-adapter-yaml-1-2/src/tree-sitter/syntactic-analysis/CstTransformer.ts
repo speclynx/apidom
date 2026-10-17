@@ -17,6 +17,7 @@ import YamlStream from './ast/nodes/YamlStream.ts';
 import YamlTag, { YamlNodeKind } from './ast/nodes/YamlTag.ts';
 import { YamlStyle, YamlStyleGroup } from './ast/nodes/YamlStyle.ts';
 import YamlReferenceManager from './ast/anchors-aliases/ReferenceManager.ts';
+import { isMapping, isScalar, isSequence } from './ast/nodes/predicates.ts';
 
 interface CursorInfo {
   type: string;
@@ -572,8 +573,39 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
     const children = processChildren(cursor, ctx, transformerMap);
 
+    // an entry with only a key (e.g. { a }) has an empty value (YAML 1.2 §7.4.2); the CST has no
+    // flow_pair for it, so the pair is made here
+    const toPair = (child: TransformResult): TransformResult => {
+      if (!isScalar(child) && !isMapping(child) && !isSequence(child)) return child;
+      const emptyValue = new YamlScalar({
+        content: '',
+        startLine: child.endLine,
+        startCharacter: child.endCharacter,
+        startOffset: child.endOffset,
+        endLine: child.endLine,
+        endCharacter: child.endCharacter,
+        endOffset: child.endOffset,
+        tag: new YamlTag({ explicitName: '?', kind: YamlNodeKind.Scalar }),
+        styleGroup: YamlStyleGroup.Flow,
+        style: YamlStyle.Plain,
+      });
+      return new YamlKeyValuePair({
+        children: [child, emptyValue],
+        startLine: child.startLine,
+        startCharacter: child.startCharacter,
+        startOffset: child.startOffset,
+        endLine: child.endLine,
+        endCharacter: child.endCharacter,
+        endOffset: child.endOffset,
+        styleGroup: YamlStyleGroup.Flow,
+      });
+    };
+
     const mappingNode = new YamlMapping({
-      children: children.flat().filter((c) => c !== null),
+      children: children
+        .flat()
+        .filter((c) => c !== null)
+        .map(toPair),
       ...toPositionProps(info),
       anchor,
       tag,

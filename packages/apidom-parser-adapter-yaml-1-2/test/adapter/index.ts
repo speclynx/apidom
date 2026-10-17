@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import {
   ObjectElement,
+  MemberElement,
   StringElement,
   isObjectElement,
   isParseResultElement,
@@ -261,6 +262,48 @@ describe('adapter', function () {
       const result = await adapter.parse("title: 'The user''s phone number'\n", { style: true });
       const yaml = toYAML(result.result!, { preserveStyle: true });
       assert.strictEqual(yaml, "title: 'The user''s phone number'\n");
+    });
+  });
+
+  // https://github.com/speclynx/apidom/issues/643
+  context('given flow mapping entry without ":"', function () {
+    specify('should parse it as key with empty value', async function () {
+      const result = await adapter.parse('{ a, b: 1, "c" }\n');
+      assert.deepEqual(toValue(result.result), { a: '', b: 1, c: '' });
+    });
+
+    specify('should parse it in nested flow mapping', async function () {
+      const result = await adapter.parse('x: { a: { b } }\n');
+      assert.deepEqual(toValue(result.result), { x: { a: { b: '' } } });
+    });
+
+    specify('should parse tagged, anchored, aliased and commented keys', async function () {
+      const result = await adapter.parse('{ !!str a, &x b, *x, c # comment\n, d, }\n');
+      assert.deepEqual(toValue(result.result), { a: '', b: '', '*x': '', c: '', d: '' });
+    });
+
+    specify('should parse collection key', async function () {
+      const result = await adapter.parse('{ [a] }\n');
+      const [member] = (result.result as ObjectElement).content as unknown as MemberElement[];
+
+      assert.deepEqual(toValue(member.key), ['a']);
+      assert.strictEqual(toValue(member.value), '');
+    });
+
+    specify('should mark the value as empty node', async function () {
+      const result = await adapter.parse('{ a }\n', { sourceMap: true });
+      const member = (result.result as ObjectElement).getMember('a') as MemberElement;
+      const value = member.value as StringElement;
+
+      assert.deepEqual([...value.classes].map(String), ['yaml-e-node', 'yaml-e-scalar']);
+      assert.deepEqual([member.startOffset, member.endOffset], [2, 3]);
+      assert.deepEqual([value.startOffset, value.endOffset], [3, 3]);
+    });
+
+    specify('should serialize it back with empty value', async function () {
+      const result = await adapter.parse('{ a, b: 1 }\n', { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, '{ a:, b: 1 }\n');
     });
   });
 
