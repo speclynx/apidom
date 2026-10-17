@@ -22,6 +22,29 @@ describe('serializers', function () {
       });
     });
 
+    // https://github.com/speclynx/apidom/issues/664
+    context('given block scalar with indentation indicator', function () {
+      const element = from({ k: '  lead\nx\n', s: ['  lead\nx\n'] })!;
+
+      specify('should write indicator of mapping value as indentation step', function () {
+        assert.strictEqual(
+          serialize(element, { indent: 4 }),
+          'k: |4\n      lead\n    x\ns:\n    - |2\n        lead\n      x\n',
+        );
+        assert.strictEqual(
+          serialize(element, { indent: 1 }),
+          'k: |1\n   lead\n x\ns:\n - |2\n     lead\n   x\n',
+        );
+      });
+
+      specify('should move content of indentation step over 9 to 9th column', function () {
+        assert.strictEqual(
+          serialize(element, { indent: 10 }),
+          'k: |9\n           lead\n         x\ns:\n          - |2\n              lead\n            x\n',
+        );
+      });
+    });
+
     context('given BooleanElement', function () {
       specify('should serialize to YAML 1.2', function () {
         const apidom = from(true)!;
