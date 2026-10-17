@@ -350,13 +350,37 @@ const transformChildren = (children: unknown[], ctx: TransformContext): Element[
 
 // stream comments that precede the first document, joined; null when there are none
 // (stream children are in source order, so everything before the document node qualifies)
-const collectPreDocumentComments = (node: YamlStream): string | null => {
-  const texts: string[] = [];
+// stream comments around the first document: before it, on its last line and on the lines after it,
+// up to the next document
+const collectStreamComments = (node: YamlStream) => {
+  const comments = { before: [] as string[], inline: [] as string[], after: [] as string[] };
+  let root: TypedNode | undefined;
+  const collect = (comment: YamlComment) => {
+    const text = stripCommentHash(comment.content);
+    if (!root) comments.before.push(text);
+    else if ((comment as unknown as TypedNode).startLine === root.endLine)
+      comments.inline.push(text);
+    else comments.after.push(text);
+  };
   for (const child of node.children) {
-    if (isDocument(child)) break;
-    if (isComment(child)) texts.push(stripCommentHash(child.content));
+    if (isDocument(child)) {
+      if (root) break;
+      // comments after an explicit document start (---) or before an explicit document end (...)
+      // are the document's own children, around its root node
+      const children = (child.children || []) as unknown[];
+      const rootIndex = children.findIndex((c) => !isComment(c));
+      if (rootIndex === -1) break;
+      children.slice(0, rootIndex).filter(isComment).forEach(collect);
+      root = children[rootIndex] as TypedNode;
+      children
+        .slice(rootIndex + 1)
+        .filter(isComment)
+        .forEach(collect);
+    } else if (isComment(child)) {
+      collect(child);
+    }
   }
-  return texts.length > 0 ? texts.join('\n') : null;
+  return comments;
 };
 
 // Stream: Wraps transformed children in ParseResultElement
@@ -382,19 +406,25 @@ const transformStream = (node: YamlStream, ctx: TransformContext): ParseResultEl
     const resultElement = elements[0];
     resultElement.classes.push('result');
 
-    // stream comments before the first document belong above the result element;
-    // capture them as commentBefore so style round-trips can re-emit them
+    // stream comments before the first document belong above the result element, ones on its last
+    // line to it and ones on later lines to the document; capture them so style round-trips can
+    // re-emit them
     if (ctx.style) {
-      const preDocumentComments = collectPreDocumentComments(node);
-      if (preDocumentComments !== null) {
+      const { before, inline, after } = collectStreamComments(node);
+      if (before.length > 0) {
         const existing = getYamlStyleProp(resultElement, 'commentBefore');
+        const text = before.join('\n');
         setYamlStyleProp(
           resultElement,
           'commentBefore',
-          typeof existing === 'string'
-            ? `${preDocumentComments}\n${existing}`
-            : preDocumentComments,
+          typeof existing === 'string' ? `${text}\n${existing}` : text,
         );
+      }
+      if (inline.length > 0 && typeof getYamlStyleProp(resultElement, 'comment') !== 'string') {
+        setYamlStyleProp(resultElement, 'comment', inline.join('\n'));
+      }
+      if (after.length > 0) {
+        setYamlStyleProp(resultElement, 'documentComment', after.join('\n'));
       }
     }
   }
