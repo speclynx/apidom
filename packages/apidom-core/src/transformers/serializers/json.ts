@@ -91,7 +91,11 @@ const toPojo = (element: Element, sentinels: Map<string, string>, nonce: string)
       const obj: Record<string, unknown> = {};
       node.forEach((value, key) => {
         const k = isElement(key) ? toValue(key) : key;
-        if (typeof k === 'string') setProperty(obj, k, convert(value));
+        // a scalar key that isn't a string (e.g. YAML 200:) is used in its string form, like a
+        // JavaScript property name; a collection key has no such form, so its member is skipped
+        if (['string', 'number', 'boolean'].includes(typeof k) || k === null) {
+          setProperty(obj, String(k), convert(value));
+        }
       });
       ancestors.delete(node as object);
       return obj;

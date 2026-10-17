@@ -45,7 +45,11 @@ const serializer = <T extends Element | unknown>(element: T): unknown => {
       node.forEach((value, key) => {
         const k = serialize(key);
         const v = serialize(value);
-        if (typeof k === 'string') setProperty(obj, k, v);
+        // a scalar key that isn't a string (e.g. YAML 200:) is used in its string form, like a
+        // JavaScript property name; a collection key has no such form, so its member is skipped
+        if (['string', 'number', 'boolean'].includes(typeof k) || k === null) {
+          setProperty(obj, String(k), v);
+        }
       });
       return obj;
     }
