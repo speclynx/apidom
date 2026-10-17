@@ -576,6 +576,9 @@ const transformScalar = (node: YamlScalar, ctx: TransformContext): Element => {
     if (node.rawContent !== undefined) {
       extras.rawContent = node.rawContent;
     }
+    if (node.alias !== undefined) {
+      extras.alias = node.alias;
+    }
     element.style = buildYamlStyle(node as unknown as YamlNode, ctx, extras);
   }
 

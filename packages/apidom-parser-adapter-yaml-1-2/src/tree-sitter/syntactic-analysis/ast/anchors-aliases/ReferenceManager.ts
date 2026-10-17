@@ -13,7 +13,7 @@ class ReferenceManager {
 
   resolveAlias(alias: YamlAlias): YamlScalar {
     const { startLine, startCharacter, startOffset, endLine, endCharacter, endOffset } = alias;
-    return new YamlScalar({
+    const scalar = new YamlScalar({
       content: alias.content,
       startLine,
       startCharacter,
@@ -24,6 +24,8 @@ class ReferenceManager {
       style: YamlStyle.Plain,
       styleGroup: YamlStyleGroup.Flow,
     });
+    scalar.alias = alias.content.slice(1);
+    return scalar;
   }
 }
 
