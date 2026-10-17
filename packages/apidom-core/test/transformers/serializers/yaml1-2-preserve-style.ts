@@ -489,8 +489,8 @@ describe('serializers', function () {
 
     // https://github.com/speclynx/apidom/issues/644
     context('given single pair in flow sequence', function () {
-      const sequence = (mapping: ObjectElement): ArrayElement => {
-        mapping.style = { yaml: { styleGroup: 'Flow', indent: 2, singlePair: true } };
+      const sequence = (mapping: ObjectElement, style = {}): ArrayElement => {
+        mapping.style = { yaml: { styleGroup: 'Flow', indent: 2, singlePair: true, ...style } };
         const element = new ArrayElement([mapping, 'b']);
         element.style = { yaml: { styleGroup: 'Flow', indent: 2 } };
         return element;
@@ -508,6 +508,37 @@ describe('serializers', function () {
         });
 
         assert.strictEqual(result, '[ { a: 1, c: 2 }, b ]\n');
+      });
+
+      specify('should write comment before it', function () {
+        const mapping = new ObjectElement({ a: 1 });
+        const result = serialize(sequence(mapping, { commentBefore: ' c' }), {
+          preserveStyle: true,
+        });
+
+        assert.strictEqual(result, '[\n  # c\n  a: 1,\n  b\n]\n');
+      });
+
+      specify('should write it as mapping when it has a tag', function () {
+        const mapping = new ObjectElement({ a: 1 });
+        const result = serialize(sequence(mapping, { tag: '!!map' }), { preserveStyle: true });
+
+        assert.strictEqual(result, '[ !!map { a: 1 }, b ]\n');
+      });
+
+      specify('should write it as mapping when its key is too long to be implicit', function () {
+        const mapping = new ObjectElement({ ['k'.repeat(1100)]: 1 });
+        const result = serialize(sequence(mapping), { preserveStyle: true });
+
+        assert.match(result, /^\[\n {2}\{/);
+      });
+
+      specify('should write it as mapping when its value is cut by a cycle', function () {
+        const mapping = new ObjectElement();
+        const element = sequence(mapping);
+        mapping.set('k', element);
+
+        assert.strictEqual(serialize(element, { preserveStyle: true }), '[ { k }, b ]\n');
       });
 
       specify('should write it as mapping when aliasing duplicate objects', function () {
