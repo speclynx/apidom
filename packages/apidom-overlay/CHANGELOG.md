@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.1.0](https://github.com/speclynx/apidom/compare/v6.0.6...v6.1.0) (2026-10-17)
+
+### Bug Fixes
+
+- **core:** keep element style when merging with deepmerge ([#679](https://github.com/speclynx/apidom/issues/679)) ([8b6c334](https://github.com/speclynx/apidom/commit/8b6c334e92770999e341b9229cdfc8f502f8c8c1)), closes [#678](https://github.com/speclynx/apidom/issues/678)
+- **overlay:** keep YAML style of values added by an overlay ([#677](https://github.com/speclynx/apidom/issues/677)) ([ca38f38](https://github.com/speclynx/apidom/commit/ca38f388ae8505330d84cc6034faf9ffa03835b2)), closes [#675](https://github.com/speclynx/apidom/issues/675)
+- serialize empty YAML nodes to null ([#655](https://github.com/speclynx/apidom/issues/655)) ([da2365b](https://github.com/speclynx/apidom/commit/da2365b0fd3287756746837cea40ab986b9d1d1d)), closes [#631](https://github.com/speclynx/apidom/issues/631)
+
 ## [6.0.6](https://github.com/speclynx/apidom/compare/v6.0.5...v6.0.6) (2026-10-15)
 
 ### Bug Fixes

@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.1.0](https://github.com/speclynx/apidom/compare/v6.0.6...v6.1.0) (2026-10-17)
+
+### Bug Fixes
+
+- **core:** apply sortMapEntries when writing YAML with preserveStyle ([fcea217](https://github.com/speclynx/apidom/commit/fcea2177be8f26c58d01e4e616ad00c0d62f6149)), closes [#671](https://github.com/speclynx/apidom/issues/671)
+- **core:** keep element style when merging with deepmerge ([#679](https://github.com/speclynx/apidom/issues/679)) ([8b6c334](https://github.com/speclynx/apidom/commit/8b6c334e92770999e341b9229cdfc8f502f8c8c1)), closes [#678](https://github.com/speclynx/apidom/issues/678)
+- **core:** keep object members with non-string scalar keys ([#653](https://github.com/speclynx/apidom/issues/653)) ([c897e45](https://github.com/speclynx/apidom/commit/c897e45e3fda9c55d4c6911cc13ace7f60397ac7)), closes [ObjectElement#toValue](https://github.com/ObjectElement/issues/toValue) [#650](https://github.com/speclynx/apidom/issues/650)
+- **core:** write empty YAML nodes back empty with preserveStyle ([#637](https://github.com/speclynx/apidom/issues/637)) ([c668e7e](https://github.com/speclynx/apidom/commit/c668e7e85c8b39730d56128386c7130e85cfaf46)), closes [#631](https://github.com/speclynx/apidom/issues/631)
+- **core:** write YAML block indentation indicator of mapping entries ([#672](https://github.com/speclynx/apidom/issues/672)) ([26f151c](https://github.com/speclynx/apidom/commit/26f151ce936c4de0dd53c7251d61a603d053b12a)), closes [#664](https://github.com/speclynx/apidom/issues/664)
+- keep comments after YAML root node with preserveStyle ([#659](https://github.com/speclynx/apidom/issues/659)) ([6fe814a](https://github.com/speclynx/apidom/commit/6fe814ae430f7f82571f00bcad4720be61713ec0)), closes [#645](https://github.com/speclynx/apidom/issues/645)
+- parse and write back YAML single pair in flow sequence ([#654](https://github.com/speclynx/apidom/issues/654)) ([6ae5239](https://github.com/speclynx/apidom/commit/6ae523923c9f5d049ec4d7b90969c5c5802fc8be)), closes [#644](https://github.com/speclynx/apidom/issues/644)
+- serialize empty YAML nodes to null ([#655](https://github.com/speclynx/apidom/issues/655)) ([da2365b](https://github.com/speclynx/apidom/commit/da2365b0fd3287756746837cea40ab986b9d1d1d)), closes [#631](https://github.com/speclynx/apidom/issues/631)
+
+### Features
+
+- write explicit YAML tags back with preserveStyle ([#642](https://github.com/speclynx/apidom/issues/642)) ([ae46306](https://github.com/speclynx/apidom/commit/ae46306e19800a71e977a66098b993f2bd0a33c8)), closes [#639](https://github.com/speclynx/apidom/issues/639)
+- write YAML aliases back with preserveStyle ([#669](https://github.com/speclynx/apidom/issues/669)) ([57647fd](https://github.com/speclynx/apidom/commit/57647fd3bd28a300eb8bfd6ebcc6bda221295c05)), closes [#668](https://github.com/speclynx/apidom/issues/668)
+- write YAML anchors back with preserveStyle ([#658](https://github.com/speclynx/apidom/issues/658)) ([de92e14](https://github.com/speclynx/apidom/commit/de92e14d927feed1bf727d572c13f90db4396925)), closes [#639](https://github.com/speclynx/apidom/issues/639)
+- write YAML block scalars back as written with preserveStyle ([#661](https://github.com/speclynx/apidom/issues/661)) ([3bdee7a](https://github.com/speclynx/apidom/commit/3bdee7ae6a6dd0592a03135f2a7d39d02a8f27d1)), closes [#568](https://github.com/speclynx/apidom/issues/568)
+- write YAML compact block sequences back with preserveStyle ([#666](https://github.com/speclynx/apidom/issues/666)) ([00e5bfd](https://github.com/speclynx/apidom/commit/00e5bfd450db79bb86fb5ceef61f006394b91368)), closes [#662](https://github.com/speclynx/apidom/issues/662)
+- write YAML CRLF line breaks back with preserveStyle ([#676](https://github.com/speclynx/apidom/issues/676)) ([6d995fa](https://github.com/speclynx/apidom/commit/6d995fa258fac80845ab79be7d0d320ff808361b)), closes [#674](https://github.com/speclynx/apidom/issues/674)
+- write YAML flow scalars back as written with preserveStyle ([#667](https://github.com/speclynx/apidom/issues/667)) ([4fb2af3](https://github.com/speclynx/apidom/commit/4fb2af3ac3d918bd563e74bdd78c399a9a84fa76)), closes [#663](https://github.com/speclynx/apidom/issues/663)
+
 ## [6.0.6](https://github.com/speclynx/apidom/compare/v6.0.5...v6.0.6) (2026-10-15)
 
 ### Bug Fixes

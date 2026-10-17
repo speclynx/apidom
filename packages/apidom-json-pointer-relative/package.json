@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-json-pointer-relative",
-  "version": "6.0.6",
+  "version": "6.1.0",
   "description": "Evaluate Relative JSON Pointer expressions against ApiDOM.",
   "keywords": [
     "apidom",
@@ -55,10 +55,10 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^8.0.5",
-    "@speclynx/apidom-datamodel": "6.0.6",
-    "@speclynx/apidom-error": "6.0.6",
-    "@speclynx/apidom-json-pointer": "6.0.6",
-    "@speclynx/apidom-traverse": "6.0.6",
+    "@speclynx/apidom-datamodel": "6.1.0",
+    "@speclynx/apidom-error": "6.1.0",
+    "@speclynx/apidom-json-pointer": "6.1.0",
+    "@speclynx/apidom-traverse": "6.1.0",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.1.0"
   },

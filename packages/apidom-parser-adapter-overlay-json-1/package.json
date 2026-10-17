@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-parser-adapter-overlay-json-1",
-  "version": "6.0.6",
+  "version": "6.1.0",
   "description": "Parser adapter for parsing JSON documents into Overlay 1.x.y namespace.",
   "keywords": [
     "apidom",
@@ -55,10 +55,10 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^8.0.5",
-    "@speclynx/apidom-core": "6.0.6",
-    "@speclynx/apidom-datamodel": "6.0.6",
-    "@speclynx/apidom-ns-overlay-1": "6.0.6",
-    "@speclynx/apidom-parser-adapter-json": "6.0.6",
+    "@speclynx/apidom-core": "6.1.0",
+    "@speclynx/apidom-datamodel": "6.1.0",
+    "@speclynx/apidom-ns-overlay-1": "6.1.0",
+    "@speclynx/apidom-parser-adapter-json": "6.1.0",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.1.0"
   },

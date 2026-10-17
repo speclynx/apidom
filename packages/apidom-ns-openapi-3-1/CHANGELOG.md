@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.1.0](https://github.com/speclynx/apidom/compare/v6.0.6...v6.1.0) (2026-10-17)
+
+### Bug Fixes
+
+- serialize empty YAML nodes to null ([#655](https://github.com/speclynx/apidom/issues/655)) ([da2365b](https://github.com/speclynx/apidom/commit/da2365b0fd3287756746837cea40ab986b9d1d1d)), closes [#631](https://github.com/speclynx/apidom/issues/631)
+
 ## [6.0.6](https://github.com/speclynx/apidom/compare/v6.0.5...v6.0.6) (2026-10-15)
 
 ### Bug Fixes
