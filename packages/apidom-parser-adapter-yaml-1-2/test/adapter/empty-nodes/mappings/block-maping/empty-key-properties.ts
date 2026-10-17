@@ -11,10 +11,12 @@ const setupEmptyElement = async () => {
 };
 
 describe('given empty node with tag and anchor as block mapping key', function () {
-  it('should create empty element', async function () {
+  it('should create empty string element', async function () {
     const emptyElement = await setupEmptyElement();
 
-    assert.isTrue(includesClasses(emptyElement, ['yaml-e-node', 'yaml-e-scalar']));
+    // an explicit tag other than !!null makes an empty node an empty string (YAML 1.2 §7.2)
+    assert.isFalse(includesClasses(emptyElement, ['yaml-e-node']));
+    assert.strictEqual(emptyElement.toValue(), '');
   });
 
   it('should generate source maps', async function () {

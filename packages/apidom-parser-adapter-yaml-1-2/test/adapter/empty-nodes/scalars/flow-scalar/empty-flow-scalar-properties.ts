@@ -10,10 +10,12 @@ const setupMemberElement = async (): Promise<any> => {
 };
 
 describe('given empty flow scalar node with and explicit tag and anchor', function () {
-  it('should create empty element', async function () {
+  it('should create empty string element', async function () {
     const emptyElement = await setupMemberElement();
 
-    assert.isTrue(includesClasses(emptyElement, ['yaml-e-node', 'yaml-e-scalar']));
+    // an explicit tag other than !!null makes an empty node an empty string (YAML 1.2 §7.2)
+    assert.isFalse(includesClasses(emptyElement, ['yaml-e-node']));
+    assert.strictEqual(emptyElement.toValue(), '');
   });
 
   it('should generate source maps', async function () {

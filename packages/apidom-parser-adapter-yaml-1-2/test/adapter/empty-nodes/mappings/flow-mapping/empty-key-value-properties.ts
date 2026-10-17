@@ -13,10 +13,12 @@ const setupEmptyKeyElement = async () => (await setupMemberElement()).key;
 const setupEmptyValueElement = async () => (await setupMemberElement()).value;
 
 describe('given flow mapping pair containing empty fields and explicit tag and anchor', function () {
-  it('should create empty key element', async function () {
+  it('should create empty string key element', async function () {
     const emptyElement = await setupEmptyKeyElement();
 
-    assert.isTrue(includesClasses(emptyElement, ['yaml-e-node', 'yaml-e-scalar']));
+    // an explicit tag other than !!null makes an empty node an empty string (YAML 1.2 §7.2)
+    assert.isFalse(includesClasses(emptyElement, ['yaml-e-node']));
+    assert.strictEqual(emptyElement.toValue(), '');
   });
 
   it('should generate source maps for empty key', async function () {
@@ -51,10 +53,12 @@ describe('given flow mapping pair containing empty fields and explicit tag and a
     assert.strictEqual(char, 13);
   });
 
-  it('should create empty value element', async function () {
+  it('should create empty string value element', async function () {
     const emptyElement = await setupEmptyValueElement();
 
-    assert.isTrue(includesClasses(emptyElement, ['yaml-e-node', 'yaml-e-scalar']));
+    // an explicit tag other than !!null makes an empty node an empty string (YAML 1.2 §7.2)
+    assert.isFalse(includesClasses(emptyElement, ['yaml-e-node']));
+    assert.strictEqual(emptyElement.toValue(), '');
   });
 
   it('should generate source maps for empty value', async function () {
