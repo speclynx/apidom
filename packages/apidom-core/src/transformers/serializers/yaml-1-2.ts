@@ -66,7 +66,8 @@ const applyComments = (node: YAMLNode, style: YAMLElementStyle): void => {
 // the element types each tag of the YAML 1.2 core schema can be written on
 const tagFits: Record<string, (element: Element) => boolean> = {
   str: isStringElement,
-  int: (element) => isNumberElement(element) && Number.isInteger(toValue(element)),
+  // from 1e21 an integer is written in exponent form (e.g. 1e+21), which isn't an int
+  int: (element) => isNumberElement(element) && Number.isSafeInteger(toValue(element)),
   float: isNumberElement,
   bool: isBooleanElement,
   null: isNullElement,
@@ -80,7 +81,7 @@ const applyTag = (node: YAMLNode, element: Element, style: YAMLElementStyle): vo
   if (style.tag === undefined) return;
   const match = /^!!(\w+)$|^!<tag:yaml\.org,2002:(\w+)>$/.exec(style.tag);
   const name = style.tag === '!' ? 'str' : (match?.[1] ?? match?.[2]);
-  if (name !== undefined && tagFits[name]?.(element)) {
+  if (name !== undefined && Object.hasOwn(tagFits, name) && tagFits[name](element)) {
     node.tag = style.tag;
   }
 };

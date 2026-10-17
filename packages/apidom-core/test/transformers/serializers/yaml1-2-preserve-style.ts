@@ -530,11 +530,23 @@ describe('serializers', function () {
         element.set('a', tagged(new StringElement('x'), '!!int', 'Plain'));
         element.set('b', tagged(new NumberElement(1.5), '!!int', 'Plain'));
         element.set('c', tagged(new ArrayElement([1]), '!!map'));
+        element.set('d', tagged(new NumberElement(1e21), '!!int', 'Plain'));
         element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
 
         const result = serialize(element, { preserveStyle: true });
 
-        assert.strictEqual(result, 'a: x\nb: 1.5\nc:\n  - 1\n');
+        assert.strictEqual(result, 'a: x\nb: 1.5\nc:\n  - 1\nd: 1e+21\n');
+      });
+
+      specify('should not write tag outside of the core schema', function () {
+        const element = new ObjectElement();
+        element.set('a', tagged(new StringElement('x'), '!!constructor', 'Plain'));
+        element.set('b', tagged(new StringElement('x'), '!!__proto__', 'Plain'));
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'a: x\nb: x\n');
       });
     });
   });
