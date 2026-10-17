@@ -1,3 +1,4 @@
+import { clone } from 'ramda';
 import {
   ObjectElement,
   ArrayElement,
@@ -253,6 +254,12 @@ const deepmerge = (
     mergedElement.attributes = cloneDeep(targetElement.attributes);
   } else if (!sourceElement.isAttributesEmpty) {
     mergedElement.attributes = cloneDeep(sourceElement.attributes);
+  }
+  // merging style
+  if (targetElement.style !== undefined) {
+    mergedElement.style = clone(targetElement.style);
+  } else if (sourceElement.style !== undefined) {
+    mergedElement.style = clone(sourceElement.style);
   }
 
   return mergedElement;
