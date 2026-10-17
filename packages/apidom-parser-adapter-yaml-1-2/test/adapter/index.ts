@@ -345,6 +345,13 @@ describe('adapter', function () {
       assert.strictEqual(yaml, source);
     });
 
+    specify('should write anchors in flow collections and with tags back', async function () {
+      const source = 'a: &m !!map {b: &x 1, c: &y [&z 2]}\n&k : v\n';
+      const result = await adapter.parse(source, { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, source);
+    });
+
     specify('should write anchors of empty nodes back', async function () {
       const source = 'a: &x\nb: &y !!str\nc:\n  - &z\n';
       const result = await adapter.parse(source, { style: true });
