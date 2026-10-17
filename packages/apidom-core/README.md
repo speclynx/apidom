@@ -638,6 +638,8 @@ toYAML(objElement);
 `toYAML` accepts an optional second argument with serialization options. When `preserveStyle` is `true`,
 the serializer uses style information from `element.style.yaml` (captured during parsing with `style: true`)
 to preserve original formatting such as quoting styles, flow/block collections, comments, and indentation.
+Block sequences in mappings are written at their key's column (e.g. `servers:\n- url: a`) when the
+first one in the source is; an explicit `indentSeq` option takes precedence.
 Raw number representations (e.g. `1.0e10`, `0.50`) are preserved verbatim as long as they still
 represent the element's current value; when the value was changed without updating the captured
 raw content, the serializer falls back to preserving only the format category (exponential, hex,

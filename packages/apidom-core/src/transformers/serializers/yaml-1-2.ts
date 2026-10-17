@@ -43,6 +43,7 @@ interface YAMLElementStyle {
   singlePair?: boolean;
   indent?: number;
   flowCollectionPadding?: boolean;
+  indentSeq?: boolean;
   comment?: string;
   commentBefore?: string;
   // a comment on the lines after the root node, written as the document's comment
@@ -435,6 +436,9 @@ const serializer = (
     }
     if (typeof style.flowCollectionPadding === 'boolean') {
       allOptions.flowCollectionPadding = style.flowCollectionPadding;
+    }
+    if (options.indentSeq === undefined && typeof style.indentSeq === 'boolean') {
+      allOptions.indentSeq = style.indentSeq;
     }
 
     const rootNode = toYAMLNode(element, {

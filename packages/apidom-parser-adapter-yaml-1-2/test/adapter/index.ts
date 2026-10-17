@@ -386,6 +386,27 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/662
+  context('given compact block sequence serialized back with preserveStyle', function () {
+    specify('should write sequences at their key column back', async function () {
+      for (const source of [
+        'servers:\n- url: a\n- url: b\n',
+        'a:\n  b:\n  - 1\n',
+        'a:\n- - 1\n  - 2\n',
+        'a:\n  - 1\n',
+      ]) {
+        const result = await adapter.parse(source, { style: true });
+        assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), source);
+      }
+    });
+
+    specify('should prefer indentSeq option', async function () {
+      const result = await adapter.parse('a:\n- 1\n', { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true, indentSeq: true });
+      assert.strictEqual(yaml, 'a:\n  - 1\n');
+    });
+  });
+
   // https://github.com/speclynx/apidom/issues/660
   context('given comment after nested collection serialized back with preserveStyle', function () {
     specify(

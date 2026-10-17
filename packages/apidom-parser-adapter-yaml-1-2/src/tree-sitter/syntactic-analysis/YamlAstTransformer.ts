@@ -34,6 +34,9 @@ interface TransformContext {
   processedDocumentCount: number;
   indent: number;
   flowCollectionPadding: boolean | null; // detected from first flow collection; null = not yet detected
+  // whether block sequences in mappings are indented past their key, detected from the first one;
+  // null = not yet detected
+  indentSeq: boolean | null;
   // comments that were out-of-scope for a nested block and need to be
   // applied as commentBefore on the next sibling in the parent scope
   promotedComments: string[];
@@ -234,6 +237,9 @@ const buildYamlStyle = (
 
   if (ctx.flowCollectionPadding !== null) {
     yamlStyle.flowCollectionPadding = ctx.flowCollectionPadding;
+  }
+  if (ctx.indentSeq !== null) {
+    yamlStyle.indentSeq = ctx.indentSeq;
   }
 
   if (node.comment) {
@@ -507,12 +513,19 @@ const transformMapping = (node: YamlMapping, ctx: TransformContext): ObjectEleme
 // KeyValuePair: Transforms to MemberElement
 const transformKeyValuePair = (node: YamlKeyValuePair, ctx: TransformContext): MemberElement => {
   const element = new MemberElement();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { key, value } = node as any;
+
+  if (ctx.style && ctx.indentSeq === null && value?.type === 'sequence') {
+    const { styleGroup, startCharacter } = value as YamlSequence & TypedNode;
+    if (styleGroup === YamlStyleGroup.Block) {
+      ctx.indentSeq = startCharacter! > (node as unknown as TypedNode).startCharacter!;
+    }
+  }
 
   // Transform key and value (these are dynamically defined properties)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const keyResult = transform((node as any).key, ctx);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const valueResult = transform((node as any).value, ctx);
+  const keyResult = transform(key, ctx);
+  const valueResult = transform(value, ctx);
 
   // @ts-ignore
   element.content.key = keyResult;
@@ -657,6 +670,7 @@ export const transformYamlAstToApiDOM = (
     processedDocumentCount: 0,
     indent: 2,
     flowCollectionPadding: null,
+    indentSeq: null,
     promotedComments: [],
   };
 
