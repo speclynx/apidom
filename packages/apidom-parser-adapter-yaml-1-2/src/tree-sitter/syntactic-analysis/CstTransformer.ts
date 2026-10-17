@@ -17,7 +17,7 @@ import YamlStream from './ast/nodes/YamlStream.ts';
 import YamlTag, { YamlNodeKind } from './ast/nodes/YamlTag.ts';
 import { YamlStyle, YamlStyleGroup } from './ast/nodes/YamlStyle.ts';
 import YamlReferenceManager from './ast/anchors-aliases/ReferenceManager.ts';
-import { isMapping, isScalar, isSequence } from './ast/nodes/predicates.ts';
+import { isKeyValuePair, isMapping, isScalar, isSequence } from './ast/nodes/predicates.ts';
 
 interface CursorInfo {
   type: string;
@@ -733,8 +733,30 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
     const children = processChildren(cursor, ctx, transformerMap);
 
+    // a single pair as a flow sequence entry (e.g. [a: 1]) is a mapping with that one pair
+    // (YAML 1.2 §7.4.1); the CST has the flow_pair directly in the flow_sequence
+    const toSinglePairMapping = (child: TransformResult): TransformResult => {
+      if (!isKeyValuePair(child)) return child;
+      const mappingNode = new YamlMapping({
+        children: [child],
+        startLine: child.startLine,
+        startCharacter: child.startCharacter,
+        startOffset: child.startOffset,
+        endLine: child.endLine,
+        endCharacter: child.endCharacter,
+        endOffset: child.endOffset,
+        tag: new YamlTag({ explicitName: '!', kind: YamlNodeKind.Mapping }),
+        styleGroup: YamlStyleGroup.Flow,
+        style: YamlStyle.SinglePair,
+      });
+      return ctx.schema.resolve(mappingNode);
+    };
+
     const sequenceNode = new YamlSequence({
-      children: children.flat().filter((c) => c !== null),
+      children: children
+        .flat()
+        .filter((c) => c !== null)
+        .map(toSinglePairMapping),
       ...toPositionProps(info),
       anchor,
       tag,
