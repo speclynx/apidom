@@ -487,6 +487,58 @@ describe('serializers', function () {
       });
     });
 
+    // https://github.com/speclynx/apidom/issues/639
+    context('given YAML anchor', function () {
+      const block = <T extends Element>(element: T, style = {}): T => {
+        element.style = { yaml: { styleGroup: 'Block', indent: 2, ...style } };
+        return element;
+      };
+      const plain = <T extends Element>(element: T, style = {}): T => {
+        element.style = { yaml: { scalarStyle: 'Plain', ...style } };
+        return element;
+      };
+
+      specify('should write anchor of scalar and collection', function () {
+        const element = block(new ObjectElement());
+        element.set('a', plain(new NumberElement(1), { anchor: 'x' }));
+        element.set('b', block(new ObjectElement({ c: 1 }), { anchor: 'y' }));
+
+        assert.strictEqual(serialize(element, { preserveStyle: true }), 'a: &x 1\nb: &y\n  c: 1\n');
+      });
+
+      specify('should write a repeated anchor name once', function () {
+        const element = block(new ObjectElement());
+        element.set('a', plain(new NumberElement(1), { anchor: 'x' }));
+        element.set('b', plain(new NumberElement(2), { anchor: 'x' }));
+
+        assert.strictEqual(serialize(element, { preserveStyle: true }), 'a: &x 1\nb: 2\n');
+      });
+
+      specify('should not generate alias anchor named like an earlier anchor', function () {
+        const shared = block(new ObjectElement({ c: 1 }));
+        const element = block(new ObjectElement());
+        element.set('x', plain(new NumberElement(1), { anchor: 'a1' }));
+        element.set('y', shared);
+        element.set('z', shared);
+
+        const result = serialize(element, { preserveStyle: true, aliasDuplicateObjects: true });
+
+        assert.strictEqual(result, 'x: &a1 1\ny: &a2\n  c: 1\nz: *a2\n');
+      });
+
+      specify('should not write anchor named like an earlier alias anchor', function () {
+        const shared = block(new ObjectElement({ c: 1 }));
+        const element = block(new ObjectElement());
+        element.set('y', shared);
+        element.set('z', shared);
+        element.set('x', plain(new NumberElement(1), { anchor: 'a1' }));
+
+        const result = serialize(element, { preserveStyle: true, aliasDuplicateObjects: true });
+
+        assert.strictEqual(result, 'y: &a1\n  c: 1\nz: *a1\nx: 1\n');
+      });
+    });
+
     // https://github.com/speclynx/apidom/issues/644
     context('given single pair in flow sequence', function () {
       const sequence = (mapping: ObjectElement, style = {}): ArrayElement => {

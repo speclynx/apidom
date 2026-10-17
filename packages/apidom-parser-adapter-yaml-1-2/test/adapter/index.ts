@@ -336,6 +336,23 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/639
+  context('given anchor serialized back with preserveStyle', function () {
+    specify('should write anchors back', async function () {
+      const source = 'a: &x 1\n&k b: &m\n  c: &s [1]\nd: &q "q"\ne: &t |\n  t\n';
+      const result = await adapter.parse(source, { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, source);
+    });
+
+    specify('should write anchors of empty nodes back', async function () {
+      const source = 'a: &x\nb: &y !!str\nc:\n  - &z\n';
+      const result = await adapter.parse(source, { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, source);
+    });
+  });
+
   // https://github.com/speclynx/apidom/issues/641
   context('given comment after block scalar', function () {
     specify('should not include less indented comment after CRLF line breaks', async function () {
