@@ -487,6 +487,39 @@ describe('serializers', function () {
       });
     });
 
+    // https://github.com/speclynx/apidom/issues/644
+    context('given single pair in flow sequence', function () {
+      const sequence = (mapping: ObjectElement): ArrayElement => {
+        mapping.style = { yaml: { styleGroup: 'Flow', indent: 2, singlePair: true } };
+        const element = new ArrayElement([mapping, 'b']);
+        element.style = { yaml: { styleGroup: 'Flow', indent: 2 } };
+        return element;
+      };
+
+      specify('should write it as single pair', function () {
+        const result = serialize(sequence(new ObjectElement({ a: 1 })), { preserveStyle: true });
+
+        assert.strictEqual(result, '[ a: 1, b ]\n');
+      });
+
+      specify('should write it as mapping when it has more pairs', function () {
+        const result = serialize(sequence(new ObjectElement({ a: 1, c: 2 })), {
+          preserveStyle: true,
+        });
+
+        assert.strictEqual(result, '[ { a: 1, c: 2 }, b ]\n');
+      });
+
+      specify('should write it as mapping when aliasing duplicate objects', function () {
+        const result = serialize(sequence(new ObjectElement({ a: 1 })), {
+          preserveStyle: true,
+          aliasDuplicateObjects: true,
+        });
+
+        assert.strictEqual(result, '[ { a: 1 }, b ]\n');
+      });
+    });
+
     context('given explicit YAML tag', function () {
       const tagged = (element: Element, tag: string, scalarStyle?: string): Element => {
         element.style = { yaml: { styleGroup: 'Block', indent: 2, scalarStyle, tag } };

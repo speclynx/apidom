@@ -308,6 +308,33 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/644
+  context('given single pair in flow sequence', function () {
+    specify('should parse it as mapping', async function () {
+      const result = await adapter.parse('[a: 1, b, ? c : 2, ? d]\n');
+      assert.deepEqual(toValue(result.result), [{ a: 1 }, 'b', { c: 2 }, { d: '' }]);
+    });
+
+    specify('should parse it in nested flow collections', async function () {
+      const result = await adapter.parse('x: [a: [b: 1], c: {d: 2}]\n');
+      assert.deepEqual(toValue(result.result), { x: [{ a: [{ b: 1 }] }, { c: { d: 2 } }] });
+    });
+
+    specify('should serialize it back as single pair', async function () {
+      const source = 'x: [a: 1, b, "c": 2]\ny: [ d: 3 ]\n';
+      const result = await adapter.parse(source, { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, 'x: [a: 1, b, "c": 2]\ny: [d: 3]\n');
+    });
+
+    specify('should keep comment of single pair', async function () {
+      const source = '[\n  a: 1, # c\n  b\n]\n';
+      const result = await adapter.parse(source, { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, source);
+    });
+  });
+
   // https://github.com/speclynx/apidom/issues/648
   context('given explicit flow pair without value', function () {
     specify('should parse it as key with empty value', async function () {
