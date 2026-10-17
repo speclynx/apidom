@@ -1,7 +1,8 @@
 import {
   Document,
   parseDocument,
-  stringify,
+  visit,
+  isScalar,
   isNode,
   Alias,
   Scalar,
@@ -14,8 +15,9 @@ import {
   type SchemaOptions,
   type ScalarTag,
   type ToStringOptions,
+  type Tags,
 } from 'yaml';
-import { stringifyString } from 'yaml/util';
+import { stringifyString, stringTag } from 'yaml/util';
 import {
   Element,
   isElement,
@@ -131,6 +133,43 @@ const rawNumberTag: ScalarTag = {
   stringify: (item): string => (item.value as RawNumber).raw,
 };
 
+type StringifyContext = Parameters<NonNullable<ScalarTag['stringify']>>[1];
+
+// a block scalar's indentation indicator is its content's indentation relative to the parent node
+// (YAML 1.2 §8.1.1.1); the YAML library writes it for content two columns right of the parent, as a
+// sequence item's is, but writes a mapping entry's content an indentation step right of it, so a
+// mapping entry's indicator is that step, at most 9 (one digit) with deeper content moved left to match
+const entryScalars = new WeakSet<Scalar>();
+
+const stringifyStr = (
+  item: Scalar,
+  value: string,
+  ctx: StringifyContext,
+  onComment?: () => void,
+  onChompKeep?: () => void,
+): string => {
+  const str = stringifyString({ ...item, value }, ctx, onComment, onChompKeep);
+  if (!entryScalars.has(item) || !/^[|>]2/.test(str)) return str;
+  const indicator = Math.min(ctx.indentStep.length, 9);
+  const moved = new RegExp(`\n {${ctx.indentStep.length - indicator}}`, 'g');
+  return `${str[0]}${indicator}${str.slice(2)}`.replace(moved, '\n');
+};
+
+const entryStringTag: ScalarTag = {
+  ...stringTag,
+  stringify: (item, ctx, onComment, onChompKeep): string =>
+    stringifyStr(
+      item,
+      item.value as string,
+      { actualString: true, ...ctx },
+      onComment,
+      onChompKeep,
+    ),
+};
+
+const withEntryStringTag = (tags: Tags): Tags =>
+  tags.map((tag) => (tag === stringTag ? entryStringTag : tag));
+
 // the YAML library quotes a plain string that would otherwise resolve to another type (e.g. 1,
 // true), but an explicit tag already makes it a string; tagged strings are boxed and emitted
 // without that check, keeping every other quoting rule
@@ -144,12 +183,7 @@ const taggedStringTag: ScalarTag = {
   identify: (value: unknown): boolean => value instanceof TaggedString,
   resolve: (str: string): string => str,
   stringify: (item, ctx, onComment, onChompKeep): string =>
-    stringifyString(
-      { ...item, value: (item.value as TaggedString).value },
-      ctx,
-      onComment,
-      onChompKeep,
-    ),
+    stringifyStr(item, (item.value as TaggedString).value, ctx, onComment, onChompKeep),
 };
 
 // a node with no content written by the YAML library: an empty node with properties (anchor, tag),
@@ -206,7 +240,7 @@ const rawBlockScalarTag: ScalarTag = {
       );
       if (columns.every((column) => hasValue(str, value, column))) return str;
     }
-    return stringifyString({ ...item, value }, ctx, onComment, onChompKeep);
+    return stringifyStr(item, value, ctx, onComment, onChompKeep);
   },
 };
 
@@ -238,7 +272,7 @@ const rawFlowScalarTag: ScalarTag = {
       const parsed = doc.errors.length === 0 ? doc.toJS() : undefined;
       if ((inFlow ? parsed?.[0] : parsed) === value) return str;
     }
-    return stringifyString({ ...item, value }, ctx, onComment, onChompKeep);
+    return stringifyStr(item, value, ctx, onComment, onChompKeep);
   },
 };
 
@@ -490,6 +524,7 @@ const serializer = (
   }: YAMLSerializerOptions = {},
 ): string => {
   const allOptions: YAMLSerializerOptions = { aliasDuplicateObjects, ...options };
+  let doc: Document;
 
   if (preserveStyle) {
     const style = getStyle(element);
@@ -510,28 +545,46 @@ const serializer = (
       anchors: new Set(),
       repeatedAnchors: new Set(),
     });
-    const doc = new Document(undefined, {
+    doc = new Document(undefined, {
       ...allOptions,
-      customTags: [rawNumberTag, taggedStringTag, rawTextTag, rawBlockScalarTag, rawFlowScalarTag],
+      customTags: (tags) => [
+        ...withEntryStringTag(tags),
+        rawNumberTag,
+        taggedStringTag,
+        rawTextTag,
+        rawBlockScalarTag,
+        rawFlowScalarTag,
+      ],
     });
     doc.contents = rootNode as YAMLNode;
     const { documentComment } = getStyle(element);
     if (documentComment) doc.comment = documentComment;
-
-    if (directive) {
-      doc.directives!.yaml.explicit = true;
-    }
-
-    return doc.toString(allOptions);
+  } else {
+    // custom tags given in the options are added as the library adds them
+    const { customTags } = allOptions as SchemaOptions;
+    doc = new Document(toValue(element), createCycleSafeReplacer(), {
+      ...allOptions,
+      customTags: (tags) =>
+        withEntryStringTag(
+          typeof customTags === 'function' ? customTags(tags) : tags.concat(customTags ?? []),
+        ),
+    });
   }
 
+  // the library's indicator is right for the default indentation step of 2
+  if ((allOptions.indent ?? 2) !== 2) {
+    visit(doc, {
+      Pair: (_, pair) => {
+        if (isScalar(pair.key)) entryScalars.add(pair.key);
+        if (isScalar(pair.value)) entryScalars.add(pair.value);
+      },
+    });
+  }
   if (directive) {
-    const doc = new Document(toValue(element), createCycleSafeReplacer(), allOptions);
     doc.directives!.yaml.explicit = true;
-    return doc.toString(allOptions);
   }
 
-  return stringify(toValue(element), createCycleSafeReplacer(), allOptions);
+  return doc.toString(allOptions);
 };
 
 export default serializer;

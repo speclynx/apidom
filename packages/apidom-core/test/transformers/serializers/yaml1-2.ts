@@ -1,4 +1,6 @@
 import { assert } from 'chai';
+import { type Tags } from 'yaml';
+import { stringTag } from 'yaml/util';
 
 import {
   ObjectElement,
@@ -19,6 +21,37 @@ describe('serializers', function () {
         object.push(new MemberElement(new NumberElement(200), new StringElement('ok')));
 
         assert.strictEqual(serialize(object), '"200": ok\n');
+      });
+    });
+
+    // https://github.com/speclynx/apidom/issues/664
+    context('given block scalar with indentation indicator', function () {
+      const element = from({ k: '  lead\nx\n', s: ['  lead\nx\n'] })!;
+
+      specify('should write indicator of mapping value as indentation step', function () {
+        assert.strictEqual(
+          serialize(element, { indent: 4 }),
+          'k: |4\n      lead\n    x\ns:\n    - |2\n        lead\n      x\n',
+        );
+        assert.strictEqual(
+          serialize(element, { indent: 1 }),
+          'k: |1\n   lead\n x\ns:\n - |2\n     lead\n   x\n',
+        );
+      });
+
+      specify('should keep custom tags given in options', function () {
+        const options = {
+          customTags: (tags: Tags) =>
+            tags.map((tag) => (tag === stringTag ? { ...stringTag, stringify: () => 's' } : tag)),
+        } as Parameters<typeof serialize>[1];
+        assert.strictEqual(serialize(element, options), 's: s\ns:\n  - s\n');
+      });
+
+      specify('should move content of indentation step over 9 to 9th column', function () {
+        assert.strictEqual(
+          serialize(element, { indent: 10 }),
+          'k: |9\n           lead\n         x\ns:\n          - |2\n              lead\n            x\n',
+        );
       });
     });
 

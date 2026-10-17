@@ -373,6 +373,30 @@ describe('adapter', function () {
       },
     );
 
+    // https://github.com/speclynx/apidom/issues/664
+    specify(
+      'should write indentation indicator of changed and tagged mapping values',
+      async function () {
+        const result = await adapter.parse('a:\n    k: x\n', { style: true });
+        const a = (result.result as ObjectElement).get('a') as ObjectElement;
+        a.get('k')!.content = '  lead\nx\n';
+        const tagged = new StringElement('  lead\nx\n');
+        tagged.style = { yaml: { tag: '!!str' } };
+        a.set('t', tagged);
+        assert.strictEqual(
+          toYAML(result.result!, { preserveStyle: true }),
+          'a:\n    k: |4\n          lead\n        x\n    t: !!str |4\n          lead\n        x\n',
+        );
+      },
+    );
+
+    specify('should write indentation indicator of mapping value back', async function () {
+      const source =
+        'a:\n    k: >4-\n          lead\n        x\n    s:\n        - |2\n            lead\n          x\n';
+      const result = await adapter.parse(source, { style: true });
+      assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), source);
+    });
+
     specify('should write top-level block scalar moved under a key', async function () {
       const result = await adapter.parse('--- |\nfoo\nbar\n', { style: true });
       const yaml = toYAML(new ObjectElement({ a: result.result }), { preserveStyle: true });
