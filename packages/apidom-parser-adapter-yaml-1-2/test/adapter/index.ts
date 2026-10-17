@@ -1547,4 +1547,27 @@ describe('adapter', function () {
       });
     });
   });
+
+  context('given flow scalar continuation line starting with a tab', function () {
+    for (const [style, source] of [
+      ['plain', 'a: tab\n\t  next\n'],
+      ['double-quoted', 'a: "tab\n\t  next"\n'],
+      ['single-quoted', "a: 'tab\n\t  next'\n"],
+    ]) {
+      specify(`should produce syntax error annotation for ${style} scalar`, async function () {
+        const parseResult = await adapter.parse(source);
+
+        assert.strictEqual(toValue(parseResult.errors.get(0)), '(Error YAML syntax error)');
+      });
+    }
+
+    specify('should accept a tab after the indentation', async function () {
+      for (const source of ['a: tab\n \tnext\n', 'a: "tab\n \tnext"\n', 'tab\n\tnext\n']) {
+        const parseResult = await adapter.parse(source);
+
+        assert.lengthOf(parseResult.errors, 0);
+        assert.lengthOf(parseResult.annotations, 0);
+      }
+    });
+  });
 });
