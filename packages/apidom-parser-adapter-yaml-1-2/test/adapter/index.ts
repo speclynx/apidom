@@ -416,6 +416,17 @@ describe('adapter', function () {
       assert.strictEqual(toYAML(root, { preserveStyle: true }), 'a: x, y\nb: [1, "x, y"]\n');
     });
 
+    specify('should write multi-line key from value', async function () {
+      for (const [source, expected] of [
+        ["? 'a\n  b'\n: v\n", "'a b': v\n"],
+        ['- ? a\n    b\n  : c\n', '- a b: c\n'],
+        ["[ ? 'x\n  y' : z ]\n", "[ 'x y': z ]\n"],
+      ]) {
+        const result = await adapter.parse(source, { style: true });
+        assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), expected);
+      }
+    });
+
     specify('should refold a changed value', async function () {
       const result = await adapter.parse('d: a long text\n', { style: true });
       (result.result as ObjectElement).get('d')!.content = long;

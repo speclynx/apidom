@@ -227,14 +227,15 @@ const rawFlowScalarTag: ScalarTag = {
   stringify: (item, ctx, onComment, onChompKeep): string => {
     const { value, text } = item.value as RawFlowScalar;
     const str = text.replace(/\n[ \t]*/g, `\n${ctx.indent}`).replace(/^[ \t]+$/gm, '');
-    // the text is parsed where it's written: as a key, in a flow collection or on its own
-    const src = ctx.implicitKey ? `{${str}: 0}` : ctx.inFlow ? `[${str}]` : str;
-    const doc = parseDocument(`${src}\n`);
-    if (doc.errors.length === 0) {
-      const parsed = doc.toJS();
-      if ((ctx.implicitKey ? Object.keys(parsed)[0] : ctx.inFlow ? parsed[0] : parsed) === value) {
-        return str;
-      }
+    if (str === stringifyString({ ...item, value }, ctx)) return str;
+    // text the library wouldn't write is checked: an implicit key is on one line (YAML 1.2 §7.4.1),
+    // and the text has the value in a flow sequence for a key or a node in a flow collection, or on
+    // its own
+    if (!(ctx.implicitKey && str.includes('\n'))) {
+      const inFlow = ctx.inFlow || ctx.implicitKey;
+      const doc = parseDocument(inFlow ? `[${str}]\n` : `${str}\n`);
+      const parsed = doc.errors.length === 0 ? doc.toJS() : undefined;
+      if ((inFlow ? parsed?.[0] : parsed) === value) return str;
     }
     return stringifyString({ ...item, value }, ctx, onComment, onChompKeep);
   },
