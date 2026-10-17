@@ -482,6 +482,20 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/674
+  context('given CRLF line breaks serialized back with preserveStyle', function () {
+    specify('should write CRLF line breaks back', async function () {
+      const source = '# c\r\na: "x\\ny" # d\r\nb: >-\r\n  long\r\n  text\r\nc:\r\n- 1\r\n';
+      const result = await adapter.parse(source, { style: true });
+      assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), source);
+    });
+
+    specify('should write line break of first line for mixed line breaks', async function () {
+      const result = await adapter.parse('a: 1\r\nb: 2\n', { style: true });
+      assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), 'a: 1\r\nb: 2\r\n');
+    });
+  });
+
   // https://github.com/speclynx/apidom/issues/660
   context('given comment after nested collection serialized back with preserveStyle', function () {
     specify(

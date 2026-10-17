@@ -331,6 +331,8 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       ...toPositionProps(info),
       isMissing: info.isMissing,
     });
+    const lineBreak = info.text.match(/\r?\n/);
+    if (lineBreak) stream.lineBreak = lineBreak[0];
 
     return new ParseResult({ children: [stream] });
   },

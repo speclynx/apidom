@@ -8,6 +8,9 @@ import { isDocument, isComment } from './predicates.ts';
  */
 class YamlStream extends Node {
   public static readonly type = 'stream';
+
+  // the line break the stream's first line ends with
+  public lineBreak?: string;
 }
 
 Object.defineProperty(YamlStream.prototype, 'content', {

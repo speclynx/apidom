@@ -53,6 +53,8 @@ interface YAMLElementStyle {
   commentBefore?: string;
   // a comment on the lines after the root node, written as the document's comment
   documentComment?: string;
+  // the line break of the document's lines, when not LF
+  lineBreak?: string;
 }
 
 const getStyle = (element: Element): YAMLElementStyle => {
@@ -614,7 +616,12 @@ const serializer = (
     doc.directives!.yaml.explicit = true;
   }
 
-  return doc.toString(allOptions);
+  const yaml = doc.toString(allOptions);
+  // the library writes LF line breaks; every LF it writes is a line break, as a line break in a value
+  // is either escaped or a line break of the scalar's text
+  return preserveStyle && getStyle(element).lineBreak === '\r\n'
+    ? yaml.replace(/\n/g, '\r\n')
+    : yaml;
 };
 
 export default serializer;
