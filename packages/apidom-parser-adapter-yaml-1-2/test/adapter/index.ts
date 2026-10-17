@@ -1071,6 +1071,27 @@ describe('adapter', function () {
     });
   });
 
+  context('given YAML 1.2 nested deeper than the scanner state can hold', function () {
+    const nested = (depth: number) =>
+      Array.from({ length: depth }, (_, i) => `${'  '.repeat(i)}k:`).join('\n') + ' 1\n';
+
+    specify('should report syntax error', async function () {
+      const parseResult = await adapter.parse(nested(300));
+
+      assert.isUndefined(parseResult.result);
+      assert.strictEqual(toValue(parseResult.errors.get(0)), '(Error YAML syntax error)');
+    });
+
+    specify('should keep parsing other documents', async function () {
+      for (const depth of [100, 200, 250, 256, 260, 300]) {
+        await adapter.parse(nested(depth));
+      }
+      const parseResult = await adapter.parse('a: 1\n');
+
+      assert.deepEqual(toValue(parseResult.result), { a: 1 });
+    });
+  });
+
   context('strict mode', function () {
     context('detect', function () {
       specify('should detect valid YAML', async function () {

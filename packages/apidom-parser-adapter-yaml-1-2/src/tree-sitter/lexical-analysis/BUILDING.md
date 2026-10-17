@@ -1,12 +1,18 @@
 # tree-sitter-yaml.wasm
 
 `tree-sitter-yaml.wasm` is built from [tree-sitter-yaml](https://github.com/tree-sitter-grammars/tree-sitter-yaml)
-`master` (`a1c4812`) with [tree-sitter-grammars/tree-sitter-yaml#35](https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35) (`8025f83`) merged in,
-which supports documents larger than 32,768 lines. Build it with the `tree-sitter-cli` version that matches the pinned `web-tree-sitter` version:
+`master` (`a1c4812`) with these pull requests merged in:
+
+- [tree-sitter-grammars/tree-sitter-yaml#35](https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/35) (`8025f83`), which supports documents larger than 32,768 lines;
+- [tree-sitter-grammars/tree-sitter-yaml#47](https://github.com/tree-sitter-grammars/tree-sitter-yaml/pull/47) (`ebf98e2`), which fixes an out-of-bounds write when serializing the scanner state of deeply nested documents.
+
+Build it with the `tree-sitter-cli` version that matches the pinned `web-tree-sitter` version:
 
 ```sh
  $ git clone https://github.com/tree-sitter-grammars/tree-sitter-yaml && cd tree-sitter-yaml
- $ git fetch origin pull/35/head:pr35 && git merge --no-edit pr35
+ $ git checkout a1c4812
+ $ git fetch origin pull/35/head:pr35 pull/47/head:pr47
+ $ git merge --no-edit pr35 && git merge --no-edit pr47
  $ npx tree-sitter-cli@0.27.1 build --wasm
  $ cp tree-sitter-yaml.wasm <apidom>/packages/apidom-parser-adapter-yaml-1-2/src/tree-sitter/lexical-analysis/
 ```
