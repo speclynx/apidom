@@ -17,7 +17,7 @@ import {
   type ToStringOptions,
   type Tags,
 } from 'yaml';
-import { stringifyString, stringTag } from 'yaml/util';
+import { stringifyString } from 'yaml/util';
 import {
   Element,
   isElement,
@@ -139,8 +139,8 @@ const rawNumberTag: ScalarTag = {
 // as an indicator is one digit, content of a step over 9 is moved to the 9th column
 const pairScalars = new WeakSet<object>();
 
-const withIndentationIndicator = (node: Scalar, indentStep: string, str: string): string => {
-  if (!pairScalars.has(node) || !/^[|>]2/.test(str)) return str;
+const withIndentationIndicator = (item: Scalar, indentStep: string, str: string): string => {
+  if (!pairScalars.has(item) || !/^[|>]2/.test(str)) return str;
   const indicator = Math.min(indentStep.length, 9);
   const [header, ...lines] = str.split('\n');
   return [
@@ -149,18 +149,16 @@ const withIndentationIndicator = (node: Scalar, indentStep: string, str: string)
   ].join('\n');
 };
 
-const pairStringTag: ScalarTag = {
-  ...stringTag,
-  stringify: (item, ctx, onComment, onChompKeep): string =>
-    withIndentationIndicator(
-      item,
-      ctx.indentStep,
-      stringTag.stringify!(item, ctx, onComment, onChompKeep),
-    ),
+// the indicator of every scalar the library writes
+const withLibraryIndentationIndicator = (tag: Tags[number]): Tags[number] => {
+  if (typeof tag === 'string' || !(tag as ScalarTag).stringify) return tag;
+  const { stringify } = tag as ScalarTag;
+  return {
+    ...(tag as ScalarTag),
+    stringify: (item, ctx, onComment, onChompKeep): string =>
+      withIndentationIndicator(item, ctx.indentStep, stringify!(item, ctx, onComment, onChompKeep)),
+  };
 };
-
-const withPairStringTag = (tags: Tags): Tags =>
-  tags.map((tag) => (tag === stringTag ? pairStringTag : tag));
 
 // the YAML library quotes a plain string that would otherwise resolve to another type (e.g. 1,
 // true), but an explicit tag already makes it a string; tagged strings are boxed and emitted
@@ -175,15 +173,11 @@ const taggedStringTag: ScalarTag = {
   identify: (value: unknown): boolean => value instanceof TaggedString,
   resolve: (str: string): string => str,
   stringify: (item, ctx, onComment, onChompKeep): string =>
-    withIndentationIndicator(
-      item,
-      ctx.indentStep,
-      stringifyString(
-        { ...item, value: (item.value as TaggedString).value },
-        ctx,
-        onComment,
-        onChompKeep,
-      ),
+    stringifyString(
+      { ...item, value: (item.value as TaggedString).value },
+      ctx,
+      onComment,
+      onChompKeep,
     ),
 };
 
@@ -277,11 +271,7 @@ const rawFlowScalarTag: ScalarTag = {
       const parsed = doc.errors.length === 0 ? doc.toJS() : undefined;
       if ((inFlow ? parsed?.[0] : parsed) === value) return str;
     }
-    return withIndentationIndicator(
-      item,
-      ctx.indentStep,
-      stringifyString({ ...item, value }, ctx, onComment, onChompKeep),
-    );
+    return stringifyString({ ...item, value }, ctx, onComment, onChompKeep);
   },
 };
 
@@ -557,12 +547,10 @@ const serializer = (
     doc = new Document(undefined, {
       ...allOptions,
       customTags: (tags) => [
-        ...withPairStringTag(tags),
-        rawNumberTag,
-        taggedStringTag,
-        rawTextTag,
+        ...[...tags, rawNumberTag, taggedStringTag, rawTextTag, rawFlowScalarTag].map(
+          withLibraryIndentationIndicator,
+        ),
         rawBlockScalarTag,
-        rawFlowScalarTag,
       ],
     });
     doc.contents = rootNode as YAMLNode;
@@ -571,7 +559,7 @@ const serializer = (
   } else {
     doc = new Document(toValue(element), createCycleSafeReplacer(), {
       ...allOptions,
-      customTags: withPairStringTag,
+      customTags: (tags) => tags.map(withLibraryIndentationIndicator),
     });
   }
 
