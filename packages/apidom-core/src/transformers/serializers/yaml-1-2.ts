@@ -14,6 +14,7 @@ import {
   type ScalarTag,
   type ToStringOptions,
 } from 'yaml';
+import { stringifyString } from 'yaml/util';
 import {
   Element,
   isElement,
@@ -122,6 +123,43 @@ const rawNumberTag: ScalarTag = {
   stringify: (item): string => (item.value as RawNumber).raw,
 };
 
+// the YAML library quotes a plain string that would otherwise resolve to another type (e.g. 1,
+// true), but an explicit tag already makes it a string; tagged strings are boxed and emitted
+// without that check, keeping every other quoting rule
+class TaggedString {
+  constructor(public value: string) {}
+}
+
+const taggedStringTag: ScalarTag = {
+  tag: 'tag:yaml.org,2002:str',
+  default: true,
+  identify: (value: unknown): boolean => value instanceof TaggedString,
+  resolve: (str: string): string => str,
+  stringify: (item, ctx, onComment, onChompKeep): string =>
+    stringifyString(
+      { ...item, value: (item.value as TaggedString).value },
+      ctx,
+      onComment,
+      onChompKeep,
+    ),
+};
+
+// a tag followed by no content is written with a space after the tag, so a tagged empty node is
+// boxed and its tag emitted as its whole text; as an implicit key it keeps the space, which
+// separates the tag from the ':' indicator
+class TaggedEmptyNode {
+  constructor(public tag: string) {}
+}
+
+const taggedEmptyNodeTag: ScalarTag = {
+  tag: 'tag:yaml.org,2002:null',
+  default: true,
+  identify: (value: unknown): boolean => value instanceof TaggedEmptyNode,
+  resolve: (): null => null,
+  stringify: (item, ctx): string =>
+    (item.value as TaggedEmptyNode).tag + (ctx.implicitKey ? ' ' : ''),
+};
+
 /**
  * Tracks state across a single serialization: the ancestor chain used for cycle
  * detection, and — when `aliasDuplicateObjects` is enabled — the container node
@@ -228,13 +266,12 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
   const scalarType = style.scalarStyle ? scalarStyleMap[style.scalarStyle] : undefined;
 
   const scalar = new Scalar(toValue(element));
-  // an untagged empty node (YAML 1.2 §7.2) is a null parsed as an empty string; while it's still
-  // empty, write it back as a null with no content instead of as ""
-  if (
-    scalar.value === '' &&
-    includesClasses(element, ['yaml-e-node']) &&
-    (style.tag === undefined || style.tag === '!!null')
-  ) {
+  // an empty node (YAML 1.2 §7.2) is parsed as an empty string; while it's still empty, write it
+  // back as it was written: with no content, after its tag if it had one
+  const isEmptyNode = scalar.value === '' && includesClasses(element, ['yaml-e-node']);
+  if (isEmptyNode && style.tag !== undefined) {
+    scalar.value = new TaggedEmptyNode(style.tag);
+  } else if (isEmptyNode) {
     scalar.value = null;
     scalar.source = '';
   }
@@ -267,7 +304,10 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
   }
 
   applyComments(scalar, style);
-  applyTag(scalar, element, style);
+  if (!isEmptyNode) applyTag(scalar, element, style);
+  if (scalar.tag !== undefined && typeof scalar.value === 'string') {
+    scalar.value = new TaggedString(scalar.value);
+  }
 
   return scalar;
 };
@@ -300,7 +340,10 @@ const serializer = (
       emitted: aliasDuplicateObjects ? new Map() : undefined,
       anchorCount: 0,
     });
-    const doc = new Document(undefined, { ...allOptions, customTags: [rawNumberTag] });
+    const doc = new Document(undefined, {
+      ...allOptions,
+      customTags: [rawNumberTag, taggedStringTag, taggedEmptyNodeTag],
+    });
     doc.contents = rootNode as YAMLNode;
 
     if (directive) {
