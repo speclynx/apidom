@@ -336,6 +336,56 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/568
+  context('given block scalar serialized back with preserveStyle', function () {
+    specify('should write folded lines back as written', async function () {
+      const source =
+        'description: >-\n  Information required to execute a payment transaction against this account.\n  If response contains `ACCOUNT_NUMBER` identifiers which are not masked this is sensitive data\n';
+      const result = await adapter.parse(source, { style: true });
+      assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), source);
+    });
+
+    specify('should write indentation indicator and leading empty line back', async function () {
+      const source =
+        'a:\n  description: |2-\n\n      A decision.\n\n      `approved` - text\n  b: 1\n';
+      const result = await adapter.parse(source, { style: true });
+      assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), source);
+    });
+
+    specify('should write keep chomping before next key back', async function () {
+      const source = 'd: |+\n  a\n\n\nb: 1\n';
+      const result = await adapter.parse(source, { style: true });
+      assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), source);
+    });
+
+    specify(
+      'should write block scalars in a sequence back with wider indentation',
+      async function () {
+        const source =
+          'k:\n    - >-\n        long\n        text\n    - |2-\n          lead\n        x\n';
+        const result = await adapter.parse(source, { style: true });
+        assert.strictEqual(toYAML(result.result!, { preserveStyle: true, indent: 4 }), source);
+        assert.strictEqual(
+          toYAML(result.result!, { preserveStyle: true }),
+          'k:\n  - >-\n      long\n      text\n  - |2-\n        lead\n      x\n',
+        );
+      },
+    );
+
+    specify('should write top-level block scalar moved under a key', async function () {
+      const result = await adapter.parse('--- |\nfoo\nbar\n', { style: true });
+      const yaml = toYAML(new ObjectElement({ a: result.result }), { preserveStyle: true });
+      assert.strictEqual(yaml, 'a: |\n  foo\n  bar\n');
+    });
+
+    specify('should refold a changed value', async function () {
+      const result = await adapter.parse('d: >-\n  short\n  text\n', { style: true });
+      (result.result as ObjectElement).set('d', 'changed');
+      (result.result as ObjectElement).get('d')!.style = { yaml: { scalarStyle: 'Folded' } };
+      assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), 'd: >-\n  changed\n');
+    });
+  });
+
   // https://github.com/speclynx/apidom/issues/645
   context('given comment after root node serialized back with preserveStyle', function () {
     specify('should write comment on the same line back', async function () {
