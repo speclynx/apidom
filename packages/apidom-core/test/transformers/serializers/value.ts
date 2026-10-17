@@ -149,6 +149,13 @@ describe('serializers', function () {
         assert.deepEqual(serializer(object), { '200': 'ok', '1.5': 'a', true: 'b', null: 'c' });
       });
 
+      specify('should keep the last member when keys share a property name', function () {
+        const object = new ObjectElement({ '200': 'a' });
+        object.push(new MemberElement(new NumberElement(200), new StringElement('b')));
+
+        assert.deepEqual(serializer(object), { '200': 'b' });
+      });
+
       specify('should name collection keys by their JSON text', function () {
         const object = new ObjectElement({ a: 1 });
         object.push(new MemberElement(new ArrayElement(['x']), new StringElement('d')));
