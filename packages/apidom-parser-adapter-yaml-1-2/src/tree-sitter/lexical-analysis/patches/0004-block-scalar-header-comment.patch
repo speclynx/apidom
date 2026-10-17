@@ -1,0 +1,47 @@
+diff --git a/src/scanner.c b/src/scanner.c
+index cffd4b7..f788854 100644
+--- a/src/scanner.c
++++ b/src/scanner.c
+@@ -853,7 +853,10 @@ static bool scan(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+             leading_spaces = 0;
+             skp_nwl(scanner, lexer);
+         } else if (allow_comment && lexer->lookahead == '#') {
+-            if (valid_symbols[BR_BLK_STR_CTN] && valid_symbols[BL] && scanner->cur_col <= cur_ind) {
++            // a less indented comment on a later line ends the block scalar; the comment on its
++            // header line doesn't, though it may sit left of the content's indentation
++            if (valid_symbols[BR_BLK_STR_CTN] && valid_symbols[BL] && scanner->cur_row != scanner->row &&
++                scanner->cur_col <= cur_ind) {
+                 POP_IND();
+                 RET_SYM(BL);
+             }
+diff --git a/test/corpus/08_blocks.txt b/test/corpus/08_blocks.txt
+index 26e63a9..21b74d4 100644
+--- a/test/corpus/08_blocks.txt
++++ b/test/corpus/08_blocks.txt
+@@ -780,3 +780,26 @@ long:
+                     (string_scalar)))
+                 (flow_node
+                   (flow_mapping))))))))))
++
++================================================================================
++Block scalar header comment with deeper content
++================================================================================
++- > # c
++     y
++- |- # c
++    z
++
++--------------------------------------------------------------------------------
++
++(stream
++  (document
++    (block_node
++      (block_sequence
++        (block_sequence_item
++          (block_node
++            (block_scalar
++              (comment))))
++        (block_sequence_item
++          (block_node
++            (block_scalar
++              (comment))))))))

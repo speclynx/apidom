@@ -336,6 +336,23 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/626
+  context('given block scalar with header comment and deeper content', function () {
+    specify('should parse it at top level', async function () {
+      const result = await adapter.parse('>- # c\n     y\n');
+
+      assert.lengthOf(result.annotations, 0);
+      assert.strictEqual(toValue(result.result), 'y');
+    });
+
+    specify('should parse it as sequence item and mapping value', async function () {
+      const result = await adapter.parse('- > # c\n     y\n- d: | # c\n        z\n');
+
+      assert.lengthOf(result.annotations, 0);
+      assert.deepEqual(toValue(result.result), ['y\n', { d: 'z\n' }]);
+    });
+  });
+
   // https://github.com/speclynx/apidom/issues/648
   context('given explicit flow pair without value', function () {
     specify('should parse it as key with empty value', async function () {
