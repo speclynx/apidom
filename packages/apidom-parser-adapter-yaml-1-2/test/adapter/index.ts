@@ -6,6 +6,7 @@ import {
   ObjectElement,
   MemberElement,
   StringElement,
+  isArrayElement,
   isObjectElement,
   isParseResultElement,
   isStringElement,
@@ -304,6 +305,23 @@ describe('adapter', function () {
       const result = await adapter.parse('{ a, b: 1 }\n', { style: true });
       const yaml = toYAML(result.result!, { preserveStyle: true });
       assert.strictEqual(yaml, '{ a:, b: 1 }\n');
+    });
+  });
+
+  // https://github.com/speclynx/apidom/issues/648
+  context('given explicit flow pair without value', function () {
+    specify('should parse it as key with empty value', async function () {
+      const result = await adapter.parse('{ ? a, b: 1, ? c }\n');
+
+      assert.lengthOf(result.annotations, 0);
+      assert.deepEqual(toValue(result.result), { a: '', b: 1, c: '' });
+    });
+
+    specify('should parse it in flow sequence', async function () {
+      const result = await adapter.parse('[ ? a ]\n');
+
+      assert.lengthOf(result.annotations, 0);
+      assert.isTrue(isArrayElement(result.result));
     });
   });
 
