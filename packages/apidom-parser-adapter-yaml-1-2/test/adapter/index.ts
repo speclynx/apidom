@@ -502,6 +502,37 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/668
+  context('given alias serialized back with preserveStyle', function () {
+    specify('should write aliases back', async function () {
+      for (const source of [
+        'a: &x y\nb: *x # c\nc: &m {k: 1}\nd: *m\n',
+        '- &a x\n- [*a]\n',
+        '&k a: 1\n*k : 2\n',
+        'a: &x\nb: *x\n',
+      ]) {
+        const result = await adapter.parse(source, { style: true });
+        assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), source);
+      }
+    });
+
+    specify('should write alias text when its anchor is not written before it', async function () {
+      for (const [source, expected] of [
+        ['b: *x\na: &x y\n', 'b: "*x"\na: &x y\n'],
+        ['a: &x 1\nb: &x 2\nc: *x\n', 'a: &x 1\nb: 2\nc: "*x"\n'],
+      ]) {
+        const result = await adapter.parse(source, { style: true });
+        assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), expected);
+      }
+    });
+
+    specify('should write changed value', async function () {
+      const result = await adapter.parse('a: &x y\nb: *x\n', { style: true });
+      (result.result as ObjectElement).get('b')!.content = 'z';
+      assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), 'a: &x y\nb: z\n');
+    });
+  });
+
   // https://github.com/speclynx/apidom/issues/639
   context('given anchor serialized back with preserveStyle', function () {
     specify('should write anchors back', async function () {
