@@ -350,36 +350,24 @@ const transformChildren = (children: unknown[], ctx: TransformContext): Element[
 
 // stream comments that precede the first document, joined; null when there are none
 // (stream children are in source order, so everything before the document node qualifies)
-const collectPreDocumentComments = (node: YamlStream): string | null => {
-  const texts: string[] = [];
+// stream comments around the first document: before it, on its last line and on the lines after it,
+// up to the next document
+const collectStreamComments = (node: YamlStream) => {
+  const comments = { before: [] as string[], inline: [] as string[], after: [] as string[] };
+  let document: TypedNode | undefined;
   for (const child of node.children) {
-    if (isDocument(child)) break;
-    if (isComment(child)) texts.push(stripCommentHash(child.content));
-  }
-  return texts.length > 0 ? texts.join('\n') : null;
-};
-
-// comments after the first document, before the next one: ones on the document's last line belong
-// to its root node, ones on later lines to the document
-const collectPostDocumentComments = (
-  node: YamlStream,
-): { comment: string | null; documentComment: string | null } => {
-  const document = node.children.find(isDocument) as unknown as TypedNode | undefined;
-  const inline: string[] = [];
-  const after: string[] = [];
-  if (document !== undefined) {
-    for (const child of node.children.slice(node.children.indexOf(document as never) + 1)) {
-      if (isDocument(child)) break;
-      if (!isComment(child)) continue;
+    if (isDocument(child)) {
+      if (document) break;
+      document = child as unknown as TypedNode;
+    } else if (isComment(child)) {
       const text = stripCommentHash(child.content);
-      if ((child as unknown as TypedNode).startLine === document.endLine) inline.push(text);
-      else after.push(text);
+      if (!document) comments.before.push(text);
+      else if ((child as unknown as TypedNode).startLine === document.endLine)
+        comments.inline.push(text);
+      else comments.after.push(text);
     }
   }
-  return {
-    comment: inline.length > 0 ? inline.join('\n') : null,
-    documentComment: after.length > 0 ? after.join('\n') : null,
-  };
+  return comments;
 };
 
 // Stream: Wraps transformed children in ParseResultElement
@@ -405,26 +393,25 @@ const transformStream = (node: YamlStream, ctx: TransformContext): ParseResultEl
     const resultElement = elements[0];
     resultElement.classes.push('result');
 
-    // stream comments before the first document belong above the result element;
-    // capture them as commentBefore so style round-trips can re-emit them
+    // stream comments before the first document belong above the result element, ones on its last
+    // line to it and ones on later lines to the document; capture them so style round-trips can
+    // re-emit them
     if (ctx.style) {
-      const preDocumentComments = collectPreDocumentComments(node);
-      if (preDocumentComments !== null) {
+      const { before, inline, after } = collectStreamComments(node);
+      if (before.length > 0) {
         const existing = getYamlStyleProp(resultElement, 'commentBefore');
+        const text = before.join('\n');
         setYamlStyleProp(
           resultElement,
           'commentBefore',
-          typeof existing === 'string'
-            ? `${preDocumentComments}\n${existing}`
-            : preDocumentComments,
+          typeof existing === 'string' ? `${text}\n${existing}` : text,
         );
       }
-      const { comment, documentComment } = collectPostDocumentComments(node);
-      if (comment !== null && typeof getYamlStyleProp(resultElement, 'comment') !== 'string') {
-        setYamlStyleProp(resultElement, 'comment', comment);
+      if (inline.length > 0 && typeof getYamlStyleProp(resultElement, 'comment') !== 'string') {
+        setYamlStyleProp(resultElement, 'comment', inline.join('\n'));
       }
-      if (documentComment !== null) {
-        setYamlStyleProp(resultElement, 'documentComment', documentComment);
+      if (after.length > 0) {
+        setYamlStyleProp(resultElement, 'documentComment', after.join('\n'));
       }
     }
   }
