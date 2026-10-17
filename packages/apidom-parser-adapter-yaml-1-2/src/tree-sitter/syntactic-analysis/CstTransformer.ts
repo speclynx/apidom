@@ -793,10 +793,10 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
         ? YamlStyle.Folded
         : YamlStyle.Plain;
 
-    // trailing empty lines belong to the block scalar (keep chomping), but the CST node
-    // ends at its last content character when another node follows; every line between
-    // the end of the node and the next node in source order is empty
-    let trailingLineBreaks = '';
+    // trailing lines belong to the block scalar, but the CST node ends at its last content
+    // character when another node follows; the lines up to the line of the next node in
+    // source order are taken from the text of the node holding both
+    let trailingLines = '';
     if (!info.text.endsWith('\n')) {
       // a cursor copy walks up in constant time per step, unlike Node#parent
       const following = copyCursor(cursor);
@@ -804,10 +804,15 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       while (!hasNext && following.gotoParent()) {
         hasNext = following.gotoNextSibling();
       }
-      // without a next node the scalar ends the input, so there are no empty lines to add
+      // without a next node the scalar ends the input, so there are no lines to add
       if (hasNext) {
-        const emptyLines = following.startPosition.row - info.endPosition.row;
-        trailingLineBreaks = '\n'.repeat(Math.max(emptyLines, 1));
+        const nextIndex = following.startIndex;
+        following.gotoParent();
+        const gap = following.nodeText.slice(
+          info.endIndex - following.startIndex,
+          nextIndex - following.startIndex,
+        );
+        trailingLines = gap.slice(0, gap.lastIndexOf('\n') + 1);
       }
       following.delete();
     }
@@ -820,10 +825,13 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       holder?.type === 'block_mapping_pair' || holder?.type === 'block_sequence_item'
         ? holder.startPosition.column
         : 0;
-    const rebased = info.text.replace(new RegExp(`\n {0,${parentIndentation}}`, 'g'), '\n');
+    const rebased = (info.text + trailingLines).replace(
+      new RegExp(`\n {0,${parentIndentation}}`, 'g'),
+      '\n',
+    );
 
     const scalarNode = new YamlScalar({
-      content: rebased + trailingLineBreaks,
+      content: rebased,
       anchor,
       tag,
       ...toPositionProps(info),
