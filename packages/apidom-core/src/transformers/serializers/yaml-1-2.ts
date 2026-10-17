@@ -40,6 +40,8 @@ interface YAMLElementStyle {
   rawContent?: string;
   tag?: string;
   anchor?: string;
+  // the name of the alias the scalar was resolved from
+  alias?: string;
   singlePair?: boolean;
   indent?: number;
   flowCollectionPadding?: boolean;
@@ -150,21 +152,20 @@ const taggedStringTag: ScalarTag = {
     ),
 };
 
-// the YAML library writes a space between a node's properties (anchor, tag) and the content after
-// them, which leaves a trailing space when there's no content; an empty node with properties is
-// boxed and emitted as its properties alone instead, except as an implicit key, where the space
-// separates them from the ':' indicator; the box's tag name only identifies it
-class EmptyNodeProperties {
-  constructor(public properties: string) {}
+// a node with no content written by the YAML library: an empty node with properties (anchor, tag),
+// as the library writes a space after them, and an alias, as the library's alias node requires an
+// anchor the library wrote; it's boxed and emitted as its text, except as an implicit key, where a
+// space separates the text from the ':' indicator; the box's tag name only identifies it
+class RawText {
+  constructor(public text: string) {}
 }
 
-const emptyNodePropertiesTag: ScalarTag = {
+const rawTextTag: ScalarTag = {
   tag: 'tag:yaml.org,2002:null',
   default: true,
-  identify: (value: unknown): boolean => value instanceof EmptyNodeProperties,
+  identify: (value: unknown): boolean => value instanceof RawText,
   resolve: (): null => null,
-  stringify: (item, ctx): string =>
-    (item.value as EmptyNodeProperties).properties + (ctx.implicitKey ? ' ' : ''),
+  stringify: (item, ctx): string => (item.value as RawText).text + (ctx.implicitKey ? ' ' : ''),
 };
 
 // the YAML library refolds a block scalar's lines; a block scalar is boxed with its source text,
@@ -252,6 +253,8 @@ interface NodeContext {
   anchorCount: number;
   // anchor names written so far, recorded or generated
   anchors: Set<string>;
+  // recorded anchor names not written again, as they were already written
+  repeatedAnchors: Set<string>;
 }
 
 /**
@@ -272,7 +275,11 @@ const toAlias = (node: YAMLNode, context: NodeContext): Alias => {
 // the anchor recorded in style, to be written back; a name already written (repeated in the source,
 // or generated for an alias) isn't written again, so that an alias refers to the node it was made for
 const claimAnchor = (style: YAMLElementStyle, context: NodeContext): string | undefined => {
-  if (style.anchor === undefined || context.anchors.has(style.anchor)) return undefined;
+  if (style.anchor === undefined) return undefined;
+  if (context.anchors.has(style.anchor)) {
+    context.repeatedAnchors.add(style.anchor);
+    return undefined;
+  }
   context.anchors.add(style.anchor);
   return style.anchor;
 };
@@ -376,6 +383,20 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     return new Scalar(isStringElement(element.href) ? toValue(element.href) : '');
   }
 
+  // an alias isn't resolved, so its element has the alias text; it's written back as an alias while
+  // it still has that text and its anchor was written before it only once, so that it refers to the
+  // node it referred to in the source
+  if (
+    style.alias !== undefined &&
+    toValue(element) === `*${style.alias}` &&
+    context.anchors.has(style.alias) &&
+    !context.repeatedAnchors.has(style.alias)
+  ) {
+    const alias = new Scalar(new RawText(`*${style.alias}`));
+    applyComments(alias, style);
+    return alias;
+  }
+
   // scalar element (string, number, boolean, null)
   const scalarType = style.scalarStyle ? scalarStyleMap[style.scalarStyle] : undefined;
 
@@ -387,7 +408,7 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     const anchor = claimAnchor(style, context);
     const properties = [anchor && `&${anchor}`, style.tag].filter(Boolean).join(' ');
     if (properties) {
-      scalar.value = new EmptyNodeProperties(properties);
+      scalar.value = new RawText(properties);
     } else {
       scalar.value = null;
       scalar.source = '';
@@ -447,7 +468,7 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
   if (scalar.tag !== undefined && scalar.value === '' && style.scalarStyle === 'Plain') {
     // an empty plain string has no content to write, so it's written like a tagged empty node,
     // which parses back to the same empty string
-    scalar.value = new EmptyNodeProperties(scalar.tag);
+    scalar.value = new RawText(scalar.tag);
     scalar.tag = undefined;
   } else if (scalar.tag !== undefined && typeof scalar.value === 'string') {
     scalar.value = new TaggedString(scalar.value);
@@ -487,16 +508,11 @@ const serializer = (
       emitted: aliasDuplicateObjects ? new Map() : undefined,
       anchorCount: 0,
       anchors: new Set(),
+      repeatedAnchors: new Set(),
     });
     const doc = new Document(undefined, {
       ...allOptions,
-      customTags: [
-        rawNumberTag,
-        taggedStringTag,
-        emptyNodePropertiesTag,
-        rawBlockScalarTag,
-        rawFlowScalarTag,
-      ],
+      customTags: [rawNumberTag, taggedStringTag, rawTextTag, rawBlockScalarTag, rawFlowScalarTag],
     });
     doc.contents = rootNode as YAMLNode;
     const { documentComment } = getStyle(element);
