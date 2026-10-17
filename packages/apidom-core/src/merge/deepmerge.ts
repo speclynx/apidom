@@ -7,6 +7,7 @@ import {
   Metadata,
   isObjectElement,
   isArrayElement,
+  hasElementStyle,
   cloneDeep,
   cloneShallow,
 } from '@speclynx/apidom-datamodel';
@@ -256,9 +257,9 @@ const deepmerge = (
     mergedElement.attributes = cloneDeep(sourceElement.attributes);
   }
   // merging style
-  if (targetElement.style !== undefined) {
+  if (hasElementStyle(targetElement)) {
     mergedElement.style = clone(targetElement.style);
-  } else if (sourceElement.style !== undefined) {
+  } else if (hasElementStyle(sourceElement)) {
     mergedElement.style = clone(sourceElement.style);
   }
 
