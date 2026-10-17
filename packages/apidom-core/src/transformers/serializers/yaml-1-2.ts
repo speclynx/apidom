@@ -512,13 +512,7 @@ const serializer = (
     });
     const doc = new Document(undefined, {
       ...allOptions,
-      customTags: [
-        rawNumberTag,
-        taggedStringTag,
-        rawTextTag,
-        rawBlockScalarTag,
-        rawFlowScalarTag,
-      ],
+      customTags: [rawNumberTag, taggedStringTag, rawTextTag, rawBlockScalarTag, rawFlowScalarTag],
     });
     doc.contents = rootNode as YAMLNode;
     const { documentComment } = getStyle(element);
