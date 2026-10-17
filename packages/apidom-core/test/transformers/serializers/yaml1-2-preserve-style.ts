@@ -519,6 +519,13 @@ describe('serializers', function () {
         assert.strictEqual(result, '[\n  # c\n  a: 1,\n  b\n]\n');
       });
 
+      specify('should write it as mapping when its key is too long to be implicit', function () {
+        const mapping = new ObjectElement({ ['k'.repeat(1100)]: 1 });
+        const result = serialize(sequence(mapping), { preserveStyle: true });
+
+        assert.match(result, /^\[\n {2}\{/);
+      });
+
       specify('should write it as mapping when its value is cut by a cycle', function () {
         const mapping = new ObjectElement();
         const element = sequence(mapping);

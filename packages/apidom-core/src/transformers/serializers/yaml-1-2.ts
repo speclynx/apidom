@@ -250,10 +250,18 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     element.forEach((item) => {
       const itemNode = toYAMLNode(item, context);
       // a single pair in a sequence (e.g. [a: 1]) is written back as that pair, with the mapping's
-      // comments; not when aliasing, as an alias needs the mapping node
+      // comments; not when aliasing, as an alias needs the mapping node, and not for a key that's
+      // too long to be implicit (1024 characters, YAML 1.2 §7.4.1, with room for quoting), as the
+      // YAML library writes a pair in a sequence only with an implicit key
       const pair =
         itemNode instanceof YAMLMap && itemNode.items.length === 1 ? itemNode.items[0] : undefined;
-      if (isNode(pair?.value) && !emitted && getStyle(item as Element).singlePair) {
+      if (
+        isNode(pair?.value) &&
+        !emitted &&
+        isObjectElement(item) &&
+        String(item.keys()[0]).length <= 1000 &&
+        getStyle(item).singlePair
+      ) {
         if (isNode(pair.key)) pair.key.commentBefore ??= (itemNode as YAMLMap).commentBefore;
         pair.value.comment ??= (itemNode as YAMLMap).comment;
         seq.items.push(pair);
