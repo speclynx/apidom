@@ -649,7 +649,10 @@ the element's type still fits them; a tag the changed value no longer fits is le
 (e.g. `&x`) are written back too; a name that was already written isn't written again, and with
 `aliasDuplicateObjects` the generated alias anchors never reuse a written name. Comments before and after
 the root node are written back too; comments on the lines after a root scalar or flow collection are
-written as the document's comment, after a blank line. A single
+written as the document's comment, after a blank line. A block scalar (`|`, `>`) is written back as written, with its
+original line breaks and indicators and re-indented under its parent, as long as that text still has
+the element's value; once the value changes, the block is written from the value, folded at `lineWidth`
+(pass `lineWidth: 0` to disable folding). A single
 pair in a flow sequence (e.g. `[a: 1]`) is written back as a pair while its mapping still has one pair,
 unless `aliasDuplicateObjects` is used.
 

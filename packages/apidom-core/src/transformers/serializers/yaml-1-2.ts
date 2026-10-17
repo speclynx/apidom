@@ -1,5 +1,6 @@
 import {
   Document,
+  parse,
   stringify,
   isNode,
   Alias,
@@ -163,6 +164,24 @@ const emptyNodePropertiesTag: ScalarTag = {
   resolve: (): null => null,
   stringify: (item, ctx): string =>
     (item.value as EmptyNodeProperties).properties + (ctx.implicitKey ? ' ' : ''),
+};
+
+// the YAML library refolds a block scalar's lines; a block scalar that still has the value of its
+// source text is boxed and emitted as that text, its lines re-indented under its parent
+class RawBlockScalar {
+  constructor(public text: string) {}
+}
+
+const rawBlockScalarTag: ScalarTag = {
+  tag: 'tag:yaml.org,2002:str',
+  default: true,
+  identify: (value: unknown): boolean => value instanceof RawBlockScalar,
+  resolve: (str: string): string => str,
+  stringify: (item, ctx): string => {
+    const parentIndent = ctx.indent.slice(ctx.indentStep.length);
+    const [header, ...lines] = (item.value as RawBlockScalar).text.split('\n');
+    return [header, ...lines.map((line) => (line === '' ? '' : parentIndent + line))].join('\n');
+  },
 };
 
 /**
@@ -345,6 +364,17 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     }
   }
 
+  // a block scalar is written as its source text while that text, as written (with LF line breaks
+  // and followed by a line break), still has the element's value
+  if (
+    (style.scalarStyle === 'Literal' || style.scalarStyle === 'Folded') &&
+    typeof style.rawContent === 'string' &&
+    typeof scalar.value === 'string'
+  ) {
+    const text = style.rawContent.replace(/\r\n/g, '\n').replace(/\n$/, '');
+    if (parse(`${text}\n`) === scalar.value) scalar.value = new RawBlockScalar(text);
+  }
+
   applyComments(scalar, style);
   if (!isEmptyNode) {
     applyTag(scalar, element, style);
@@ -393,7 +423,7 @@ const serializer = (
     });
     const doc = new Document(undefined, {
       ...allOptions,
-      customTags: [rawNumberTag, taggedStringTag, emptyNodePropertiesTag],
+      customTags: [rawNumberTag, taggedStringTag, emptyNodePropertiesTag, rawBlockScalarTag],
     });
     doc.contents = rootNode as YAMLNode;
     const { documentComment } = getStyle(element);
