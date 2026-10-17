@@ -732,6 +732,44 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/629
+  context('given block scalar with trailing white space followed by another node', function () {
+    specify('should keep trailing spaces of last line before next key', async function () {
+      const result = await adapter.parse('d: |\n  a  \nz: 1\n');
+      assert.deepEqual(toValue(result.result), { d: 'a  \n', z: 1 });
+    });
+
+    specify('should keep trailing spaces of last line with strip chomping', async function () {
+      const result = await adapter.parse('d: |-\n  a  \nz: 1\n');
+      assert.deepEqual(toValue(result.result), { d: 'a  ', z: 1 });
+    });
+
+    specify('should keep whitespace-only line indented deeper than block', async function () {
+      const result = await adapter.parse('d: |\n  a\n   \nz: 1\n');
+      assert.deepEqual(toValue(result.result), { d: 'a\n \n', z: 1 });
+    });
+
+    specify('should keep whitespace-only line with keep chomping', async function () {
+      const result = await adapter.parse('d: |+\n  a\n   \nz: 1\n');
+      assert.deepEqual(toValue(result.result), { d: 'a\n \n', z: 1 });
+    });
+
+    specify('should keep trailing spaces before next sequence item', async function () {
+      const result = await adapter.parse('- |\n  a  \n- b\n');
+      assert.deepEqual(toValue(result.result), ['a  \n', 'b']);
+    });
+
+    specify('should keep trailing spaces of nested value', async function () {
+      const result = await adapter.parse('x:\n  d: |+\n    a  \n     \n  z: 1\n');
+      assert.deepEqual(toValue(result.result), { x: { d: 'a  \n \n', z: 1 } });
+    });
+
+    specify('should keep trailing spaces with CRLF line breaks', async function () {
+      const result = await adapter.parse('d: |\r\n  a  \r\nz: 1\r\n');
+      assert.deepEqual(toValue(result.result), { d: 'a  \n', z: 1 });
+    });
+  });
+
   // https://github.com/speclynx/apidom/issues/567
   context('given block scalar with more-indented lines', function () {
     specify('should keep extra indentation in literal style', async function () {
