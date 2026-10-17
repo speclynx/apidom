@@ -44,6 +44,8 @@ interface YAMLElementStyle {
   flowCollectionPadding?: boolean;
   comment?: string;
   commentBefore?: string;
+  // a comment on the lines after the root node, written as the document's comment
+  documentComment?: string;
 }
 
 const getStyle = (element: Element): YAMLElementStyle => {
@@ -394,6 +396,8 @@ const serializer = (
       customTags: [rawNumberTag, taggedStringTag, emptyNodePropertiesTag],
     });
     doc.contents = rootNode as YAMLNode;
+    const { documentComment } = getStyle(element);
+    if (documentComment) doc.comment = documentComment;
 
     if (directive) {
       doc.directives!.yaml.explicit = true;
