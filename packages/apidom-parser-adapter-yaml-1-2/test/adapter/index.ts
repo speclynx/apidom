@@ -265,7 +265,6 @@ describe('adapter', function () {
     });
   });
 
-  // https://github.com/speclynx/apidom/issues/631
   // https://github.com/speclynx/apidom/issues/643
   context('given flow mapping entry without ":"', function () {
     specify('should parse it as key with empty value', async function () {
@@ -276,6 +275,19 @@ describe('adapter', function () {
     specify('should parse it in nested flow mapping', async function () {
       const result = await adapter.parse('x: { a: { b } }\n');
       assert.deepEqual(toValue(result.result), { x: { a: { b: '' } } });
+    });
+
+    specify('should parse tagged, anchored, aliased and commented keys', async function () {
+      const result = await adapter.parse('{ !!str a, &x b, *x, c # comment\n, d, }\n');
+      assert.deepEqual(toValue(result.result), { a: '', b: '', '*x': '', c: '', d: '' });
+    });
+
+    specify('should parse collection key', async function () {
+      const result = await adapter.parse('{ [a] }\n');
+      const [member] = (result.result as ObjectElement).content as unknown as MemberElement[];
+
+      assert.deepEqual(toValue(member.key), ['a']);
+      assert.strictEqual(toValue(member.value), '');
     });
 
     specify('should mark the value as empty node', async function () {
@@ -295,6 +307,7 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/631
   context('given empty node serialized back with preserveStyle', function () {
     specify('should write it back empty', async function () {
       const result = await adapter.parse('a:\nb:   \nc:\n  - \n', { style: true });
