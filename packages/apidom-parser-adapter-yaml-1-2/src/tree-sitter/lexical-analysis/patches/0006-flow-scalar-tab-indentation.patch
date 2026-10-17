@@ -1,0 +1,140 @@
+diff --git a/src/scanner.c b/src/scanner.c
+index 91febfc..f8aaac0 100644
+--- a/src/scanner.c
++++ b/src/scanner.c
+@@ -926,8 +926,9 @@ static bool scan(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+         return true;
+     }
+ 
++    // a double-quoted scalar may continue on a less indented line, but not on one that starts with a tab
+     if ((valid_symbols[R_DQT_STR_CTN] && is_r && scn_dqt_str_cnt(scanner, lexer, R_DQT_STR_CTN)) ||
+-        (valid_symbols[BR_DQT_STR_CTN] && (is_br || has_nwl) && scn_dqt_str_cnt(scanner, lexer, BR_DQT_STR_CTN))) {
++        (valid_symbols[BR_DQT_STR_CTN] && (is_br || (has_nwl && !has_tab_ind)) && scn_dqt_str_cnt(scanner, lexer, BR_DQT_STR_CTN))) {
+         return true;
+     }
+ 
+@@ -1354,16 +1355,27 @@ static bool scan(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+             if (lexer->lookahead == 0 || !is_nwl(lexer->lookahead)) {
+                 break;
+             }
++            // a tab doesn't count as indentation, so a line that starts with spaces only up to the
++            // current indentation and then a tab doesn't continue the scalar (YAML 1.2 §6.1)
++            bool has_tab = false;
++            int16_t lead_spc = 0;
+             for (;;) {
+                 if (is_nwl(lexer->lookahead)) {
+                     adv_nwl(scanner, lexer);
++                    has_tab = false;
++                    lead_spc = 0;
+                 } else if (is_wsp(lexer->lookahead)) {
++                    if (lexer->lookahead == '\t') {
++                        has_tab = true;
++                    } else if (!has_tab) {
++                        lead_spc++;
++                    }
+                     adv(scanner, lexer);
+                 } else {
+                     break;
+                 }
+             }
+-            if (lexer->lookahead == 0 || scanner->cur_col <= cur_ind) {
++            if (lexer->lookahead == 0 || scanner->cur_col <= cur_ind || (has_tab && lead_spc <= cur_ind)) {
+                 break;
+             }
+             if (scanner->cur_col == 0 && scn_drs_doc_end(scanner, lexer)) {
+diff --git a/test/corpus/07_flows.txt b/test/corpus/07_flows.txt
+index ea39841..7cbb58a 100644
+--- a/test/corpus/07_flows.txt
++++ b/test/corpus/07_flows.txt
+@@ -756,3 +756,91 @@ Explicit flow pair without value
+      key: (flow_node
+       (plain_scalar
+        (string_scalar))))))))
++
++================================================================================
++Double-quoted continuation line starting with a tab
++================================================================================
++
++a: "tab
++	  next"
++
++--------------------------------------------------------------------------------
++
++(ERROR
++  (flow_node
++    (plain_scalar
++      (string_scalar))))
++
++================================================================================
++Plain continuation line starting with a tab
++================================================================================
++
++a: tab
++	  next
++
++--------------------------------------------------------------------------------
++
++(ERROR
++  (block_mapping_pair
++    key: (flow_node
++      (plain_scalar
++        (string_scalar)))
++    value: (flow_node
++      (plain_scalar
++        (string_scalar)))))
++
++================================================================================
++Double-quoted continuation line with a tab after the indentation
++================================================================================
++
++a: "tab
++ 	next"
++
++--------------------------------------------------------------------------------
++
++(stream
++  (document
++    (block_node
++      (block_mapping
++        (block_mapping_pair
++          (flow_node
++            (plain_scalar
++              (string_scalar)))
++          (flow_node
++            (double_quote_scalar)))))))
++
++================================================================================
++Plain continuation line with a tab after the indentation
++================================================================================
++
++a: tab
++ 	next
++
++--------------------------------------------------------------------------------
++
++(stream
++  (document
++    (block_node
++      (block_mapping
++        (block_mapping_pair
++          (flow_node
++            (plain_scalar
++              (string_scalar)))
++          (flow_node
++            (plain_scalar
++              (string_scalar))))))))
++
++================================================================================
++Top-level plain continuation line starting with a tab
++================================================================================
++
++tab
++	next
++
++--------------------------------------------------------------------------------
++
++(stream
++  (document
++    (flow_node
++      (plain_scalar
++        (string_scalar)))))
