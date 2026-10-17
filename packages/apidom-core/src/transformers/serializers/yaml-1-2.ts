@@ -144,9 +144,10 @@ const taggedStringTag: ScalarTag = {
     ),
 };
 
-// a tag followed by no content is written with a space after the tag, so a tagged empty node is
-// boxed and its tag emitted as its whole text; as an implicit key it keeps the space, which
-// separates the tag from the ':' indicator
+// the YAML library writes a space between a tag and the content after it, which leaves a trailing
+// space when there's no content; a tagged empty node is boxed and emitted as its tag alone instead,
+// except as an implicit key, where the space separates the tag from the ':' indicator; the box's
+// tag name only identifies it, the tag written is the one recorded in style
 class TaggedEmptyNode {
   constructor(public tag: string) {}
 }
@@ -305,7 +306,12 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
 
   applyComments(scalar, style);
   if (!isEmptyNode) applyTag(scalar, element, style);
-  if (scalar.tag !== undefined && typeof scalar.value === 'string') {
+  if (scalar.tag !== undefined && scalar.value === '' && style.scalarStyle === 'Plain') {
+    // an empty plain string has no content to write, so it's written like a tagged empty node,
+    // which parses back to the same empty string
+    scalar.value = new TaggedEmptyNode(scalar.tag);
+    scalar.tag = undefined;
+  } else if (scalar.tag !== undefined && typeof scalar.value === 'string') {
     scalar.value = new TaggedString(scalar.value);
   }
 
