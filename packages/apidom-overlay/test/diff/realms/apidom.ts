@@ -50,6 +50,40 @@ describe('diffApiDOM', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/631
+  context('given an empty YAML node changed to an empty string', function () {
+    const emptyNode = (element: Element): Element => {
+      element.classes.push('yaml-e-node');
+      element.classes.push('yaml-e-scalar');
+      return element;
+    };
+
+    specify('should produce update actions', function () {
+      const left = refract({ a: '', b: [''] }) as ObjectElement;
+      emptyNode(left.get('a')!);
+      emptyNode((left.get('b') as ArrayElement).get(0)!);
+      const right = refract({ a: '', b: [''] });
+
+      const overlay = toValue(diffApiDOM(left, right)) as AnyJson;
+
+      assert.deepEqual(overlay.actions, [
+        { target: "$['a']", update: '' },
+        { target: "$['b'][0]", update: '' },
+      ]);
+    });
+
+    specify('should produce no actions between equal empty YAML nodes', function () {
+      const left = refract({ a: '' }) as ObjectElement;
+      emptyNode(left.get('a')!);
+      const right = refract({ a: '' }) as ObjectElement;
+      emptyNode(right.get('a')!);
+
+      const overlay = toValue(diffApiDOM(left, right)) as AnyJson;
+
+      assert.deepEqual(overlay.actions, []);
+    });
+  });
+
   context('given documents with a changed scalar field', function () {
     specify('should produce an update action targeting the field', function () {
       const left = refract({ info: { title: 'Old Title', version: '1.0.0' } });

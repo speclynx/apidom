@@ -137,17 +137,54 @@ describe('serializers', function () {
       });
     });
 
+    // https://github.com/speclynx/apidom/issues/631
+    context('given empty YAML node', function () {
+      const emptyNode = (): StringElement => {
+        const element = new StringElement('');
+        element.classes.push('yaml-e-node');
+        element.classes.push('yaml-e-scalar');
+        return element;
+      };
+
+      specify('should serialize it to null', function () {
+        assert.isNull(serializer(emptyNode()));
+        assert.deepEqual(serializer(new ObjectElement({ a: emptyNode() })), { a: null });
+        assert.deepEqual(serializer(new ArrayElement([emptyNode()])), [null]);
+      });
+
+      specify('should name a member with empty key by the empty string', function () {
+        const object = new ObjectElement();
+        object.push(new MemberElement(emptyNode(), new StringElement('a')));
+
+        assert.deepEqual(serializer(object), { '': 'a' });
+      });
+
+      specify('should serialize it to its value once changed', function () {
+        const element = emptyNode();
+        element.content = 'x';
+
+        assert.strictEqual(serializer(element), 'x');
+      });
+
+      specify('should serialize empty string without the class to empty string', function () {
+        assert.strictEqual(serializer(new StringElement('')), '');
+      });
+    });
+
     // https://github.com/speclynx/apidom/issues/650
     context('given ObjectElement with non-string keys', function () {
-      specify('should use string form of scalar keys', function () {
-        const object = new ObjectElement();
-        object.push(new MemberElement(new NumberElement(200), new StringElement('ok')));
-        object.push(new MemberElement(new NumberElement(1.5), new StringElement('a')));
-        object.push(new MemberElement(new BooleanElement(true), new StringElement('b')));
-        object.push(new MemberElement(new NullElement(), new StringElement('c')));
+      specify(
+        'should use string form of number and boolean keys, empty string for null key',
+        function () {
+          const object = new ObjectElement();
+          object.push(new MemberElement(new NumberElement(200), new StringElement('ok')));
+          object.push(new MemberElement(new NumberElement(1.5), new StringElement('a')));
+          object.push(new MemberElement(new BooleanElement(true), new StringElement('b')));
+          object.push(new MemberElement(new NullElement(), new StringElement('c')));
 
-        assert.deepEqual(serializer(object), { '200': 'ok', '1.5': 'a', true: 'b', null: 'c' });
-      });
+          assert.deepEqual(serializer(object), { '200': 'ok', '1.5': 'a', true: 'b', '': 'c' });
+        },
+      );
 
       specify('should keep the last member when keys share a property name', function () {
         const object = new ObjectElement({ '200': 'a' });

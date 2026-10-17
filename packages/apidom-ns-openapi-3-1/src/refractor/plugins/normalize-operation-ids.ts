@@ -106,7 +106,8 @@ const plugin =
             links.forEach((linkElement) => {
               if (typeof linkElement.operationId === 'undefined') return;
 
-              const linkOperationId = String(toValue(linkElement.operationId));
+              // an empty YAML node (operationId:) serializes to null; it's an empty operationId
+              const linkOperationId = String(toValue(linkElement.operationId) ?? '');
               const operationElement = normalizedOperations.find((normalizedOperationElement) => {
                 const originalOperationId =
                   normalizedOperationElement.meta.get('originalOperationId');
@@ -153,7 +154,7 @@ const plugin =
             }
 
             // cast operationId to string type
-            const originalOperationId = String(toValue(operationElement.operationId));
+            const originalOperationId = String(toValue(operationElement.operationId) ?? '');
             // perform operationId normalization
             const pathTemplate = last(pathTemplates) as string;
             // `http-method` meta may not be always available, e.g. in Callback Object or Components Object

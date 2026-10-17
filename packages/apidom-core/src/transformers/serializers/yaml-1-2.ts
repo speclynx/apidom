@@ -287,9 +287,9 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
   const scalarType = style.scalarStyle ? scalarStyleMap[style.scalarStyle] : undefined;
 
   const scalar = new Scalar(toValue(element));
-  // an empty node (YAML 1.2 §7.2) is parsed as an empty string; while it's still empty, write it
-  // back as it was written: with no content, after its tag if it had one
-  const isEmptyNode = scalar.value === '' && includesClasses(element, ['yaml-e-node']);
+  // an empty node (YAML 1.2 §7.2) is serialized to null; while it's still empty, write it back as
+  // it was written: with no content, after its tag if it had one
+  const isEmptyNode = scalar.value === null && includesClasses(element, ['yaml-e-node']);
   if (isEmptyNode && style.tag !== undefined) {
     scalar.value = new TaggedEmptyNode(style.tag);
   } else if (isEmptyNode) {

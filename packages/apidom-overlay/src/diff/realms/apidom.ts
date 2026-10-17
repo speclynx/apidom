@@ -1,3 +1,4 @@
+import { equals } from 'ramda';
 import {
   Element,
   ObjectElement,
@@ -8,6 +9,7 @@ import {
   isArrayElement,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
+import { toValue } from '@speclynx/apidom-core';
 import { NormalizedPath } from '@speclynx/apidom-json-path';
 import {
   ActionElement,
@@ -61,13 +63,17 @@ const createRemoveAction = (segments: Segments): ActionElement => {
   return action;
 };
 
+// elements are compared by their serialized values, which tell an empty YAML node (null) from an
+// empty string; Element#equals compares the elements' own values, where both are an empty string
+const isEqual = (left: Element, right: Element): boolean => equals(toValue(left), toValue(right));
+
 const diffElements = (
   left: Element,
   right: Element,
   segments: Segments,
   actions: ActionElement[],
 ): void => {
-  if (left.equals(right)) return;
+  if (isEqual(left, right)) return;
 
   const leftKind = left.primitive();
   const rightKind = right.primitive();
@@ -150,7 +156,7 @@ const diffArrays = (
     const leftItem = left.get(i) as Element;
     const rightItem = right.get(i) as Element;
 
-    if (leftItem.equals(rightItem)) continue;
+    if (isEqual(leftItem, rightItem)) continue;
 
     if (leftItem.primitive() !== rightItem.primitive()) {
       // structural type change at index i — reconstruct tail:

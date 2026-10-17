@@ -8,6 +8,7 @@ import {
   StringElement,
   isArrayElement,
   isObjectElement,
+  includesClasses,
   isParseResultElement,
   isStringElement,
 } from '@speclynx/apidom-datamodel';
@@ -270,17 +271,17 @@ describe('adapter', function () {
   context('given flow mapping entry without ":"', function () {
     specify('should parse it as key with empty value', async function () {
       const result = await adapter.parse('{ a, b: 1, "c" }\n');
-      assert.deepEqual(toValue(result.result), { a: '', b: 1, c: '' });
+      assert.deepEqual(toValue(result.result), { a: null, b: 1, c: null });
     });
 
     specify('should parse it in nested flow mapping', async function () {
       const result = await adapter.parse('x: { a: { b } }\n');
-      assert.deepEqual(toValue(result.result), { x: { a: { b: '' } } });
+      assert.deepEqual(toValue(result.result), { x: { a: { b: null } } });
     });
 
     specify('should parse tagged, anchored, aliased and commented keys', async function () {
       const result = await adapter.parse('{ !!str a, &x b, *x, c # comment\n, d, }\n');
-      assert.deepEqual(toValue(result.result), { a: '', b: '', '*x': '', c: '', d: '' });
+      assert.deepEqual(toValue(result.result), { a: null, b: null, '*x': null, c: null, d: null });
     });
 
     specify('should parse collection key', async function () {
@@ -288,7 +289,7 @@ describe('adapter', function () {
       const [member] = (result.result as ObjectElement).content as unknown as MemberElement[];
 
       assert.deepEqual(toValue(member.key), ['a']);
-      assert.strictEqual(toValue(member.value), '');
+      assert.isNull(toValue(member.value));
     });
 
     specify('should mark the value as empty node', async function () {
@@ -312,7 +313,7 @@ describe('adapter', function () {
   context('given single pair in flow sequence', function () {
     specify('should parse it as mapping', async function () {
       const result = await adapter.parse('[a: 1, b, ? c : 2, ? d]\n');
-      assert.deepEqual(toValue(result.result), [{ a: 1 }, 'b', { c: 2 }, { d: '' }]);
+      assert.deepEqual(toValue(result.result), [{ a: 1 }, 'b', { c: 2 }, { d: null }]);
     });
 
     specify('should parse it in nested flow collections', async function () {
@@ -341,7 +342,7 @@ describe('adapter', function () {
       const result = await adapter.parse('{ ? a, b: 1, ? c }\n');
 
       assert.lengthOf(result.annotations, 0);
-      assert.deepEqual(toValue(result.result), { a: '', b: 1, c: '' });
+      assert.deepEqual(toValue(result.result), { a: null, b: 1, c: null });
     });
 
     specify('should parse it in flow sequence', async function () {
@@ -349,6 +350,39 @@ describe('adapter', function () {
 
       assert.lengthOf(result.annotations, 0);
       assert.isTrue(isArrayElement(result.result));
+    });
+  });
+
+  // https://github.com/speclynx/apidom/issues/631
+  context('given empty node', function () {
+    const source = 'a:\nb: !!null\nc: !<tag:yaml.org,2002:null>\nd: !!str\ne: !\nf: !!int\ng: ""\n';
+
+    specify('should serialize untagged and null-tagged ones to null', async function () {
+      const result = await adapter.parse(source);
+      assert.deepEqual(toValue(result.result), {
+        a: null,
+        b: null,
+        c: null,
+        d: '',
+        e: '',
+        f: '',
+        g: '',
+      });
+    });
+
+    specify('should mark only untagged and null-tagged ones as empty nodes', async function () {
+      const result = await adapter.parse(source);
+      const marked = (result.result as ObjectElement)
+        .keys()
+        .filter((key) =>
+          includesClasses((result.result as ObjectElement).get(key as string)!, ['yaml-e-node']),
+        );
+      assert.deepEqual(marked, ['a', 'b', 'c']);
+    });
+
+    specify('should write it as null without preserveStyle', async function () {
+      const result = await adapter.parse('a:\nb:\n  - \n');
+      assert.strictEqual(toYAML(result.result!), 'a: null\nb:\n  - null\n');
     });
   });
 
