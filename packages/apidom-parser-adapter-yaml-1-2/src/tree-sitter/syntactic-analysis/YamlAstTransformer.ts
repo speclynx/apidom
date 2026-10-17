@@ -507,8 +507,13 @@ const transformSequence = (node: YamlSequence, ctx: TransformContext): ArrayElem
 const transformScalar = (node: YamlScalar, ctx: TransformContext): Element => {
   const element = ctx.namespace.toElement(node.content)!;
 
-  // Translate style information about empty nodes
-  const isEmptyNode = node.content === '' && node.style === YamlStyle.Plain;
+  // Translate style information about empty nodes; an empty node (YAML 1.2 §7.2) is a null unless
+  // a tag other than the null tag makes it something else (e.g. !!str makes it an empty string)
+  const tag = node.tag?.explicitName;
+  const isEmptyNode =
+    node.content === '' &&
+    node.style === YamlStyle.Plain &&
+    [undefined, '?', '!!null', '!<tag:yaml.org,2002:null>'].includes(tag);
   if (isEmptyNode) {
     element.classes.push('yaml-e-node');
     element.classes.push('yaml-e-scalar');
