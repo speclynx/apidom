@@ -249,9 +249,8 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
 
     element.forEach((item) => {
       const itemNode = toYAMLNode(item, context);
-      // a mapping written as a single pair directly in a flow sequence (e.g. [a: 1]) is written
-      // back that way while it still has one pair; not when it may become the target of an alias,
-      // which needs the mapping node itself
+      // a single pair in a flow sequence (e.g. [a: 1]) is written back as a pair while it still
+      // is one, except when aliasing, which needs the mapping node
       if (
         seq.flow &&
         !emitted &&
@@ -260,7 +259,7 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
         getStyle(item as Element).singlePair
       ) {
         const [pair] = itemNode.items;
-        // the mapping's comments go to the pair, which is written in its place
+        // the pair is written in the mapping's place, so it takes the mapping's comments
         if (itemNode.commentBefore && isNode(pair.key))
           pair.key.commentBefore = itemNode.commentBefore;
         if (itemNode.comment && isNode(pair.value)) pair.value.comment = itemNode.comment;
