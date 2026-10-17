@@ -60,6 +60,7 @@
     "@speclynx/apidom-json-path": "6.0.6",
     "@speclynx/apidom-ns-overlay-1": "6.0.6",
     "@speclynx/apidom-reference": "6.0.6",
+    "ramda": "~0.32.0",
     "type-fest": "^5.10.0"
   },
   "files": [
