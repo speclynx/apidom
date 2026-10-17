@@ -423,6 +423,9 @@ const transformStream = (node: YamlStream, ctx: TransformContext): ParseResultEl
       if (inline.length > 0 && typeof getYamlStyleProp(resultElement, 'comment') !== 'string') {
         setYamlStyleProp(resultElement, 'comment', inline.join('\n'));
       }
+      // comments promoted out of the root's last nested collection have no next sibling to precede
+      // and end the root, so they come before the stream comments after it
+      after.unshift(...ctx.promotedComments);
       if (after.length > 0) {
         setYamlStyleProp(resultElement, 'documentComment', after.join('\n'));
       }
