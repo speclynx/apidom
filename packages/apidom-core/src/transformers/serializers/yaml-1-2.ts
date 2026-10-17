@@ -1,7 +1,8 @@
 import {
   Document,
   parseDocument,
-  stringify,
+  visit,
+  isScalar,
   isNode,
   Alias,
   Scalar,
@@ -14,8 +15,9 @@ import {
   type SchemaOptions,
   type ScalarTag,
   type ToStringOptions,
+  type Tags,
 } from 'yaml';
-import { stringifyString } from 'yaml/util';
+import { stringifyString, stringTag } from 'yaml/util';
 import {
   Element,
   isElement,
@@ -131,6 +133,35 @@ const rawNumberTag: ScalarTag = {
   stringify: (item): string => (item.value as RawNumber).raw,
 };
 
+// the YAML library writes a block scalar's indentation indicator for content two columns right of the
+// parent node, which is where a sequence item's content is; a mapping key's or value's content is an
+// indentation step right of the parent (YAML 1.2 §8.1.1.1), so their indicator is that step, and
+// as an indicator is one digit, content of a step over 9 is moved to the 9th column
+const pairScalars = new WeakSet<object>();
+
+const withIndentationIndicator = (node: Scalar, indentStep: string, str: string): string => {
+  if (!pairScalars.has(node) || !/^[|>]2/.test(str)) return str;
+  const indicator = Math.min(indentStep.length, 9);
+  const [header, ...lines] = str.split('\n');
+  return [
+    header.replace(/^([|>])2/, `$1${indicator}`),
+    ...lines.map((line) => line.slice(indentStep.length - indicator)),
+  ].join('\n');
+};
+
+const pairStringTag: ScalarTag = {
+  ...stringTag,
+  stringify: (item, ctx, onComment, onChompKeep): string =>
+    withIndentationIndicator(
+      item,
+      ctx.indentStep,
+      stringTag.stringify!(item, ctx, onComment, onChompKeep),
+    ),
+};
+
+const withPairStringTag = (tags: Tags): Tags =>
+  tags.map((tag) => (tag === stringTag ? pairStringTag : tag));
+
 // the YAML library quotes a plain string that would otherwise resolve to another type (e.g. 1,
 // true), but an explicit tag already makes it a string; tagged strings are boxed and emitted
 // without that check, keeping every other quoting rule
@@ -144,11 +175,15 @@ const taggedStringTag: ScalarTag = {
   identify: (value: unknown): boolean => value instanceof TaggedString,
   resolve: (str: string): string => str,
   stringify: (item, ctx, onComment, onChompKeep): string =>
-    stringifyString(
-      { ...item, value: (item.value as TaggedString).value },
-      ctx,
-      onComment,
-      onChompKeep,
+    withIndentationIndicator(
+      item,
+      ctx.indentStep,
+      stringifyString(
+        { ...item, value: (item.value as TaggedString).value },
+        ctx,
+        onComment,
+        onChompKeep,
+      ),
     ),
 };
 
@@ -206,7 +241,11 @@ const rawBlockScalarTag: ScalarTag = {
       );
       if (columns.every((column) => hasValue(str, value, column))) return str;
     }
-    return stringifyString({ ...item, value }, ctx, onComment, onChompKeep);
+    return withIndentationIndicator(
+      item,
+      ctx.indentStep,
+      stringifyString({ ...item, value }, ctx, onComment, onChompKeep),
+    );
   },
 };
 
@@ -238,7 +277,11 @@ const rawFlowScalarTag: ScalarTag = {
       const parsed = doc.errors.length === 0 ? doc.toJS() : undefined;
       if ((inFlow ? parsed?.[0] : parsed) === value) return str;
     }
-    return stringifyString({ ...item, value }, ctx, onComment, onChompKeep);
+    return withIndentationIndicator(
+      item,
+      ctx.indentStep,
+      stringifyString({ ...item, value }, ctx, onComment, onChompKeep),
+    );
   },
 };
 
@@ -490,6 +533,7 @@ const serializer = (
   }: YAMLSerializerOptions = {},
 ): string => {
   const allOptions: YAMLSerializerOptions = { aliasDuplicateObjects, ...options };
+  let doc: Document;
 
   if (preserveStyle) {
     const style = getStyle(element);
@@ -510,28 +554,41 @@ const serializer = (
       anchors: new Set(),
       repeatedAnchors: new Set(),
     });
-    const doc = new Document(undefined, {
+    doc = new Document(undefined, {
       ...allOptions,
-      customTags: [rawNumberTag, taggedStringTag, rawTextTag, rawBlockScalarTag, rawFlowScalarTag],
+      customTags: (tags) => [
+        ...withPairStringTag(tags),
+        rawNumberTag,
+        taggedStringTag,
+        rawTextTag,
+        rawBlockScalarTag,
+        rawFlowScalarTag,
+      ],
     });
     doc.contents = rootNode as YAMLNode;
     const { documentComment } = getStyle(element);
     if (documentComment) doc.comment = documentComment;
-
-    if (directive) {
-      doc.directives!.yaml.explicit = true;
-    }
-
-    return doc.toString(allOptions);
+  } else {
+    doc = new Document(toValue(element), createCycleSafeReplacer(), {
+      ...allOptions,
+      customTags: withPairStringTag,
+    });
   }
 
+  // the library's indicator is right for the default indentation step of 2
+  if ((allOptions.indent ?? 2) !== 2) {
+    visit(doc, {
+      Pair: (_, pair) => {
+        if (isScalar(pair.key)) pairScalars.add(pair.key);
+        if (isScalar(pair.value)) pairScalars.add(pair.value);
+      },
+    });
+  }
   if (directive) {
-    const doc = new Document(toValue(element), createCycleSafeReplacer(), allOptions);
     doc.directives!.yaml.explicit = true;
-    return doc.toString(allOptions);
   }
 
-  return stringify(toValue(element), createCycleSafeReplacer(), allOptions);
+  return doc.toString(allOptions);
 };
 
 export default serializer;
