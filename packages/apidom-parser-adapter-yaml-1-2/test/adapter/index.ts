@@ -336,6 +336,24 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/641
+  context('given comment after block scalar', function () {
+    specify('should not include less indented comment after CRLF line breaks', async function () {
+      const result = await adapter.parse('a: |\r\n    a\r\n  # c\r\nb: 1\r\n');
+      assert.deepEqual(toValue(result.result), { a: 'a\n', b: 1 });
+    });
+
+    specify('should not include less indented comment after leading empty line', async function () {
+      const result = await adapter.parse('- |\n\n  y\n # t\n- z\n');
+      assert.deepEqual(toValue(result.result), ['\ny\n', 'z']);
+    });
+
+    specify('should not include column 0 comment after top-level indicator', async function () {
+      const result = await adapter.parse('|1\n  a\n# c\n');
+      assert.strictEqual(toValue(result.result), ' a\n');
+    });
+  });
+
   // https://github.com/speclynx/apidom/issues/626
   context('given block scalar with header comment and deeper content', function () {
     specify('should parse it at top level', async function () {
