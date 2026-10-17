@@ -57,6 +57,16 @@ describe('applyOverlay (URI-level)', function () {
     });
   });
 
+  context('given YAML overlay merging into flow mapping of YAML target', function () {
+    specify('should keep the flow mapping', async function () {
+      const overlayURI = path.join(fixturesDir, 'merge-style', 'overlay.yaml');
+      const parseResult = await applyOverlay(overlayURI);
+      const output = toYAML(parseResult.api!, { preserveStyle: true });
+
+      assert.include(output, 'info: {title: Pets, version: "1.0.0", summary: Pet store}\n');
+    });
+  });
+
   context('given JSON overlay adding values to JSON target', function () {
     specify('should write added values as written in the overlay', async function () {
       const overlayURI = path.join(fixturesDir, 'overlay-style', 'overlay.json');
