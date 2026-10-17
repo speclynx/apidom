@@ -681,5 +681,63 @@ describe('serializers', function () {
         assert.strictEqual(result, 'a: x\nb: x\n');
       });
     });
+
+    context('given sortMapEntries', function () {
+      const nested = () => {
+        const element = new ObjectElement({ b: 1, a: new ObjectElement({ d: 2, c: 3 }) });
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+        return element;
+      };
+
+      specify('should sort mappings alphabetically with true', function () {
+        const result = serialize(nested(), { preserveStyle: true, sortMapEntries: true });
+
+        assert.strictEqual(result, 'a:\n  c: 3\n  d: 2\nb: 1\n');
+      });
+
+      specify('should sort mappings with a comparator', function () {
+        const element = new ObjectElement({ a: new ObjectElement({ c: 3, d: 2 }), b: 1 });
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, {
+          preserveStyle: true,
+          sortMapEntries: (a, b) => (a.key! < b.key! ? 1 : -1),
+        });
+
+        assert.strictEqual(result, 'b: 1\na:\n  d: 2\n  c: 3\n');
+      });
+
+      specify('should write an alias after its anchor in the sorted order', function () {
+        const shared = new ObjectElement({ x: 1 });
+        const element = new ObjectElement({ b: shared, a: shared });
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, {
+          preserveStyle: true,
+          aliasDuplicateObjects: true,
+          sortMapEntries: true,
+        });
+
+        assert.strictEqual(result, 'a: &a1\n  x: 1\nb: *a1\n');
+      });
+
+      specify(
+        'should write a source alias as text when sorting moves it before its anchor',
+        function () {
+          const element = new ObjectElement();
+          element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+          const anchored = new NumberElement(1);
+          anchored.style = { yaml: { scalarStyle: 'Plain', anchor: 'x' } };
+          const alias = new StringElement('*x');
+          alias.style = { yaml: { scalarStyle: 'Plain', alias: 'x' } };
+          element.set('b', anchored);
+          element.set('a', alias);
+
+          const result = serialize(element, { preserveStyle: true, sortMapEntries: true });
+
+          assert.strictEqual(result, 'a: "*x"\nb: &x 1\n');
+        },
+      );
+    });
   });
 });
