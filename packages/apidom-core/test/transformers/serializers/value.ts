@@ -149,9 +149,19 @@ describe('serializers', function () {
         assert.deepEqual(serializer(object), { '200': 'ok', '1.5': 'a', true: 'b', null: 'c' });
       });
 
-      specify('should skip collection keys', function () {
+      specify('should name collection keys by their JSON text', function () {
         const object = new ObjectElement({ a: 1 });
         object.push(new MemberElement(new ArrayElement(['x']), new StringElement('d')));
+        object.push(new MemberElement(new ObjectElement({ b: 1 }), new StringElement('e')));
+
+        assert.deepEqual(serializer(object), { a: 1, '["x"]': 'd', '{"b":1}': 'e' });
+      });
+
+      specify('should skip cyclic collection keys', function () {
+        const key = new ObjectElement({ b: 1 });
+        key.set('self', key);
+        const object = new ObjectElement({ a: 1 });
+        object.push(new MemberElement(key, new StringElement('d')));
 
         assert.deepEqual(serializer(object), { a: 1 });
       });
