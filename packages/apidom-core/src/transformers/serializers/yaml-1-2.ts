@@ -31,6 +31,7 @@ import {
   isNullElement,
   isMemberElement,
   includesClasses,
+  type MemberElement,
 } from '@speclynx/apidom-datamodel';
 
 import toValue from './value.ts';
@@ -289,6 +290,7 @@ interface NodeContext {
   anchors: Set<string>;
   // recorded anchor names not written again, as they were already written
   repeatedAnchors: Set<string>;
+  sortMapEntries?: SchemaOptions['sortMapEntries'];
 }
 
 /**
@@ -316,6 +318,25 @@ const claimAnchor = (style: YAMLElementStyle, context: NodeContext): string | un
   }
   context.anchors.add(style.anchor);
   return style.anchor;
+};
+
+const compareByKey = (a: Pair, b: Pair) => (a.key! < b.key! ? -1 : a.key! > b.key! ? 1 : 0);
+
+// sorts like the YAML library does, with a comparator getting a pair for each member
+const sortMembers = (
+  members: MemberElement[],
+  sortMapEntries: SchemaOptions['sortMapEntries'],
+): MemberElement[] => {
+  if (!sortMapEntries) return members;
+
+  const compare = sortMapEntries === true ? compareByKey : sortMapEntries;
+  const pairs = new Map(
+    members.map((member) => [
+      member,
+      new Pair(new Scalar(toValue(member.key)), new Scalar(toValue(member.value))),
+    ]),
+  );
+  return [...members].sort((a, b) => compare(pairs.get(a)!, pairs.get(b)!));
 };
 
 /**
@@ -350,7 +371,15 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     applyTag(map, element, style);
     map.anchor = claimAnchor(style, context);
 
-    element.forEach((value, key, member) => {
+    // sorted before the nodes are built, as the order they're built in decides which of a node and
+    // its aliases is written first
+    const members = sortMembers(
+      element.map((_value, _key, member) => member),
+      context.sortMapEntries,
+    );
+
+    members.forEach((member) => {
+      const { key, value } = member;
       const memberStyle = isMemberElement(member) ? getStyle(member) : {};
       const keyNode = toYAMLNode(key, context);
       const valueNode = toYAMLNode(value, context);
@@ -544,6 +573,7 @@ const serializer = (
       anchorCount: 0,
       anchors: new Set(),
       repeatedAnchors: new Set(),
+      sortMapEntries: options.sortMapEntries,
     });
     doc = new Document(undefined, {
       ...allOptions,
