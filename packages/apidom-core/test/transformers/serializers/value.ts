@@ -8,6 +8,7 @@ import {
   ArrayElement,
   RefElement,
   LinkElement,
+  MemberElement,
 } from '@speclynx/apidom-datamodel';
 
 import serializer from '../../../src/transformers/serializers/value.ts';
@@ -133,6 +134,26 @@ describe('serializers', function () {
         const serialized = serializer(object);
 
         assert.deepEqual(serialized, { a: undefined });
+      });
+    });
+
+    // https://github.com/speclynx/apidom/issues/650
+    context('given ObjectElement with non-string keys', function () {
+      specify('should use string form of scalar keys', function () {
+        const object = new ObjectElement();
+        object.push(new MemberElement(new NumberElement(200), new StringElement('ok')));
+        object.push(new MemberElement(new NumberElement(1.5), new StringElement('a')));
+        object.push(new MemberElement(new BooleanElement(true), new StringElement('b')));
+        object.push(new MemberElement(new NullElement(), new StringElement('c')));
+
+        assert.deepEqual(serializer(object), { '200': 'ok', '1.5': 'a', true: 'b', null: 'c' });
+      });
+
+      specify('should skip collection keys', function () {
+        const object = new ObjectElement({ a: 1 });
+        object.push(new MemberElement(new ArrayElement(['x']), new StringElement('d')));
+
+        assert.deepEqual(serializer(object), { a: 1 });
       });
     });
 
