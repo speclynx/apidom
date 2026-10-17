@@ -6,6 +6,7 @@ import {
   NumberElement,
   BooleanElement,
   NullElement,
+  MemberElement,
 } from '@speclynx/apidom-datamodel';
 
 import serialize from '../../../src/transformers/serializers/json.ts';
@@ -58,6 +59,25 @@ describe('serializers', function () {
         const result = serialize(element, (key, value) => (key === 'drop' ? undefined : value));
 
         assert.strictEqual(result, '{"a":1,"self":null}');
+      });
+    });
+
+    // https://github.com/speclynx/apidom/issues/650
+    context('given ObjectElement with number key', function () {
+      const object = () => {
+        const element = new ObjectElement({ a: 1 });
+        element.push(new MemberElement(new NumberElement(200), new StringElement('ok')));
+        return element;
+      };
+
+      specify('should serialize key in string form', function () {
+        assert.strictEqual(serialize(object()), '{"200":"ok","a":1}');
+      });
+
+      specify('should serialize key in string form with preserveStyle', function () {
+        const result = serialize(object(), undefined, undefined, { preserveStyle: true });
+
+        assert.strictEqual(result, '{"200":"ok","a":1}');
       });
     });
 

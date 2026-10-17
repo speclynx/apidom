@@ -19,4 +19,22 @@ const setProperty = (target: Record<string, unknown>, key: string, value: unknow
   }
 };
 
+/**
+ * Returns the property name for an object member's key, serialized to a JavaScript value.
+ *
+ * A scalar key that isn't a string (e.g. YAML `200:`) is named by its string form, like a
+ * JavaScript property name, and a collection key (e.g. YAML `[x]: 1`) by its JSON text. A cyclic
+ * collection key has no JSON text, and a missing key no name; their members are skipped.
+ */
+export const toPropertyName = (key: unknown): string | undefined => {
+  if (typeof key === 'string') return key;
+  if (typeof key === 'number' || typeof key === 'boolean' || key === null) return String(key);
+  if (typeof key !== 'object') return undefined;
+  try {
+    return JSON.stringify(key);
+  } catch {
+    return undefined;
+  }
+};
+
 export default setProperty;

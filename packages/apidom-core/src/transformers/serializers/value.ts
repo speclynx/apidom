@@ -11,7 +11,7 @@ import {
   isNullElement,
 } from '@speclynx/apidom-datamodel';
 
-import setProperty from '../../util.ts';
+import setProperty, { toPropertyName } from '../../util.ts';
 
 /**
  * Transforms the ApiDOM into JavaScript POJO.
@@ -45,7 +45,8 @@ const serializer = <T extends Element | unknown>(element: T): unknown => {
       node.forEach((value, key) => {
         const k = serialize(key);
         const v = serialize(value);
-        if (typeof k === 'string') setProperty(obj, k, v);
+        const name = toPropertyName(k);
+        if (name !== undefined) setProperty(obj, name, v);
       });
       return obj;
     }

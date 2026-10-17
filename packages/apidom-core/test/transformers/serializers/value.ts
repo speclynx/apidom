@@ -8,6 +8,7 @@ import {
   ArrayElement,
   RefElement,
   LinkElement,
+  MemberElement,
 } from '@speclynx/apidom-datamodel';
 
 import serializer from '../../../src/transformers/serializers/value.ts';
@@ -133,6 +134,43 @@ describe('serializers', function () {
         const serialized = serializer(object);
 
         assert.deepEqual(serialized, { a: undefined });
+      });
+    });
+
+    // https://github.com/speclynx/apidom/issues/650
+    context('given ObjectElement with non-string keys', function () {
+      specify('should use string form of scalar keys', function () {
+        const object = new ObjectElement();
+        object.push(new MemberElement(new NumberElement(200), new StringElement('ok')));
+        object.push(new MemberElement(new NumberElement(1.5), new StringElement('a')));
+        object.push(new MemberElement(new BooleanElement(true), new StringElement('b')));
+        object.push(new MemberElement(new NullElement(), new StringElement('c')));
+
+        assert.deepEqual(serializer(object), { '200': 'ok', '1.5': 'a', true: 'b', null: 'c' });
+      });
+
+      specify('should keep the last member when keys share a property name', function () {
+        const object = new ObjectElement({ '200': 'a' });
+        object.push(new MemberElement(new NumberElement(200), new StringElement('b')));
+
+        assert.deepEqual(serializer(object), { '200': 'b' });
+      });
+
+      specify('should name collection keys by their JSON text', function () {
+        const object = new ObjectElement({ a: 1 });
+        object.push(new MemberElement(new ArrayElement(['x']), new StringElement('d')));
+        object.push(new MemberElement(new ObjectElement({ b: 1 }), new StringElement('e')));
+
+        assert.deepEqual(serializer(object), { a: 1, '["x"]': 'd', '{"b":1}': 'e' });
+      });
+
+      specify('should skip cyclic collection keys', function () {
+        const key = new ObjectElement({ b: 1 });
+        key.set('self', key);
+        const object = new ObjectElement({ a: 1 });
+        object.push(new MemberElement(key, new StringElement('d')));
+
+        assert.deepEqual(serializer(object), { a: 1 });
       });
     });
 

@@ -1,12 +1,27 @@
 import { assert } from 'chai';
 
-import { ObjectElement } from '@speclynx/apidom-datamodel';
+import {
+  ObjectElement,
+  MemberElement,
+  NumberElement,
+  StringElement,
+} from '@speclynx/apidom-datamodel';
 
 import { from } from '../../../src/index.ts';
 import serialize from '../../../src/transformers/serializers/yaml-1-2.ts';
 
 describe('serializers', function () {
   context('yaml-1-2', function () {
+    // https://github.com/speclynx/apidom/issues/650
+    context('given ObjectElement with number key', function () {
+      specify('should write the key in string form', function () {
+        const object = new ObjectElement();
+        object.push(new MemberElement(new NumberElement(200), new StringElement('ok')));
+
+        assert.strictEqual(serialize(object), '"200": ok\n');
+      });
+    });
+
     context('given BooleanElement', function () {
       specify('should serialize to YAML 1.2', function () {
         const apidom = from(true)!;
