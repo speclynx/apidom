@@ -1,0 +1,55 @@
+diff --git a/grammar.js b/grammar.js
+index b8b36d0..0a10fe4 100644
+--- a/grammar.js
++++ b/grammar.js
+@@ -425,10 +425,10 @@ module.exports = grammar({
+ 
+     // explicit flow pair
+ 
+-    _r_flw_exp_par: $ => seq($._r_flw_key_bgn, optional(choice($._r_flw_imp_r_par, $._r_flw_imp_br_par, $._br_flw_imp_r_par, $._br_flw_imp_br_par))),
+-    _br_flw_exp_par: $ => seq($._br_flw_key_bgn, optional(choice($._r_flw_imp_r_par, $._r_flw_imp_br_par, $._br_flw_imp_r_par, $._br_flw_imp_br_par))),
++    _r_flw_exp_par: $ => seq($._r_flw_key_bgn, optional(choice($._r_flw_imp_r_par, $._r_flw_imp_br_par, $._br_flw_imp_r_par, $._br_flw_imp_br_par, field('key', $._r_flw_val_flw), field('key', $._br_flw_val_flw)))),
++    _br_flw_exp_par: $ => seq($._br_flw_key_bgn, optional(choice($._r_flw_imp_r_par, $._r_flw_imp_br_par, $._br_flw_imp_r_par, $._br_flw_imp_br_par, field('key', $._r_flw_val_flw), field('key', $._br_flw_val_flw)))),
+ 
+-    _r_sgl_flw_exp_par: $ => seq($._r_flw_key_bgn, optional($._r_sgl_flw_imp_par)),
++    _r_sgl_flw_exp_par: $ => seq($._r_flw_key_bgn, optional(choice($._r_sgl_flw_imp_par, field('key', $._r_sgl_flw_val_flw)))),
+ 
+     // implicit flow pair
+ 
+diff --git a/test/corpus/07_flows.txt b/test/corpus/07_flows.txt
+index 4f63ac9..ea39841 100644
+--- a/test/corpus/07_flows.txt
++++ b/test/corpus/07_flows.txt
+@@ -727,3 +727,32 @@ Flow Nodes
+     (block_sequence_item
+      (flow_node
+       (tag)))))))
++
++================================================================================
++Explicit flow pair without value
++================================================================================
++[ { ? a, ? b: 1 }, ? c ]
++
++--------------------------------------------------------------------------------
++
++(stream
++ (document
++  (flow_node
++   (flow_sequence
++    (flow_node
++     (flow_mapping
++      (flow_pair
++       key: (flow_node
++        (plain_scalar
++         (string_scalar))))
++      (flow_pair
++       key: (flow_node
++        (plain_scalar
++         (string_scalar)))
++       value: (flow_node
++        (plain_scalar
++         (integer_scalar))))))
++    (flow_pair
++     key: (flow_node
++      (plain_scalar
++       (string_scalar))))))))
