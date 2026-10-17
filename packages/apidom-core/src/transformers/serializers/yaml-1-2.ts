@@ -135,10 +135,10 @@ const rawNumberTag: ScalarTag = {
 
 type StringifyContext = Parameters<NonNullable<ScalarTag['stringify']>>[1];
 
-// the YAML library writes a block scalar's indentation indicator for content two columns right of
-// the parent node, as a sequence item's is; a mapping entry's content is an indentation step right of
-// it (YAML 1.2 §8.1.1.1), so a mapping entry's indicator is that step, at most 9 (one digit) with
-// deeper content moved left to match
+// a block scalar's indentation indicator is its content's indentation relative to the parent node
+// (YAML 1.2 §8.1.1.1); the YAML library writes it for content two columns right of the parent, as a
+// sequence item's is, but writes a mapping entry's content an indentation step right of it, so a
+// mapping entry's indicator is that step, at most 9 (one digit) with deeper content moved left to match
 const entryScalars = new WeakSet<Scalar>();
 
 const stringifyStr = (
@@ -560,9 +560,14 @@ const serializer = (
     const { documentComment } = getStyle(element);
     if (documentComment) doc.comment = documentComment;
   } else {
+    // custom tags given in the options are added as the library adds them
+    const { customTags } = allOptions as SchemaOptions;
     doc = new Document(toValue(element), createCycleSafeReplacer(), {
       ...allOptions,
-      customTags: withEntryStringTag,
+      customTags: (tags) =>
+        withEntryStringTag(
+          typeof customTags === 'function' ? customTags(tags) : tags.concat(customTags ?? []),
+        ),
     });
   }
 

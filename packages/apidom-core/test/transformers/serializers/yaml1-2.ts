@@ -1,4 +1,6 @@
 import { assert } from 'chai';
+import { type Tags } from 'yaml';
+import { stringTag } from 'yaml/util';
 
 import {
   ObjectElement,
@@ -35,6 +37,14 @@ describe('serializers', function () {
           serialize(element, { indent: 1 }),
           'k: |1\n   lead\n x\ns:\n - |2\n     lead\n   x\n',
         );
+      });
+
+      specify('should keep custom tags given in options', function () {
+        const options = {
+          customTags: (tags: Tags) =>
+            tags.map((tag) => (tag === stringTag ? { ...stringTag, stringify: () => 's' } : tag)),
+        } as Parameters<typeof serialize>[1];
+        assert.strictEqual(serialize(element, options), 's: s\ns:\n  - s\n');
       });
 
       specify('should move content of indentation step over 9 to 9th column', function () {
