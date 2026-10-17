@@ -45,6 +45,39 @@ describe('applyOverlay (URI-level)', function () {
     });
   });
 
+  context('given YAML overlay adding values to YAML target', function () {
+    specify('should write added values as written in the overlay', async function () {
+      const overlayURI = path.join(fixturesDir, 'overlay-style', 'overlay.yaml');
+      const parseResult = await applyOverlay(overlayURI);
+      const output = toYAML(parseResult.api!, { preserveStyle: true });
+
+      assert.include(output, "title: 'The user''s API'\n");
+      assert.include(output, 'description: "Line one\\nLine two"\n');
+      assert.include(output, 'description: |-\n        Returns all pets\n        from the store\n');
+    });
+  });
+
+  context('given JSON overlay adding values to JSON target', function () {
+    specify('should write added values as written in the overlay', async function () {
+      const overlayURI = path.join(fixturesDir, 'overlay-style', 'overlay.json');
+      const parseResult = await applyOverlay(overlayURI);
+      const output = toJSON(parseResult.api!, undefined, 2, { preserveStyle: true });
+
+      assert.include(output, '"x-rate": 1.0');
+    });
+  });
+
+  context('given JSON overlay adding values to YAML target', function () {
+    specify('should write added values in default YAML style', async function () {
+      const overlayURI = path.join(fixturesDir, 'overlay-style', 'overlay.json');
+      const targetURI = path.join(fixturesDir, 'yaml', 'target.yaml');
+      const parseResult = await applyOverlay(overlayURI, targetURI);
+      const output = toYAML(parseResult.api!, { preserveStyle: true });
+
+      assert.include(output, '  x-rate: 1\n');
+    });
+  });
+
   context('given Overlay 1.2.0 document', function () {
     specify('should resolve extends against $self and apply reusable actions', async function () {
       const overlayURI = path.join(fixturesDir, 'overlay-1-2-0', 'overlays', 'overlay.yaml');

@@ -19,7 +19,8 @@ You can install this package via [npm CLI](https://docs.npmjs.com/cli) by runnin
 ### Applying from file/URL
 
 `applyOverlay` parses an overlay document, resolves the target (from `targetURI` or the overlay's `extends` field),
-and applies all actions. The target is parsed with style preservation for round-trip fidelity.
+and applies all actions. Both documents are parsed with style preservation for round-trip fidelity,
+so values added by the overlay are written as they're written in the overlay.
 
 ```js
 import { applyOverlay } from '@speclynx/apidom-overlay';
