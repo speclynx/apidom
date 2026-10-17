@@ -643,9 +643,11 @@ represent the element's current value; when the value was changed without updati
 raw content, the serializer falls back to preserving only the format category (exponential, hex,
 octal, fractional digits), letting the underlying yaml library normalize the exact representation
 (e.g., `1.0e10` becomes `1e+10`). Empty nodes (e.g. `key:` or `key: !!str` with no value) are
-written back empty, after their tag if they have one, rather than as `""`, as long as their value is
+written back empty, after their anchor and tag if they have them, rather than as `""`, as long as their value is
 still an empty string. Explicit tags (e.g. `!!str`, `!!int`, `!!map`) are written back as long as
-the element's type still fits them; a tag the changed value no longer fits is left out. A single
+the element's type still fits them; a tag the changed value no longer fits is left out. Anchors
+(e.g. `&x`) are written back too; a name that was already written isn't written again, and with
+`aliasDuplicateObjects` the generated alias anchors never reuse a written name. A single
 pair in a flow sequence (e.g. `[a: 1]`) is written back as a pair while its mapping still has one pair,
 unless `aliasDuplicateObjects` is used.
 

@@ -38,6 +38,7 @@ interface YAMLElementStyle {
   styleGroup?: string;
   rawContent?: string;
   tag?: string;
+  anchor?: string;
   singlePair?: boolean;
   indent?: number;
   flowCollectionPadding?: boolean;
@@ -145,21 +146,21 @@ const taggedStringTag: ScalarTag = {
     ),
 };
 
-// the YAML library writes a space between a tag and the content after it, which leaves a trailing
-// space when there's no content; a tagged empty node is boxed and emitted as its tag alone instead,
-// except as an implicit key, where the space separates the tag from the ':' indicator; the box's
-// tag name only identifies it, the tag written is the one recorded in style
-class TaggedEmptyNode {
-  constructor(public tag: string) {}
+// the YAML library writes a space between a node's properties (anchor, tag) and the content after
+// them, which leaves a trailing space when there's no content; an empty node with properties is
+// boxed and emitted as its properties alone instead, except as an implicit key, where the space
+// separates them from the ':' indicator; the box's tag name only identifies it
+class EmptyNodeProperties {
+  constructor(public properties: string) {}
 }
 
-const taggedEmptyNodeTag: ScalarTag = {
+const emptyNodePropertiesTag: ScalarTag = {
   tag: 'tag:yaml.org,2002:null',
   default: true,
-  identify: (value: unknown): boolean => value instanceof TaggedEmptyNode,
+  identify: (value: unknown): boolean => value instanceof EmptyNodeProperties,
   resolve: (): null => null,
   stringify: (item, ctx): string =>
-    (item.value as TaggedEmptyNode).tag + (ctx.implicitKey ? ' ' : ''),
+    (item.value as EmptyNodeProperties).properties + (ctx.implicitKey ? ' ' : ''),
 };
 
 /**
@@ -171,6 +172,8 @@ interface NodeContext {
   ancestors: WeakSet<object>;
   emitted?: Map<object, YAMLNode>;
   anchorCount: number;
+  // anchor names written so far, recorded or generated
+  anchors: Set<string>;
 }
 
 /**
@@ -179,11 +182,21 @@ interface NodeContext {
  */
 const toAlias = (node: YAMLNode, context: NodeContext): Alias => {
   if (typeof node.anchor !== 'string') {
-    context.anchorCount += 1;
-
+    do {
+      context.anchorCount += 1;
+    } while (context.anchors.has(`a${context.anchorCount}`));
     node.anchor = `a${context.anchorCount}`;
+    context.anchors.add(node.anchor);
   }
   return new Alias(node.anchor);
+};
+
+// the anchor recorded in style, to be written back; a name already written (repeated in the source,
+// or generated for an alias) isn't written again, so that an alias refers to the node it was made for
+const claimAnchor = (style: YAMLElementStyle, context: NodeContext): string | undefined => {
+  if (style.anchor === undefined || context.anchors.has(style.anchor)) return undefined;
+  context.anchors.add(style.anchor);
+  return style.anchor;
 };
 
 /**
@@ -216,6 +229,7 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     map.flow = style.styleGroup === 'Flow';
     applyComments(map, style);
     applyTag(map, element, style);
+    map.anchor = claimAnchor(style, context);
 
     element.forEach((value, key, member) => {
       const memberStyle = isMemberElement(member) ? getStyle(member) : {};
@@ -246,6 +260,7 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     seq.flow = style.styleGroup === 'Flow';
     applyComments(seq, style);
     applyTag(seq, element, style);
+    seq.anchor = claimAnchor(style, context);
 
     element.forEach((item) => {
       const itemNode = toYAMLNode(item, context);
@@ -288,13 +303,17 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
 
   const scalar = new Scalar(toValue(element));
   // an empty node (YAML 1.2 §7.2) is serialized to null; while it's still empty, write it back as
-  // it was written: with no content, after its tag if it had one
+  // it was written: with no content, after its anchor and tag if it had them
   const isEmptyNode = scalar.value === null && includesClasses(element, ['yaml-e-node']);
-  if (isEmptyNode && style.tag !== undefined) {
-    scalar.value = new TaggedEmptyNode(style.tag);
-  } else if (isEmptyNode) {
-    scalar.value = null;
-    scalar.source = '';
+  if (isEmptyNode) {
+    const anchor = claimAnchor(style, context);
+    const properties = [anchor && `&${anchor}`, style.tag].filter(Boolean).join(' ');
+    if (properties) {
+      scalar.value = new EmptyNodeProperties(properties);
+    } else {
+      scalar.value = null;
+      scalar.source = '';
+    }
   }
   if (scalarType) {
     scalar.type = scalarType;
@@ -325,11 +344,14 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
   }
 
   applyComments(scalar, style);
-  if (!isEmptyNode) applyTag(scalar, element, style);
+  if (!isEmptyNode) {
+    applyTag(scalar, element, style);
+    scalar.anchor = claimAnchor(style, context);
+  }
   if (scalar.tag !== undefined && scalar.value === '' && style.scalarStyle === 'Plain') {
     // an empty plain string has no content to write, so it's written like a tagged empty node,
     // which parses back to the same empty string
-    scalar.value = new TaggedEmptyNode(scalar.tag);
+    scalar.value = new EmptyNodeProperties(scalar.tag);
     scalar.tag = undefined;
   } else if (scalar.tag !== undefined && typeof scalar.value === 'string') {
     scalar.value = new TaggedString(scalar.value);
@@ -365,10 +387,11 @@ const serializer = (
       ancestors: new WeakSet(),
       emitted: aliasDuplicateObjects ? new Map() : undefined,
       anchorCount: 0,
+      anchors: new Set(),
     });
     const doc = new Document(undefined, {
       ...allOptions,
-      customTags: [rawNumberTag, taggedStringTag, taggedEmptyNodeTag],
+      customTags: [rawNumberTag, taggedStringTag, emptyNodePropertiesTag],
     });
     doc.contents = rootNode as YAMLNode;
 

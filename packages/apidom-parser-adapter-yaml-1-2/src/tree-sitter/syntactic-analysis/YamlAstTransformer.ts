@@ -248,6 +248,10 @@ const buildYamlStyle = (
   if (tag !== undefined && tag !== (node.style === YamlStyle.Plain ? '?' : '!')) {
     yamlStyle.tag = tag;
   }
+  // the anchor's name, without the & indicator
+  if (node.anchor) {
+    yamlStyle.anchor = node.anchor.name.slice(1);
+  }
 
   if (extras) {
     for (const [key, value] of Object.entries(extras)) {
