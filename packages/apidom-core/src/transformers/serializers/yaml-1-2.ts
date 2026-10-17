@@ -38,6 +38,7 @@ interface YAMLElementStyle {
   styleGroup?: string;
   rawContent?: string;
   tag?: string;
+  singlePair?: boolean;
   indent?: number;
   flowCollectionPadding?: boolean;
   comment?: string;
@@ -247,7 +248,26 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     applyTag(seq, element, style);
 
     element.forEach((item) => {
-      seq.items.push(toYAMLNode(item, context));
+      const itemNode = toYAMLNode(item, context);
+      // a mapping written as a single pair directly in a flow sequence (e.g. [a: 1]) is written
+      // back that way while it still has one pair; not when it may become the target of an alias,
+      // which needs the mapping node itself
+      if (
+        seq.flow &&
+        !emitted &&
+        itemNode instanceof YAMLMap &&
+        itemNode.items.length === 1 &&
+        getStyle(item as Element).singlePair
+      ) {
+        const [pair] = itemNode.items;
+        // the mapping's comments go to the pair, which is written in its place
+        if (itemNode.commentBefore && isNode(pair.key))
+          pair.key.commentBefore = itemNode.commentBefore;
+        if (itemNode.comment && isNode(pair.value)) pair.value.comment = itemNode.comment;
+        seq.items.push(pair);
+      } else {
+        seq.items.push(itemNode);
+      }
     });
 
     ancestors.delete(element as object);

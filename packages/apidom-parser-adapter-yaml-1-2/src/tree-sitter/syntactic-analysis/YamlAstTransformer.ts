@@ -447,6 +447,8 @@ const transformCollection = (
     applyComments(childElements, comments);
     element.style = buildYamlStyle(node as unknown as YamlNode, ctx, {
       comment: comments.trailing,
+      // a single pair written directly in a flow sequence (e.g. [a: 1])
+      singlePair: node.style === YamlStyle.SinglePair || undefined,
     });
     if (comments.outOfScope.length > 0) {
       ctx.promotedComments.push(...comments.outOfScope);
