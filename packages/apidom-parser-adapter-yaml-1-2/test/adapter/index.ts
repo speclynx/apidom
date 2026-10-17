@@ -351,6 +351,12 @@ describe('adapter', function () {
       assert.strictEqual(yaml, '# top\n[a] # c\n\n# d\n# e\n');
     });
 
+    specify('should write comments around explicit document markers back', async function () {
+      const result = await adapter.parse('---\n# x\na # c\n...\n', { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, '# x\na # c\n');
+    });
+
     specify('should write comment on a later line back as document comment', async function () {
       const result = await adapter.parse('a # c\n# after\n', { style: true });
       assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), 'a # c\n\n# after\n');

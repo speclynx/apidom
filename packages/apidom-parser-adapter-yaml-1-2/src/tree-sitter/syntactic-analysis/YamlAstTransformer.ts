@@ -354,17 +354,30 @@ const transformChildren = (children: unknown[], ctx: TransformContext): Element[
 // up to the next document
 const collectStreamComments = (node: YamlStream) => {
   const comments = { before: [] as string[], inline: [] as string[], after: [] as string[] };
-  let document: TypedNode | undefined;
+  let root: TypedNode | undefined;
+  const collect = (comment: YamlComment) => {
+    const text = stripCommentHash(comment.content);
+    if (!root) comments.before.push(text);
+    else if ((comment as unknown as TypedNode).startLine === root.endLine)
+      comments.inline.push(text);
+    else comments.after.push(text);
+  };
   for (const child of node.children) {
     if (isDocument(child)) {
-      if (document) break;
-      document = child as unknown as TypedNode;
+      if (root) break;
+      // comments after an explicit document start (---) or before an explicit document end (...)
+      // are the document's own children, around its root node
+      const children = (child.children || []) as unknown[];
+      const rootIndex = children.findIndex((c) => !isComment(c));
+      if (rootIndex === -1) break;
+      children.slice(0, rootIndex).filter(isComment).forEach(collect);
+      root = children[rootIndex] as TypedNode;
+      children
+        .slice(rootIndex + 1)
+        .filter(isComment)
+        .forEach(collect);
     } else if (isComment(child)) {
-      const text = stripCommentHash(child.content);
-      if (!document) comments.before.push(text);
-      else if ((child as unknown as TypedNode).startLine === document.endLine)
-        comments.inline.push(text);
-      else comments.after.push(text);
+      collect(child);
     }
   }
   return comments;
