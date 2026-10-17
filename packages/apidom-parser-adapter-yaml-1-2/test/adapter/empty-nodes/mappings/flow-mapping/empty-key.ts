@@ -7,7 +7,7 @@ const setupEmptyElement = async () => {
   const yamlSource = '{: value}';
   const { result } = await adapter.parse(yamlSource, { sourceMap: true });
   // @ts-ignore
-  return result.content[0].key;
+  return result.getMember('').key;
 };
 
 describe('given empty node as flow mapping key', function () {
