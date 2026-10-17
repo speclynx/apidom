@@ -235,6 +235,12 @@ const buildYamlStyle = (
   if (node.commentBefore) {
     yamlStyle.commentBefore = node.commentBefore;
   }
+  // an untagged node has the non-specific tag '?' when it's a plain scalar and '!' otherwise
+  // (YAML 1.2 §6.9.1); an explicit '!' on any other node means the same as no tag
+  const tag = node.tag?.explicitName;
+  if (tag !== undefined && tag !== (node.style === YamlStyle.Plain ? '?' : '!')) {
+    yamlStyle.tag = tag;
+  }
 
   if (extras) {
     for (const [key, value] of Object.entries(extras)) {
@@ -503,10 +509,6 @@ const transformScalar = (node: YamlScalar, ctx: TransformContext): Element => {
     const extras: Record<string, unknown> = {
       scalarStyle: node.style,
     };
-    // an explicit tag decides what an empty node is (e.g. !!str makes it an empty string)
-    if (isEmptyNode && node.tag?.explicitName !== '?') {
-      extras.tag = node.tag?.explicitName;
-    }
     if (node.rawContent !== undefined) {
       extras.rawContent = node.rawContent;
     }
