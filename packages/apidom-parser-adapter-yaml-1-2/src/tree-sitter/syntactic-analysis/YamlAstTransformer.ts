@@ -209,7 +209,14 @@ const detectFlowPadding = (node: TypedNode): boolean => {
     typeof node.startCharacter === 'number' &&
     typeof firstChild.startCharacter === 'number'
   ) {
-    return firstChild.startCharacter - node.startCharacter > 1;
+    // a sequence item starts with its tag or anchor, which aren't part of its node's position
+    const { tag, anchor } = firstChild as unknown as YamlNode;
+    const firstStart = Math.min(
+      firstChild.startCharacter,
+      tag?.startCharacter ?? Infinity,
+      anchor?.startCharacter ?? Infinity,
+    );
+    return firstStart - node.startCharacter > 1;
   }
   return true;
 };
