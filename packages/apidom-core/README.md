@@ -570,7 +570,9 @@ Transforms the ApiDOM into JavaScript POJO. This POJO would be the result of int
 into JavaScript structure. This function can handle cycles in ApiDOM structure.
 
 An empty YAML node (e.g. `key:` with no value) is `null`, as in YAML; one with an explicit tag other
-than `!!null` (e.g. `key: !!str`) is an empty string.
+than `!!null` (e.g. `key: !!str`) is an empty string. This is a serialization concern: the element
+itself stays an empty `StringElement` with the `yaml-e-node` class, so element-level APIs, such as the
+element's own `.toValue()`, `equals`, JSONPath evaluated on ApiDOM or `diffApiDOM`, see an empty string.
 
 Object keys become property names. A number or boolean key, such as the number key of YAML `200:`,
 uses its string form (`"200"`), a null key the empty string, and a collection key, such as YAML
