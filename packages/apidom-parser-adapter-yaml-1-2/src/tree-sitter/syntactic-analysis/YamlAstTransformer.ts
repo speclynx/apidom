@@ -359,6 +359,29 @@ const collectPreDocumentComments = (node: YamlStream): string | null => {
   return texts.length > 0 ? texts.join('\n') : null;
 };
 
+// comments after the first document, before the next one: ones on the document's last line belong
+// to its root node, ones on later lines to the document
+const collectPostDocumentComments = (
+  node: YamlStream,
+): { comment: string | null; documentComment: string | null } => {
+  const document = node.children.find(isDocument) as unknown as TypedNode | undefined;
+  const inline: string[] = [];
+  const after: string[] = [];
+  if (document !== undefined) {
+    for (const child of node.children.slice(node.children.indexOf(document as never) + 1)) {
+      if (isDocument(child)) break;
+      if (!isComment(child)) continue;
+      const text = stripCommentHash(child.content);
+      if ((child as unknown as TypedNode).startLine === document.endLine) inline.push(text);
+      else after.push(text);
+    }
+  }
+  return {
+    comment: inline.length > 0 ? inline.join('\n') : null,
+    documentComment: after.length > 0 ? after.join('\n') : null,
+  };
+};
+
 // Stream: Wraps transformed children in ParseResultElement
 const transformStream = (node: YamlStream, ctx: TransformContext): ParseResultElement => {
   // detect indent from the stream structure (only needed for style preservation)
@@ -395,6 +418,13 @@ const transformStream = (node: YamlStream, ctx: TransformContext): ParseResultEl
             ? `${preDocumentComments}\n${existing}`
             : preDocumentComments,
         );
+      }
+      const { comment, documentComment } = collectPostDocumentComments(node);
+      if (comment !== null && typeof getYamlStyleProp(resultElement, 'comment') !== 'string') {
+        setYamlStyleProp(resultElement, 'comment', comment);
+      }
+      if (documentComment !== null) {
+        setYamlStyleProp(resultElement, 'documentComment', documentComment);
       }
     }
   }
