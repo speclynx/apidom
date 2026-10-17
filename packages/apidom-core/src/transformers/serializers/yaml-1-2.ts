@@ -40,6 +40,8 @@ interface YAMLElementStyle {
   rawContent?: string;
   tag?: string;
   anchor?: string;
+  // the name of the alias the scalar was resolved from
+  alias?: string;
   singlePair?: boolean;
   indent?: number;
   flowCollectionPadding?: boolean;
@@ -241,6 +243,22 @@ const rawFlowScalarTag: ScalarTag = {
   },
 };
 
+// an alias is boxed and emitted as its text, as the YAML library's alias node requires an anchor the
+// library wrote; an implicit key keeps a space before the ':' indicator, which would otherwise be read
+// as part of the alias name
+class RawAlias {
+  constructor(public name: string) {}
+}
+
+const rawAliasTag: ScalarTag = {
+  tag: 'tag:yaml.org,2002:str',
+  default: true,
+  identify: (value: unknown): boolean => value instanceof RawAlias,
+  resolve: (str: string): string => str,
+  stringify: (item, ctx): string =>
+    `*${(item.value as RawAlias).name}${ctx.implicitKey ? ' ' : ''}`,
+};
+
 /**
  * Tracks state across a single serialization: the ancestor chain used for cycle
  * detection, and — when `aliasDuplicateObjects` is enabled — the container node
@@ -252,6 +270,8 @@ interface NodeContext {
   anchorCount: number;
   // anchor names written so far, recorded or generated
   anchors: Set<string>;
+  // recorded anchor names not written again, as they were already written
+  repeatedAnchors: Set<string>;
 }
 
 /**
@@ -272,7 +292,11 @@ const toAlias = (node: YAMLNode, context: NodeContext): Alias => {
 // the anchor recorded in style, to be written back; a name already written (repeated in the source,
 // or generated for an alias) isn't written again, so that an alias refers to the node it was made for
 const claimAnchor = (style: YAMLElementStyle, context: NodeContext): string | undefined => {
-  if (style.anchor === undefined || context.anchors.has(style.anchor)) return undefined;
+  if (style.anchor === undefined) return undefined;
+  if (context.anchors.has(style.anchor)) {
+    context.repeatedAnchors.add(style.anchor);
+    return undefined;
+  }
   context.anchors.add(style.anchor);
   return style.anchor;
 };
@@ -374,6 +398,20 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
 
   if (isLinkElement(element)) {
     return new Scalar(isStringElement(element.href) ? toValue(element.href) : '');
+  }
+
+  // an alias isn't resolved, so its element has the alias text; it's written back as an alias while
+  // it still has that text and its anchor was written before it only once, so that it refers to the
+  // node it referred to in the source
+  if (
+    style.alias !== undefined &&
+    toValue(element) === `*${style.alias}` &&
+    context.anchors.has(style.alias) &&
+    !context.repeatedAnchors.has(style.alias)
+  ) {
+    const alias = new Scalar(new RawAlias(style.alias));
+    applyComments(alias, style);
+    return alias;
   }
 
   // scalar element (string, number, boolean, null)
@@ -487,6 +525,7 @@ const serializer = (
       emitted: aliasDuplicateObjects ? new Map() : undefined,
       anchorCount: 0,
       anchors: new Set(),
+      repeatedAnchors: new Set(),
     });
     const doc = new Document(undefined, {
       ...allOptions,
@@ -496,6 +535,7 @@ const serializer = (
         emptyNodePropertiesTag,
         rawBlockScalarTag,
         rawFlowScalarTag,
+        rawAliasTag,
       ],
     });
     doc.contents = rootNode as YAMLNode;

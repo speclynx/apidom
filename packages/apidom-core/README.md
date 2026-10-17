@@ -649,7 +649,9 @@ written back empty, after their anchor and tag if they have them, rather than as
 still an empty string. Explicit tags (e.g. `!!str`, `!!int`, `!!map`) are written back as long as
 the element's type still fits them; a tag the changed value no longer fits is left out. Anchors
 (e.g. `&x`) are written back too; a name that was already written isn't written again, and with
-`aliasDuplicateObjects` the generated alias anchors never reuse a written name. Comments before and after
+`aliasDuplicateObjects` the generated alias anchors never reuse a written name. Aliases (e.g. `*x`), which
+aren't resolved and have their text as value, are written back as aliases while they still have that text
+and their anchor is written before them, once. Comments before and after
 the root node are written back too; comments on the lines after a root scalar or flow collection are
 written as the document's comment, after a blank line. A block scalar (`|`, `>`) is written back as written, with its
 original line breaks and indicators and re-indented under its parent, as long as that text still has
