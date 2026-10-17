@@ -336,6 +336,21 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/645
+  context('given comment after root node serialized back with preserveStyle', function () {
+    specify('should write comment on the same line back', async function () {
+      for (const source of ['a # c\n', '"a" # c\n', '!!str # c\n', '[a] # c\n', '{a: 1} # c\n']) {
+        const result = await adapter.parse(source, { style: true });
+        assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), source);
+      }
+    });
+
+    specify('should write comment on a later line back as document comment', async function () {
+      const result = await adapter.parse('a # c\n# after\n', { style: true });
+      assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), 'a # c\n\n# after\n');
+    });
+  });
+
   // https://github.com/speclynx/apidom/issues/639
   context('given anchor serialized back with preserveStyle', function () {
     specify('should write anchors back', async function () {

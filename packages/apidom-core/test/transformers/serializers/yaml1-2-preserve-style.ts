@@ -487,6 +487,18 @@ describe('serializers', function () {
       });
     });
 
+    // https://github.com/speclynx/apidom/issues/645
+    context('given document comment', function () {
+      specify('should write it after the root node', function () {
+        const element = new StringElement('a');
+        element.style = {
+          yaml: { scalarStyle: 'Plain', comment: ' c', documentComment: ' after' },
+        };
+
+        assert.strictEqual(serialize(element, { preserveStyle: true }), 'a # c\n\n# after\n');
+      });
+    });
+
     // https://github.com/speclynx/apidom/issues/639
     context('given YAML anchor', function () {
       const block = <T extends Element>(element: T, style = {}): T => {
