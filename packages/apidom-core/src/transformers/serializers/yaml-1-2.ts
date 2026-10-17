@@ -154,7 +154,7 @@ class EmptyNodeProperties {
   constructor(public properties: string) {}
 }
 
-const taggedEmptyNodeTag: ScalarTag = {
+const emptyNodePropertiesTag: ScalarTag = {
   tag: 'tag:yaml.org,2002:null',
   default: true,
   identify: (value: unknown): boolean => value instanceof EmptyNodeProperties,
@@ -391,7 +391,7 @@ const serializer = (
     });
     const doc = new Document(undefined, {
       ...allOptions,
-      customTags: [rawNumberTag, taggedStringTag, taggedEmptyNodeTag],
+      customTags: [rawNumberTag, taggedStringTag, emptyNodePropertiesTag],
     });
     doc.contents = rootNode as YAMLNode;
 

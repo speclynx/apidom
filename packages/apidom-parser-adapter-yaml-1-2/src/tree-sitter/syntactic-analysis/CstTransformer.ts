@@ -465,13 +465,11 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
 
     // No kind node - create empty scalar
     if (lastChildInfo) {
+      const emptyAnchorInfo = anchorInfo ?? siblings.anchor;
       const emptyScalarNode = new YamlScalar({
         content: '',
         // the anchor and tag of an empty node are children of the flow node, not siblings
-        anchor:
-          (anchorInfo ?? siblings.anchor)
-            ? toYamlAnchor((anchorInfo ?? siblings.anchor)!)
-            : undefined,
+        anchor: emptyAnchorInfo ? toYamlAnchor(emptyAnchorInfo) : undefined,
         tag: toYamlTag({ ...lastChildInfo, type: 'plain_scalar' }, tagInfo ?? siblings.tag),
         startLine: lastChildInfo.endPosition.row,
         startCharacter: lastChildInfo.endPosition.column,
