@@ -11,7 +11,7 @@ import {
 import ShortUniqueId from 'short-unique-id';
 
 import toValue from './value.ts';
-import setProperty from '../../util.ts';
+import setProperty, { toPropertyName } from '../../util.ts';
 
 interface JSONElementStyle {
   indent?: number;
@@ -91,11 +91,8 @@ const toPojo = (element: Element, sentinels: Map<string, string>, nonce: string)
       const obj: Record<string, unknown> = {};
       node.forEach((value, key) => {
         const k = isElement(key) ? toValue(key) : key;
-        // a scalar key that isn't a string (e.g. YAML 200:) is used in its string form, like a
-        // JavaScript property name; a collection key has no such form, so its member is skipped
-        if (['string', 'number', 'boolean'].includes(typeof k) || k === null) {
-          setProperty(obj, String(k), convert(value));
-        }
+        const name = toPropertyName(k);
+        if (name !== undefined) setProperty(obj, name, convert(value));
       });
       ancestors.delete(node as object);
       return obj;
