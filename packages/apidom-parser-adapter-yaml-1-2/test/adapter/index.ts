@@ -386,6 +386,23 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/660
+  context('given comment after nested collection serialized back with preserveStyle', function () {
+    specify(
+      'should write comments ending the document back as document comment',
+      async function () {
+        for (const [source, expected] of [
+          ['a:\n  b: 1\n# c\n', 'a:\n  b: 1\n\n# c\n'],
+          ['- a:\n    b: 1\n# c\n# d\n', '- a:\n    b: 1\n\n# c\n# d\n'],
+          ['a:\n  b:\n    c: 1\n# d\n---\nz\n', 'a:\n  b:\n    c: 1\n\n# d\n'],
+        ]) {
+          const result = await adapter.parse(source, { style: true });
+          assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), expected);
+        }
+      },
+    );
+  });
+
   // https://github.com/speclynx/apidom/issues/645
   context('given comment after root node serialized back with preserveStyle', function () {
     specify('should write comment on the same line back', async function () {
