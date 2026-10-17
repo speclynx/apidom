@@ -152,21 +152,20 @@ const taggedStringTag: ScalarTag = {
     ),
 };
 
-// the YAML library writes a space between a node's properties (anchor, tag) and the content after
-// them, which leaves a trailing space when there's no content; an empty node with properties is
-// boxed and emitted as its properties alone instead, except as an implicit key, where the space
-// separates them from the ':' indicator; the box's tag name only identifies it
-class EmptyNodeProperties {
-  constructor(public properties: string) {}
+// a node with no content written by the YAML library: an empty node with properties (anchor, tag),
+// as the library writes a space after them, and an alias, as the library's alias node requires an
+// anchor the library wrote; it's boxed and emitted as its text, except as an implicit key, where a
+// space separates the text from the ':' indicator; the box's tag name only identifies it
+class RawText {
+  constructor(public text: string) {}
 }
 
-const emptyNodePropertiesTag: ScalarTag = {
+const rawTextTag: ScalarTag = {
   tag: 'tag:yaml.org,2002:null',
   default: true,
-  identify: (value: unknown): boolean => value instanceof EmptyNodeProperties,
+  identify: (value: unknown): boolean => value instanceof RawText,
   resolve: (): null => null,
-  stringify: (item, ctx): string =>
-    (item.value as EmptyNodeProperties).properties + (ctx.implicitKey ? ' ' : ''),
+  stringify: (item, ctx): string => (item.value as RawText).text + (ctx.implicitKey ? ' ' : ''),
 };
 
 // the YAML library refolds a block scalar's lines; a block scalar is boxed with its source text,
@@ -241,22 +240,6 @@ const rawFlowScalarTag: ScalarTag = {
     }
     return stringifyString({ ...item, value }, ctx, onComment, onChompKeep);
   },
-};
-
-// an alias is boxed and emitted as its text, as the YAML library's alias node requires an anchor the
-// library wrote; an implicit key keeps a space before the ':' indicator, which would otherwise be read
-// as part of the alias name
-class RawAlias {
-  constructor(public name: string) {}
-}
-
-const rawAliasTag: ScalarTag = {
-  tag: 'tag:yaml.org,2002:str',
-  default: true,
-  identify: (value: unknown): boolean => value instanceof RawAlias,
-  resolve: (str: string): string => str,
-  stringify: (item, ctx): string =>
-    `*${(item.value as RawAlias).name}${ctx.implicitKey ? ' ' : ''}`,
 };
 
 /**
@@ -409,7 +392,7 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     context.anchors.has(style.alias) &&
     !context.repeatedAnchors.has(style.alias)
   ) {
-    const alias = new Scalar(new RawAlias(style.alias));
+    const alias = new Scalar(new RawText(`*${style.alias}`));
     applyComments(alias, style);
     return alias;
   }
@@ -425,7 +408,7 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     const anchor = claimAnchor(style, context);
     const properties = [anchor && `&${anchor}`, style.tag].filter(Boolean).join(' ');
     if (properties) {
-      scalar.value = new EmptyNodeProperties(properties);
+      scalar.value = new RawText(properties);
     } else {
       scalar.value = null;
       scalar.source = '';
@@ -485,7 +468,7 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
   if (scalar.tag !== undefined && scalar.value === '' && style.scalarStyle === 'Plain') {
     // an empty plain string has no content to write, so it's written like a tagged empty node,
     // which parses back to the same empty string
-    scalar.value = new EmptyNodeProperties(scalar.tag);
+    scalar.value = new RawText(scalar.tag);
     scalar.tag = undefined;
   } else if (scalar.tag !== undefined && typeof scalar.value === 'string') {
     scalar.value = new TaggedString(scalar.value);
@@ -532,10 +515,9 @@ const serializer = (
       customTags: [
         rawNumberTag,
         taggedStringTag,
-        emptyNodePropertiesTag,
+        rawTextTag,
         rawBlockScalarTag,
         rawFlowScalarTag,
-        rawAliasTag,
       ],
     });
     doc.contents = rootNode as YAMLNode;
