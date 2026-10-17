@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import dedent from 'dedent';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
+import { toValue } from '@speclynx/apidom-core';
 
 import { refractOpenApi3_1, refractorPluginNormalizeOperationIds } from '../../../../src/index.ts';
 
@@ -44,6 +45,24 @@ describe('refractor', function () {
           });
 
           expect(openApiElement).toMatchSnapshot();
+        });
+      });
+
+      // https://github.com/speclynx/apidom/issues/631
+      context('given Operation Object with empty operationId field', function () {
+        specify('should normalize it like an empty string', async function () {
+          const normalize = async (operationId: string) => {
+            const apiDOM = await parse(
+              `openapi: 3.1.0\npaths:\n  /a:\n    get:\n      operationId:${operationId}\n`,
+            );
+            const openApiElement = refractOpenApi3_1(apiDOM.result, {
+              plugins: [refractorPluginNormalizeOperationIds()],
+            });
+            // @ts-ignore
+            return toValue(openApiElement).paths['/a'].get.operationId;
+          };
+
+          expect(await normalize('')).to.equal(await normalize(' ""'));
         });
       });
 

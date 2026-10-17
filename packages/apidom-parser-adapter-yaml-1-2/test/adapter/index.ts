@@ -8,6 +8,7 @@ import {
   StringElement,
   isArrayElement,
   isObjectElement,
+  includesClasses,
   isParseResultElement,
   isStringElement,
 } from '@speclynx/apidom-datamodel';
@@ -349,6 +350,39 @@ describe('adapter', function () {
 
       assert.lengthOf(result.annotations, 0);
       assert.isTrue(isArrayElement(result.result));
+    });
+  });
+
+  // https://github.com/speclynx/apidom/issues/631
+  context('given empty node', function () {
+    const source = 'a:\nb: !!null\nc: !<tag:yaml.org,2002:null>\nd: !!str\ne: !\nf: !!int\ng: ""\n';
+
+    specify('should serialize untagged and null-tagged ones to null', async function () {
+      const result = await adapter.parse(source);
+      assert.deepEqual(toValue(result.result), {
+        a: null,
+        b: null,
+        c: null,
+        d: '',
+        e: '',
+        f: '',
+        g: '',
+      });
+    });
+
+    specify('should mark only untagged and null-tagged ones as empty nodes', async function () {
+      const result = await adapter.parse(source);
+      const marked = (result.result as ObjectElement)
+        .keys()
+        .filter((key) =>
+          includesClasses((result.result as ObjectElement).get(key as string)!, ['yaml-e-node']),
+        );
+      assert.deepEqual(marked, ['a', 'b', 'c']);
+    });
+
+    specify('should write it as null without preserveStyle', async function () {
+      const result = await adapter.parse('a:\nb:\n  - \n');
+      assert.strictEqual(toYAML(result.result!), 'a: null\nb:\n  - null\n');
     });
   });
 
