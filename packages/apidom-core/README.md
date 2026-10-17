@@ -569,10 +569,13 @@ from(javascriptForm); // => NumberElement<1>
 Transforms the ApiDOM into JavaScript POJO. This POJO would be the result of interpreting the ApiDOM
 into JavaScript structure. This function can handle cycles in ApiDOM structure.
 
-Object keys become property names. A key that isn't a string, such as the number key of YAML `200:`,
-uses its string form (`"200"`), and a collection key, such as YAML `[x]: 1`, uses its JSON text
-(`'["x"]'`). The same applies to `toJSON` and to `toYAML` without `preserveStyle`, which therefore
-writes `200:` back as `"200":`.
+An empty YAML node (e.g. `key:` with no value) is `null`, as in YAML; one with an explicit tag other
+than `!!null` (e.g. `key: !!str`) is an empty string.
+
+Object keys become property names. A number or boolean key, such as the number key of YAML `200:`,
+uses its string form (`"200"`), a null key the empty string, and a collection key, such as YAML
+`[x]: 1`, its JSON text (`'["x"]'`). The same applies to `toJSON` and to `toYAML` without
+`preserveStyle`, which therefore writes `200:` back as `"200":` and `key:` as `key: null`.
 
 ```js
 import { ObjectElement } from '@speclynx/apidom-datamodel';
