@@ -453,7 +453,7 @@ describe('serializers', function () {
         assert.strictEqual(result, 'a: x\n');
       });
 
-      specify('should write it back empty with null tag', function () {
+      specify('should write it back empty after null tag', function () {
         const element = new ObjectElement();
         const value = emptyNode();
         value.style = { yaml: { scalarStyle: 'Plain', tag: '!!null' } };
@@ -462,10 +462,10 @@ describe('serializers', function () {
 
         const result = serialize(element, { preserveStyle: true });
 
-        assert.strictEqual(result, 'a:\n');
+        assert.strictEqual(result, 'a: !!null\n');
       });
 
-      specify('should write it as "" with other explicit tag', function () {
+      specify('should write it back empty after other explicit tag', function () {
         const element = new ObjectElement();
         const value = emptyNode();
         value.style = { yaml: { scalarStyle: 'Plain', tag: '!!str' } };
@@ -474,7 +474,7 @@ describe('serializers', function () {
 
         const result = serialize(element, { preserveStyle: true });
 
-        assert.strictEqual(result, 'a: !!str ""\n');
+        assert.strictEqual(result, 'a: !!str\n');
       });
 
       specify('should write empty string without the class as ""', function () {
@@ -501,7 +501,7 @@ describe('serializers', function () {
 
         const result = serialize(element, { preserveStyle: true });
 
-        assert.strictEqual(result, 'a: !!str "1"\nb: !!int 1\n');
+        assert.strictEqual(result, 'a: !!str 1\nb: !!int 1\n');
       });
 
       specify('should write tag of collection', function () {
@@ -522,7 +522,7 @@ describe('serializers', function () {
 
         const result = serialize(element, { preserveStyle: true });
 
-        assert.strictEqual(result, 'a: !<tag:yaml.org,2002:str> "1"\nb: ! "1"\n');
+        assert.strictEqual(result, 'a: !<tag:yaml.org,2002:str> 1\nb: ! 1\n');
       });
 
       specify('should drop tag the changed value no longer fits', function () {

@@ -272,16 +272,11 @@ describe('adapter', function () {
       assert.strictEqual(yaml, 'a:\nb:\nc:\n  - \n');
     });
 
-    specify('should write it back empty with null tag', async function () {
-      const result = await adapter.parse('a: !!null\n', { style: true });
+    specify('should write it back empty after its tag', async function () {
+      const source = 'a: !!null\nb: !!str\nc: !\nd:\n  - !!str\n';
+      const result = await adapter.parse(source, { style: true });
       const yaml = toYAML(result.result!, { preserveStyle: true });
-      assert.strictEqual(yaml, 'a:\n');
-    });
-
-    specify('should write it back as empty string with str tag', async function () {
-      const result = await adapter.parse('a: !!str\n', { style: true });
-      const yaml = toYAML(result.result!, { preserveStyle: true });
-      assert.strictEqual(yaml, 'a: !!str ""\n');
+      assert.strictEqual(yaml, source);
     });
   });
 
@@ -294,10 +289,18 @@ describe('adapter', function () {
       assert.strictEqual(yaml, source);
     });
 
-    specify('should write str tag back with quoted value', async function () {
-      const result = await adapter.parse('a: !!str 1\n', { style: true });
+    specify('should write str tag back without quoting value', async function () {
+      const source = 'a: !!str 1\nb: ! true\nc: !<tag:yaml.org,2002:str> null\n';
+      const result = await adapter.parse(source, { style: true });
       const yaml = toYAML(result.result!, { preserveStyle: true });
-      assert.strictEqual(yaml, 'a: !!str "1"\n');
+      assert.strictEqual(yaml, source);
+    });
+
+    specify('should keep padding of flow sequence with tagged first item', async function () {
+      const source = 'a: [!!str 1, b]\nc: [!!str]\n';
+      const result = await adapter.parse(source, { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, source);
     });
 
     specify('should not write non-specific tag of quoted scalar', async function () {
