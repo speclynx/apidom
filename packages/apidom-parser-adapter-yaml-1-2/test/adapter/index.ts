@@ -281,7 +281,29 @@ describe('adapter', function () {
     specify('should write it back as empty string with str tag', async function () {
       const result = await adapter.parse('a: !!str\n', { style: true });
       const yaml = toYAML(result.result!, { preserveStyle: true });
-      assert.strictEqual(yaml, 'a: ""\n');
+      assert.strictEqual(yaml, 'a: !!str ""\n');
+    });
+  });
+
+  // https://github.com/speclynx/apidom/issues/639
+  context('given explicit tag serialized back with preserveStyle', function () {
+    specify('should write tags of scalars and collections back', async function () {
+      const source = 'a: !!int 1\nb: !!map {c: 1}\nd: !!seq\n  - 1\n';
+      const result = await adapter.parse(source, { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, source);
+    });
+
+    specify('should write str tag back with quoted value', async function () {
+      const result = await adapter.parse('a: !!str 1\n', { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, 'a: !!str "1"\n');
+    });
+
+    specify('should not write non-specific tag of quoted scalar', async function () {
+      const result = await adapter.parse('a: ! "1"\n', { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, 'a: "1"\n');
     });
   });
 
