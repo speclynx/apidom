@@ -895,7 +895,8 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       styleGroup: YamlStyleGroup.Block,
       style,
     });
-    scalarNode.rawContent = info.text;
+    // the block's source text, rebased to its parent's indentation and with its trailing lines
+    scalarNode.rawContent = rebased;
 
     registerAnchor(scalarNode, ctx);
 
