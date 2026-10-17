@@ -358,6 +358,26 @@ describe('adapter', function () {
       assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), source);
     });
 
+    specify(
+      'should write block scalars in a sequence back with wider indentation',
+      async function () {
+        const source =
+          'k:\n    - >-\n        long\n        text\n    - |2-\n          lead\n        x\n';
+        const result = await adapter.parse(source, { style: true });
+        assert.strictEqual(toYAML(result.result!, { preserveStyle: true, indent: 4 }), source);
+        assert.strictEqual(
+          toYAML(result.result!, { preserveStyle: true }),
+          'k:\n  - >-\n      long\n      text\n  - |2-\n        lead\n      x\n',
+        );
+      },
+    );
+
+    specify('should write top-level block scalar moved under a key', async function () {
+      const result = await adapter.parse('--- |\nfoo\nbar\n', { style: true });
+      const yaml = toYAML(new ObjectElement({ a: result.result }), { preserveStyle: true });
+      assert.strictEqual(yaml, 'a: |\n  foo\n  bar\n');
+    });
+
     specify('should refold a changed value', async function () {
       const result = await adapter.parse('d: >-\n  short\n  text\n', { style: true });
       (result.result as ObjectElement).set('d', 'changed');

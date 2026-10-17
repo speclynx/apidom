@@ -1,6 +1,6 @@
 import {
   Document,
-  parse,
+  parseDocument,
   stringify,
   isNode,
   Alias,
@@ -166,21 +166,45 @@ const emptyNodePropertiesTag: ScalarTag = {
     (item.value as EmptyNodeProperties).properties + (ctx.implicitKey ? ' ' : ''),
 };
 
-// the YAML library refolds a block scalar's lines; a block scalar that still has the value of its
-// source text is boxed and emitted as that text, its lines re-indented under its parent
+// the YAML library refolds a block scalar's lines; a block scalar is boxed with its source text,
+// whose lines are indented relative to the block's parent node, and emitted as that text
 class RawBlockScalar {
-  constructor(public text: string) {}
+  constructor(
+    public value: string,
+    public text: string,
+  ) {}
 }
+
+// whether a block scalar's text has the value when its parent node is at the column
+// (-1 at top level)
+const hasValue = (text: string, value: string, column: number): boolean => {
+  const doc = parseDocument(column < 0 ? `${text}\n` : `${' '.repeat(column)}- ${text}\n`);
+  return doc.errors.length === 0 && (column < 0 ? doc.toJS() : doc.toJS()[0]) === value;
+};
 
 const rawBlockScalarTag: ScalarTag = {
   tag: 'tag:yaml.org,2002:str',
   default: true,
   identify: (value: unknown): boolean => value instanceof RawBlockScalar,
   resolve: (str: string): string => str,
-  stringify: (item, ctx): string => {
-    const parentIndent = ctx.indent.slice(ctx.indentStep.length);
-    const [header, ...lines] = (item.value as RawBlockScalar).text.split('\n');
-    return [header, ...lines.map((line) => (line === '' ? '' : parentIndent + line))].join('\n');
+  stringify: (item, ctx, onComment, onChompKeep): string => {
+    const { value, text } = item.value as RawBlockScalar;
+    if (!ctx.implicitKey && !ctx.inFlow) {
+      // the library places block content an indentation step right of a mapping's key and two
+      // columns right of a sequence's dash; the text is indented under the rightmost of the two
+      // and written if it has the value under both
+      const columns =
+        ctx.indent === ''
+          ? [-1]
+          : [ctx.indent.length - ctx.indentStep.length, ctx.indent.length - 2];
+      const parentIndent = ' '.repeat(Math.max(0, ...columns));
+      const [header, ...lines] = text.split('\n');
+      const str = [header, ...lines.map((line) => (line === '' ? '' : parentIndent + line))].join(
+        '\n',
+      );
+      if (columns.every((column) => hasValue(str, value, column))) return str;
+    }
+    return stringifyString({ ...item, value }, ctx, onComment, onChompKeep);
   },
 };
 
@@ -364,15 +388,13 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     }
   }
 
-  // a block scalar is written as its source text while that text, as written (with LF line breaks
-  // and followed by a line break), still has the element's value
   if (
     (style.scalarStyle === 'Literal' || style.scalarStyle === 'Folded') &&
     typeof style.rawContent === 'string' &&
     typeof scalar.value === 'string'
   ) {
     const text = style.rawContent.replace(/\r\n/g, '\n').replace(/\n$/, '');
-    if (parse(`${text}\n`) === scalar.value) scalar.value = new RawBlockScalar(text);
+    scalar.value = new RawBlockScalar(scalar.value, text);
   }
 
   applyComments(scalar, style);
