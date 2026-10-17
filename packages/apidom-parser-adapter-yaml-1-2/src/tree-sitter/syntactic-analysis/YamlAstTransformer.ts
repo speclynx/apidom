@@ -435,6 +435,10 @@ const transformStream = (node: YamlStream, ctx: TransformContext): ParseResultEl
       if (after.length > 0) {
         setYamlStyleProp(resultElement, 'documentComment', after.join('\n'));
       }
+      // line breaks other than LF, which the YAML library writes
+      if (node.lineBreak === '\r\n') {
+        setYamlStyleProp(resultElement, 'lineBreak', node.lineBreak);
+      }
     }
   }
 
