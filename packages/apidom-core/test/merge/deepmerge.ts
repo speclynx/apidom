@@ -397,6 +397,39 @@ describe('deepmerge', function () {
     assert.notStrictEqual(merged.attributes, target.attributes);
   });
 
+  it('should deep copy style from target', function () {
+    const target = new ObjectElement({ a: 1 });
+    target.style = { yaml: { styleGroup: 'Flow' } };
+    const source = new ObjectElement({ b: 2 });
+    source.style = { yaml: { styleGroup: 'Block' } };
+    const merged = deepmerge(target, source);
+
+    assert.deepEqual(merged.style, { yaml: { styleGroup: 'Flow' } });
+    assert.notStrictEqual(merged.style, target.style);
+    assert.notStrictEqual(merged.style!.yaml, target.style!.yaml);
+  });
+
+  it('should deep copy style from source when target has none', function () {
+    const target = new ArrayElement([1]);
+    const source = new ArrayElement([2]);
+    source.style = { yaml: { styleGroup: 'Flow' } };
+    const merged = deepmerge(target, source);
+
+    assert.deepEqual(merged.style, { yaml: { styleGroup: 'Flow' } });
+    assert.notStrictEqual(merged.style, source.style);
+    assert.notStrictEqual(merged.style!.yaml, source.style!.yaml);
+  });
+
+  it('should keep style of cloned nested elements', function () {
+    const nested = new ObjectElement({ c: 3 });
+    nested.style = { yaml: { styleGroup: 'Flow' } };
+    const target = new ObjectElement({});
+    const source = new ObjectElement({ nested });
+    const merged = deepmerge(target, source) as ObjectElement;
+
+    assert.deepEqual(merged.get('nested')!.style, { yaml: { styleGroup: 'Flow' } });
+  });
+
   specify('deepmerge.all', function () {
     const source = new ObjectElement({ key1: 'changed', key2: 'value2' });
     const target = new ObjectElement({ key1: 'value1', key3: 'value3' });

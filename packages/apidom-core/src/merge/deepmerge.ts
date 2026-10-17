@@ -1,3 +1,4 @@
+import { clone } from 'ramda';
 import {
   ObjectElement,
   ArrayElement,
@@ -6,6 +7,7 @@ import {
   Metadata,
   isObjectElement,
   isArrayElement,
+  hasElementStyle,
   cloneDeep,
   cloneShallow,
 } from '@speclynx/apidom-datamodel';
@@ -253,6 +255,12 @@ const deepmerge = (
     mergedElement.attributes = cloneDeep(targetElement.attributes);
   } else if (!sourceElement.isAttributesEmpty) {
     mergedElement.attributes = cloneDeep(sourceElement.attributes);
+  }
+  // merging style
+  if (hasElementStyle(targetElement)) {
+    mergedElement.style = clone(targetElement.style);
+  } else if (hasElementStyle(sourceElement)) {
+    mergedElement.style = clone(sourceElement.style);
   }
 
   return mergedElement;
