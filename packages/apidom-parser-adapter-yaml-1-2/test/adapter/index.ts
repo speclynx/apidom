@@ -296,8 +296,22 @@ describe('adapter', function () {
       assert.strictEqual(yaml, source);
     });
 
-    specify('should keep padding of flow sequence with tagged first item', async function () {
+    specify('should keep flow sequence with tagged first item unpadded', async function () {
       const source = 'a: [!!str 1, b]\nc: [!!str]\n';
+      const result = await adapter.parse(source, { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, source);
+    });
+
+    specify('should keep flow sequence with tagged first item padded', async function () {
+      const source = 'a: [ !!str 1, b ]\nc: [ !!str ]\n';
+      const result = await adapter.parse(source, { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, source);
+    });
+
+    specify('should keep space between tag of empty key and colon', async function () {
+      const source = '!!str : a\nb: {!!str : 1}\n';
       const result = await adapter.parse(source, { style: true });
       const yaml = toYAML(result.result!, { preserveStyle: true });
       assert.strictEqual(yaml, source);

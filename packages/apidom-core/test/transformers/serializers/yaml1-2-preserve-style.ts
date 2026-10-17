@@ -538,6 +538,17 @@ describe('serializers', function () {
         assert.strictEqual(result, 'a: x\nb: 1.5\nc:\n  - 1\nd: 1e+21\n');
       });
 
+      specify('should write tag alone when plain value was changed to empty', function () {
+        const element = new ObjectElement();
+        element.set('a', tagged(new StringElement(''), '!!str', 'Plain'));
+        element.set('b', tagged(new StringElement(''), '!!str', 'DoubleQuoted'));
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'a: !!str\nb: !!str ""\n');
+      });
+
       specify('should not write tag outside of the core schema', function () {
         const element = new ObjectElement();
         element.set('a', tagged(new StringElement('x'), '!!constructor', 'Plain'));
