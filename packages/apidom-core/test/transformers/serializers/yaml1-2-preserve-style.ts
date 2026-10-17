@@ -4,6 +4,7 @@ import {
   ArrayElement,
   StringElement,
   NumberElement,
+  type Element,
 } from '@speclynx/apidom-datamodel';
 
 import serialize from '../../../src/transformers/serializers/yaml-1-2.ts';
@@ -452,7 +453,7 @@ describe('serializers', function () {
         assert.strictEqual(result, 'a: x\n');
       });
 
-      specify('should write it back empty with null tag', function () {
+      specify('should write it back empty after null tag', function () {
         const element = new ObjectElement();
         const value = emptyNode();
         value.style = { yaml: { scalarStyle: 'Plain', tag: '!!null' } };
@@ -461,10 +462,10 @@ describe('serializers', function () {
 
         const result = serialize(element, { preserveStyle: true });
 
-        assert.strictEqual(result, 'a:\n');
+        assert.strictEqual(result, 'a: !!null\n');
       });
 
-      specify('should write it as "" with other explicit tag', function () {
+      specify('should write it back empty after other explicit tag', function () {
         const element = new ObjectElement();
         const value = emptyNode();
         value.style = { yaml: { scalarStyle: 'Plain', tag: '!!str' } };
@@ -473,7 +474,7 @@ describe('serializers', function () {
 
         const result = serialize(element, { preserveStyle: true });
 
-        assert.strictEqual(result, 'a: ""\n');
+        assert.strictEqual(result, 'a: !!str\n');
       });
 
       specify('should write empty string without the class as ""', function () {
@@ -483,6 +484,80 @@ describe('serializers', function () {
         const result = serialize(element, { preserveStyle: true });
 
         assert.strictEqual(result, 'a: ""\n');
+      });
+    });
+
+    context('given explicit YAML tag', function () {
+      const tagged = (element: Element, tag: string, scalarStyle?: string): Element => {
+        element.style = { yaml: { styleGroup: 'Block', indent: 2, scalarStyle, tag } };
+        return element;
+      };
+
+      specify('should write tag of scalar', function () {
+        const element = new ObjectElement();
+        element.set('a', tagged(new StringElement('1'), '!!str', 'Plain'));
+        element.set('b', tagged(new NumberElement(1), '!!int', 'Plain'));
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'a: !!str 1\nb: !!int 1\n');
+      });
+
+      specify('should write tag of collection', function () {
+        const element = new ObjectElement();
+        element.set('a', tagged(new ObjectElement({ b: 1 }), '!!map'));
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'a: !!map\n  b: 1\n');
+      });
+
+      specify('should write verbatim and non-specific tags', function () {
+        const element = new ObjectElement();
+        element.set('a', tagged(new StringElement('1'), '!<tag:yaml.org,2002:str>', 'Plain'));
+        element.set('b', tagged(new StringElement('1'), '!', 'Plain'));
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'a: !<tag:yaml.org,2002:str> 1\nb: ! 1\n');
+      });
+
+      specify('should drop tag the changed value no longer fits', function () {
+        const element = new ObjectElement();
+        element.set('a', tagged(new StringElement('x'), '!!int', 'Plain'));
+        element.set('b', tagged(new NumberElement(1.5), '!!int', 'Plain'));
+        element.set('c', tagged(new ArrayElement([1]), '!!map'));
+        element.set('d', tagged(new NumberElement(1e21), '!!int', 'Plain'));
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'a: x\nb: 1.5\nc:\n  - 1\nd: 1e+21\n');
+      });
+
+      specify('should write tag alone when plain value was changed to empty', function () {
+        const element = new ObjectElement();
+        element.set('a', tagged(new StringElement(''), '!!str', 'Plain'));
+        element.set('b', tagged(new StringElement(''), '!!str', 'DoubleQuoted'));
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'a: !!str\nb: !!str ""\n');
+      });
+
+      specify('should not write tag outside of the core schema', function () {
+        const element = new ObjectElement();
+        element.set('a', tagged(new StringElement('x'), '!!constructor', 'Plain'));
+        element.set('b', tagged(new StringElement('x'), '!!__proto__', 'Plain'));
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'a: x\nb: x\n');
       });
     });
   });

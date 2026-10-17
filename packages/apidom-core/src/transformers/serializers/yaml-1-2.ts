@@ -14,6 +14,7 @@ import {
   type ScalarTag,
   type ToStringOptions,
 } from 'yaml';
+import { stringifyString } from 'yaml/util';
 import {
   Element,
   isElement,
@@ -22,6 +23,9 @@ import {
   isRefElement,
   isLinkElement,
   isStringElement,
+  isNumberElement,
+  isBooleanElement,
+  isNullElement,
   isMemberElement,
   includesClasses,
 } from '@speclynx/apidom-datamodel';
@@ -60,6 +64,29 @@ const applyComments = (node: YAMLNode, style: YAMLElementStyle): void => {
   if (style.commentBefore) node.commentBefore = style.commentBefore;
 };
 
+// the element types each tag of the YAML 1.2 core schema can be written on
+const tagFits: Record<string, (element: Element) => boolean> = {
+  str: isStringElement,
+  // from 1e21 an integer is written in exponent form (e.g. 1e+21), which isn't an int
+  int: (element) => isNumberElement(element) && Number.isSafeInteger(toValue(element)),
+  float: isNumberElement,
+  bool: isBooleanElement,
+  null: isNullElement,
+  map: isObjectElement,
+  seq: isArrayElement,
+};
+
+// writes back the tag recorded as written in the source ('!!str', '!<tag:yaml.org,2002:str>', or
+// the non-specific '!' that makes a scalar a string), as long as the element still fits it
+const applyTag = (node: YAMLNode, element: Element, style: YAMLElementStyle): void => {
+  if (style.tag === undefined) return;
+  const match = /^!!(\w+)$|^!<tag:yaml\.org,2002:(\w+)>$/.exec(style.tag);
+  const name = style.tag === '!' ? 'str' : (match?.[1] ?? match?.[2]);
+  if (name !== undefined && Object.hasOwn(tagFits, name) && tagFits[name](element)) {
+    node.tag = style.tag;
+  }
+};
+
 /**
  * @public
  */
@@ -96,6 +123,44 @@ const rawNumberTag: ScalarTag = {
   stringify: (item): string => (item.value as RawNumber).raw,
 };
 
+// the YAML library quotes a plain string that would otherwise resolve to another type (e.g. 1,
+// true), but an explicit tag already makes it a string; tagged strings are boxed and emitted
+// without that check, keeping every other quoting rule
+class TaggedString {
+  constructor(public value: string) {}
+}
+
+const taggedStringTag: ScalarTag = {
+  tag: 'tag:yaml.org,2002:str',
+  default: true,
+  identify: (value: unknown): boolean => value instanceof TaggedString,
+  resolve: (str: string): string => str,
+  stringify: (item, ctx, onComment, onChompKeep): string =>
+    stringifyString(
+      { ...item, value: (item.value as TaggedString).value },
+      ctx,
+      onComment,
+      onChompKeep,
+    ),
+};
+
+// the YAML library writes a space between a tag and the content after it, which leaves a trailing
+// space when there's no content; a tagged empty node is boxed and emitted as its tag alone instead,
+// except as an implicit key, where the space separates the tag from the ':' indicator; the box's
+// tag name only identifies it, the tag written is the one recorded in style
+class TaggedEmptyNode {
+  constructor(public tag: string) {}
+}
+
+const taggedEmptyNodeTag: ScalarTag = {
+  tag: 'tag:yaml.org,2002:null',
+  default: true,
+  identify: (value: unknown): boolean => value instanceof TaggedEmptyNode,
+  resolve: (): null => null,
+  stringify: (item, ctx): string =>
+    (item.value as TaggedEmptyNode).tag + (ctx.implicitKey ? ' ' : ''),
+};
+
 /**
  * Tracks state across a single serialization: the ancestor chain used for cycle
  * detection, and — when `aliasDuplicateObjects` is enabled — the container node
@@ -114,7 +179,7 @@ interface NodeContext {
 const toAlias = (node: YAMLNode, context: NodeContext): Alias => {
   if (typeof node.anchor !== 'string') {
     context.anchorCount += 1;
-    // eslint-disable-next-line no-param-reassign
+
     node.anchor = `a${context.anchorCount}`;
   }
   return new Alias(node.anchor);
@@ -149,6 +214,7 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     emitted?.set(element as object, map);
     map.flow = style.styleGroup === 'Flow';
     applyComments(map, style);
+    applyTag(map, element, style);
 
     element.forEach((value, key, member) => {
       const memberStyle = isMemberElement(member) ? getStyle(member) : {};
@@ -178,6 +244,7 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     emitted?.set(element as object, seq);
     seq.flow = style.styleGroup === 'Flow';
     applyComments(seq, style);
+    applyTag(seq, element, style);
 
     element.forEach((item) => {
       seq.items.push(toYAMLNode(item, context));
@@ -200,13 +267,12 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
   const scalarType = style.scalarStyle ? scalarStyleMap[style.scalarStyle] : undefined;
 
   const scalar = new Scalar(toValue(element));
-  // an untagged empty node (YAML 1.2 §7.2) is a null parsed as an empty string; while it's still
-  // empty, write it back as a null with no content instead of as ""
-  if (
-    scalar.value === '' &&
-    includesClasses(element, ['yaml-e-node']) &&
-    (style.tag === undefined || style.tag === '!!null')
-  ) {
+  // an empty node (YAML 1.2 §7.2) is parsed as an empty string; while it's still empty, write it
+  // back as it was written: with no content, after its tag if it had one
+  const isEmptyNode = scalar.value === '' && includesClasses(element, ['yaml-e-node']);
+  if (isEmptyNode && style.tag !== undefined) {
+    scalar.value = new TaggedEmptyNode(style.tag);
+  } else if (isEmptyNode) {
     scalar.value = null;
     scalar.source = '';
   }
@@ -239,6 +305,15 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
   }
 
   applyComments(scalar, style);
+  if (!isEmptyNode) applyTag(scalar, element, style);
+  if (scalar.tag !== undefined && scalar.value === '' && style.scalarStyle === 'Plain') {
+    // an empty plain string has no content to write, so it's written like a tagged empty node,
+    // which parses back to the same empty string
+    scalar.value = new TaggedEmptyNode(scalar.tag);
+    scalar.tag = undefined;
+  } else if (scalar.tag !== undefined && typeof scalar.value === 'string') {
+    scalar.value = new TaggedString(scalar.value);
+  }
 
   return scalar;
 };
@@ -271,7 +346,10 @@ const serializer = (
       emitted: aliasDuplicateObjects ? new Map() : undefined,
       anchorCount: 0,
     });
-    const doc = new Document(undefined, { ...allOptions, customTags: [rawNumberTag] });
+    const doc = new Document(undefined, {
+      ...allOptions,
+      customTags: [rawNumberTag, taggedStringTag, taggedEmptyNodeTag],
+    });
     doc.contents = rootNode as YAMLNode;
 
     if (directive) {

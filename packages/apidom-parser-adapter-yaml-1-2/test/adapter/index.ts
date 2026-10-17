@@ -272,16 +272,55 @@ describe('adapter', function () {
       assert.strictEqual(yaml, 'a:\nb:\nc:\n  - \n');
     });
 
-    specify('should write it back empty with null tag', async function () {
-      const result = await adapter.parse('a: !!null\n', { style: true });
+    specify('should write it back empty after its tag', async function () {
+      const source = 'a: !!null\nb: !!str\nc: !\nd:\n  - !!str\n';
+      const result = await adapter.parse(source, { style: true });
       const yaml = toYAML(result.result!, { preserveStyle: true });
-      assert.strictEqual(yaml, 'a:\n');
+      assert.strictEqual(yaml, source);
+    });
+  });
+
+  // https://github.com/speclynx/apidom/issues/639
+  context('given explicit tag serialized back with preserveStyle', function () {
+    specify('should write tags of scalars and collections back', async function () {
+      const source = 'a: !!int 1\nb: !!map {c: 1}\nd: !!seq\n  - 1\n';
+      const result = await adapter.parse(source, { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, source);
     });
 
-    specify('should write it back as empty string with str tag', async function () {
-      const result = await adapter.parse('a: !!str\n', { style: true });
+    specify('should write str tag back without quoting value', async function () {
+      const source = 'a: !!str 1\nb: ! true\nc: !<tag:yaml.org,2002:str> null\n';
+      const result = await adapter.parse(source, { style: true });
       const yaml = toYAML(result.result!, { preserveStyle: true });
-      assert.strictEqual(yaml, 'a: ""\n');
+      assert.strictEqual(yaml, source);
+    });
+
+    specify('should keep flow sequence with tagged first item unpadded', async function () {
+      const source = 'a: [!!str 1, b]\nc: [!!str]\n';
+      const result = await adapter.parse(source, { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, source);
+    });
+
+    specify('should keep flow sequence with tagged first item padded', async function () {
+      const source = 'a: [ !!str 1, b ]\nc: [ !!str ]\n';
+      const result = await adapter.parse(source, { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, source);
+    });
+
+    specify('should keep space between tag of empty key and colon', async function () {
+      const source = '!!str : a\nb: {!!str : 1}\n';
+      const result = await adapter.parse(source, { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, source);
+    });
+
+    specify('should not write non-specific tag of quoted scalar', async function () {
+      const result = await adapter.parse('a: ! "1"\n', { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, 'a: "1"\n');
     });
   });
 

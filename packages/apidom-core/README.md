@@ -632,9 +632,10 @@ Raw number representations (e.g. `1.0e10`, `0.50`) are preserved verbatim as lon
 represent the element's current value; when the value was changed without updating the captured
 raw content, the serializer falls back to preserving only the format category (exponential, hex,
 octal, fractional digits), letting the underlying yaml library normalize the exact representation
-(e.g., `1.0e10` becomes `1e+10`). Empty nodes (e.g. `key:` with no value) are written back empty
-rather than as `""`, as long as their value is still an empty string and they have no explicit tag
-other than `!!null`.
+(e.g., `1.0e10` becomes `1e+10`). Empty nodes (e.g. `key:` or `key: !!str` with no value) are
+written back empty, after their tag if they have one, rather than as `""`, as long as their value is
+still an empty string. Explicit tags (e.g. `!!str`, `!!int`, `!!map`) are written back as long as
+the element's type still fits them; a tag the changed value no longer fits is left out.
 
 ```js
 import { toYAML } from '@speclynx/apidom-core';
