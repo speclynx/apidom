@@ -493,7 +493,8 @@ const transformScalar = (node: YamlScalar, ctx: TransformContext): Element => {
   const element = ctx.namespace.toElement(node.content)!;
 
   // Translate style information about empty nodes
-  if (node.content === '' && node.style === YamlStyle.Plain) {
+  const isEmptyNode = node.content === '' && node.style === YamlStyle.Plain;
+  if (isEmptyNode) {
     element.classes.push('yaml-e-node');
     element.classes.push('yaml-e-scalar');
   }
@@ -502,6 +503,10 @@ const transformScalar = (node: YamlScalar, ctx: TransformContext): Element => {
     const extras: Record<string, unknown> = {
       scalarStyle: node.style,
     };
+    // an explicit tag decides what an empty node is (e.g. !!str makes it an empty string)
+    if (isEmptyNode && node.tag?.explicitName !== '?') {
+      extras.tag = node.tag?.explicitName;
+    }
     if (node.rawContent !== undefined) {
       extras.rawContent = node.rawContent;
     }

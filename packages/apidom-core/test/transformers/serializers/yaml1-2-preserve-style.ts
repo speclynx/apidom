@@ -401,5 +401,89 @@ describe('serializers', function () {
         assert.strictEqual(result, '[]\n');
       });
     });
+
+    // https://github.com/speclynx/apidom/issues/631
+    context('given empty YAML node', function () {
+      const emptyNode = () => {
+        const element = new StringElement('');
+        element.classes = ['yaml-e-node', 'yaml-e-scalar'];
+        element.style = { yaml: { scalarStyle: 'Plain' } };
+        return element;
+      };
+
+      specify('should write mapping value back empty', function () {
+        const element = new ObjectElement({ b: 'x' });
+        element.set('a', emptyNode());
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'b: x\na:\n');
+      });
+
+      specify('should write sequence item back empty', function () {
+        const element = new ArrayElement([emptyNode()]);
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, '- \n');
+      });
+
+      specify('should write flow mapping value back empty', function () {
+        const element = new ObjectElement();
+        element.set('a', emptyNode());
+        element.style = { yaml: { styleGroup: 'Flow', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, '{ a: }\n');
+      });
+
+      specify('should write changed value', function () {
+        const element = new ObjectElement();
+        const value = emptyNode();
+        value.content = 'x';
+        element.set('a', value);
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'a: x\n');
+      });
+
+      specify('should write it back empty with null tag', function () {
+        const element = new ObjectElement();
+        const value = emptyNode();
+        value.style = { yaml: { scalarStyle: 'Plain', tag: '!!null' } };
+        element.set('a', value);
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'a:\n');
+      });
+
+      specify('should write it as "" with other explicit tag', function () {
+        const element = new ObjectElement();
+        const value = emptyNode();
+        value.style = { yaml: { scalarStyle: 'Plain', tag: '!!str' } };
+        element.set('a', value);
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'a: ""\n');
+      });
+
+      specify('should write empty string without the class as ""', function () {
+        const element = new ObjectElement({ a: '' });
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, 'a: ""\n');
+      });
+    });
   });
 });

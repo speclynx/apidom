@@ -436,11 +436,13 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
     // Check if there's a kind node (scalar, mapping, sequence or alias)
     let hasKindNode = false;
     let lastChildInfo: CursorInfo | null = null;
+    let tagInfo: CursorInfo | undefined;
 
     if (cursor.gotoFirstChild()) {
       do {
         const childInfo = getCursorInfo(cursor);
         lastChildInfo = childInfo;
+        if (childInfo.type === 'tag') tagInfo = childInfo;
         if (
           childInfo.type.endsWith('scalar') ||
           childInfo.type.endsWith('mapping') ||
@@ -463,7 +465,8 @@ const createTransformers = (transformerMap: TransformerMap): TransformerMap => (
       const emptyScalarNode = new YamlScalar({
         content: '',
         anchor: siblings.anchor ? toYamlAnchor(siblings.anchor) : undefined,
-        tag: toYamlTag(lastChildInfo, siblings.tag),
+        // the tag of an empty node is a child of the flow node, not a sibling
+        tag: toYamlTag({ ...lastChildInfo, type: 'plain_scalar' }, tagInfo ?? siblings.tag),
         startLine: lastChildInfo.endPosition.row,
         startCharacter: lastChildInfo.endPosition.column,
         startOffset: lastChildInfo.endIndex,
