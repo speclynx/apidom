@@ -22,6 +22,9 @@ import {
   isRefElement,
   isLinkElement,
   isStringElement,
+  isNumberElement,
+  isBooleanElement,
+  isNullElement,
   isMemberElement,
   includesClasses,
 } from '@speclynx/apidom-datamodel';
@@ -58,6 +61,28 @@ const scalarStyleMap: Record<string, Scalar.Type> = {
 const applyComments = (node: YAMLNode, style: YAMLElementStyle): void => {
   if (style.comment) node.comment = style.comment;
   if (style.commentBefore) node.commentBefore = style.commentBefore;
+};
+
+// the element types each tag of the YAML 1.2 core schema can be written on
+const tagFits: Record<string, (element: Element) => boolean> = {
+  str: isStringElement,
+  int: (element) => isNumberElement(element) && Number.isInteger(toValue(element)),
+  float: isNumberElement,
+  bool: isBooleanElement,
+  null: isNullElement,
+  map: isObjectElement,
+  seq: isArrayElement,
+};
+
+// writes back the tag recorded as written in the source ('!!str', '!<tag:yaml.org,2002:str>', or
+// the non-specific '!' that makes a scalar a string), as long as the element still fits it
+const applyTag = (node: YAMLNode, element: Element, style: YAMLElementStyle): void => {
+  if (style.tag === undefined) return;
+  const match = /^!!(\w+)$|^!<tag:yaml\.org,2002:(\w+)>$/.exec(style.tag);
+  const name = style.tag === '!' ? 'str' : (match?.[1] ?? match?.[2]);
+  if (name !== undefined && tagFits[name]?.(element)) {
+    node.tag = style.tag;
+  }
 };
 
 /**
@@ -114,7 +139,7 @@ interface NodeContext {
 const toAlias = (node: YAMLNode, context: NodeContext): Alias => {
   if (typeof node.anchor !== 'string') {
     context.anchorCount += 1;
-    // eslint-disable-next-line no-param-reassign
+
     node.anchor = `a${context.anchorCount}`;
   }
   return new Alias(node.anchor);
@@ -149,6 +174,7 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     emitted?.set(element as object, map);
     map.flow = style.styleGroup === 'Flow';
     applyComments(map, style);
+    applyTag(map, element, style);
 
     element.forEach((value, key, member) => {
       const memberStyle = isMemberElement(member) ? getStyle(member) : {};
@@ -178,6 +204,7 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     emitted?.set(element as object, seq);
     seq.flow = style.styleGroup === 'Flow';
     applyComments(seq, style);
+    applyTag(seq, element, style);
 
     element.forEach((item) => {
       seq.items.push(toYAMLNode(item, context));
@@ -239,6 +266,7 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
   }
 
   applyComments(scalar, style);
+  applyTag(scalar, element, style);
 
   return scalar;
 };
