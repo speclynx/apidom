@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
 import {
   ObjectElement,
+  MemberElement,
   StringElement,
   isObjectElement,
   isParseResultElement,
@@ -265,6 +266,35 @@ describe('adapter', function () {
   });
 
   // https://github.com/speclynx/apidom/issues/631
+  // https://github.com/speclynx/apidom/issues/643
+  context('given flow mapping entry without ":"', function () {
+    specify('should parse it as key with empty value', async function () {
+      const result = await adapter.parse('{ a, b: 1, "c" }\n');
+      assert.deepEqual(toValue(result.result), { a: '', b: 1, c: '' });
+    });
+
+    specify('should parse it in nested flow mapping', async function () {
+      const result = await adapter.parse('x: { a: { b } }\n');
+      assert.deepEqual(toValue(result.result), { x: { a: { b: '' } } });
+    });
+
+    specify('should mark the value as empty node', async function () {
+      const result = await adapter.parse('{ a }\n', { sourceMap: true });
+      const member = (result.result as ObjectElement).getMember('a') as MemberElement;
+      const value = member.value as StringElement;
+
+      assert.deepEqual([...value.classes].map(String), ['yaml-e-node', 'yaml-e-scalar']);
+      assert.deepEqual([member.startOffset, member.endOffset], [2, 3]);
+      assert.deepEqual([value.startOffset, value.endOffset], [3, 3]);
+    });
+
+    specify('should serialize it back with empty value', async function () {
+      const result = await adapter.parse('{ a, b: 1 }\n', { style: true });
+      const yaml = toYAML(result.result!, { preserveStyle: true });
+      assert.strictEqual(yaml, '{ a:, b: 1 }\n');
+    });
+  });
+
   context('given empty node serialized back with preserveStyle', function () {
     specify('should write it back empty', async function () {
       const result = await adapter.parse('a:\nb:   \nc:\n  - \n', { style: true });
