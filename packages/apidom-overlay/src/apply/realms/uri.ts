@@ -51,7 +51,8 @@ export const defaultOptions: ApplyOverlayOptions = {
  * Parses the overlay, resolves the target from `targetURI` or the overlay's
  * `extends` field, and applies all overlay actions. Both documents are parsed with
  * style preservation for round-trip fidelity, so values added by the overlay are
- * written as they're written in the overlay.
+ * written as they're written in the overlay when both are in the same format.
+ * Anchors, aliases and comments in the overlay aren't written to the target.
  *
  * @param overlayURI - URI to the overlay document (file path or URL)
  * @param targetURI - URI to the target document; if omitted, uses the overlay's `extends` field

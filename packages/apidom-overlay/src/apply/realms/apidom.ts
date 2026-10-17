@@ -129,6 +129,20 @@ const mergeValue = (
 };
 
 /**
+ * Anchors, aliases and comments belong to the overlay document. Written in the
+ * target they'd clash with its anchor names (an overlay anchor taking a name
+ * the target's aliases refer to, an overlay alias referring to a target node)
+ * or carry notes meant for the overlay. How a value is written is kept.
+ */
+const stripOverlayOnlyStyle = (element: Element): void => {
+  const yamlStyle = element.style?.yaml as Record<string, unknown> | undefined;
+  if (yamlStyle !== undefined) {
+    ['anchor', 'alias', 'comment', 'commentBefore'].forEach((name) => delete yamlStyle[name]);
+  }
+  element.children.forEach(stripOverlayOnlyStyle);
+};
+
+/**
  * Resolves a normalized path to its parent element and child key.
  */
 const resolveParent = (
@@ -354,9 +368,12 @@ export const applyAction = (
       const nodesValidation = validateTargetNodes(matches);
       if (!nodesValidation.valid) throw nodesValidation.error!;
 
+      const updateValue = cloneDeep(actionElement.update as Element);
+      stripOverlayOnlyStyle(updateValue);
+
       const result = applyUpdateAction(
         normalizedPaths,
-        actionElement.update as Element,
+        updateValue,
         workingElement,
         mutatingOptions,
       );

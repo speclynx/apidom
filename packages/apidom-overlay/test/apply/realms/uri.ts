@@ -78,6 +78,33 @@ describe('applyOverlay (URI-level)', function () {
     });
   });
 
+  context('given YAML overlay adding values to JSON target', function () {
+    specify('should write added values in default JSON style', async function () {
+      const overlayURI = path.join(fixturesDir, 'overlay-style', 'overlay.yaml');
+      const targetURI = path.join(fixturesDir, 'json', 'target.json');
+      const parseResult = await applyOverlay(overlayURI, targetURI);
+      const output = toJSON(parseResult.api!, undefined, 2, { preserveStyle: true });
+
+      assert.include(output, '"title": "The user\'s API"');
+      assert.include(output, '"description": "Returns all pets\\nfrom the store"');
+    });
+  });
+
+  context('given YAML overlay with anchors, aliases and comments', function () {
+    specify('should not write them to the target', async function () {
+      const overlayURI = path.join(fixturesDir, 'overlay-style', 'overlay-anchors.yaml');
+      const parseResult = await applyOverlay(overlayURI);
+      const output = toYAML(parseResult.api!, { preserveStyle: true });
+
+      assert.include(output, '  x-meta: foo\n');
+      assert.include(output, '  x-alias: "*shared"\n');
+      assert.include(output, '  x-note: hello\n');
+      assert.include(output, 'x-common: &shared\n  a: 1\nx-ref: *shared\n');
+      assert.notInclude(output, 'overlay-only note');
+      assert.notInclude(output, 'internal note');
+    });
+  });
+
   context('given Overlay 1.2.0 document', function () {
     specify('should resolve extends against $self and apply reusable actions', async function () {
       const overlayURI = path.join(fixturesDir, 'overlay-1-2-0', 'overlays', 'overlay.yaml');
