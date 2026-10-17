@@ -1,0 +1,11 @@
+{
+  "overlay": "1.1.0",
+  "info": {
+    "title": "Overlay style test",
+    "version": "1.0.0"
+  },
+  "extends": "../json/target.json",
+  "actions": [
+    { "target": "$.info", "update": { "x-rate": 1.0 } }
+  ]
+}

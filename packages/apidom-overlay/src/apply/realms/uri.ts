@@ -19,12 +19,12 @@ const defaultReferenceOptions = {
       style: true,
       'overlay-json-1': {
         sourceMap: true,
-        style: false,
+        style: true,
         extends: true,
       },
       'overlay-yaml-1': {
         sourceMap: true,
-        style: false,
+        style: true,
         extends: true,
       },
     },
@@ -49,8 +49,10 @@ export const defaultOptions: ApplyOverlayOptions = {
  * Applies an overlay document from a file/URL to its target document.
  *
  * Parses the overlay, resolves the target from `targetURI` or the overlay's
- * `extends` field, parses the target with style preservation for round-trip fidelity,
- * and applies all overlay actions.
+ * `extends` field, and applies all overlay actions. Both documents are parsed with
+ * style preservation for round-trip fidelity, so values added by the overlay are
+ * written as they're written in the overlay when both are in the same format.
+ * Anchors, aliases and comments in the overlay aren't written to the target.
  *
  * @param overlayURI - URI to the overlay document (file path or URL)
  * @param targetURI - URI to the target document; if omitted, uses the overlay's `extends` field
