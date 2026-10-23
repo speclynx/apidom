@@ -10,7 +10,6 @@ import {
   isArazzoSpecification1Element,
   isSourceDescriptionElement,
 } from '@speclynx/apidom-ns-arazzo-1';
-import { toValue } from '@speclynx/apidom-core';
 import { assocPath } from 'ramda';
 
 import * as url from '../../../util/url.ts';
@@ -59,11 +58,11 @@ async function dereferenceSourceDescription(
   // set class and metadata from source description element
   parseResult.classes.push('source-description');
   if (isStringElement(sourceDescription.name))
-    parseResult.setMetaProperty('name', toValue(sourceDescription.name) as string);
+    parseResult.setMetaProperty('name', sourceDescription.name?.toValue() as string);
   if (isStringElement(sourceDescription.type))
-    parseResult.setMetaProperty('type', toValue(sourceDescription.type) as string);
+    parseResult.setMetaProperty('type', sourceDescription.type?.toValue() as string);
 
-  const sourceDescriptionURI = toValue(sourceDescription.url);
+  const sourceDescriptionURI = sourceDescription.url?.toValue();
   if (typeof sourceDescriptionURI !== 'string') {
     const annotation = new AnnotationElement(
       'Source description URL is missing or not a string. Skipping',
@@ -327,7 +326,7 @@ export async function dereferenceSourceDescriptions(
   const sourceDescriptions = Array.isArray(sourceDescriptionsOption)
     ? api.sourceDescriptions.filter((sd) => {
         if (!isSourceDescriptionElement(sd)) return false;
-        const name = toValue(sd.name);
+        const name = sd.name?.toValue();
         return typeof name === 'string' && sourceDescriptionsOption.includes(name);
       })
     : api.sourceDescriptions;

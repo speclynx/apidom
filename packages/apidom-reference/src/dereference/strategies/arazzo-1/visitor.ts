@@ -298,7 +298,7 @@ class Arazzo1DereferenceVisitor {
       path.skip();
       return;
     }
-    const runtimeExpression = toValue(referencingElement.reference) as string;
+    const runtimeExpression = referencingElement.reference?.toValue() as string;
 
     let referencedElement: Element;
 
@@ -549,7 +549,7 @@ class Arazzo1DereferenceVisitor {
       // detect direct or indirect reference
       if (referencingElement === referencedElement) {
         throw new ApiDOMStructuredError('Recursive JSON Schema reference detected', {
-          $ref: toValue(referencingElement.$ref),
+          $ref: referencingElement.$ref?.toValue(),
         });
       }
 
@@ -568,13 +568,13 @@ class Arazzo1DereferenceVisitor {
 
         if (this.options.dereference.circular === 'error') {
           throw new ApiDOMStructuredError('Circular reference detected', {
-            $ref: toValue(referencingElement.$ref),
+            $ref: referencingElement.$ref?.toValue(),
           });
         } else if (this.options.dereference.circular === 'replace') {
           const refElement = new RefElement($refBaseURI, {
             type: referencingElement.element,
             uri: reference.uri,
-            $ref: toValue(referencingElement.$ref),
+            $ref: referencingElement.$ref?.toValue(),
           });
           const replacer =
             this.options.dereference.strategyOpts['arazzo-1']?.circularReplacer ??
@@ -644,7 +644,7 @@ class Arazzo1DereferenceVisitor {
         const booleanJsonSchemaElement = cloneDeep<BooleanElement>(referencedElement);
         // annotate referenced element with info about original referencing element
         booleanJsonSchemaElement.meta.set('ref-fields', {
-          $ref: toValue(referencingElement.$ref),
+          $ref: referencingElement.$ref?.toValue(),
         });
         // annotate referenced element with info about origin
         booleanJsonSchemaElement.meta.set('ref-origin', reference.uri);
@@ -662,13 +662,13 @@ class Arazzo1DereferenceVisitor {
         const mergedElement = cloneShallow<JSONSchemaElement>(referencedElement);
         // existing keywords from referencing schema overrides ones from referenced schema
         referencingElement.forEach((value: Element, keyElement: Element, item: Element) => {
-          mergedElement.remove(toValue(keyElement) as string);
+          mergedElement.remove(keyElement.toValue() as string);
           (mergedElement.content as Element[]).push(item);
         });
         mergedElement.remove('$ref');
         // annotate referenced element with info about original referencing element
         mergedElement.meta.set('ref-fields', {
-          $ref: toValue(referencingElement.$ref),
+          $ref: referencingElement.$ref?.toValue(),
         });
         // annotate fragment with info about origin
         mergedElement.meta.set('ref-origin', reference.uri);
@@ -681,7 +681,7 @@ class Arazzo1DereferenceVisitor {
        */
       path.replaceWith(referencedElement);
     } catch (error: unknown) {
-      const $ref = toValue(referencingElement.$ref) as string;
+      const $ref = referencingElement.$ref?.toValue() as string;
       this.handleError(
         `Error while dereferencing Schema Object. Cannot resolve $ref "${$ref}": ${(error as Error).message}`,
         error as Error,

@@ -290,7 +290,7 @@ class OpenAPI3_1DereferenceVisitor {
       return;
     }
 
-    const retrievalURI = this.toBaseURI(toValue(referencingElement.$ref) as string);
+    const retrievalURI = this.toBaseURI(referencingElement.$ref?.toValue() as string);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
     const isExternalReference = !isInternalReference;
 
@@ -307,11 +307,11 @@ class OpenAPI3_1DereferenceVisitor {
       return;
     }
 
-    const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
+    const $refBaseURI = url.resolve(retrievalURI, referencingElement.$ref?.toValue() as string);
     const indirectionsSize = this.indirections.length;
 
     try {
-      const reference = await this.toReference(toValue(referencingElement.$ref) as string);
+      const reference = await this.toReference(referencingElement.$ref?.toValue() as string);
 
       this.indirections.push(referencingElement);
 
@@ -348,7 +348,7 @@ class OpenAPI3_1DereferenceVisitor {
       // detect direct or indirect reference
       if (referencingElement === referencedElement) {
         throw new ApiDOMStructuredError('Recursive Reference Object detected', {
-          $ref: toValue(referencingElement.$ref),
+          $ref: referencingElement.$ref?.toValue(),
         });
       }
 
@@ -367,13 +367,13 @@ class OpenAPI3_1DereferenceVisitor {
 
         if (this.options.dereference.circular === 'error') {
           throw new ApiDOMStructuredError('Circular reference detected', {
-            $ref: toValue(referencingElement.$ref),
+            $ref: referencingElement.$ref?.toValue(),
           });
         } else if (this.options.dereference.circular === 'replace') {
           const refElement = new RefElement($refBaseURI, {
             type: referencingElement.element,
             uri: reference.uri,
-            $ref: toValue(referencingElement.$ref),
+            $ref: referencingElement.$ref?.toValue(),
           });
           const replacer =
             this.options.dereference.strategyOpts['openapi-3-1']?.circularReplacer ??
@@ -433,11 +433,11 @@ class OpenAPI3_1DereferenceVisitor {
       const mergedElement = cloneShallow(referencedElement);
       // annotate fragment with info about original Reference element
       mergedElement.meta.set('ref-fields', {
-        $ref: toValue(referencingElement.$ref),
+        $ref: referencingElement.$ref?.toValue(),
         // @ts-ignore
-        description: toValue(referencingElement.description),
+        description: referencingElement.description?.toValue(),
         // @ts-ignore
-        summary: toValue(referencingElement.summary),
+        summary: referencingElement.summary?.toValue(),
       });
       // annotate fragment with info about origin and type
       mergedElement.meta.set('ref-origin', reference.uri);
@@ -462,7 +462,7 @@ class OpenAPI3_1DereferenceVisitor {
        */
       path.replaceWith(mergedElement);
     } catch (error: unknown) {
-      const $ref = toValue(referencingElement.$ref) as string;
+      const $ref = referencingElement.$ref?.toValue() as string;
       this.handleError(
         `Error while dereferencing Reference Object. Cannot resolve $ref "${$ref}": ${(error as Error).message}`,
         error as Error,
@@ -490,7 +490,7 @@ class OpenAPI3_1DereferenceVisitor {
       return;
     }
 
-    const retrievalURI = this.toBaseURI(toValue(referencingElement.$ref) as string);
+    const retrievalURI = this.toBaseURI(referencingElement.$ref?.toValue() as string);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
     const isExternalReference = !isInternalReference;
 
@@ -505,11 +505,11 @@ class OpenAPI3_1DereferenceVisitor {
       return;
     }
 
-    const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
+    const $refBaseURI = url.resolve(retrievalURI, referencingElement.$ref?.toValue() as string);
     const indirectionsSize = this.indirections.length;
 
     try {
-      const reference = await this.toReference(toValue(referencingElement.$ref) as string);
+      const reference = await this.toReference(referencingElement.$ref?.toValue() as string);
 
       this.indirections.push(referencingElement);
 
@@ -535,7 +535,7 @@ class OpenAPI3_1DereferenceVisitor {
       // detect direct or indirect reference
       if (referencingElement === referencedElement) {
         throw new ApiDOMStructuredError('Recursive Path Item Object reference detected', {
-          $ref: toValue(referencingElement.$ref),
+          $ref: referencingElement.$ref?.toValue(),
         });
       }
 
@@ -554,13 +554,13 @@ class OpenAPI3_1DereferenceVisitor {
 
         if (this.options.dereference.circular === 'error') {
           throw new ApiDOMStructuredError('Circular reference detected', {
-            $ref: toValue(referencingElement.$ref),
+            $ref: referencingElement.$ref?.toValue(),
           });
         } else if (this.options.dereference.circular === 'replace') {
           const refElement = new RefElement($refBaseURI, {
             type: referencingElement.element,
             uri: reference.uri,
-            $ref: toValue(referencingElement.$ref),
+            $ref: referencingElement.$ref?.toValue(),
           });
           const replacer =
             this.options.dereference.strategyOpts['openapi-3-1']?.circularReplacer ??
@@ -621,14 +621,14 @@ class OpenAPI3_1DereferenceVisitor {
         const mergedElement = cloneShallow<PathItemElement>(referencedElement);
         // existing keywords from referencing PathItemElement overrides ones from referenced element
         referencingElement.forEach((value: Element, keyElement: Element, item: Element) => {
-          mergedElement.remove(toValue(keyElement) as string);
+          mergedElement.remove(keyElement.toValue() as string);
           (mergedElement.content as Element[]).push(item);
         });
         mergedElement.remove('$ref');
 
         // annotate referenced element with info about original referencing element
         mergedElement.meta.set('ref-fields', {
-          $ref: toValue(referencingElement.$ref),
+          $ref: referencingElement.$ref?.toValue(),
         });
         // annotate referenced element with info about origin and type
         mergedElement.meta.set('ref-origin', reference.uri);
@@ -642,7 +642,7 @@ class OpenAPI3_1DereferenceVisitor {
        */
       path.replaceWith(referencedElement);
     } catch (error: unknown) {
-      const $ref = toValue(referencingElement.$ref) as string;
+      const $ref = referencingElement.$ref?.toValue() as string;
       this.handleError(
         `Error while dereferencing Path Item Object. Cannot resolve $ref "${$ref}": ${(error as Error).message}`,
         error as Error,
@@ -669,8 +669,8 @@ class OpenAPI3_1DereferenceVisitor {
       throw new ApiDOMStructuredError(
         'LinkElement operationRef and operationId fields are mutually exclusive',
         {
-          operationRef: toValue(linkElement.operationRef),
-          operationId: toValue(linkElement.operationId),
+          operationRef: linkElement.operationRef?.toValue(),
+          operationId: linkElement.operationId?.toValue(),
         },
       );
     }
@@ -681,9 +681,9 @@ class OpenAPI3_1DereferenceVisitor {
       if (isStringElement(linkElement.operationRef)) {
         // possibly non-semantic referenced element
         const jsonPointer = URIFragmentIdentifier.fromURIReference(
-          toValue(linkElement.operationRef) as string,
+          linkElement.operationRef?.toValue() as string,
         );
-        const retrievalURI = this.toBaseURI(toValue(linkElement.operationRef) as string);
+        const retrievalURI = this.toBaseURI(linkElement.operationRef?.toValue() as string);
         const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
         const isExternalReference = !isInternalReference;
 
@@ -698,7 +698,7 @@ class OpenAPI3_1DereferenceVisitor {
           return;
         }
 
-        const reference = await this.toReference(toValue(linkElement.operationRef) as string);
+        const reference = await this.toReference(linkElement.operationRef?.toValue() as string);
 
         operationElement = jsonPointerEvaluate<OperationElement>(
           (reference.value as ParseResultElement).result as Element,
@@ -731,7 +731,7 @@ class OpenAPI3_1DereferenceVisitor {
       }
 
       if (isStringElement(linkElement.operationId)) {
-        const operationId = toValue(linkElement.operationId) as string;
+        const operationId = linkElement.operationId?.toValue() as string;
         const reference = await this.toReference(url.unsanitize(this.reference.uri));
         const operationPath = find(
           (reference.value as ParseResultElement).result as Element,
@@ -762,8 +762,8 @@ class OpenAPI3_1DereferenceVisitor {
         ? 'operationRef'
         : 'operationId';
       const refFieldValue = isStringElement(linkElement.operationRef)
-        ? (toValue(linkElement.operationRef) as string)
-        : (toValue(linkElement.operationId) as string);
+        ? (linkElement.operationRef?.toValue() as string)
+        : (linkElement.operationId?.toValue() as string);
       this.handleError(
         `Error while dereferencing Link Object. Cannot resolve ${refFieldName} "${refFieldValue}": ${(error as Error).message}`,
         error as Error,
@@ -789,12 +789,12 @@ class OpenAPI3_1DereferenceVisitor {
         'ExampleElement value and externalValue fields are mutually exclusive',
         {
           value: toValue(exampleElement.value),
-          externalValue: toValue(exampleElement.externalValue),
+          externalValue: exampleElement.externalValue?.toValue(),
         },
       );
     }
 
-    const retrievalURI = this.toBaseURI(toValue(exampleElement.externalValue) as string);
+    const retrievalURI = this.toBaseURI(exampleElement.externalValue?.toValue() as string);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
     const isExternalReference = !isInternalReference;
 
@@ -810,7 +810,7 @@ class OpenAPI3_1DereferenceVisitor {
     }
 
     try {
-      const reference = await this.toReference(toValue(exampleElement.externalValue) as string);
+      const reference = await this.toReference(exampleElement.externalValue?.toValue() as string);
 
       // shallow clone of the referenced element
       const valueElement = cloneShallow((reference.value as ParseResultElement).result as Element);
@@ -826,7 +826,7 @@ class OpenAPI3_1DereferenceVisitor {
        */
       path.replaceWith(exampleElementCopy);
     } catch (error: unknown) {
-      const externalValue = toValue(exampleElement.externalValue) as string;
+      const externalValue = exampleElement.externalValue?.toValue() as string;
       this.handleError(
         `Error while dereferencing Example Object. Cannot resolve externalValue "${externalValue}": ${(error as Error).message}`,
         error as Error,
@@ -1026,7 +1026,7 @@ class OpenAPI3_1DereferenceVisitor {
       // detect direct or indirect reference
       if (referencingElement === referencedElement) {
         throw new ApiDOMStructuredError('Recursive Schema Object reference detected', {
-          $ref: toValue(referencingElement.$ref),
+          $ref: referencingElement.$ref?.toValue(),
         });
       }
 
@@ -1045,13 +1045,13 @@ class OpenAPI3_1DereferenceVisitor {
 
         if (this.options.dereference.circular === 'error') {
           throw new ApiDOMStructuredError('Circular reference detected', {
-            $ref: toValue(referencingElement.$ref),
+            $ref: referencingElement.$ref?.toValue(),
           });
         } else if (this.options.dereference.circular === 'replace') {
           const refElement = new RefElement($refBaseURI, {
             type: referencingElement.element,
             uri: reference.uri,
-            $ref: toValue(referencingElement.$ref),
+            $ref: referencingElement.$ref?.toValue(),
           });
           const replacer =
             this.options.dereference.strategyOpts['openapi-3-1']?.circularReplacer ??
@@ -1118,7 +1118,7 @@ class OpenAPI3_1DereferenceVisitor {
         const booleanJsonSchemaElement = cloneDeep<BooleanElement>(referencedElement);
         // annotate referenced element with info about original referencing element
         booleanJsonSchemaElement.meta.set('ref-fields', {
-          $ref: toValue(referencingElement.$ref),
+          $ref: referencingElement.$ref?.toValue(),
         });
         // annotate referenced element with info about origin and type
         booleanJsonSchemaElement.meta.set('ref-origin', reference.uri);
@@ -1136,13 +1136,13 @@ class OpenAPI3_1DereferenceVisitor {
         const mergedElement = cloneShallow<SchemaElement>(referencedElement);
         // existing keywords from referencing schema overrides ones from referenced schema
         referencingElement.forEach((value: Element, keyElement: Element, item: Element) => {
-          mergedElement.remove(toValue(keyElement) as string);
+          mergedElement.remove(keyElement.toValue() as string);
           (mergedElement.content as Element[]).push(item);
         });
         mergedElement.remove('$ref');
         // annotate referenced element with info about original referencing element
         mergedElement.meta.set('ref-fields', {
-          $ref: toValue(referencingElement.$ref),
+          $ref: referencingElement.$ref?.toValue(),
         });
         // annotate fragment with info about origin and type
         mergedElement.meta.set('ref-origin', reference.uri);
@@ -1155,7 +1155,7 @@ class OpenAPI3_1DereferenceVisitor {
        */
       path.replaceWith(referencedElement);
     } catch (error: unknown) {
-      const $ref = toValue(referencingElement.$ref) as string;
+      const $ref = referencingElement.$ref?.toValue() as string;
       this.handleError(
         `Error while dereferencing Schema Object. Cannot resolve $ref "${$ref}": ${(error as Error).message}`,
         error as Error,

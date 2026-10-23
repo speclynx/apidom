@@ -5,7 +5,7 @@ import {
   cloneDeep,
   hasElementSourceMap,
 } from '@speclynx/apidom-datamodel';
-import { toValue, toYAML } from '@speclynx/apidom-core';
+import { toYAML } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 import {
   evaluate as jsonPointerEvaluate,
@@ -54,7 +54,7 @@ class Overlay1DereferenceVisitor {
       return;
     }
 
-    const $ref = toValue(referencingElement.$ref) as string;
+    const $ref = referencingElement.$ref?.toValue() as string;
     const overlayElement = (this.reference.value as ParseResultElement).result as Overlay1Element;
     const actionElement = new ActionElement();
 
@@ -128,7 +128,7 @@ class Overlay1DereferenceVisitor {
       }
       if (isActionElement(fields)) {
         fields.forEach((value, keyElement) => {
-          actionElement.set(toValue(keyElement) as string, cloneDeep(value));
+          actionElement.set(keyElement.toValue() as string, cloneDeep(value));
         });
       }
       if (description !== undefined) {
@@ -164,7 +164,7 @@ class Overlay1DereferenceVisitor {
     // annotate with info about original referencing element
     actionElement.meta.set('ref-fields', {
       $ref,
-      description: toValue(referencingElement.description),
+      description: referencingElement.description?.toValue(),
     });
     // annotate with info about origin
     actionElement.meta.set('ref-origin', this.reference.uri);

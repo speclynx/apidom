@@ -9,7 +9,7 @@ import {
   cloneDeep,
   cloneShallow,
 } from '@speclynx/apidom-datamodel';
-import { toValue, toYAML } from '@speclynx/apidom-core';
+import { toYAML } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 import { traverse, traverseAsync, type Path } from '@speclynx/apidom-traverse';
 import { evaluate, URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
@@ -243,7 +243,7 @@ class AsyncAPI2DereferenceVisitor {
       return;
     }
 
-    const retrievalURI = this.toBaseURI(toValue(referencingElement.$ref) as string);
+    const retrievalURI = this.toBaseURI(referencingElement.$ref?.toValue() as string);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
     const isExternalReference = !isInternalReference;
 
@@ -260,11 +260,11 @@ class AsyncAPI2DereferenceVisitor {
       return;
     }
 
-    const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
+    const $refBaseURI = url.resolve(retrievalURI, referencingElement.$ref?.toValue() as string);
     const indirectionsSize = this.indirections.length;
 
     try {
-      const reference = await this.toReference(toValue(referencingElement.$ref) as string);
+      const reference = await this.toReference(referencingElement.$ref?.toValue() as string);
 
       this.indirections.push(referencingElement);
 
@@ -301,7 +301,7 @@ class AsyncAPI2DereferenceVisitor {
       // detect direct or circular reference
       if (referencingElement === referencedElement) {
         throw new ApiDOMStructuredError('Recursive Reference Object detected', {
-          $ref: toValue(referencingElement.$ref),
+          $ref: referencingElement.$ref?.toValue(),
         });
       }
 
@@ -320,13 +320,13 @@ class AsyncAPI2DereferenceVisitor {
 
         if (this.options.dereference.circular === 'error') {
           throw new ApiDOMStructuredError('Circular reference detected', {
-            $ref: toValue(referencingElement.$ref),
+            $ref: referencingElement.$ref?.toValue(),
           });
         } else if (this.options.dereference.circular === 'replace') {
           const refElement = new RefElement($refBaseURI, {
             type: referencingElement.element,
             uri: reference.uri,
-            $ref: toValue(referencingElement.$ref),
+            $ref: referencingElement.$ref?.toValue(),
           });
           const replacer =
             this.options.dereference.strategyOpts['asyncapi-2']?.circularReplacer ??
@@ -386,7 +386,7 @@ class AsyncAPI2DereferenceVisitor {
         const booleanJsonSchemaElement = cloneDeep(referencedElement) as BooleanElement;
         // annotate referenced element with info about original referencing element
         booleanJsonSchemaElement.meta.set('ref-fields', {
-          $ref: toValue(referencingElement.$ref),
+          $ref: referencingElement.$ref?.toValue(),
         });
         // annotate referenced element with info about origin
         booleanJsonSchemaElement.meta.set('ref-origin', reference.uri);
@@ -403,7 +403,7 @@ class AsyncAPI2DereferenceVisitor {
       const mergedElement = cloneShallow(referencedElement);
       // annotate referenced element with info about original referencing element
       mergedElement.meta.set('ref-fields', {
-        $ref: toValue(referencingElement.$ref),
+        $ref: referencingElement.$ref?.toValue(),
       });
       // annotate fragment with info about origin
       mergedElement.meta.set('ref-origin', reference.uri);
@@ -415,7 +415,7 @@ class AsyncAPI2DereferenceVisitor {
       path.replaceWith(mergedElement);
       path.skip();
     } catch (error: unknown) {
-      const $ref = toValue(referencingElement.$ref) as string;
+      const $ref = referencingElement.$ref?.toValue() as string;
       this.handleError(
         `Error while dereferencing Reference Object. Cannot resolve $ref "${$ref}": ${(error as Error).message}`,
         error as Error,
@@ -443,7 +443,7 @@ class AsyncAPI2DereferenceVisitor {
       return;
     }
 
-    const retrievalURI = this.toBaseURI(toValue(referencingElement.$ref) as string);
+    const retrievalURI = this.toBaseURI(referencingElement.$ref?.toValue() as string);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
     const isExternalReference = !isInternalReference;
 
@@ -458,11 +458,11 @@ class AsyncAPI2DereferenceVisitor {
       return;
     }
 
-    const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
+    const $refBaseURI = url.resolve(retrievalURI, referencingElement.$ref?.toValue() as string);
     const indirectionsSize = this.indirections.length;
 
     try {
-      const reference = await this.toReference(toValue(referencingElement.$ref) as string);
+      const reference = await this.toReference(referencingElement.$ref?.toValue() as string);
 
       this.indirections.push(referencingElement);
 
@@ -488,7 +488,7 @@ class AsyncAPI2DereferenceVisitor {
       // detect direct or indirect reference
       if (referencingElement === referencedElement) {
         throw new ApiDOMStructuredError('Recursive Channel Item Object reference detected', {
-          $ref: toValue(referencingElement.$ref),
+          $ref: referencingElement.$ref?.toValue(),
         });
       }
 
@@ -507,13 +507,13 @@ class AsyncAPI2DereferenceVisitor {
 
         if (this.options.dereference.circular === 'error') {
           throw new ApiDOMStructuredError('Circular reference detected', {
-            $ref: toValue(referencingElement.$ref),
+            $ref: referencingElement.$ref?.toValue(),
           });
         } else if (this.options.dereference.circular === 'replace') {
           const refElement = new RefElement($refBaseURI, {
             type: referencingElement.element,
             uri: reference.uri,
-            $ref: toValue(referencingElement.$ref),
+            $ref: referencingElement.$ref?.toValue(),
           });
           const replacer =
             this.options.dereference.strategyOpts['asyncapi-2']?.circularReplacer ??
@@ -574,14 +574,14 @@ class AsyncAPI2DereferenceVisitor {
         const mergedElement = cloneShallow<ChannelItemElement>(referencedElement);
         // existing keywords from referencing ChannelItemElement overrides ones from referenced ChannelItemElement
         referencingElement.forEach((value: Element, keyElement: Element, item: Element) => {
-          mergedElement.remove(toValue(keyElement) as string);
+          mergedElement.remove(keyElement.toValue() as string);
           (mergedElement.content as Element[]).push(item);
         });
         mergedElement.remove('$ref');
 
         // annotate referenced element with info about original referencing element
         mergedElement.meta.set('ref-fields', {
-          $ref: toValue(referencingElement.$ref),
+          $ref: referencingElement.$ref?.toValue(),
         });
         // annotate referenced with info about origin
         mergedElement.meta.set('ref-origin', reference.uri);
@@ -595,7 +595,7 @@ class AsyncAPI2DereferenceVisitor {
        */
       path.replaceWith(referencedElement);
     } catch (error: unknown) {
-      const $ref = toValue(referencingElement.$ref) as string;
+      const $ref = referencingElement.$ref?.toValue() as string;
       this.handleError(
         `Error while dereferencing Channel Item Object. Cannot resolve $ref "${$ref}": ${(error as Error).message}`,
         error as Error,
