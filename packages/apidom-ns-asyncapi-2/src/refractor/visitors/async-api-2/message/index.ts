@@ -1,6 +1,5 @@
 import { always, defaultTo } from 'ramda';
 import { ObjectElement, isObjectElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import mediaTypes from '../../../../media-types.ts';
@@ -39,7 +38,7 @@ class MessageVisitor extends BaseFixedFieldsVisitor {
     const payload = this.element.get('payload');
     const schemaFormat = defaultTo(
       mediaTypes.latest(),
-      toValue(objectElement.get('schemaFormat')) as string,
+      objectElement.get('schemaFormat')?.toValue() as string,
     );
 
     if (mediaTypes.includes(schemaFormat as string) && isReferenceLikeElement(payload)) {

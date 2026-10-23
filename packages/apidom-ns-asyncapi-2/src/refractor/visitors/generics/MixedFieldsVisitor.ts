@@ -1,6 +1,5 @@
 import { difference } from 'ramda';
 import { ObjectElement, MemberElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import FixedFieldsVisitor, { SpecPath } from './FixedFieldsVisitor.ts';
@@ -55,8 +54,8 @@ class MixedFieldsVisitor extends BaseMixedFieldsVisitor {
       const objectElementKeys = objectElement.keys() as string[];
       (this.element.content as MemberElement[]).sort((a: MemberElement, b: MemberElement) => {
         return (
-          objectElementKeys.indexOf(toValue(a.key) as string) -
-          objectElementKeys.indexOf(toValue(b.key) as string)
+          objectElementKeys.indexOf(a.key?.toValue() as string) -
+          objectElementKeys.indexOf(b.key?.toValue() as string)
         );
       });
     } catch (e) {

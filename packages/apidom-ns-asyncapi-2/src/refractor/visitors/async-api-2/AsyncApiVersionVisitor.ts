@@ -1,5 +1,4 @@
 import { StringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import AsyncApiVersionElement from '../../../elements/AsyncApiVersion.ts';
@@ -18,7 +17,7 @@ class AsyncApiVersionVisitor extends BaseSpecificationVisitor {
 
   StringElement(path: Path<StringElement>) {
     const stringElement = path.node;
-    const asyncApiVersionElement = new AsyncApiVersionElement(toValue(stringElement) as string);
+    const asyncApiVersionElement = new AsyncApiVersionElement(stringElement.toValue() as string);
 
     this.copyMetaAndAttributes(stringElement, asyncApiVersionElement);
 
