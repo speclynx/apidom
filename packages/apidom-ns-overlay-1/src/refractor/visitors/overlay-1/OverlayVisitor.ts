@@ -1,6 +1,5 @@
 import { StringElement } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
-import { toValue } from '@speclynx/apidom-core';
 
 import {
   BaseSpecificationFallbackVisitor,
@@ -21,7 +20,7 @@ class OverlayVisitor extends BaseSpecificationFallbackVisitor {
 
   StringElement(path: Path<StringElement>) {
     const stringElement = path.node;
-    const overlayElement = new OverlayElement(toValue(stringElement) as string);
+    const overlayElement = new OverlayElement(stringElement.toValue() as string);
 
     this.copyMetaAndAttributes(stringElement, overlayElement);
     this.element = overlayElement;
