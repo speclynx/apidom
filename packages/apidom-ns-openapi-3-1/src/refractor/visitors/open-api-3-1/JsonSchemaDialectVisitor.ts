@@ -1,5 +1,4 @@
 import { StringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import JsonSchemaDialectElement from '../../../elements/JsonSchemaDialect.ts';
@@ -19,7 +18,7 @@ class JsonSchemaDialectVisitor extends BaseSpecificationVisitor {
   StringElement(path: Path<StringElement>) {
     const stringElement = path.node;
     const jsonSchemaDialectElement = new JsonSchemaDialectElement(
-      toValue(stringElement) as string | undefined,
+      stringElement.toValue() as string | undefined,
     );
 
     this.copyMetaAndAttributes(stringElement, jsonSchemaDialectElement);

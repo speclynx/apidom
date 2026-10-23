@@ -1,5 +1,4 @@
 import { ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 import { isReferenceLikeElement, MapVisitor, SpecPath } from '@speclynx/apidom-ns-openapi-3-0';
 
@@ -49,7 +48,7 @@ class WebhooksVisitor extends BaseMapVisitor {
       // @ts-ignore
       .forEach((pathItemElement: PathItemElement, key: StringElement) => {
         // @ts-ignore
-        pathItemElement.setMetaProperty('webhook-name', toValue(key));
+        pathItemElement.setMetaProperty('webhook-name', key.toValue());
       });
   }
 }
