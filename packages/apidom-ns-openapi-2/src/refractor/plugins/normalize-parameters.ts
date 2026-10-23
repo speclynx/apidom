@@ -1,5 +1,4 @@
 import { uniqWith } from 'ramda';
-import { toValue } from '@speclynx/apidom-core';
 import {
   StringElement,
   SourceMapElement,
@@ -52,8 +51,8 @@ const parameterEquals = (parameter1: ParameterElement, parameter2: ParameterElem
   if (!isStringElement(parameter2.in)) return false;
 
   return (
-    toValue(parameter1.name as StringElement) === toValue(parameter2.name as StringElement) &&
-    toValue(parameter1.in as StringElement) === toValue(parameter2.in as StringElement)
+    (parameter1.name as StringElement).toValue() === (parameter2.name as StringElement).toValue() &&
+    (parameter1.in as StringElement).toValue() === (parameter2.in as StringElement).toValue()
   );
 };
 

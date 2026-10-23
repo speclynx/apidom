@@ -1,6 +1,5 @@
 import { always } from 'ramda';
 import { StringElement, ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import PathItemElement from '../../../../elements/PathItem.ts';
@@ -34,7 +33,7 @@ class PathItemVisitor extends BaseFixedFieldsVisitor {
       .filter(isOperationElement)
       // @ts-ignore
       .forEach((operationElement: OperationElement, httpMethodElementCI: StringElement) => {
-        const httpMethod = (toValue(httpMethodElementCI) as string).toUpperCase();
+        const httpMethod = (httpMethodElementCI.toValue() as string).toUpperCase();
         operationElement.meta.set('http-method', httpMethod);
       });
 
