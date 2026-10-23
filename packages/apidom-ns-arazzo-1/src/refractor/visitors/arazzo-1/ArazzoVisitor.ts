@@ -1,6 +1,5 @@
 import { StringElement } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
-import { toValue } from '@speclynx/apidom-core';
 
 import {
   BaseSpecificationFallbackVisitor,
@@ -21,7 +20,7 @@ class ArazzoVisitor extends BaseSpecificationFallbackVisitor {
 
   StringElement(path: Path<StringElement>) {
     const stringElement = path.node;
-    const arazzoElement = new ArazzoElement(toValue(stringElement) as string);
+    const arazzoElement = new ArazzoElement(stringElement.toValue() as string);
 
     this.copyMetaAndAttributes(stringElement, arazzoElement);
     this.element = arazzoElement;

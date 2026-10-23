@@ -6,7 +6,6 @@ import {
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
-import { toValue } from '@speclynx/apidom-core';
 
 import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
 import { isArazzoSpecificationExtension } from '../../predicates.ts';
@@ -66,11 +65,11 @@ class FixedFieldsVisitor extends SpecificationVisitor {
     objectElement.forEach((value: Element, key: Element, memberElement: MemberElement) => {
       if (
         isStringElement(key) &&
-        fields.includes(toValue(key) as string) &&
-        !this.ignoredFields.includes(toValue(key) as string)
+        fields.includes(key.toValue() as string) &&
+        !this.ignoredFields.includes(key.toValue() as string)
       ) {
         const fixedFieldElement = this.toRefractedElement(
-          [...specPath, 'fixedFields', toValue(key) as string],
+          [...specPath, 'fixedFields', key.toValue() as string],
           value,
         );
         const newMemberElement = new MemberElement(
@@ -91,7 +90,7 @@ class FixedFieldsVisitor extends SpecificationVisitor {
         // consume: release processed generic subtree
         if (this.consume && this.consumeSafe && !memberElement.isFrozen)
           memberElement.value = undefined;
-      } else if (!this.ignoredFields.includes(toValue(key) as string)) {
+      } else if (!this.ignoredFields.includes(key.toValue() as string)) {
         (this.element as ObjectElement).push(
           this.consume ? memberElement : cloneDeep(memberElement),
         );
