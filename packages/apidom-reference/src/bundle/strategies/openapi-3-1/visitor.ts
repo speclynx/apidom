@@ -434,7 +434,7 @@ class OpenAPI3_1BundleVisitor {
     }
 
     if (componentNamesStrategy === 'title') {
-      const title = isObjectElement(element) ? toValue(element.get('title')) : undefined;
+      const title = isObjectElement(element) ? element.get('title')?.toValue() : undefined;
       if (typeof title === 'string' && title.trim() !== '') {
         const name = sanitizeComponentName(toPascalCase(title));
         if (name !== '') return name;
@@ -506,7 +506,7 @@ class OpenAPI3_1BundleVisitor {
 
   public async ReferenceElement(path: Path<Element>) {
     const referencingElement = path.node as ReferenceElement;
-    const $ref = toValue(referencingElement.$ref) as string;
+    const $ref = referencingElement.$ref?.toValue() as string;
     const retrievalURI = this.toBaseURI($ref);
     const isInternalReference = this.entryURI === retrievalURI;
     const isExternalReference = !isInternalReference;
@@ -659,7 +659,7 @@ class OpenAPI3_1BundleVisitor {
       return;
     }
 
-    const $ref = toValue(pathItemElement.$ref) as string;
+    const $ref = pathItemElement.$ref?.toValue() as string;
     const retrievalURI = this.toBaseURI($ref);
     const isInternalReference = this.entryURI === retrievalURI;
     const isExternalReference = !isInternalReference;
@@ -792,7 +792,7 @@ class OpenAPI3_1BundleVisitor {
       return;
     }
 
-    const $ref = toValue(referencingElement.$ref) as string;
+    const $ref = referencingElement.$ref?.toValue() as string;
 
     try {
       // compute baseURI using rules around $id and $ref keywords. The current
@@ -1028,12 +1028,12 @@ class OpenAPI3_1BundleVisitor {
         'ExampleElement value and externalValue fields are mutually exclusive',
         {
           value: toValue(exampleElement.value),
-          externalValue: toValue(exampleElement.externalValue),
+          externalValue: exampleElement.externalValue?.toValue(),
         },
       );
     }
 
-    const externalValue = toValue(exampleElement.externalValue) as string;
+    const externalValue = exampleElement.externalValue?.toValue() as string;
     const retrievalURI = this.toBaseURI(externalValue);
     const isInternalReference = this.entryURI === retrievalURI;
     const isExternalReference = !isInternalReference;
@@ -1080,8 +1080,8 @@ class OpenAPI3_1BundleVisitor {
       throw new ApiDOMStructuredError(
         'LinkElement operationRef and operationId fields are mutually exclusive',
         {
-          operationRef: toValue(linkElement.operationRef),
-          operationId: toValue(linkElement.operationId),
+          operationRef: linkElement.operationRef?.toValue(),
+          operationId: linkElement.operationId?.toValue(),
         },
       );
     }
@@ -1091,7 +1091,7 @@ class OpenAPI3_1BundleVisitor {
       return;
     }
 
-    const operationRef = toValue(linkElement.operationRef) as string;
+    const operationRef = linkElement.operationRef?.toValue() as string;
     const retrievalURI = this.toBaseURI(operationRef);
     const isInternalReference = this.entryURI === retrievalURI;
 

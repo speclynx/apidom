@@ -4,7 +4,6 @@ import {
   AnnotationElement,
   isPrimitiveElement,
 } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import {
   refractJSONSchema,
   isArazzoSpecification1Element,
@@ -39,7 +38,7 @@ export const resolveArazzo$selfField = (retrievalURI: string, element: unknown):
     return retrievalURI;
   }
 
-  const $self = toValue(element.$self);
+  const $self = element.$self?.toValue();
   if (typeof $self !== 'string' || $self === '') {
     return retrievalURI;
   }
@@ -83,7 +82,7 @@ export const validateSourceDescriptionAPI = (
   }
 
   // validate declared type matches actual type
-  const declaredType = toValue(sourceDescription.type);
+  const declaredType = sourceDescription.type?.toValue();
   if (typeof declaredType === 'string') {
     if (declaredType === 'openapi' && !isOpenApi) {
       const annotation = new AnnotationElement(

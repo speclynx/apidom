@@ -33,6 +33,20 @@ describe('parsers', function () {
         assert.strictEqual(sdParseResult.meta.get('type'), 'openapi');
       });
 
+      specify('should parse empty YAML url of source description as cycle', async function () {
+        // parsed in memory; "" names the Arazzo Description itself
+        const uri = path.join(__dirname, 'fixtures', 'empty-yaml-nodes.yaml');
+        const parseResult = await parse(
+          'arazzo: 1.0.1\nsourceDescriptions:\n  - name:\n    url:\n    type:\nworkflows: []\n',
+        );
+
+        const [sdParseResult] = await parseSourceDescriptions(parseResult, uri, options);
+
+        assertCyclicSourceDescription(sdParseResult!);
+        assert.strictEqual(sdParseResult!.meta.get('name'), '');
+        assert.strictEqual(sdParseResult!.meta.get('type'), '');
+      });
+
       specify('should filter source descriptions by name', async function () {
         const uri = path.join(__dirname, 'fixtures', 'source-descriptions-filter', 'root.yaml');
         const data = fs.readFileSync(uri).toString();

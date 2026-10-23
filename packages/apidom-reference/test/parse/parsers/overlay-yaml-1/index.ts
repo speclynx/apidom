@@ -264,6 +264,53 @@ describe('parsers', function () {
             assert.strictEqual(parseResult.length, 1);
           });
         });
+
+        context('given empty extends', function () {
+          [true, false].forEach((strict) => {
+            specify(
+              `should not produce extends parse result with strict ${strict}`,
+              async function () {
+                const uri = path.join(
+                  __dirname,
+                  'fixtures',
+                  'extends',
+                  'overlay-empty-extends.yaml',
+                );
+                const parseResult = await parse(uri, {
+                  parse: {
+                    parserOpts: {
+                      'overlay-yaml-1': { extends: true, strict },
+                    },
+                  },
+                });
+
+                assert.strictEqual(parseResult.length, 1);
+              },
+            );
+          });
+        });
+
+        context('given extends ""', function () {
+          specify('should resolve it as same-document reference against $self', async function () {
+            const uri = path.join(
+              __dirname,
+              'fixtures',
+              'extends',
+              'overlay-empty-string-extends.yaml',
+            );
+            const parseResult = await parse(uri, {
+              parse: {
+                parserOpts: {
+                  'overlay-yaml-1': { extends: true, strict: false },
+                },
+              },
+            });
+
+            // $self names where the Overlay is published, which is not available here
+            const extendsParseResult = parseResult.get(1)! as ParseResultElement;
+            assert.include(extendsParseResult.meta.get('retrievalURI'), 'published/overlay.yaml');
+          });
+        });
       });
     });
   });

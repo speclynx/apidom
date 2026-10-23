@@ -9,7 +9,7 @@ import {
   AnnotationElement,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { toValue, toYAML, fixedFields } from '@speclynx/apidom-core';
+import { toYAML, fixedFields } from '@speclynx/apidom-core';
 import { traverseAsync, type Path } from '@speclynx/apidom-traverse';
 import {
   evaluate,
@@ -336,7 +336,7 @@ class OpenAPI2BundleVisitor {
     }
 
     if (componentNamesStrategy === 'title') {
-      const title = isObjectElement(element) ? toValue(element.get('title')) : undefined;
+      const title = isObjectElement(element) ? element.get('title')?.toValue() : undefined;
       if (typeof title === 'string' && title.trim() !== '') {
         const name = sanitizeComponentName(toPascalCase(title));
         if (name !== '') return name;
@@ -371,7 +371,7 @@ class OpenAPI2BundleVisitor {
     refractReferenceFn: (element: Element) => Element,
     label: string,
   ): Promise<void> {
-    const $ref = toValue(referencingElement.$ref) as string;
+    const $ref = referencingElement.$ref?.toValue() as string;
     const retrievalURI = this.toBaseURI($ref);
     const isInternalReference = this.entryURI === retrievalURI;
     const isExternalReference = !isInternalReference;
@@ -562,7 +562,7 @@ class OpenAPI2BundleVisitor {
       return;
     }
 
-    const $ref = toValue(pathItemElement.$ref) as string;
+    const $ref = pathItemElement.$ref?.toValue() as string;
     const retrievalURI = this.toBaseURI($ref);
     const isInternalReference = this.entryURI === retrievalURI;
     const isExternalReference = !isInternalReference;
@@ -642,7 +642,7 @@ class OpenAPI2BundleVisitor {
       // referenced element keeps its own `$ref` if one survived (i.e. it was
       // left in place to break a circular external Path Item chain).
       pathItemElement.forEach((_value: Element, keyElement: Element, item: Element) => {
-        const key = toValue(keyElement) as string;
+        const key = keyElement.toValue() as string;
         if (key === '$ref') return;
         bundledElement.remove(key);
         (bundledElement.content as Element[]).push(item);

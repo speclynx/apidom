@@ -1,7 +1,6 @@
 import { reduce } from 'ramda';
 import { isString } from 'ramda-adjunct';
 import { Element, isPrimitiveElement, isStringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import type { Path } from '@speclynx/apidom-traverse';
 import { isJSONSchemaElement, JSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2020-12';
 import { refractSchema } from '@speclynx/apidom-ns-openapi-3-1';
@@ -28,7 +27,7 @@ export const isJSONSchemaElementWith$id = (element: unknown): element is JSONSch
  * `$id`s declared by the JSON Schema elements among `nodes`, in order.
  */
 export const schema$idsOf = (nodes: readonly unknown[]): string[] =>
-  nodes.filter(isJSONSchemaElementWith$id).map((node) => toValue(node.$id) as string);
+  nodes.filter(isJSONSchemaElementWith$id).map((node) => node.$id?.toValue() as string);
 
 /**
  * `$id`s of the JSON Schema elements on `path` (outermost first, the node itself
@@ -50,7 +49,7 @@ export const collectSchema$ids = (path: Path<Element>): string[] =>
 export const detachedRootSchema$ids = (root: Element | undefined): string[] => {
   const meta = root?.meta.get('ancestorsSchemaIdentifiers');
   const $ids = Array.isArray(meta) ? meta.filter(isString) : [];
-  const own$id = isJSONSchemaElementWith$id(root) ? toValue(root.$id) : undefined;
+  const own$id = isJSONSchemaElementWith$id(root) ? root.$id?.toValue() : undefined;
 
   return $ids.length > 0 && $ids.at(-1) === own$id ? $ids.slice(0, -1) : $ids;
 };
@@ -88,7 +87,7 @@ export const resolveSchema$refField = (
     return undefined;
   }
 
-  const $ref = toValue(schemaElement.$ref) as string;
+  const $ref = schemaElement.$ref?.toValue() as string;
   const hash = url.getHash($ref);
   const $refBaseURI = resolveSchema$ids(schemaBaseURI, [$ref]);
 
@@ -109,7 +108,7 @@ export const resolveSchema$idField = (
     return undefined;
   }
 
-  return resolveSchema$ids(baseURI, [toValue(schemaElement.$id) as string]);
+  return resolveSchema$ids(baseURI, [schemaElement.$id?.toValue() as string]);
 };
 
 /**

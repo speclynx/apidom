@@ -1,6 +1,5 @@
 import { trimCharsStart, isUndefined } from 'ramda-adjunct';
 import { Element } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { find } from '@speclynx/apidom-traverse';
 import { isJSONSchemaElement } from '@speclynx/apidom-ns-json-schema-2020-12';
 
@@ -52,7 +51,7 @@ export const locate = <T extends Element>(anchor: string, element: T): SchemaLoc
   const resultPath = find(
     element,
     // @ts-ignore
-    (path) => isJSONSchemaElement(path.node) && toValue(path.node.$anchor) === token,
+    (path) => isJSONSchemaElement(path.node) && path.node.$anchor?.toValue() === token,
   );
 
   if (isUndefined(resultPath)) {

@@ -9,7 +9,7 @@ import {
   AnnotationElement,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { toValue, toYAML, fixedFields } from '@speclynx/apidom-core';
+import { toYAML, fixedFields } from '@speclynx/apidom-core';
 import { traverseAsync, type Path } from '@speclynx/apidom-traverse';
 import {
   evaluate,
@@ -358,7 +358,7 @@ class AsyncAPI2BundleVisitor {
     }
 
     if (componentNamesStrategy === 'title') {
-      const title = isObjectElement(element) ? toValue(element.get('title')) : undefined;
+      const title = isObjectElement(element) ? element.get('title')?.toValue() : undefined;
       if (typeof title === 'string' && title.trim() !== '') {
         const name = sanitizeComponentName(toPascalCase(title));
         if (name !== '') return name;
@@ -407,7 +407,7 @@ class AsyncAPI2BundleVisitor {
 
   public async ReferenceElement(path: Path<Element>) {
     const referencingElement = path.node as ReferenceElement;
-    const $ref = toValue(referencingElement.$ref) as string;
+    const $ref = referencingElement.$ref?.toValue() as string;
     const retrievalURI = this.toBaseURI($ref);
     const isInternalReference = this.entryURI === retrievalURI;
     const isExternalReference = !isInternalReference;
@@ -554,7 +554,7 @@ class AsyncAPI2BundleVisitor {
       return;
     }
 
-    const $ref = toValue(channelItemElement.$ref) as string;
+    const $ref = channelItemElement.$ref?.toValue() as string;
     const retrievalURI = this.toBaseURI($ref);
     const isInternalReference = this.entryURI === retrievalURI;
     const isExternalReference = !isInternalReference;
