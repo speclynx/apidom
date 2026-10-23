@@ -1,5 +1,4 @@
 import { ObjectElement, Element, StringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
@@ -45,7 +44,7 @@ class ResponsesVisitor extends BaseMapVisitor {
     // decorate every ResponseElement with metadata about their status code
     // @ts-ignore
     this.element.filter(isResponseElement).forEach((value: Element, key: StringElement) => {
-      value.meta.set('http-status-code', toValue(key));
+      value.meta.set('http-status-code', key.toValue());
     });
   }
 }

@@ -1,6 +1,5 @@
 import { always } from 'ramda';
 import { isObjectElement, ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import ParameterElement from '../../../../elements/Parameter.ts';
@@ -40,7 +39,7 @@ class ParameterVisitor extends BaseFixedFieldsVisitor {
         .filter(isMediaTypeElement)
         // @ts-ignore
         .forEach((mediaTypeElement: MediaTypeElement, key: StringElement) => {
-          mediaTypeElement.meta.set('media-type', toValue(key));
+          mediaTypeElement.meta.set('media-type', key.toValue());
         });
     }
   }

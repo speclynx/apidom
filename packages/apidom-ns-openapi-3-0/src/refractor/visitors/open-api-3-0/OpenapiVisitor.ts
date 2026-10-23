@@ -1,5 +1,4 @@
 import { StringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import { BaseSpecificationVisitor, BaseSpecificationVisitorOptions } from './bases.ts';
@@ -18,7 +17,7 @@ class OpenapiVisitor extends BaseSpecificationVisitor {
 
   StringElement(path: Path<StringElement>) {
     const stringElement = path.node;
-    const openapiElement = new OpenapiElement(toValue(stringElement) as string | undefined);
+    const openapiElement = new OpenapiElement(stringElement.toValue() as string | undefined);
 
     this.copyMetaAndAttributes(stringElement, openapiElement);
 

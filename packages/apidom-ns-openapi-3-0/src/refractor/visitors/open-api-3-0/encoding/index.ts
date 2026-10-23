@@ -1,6 +1,5 @@
 import { always } from 'ramda';
 import { isObjectElement, ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import EncodingElement from '../../../../elements/Encoding.ts';
@@ -40,7 +39,7 @@ class EncodingVisitor extends BaseFixedFieldsVisitor {
         .filter(isHeaderElement)
         // @ts-ignore
         .forEach((headerElement: HeaderElement, key: StringElement) => {
-          headerElement.meta.set('header-name', toValue(key));
+          headerElement.meta.set('header-name', key.toValue());
         });
     }
   }

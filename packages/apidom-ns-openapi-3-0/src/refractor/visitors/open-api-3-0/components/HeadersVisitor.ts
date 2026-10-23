@@ -1,5 +1,4 @@
 import { ObjectElement, Element, StringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import ReferenceElement from '../../../../elements/Reference.ts';
@@ -45,7 +44,7 @@ class HeadersVisitor extends BaseMapVisitor {
     // decorate every HeaderElement with metadata about their name
     // @ts-ignore
     this.element.filter(isHeaderElement).forEach((value: Element, key: StringElement) => {
-      value.meta.set('header-name', toValue(key));
+      value.meta.set('header-name', key.toValue());
     });
   }
 }
