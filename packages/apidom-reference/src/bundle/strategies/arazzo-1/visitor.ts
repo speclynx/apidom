@@ -9,7 +9,7 @@ import {
   AnnotationElement,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { toValue, toYAML, fixedFields } from '@speclynx/apidom-core';
+import { toYAML, fixedFields } from '@speclynx/apidom-core';
 import { traverseAsync, type Path } from '@speclynx/apidom-traverse';
 import {
   evaluate as jsonPointerEvaluate,
@@ -329,7 +329,7 @@ class Arazzo1BundleVisitor {
     }
 
     if (componentNamesStrategy === 'title') {
-      const title = isObjectElement(element) ? toValue(element.get('title')) : undefined;
+      const title = isObjectElement(element) ? element.get('title')?.toValue() : undefined;
       if (typeof title === 'string' && title.trim() !== '') {
         const name = sanitizeComponentName(toPascalCase(title));
         if (name !== '') return name;
@@ -418,7 +418,7 @@ class Arazzo1BundleVisitor {
       return;
     }
 
-    const $ref = toValue(referencingElement.$ref) as string;
+    const $ref = referencingElement.$ref?.toValue() as string;
 
     try {
       // compute baseURI using rules around $self, $id and $ref keywords. The

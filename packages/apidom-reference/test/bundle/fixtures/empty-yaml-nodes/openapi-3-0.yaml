@@ -1,0 +1,19 @@
+openapi: 3.0.4
+info:
+  title: Empty references
+  version: 1.0.0
+paths:
+  /a:
+    get:
+      responses:
+        '200':
+          $ref:
+  /b:
+    $ref:
+components:
+  examples:
+    Example:
+      externalValue:
+  links:
+    Link:
+      operationRef:
