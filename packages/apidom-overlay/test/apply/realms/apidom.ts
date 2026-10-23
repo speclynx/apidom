@@ -8,7 +8,9 @@ import {
   isReusableActionReferenceElement,
 } from '@speclynx/apidom-ns-overlay-1';
 
-import type { Overlay1Element } from '@speclynx/apidom-ns-overlay-1';
+import type { ActionElement, Overlay1Element } from '@speclynx/apidom-ns-overlay-1';
+import { JSONPathParseError } from '@speclynx/apidom-json-path';
+import { parse as parseOverlayYAML } from '@speclynx/apidom-parser-adapter-overlay-yaml-1';
 
 import {
   applyAction,
@@ -515,6 +517,27 @@ describe('applyAction', function () {
         OverlayError,
         /zero nodes.*strict/i,
       );
+    });
+  });
+
+  context('given empty YAML target or copy', function () {
+    const firstAction = async (yaml: string) => {
+      const { result } = await parseOverlayYAML(yaml);
+      return (result as Overlay1Element).actions!.get(0) as ActionElement;
+    };
+
+    specify('should throw JSONPathParseError for empty target', async function () {
+      const action = await firstAction('overlay: 1.0.0\nactions:\n  - target:\n    update: {}\n');
+      const target = refract({ info: { title: 'API' } });
+
+      assert.throws(() => applyAction(action, target), JSONPathParseError);
+    });
+
+    specify('should throw JSONPathParseError for empty copy', async function () {
+      const action = await firstAction('overlay: 1.1.0\nactions:\n  - target: $.info\n    copy:\n');
+      const target = refract({ info: { title: 'API' } });
+
+      assert.throws(() => applyAction(action, target), JSONPathParseError);
     });
   });
 
