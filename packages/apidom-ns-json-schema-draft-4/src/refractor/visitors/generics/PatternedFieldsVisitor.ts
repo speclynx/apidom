@@ -1,7 +1,6 @@
 import { F as stubFalse } from 'ramda';
 import { ObjectElement, Element, MemberElement, cloneDeep } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
-import { toValue } from '@speclynx/apidom-core';
 
 import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
 import { SpecPath } from './FixedFieldsVisitor.ts';
@@ -46,7 +45,7 @@ class PatternedFieldsVisitor extends SpecificationVisitor {
     const objectElement = path.node;
     // @ts-ignore
     objectElement.forEach((value: Element, key: Element, memberElement: MemberElement) => {
-      const keyValue = toValue(key) as string;
+      const keyValue = key.toValue() as string;
       if (!this.ignoredFields.includes(keyValue) && this.fieldPatternPredicate(keyValue)) {
         const specPath = this.specPath(value);
         const patternedFieldElement = this.toRefractedElement(specPath, value);
