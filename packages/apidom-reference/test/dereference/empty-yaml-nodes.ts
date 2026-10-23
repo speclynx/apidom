@@ -11,6 +11,7 @@ import { parse as parseOverlay1 } from '@speclynx/apidom-parser-adapter-overlay-
 import type { LinkElement } from '@speclynx/apidom-ns-openapi-3-0';
 
 import { dereferenceApiDOM, UnresolvableReferenceError } from '../../src/index.ts';
+import { assertCyclicSourceDescription } from '../helpers.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // the documents are parsed in memory; every reference in them is a same-document one
@@ -177,6 +178,39 @@ describe('dereferenceApiDOM', function () {
       }
     });
 
+    specify(
+      'should reject empty reference of Arazzo Reusable Object as invalid',
+      async function () {
+        try {
+          await dereferenceYAML(
+            parseArazzo1,
+            'arazzo: 1.0.1\nworkflows:\n  - workflowId: w\n    steps:\n      - stepId: s\n        operationId: o\n        parameters:\n          - reference:\n',
+          );
+          assert.fail('should throw UnresolvableReferenceError');
+        } catch (error) {
+          assert.instanceOf(error, UnresolvableReferenceError);
+          assert.include((error as Error).message, 'Invalid Reusable Object reference format: ""');
+        }
+      },
+    );
+
+    specify(
+      'should dereference empty url of Arazzo Source Description as cycle',
+      async function () {
+        const dereferenced = await dereferenceYAML(
+          parseArazzo1,
+          'arazzo: 1.0.1\nsourceDescriptions:\n  - name:\n    url:\n    type:\nworkflows: []\n',
+          { dereference: { strategyOpts: { 'arazzo-1': { sourceDescriptions: true } } } },
+        );
+        const sourceDescriptionResult = dereferenced.get(1) as ParseResultElement;
+
+        // "" names the Arazzo Description being dereferenced
+        assertCyclicSourceDescription(sourceDescriptionResult);
+        assert.strictEqual(sourceDescriptionResult.meta.get('name'), '');
+        assert.strictEqual(sourceDescriptionResult.meta.get('type'), '');
+      },
+    );
+
     context('given Overlay extends', function () {
       const options = { dereference: { strategyOpts: { 'overlay-1': { extends: true } } } };
       const overlayYAML = (extendsLine: string) =>
@@ -210,6 +244,20 @@ describe('dereferenceApiDOM', function () {
 
         assert.strictEqual(extendsResult?.meta.get('retrievalURI'), baseURI);
       });
+
+      specify(
+        'should resolve extends against retrieval URI when $self is empty',
+        async function () {
+          const dereferenced = await dereferenceYAML(
+            parseOverlay1,
+            'overlay: 1.2.0\n$self:\nextends: ""\nactions:\n  - target: $.info\n    remove: true\n',
+            options,
+          );
+          const [extendsResult] = extendsResultsOf(dereferenced);
+
+          assert.strictEqual(extendsResult?.meta.get('retrievalURI'), baseURI);
+        },
+      );
     });
   });
 });
