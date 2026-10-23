@@ -1,6 +1,5 @@
 import { ParseResultElement, AnnotationElement, isStringElement } from '@speclynx/apidom-datamodel';
 import { isOverlay1Element } from '@speclynx/apidom-ns-overlay-1';
-import { toValue } from '@speclynx/apidom-core';
 
 import File from '../../../File.ts';
 import * as url from '../../../util/url.ts';
@@ -34,16 +33,17 @@ export async function parseExtends(
   }
 
   const extendsElement = api.get('extends');
-  if (!isStringElement(extendsElement)) {
+  // an empty extends (YAML `extends:`) names no target; it would resolve to the Overlay itself
+  if (!isStringElement(extendsElement) || extendsElement.toValue() === '') {
     return;
   }
 
   // Overlay 1.2.0: `$self` (itself resolved against the retrieval URI) is the base URI
   const selfElement = api.get('$self');
   const baseURI = isStringElement(selfElement)
-    ? url.resolve(file.uri, toValue(selfElement) as string)
+    ? url.resolve(file.uri, selfElement.toValue() as string)
     : file.uri;
-  const extendsURI = toValue(extendsElement) as string;
+  const extendsURI = extendsElement.toValue() as string;
   const retrievalURI = url.sanitize(url.stripHash(url.resolve(baseURI, extendsURI)));
 
   const extendsParseResult = new ParseResultElement();
