@@ -5,6 +5,7 @@ import {
   ObjectElement,
   ArrayElement,
   StringElement,
+  MemberElement,
   Metadata,
   isObjectElement,
 } from '@speclynx/apidom-datamodel';
@@ -428,6 +429,26 @@ describe('deepmerge', function () {
     const merged = deepmerge(target, source) as ObjectElement;
 
     assert.deepEqual(merged.get('nested')!.style, { yaml: { styleGroup: 'Flow' } });
+  });
+
+  context('given empty YAML node as key', function () {
+    const emptyNode = (): StringElement => {
+      const element = new StringElement('');
+      element.classes.push('yaml-e-node');
+      element.classes.push('yaml-e-scalar');
+      return element;
+    };
+
+    specify('should merge members with the empty key', function () {
+      const target = new ObjectElement();
+      target.push(new MemberElement(emptyNode(), new ObjectElement({ a: 1 })));
+      const source = new ObjectElement();
+      source.push(new MemberElement(emptyNode(), new ObjectElement({ b: 2 })));
+      const merged = deepmerge(target, source) as ObjectElement;
+
+      assert.deepEqual(merged.keys(), ['']);
+      assert.deepEqual(toValue(merged.get('')), { a: 1, b: 2 });
+    });
   });
 
   specify('deepmerge.all', function () {
