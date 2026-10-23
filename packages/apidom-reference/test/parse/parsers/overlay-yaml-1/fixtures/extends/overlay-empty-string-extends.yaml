@@ -1,0 +1,9 @@
+overlay: "1.2.0"
+$self: ./published/overlay.yaml
+info:
+  title: Overlay with empty string extends
+  version: "1.0.0"
+extends: ""
+actions:
+  - target: "$.info.title"
+    update: New Title

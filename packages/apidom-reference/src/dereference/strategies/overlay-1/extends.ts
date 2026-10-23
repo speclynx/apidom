@@ -44,8 +44,12 @@ export async function dereferenceExtends(
   }
 
   const extendsElement = api.get('extends');
-  // an empty extends (YAML `extends:`) names no target; it would resolve to the Overlay itself
-  if (!isStringElement(extendsElement) || extendsElement.toValue() === '') {
+  // an empty YAML node (`extends:`) is a null, which names no target; resolved as "", it would
+  // name the Overlay itself. An explicit "" is still resolved as a same-document reference.
+  if (
+    !isStringElement(extendsElement) ||
+    (extendsElement.toValue() === '' && includesClasses(extendsElement, ['yaml-e-node']))
+  ) {
     return;
   }
 

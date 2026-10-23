@@ -177,17 +177,39 @@ describe('dereferenceApiDOM', function () {
       }
     });
 
-    specify('should treat empty extends of Overlay as no extends target', async function () {
-      const dereferenced = await dereferenceYAML(
-        parseOverlay1,
-        'overlay: 1.1.0\nextends:\nactions:\n  - target: $.info\n    remove: true\n',
-        { dereference: { strategyOpts: { 'overlay-1': { extends: true } } } },
-      );
-      const extendsResults = [...dereferenced].filter((element) =>
-        element.classes.includes('extends'),
-      );
+    context('given Overlay extends', function () {
+      const options = { dereference: { strategyOpts: { 'overlay-1': { extends: true } } } };
+      const overlayYAML = (extendsLine: string) =>
+        `overlay: 1.1.0\n${extendsLine}\nactions:\n  - target: $.info\n    remove: true\n`;
+      const extendsResultsOf = (parseResult: ParseResultElement) =>
+        [...parseResult].filter((element) => element.classes.includes('extends'));
 
-      assert.lengthOf(extendsResults, 0);
+      specify('should treat empty extends as no extends target', async function () {
+        const parse: Parse = (source) => parseOverlay1(source, { strict: false });
+        const dereferenced = await dereferenceYAML(parse, overlayYAML('extends:'), options);
+
+        assert.lengthOf(extendsResultsOf(dereferenced), 0);
+      });
+
+      specify('should treat null extends of strict parser as no extends target', async function () {
+        const parse: Parse = (source) => parseOverlay1(source, { strict: true });
+        const dereferenced = await dereferenceYAML(parse, overlayYAML('extends:'), options);
+
+        assert.lengthOf(extendsResultsOf(dereferenced), 0);
+      });
+
+      specify('should resolve extends "" as same-document reference', async function () {
+        // it names the Overlay itself (#695); the base file doesn't exist here, so loading it
+        // ends with an error annotation instead of recursing
+        const dereferenced = await dereferenceYAML(
+          parseOverlay1,
+          overlayYAML('extends: ""'),
+          options,
+        );
+        const [extendsResult] = extendsResultsOf(dereferenced);
+
+        assert.strictEqual(extendsResult?.meta.get('retrievalURI'), baseURI);
+      });
     });
   });
 });

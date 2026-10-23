@@ -1,4 +1,9 @@
-import { ParseResultElement, AnnotationElement, isStringElement } from '@speclynx/apidom-datamodel';
+import {
+  ParseResultElement,
+  AnnotationElement,
+  isStringElement,
+  includesClasses,
+} from '@speclynx/apidom-datamodel';
 import { isOverlay1Element } from '@speclynx/apidom-ns-overlay-1';
 
 import File from '../../../File.ts';
@@ -33,8 +38,12 @@ export async function parseExtends(
   }
 
   const extendsElement = api.get('extends');
-  // an empty extends (YAML `extends:`) names no target; it would resolve to the Overlay itself
-  if (!isStringElement(extendsElement) || extendsElement.toValue() === '') {
+  // an empty YAML node (`extends:`) is a null, which names no target; resolved as "", it would
+  // name the Overlay itself. An explicit "" is still resolved as a same-document reference.
+  if (
+    !isStringElement(extendsElement) ||
+    (extendsElement.toValue() === '' && includesClasses(extendsElement, ['yaml-e-node']))
+  ) {
     return;
   }
 
