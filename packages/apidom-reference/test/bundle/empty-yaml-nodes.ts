@@ -26,7 +26,10 @@ describe('bundle', function () {
         const bundled = await bundleYAML(fileName as string);
 
         (selfReferencePointers as string[]).forEach((jsonPointer) => {
-          const referenceElement = evaluate(bundled.result as Element, `${jsonPointer}/$ref`);
+          const referenceElement = evaluate<Element>(
+            bundled.result as Element,
+            `${jsonPointer}/$ref`,
+          );
           assert.strictEqual(referenceElement.toValue(), '#');
         });
       });
