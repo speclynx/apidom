@@ -15,22 +15,27 @@ const bundleYAML = (fileName: string) =>
 
 describe('bundle', function () {
   context('given empty YAML nodes in URI fields', function () {
-    [
-      ['OpenAPI 2.0', 'openapi-2.yaml', ['/paths/~1a/get/responses/200', '/paths/~1b']],
-      ['OpenAPI 3.0', 'openapi-3-0.yaml', ['/paths/~1a/get/responses/200', '/paths/~1b']],
-      ['OpenAPI 3.1', 'openapi-3-1.yaml', ['/paths/~1a/get/responses/200', '/paths/~1b']],
-      ['AsyncAPI 2', 'asyncapi-2.yaml', ['/channels/a/subscribe/message', '/channels/b']],
-      ['Arazzo 1', 'arazzo-1.yaml', []],
-    ].forEach(([specName, fileName, selfReferencePointers]) => {
-      specify(`should bundle ${specName} document`, async function () {
-        const bundled = await bundleYAML(fileName as string);
+    // a same-document reference is written as "#"; Arazzo JSON Schema $ref is kept as written
+    const pathsReferences = { '/paths/~1a/get/responses/200': '#', '/paths/~1b': '#' };
+    const channelsReferences = { '/channels/a/subscribe/message': '#', '/channels/b': '#' };
+    const expectations: [string, string, Record<string, string>][] = [
+      ['OpenAPI 2.0', 'openapi-2.yaml', pathsReferences],
+      ['OpenAPI 3.0', 'openapi-3-0.yaml', pathsReferences],
+      ['OpenAPI 3.1', 'openapi-3-1.yaml', pathsReferences],
+      ['AsyncAPI 2', 'asyncapi-2.yaml', channelsReferences],
+      ['Arazzo 1', 'arazzo-1.yaml', { '/components/inputs/Input': '' }],
+    ];
 
-        (selfReferencePointers as string[]).forEach((jsonPointer) => {
+    expectations.forEach(([specName, fileName, expectedReferences]) => {
+      specify(`should bundle ${specName} document`, async function () {
+        const bundled = await bundleYAML(fileName);
+
+        Object.entries(expectedReferences).forEach(([jsonPointer, expectedReference]) => {
           const referenceElement = evaluate<Element>(
             bundled.result as Element,
             `${jsonPointer}/$ref`,
           );
-          assert.strictEqual(referenceElement.toValue(), '#');
+          assert.strictEqual(referenceElement.toValue(), expectedReference);
         });
       });
     });

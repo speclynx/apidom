@@ -8,6 +8,7 @@ import { parse as parseOpenAPI3_1 } from '@speclynx/apidom-parser-adapter-openap
 import { parse as parseAsyncAPI2 } from '@speclynx/apidom-parser-adapter-asyncapi-yaml-2';
 import { parse as parseArazzo1 } from '@speclynx/apidom-parser-adapter-arazzo-yaml-1';
 import { parse as parseOverlay1 } from '@speclynx/apidom-parser-adapter-overlay-yaml-1';
+import type { LinkElement } from '@speclynx/apidom-ns-openapi-3-0';
 
 import { dereferenceApiDOM, UnresolvableReferenceError } from '../../src/index.ts';
 
@@ -19,6 +20,9 @@ type Parse = (source: string) => Promise<ParseResultElement>;
 
 const getIn = (element: Element, keys: string[]): Element =>
   keys.reduce((current, key) => (current as ObjectElement).get(key) as Element, element);
+
+// a same-document reference resolves to (a copy of) the document, which has the root's fields
+const keysOf = (element: Element): string[] => (element as ObjectElement).keys() as string[];
 
 const dereferenceYAML = async (parse: Parse, yaml: string, options = {}) =>
   dereferenceApiDOM(await parse(yaml), { resolve: { baseURI }, ...options });
@@ -85,8 +89,10 @@ describe('dereferenceApiDOM', function () {
     sameDocumentReferences.forEach(([objectName, parse, yaml, location]) => {
       specify(`should dereference empty $ref of ${objectName} to the document`, async function () {
         const dereferenced = await dereferenceYAML(parse, yaml);
+        const referencedElement = getIn(dereferenced.api!, location);
 
-        assert.isFalse((getIn(dereferenced.api!, location) as ObjectElement).hasKey('$ref'));
+        assert.isFalse((referencedElement as ObjectElement).hasKey('$ref'));
+        assert.sameMembers(keysOf(referencedElement), keysOf(dereferenced.api!));
       });
     });
 
@@ -95,46 +101,50 @@ describe('dereferenceApiDOM', function () {
       ['OpenAPI 3.1', parseOpenAPI3_1, 'openapi: 3.1.0'],
     ].forEach(([specName, parse, versionLine]) => {
       specify(
-        `should dereference empty externalValue of ${specName} Example Object`,
+        `should dereference empty externalValue of ${specName} Example Object to the document`,
         async function () {
           const dereferenced = await dereferenceYAML(
             parse as Parse,
             `${versionLine}\ncomponents:\n  examples:\n    e:\n      externalValue:\n`,
           );
-          const exampleElement = getIn(dereferenced.api!, ['components', 'examples', 'e']);
+          const valueElement = getIn(dereferenced.api!, ['components', 'examples', 'e', 'value']);
 
-          assert.isTrue((exampleElement as ObjectElement).hasKey('value'));
+          assert.sameMembers(keysOf(valueElement), keysOf(dereferenced.api!));
         },
       );
 
       specify(
-        `should dereference empty operationRef of ${specName} Link Object`,
+        `should dereference empty operationRef of ${specName} Link Object to the document`,
         async function () {
           const dereferenced = await dereferenceYAML(
             parse as Parse,
             `${versionLine}\ncomponents:\n  links:\n    l:\n      operationRef:\n`,
           );
+          const linkElement = getIn(dereferenced.api!, ['components', 'links', 'l']) as LinkElement;
 
-          assert.strictEqual(
-            getIn(dereferenced.api!, ['components', 'links', 'l']).element,
-            'link',
-          );
+          assert.sameMembers(keysOf(linkElement.operation!), keysOf(dereferenced.api!));
         },
       );
     });
 
     [
-      ['OpenAPI 3.1 Schema Object', parseOpenAPI3_1, 'openapi: 3.1.0\ncomponents:\n  schemas:\n'],
-      ['Arazzo 1 JSON Schema', parseArazzo1, 'arazzo: 1.0.1\ncomponents:\n  inputs:\n'],
-    ].forEach(([objectName, parse, prefix]) => {
-      specify(`should not fail on empty $ref of ${objectName} with TypeError`, async function () {
-        // whether "" resolves to the document or fails to evaluate depends on whether a resolver
-        // can read the base URI (#554); either way, it must not fail on a null $ref
-        try {
-          await dereferenceYAML(parse as Parse, `${prefix}    Pet:\n      $ref:\n`);
-        } catch (error) {
-          assert.notInstanceOf((error as Error).cause, TypeError);
-        }
+      ['OpenAPI 3.1 Schema Object', parseOpenAPI3_1, 'openapi: 3.1.0', 'schemas'],
+      ['Arazzo 1 JSON Schema', parseArazzo1, 'arazzo: 1.0.1', 'inputs'],
+    ].forEach(([objectName, parse, versionLine, componentsField]) => {
+      specify(`should dereference empty $ref of ${objectName} to the document`, async function () {
+        // "" resolves to the document only when a resolver can read the base URI, as the file
+        // resolver can in this suite; otherwise it fails to evaluate (#554)
+        const dereferenced = await dereferenceYAML(
+          parse as Parse,
+          `${versionLine}\ncomponents:\n  ${componentsField}:\n    Pet:\n      $ref:\n`,
+        );
+        const schemaElement = getIn(dereferenced.api!, [
+          'components',
+          componentsField as string,
+          'Pet',
+        ]);
+
+        assert.sameMembers(keysOf(schemaElement), keysOf(dereferenced.api!));
       });
     });
 
