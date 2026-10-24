@@ -64,7 +64,11 @@ describe('diffPOJO', function () {
       const left = { info: { version: '1.0.0' }, tags: [{ name: 'a' }] };
       const right = { info: { version: '2.0.0' }, tags: [{ name: 'a' }, { name: 'b' }] };
 
-      assert.throws(() => diffPOJO(left, right, { overlay: '1.0.0' }), OverlayError);
+      assert.throws(
+        () => diffPOJO(left, right, { overlay: '1.0.0' }),
+        OverlayError,
+        /Unsupported overlay version "1\.0\.0"/,
+      );
     });
   });
 });

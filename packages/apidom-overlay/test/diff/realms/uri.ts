@@ -61,7 +61,22 @@ describe('diffOverlay (URI-level)', function () {
       const leftURI = path.join(fixturesDir, 'update-primitive', 'target.json');
       const rightURI = path.join(fixturesDir, 'update-primitive', 'expected.json');
 
-      await assertRejects(diffOverlay(leftURI, rightURI, { overlay: '1.0.0' }), OverlayError);
+      await assertRejects(
+        diffOverlay(leftURI, rightURI, { overlay: '1.0.0' }),
+        OverlayError,
+        /Unsupported overlay version "1\.0\.0"/,
+      );
+    });
+
+    specify('should reject overlay version option before reading the documents', async function () {
+      const leftURI = path.join(fixturesDir, 'nonexistent', 'target.json');
+      const rightURI = path.join(fixturesDir, 'nonexistent', 'expected.json');
+
+      await assertRejects(
+        diffOverlay(leftURI, rightURI, { overlay: '1.0.0' }),
+        OverlayError,
+        /Unsupported overlay version "1\.0\.0"/,
+      );
     });
 
     specify('should use provided info option', async function () {
