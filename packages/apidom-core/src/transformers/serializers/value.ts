@@ -9,18 +9,9 @@ import {
   isBooleanElement,
   isNumberElement,
   isNullElement,
-  includesClasses,
 } from '@speclynx/apidom-datamodel';
 
 import setProperty, { toPropertyName } from '../../util.ts';
-
-// an empty YAML node (YAML 1.2 §7.2) is a null parsed as an empty string with the yaml-e-node class;
-// as a key (yaml-e-key class) it stays the empty string, as a JavaScript property name can't be null
-const isEmptyNode = (element: Element): boolean =>
-  isStringElement(element) &&
-  element.toValue() === '' &&
-  includesClasses(element, ['yaml-e-node']) &&
-  !includesClasses(element, ['yaml-e-key']);
 
 /**
  * Transforms the ApiDOM into JavaScript POJO.
@@ -30,7 +21,6 @@ const isEmptyNode = (element: Element): boolean =>
  */
 const serializer = <T extends Element | unknown>(element: T): unknown => {
   if (!isElement(element)) return element;
-  if (isEmptyNode(element)) return null;
 
   // Shortcut optimization for primitive element types
   if (
@@ -73,7 +63,6 @@ const serializer = <T extends Element | unknown>(element: T): unknown => {
     if (isLinkElement(node)) {
       return isStringElement(node.href) ? node.href.toValue() : '';
     }
-    if (isEmptyNode(node)) return null;
 
     return node.toValue();
   };

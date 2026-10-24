@@ -9,6 +9,7 @@ import {
   StringElement,
   isArrayElement,
   isObjectElement,
+  isNullElement,
   includesClasses,
   isParseResultElement,
   isStringElement,
@@ -672,6 +673,15 @@ describe('adapter', function () {
           includesClasses((result.result as ObjectElement).get(key as string)!, ['yaml-e-node']),
         );
       assert.deepEqual(marked, ['a', 'b', 'c']);
+    });
+
+    // https://github.com/speclynx/apidom/issues/694
+    specify('should parse untagged and null-tagged ones as NullElement', async function () {
+      const result = await adapter.parse(source);
+      const nulls = (result.result as ObjectElement)
+        .keys()
+        .filter((key) => isNullElement((result.result as ObjectElement).get(key as string)));
+      assert.deepEqual(nulls, ['a', 'b', 'c']);
     });
 
     specify('should write it as null without preserveStyle', async function () {

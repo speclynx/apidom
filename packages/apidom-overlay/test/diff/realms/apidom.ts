@@ -58,8 +58,9 @@ describe('diffApiDOM', function () {
       return element;
     };
 
-    specify('should produce update actions', function () {
-      const left = refract({ a: '', b: [''] }) as ObjectElement;
+    // an empty YAML node is a null, so it's changed like any null: removed and added again
+    specify('should produce remove and update actions', function () {
+      const left = refract({ a: null, b: [null] }) as ObjectElement;
       emptyNode(left.get('a')!);
       emptyNode((left.get('b') as ArrayElement).get(0)!);
       const right = refract({ a: '', b: [''] });
@@ -67,15 +68,17 @@ describe('diffApiDOM', function () {
       const overlay = toValue(diffApiDOM(left, right)) as AnyJson;
 
       assert.deepEqual(overlay.actions, [
-        { target: "$['a']", update: '' },
-        { target: "$['b'][0]", update: '' },
+        { target: "$['a']", remove: true },
+        { target: '$', update: { a: '' } },
+        { target: "$['b'][0]", remove: true },
+        { target: "$['b']", update: [''] },
       ]);
     });
 
     specify('should produce no actions between equal empty YAML nodes', function () {
-      const left = refract({ a: '' }) as ObjectElement;
+      const left = refract({ a: null }) as ObjectElement;
       emptyNode(left.get('a')!);
-      const right = refract({ a: '' }) as ObjectElement;
+      const right = refract({ a: null }) as ObjectElement;
       emptyNode(right.get('a')!);
 
       const overlay = toValue(diffApiDOM(left, right)) as AnyJson;

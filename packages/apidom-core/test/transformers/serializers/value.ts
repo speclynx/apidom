@@ -139,46 +139,27 @@ describe('serializers', function () {
 
     // https://github.com/speclynx/apidom/issues/631
     context('given empty YAML node', function () {
-      const emptyNode = (): StringElement => {
-        const element = new StringElement('');
-        element.classes.push('yaml-e-node');
-        element.classes.push('yaml-e-scalar');
-        return element;
-      };
+      specify('should serialize empty value to null', function () {
+        const emptyValue = new NullElement();
+        emptyValue.classes.push('yaml-e-node');
+        emptyValue.classes.push('yaml-e-scalar');
 
-      specify('should serialize it to null', function () {
-        assert.isNull(serializer(emptyNode()));
-        assert.deepEqual(serializer(new ObjectElement({ a: emptyNode() })), { a: null });
-        assert.deepEqual(serializer(new ArrayElement([emptyNode()])), [null]);
-      });
-
-      specify('should name a member with empty key by the empty string', function () {
-        const object = new ObjectElement();
-        object.push(new MemberElement(emptyNode(), new StringElement('a')));
-
-        assert.deepEqual(serializer(object), { '': 'a' });
+        assert.isNull(serializer(emptyValue));
+        assert.deepEqual(serializer(new ObjectElement({ a: emptyValue })), { a: null });
+        assert.deepEqual(serializer(new ArrayElement([emptyValue])), [null]);
       });
 
       // https://github.com/speclynx/apidom/issues/694
       specify('should serialize empty key to the empty string', function () {
-        const key = emptyNode();
-        key.classes.push('yaml-e-key');
+        const emptyKey = new StringElement('');
+        emptyKey.classes.push('yaml-e-node');
+        emptyKey.classes.push('yaml-e-scalar');
+        emptyKey.classes.push('yaml-e-key');
         const object = new ObjectElement();
-        object.push(new MemberElement(key, new StringElement('a')));
+        object.push(new MemberElement(emptyKey, new StringElement('a')));
 
-        assert.strictEqual(serializer(key), '');
+        assert.strictEqual(serializer(emptyKey), '');
         assert.deepEqual(serializer(object), { '': 'a' });
-      });
-
-      specify('should serialize it to its value once changed', function () {
-        const element = emptyNode();
-        element.content = 'x';
-
-        assert.strictEqual(serializer(element), 'x');
-      });
-
-      specify('should serialize empty string without the class to empty string', function () {
-        assert.strictEqual(serializer(new StringElement('')), '');
       });
     });
 

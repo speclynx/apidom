@@ -1,8 +1,7 @@
 import {
+  Element,
   ArrayElement,
   ObjectElement,
-  StringElement,
-  isStringElement,
   isArrayElement,
   isMemberElement,
   includesClasses,
@@ -101,7 +100,7 @@ import HeaderContentElement from '../../elements/nces/HeaderContent.ts';
  *      (OpenapiElement))
  *    (MemberElement
  *      (StringElement)
- *      (StringElement))
+ *      (NullElement))
  *
  * Refracting result with this plugin:
  *
@@ -113,9 +112,6 @@ import HeaderContentElement from '../../elements/nces/HeaderContent.ts';
  *      (StringElement)
  *      (InfoElement))
  */
-
-const isEmptyElement = (element: unknown) =>
-  isStringElement(element) && includesClasses(element, ['yaml-e-node', 'yaml-e-scalar']);
 
 const schema = {
   // concrete types handling (CTs)
@@ -620,9 +616,9 @@ const findElementFactory = (ancestor: any, keyName: string) => {
  */
 const plugin = () => () => ({
   visitor: {
-    StringElement(path: Path<StringElement>) {
+    enter(path: Path<Element>) {
       const element = path.node;
-      if (!isEmptyElement(element)) return;
+      if (!includesClasses(element, ['yaml-e-node', 'yaml-e-scalar'])) return;
 
       const lineage = path.getAncestorNodes().reverse(); // root to parent
       const parentElement = lineage.at(-1);

@@ -4,7 +4,6 @@ import {
   ObjectElement,
   type Meta,
   type Attributes,
-  isStringElement,
   isArrayElement,
   isElement,
   isMemberElement,
@@ -79,7 +78,7 @@ import WorkflowSuccessActionsElement from '../../elements/nces/WorkflowSuccessAc
  *      (ArazzoElement))
  *    (MemberElement
  *      (StringElement)
- *      (StringElement))
+ *      (NullElement))
  *
  * Refracting result with this plugin:
  *
@@ -93,9 +92,6 @@ import WorkflowSuccessActionsElement from '../../elements/nces/WorkflowSuccessAc
  */
 
 type ElementFactory = (content?: undefined, meta?: Meta, attributes?: Attributes) => Element;
-
-const isEmptyElement = (element: unknown) =>
-  isStringElement(element) && includesClasses(element, ['yaml-e-node', 'yaml-e-scalar']);
 
 const schema: Record<string, Record<string, ElementFactory>> = {
   // concrete types handling (CTs)
@@ -318,9 +314,9 @@ const findElementFactory = (ancestor: Element, keyName: string): ElementFactory 
  */
 const plugin = () => () => ({
   visitor: {
-    StringElement(path: Path<Element>) {
+    enter(path: Path<Element>) {
       const element = path.node;
-      if (!isEmptyElement(element)) return;
+      if (!includesClasses(element, ['yaml-e-node', 'yaml-e-scalar'])) return;
 
       const ancestors = path.getAncestorNodes().filter(isElement);
       const parentElement = ancestors.at(0); // immediate parent first

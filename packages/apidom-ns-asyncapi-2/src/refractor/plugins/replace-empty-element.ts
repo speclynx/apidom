@@ -1,9 +1,8 @@
 import { defaultTo } from 'ramda';
 import {
-  StringElement,
+  Element,
   ObjectElement,
   ArrayElement,
-  isStringElement,
   isArrayElement,
   isMemberElement,
   isElement,
@@ -196,7 +195,7 @@ import MessageTraitExamplesElement from '../../elements/nces/MessageTraitExample
  *      (AsyncApiVersionElement))
  *    (MemberElement
  *      (StringElement)
- *      (StringElement))
+ *      (NullElement))
  *
  * Refracting result with this plugin:
  *
@@ -208,10 +207,6 @@ import MessageTraitExamplesElement from '../../elements/nces/MessageTraitExample
  *      (StringElement)
  *      (InfoElement))
  */
-
-const isEmptyElement = (element: unknown) =>
-  isStringElement(element) &&
-  includesClasses(element as StringElement, ['yaml-e-node', 'yaml-e-scalar']);
 
 const schema = {
   // concrete types handling (CTs)
@@ -1049,10 +1044,10 @@ const findElementFactory = (ancestor: any, keyName: string) => {
  */
 const plugin = () => () => ({
   visitor: {
-    StringElement(path: Path<StringElement>) {
+    enter(path: Path<Element>) {
       const element = path.node;
 
-      if (!isEmptyElement(element)) return;
+      if (!includesClasses(element, ['yaml-e-node', 'yaml-e-scalar'])) return;
 
       // getAncestorNodes() returns [parent, grandparent, ..., root], so reverse to get [root, ..., parent]
       const lineage = path.getAncestorNodes().reverse().filter(isElement);

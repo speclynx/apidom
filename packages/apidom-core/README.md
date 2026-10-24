@@ -569,15 +569,15 @@ from(javascriptForm); // => NumberElement<1>
 Transforms the ApiDOM into JavaScript POJO. This POJO would be the result of interpreting the ApiDOM
 into JavaScript structure. This function can handle cycles in ApiDOM structure.
 
-An empty YAML node (e.g. `key:` with no value) is `null`, as in YAML; one with an explicit tag other
-than `!!null` (e.g. `key: !!str`) is an empty string. This is a serialization concern: the element
-itself stays an empty `StringElement` with the `yaml-e-node` class, so element-level APIs, such as the
-element's own `.toValue()`, `equals` or JSONPath evaluated on ApiDOM, see an empty string.
+An empty YAML node (e.g. `key:` with no value) is `null`, as in YAML: the YAML parser produces a
+`NullElement` with the `yaml-e-node` class for it. One with an explicit tag other than `!!null` (e.g.
+`key: !!str`) is an empty `StringElement`.
 
 An empty YAML node used as a mapping key (e.g. `: 1`) is an exception: a JavaScript property name
-can't be `null`, so the YAML parser adds the `yaml-e-key` class to it and `toValue` serializes it to
-the empty string, both on its own and as the property name of its member (`{ "": 1 }`). `toYAML` with
-`preserveStyle` still writes it back empty (`: 1`); without `preserveStyle` it's written as `"": 1`.
+can't be `null`, so the YAML parser produces an empty `StringElement` with the `yaml-e-node` and
+`yaml-e-key` classes for it, and `toValue` serializes it to the empty string (`{ "": 1 }`). `toYAML`
+with `preserveStyle` writes both back empty (`key:`, `: 1`); without `preserveStyle` they're written as
+`key: null` and `"": 1`.
 
 Object keys become property names. A number or boolean key, such as the number key of YAML `200:`,
 uses its string form (`"200"`), a null key the empty string, and a collection key, such as YAML

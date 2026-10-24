@@ -1,11 +1,10 @@
 import {
+  Element,
   ArrayElement,
   ObjectElement,
-  StringElement,
   isArrayElement,
   isElement,
   isMemberElement,
-  isStringElement,
   includesClasses,
   cloneDeep,
   SourceMapElement,
@@ -38,7 +37,7 @@ import LinkDescriptionElement from '../../elements/LinkDescription.ts';
  *      (StringElement))
  *    (MemberElement
  *      (StringElement)
- *      (StringElement))
+ *      (NullElement))
  *
  * Refracting result with this plugin:
  *
@@ -50,9 +49,6 @@ import LinkDescriptionElement from '../../elements/LinkDescription.ts';
  *      (StringElement)
  *      (JSONSchemaElement))
  */
-
-const isEmptyElement = (element: any) =>
-  isStringElement(element) && includesClasses(element, ['yaml-e-node', 'yaml-e-scalar']);
 
 const schema = {
   JSONSchemaDraft7Element: {
@@ -221,10 +217,10 @@ const findElementFactory = (ancestor: any, keyName: string) => {
  */
 const plugin = () => () => ({
   visitor: {
-    StringElement(path: Path<StringElement>) {
+    enter(path: Path<Element>) {
       const element = path.node;
 
-      if (!isEmptyElement(element)) return;
+      if (!includesClasses(element, ['yaml-e-node', 'yaml-e-scalar'])) return;
 
       // getAncestorNodes() returns [parent, grandparent, ..., root], so reverse to get [root, ..., parent]
       const lineage = path.getAncestorNodes().reverse().filter(isElement);
