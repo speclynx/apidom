@@ -2,6 +2,7 @@ import { assert } from 'chai';
 import {
   ObjectElement,
   ArrayElement,
+  MemberElement,
   StringElement,
   NumberElement,
   type Element,
@@ -439,6 +440,19 @@ describe('serializers', function () {
         const result = serialize(element, { preserveStyle: true });
 
         assert.strictEqual(result, '{ a: }\n');
+      });
+
+      // https://github.com/speclynx/apidom/issues/694
+      specify('should write empty key back empty', function () {
+        const key = emptyNode();
+        key.classes.push('yaml-e-key');
+        const element = new ObjectElement();
+        element.push(new MemberElement(key, new StringElement('a')));
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+
+        const result = serialize(element, { preserveStyle: true });
+
+        assert.strictEqual(result, ': a\n');
       });
 
       specify('should write changed value', function () {
