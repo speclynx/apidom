@@ -7,6 +7,7 @@ import {
   ArrayElement,
   MemberElement,
   StringElement,
+  NullElement,
   isArrayElement,
   isObjectElement,
   isNullElement,
@@ -297,8 +298,9 @@ describe('adapter', function () {
     specify('should mark the value as empty node', async function () {
       const result = await adapter.parse('{ a }\n', { sourceMap: true });
       const member = (result.result as ObjectElement).getMember('a') as MemberElement;
-      const value = member.value as StringElement;
+      const value = member.value as NullElement;
 
+      assert.isTrue(isNullElement(value));
       assert.deepEqual([...value.classes].map(String), ['yaml-e-node', 'yaml-e-scalar']);
       assert.deepEqual([member.startOffset, member.endOffset], [2, 3]);
       assert.deepEqual([value.startOffset, value.endOffset], [3, 3]);
@@ -682,6 +684,24 @@ describe('adapter', function () {
         .keys()
         .filter((key) => isNullElement((result.result as ObjectElement).get(key as string)));
       assert.deepEqual(nulls, ['a', 'b', 'c']);
+    });
+
+    // https://github.com/speclynx/apidom/issues/694
+    specify('should parse it as NullElement in sequences and flow mappings', async function () {
+      const sequence = await adapter.parse('- \n- a\n');
+      const flowMapping = await adapter.parse('{ a: , b: 1 }\n');
+
+      assert.isTrue(isNullElement((sequence.result as ArrayElement).get(0)));
+      assert.isTrue(isNullElement((flowMapping.result as ObjectElement).get('a')));
+    });
+
+    specify('should keep tag and anchor of a NullElement', async function () {
+      const result = await adapter.parse('a: !!null &x\n', { style: true });
+      const value = (result.result as ObjectElement).get('a')!;
+
+      assert.isTrue(isNullElement(value));
+      assert.isTrue(includesClasses(value, ['yaml-e-node', 'yaml-e-scalar']));
+      assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), 'a: &x !!null\n');
     });
 
     specify('should write it as null without preserveStyle', async function () {
