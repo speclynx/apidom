@@ -89,9 +89,16 @@ const createRemoveAction = (segments: Segments): ActionElement => {
   return action;
 };
 
-// elements are compared by their serialized values, which tell an empty YAML node (null) from an
-// empty string; Element#equals compares the elements' own values, where both are an empty string
+// elements are compared by their values, read with the core toValue
 const isEqual = (left: Element, right: Element): boolean => equals(toValue(left), toValue(right));
+
+// a null (as an empty YAML node is) filled in with a scalar, or a scalar emptied to a null, is
+// updated in place like a value, keeping its position; any other change of type is structural
+const isStructuralChange = (left: Element, right: Element): boolean => {
+  const kinds = [left.primitive(), right.primitive()];
+  const isCollection = kinds.some((kind) => kind === 'object' || kind === 'array');
+  return kinds[0] !== kinds[1] && (isCollection || !kinds.includes('null'));
+};
 
 const diffElements = (
   left: Element,
@@ -101,10 +108,7 @@ const diffElements = (
 ): void => {
   if (isEqual(left, right)) return;
 
-  const leftKind = left.primitive();
-  const rightKind = right.primitive();
-
-  if (leftKind !== rightKind) {
+  if (isStructuralChange(left, right)) {
     if (segments.length === 0) {
       throw new OverlayError('Cannot diff documents with incompatible root types');
     }
@@ -184,7 +188,7 @@ const diffArrays = (
 
     if (isEqual(leftItem, rightItem)) continue;
 
-    if (leftItem.primitive() !== rightItem.primitive()) {
+    if (isStructuralChange(leftItem, rightItem)) {
       // structural type change at index i — reconstruct tail:
       // remove from end down to i (reverse order preserves index stability),
       // then batch-append right[i..] as a single ArrayElement (Overlay concat semantics)

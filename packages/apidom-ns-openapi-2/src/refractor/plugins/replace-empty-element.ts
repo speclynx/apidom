@@ -1,8 +1,7 @@
 import {
+  NullElement,
   ArrayElement,
   ObjectElement,
-  StringElement,
-  isStringElement,
   isElement,
   isMemberElement,
   isArrayElement,
@@ -76,7 +75,7 @@ import SwaggerTagsElement from '../../elements/nces/SwaggerTags.ts';
  *      (SwaggerVersionElement))
  *    (MemberElement
  *      (StringElement)
- *      (StringElement))
+ *      (NullElement))
  *
  * Refracting result with this plugin:
  *
@@ -88,9 +87,6 @@ import SwaggerTagsElement from '../../elements/nces/SwaggerTags.ts';
  *      (StringElement)
  *      (InfoElement))
  */
-
-const isEmptyElement = (element: unknown) =>
-  isStringElement(element) && includesClasses(element, ['yaml-e-node', 'yaml-e-scalar']);
 
 const schema = {
   // concrete types handling (CTs)
@@ -350,10 +346,10 @@ const findElementFactory = (ancestor: any, keyName: string) => {
  */
 const plugin = () => () => ({
   visitor: {
-    StringElement(path: Path<StringElement>) {
+    NullElement(path: Path<NullElement>) {
       const element = path.node;
 
-      if (!isEmptyElement(element)) return;
+      if (!includesClasses(element, ['yaml-e-node', 'yaml-e-scalar'])) return;
 
       // getAncestorNodes() returns [parent, grandparent, ..., root], so reverse to get [root, ..., parent]
       const lineage = path.getAncestorNodes().reverse().filter(isElement);
@@ -375,7 +371,7 @@ const plugin = () => () => ({
 
       const replacement = elementFactory.call(
         { context },
-        undefined,
+        null,
         element.isMetaEmpty ? undefined : cloneDeep(element.meta),
         element.isAttributesEmpty ? undefined : cloneDeep(element.attributes),
       );

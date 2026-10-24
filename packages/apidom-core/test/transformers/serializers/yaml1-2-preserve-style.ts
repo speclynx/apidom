@@ -5,6 +5,7 @@ import {
   MemberElement,
   StringElement,
   NumberElement,
+  NullElement,
   type Element,
 } from '@speclynx/apidom-datamodel';
 
@@ -407,7 +408,7 @@ describe('serializers', function () {
     // https://github.com/speclynx/apidom/issues/631
     context('given empty YAML node', function () {
       const emptyNode = () => {
-        const element = new StringElement('');
+        const element = new NullElement();
         element.classes = ['yaml-e-node', 'yaml-e-scalar'];
         element.style = { yaml: { scalarStyle: 'Plain' } };
         return element;
@@ -444,8 +445,9 @@ describe('serializers', function () {
 
       // https://github.com/speclynx/apidom/issues/694
       specify('should write empty key back empty', function () {
-        const key = emptyNode();
-        key.classes.push('yaml-e-key');
+        const key = new StringElement('');
+        key.classes = ['yaml-e-node', 'yaml-e-scalar', 'yaml-e-key'];
+        key.style = { yaml: { scalarStyle: 'Plain' } };
         const element = new ObjectElement();
         element.push(new MemberElement(key, new StringElement('a')));
         element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
@@ -453,18 +455,6 @@ describe('serializers', function () {
         const result = serialize(element, { preserveStyle: true });
 
         assert.strictEqual(result, ': a\n');
-      });
-
-      specify('should write changed value', function () {
-        const element = new ObjectElement();
-        const value = emptyNode();
-        value.content = 'x';
-        element.set('a', value);
-        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
-
-        const result = serialize(element, { preserveStyle: true });
-
-        assert.strictEqual(result, 'a: x\n');
       });
 
       specify('should write it back empty after null tag', function () {
@@ -481,7 +471,8 @@ describe('serializers', function () {
 
       specify('should write it back empty after other explicit tag', function () {
         const element = new ObjectElement();
-        const value = emptyNode();
+        // an explicit tag other than !!null makes an empty node an empty string (YAML 1.2 §7.2)
+        const value = new StringElement('');
         value.style = { yaml: { scalarStyle: 'Plain', tag: '!!str' } };
         element.set('a', value);
         element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
