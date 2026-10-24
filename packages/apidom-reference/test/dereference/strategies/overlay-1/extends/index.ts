@@ -107,6 +107,123 @@ describe('dereference', function () {
           });
         });
 
+        context('given extends resolving to the Overlay itself', function () {
+          specify('should skip the extends target to prevent cycle', async function () {
+            const uri = path.join(rootFixturePath, 'overlay-self-extends.json');
+            const dereferenceResult = await dereference(uri, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: {
+                strategyOpts: {
+                  'overlay-1': { extends: true },
+                },
+              },
+            });
+
+            assert.strictEqual(dereferenceResult.length, 2);
+
+            const extendsResult = dereferenceResult.get(1)! as ParseResultElement;
+            assert.isTrue(extendsResult.classes.includes('extends'));
+            assert.strictEqual(extendsResult.length, 1);
+
+            const annotation = extendsResult.get(0)!;
+            assert.strictEqual(annotation.element, 'annotation');
+            assert.isTrue(annotation.classes.includes('warning'));
+            assert.strictEqual(
+              annotation.toValue(),
+              `Extends target "${uri}" has already been visited. Skipping to prevent cycle`,
+            );
+          });
+          specify('should skip the extends target of a YAML Overlay', async function () {
+            const uri = path.join(rootFixturePath, 'overlay-self-extends.yaml');
+            const dereferenceResult = await dereference(uri, {
+              parse: { mediaType: mediaTypes.latest('yaml') },
+              dereference: {
+                strategyOpts: {
+                  'overlay-1': { extends: true },
+                },
+              },
+            });
+
+            const extendsResult = dereferenceResult.get(1)! as ParseResultElement;
+            assert.strictEqual(extendsResult.length, 1);
+            assert.isTrue(extendsResult.get(0)!.classes.includes('warning'));
+          });
+        });
+
+        context('given Overlays extending each other', function () {
+          const assertCycleSkipped = (dereferenceResult: ParseResultElement, uri: string) => {
+            assert.strictEqual(dereferenceResult.length, 2);
+
+            // overlay-cycle-a.json extends overlay-cycle-b.json
+            const extendsResult = dereferenceResult.get(1)! as ParseResultElement;
+            assert.include(extendsResult.meta.get('retrievalURI'), 'overlay-cycle-b.json');
+            assert.strictEqual(extendsResult.length, 2);
+
+            // overlay-cycle-b.json extends overlay-cycle-a.json, which is skipped
+            const nestedExtendsResult = extendsResult.get(1)! as ParseResultElement;
+            assert.isTrue(nestedExtendsResult.classes.includes('extends'));
+            assert.strictEqual(nestedExtendsResult.meta.get('retrievalURI'), uri);
+            assert.strictEqual(nestedExtendsResult.length, 1);
+            assert.isTrue(nestedExtendsResult.get(0)!.classes.includes('warning'));
+          };
+
+          specify(
+            'should dereference the cycle once and skip the repeated target',
+            async function () {
+              const uri = path.join(rootFixturePath, 'overlay-cycle-a.json');
+              const dereferenceResult = await dereference(uri, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                dereference: {
+                  strategyOpts: {
+                    'overlay-1': { extends: true },
+                  },
+                },
+              });
+
+              assertCycleSkipped(dereferenceResult, uri);
+            },
+          );
+
+          specify('should skip the repeated target via dereferenceApiDOM', async function () {
+            const uri = path.join(rootFixturePath, 'overlay-cycle-a.json');
+            const parseResult = await dereference(uri, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const dereferenceResult = await dereferenceApiDOM(parseResult, {
+              resolve: { baseURI: uri },
+              dereference: {
+                strategyOpts: {
+                  'overlay-1': { extends: true },
+                },
+              },
+            });
+
+            assertCycleSkipped(dereferenceResult, uri);
+          });
+
+          specify(
+            'should skip the repeated target with extends enabled on both parser and dereference',
+            async function () {
+              const uri = path.join(rootFixturePath, 'overlay-cycle-a.json');
+              const dereferenceResult = await dereference(uri, {
+                parse: {
+                  mediaType: mediaTypes.latest('json'),
+                  parserOpts: {
+                    'overlay-json-1': { extends: true },
+                  },
+                },
+                dereference: {
+                  strategyOpts: {
+                    'overlay-1': { extends: true },
+                  },
+                },
+              });
+
+              assertCycleSkipped(dereferenceResult, uri);
+            },
+          );
+        });
+
         context('given extends disabled', function () {
           specify('should not dereference extends target document', async function () {
             const uri = path.join(rootFixturePath, 'overlay.json');

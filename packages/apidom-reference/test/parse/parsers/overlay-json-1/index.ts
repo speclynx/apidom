@@ -270,6 +270,60 @@ describe('parsers', function () {
           });
         });
 
+        context('given extends resolving to the Overlay itself', function () {
+          specify('should skip the extends target to prevent cycle', async function () {
+            const uri = path.join(__dirname, 'fixtures', 'extends', 'overlay-self-extends.json');
+            const parseResult = await parse(uri, {
+              parse: {
+                parserOpts: {
+                  'overlay-json-1': { extends: true },
+                },
+              },
+            });
+
+            assert.strictEqual(parseResult.length, 2);
+
+            const extendsParseResult = parseResult.get(1)! as ParseResultElement;
+            assert.isTrue(extendsParseResult.classes.includes('extends'));
+            assert.strictEqual(extendsParseResult.length, 1);
+
+            const annotation = extendsParseResult.get(0)!;
+            assert.strictEqual(annotation.element, 'annotation');
+            assert.isTrue(annotation.classes.includes('warning'));
+            assert.strictEqual(
+              annotation.toValue(),
+              `Extends target "${uri}" has already been visited. Skipping to prevent cycle`,
+            );
+          });
+        });
+
+        context('given Overlays extending each other', function () {
+          specify('should parse the cycle once and skip the repeated target', async function () {
+            const uri = path.join(__dirname, 'fixtures', 'extends', 'overlay-cycle-a.json');
+            const parseResult = await parse(uri, {
+              parse: {
+                parserOpts: {
+                  'overlay-json-1': { extends: true },
+                },
+              },
+            });
+
+            assert.strictEqual(parseResult.length, 2);
+
+            // overlay-cycle-a.json extends overlay-cycle-b.json
+            const extendsParseResult = parseResult.get(1)! as ParseResultElement;
+            assert.include(extendsParseResult.meta.get('retrievalURI'), 'overlay-cycle-b.json');
+            assert.strictEqual(extendsParseResult.length, 2);
+
+            // overlay-cycle-b.json extends overlay-cycle-a.json, which is skipped
+            const nestedExtendsParseResult = extendsParseResult.get(1)! as ParseResultElement;
+            assert.isTrue(nestedExtendsParseResult.classes.includes('extends'));
+            assert.strictEqual(nestedExtendsParseResult.meta.get('retrievalURI'), uri);
+            assert.strictEqual(nestedExtendsParseResult.length, 1);
+            assert.isTrue(nestedExtendsParseResult.get(0)!.classes.includes('warning'));
+          });
+        });
+
         context('given extends disabled', function () {
           specify('should not parse extends target document', async function () {
             const uri = path.join(__dirname, 'fixtures', 'extends', 'overlay.json');

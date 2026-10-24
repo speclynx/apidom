@@ -239,6 +239,60 @@ describe('parsers', function () {
           });
         });
 
+        context('given extends resolving to the Overlay itself', function () {
+          specify('should skip the extends target to prevent cycle', async function () {
+            const uri = path.join(__dirname, 'fixtures', 'extends', 'overlay-self-extends.yaml');
+            const parseResult = await parse(uri, {
+              parse: {
+                parserOpts: {
+                  'overlay-yaml-1': { extends: true },
+                },
+              },
+            });
+
+            assert.strictEqual(parseResult.length, 2);
+
+            const extendsParseResult = parseResult.get(1)! as ParseResultElement;
+            assert.isTrue(extendsParseResult.classes.includes('extends'));
+            assert.strictEqual(extendsParseResult.length, 1);
+
+            const annotation = extendsParseResult.get(0)!;
+            assert.strictEqual(annotation.element, 'annotation');
+            assert.isTrue(annotation.classes.includes('warning'));
+            assert.strictEqual(
+              annotation.toValue(),
+              `Extends target "${uri}" has already been visited. Skipping to prevent cycle`,
+            );
+          });
+        });
+
+        context('given Overlays extending each other', function () {
+          specify('should parse the cycle once and skip the repeated target', async function () {
+            const uri = path.join(__dirname, 'fixtures', 'extends', 'overlay-cycle-a.yaml');
+            const parseResult = await parse(uri, {
+              parse: {
+                parserOpts: {
+                  'overlay-yaml-1': { extends: true },
+                },
+              },
+            });
+
+            assert.strictEqual(parseResult.length, 2);
+
+            // overlay-cycle-a.yaml extends overlay-cycle-b.yaml
+            const extendsParseResult = parseResult.get(1)! as ParseResultElement;
+            assert.include(extendsParseResult.meta.get('retrievalURI'), 'overlay-cycle-b.yaml');
+            assert.strictEqual(extendsParseResult.length, 2);
+
+            // overlay-cycle-b.yaml extends overlay-cycle-a.yaml, which is skipped
+            const nestedExtendsParseResult = extendsParseResult.get(1)! as ParseResultElement;
+            assert.isTrue(nestedExtendsParseResult.classes.includes('extends'));
+            assert.strictEqual(nestedExtendsParseResult.meta.get('retrievalURI'), uri);
+            assert.strictEqual(nestedExtendsParseResult.length, 1);
+            assert.isTrue(nestedExtendsParseResult.get(0)!.classes.includes('warning'));
+          });
+        });
+
         context('given extends disabled', function () {
           specify('should not parse extends target document', async function () {
             const uri = path.join(__dirname, 'fixtures', 'extends', 'overlay.yaml');
