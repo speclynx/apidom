@@ -241,6 +241,11 @@ class OpenAPI3_0DereferenceVisitor {
   public async ReferenceElement(path: Path<Element>) {
     const referencingElement = path.node as ReferenceElement;
 
+    // ignore Reference Object without a string $ref, e.g. an empty YAML value
+    if (!isStringElement(referencingElement.$ref)) {
+      return;
+    }
+
     // skip current referencing element as it's already been access
     if (this.indirections.includes(referencingElement)) {
       path.skip();
