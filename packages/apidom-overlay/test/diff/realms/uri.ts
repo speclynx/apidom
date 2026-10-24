@@ -57,7 +57,7 @@ describe('diffOverlay (URI-level)', function () {
       assert.strictEqual(value.overlay, '1.1.0');
     });
 
-    specify('should reject overlay version option below 1.1.0', async function () {
+    specify('should reject overlay version option 1.0.0', async function () {
       const leftURI = path.join(fixturesDir, 'update-primitive', 'target.json');
       const rightURI = path.join(fixturesDir, 'update-primitive', 'expected.json');
 

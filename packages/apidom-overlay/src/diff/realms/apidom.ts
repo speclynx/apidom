@@ -17,6 +17,7 @@ import {
   InfoElement,
   OverlayElement,
   ActionsElement,
+  mediaTypes,
 } from '@speclynx/apidom-ns-overlay-1';
 
 import OverlayError from '../../errors/OverlayError.ts';
@@ -41,8 +42,11 @@ const defaultDiffOptions = {
   info: { title: 'API diff', version: '0.0.0' },
 } as const;
 
-// generated actions update primitives and concatenate arrays, which requires Overlay >= 1.1.0
-const supportedOverlayVersionRegExp = /^1\.(?:[1-9]\d*)\.(?:[1-9]\d*|0)$/;
+// generated actions update primitive values and concatenate arrays, which Overlay 1.0.0 doesn't allow
+const supportedOverlayVersions = mediaTypes
+  .filterByFormat('generic')
+  .map((mediaType) => mediaType.split('version=')[1])
+  .filter((version) => version !== '1.0.0');
 
 type Segments = (string | number)[];
 
@@ -222,9 +226,9 @@ export const diff = (
   const infoVersion = options.info?.version ?? defaultDiffOptions.info.version;
   const infoDescription = options.info?.description;
 
-  if (!supportedOverlayVersionRegExp.test(overlayVersion)) {
+  if (!supportedOverlayVersions.includes(overlayVersion)) {
     throw new OverlayError(
-      `Unsupported overlay version "${overlayVersion}": diff produces Overlay >= 1.1.0 documents (1.x.y)`,
+      `Unsupported overlay version "${overlayVersion}": diff supports ${supportedOverlayVersions.join(', ')}`,
     );
   }
 

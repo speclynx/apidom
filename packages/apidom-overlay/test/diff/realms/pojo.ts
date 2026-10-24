@@ -59,7 +59,7 @@ describe('diffPOJO', function () {
     );
   });
 
-  context('given overlay version option below 1.1.0', function () {
+  context('given overlay version option 1.0.0', function () {
     specify('should throw OverlayError', function () {
       const left = { info: { version: '1.0.0' }, tags: [{ name: 'a' }] };
       const right = { info: { version: '2.0.0' }, tags: [{ name: 'a' }, { name: 'b' }] };
