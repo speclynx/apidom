@@ -6,7 +6,6 @@ import {
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
-import { toValue } from '@speclynx/apidom-core';
 
 import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
 
@@ -44,7 +43,7 @@ class FixedFieldsVisitor extends SpecificationVisitor {
 
     // @ts-ignore
     objectElement.forEach((value: Element, key: Element, memberElement: MemberElement) => {
-      const keyValue = toValue(key) as string;
+      const keyValue = key.toValue() as string;
       if (
         isStringElement(key) &&
         fields.includes(keyValue) &&

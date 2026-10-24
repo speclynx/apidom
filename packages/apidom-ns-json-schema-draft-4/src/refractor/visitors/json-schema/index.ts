@@ -2,7 +2,6 @@ import { always, defaultTo } from 'ramda';
 import { isNonEmptyString, isUndefined } from 'ramda-adjunct';
 import { ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
-import { toValue } from '@speclynx/apidom-core';
 
 import FixedFieldsVisitor, { SpecPath } from '../generics/FixedFieldsVisitor.ts';
 import { FixedFieldsVisitorOptions } from '../generics/FixedFieldsVisitor.ts';
@@ -57,7 +56,7 @@ class JSONSchemaVisitor extends JSONSchemaVisitorBase {
       // parent is available and no $schema is defined, set parent $schema
       const inheritedDialectIdentifier = defaultTo(
         this.parent.meta.get('inheritedDialectIdentifier') as string,
-        toValue(this.parent.$schema),
+        this.parent.$schema?.toValue(),
       );
       this.element.meta.set('inheritedDialectIdentifier', inheritedDialectIdentifier);
     }
@@ -71,7 +70,7 @@ class JSONSchemaVisitor extends JSONSchemaVisitorBase {
         ? [...((this.parent.meta.get('ancestorsSchemaIdentifiers') as string[]) ?? [])]
         : [];
     // get current schema identifier
-    const schemaIdentifier = toValue(objectElement.get(identifierKeyword));
+    const schemaIdentifier = objectElement.get(identifierKeyword)?.toValue();
 
     // remember schema identifier if it's a non-empty string
     if (isNonEmptyString(schemaIdentifier)) {

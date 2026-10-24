@@ -1,6 +1,5 @@
 import { always } from 'ramda';
 import { StringElement, ObjectElement, isObjectElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import RequestBodyElement from '../../../../elements/RequestBody.ts';
@@ -37,7 +36,7 @@ class RequestBodyVisitor extends BaseFixedFieldsVisitor {
         .filter(isMediaTypeElement)
         // @ts-ignore
         .forEach((mediaTypeElement: MediaTypeElement, key: StringElement) => {
-          mediaTypeElement.meta.set('media-type', toValue(key));
+          mediaTypeElement.meta.set('media-type', key.toValue());
         });
     }
   }

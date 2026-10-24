@@ -2,6 +2,7 @@ import { assert, expect } from 'chai';
 import { ObjectElement, isElement } from '@speclynx/apidom-datamodel';
 import { sexprs } from '@speclynx/apidom-core';
 import { find } from '@speclynx/apidom-traverse';
+import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
 import {
   refractJSONSchema,
@@ -132,6 +133,20 @@ describe('refractor', function () {
             'inheritedDialectIdentifier',
           ),
           'schema1',
+        );
+      });
+    });
+
+    context('given JSONSchema with empty YAML $schema', function () {
+      specify('should expose empty dialect identifier to subschemas', async function () {
+        const { result } = await parse('$schema:\nitems:\n  type: string\n');
+        const jsonSchemaElement = refractJSONSchema(result) as JSONSchemaElement;
+
+        assert.strictEqual(
+          (jsonSchemaElement.itemsField as JSONSchemaElement).meta.get(
+            'inheritedDialectIdentifier',
+          ),
+          '',
         );
       });
     });

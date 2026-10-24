@@ -1,5 +1,4 @@
 import { StringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import FallbackVisitor, { FallbackVisitorOptions } from '../../FallbackVisitor.ts';
@@ -15,7 +14,7 @@ class VersionVisitor extends FallbackVisitor {
   StringElement(path: Path<StringElement>) {
     const stringElement = path.node;
 
-    this.element = new StringElement(toValue(stringElement) as string);
+    this.element = new StringElement(stringElement.toValue() as string);
 
     this.copyMetaAndAttributes(stringElement, this.element);
     this.element.classes.push('api-version');

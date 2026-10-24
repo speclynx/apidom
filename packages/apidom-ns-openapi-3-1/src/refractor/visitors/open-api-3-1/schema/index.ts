@@ -1,6 +1,5 @@
 import { always } from 'ramda';
 import { ObjectElement, BooleanElement, isStringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 import { FixedFieldsVisitor } from '@speclynx/apidom-ns-openapi-3-0';
 import { JSONSchemaVisitor } from '@speclynx/apidom-ns-json-schema-2020-12';
@@ -66,11 +65,11 @@ class SchemaVisitor extends BaseSchemaVisitor {
       isJsonSchemaDialectElement(this.openApiSemanticElement.jsonSchemaDialect)
     ) {
       // @ts-ignore
-      jsonSchemaDialect = toValue(this.openApiSemanticElement.jsonSchemaDialect);
+      jsonSchemaDialect = this.openApiSemanticElement.jsonSchemaDialect.toValue();
     } else if (this.sourceContext?.jsonSchemaDialect !== undefined) {
       jsonSchemaDialect = this.sourceContext.jsonSchemaDialect;
     } else {
-      jsonSchemaDialect = toValue(this.jsonSchemaDefaultDialect);
+      jsonSchemaDialect = this.jsonSchemaDefaultDialect.toValue();
     }
 
     return jsonSchemaDialect as JsonSchemaDialectElement;

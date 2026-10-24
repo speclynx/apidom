@@ -1,6 +1,5 @@
 import { always } from 'ramda';
 import { ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import CallbackElement from '../../../../elements/Callback.ts';
@@ -41,7 +40,7 @@ class CallbackVisitor extends BasePatternedFieldsVisitor {
       .filter(isPathItemElement)
       // @ts-ignore
       .forEach((pathItemElement: PathItemElement, key: StringElement) => {
-        pathItemElement.meta.set('runtime-expression', toValue(key));
+        pathItemElement.meta.set('runtime-expression', key.toValue());
       });
   }
 }

@@ -1,6 +1,5 @@
 import { always } from 'ramda';
 import { ObjectElement, isStringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 import { FixedFieldsVisitor, SpecPath } from '@speclynx/apidom-ns-openapi-3-0';
 
@@ -41,7 +40,7 @@ class OpenApi3_1Visitor extends BaseFixedFieldsVisitor {
     // precompute values from generic root before consume may release fields
     if (isStringElement(objectElement.get('jsonSchemaDialect'))) {
       this.sourceContext = {
-        jsonSchemaDialect: toValue(objectElement.get('jsonSchemaDialect')) as string,
+        jsonSchemaDialect: objectElement.get('jsonSchemaDialect')?.toValue() as string,
       };
     }
 

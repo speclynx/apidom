@@ -82,6 +82,22 @@ describe('adapter', function () {
     });
   });
 
+  context('given YAML with a key being typed above an entry', function () {
+    specify('should produce syntax error annotation', async function () {
+      const yamlSource = dedent`
+        asyncapi: 2.6.0
+        channels:
+          pets:
+            de
+            description: Pets
+      `;
+      const parseResult = await adapter.parse(yamlSource);
+
+      assert.isTrue(isAsyncApi2Element(parseResult.result));
+      assert.strictEqual(toValue(parseResult.errors.get(0)), '(Error YAML syntax error)');
+    });
+  });
+
   context('given YAML with empty node', function () {
     specify('should generate source maps', async function () {
       const yamlSource = dedent`

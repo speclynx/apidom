@@ -14,7 +14,6 @@ import {
   StyleElement,
 } from '@speclynx/apidom-datamodel';
 import { Path, getNodeType } from '@speclynx/apidom-traverse';
-import { toValue } from '@speclynx/apidom-core';
 
 /**
  * Arazzo 1.1.0 specification elements.
@@ -332,7 +331,7 @@ const plugin = () => () => ({
         elementFactory = findElementFactory(parentElement, '<*>');
       } else if (isMemberElement(parentElement)) {
         context = ancestors.at(1); // grandparent
-        elementFactory = findElementFactory(context!, toValue(parentElement.key) as string);
+        elementFactory = findElementFactory(context!, parentElement.key?.toValue() as string);
       }
 
       // no element factory found

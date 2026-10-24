@@ -1,6 +1,5 @@
 import { T as stubTrue, always } from 'ramda';
 import { ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import PathsElement from '../../../../elements/Paths.ts';
@@ -43,7 +42,7 @@ class PathsVisitor extends BasePatternedFieldsVisitor {
       .forEach((pathItemElement: PathItemElement, key: StringElement) => {
         key.classes.push('openapi-path-template');
         key.classes.push('path-template');
-        pathItemElement.meta.set('path', toValue(key) as string);
+        pathItemElement.meta.set('path', key.toValue() as string);
       });
   }
 }

@@ -11,7 +11,6 @@ import {
   SourceMapElement,
   StyleElement,
 } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path, getNodeType } from '@speclynx/apidom-traverse';
 import { MediaElement } from '@speclynx/apidom-ns-json-schema-draft-4';
 
@@ -220,7 +219,7 @@ const plugin = () => () => ({
         elementFactory = findElementFactory(parentElement, '<*>');
       } else if (isMemberElement(parentElement)) {
         context = lineage.at(-2);
-        elementFactory = findElementFactory(context, toValue(parentElement.key) as string);
+        elementFactory = findElementFactory(context, parentElement.key?.toValue() as string);
       }
 
       // no element factory found

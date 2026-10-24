@@ -5,13 +5,12 @@ import {
   isStringElement,
   isObjectElement,
 } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 
 /**
  * @public
  */
 export const isOverlaySpecificationExtension = (element: MemberElement): boolean => {
-  return isStringElement(element.key) && startsWith('x-', toValue(element.key) as string);
+  return isStringElement(element.key) && startsWith('x-', element.key.toValue() as string);
 };
 
 /**

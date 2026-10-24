@@ -1,7 +1,6 @@
 import { F as stubFalse } from 'ramda';
 import { ObjectElement, Element, MemberElement, cloneDeep } from '@speclynx/apidom-datamodel';
 import { Path } from '@speclynx/apidom-traverse';
-import { toValue } from '@speclynx/apidom-core';
 
 import type { SpecPath } from './FixedFieldsVisitor.ts';
 import SpecificationVisitor, { SpecificationVisitorOptions } from '../SpecificationVisitor.ts';
@@ -68,8 +67,8 @@ class PatternedFieldsVisitor extends SpecificationVisitor {
         const extensionElement = this.toRefractedElement(['document', 'extension'], memberElement);
         (this.element as ObjectElement).push(extensionElement);
       } else if (
-        !this.ignoredFields.includes(toValue(key) as string) &&
-        this.fieldPatternPredicate(toValue(key))
+        !this.ignoredFields.includes(key.toValue() as string) &&
+        this.fieldPatternPredicate(key.toValue())
       ) {
         const specPath = this.specPath(value);
         const patternedFieldElement = this.toRefractedElement(specPath, value);
@@ -83,7 +82,7 @@ class PatternedFieldsVisitor extends SpecificationVisitor {
         // consume: release processed generic subtree
         if (this.consume && this.consumeSafe && !memberElement.isFrozen)
           memberElement.value = undefined;
-      } else if (!this.ignoredFields.includes(toValue(key) as string)) {
+      } else if (!this.ignoredFields.includes(key.toValue() as string)) {
         (this.element as ObjectElement).push(
           this.consume ? memberElement : cloneDeep(memberElement),
         );

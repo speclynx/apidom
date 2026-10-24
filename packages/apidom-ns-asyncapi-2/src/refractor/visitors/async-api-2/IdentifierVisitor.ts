@@ -1,5 +1,4 @@
 import { StringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import IdentifierElement from '../../../elements/Identifier.ts';
@@ -18,7 +17,7 @@ class IdentifierVisitor extends BaseSpecificationVisitor {
 
   StringElement(path: Path<StringElement>) {
     const stringElement = path.node;
-    const identifierElement = new IdentifierElement(toValue(stringElement) as string);
+    const identifierElement = new IdentifierElement(stringElement.toValue() as string);
 
     this.copyMetaAndAttributes(stringElement, identifierElement);
 

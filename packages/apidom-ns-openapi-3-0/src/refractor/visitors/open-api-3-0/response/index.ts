@@ -1,6 +1,5 @@
 import { always } from 'ramda';
 import { isObjectElement, ObjectElement, StringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import ResponseElement from '../../../../elements/Response.ts';
@@ -38,7 +37,7 @@ class ResponseVisitor extends BaseFixedFieldsVisitor {
         .filter(isMediaTypeElement)
         // @ts-ignore
         .forEach((mediaTypeElement: MediaTypeElement, key: StringElement) => {
-          mediaTypeElement.meta.set('media-type', toValue(key));
+          mediaTypeElement.meta.set('media-type', key.toValue());
         });
     }
 
@@ -48,7 +47,7 @@ class ResponseVisitor extends BaseFixedFieldsVisitor {
         .filter(isHeaderElement)
         // @ts-ignore
         .forEach((headerElement: HeaderElement, key: StringElement) => {
-          headerElement.meta.set('header-name', toValue(key));
+          headerElement.meta.set('header-name', key.toValue());
         });
     }
   }

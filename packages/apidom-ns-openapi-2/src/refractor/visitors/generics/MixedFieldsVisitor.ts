@@ -1,7 +1,6 @@
 import { Mixin } from 'ts-mixer';
 import { difference } from 'ramda';
 import { ObjectElement, MemberElement, Element } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import FixedFieldsVisitor, { SpecPath } from './FixedFieldsVisitor.ts';
@@ -61,8 +60,8 @@ class MixedFieldsVisitor extends MixedFieldsVisitorBase {
       const objectElementKeys = objectElement.keys() as string[];
       (this.element.content as Element[]).sort((a: unknown, b: unknown) => {
         return (
-          objectElementKeys.indexOf(toValue((a as MemberElement).key) as string) -
-          objectElementKeys.indexOf(toValue((b as MemberElement).key) as string)
+          objectElementKeys.indexOf((a as MemberElement).key?.toValue() as string) -
+          objectElementKeys.indexOf((b as MemberElement).key?.toValue() as string)
         );
       });
     } catch (e) {

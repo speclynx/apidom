@@ -1,0 +1,49 @@
+{
+  "overlay": "1.2.0",
+  "$self": "https://example.com/overlay.json",
+  "info": {
+    "title": "Overlay to add documentation links",
+    "version": "1.0.0",
+    "description": "Adds descriptions and error responses",
+    "x-info-extension": "extension"
+  },
+  "extends": "https://example.com/openapi.json",
+  "actions": [
+    {
+      "target": "$.paths[*].get",
+      "description": "Add a description to all GET operations",
+      "update": {
+        "description": "This is a GET operation"
+      },
+      "x-action-extension": "extension"
+    },
+    {
+      "target": "$.paths./old-path",
+      "remove": true
+    },
+    {
+      "target": "$.paths./new-path",
+      "copy": "$.paths./old-path"
+    },
+    {
+      "$ref": "#/components/actions/errorResponse",
+      "target": "$.paths.*.get.responses",
+      "description": "Adds an error response to GET operations"
+    }
+  ],
+  "components": {
+    "actions": {
+      "errorResponse": {
+        "description": "Adds an error response",
+        "fields": {
+          "update": {
+            "500": {
+              "description": "Server error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-overlay-extension": "extension"
+}

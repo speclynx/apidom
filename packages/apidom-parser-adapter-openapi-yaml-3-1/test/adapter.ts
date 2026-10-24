@@ -82,6 +82,23 @@ describe('adapter', function () {
     });
   });
 
+  context('given YAML with a key being typed above an entry', function () {
+    specify('should produce syntax error annotation', async function () {
+      const yamlSource = dedent`
+        openapi: 3.1.0
+        paths:
+          /pet:
+            put:
+              se
+              summary: Update
+      `;
+      const parseResult = await adapter.parse(yamlSource);
+
+      assert.isTrue(isOpenApi3_1Element(parseResult.result));
+      assert.strictEqual(toValue(parseResult.errors.get(0)), '(Error YAML syntax error)');
+    });
+  });
+
   context('given YAML with empty node', function () {
     specify('should generate source maps', async function () {
       const yamlSource = dedent`

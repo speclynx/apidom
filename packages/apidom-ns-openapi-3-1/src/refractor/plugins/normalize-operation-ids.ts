@@ -1,6 +1,5 @@
 import { last, defaultTo, groupBy } from 'ramda';
 import { StringElement, cloneDeep } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path } from '@speclynx/apidom-traverse';
 
 import LinkElement from '../../elements/Link.ts';
@@ -83,7 +82,7 @@ const plugin =
           leave() {
             // group normalized operations by normalized operationId
             const normalizedOperationGroups = groupBy((operationElement: OperationElement) => {
-              return toValue(operationElement.operationId as StringElement) as string;
+              return (operationElement.operationId as StringElement).toValue() as string;
             }, normalizedOperations);
 
             // append incremental numerical suffixes to identical operationIds
@@ -106,8 +105,7 @@ const plugin =
             links.forEach((linkElement) => {
               if (typeof linkElement.operationId === 'undefined') return;
 
-              // an empty YAML node (operationId:) serializes to null; it's an empty operationId
-              const linkOperationId = String(toValue(linkElement.operationId) ?? '');
+              const linkOperationId = String(linkElement.operationId.toValue());
               const operationElement = normalizedOperations.find((normalizedOperationElement) => {
                 const originalOperationId =
                   normalizedOperationElement.meta.get('originalOperationId');
@@ -154,7 +152,7 @@ const plugin =
             }
 
             // cast operationId to string type
-            const originalOperationId = String(toValue(operationElement.operationId) ?? '');
+            const originalOperationId = String(operationElement.operationId.toValue());
             // perform operationId normalization
             const pathTemplate = last(pathTemplates) as string;
             // `http-method` meta may not be always available, e.g. in Callback Object or Components Object

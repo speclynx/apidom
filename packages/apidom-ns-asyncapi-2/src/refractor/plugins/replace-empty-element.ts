@@ -12,7 +12,6 @@ import {
   SourceMapElement,
   StyleElement,
 } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { Path, getNodeType } from '@speclynx/apidom-traverse';
 
 import mediaTypes from '../../media-types.ts';
@@ -396,7 +395,7 @@ const schema = {
       const { context: messageElement } = this;
       const schemaFormat = defaultTo(
         mediaTypes.latest(),
-        toValue(messageElement.schemaFormat),
+        messageElement.schemaFormat?.toValue(),
       ) as string;
 
       if (mediaTypes.includes(schemaFormat)) {
@@ -1065,7 +1064,7 @@ const plugin = () => () => ({
         elementFactory = findElementFactory(parentElement, '<*>');
       } else if (isMemberElement(parentElement)) {
         context = lineage.at(-2);
-        elementFactory = findElementFactory(context, toValue(parentElement.key) as string);
+        elementFactory = findElementFactory(context, parentElement.key?.toValue() as string);
       }
 
       // no element factory found
