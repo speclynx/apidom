@@ -159,6 +159,17 @@ describe('serializers', function () {
         assert.deepEqual(serializer(object), { '': 'a' });
       });
 
+      // https://github.com/speclynx/apidom/issues/694
+      specify('should serialize empty key to the empty string', function () {
+        const key = emptyNode();
+        key.classes.push('yaml-e-key');
+        const object = new ObjectElement();
+        object.push(new MemberElement(key, new StringElement('a')));
+
+        assert.strictEqual(serializer(key), '');
+        assert.deepEqual(serializer(object), { '': 'a' });
+      });
+
       specify('should serialize it to its value once changed', function () {
         const element = emptyNode();
         element.content = 'x';

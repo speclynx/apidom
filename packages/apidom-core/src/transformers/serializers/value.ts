@@ -14,9 +14,13 @@ import {
 
 import setProperty, { toPropertyName } from '../../util.ts';
 
-// an empty YAML node (YAML 1.2 §7.2) is a null parsed as an empty string with the yaml-e-node class
+// an empty YAML node (YAML 1.2 §7.2) is a null parsed as an empty string with the yaml-e-node class;
+// as a key (yaml-e-key class) it stays the empty string, as a JavaScript property name can't be null
 const isEmptyNode = (element: Element): boolean =>
-  isStringElement(element) && element.toValue() === '' && includesClasses(element, ['yaml-e-node']);
+  isStringElement(element) &&
+  element.toValue() === '' &&
+  includesClasses(element, ['yaml-e-node']) &&
+  !includesClasses(element, ['yaml-e-key']);
 
 /**
  * Transforms the ApiDOM into JavaScript POJO.
