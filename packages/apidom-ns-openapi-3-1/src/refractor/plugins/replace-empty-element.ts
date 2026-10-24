@@ -1,8 +1,7 @@
 import {
+  NullElement,
   ArrayElement,
   ObjectElement,
-  StringElement,
-  isStringElement,
   isArrayElement,
   isMemberElement,
   includesClasses,
@@ -104,7 +103,7 @@ import WebhooksElement from '../../elements/nces/Webhooks.ts';
  *      (OpenapiElement))
  *    (MemberElement
  *      (StringElement)
- *      (StringElement))
+ *      (NullElement))
  *
  * Refracting result with this plugin:
  *
@@ -683,45 +682,40 @@ const findElementFactory = (ancestor: any, keyName: string) => {
 /**
  * @public
  */
-const plugin = () => () => {
-  const isEmptyElement = (element: unknown) =>
-    isStringElement(element) && includesClasses(element, ['yaml-e-node', 'yaml-e-scalar']);
+const plugin = () => () => ({
+  visitor: {
+    NullElement(path: Path<NullElement>) {
+      const element = path.node;
+      if (!includesClasses(element, ['yaml-e-node', 'yaml-e-scalar'])) return;
 
-  return {
-    visitor: {
-      StringElement(path: Path<StringElement>) {
-        const element = path.node;
-        if (!isEmptyElement(element)) return;
+      const lineage = path.getAncestorNodes().reverse(); // root to parent
+      const parentElement = lineage.at(-1);
+      let elementFactory;
+      let context;
 
-        const lineage = path.getAncestorNodes().reverse(); // root to parent
-        const parentElement = lineage.at(-1);
-        let elementFactory;
-        let context;
+      if (isArrayElement(parentElement)) {
+        context = element;
+        elementFactory = findElementFactory(parentElement, '<*>');
+      } else if (isMemberElement(parentElement) && parentElement.value === element) {
+        // an empty key is the name of its member; only an empty value stands for a missing element
+        context = lineage.at(-2);
+        elementFactory = findElementFactory(context, toValue(parentElement.key) as string);
+      }
 
-        if (isArrayElement(parentElement)) {
-          context = element;
-          elementFactory = findElementFactory(parentElement, '<*>');
-        } else if (isMemberElement(parentElement) && parentElement.value === element) {
-          // an empty key is the name of its member; only an empty value stands for a missing element
-          context = lineage.at(-2);
-          elementFactory = findElementFactory(context, toValue(parentElement.key) as string);
-        }
+      // no element factory found
+      if (typeof elementFactory !== 'function') return;
 
-        // no element factory found
-        if (typeof elementFactory !== 'function') return;
-
-        const newElement = elementFactory.call(
-          { context },
-          undefined,
-          element.isMetaEmpty ? undefined : cloneDeep(element.meta),
-          element.isAttributesEmpty ? undefined : cloneDeep(element.attributes),
-        );
-        SourceMapElement.transfer(element, newElement);
-        StyleElement.transfer(element, newElement);
-        path.replaceWith(newElement);
-      },
+      const newElement = elementFactory.call(
+        { context },
+        null,
+        element.isMetaEmpty ? undefined : cloneDeep(element.meta),
+        element.isAttributesEmpty ? undefined : cloneDeep(element.attributes),
+      );
+      SourceMapElement.transfer(element, newElement);
+      StyleElement.transfer(element, newElement);
+      path.replaceWith(newElement);
     },
-  };
-};
+  },
+});
 
 export default plugin;

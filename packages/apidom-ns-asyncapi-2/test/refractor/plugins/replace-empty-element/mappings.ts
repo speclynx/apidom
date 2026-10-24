@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import dedent from 'dedent';
 import { includesClasses, hasElementSourceMap } from '@speclynx/apidom-datamodel';
-import { sexprs } from '@speclynx/apidom-core';
+import { sexprs, toValue } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
 import {
@@ -189,5 +189,21 @@ describe('given AsyncAPI definition with empty values', function () {
     expect(infoValue!.endLine).to.equal(1);
     expect(infoValue!.endCharacter).to.equal(5);
     expect(infoValue!.endOffset).to.equal(21);
+  });
+});
+
+// https://github.com/speclynx/apidom/issues/694
+describe('given empty values of scalar fields', function () {
+  it('should keep them as null', async function () {
+    const yamlDefinition = dedent`
+          asyncapi:
+          defaultContentType:
+        `;
+    const apiDOM = await parse(yamlDefinition);
+    const asyncApiElement = refractAsyncApi2(apiDOM.result, {
+      plugins: [refractorPluginReplaceEmptyElement()],
+    });
+
+    expect(toValue(asyncApiElement)).to.deep.equal({ asyncapi: null, defaultContentType: null });
   });
 });

@@ -148,7 +148,7 @@ exports[`adapter should parse 1`] = `
                       (SchemaElement
                         (MemberElement
                           (StringElement)
-                          (StringElement))))))))
+                          (NullElement))))))))
             (MemberElement
               (StringElement)
               (SchemaElement
@@ -175,7 +175,7 @@ exports[`adapter should parse 1`] = `
               (ReferenceElement
                 (MemberElement
                   (StringElement)
-                  (StringElement))))
+                  (NullElement))))
             (MemberElement
               (StringElement)
               (ParameterElement
@@ -245,7 +245,7 @@ exports[`adapter should parse 1`] = `
                     (ReferenceElement
                       (MemberElement
                         (StringElement)
-                        (StringElement)))))
+                        (NullElement)))))
                 (MemberElement
                   (StringElement)
                   (RequestBodyElement
@@ -296,7 +296,7 @@ exports[`adapter should parse 1`] = `
                                   (SchemaElement
                                     (MemberElement
                                       (StringElement)
-                                      (StringElement))))))))))
+                                      (NullElement))))))))))
                     (MemberElement
                       (StringElement)
                       (ObjectElement
@@ -332,7 +332,7 @@ exports[`adapter should parse 1`] = `
                                               (SchemaElement
                                                 (MemberElement
                                                   (StringElement)
-                                                  (StringElement))))))))))
+                                                  (NullElement))))))))))
                                 (MemberElement
                                   (StringElement)
                                   (ResponsesElement

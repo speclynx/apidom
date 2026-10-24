@@ -59,7 +59,7 @@ describe('diffApiDOM', function () {
     };
 
     specify('should produce update actions', function () {
-      const left = refract({ a: '', b: [''] }) as ObjectElement;
+      const left = refract({ a: null, b: [null] }) as ObjectElement;
       emptyNode(left.get('a')!);
       emptyNode((left.get('b') as ArrayElement).get(0)!);
       const right = refract({ a: '', b: [''] });
@@ -72,11 +72,22 @@ describe('diffApiDOM', function () {
       ]);
     });
 
-    specify('should produce no actions between equal empty YAML nodes', function () {
-      const left = refract({ a: '' }) as ObjectElement;
+    // https://github.com/speclynx/apidom/issues/694
+    specify('should keep the position of a filled-in empty YAML node', async function () {
+      const left = refract({ a: null, b: 2 }) as ObjectElement;
       emptyNode(left.get('a')!);
-      const right = refract({ a: '' }) as ObjectElement;
-      emptyNode(right.get('a')!);
+      const right = refract({ a: 'x', b: 2 });
+
+      const applied = await applyOverlayApiDOM(diffApiDOM(left, right), left);
+
+      assert.deepEqual(toValue(applied), { a: 'x', b: 2 });
+      assert.deepEqual(Object.keys(toValue(applied) as object), ['a', 'b']);
+    });
+
+    specify('should produce no actions between an empty YAML node and null', function () {
+      const left = refract({ a: null }) as ObjectElement;
+      emptyNode(left.get('a')!);
+      const right = refract({ a: null });
 
       const overlay = toValue(diffApiDOM(left, right)) as AnyJson;
 

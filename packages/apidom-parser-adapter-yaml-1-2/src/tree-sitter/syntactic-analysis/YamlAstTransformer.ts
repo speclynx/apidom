@@ -6,11 +6,14 @@ import {
   MemberElement,
   ObjectElement,
   ArrayElement,
+  StringElement,
+  NullElement,
   isPrimitiveElement,
-  isStringElement,
+  isNullElement,
   includesClasses,
   Namespace,
   SourceMapElement,
+  StyleElement,
 } from '@speclynx/apidom-datamodel';
 
 import type Error from './ast/Error.ts';
@@ -530,13 +533,17 @@ const transformKeyValuePair = (node: YamlKeyValuePair, ctx: TransformContext): M
   }
 
   // Transform key and value (these are dynamically defined properties)
-  const keyResult = transform(key, ctx);
+  let keyResult = transform(key, ctx);
   const valueResult = transform(value, ctx);
 
-  // an empty key is a null in YAML, but a JavaScript property name can't be null, so it's marked to
-  // be serialized to the empty string it's named by
-  if (isStringElement(keyResult) && includesClasses(keyResult, ['yaml-e-node'])) {
-    keyResult.classes.push('yaml-e-key');
+  // an empty key is a null in YAML, but a JavaScript property name can't be null, so it's the empty
+  // string it's named by, marked as an empty key
+  if (isNullElement(keyResult) && includesClasses(keyResult, ['yaml-e-node'])) {
+    const emptyKey = new StringElement('', keyResult.meta, keyResult.attributes);
+    emptyKey.classes.push('yaml-e-key');
+    SourceMapElement.transfer(keyResult, emptyKey);
+    StyleElement.transfer(keyResult, emptyKey);
+    keyResult = emptyKey;
   }
 
   // @ts-ignore
@@ -567,15 +574,15 @@ const transformSequence = (node: YamlSequence, ctx: TransformContext): ArrayElem
 
 // Scalar: Converts to Element via namespace
 const transformScalar = (node: YamlScalar, ctx: TransformContext): Element => {
-  const element = ctx.namespace.toElement(node.content)!;
-
-  // Translate style information about empty nodes; an empty node (YAML 1.2 §7.2) is a null unless
-  // a tag other than the null tag makes it something else (e.g. !!str makes it an empty string)
+  // an empty node (YAML 1.2 §7.2) is a null unless a tag other than the null tag makes it
+  // something else (e.g. !!str makes it an empty string); its classes tell it from an explicit null
   const tag = node.tag?.explicitName;
   const isEmptyNode =
     node.content === '' &&
     node.style === YamlStyle.Plain &&
     [undefined, '?', '!!null', '!<tag:yaml.org,2002:null>'].includes(tag);
+  const element = isEmptyNode ? new NullElement() : ctx.namespace.toElement(node.content)!;
+
   if (isEmptyNode) {
     element.classes.push('yaml-e-node');
     element.classes.push('yaml-e-scalar');
