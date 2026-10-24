@@ -574,6 +574,11 @@ than `!!null` (e.g. `key: !!str`) is an empty string. This is a serialization co
 itself stays an empty `StringElement` with the `yaml-e-node` class, so element-level APIs, such as the
 element's own `.toValue()`, `equals` or JSONPath evaluated on ApiDOM, see an empty string.
 
+An empty YAML node used as a mapping key (e.g. `: 1`) is an exception: a JavaScript property name
+can't be `null`, so the YAML parser adds the `yaml-e-key` class to it and `toValue` serializes it to
+the empty string, both on its own and as the property name of its member (`{ "": 1 }`). `toYAML` with
+`preserveStyle` still writes it back empty (`: 1`); without `preserveStyle` it's written as `"": 1`.
+
 Object keys become property names. A number or boolean key, such as the number key of YAML `200:`,
 uses its string form (`"200"`), a null key the empty string, and a collection key, such as YAML
 `[x]: 1`, its JSON text (`'["x"]'`). The same applies to `toJSON` and to `toYAML` without

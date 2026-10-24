@@ -696,6 +696,49 @@ describe('adapter', function () {
     });
   });
 
+  // https://github.com/speclynx/apidom/issues/694
+  context('given empty node as mapping key', function () {
+    const sources = [': a\n', '{ : a }\n', '? \n: a\n', ':\n'];
+
+    specify('should mark it as empty key', async function () {
+      for (const source of sources) {
+        const result = await adapter.parse(source);
+        const [member] = (result.result as ObjectElement).content as unknown as MemberElement[];
+        assert.isTrue(
+          includesClasses(member.key!, ['yaml-e-node', 'yaml-e-scalar', 'yaml-e-key']),
+          source,
+        );
+      }
+    });
+
+    specify('should not mark empty value as empty key', async function () {
+      const result = await adapter.parse(':\n');
+      const [member] = (result.result as ObjectElement).content as unknown as MemberElement[];
+      assert.isFalse(includesClasses(member.value!, ['yaml-e-key']));
+      assert.isNull(toValue(member.value));
+    });
+
+    specify('should serialize it to the empty string', async function () {
+      for (const source of sources) {
+        const result = await adapter.parse(source);
+        const [member] = (result.result as ObjectElement).content as unknown as MemberElement[];
+        assert.strictEqual(toValue(member.key), '', source);
+      }
+    });
+
+    specify('should write it back empty with preserveStyle', async function () {
+      for (const source of [': a\n', '{ : a }\n', ':\n']) {
+        const result = await adapter.parse(source, { style: true });
+        assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), source);
+      }
+    });
+
+    specify('should write it as "" without preserveStyle', async function () {
+      const result = await adapter.parse(': a\n');
+      assert.strictEqual(toYAML(result.result!), '"": a\n');
+    });
+  });
+
   // https://github.com/speclynx/apidom/issues/639
   context('given explicit tag serialized back with preserveStyle', function () {
     specify('should write tags of scalars and collections back', async function () {

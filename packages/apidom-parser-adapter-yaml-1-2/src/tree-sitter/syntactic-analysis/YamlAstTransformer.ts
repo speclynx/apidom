@@ -7,6 +7,8 @@ import {
   ObjectElement,
   ArrayElement,
   isPrimitiveElement,
+  isStringElement,
+  includesClasses,
   Namespace,
   SourceMapElement,
 } from '@speclynx/apidom-datamodel';
@@ -530,6 +532,12 @@ const transformKeyValuePair = (node: YamlKeyValuePair, ctx: TransformContext): M
   // Transform key and value (these are dynamically defined properties)
   const keyResult = transform(key, ctx);
   const valueResult = transform(value, ctx);
+
+  // an empty key is a null in YAML, but a JavaScript property name can't be null, so it's marked to
+  // be serialized to the empty string it's named by
+  if (isStringElement(keyResult) && includesClasses(keyResult, ['yaml-e-node'])) {
+    keyResult.classes.push('yaml-e-key');
+  }
 
   // @ts-ignore
   element.content.key = keyResult;
