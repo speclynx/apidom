@@ -17,6 +17,7 @@ import {
   InfoElement,
   OverlayElement,
   ActionsElement,
+  mediaTypes,
 } from '@speclynx/apidom-ns-overlay-1';
 
 import OverlayError from '../../errors/OverlayError.ts';
@@ -25,6 +26,11 @@ import OverlayError from '../../errors/OverlayError.ts';
  * @public
  */
 export interface DiffOptions {
+  /**
+   * Version written to the `overlay` field (default `'1.2.0'`). Must be `1.1.0` or later,
+   * otherwise {@link OverlayError} is thrown: generated actions update primitive values and
+   * concatenate arrays, which Overlay 1.0.0 doesn't allow.
+   */
   readonly overlay?: string;
   readonly info?: { title?: string; description?: string; version?: string };
   readonly extends?: string;
@@ -40,6 +46,26 @@ const defaultDiffOptions = {
   overlay: '1.2.0',
   info: { title: 'API diff', version: '0.0.0' },
 } as const;
+
+// generated actions update primitive values and concatenate arrays, which Overlay 1.0.0 doesn't allow
+const supportedOverlayVersions = mediaTypes
+  .filterByFormat('generic')
+  .map((mediaType) => mediaType.split('version=')[1])
+  .filter((version) => version !== '1.0.0');
+
+/**
+ * Throws {@link OverlayError} when the overlay version option is unsupported.
+ * Shared with the URI realm, which checks it before parsing any document.
+ */
+export const assertSupportedOverlayVersion = (overlay?: string): void => {
+  const overlayVersion = overlay ?? defaultDiffOptions.overlay;
+
+  if (!supportedOverlayVersions.includes(overlayVersion)) {
+    throw new OverlayError(
+      `Unsupported overlay version "${overlayVersion}": diff supports ${supportedOverlayVersions.join(', ')}`,
+    );
+  }
+};
 
 type Segments = (string | number)[];
 
@@ -218,6 +244,8 @@ export const diff = (
   const infoTitle = options.info?.title ?? defaultDiffOptions.info.title;
   const infoVersion = options.info?.version ?? defaultDiffOptions.info.version;
   const infoDescription = options.info?.description;
+
+  assertSupportedOverlayVersion(overlayVersion);
 
   const actions: ActionElement[] = [];
   diffElements(leftElement, rightElement, [], actions);

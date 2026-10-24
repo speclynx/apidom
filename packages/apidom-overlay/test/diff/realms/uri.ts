@@ -5,6 +5,8 @@ import { toValue } from '@speclynx/apidom-core';
 import { isOverlay1Element } from '@speclynx/apidom-ns-overlay-1';
 
 import diffOverlay from '../../../src/diff/realms/uri.ts';
+import OverlayError from '../../../src/errors/OverlayError.ts';
+import assertRejects from '../../assert-rejects.ts';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyJson = Record<string, any>;
@@ -49,10 +51,32 @@ describe('diffOverlay (URI-level)', function () {
       const leftURI = path.join(fixturesDir, 'update-primitive', 'target.json');
       const rightURI = path.join(fixturesDir, 'update-primitive', 'expected.json');
 
-      const overlay = await diffOverlay(leftURI, rightURI, { overlay: '1.0.0' });
+      const overlay = await diffOverlay(leftURI, rightURI, { overlay: '1.1.0' });
       const value = toValue(overlay) as AnyJson;
 
-      assert.strictEqual(value.overlay, '1.0.0');
+      assert.strictEqual(value.overlay, '1.1.0');
+    });
+
+    specify('should reject overlay version option 1.0.0', async function () {
+      const leftURI = path.join(fixturesDir, 'update-primitive', 'target.json');
+      const rightURI = path.join(fixturesDir, 'update-primitive', 'expected.json');
+
+      await assertRejects(
+        diffOverlay(leftURI, rightURI, { overlay: '1.0.0' }),
+        OverlayError,
+        /Unsupported overlay version "1\.0\.0"/,
+      );
+    });
+
+    specify('should reject overlay version option before reading the documents', async function () {
+      const leftURI = path.join(fixturesDir, 'nonexistent', 'target.json');
+      const rightURI = path.join(fixturesDir, 'nonexistent', 'expected.json');
+
+      await assertRejects(
+        diffOverlay(leftURI, rightURI, { overlay: '1.0.0' }),
+        OverlayError,
+        /Unsupported overlay version "1\.0\.0"/,
+      );
     });
 
     specify('should use provided info option', async function () {

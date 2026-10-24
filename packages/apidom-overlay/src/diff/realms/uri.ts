@@ -7,7 +7,7 @@ import {
 } from '@speclynx/apidom-reference';
 import type { PartialDeep } from 'type-fest';
 
-import { diff as diffApiDOM, type DiffOptions } from './apidom.ts';
+import { diff as diffApiDOM, assertSupportedOverlayVersion, type DiffOptions } from './apidom.ts';
 import OverlayError from '../../errors/OverlayError.ts';
 
 /**
@@ -58,6 +58,9 @@ const diff = async (
   rightURI: string,
   options: DiffOverlayOptions = defaultOptions,
 ): Promise<Overlay1Element> => {
+  // fail on an unsupported version before fetching and parsing the documents
+  assertSupportedOverlayVersion(options.overlay);
+
   const mergedRefOptions = mergeOptions(
     defaultReferenceOptions as unknown as ReferenceOptions,
     (options.reference ?? {}) as Record<string, unknown>,

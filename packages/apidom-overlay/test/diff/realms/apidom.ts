@@ -368,10 +368,32 @@ describe('diffApiDOM', function () {
       const left = refract({ info: { title: 'My API', version: '1.0.0' } });
       const right = refract({ info: { title: 'My API', version: '2.0.0' } });
 
-      const overlay = diffApiDOM(left, right, { overlay: '1.0.0' });
-      const value = toValue(overlay) as AnyJson;
+      for (const version of ['1.1.0', '1.2.0']) {
+        const overlay = diffApiDOM(left, right, { overlay: version });
+        const value = toValue(overlay) as AnyJson;
 
-      assert.strictEqual(value.overlay, '1.0.0');
+        assert.strictEqual(value.overlay, version);
+      }
+    });
+
+    specify('should throw OverlayError for overlay version 1.0.0', function () {
+      const left = refract({ info: { title: 'My API', version: '1.0.0' } });
+      const right = refract({ info: { title: 'My API', version: '2.0.0' } });
+
+      assert.throws(
+        () => diffApiDOM(left, right, { overlay: '1.0.0' }),
+        OverlayError,
+        /Unsupported overlay version "1\.0\.0": diff supports 1\.1\.0, 1\.2\.0/,
+      );
+    });
+
+    specify('should throw OverlayError for unknown overlay versions', function () {
+      const left = refract({ info: { title: 'My API', version: '1.0.0' } });
+      const right = refract({ info: { title: 'My API', version: '2.0.0' } });
+
+      for (const version of ['', '1.1', '1.3.0', '2.0.0', 'latest']) {
+        assert.throws(() => diffApiDOM(left, right, { overlay: version }), OverlayError);
+      }
     });
 
     specify('should use provided info', function () {
