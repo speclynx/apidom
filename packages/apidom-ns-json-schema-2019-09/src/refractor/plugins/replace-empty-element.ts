@@ -263,7 +263,8 @@ const plugin = () => () => {
         if (isArrayElement(parentElement)) {
           context = element;
           elementFactory = findElementFactory(parentElement, '<*>');
-        } else if (isMemberElement(parentElement)) {
+        } else if (isMemberElement(parentElement) && parentElement.value === element) {
+          // an empty key is the name of its member; only an empty value stands for a missing element
           context = lineage.at(-2);
           elementFactory = findElementFactory(context, toValue(parentElement.key) as string);
         }
