@@ -1,0 +1,8 @@
+overlay: 1.1.0
+info:
+  title: Overlay cycle-a
+  version: 1.0.0
+extends: ./overlay-cycle-b.yaml
+actions:
+  - target: $.info
+    remove: true

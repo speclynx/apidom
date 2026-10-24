@@ -14,6 +14,8 @@ import type { ReferenceOptions } from '../../../options/index.ts';
 import { merge as mergeOptions } from '../../../options/util.ts';
 import dereference, { dereferenceApiDOM } from '../../index.ts';
 
+const STRATEGY_NAME = 'overlay-1';
+
 /**
  * Dereferences the `extends` target document from an Overlay document's ParseResult.
  *
@@ -61,46 +63,70 @@ export async function dereferenceExtends(
   extendsDereferenceResult.classes.push('extends');
   extendsDereferenceResult.setMetaProperty('retrievalURI', retrievalURI);
 
-  try {
-    let extendsDereferenced: ParseResultElement;
+  // URIs of the Overlays currently being dereferenced, from the root down to the current one
+  const ancestors: string[] = [
+    ...(options?.dereference?.strategyOpts?.[STRATEGY_NAME]?.extendsAncestors ?? []),
+    file.uri,
+  ];
+  const nestedOptions = {
+    dereference: {
+      strategyOpts: {
+        [STRATEGY_NAME]: { extendsAncestors: ancestors },
+      },
+    },
+  };
 
-    // check if extends was already parsed (e.g., during parse phase with extends: true)
-    const existingParseResult = extendsElement.meta.get('parseResult');
-
-    if (isParseResultElement(existingParseResult)) {
-      // use existing parsed result - just dereference it (no re-fetch/re-parse)
-      extendsDereferenced = await dereferenceApiDOM(
-        existingParseResult,
-        mergeOptions(options, {
-          parse: {
-            mediaType: 'text/plain', // allow dereference strategy detection via ApiDOM inspection
-          },
-          resolve: { baseURI: retrievalURI },
-        }),
-      );
-    } else {
-      // no existing parse result - fetch, parse, and dereference
-      extendsDereferenced = await dereference(
-        retrievalURI,
-        mergeOptions(options, {
-          parse: {
-            mediaType: 'text/plain', // allow parser plugin detection
-          },
-        }),
-      );
-    }
-
-    // merge dereferenced result into our wrapper
-    for (const item of extendsDereferenced) {
-      extendsDereferenceResult.push(item);
-    }
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+  // skip if the target is still being dereferenced higher up the chain (cycle detection)
+  if (ancestors.includes(retrievalURI)) {
     const annotation = new AnnotationElement(
-      `Error dereferencing extends target "${retrievalURI}": ${message}`,
+      `Extends target "${retrievalURI}" has already been visited. Skipping to prevent cycle`,
     );
-    annotation.classes.push('error');
+    annotation.classes.push('warning');
     extendsDereferenceResult.push(annotation);
+  } else {
+    try {
+      let extendsDereferenced: ParseResultElement;
+
+      // check if extends was already parsed (e.g., during parse phase with extends: true)
+      const existingParseResult = extendsElement.meta.get('parseResult');
+
+      if (isParseResultElement(existingParseResult)) {
+        // use existing parsed result - just dereference it (no re-fetch/re-parse)
+        extendsDereferenced = await dereferenceApiDOM(
+          existingParseResult,
+          mergeOptions(options, {
+            ...nestedOptions,
+            parse: {
+              mediaType: 'text/plain', // allow dereference strategy detection via ApiDOM inspection
+            },
+            resolve: { baseURI: retrievalURI },
+          }),
+        );
+      } else {
+        // no existing parse result - fetch, parse, and dereference
+        extendsDereferenced = await dereference(
+          retrievalURI,
+          mergeOptions(options, {
+            ...nestedOptions,
+            parse: {
+              mediaType: 'text/plain', // allow parser plugin detection
+            },
+          }),
+        );
+      }
+
+      // merge dereferenced result into our wrapper
+      for (const item of extendsDereferenced) {
+        extendsDereferenceResult.push(item);
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      const annotation = new AnnotationElement(
+        `Error dereferencing extends target "${retrievalURI}": ${message}`,
+      );
+      annotation.classes.push('error');
+      extendsDereferenceResult.push(annotation);
+    }
   }
 
   // always attach result to extends element meta (even on failure - contains annotations)

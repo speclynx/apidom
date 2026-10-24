@@ -8,6 +8,9 @@ import type { ReferenceOptions } from '../../../options/index.ts';
 import { merge as mergeOptions } from '../../../options/util.ts';
 import parse from '../../index.ts';
 
+// shared key for recursion state (works across JSON/YAML parsers)
+const OVERLAY_RECURSION_KEY = 'overlay-1';
+
 /**
  * Parses the `extends` target document from an Overlay document's ParseResult.
  *
@@ -50,26 +53,44 @@ export async function parseExtends(
   extendsParseResult.classes.push('extends');
   extendsParseResult.setMetaProperty('retrievalURI', retrievalURI);
 
-  try {
-    const targetParseResult = await parse(
-      retrievalURI,
-      mergeOptions(options, {
-        parse: {
-          mediaType: 'text/plain', // force auto-detection
-        },
-      }),
-    );
-    // merge parsed result into our wrapper
-    for (const item of targetParseResult) {
-      extendsParseResult.push(item);
-    }
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+  // URIs of the Overlays currently being parsed, from the root down to the current one
+  const ancestors: string[] = [
+    ...(options?.parse?.parserOpts?.[OVERLAY_RECURSION_KEY]?.extendsAncestors ?? []),
+    file.uri,
+  ];
+
+  // skip if the target is still being parsed higher up the chain (cycle detection)
+  if (ancestors.includes(retrievalURI)) {
     const annotation = new AnnotationElement(
-      `Error parsing extends target "${retrievalURI}": ${message}`,
+      `Extends target "${retrievalURI}" has already been visited. Skipping to prevent cycle`,
     );
-    annotation.classes.push('error');
+    annotation.classes.push('warning');
     extendsParseResult.push(annotation);
+  } else {
+    try {
+      const targetParseResult = await parse(
+        retrievalURI,
+        mergeOptions(options, {
+          parse: {
+            mediaType: 'text/plain', // force auto-detection
+            parserOpts: {
+              [OVERLAY_RECURSION_KEY]: { extendsAncestors: ancestors },
+            },
+          },
+        }),
+      );
+      // merge parsed result into our wrapper
+      for (const item of targetParseResult) {
+        extendsParseResult.push(item);
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      const annotation = new AnnotationElement(
+        `Error parsing extends target "${retrievalURI}": ${message}`,
+      );
+      annotation.classes.push('error');
+      extendsParseResult.push(annotation);
+    }
   }
 
   // always attach result to extends element meta (even on failure - contains annotations)
