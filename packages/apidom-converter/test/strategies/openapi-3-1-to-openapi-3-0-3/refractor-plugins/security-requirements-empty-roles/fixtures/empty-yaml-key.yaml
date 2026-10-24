@@ -1,0 +1,13 @@
+openapi: 3.1.0
+info:
+  title: Security Requirement with empty key
+  version: 1.0.0
+paths: {}
+security:
+  - : []
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name:

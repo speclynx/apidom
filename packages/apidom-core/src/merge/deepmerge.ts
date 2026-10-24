@@ -12,8 +12,6 @@ import {
   cloneShallow,
 } from '@speclynx/apidom-datamodel';
 
-import toValue from '../transformers/serializers/value.ts';
-
 /**
  * @public
  */
@@ -160,7 +158,7 @@ const mergeObjectElement: ObjectElementMerge = (targetElement, sourceElement, op
   }
 
   sourceElement.forEach((value, key, member) => {
-    const keyValue = toValue(key) as string;
+    const keyValue = key.toValue() as string;
     let clonedMember;
 
     if (

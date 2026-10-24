@@ -1,13 +1,15 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mediaTypes as openAPI31MediaTypes } from '@speclynx/apidom-parser-adapter-openapi-json-3-1';
+import { mediaTypes as openAPI31YAMLMediaTypes } from '@speclynx/apidom-parser-adapter-openapi-yaml-3-1';
 import { mediaTypes as openAPI30MediaTypes } from '@speclynx/apidom-parser-adapter-openapi-json-3-0';
 import {
   AnnotationElement,
+  ObjectElement,
   includesClasses,
   hasElementSourceMap,
 } from '@speclynx/apidom-datamodel';
-import { toJSON } from '@speclynx/apidom-core';
+import { toJSON, toValue } from '@speclynx/apidom-core';
 import { assert, expect } from 'chai';
 
 import convert from '../../../../../src/index.ts';
@@ -88,6 +90,23 @@ describe('converter', function () {
           assert.strictEqual(annotation.endLine, 18);
           assert.strictEqual(annotation.endCharacter, 13);
           assert.strictEqual(annotation.endOffset, 358);
+        });
+
+        specify('should convert Security Requirement with empty YAML key', async function () {
+          const fixturePath = path.join(__dirname, 'fixtures', 'empty-yaml-key.yaml');
+          const convertedParseResult = await convert(fixturePath, {
+            parse: {
+              parserOpts: { strict: false },
+            },
+            convert: {
+              sourceMediaType: openAPI31YAMLMediaTypes.findBy('3.1.0', 'yaml'),
+              targetMediaType: openAPI30MediaTypes.findBy('3.0.3', 'json'),
+            },
+          });
+
+          assert.deepEqual(toValue((convertedParseResult.api as ObjectElement).get('security')), [
+            { '': [] },
+          ]);
         });
       });
     });

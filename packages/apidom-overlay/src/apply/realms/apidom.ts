@@ -9,7 +9,7 @@ import {
   cloneShallow,
   ParseResultElement,
 } from '@speclynx/apidom-datamodel';
-import { deepmerge, toValue, type DeepMergeUserOptions } from '@speclynx/apidom-core';
+import { deepmerge, type DeepMergeUserOptions } from '@speclynx/apidom-core';
 import { evaluate, NormalizedPath } from '@speclynx/apidom-json-path';
 import {
   type ActionElement,
@@ -307,7 +307,7 @@ export const applyAction = (
   const actionValidation = validateAction(actionElement);
   if (!actionValidation.valid) throw actionValidation.error!;
 
-  const targetExpression = toValue(actionElement.target) as string;
+  const targetExpression = actionElement.target?.toValue() as string;
 
   const matches: Element[] = [];
   const normalizedPaths: string[] = [];
@@ -352,7 +352,7 @@ export const applyAction = (
   try {
     // remove action
     const removeValue = actionElement.removeField;
-    if (removeValue !== undefined && toValue(removeValue) === true) {
+    if (removeValue !== undefined && removeValue.toValue() === true) {
       const result = applyRemoveAction(normalizedPaths, workingElement, mutatingOptions);
       tracer?.action({
         target: targetExpression,
@@ -392,7 +392,7 @@ export const applyAction = (
     if (actionElement.copy !== undefined) {
       const nodesValidation = validateTargetNodes(matches);
       if (!nodesValidation.valid) throw nodesValidation.error!;
-      const copyExpression = toValue(actionElement.copy) as string;
+      const copyExpression = actionElement.copy?.toValue() as string;
       const result = applyCopyAction(
         normalizedPaths,
         copyExpression,
@@ -495,7 +495,7 @@ export const applyOverlay = async <T extends Element | ParseResultElement>(
     : undefined;
   if (isReusableActionReferenceElement(unresolvedReference)) {
     throw new OverlayError(
-      `Overlay contains unresolved Reusable Action Reference "${toValue(unresolvedReference.$ref)}"`,
+      `Overlay contains unresolved Reusable Action Reference "${unresolvedReference.$ref?.toValue()}"`,
     );
   }
 

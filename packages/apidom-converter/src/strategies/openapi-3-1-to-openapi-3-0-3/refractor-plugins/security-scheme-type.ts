@@ -15,7 +15,6 @@ import {
   isObjectElement,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
 import { dereferenceApiDOM, ReferenceSet, Reference, url } from '@speclynx/apidom-reference';
 import { type Path } from '@speclynx/apidom-traverse';
 
@@ -30,7 +29,7 @@ const securitySchemeTypeRefractorPlugin =
   (toolbox: Toolbox) => {
     let parseResultElement: ParseResultElement | undefined;
     const isRemovableSecuritySchemeElement = (value: unknown): value is SecuritySchemeElement =>
-      isSecuritySchemeElement(value) && toValue(value.type) === 'mutualTLS';
+      isSecuritySchemeElement(value) && value.type?.toValue() === 'mutualTLS';
     const removedSecuritySchemes: SecuritySchemeElement[] = [];
     const createAnnotation = <T extends Element>(element: T) =>
       toolbox.createAnnotation.fromElement(
@@ -51,7 +50,7 @@ const securitySchemeTypeRefractorPlugin =
           if (!isObjectElement(element.components.securitySchemes)) return undefined;
 
           element.components.securitySchemes.forEach((value) => {
-            if (isSecuritySchemeElement(value) && toValue(value.type) === 'mutualTLS') {
+            if (isSecuritySchemeElement(value) && value.type?.toValue() === 'mutualTLS') {
               removedSecuritySchemes.push(value);
             }
           });
@@ -89,7 +88,7 @@ const securitySchemeTypeRefractorPlugin =
             });
 
             if (isRemovableSecuritySchemeElement(dereferenced)) {
-              element.securitySchemes.remove(toValue(memberElement.key) as string);
+              element.securitySchemes.remove(memberElement.key?.toValue() as string);
               annotations.push(createAnnotation(referenceElement));
             }
           }
@@ -100,7 +99,7 @@ const securitySchemeTypeRefractorPlugin =
           element.securitySchemes.forEach((value, key) => {
             if (isRemovableSecuritySchemeElement(value)) {
               if (!removedSecuritySchemes.includes(value)) removedSecuritySchemes.push(value);
-              (element.securitySchemes as SecuritySchemeElement).remove(toValue(key) as string);
+              (element.securitySchemes as SecuritySchemeElement).remove(key.toValue() as string);
               annotations.push(createAnnotation(value));
             }
           });
@@ -115,11 +114,11 @@ const securitySchemeTypeRefractorPlugin =
 
           element.forEach((value, key) => {
             const removedSecurityScheme = removedSecuritySchemes.find(
-              (securityScheme) => toValue(securityScheme.name) === toValue(key),
+              (securityScheme) => securityScheme.name?.toValue() === key.toValue(),
             );
 
             if (isSecuritySchemeElement(removedSecurityScheme)) {
-              keysToRemove.push(toValue(key) as string);
+              keysToRemove.push(key.toValue() as string);
               annotations.push(createAnnotation(value));
             }
           });
