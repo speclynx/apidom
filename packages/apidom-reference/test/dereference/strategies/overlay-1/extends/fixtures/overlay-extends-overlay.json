@@ -1,0 +1,14 @@
+{
+  "overlay": "1.2.0",
+  "info": {
+    "title": "Overlay extending an Overlay",
+    "version": "1.0.0"
+  },
+  "extends": "./overlay-reusable-actions.json",
+  "actions": [
+    {
+      "target": "$.info",
+      "remove": true
+    }
+  ]
+}

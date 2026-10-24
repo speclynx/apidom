@@ -1,4 +1,4 @@
-import { Element, ParseResultElement, cloneDeep } from '@speclynx/apidom-datamodel';
+import { Element, cloneDeep, isParseResultElement } from '@speclynx/apidom-datamodel';
 import { isOverlay1Element, mediaTypes } from '@speclynx/apidom-ns-overlay-1';
 import { traverseAsync } from '@speclynx/apidom-traverse';
 
@@ -91,14 +91,24 @@ class Overlay1DereferenceStrategy extends DereferenceStrategy {
       reference = mutableRefSet.find((ref) => ref.uri === file.uri)!;
     }
 
-    const dereferencedElement = reference.value as ParseResultElement;
+    const visitor = new Overlay1DereferenceVisitor({ reference, options });
+    /**
+     * The reference for the dereferenced file is traversed rather than the refSet's root
+     * reference: dereferencing the extends target shares the refSet, whose root is then
+     * the extending Overlay. The reference may hold a lone element.
+     */
+    let dereferencedElement = reference.value;
 
     /**
-     * Reusable Action References only occur within `actions`, so the root element is never
-     * replaced and traversing it keeps reported locations relative to the document.
+     * A ParseResult may also carry the extends target parsed in the parse phase, whose
+     * references belong to that document, so only its result is traversed. Reusable Action
+     * References only occur within `actions`, so the result itself is never replaced.
      */
-    const visitor = new Overlay1DereferenceVisitor({ reference, options });
-    await traverseAsync(dereferencedElement.result!, visitor, { mutable: true });
+    if (isParseResultElement(dereferencedElement)) {
+      await traverseAsync(dereferencedElement.result!, visitor, { mutable: true });
+    } else {
+      dereferencedElement = await traverseAsync(dereferencedElement, visitor, { mutable: true });
+    }
 
     /**
      * Dereference extends target if option is enabled.
@@ -107,7 +117,7 @@ class Overlay1DereferenceStrategy extends DereferenceStrategy {
       options?.dereference?.strategyOpts?.[this.name]?.extends ??
       options?.dereference?.strategyOpts?.extends;
 
-    if (shouldDereferenceExtends) {
+    if (shouldDereferenceExtends && isParseResultElement(dereferencedElement)) {
       await dereferenceExtends(dereferencedElement, reference.uri, options);
     }
 
