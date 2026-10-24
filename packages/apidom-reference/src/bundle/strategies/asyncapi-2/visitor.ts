@@ -407,6 +407,11 @@ class AsyncAPI2BundleVisitor {
 
   public async ReferenceElement(path: Path<Element>) {
     const referencingElement = path.node as ReferenceElement;
+
+    // ignore Reference Object without a string $ref, e.g. an empty YAML value
+    if (!isStringElement(referencingElement.$ref)) {
+      return;
+    }
     const $ref = toValue(referencingElement.$ref) as string;
     const retrievalURI = this.toBaseURI($ref);
     const isInternalReference = this.entryURI === retrievalURI;
