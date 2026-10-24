@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import dedent from 'dedent';
 import { includesClasses, hasElementSourceMap } from '@speclynx/apidom-datamodel';
-import { sexprs } from '@speclynx/apidom-core';
+import { sexprs, toValue } from '@speclynx/apidom-core';
 import { parse } from '@speclynx/apidom-parser-adapter-yaml-1-2';
 
 import {
@@ -132,5 +132,18 @@ describe('given OpenAPI definition with empty values', function () {
     expect(infoValue!.endLine).to.equal(1);
     expect(infoValue!.endCharacter).to.equal(5);
     expect(infoValue!.endOffset).to.equal(20);
+  });
+});
+
+// https://github.com/speclynx/apidom/issues/694
+describe('given replaced empty value filled in and refracted again', function () {
+  it('should keep its content', async function () {
+    const apiDOM = await parse('openapi: 3.1.0\ninfo:\n');
+    const plugins = () => [refractorPluginReplaceEmptyElement()];
+    const openApiElement = refractOpenApi3_1(apiDOM.result, { plugins: plugins() });
+    openApiElement.info!.set('title', 'API');
+    const refracted = refractOpenApi3_1(openApiElement, { plugins: plugins() });
+
+    expect(toValue(refracted.info)).to.deep.equal({ title: 'API' });
   });
 });
