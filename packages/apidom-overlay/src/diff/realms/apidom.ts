@@ -41,6 +41,9 @@ const defaultDiffOptions = {
   info: { title: 'API diff', version: '0.0.0' },
 } as const;
 
+// generated actions update primitives and concatenate arrays, which requires Overlay >= 1.1.0
+const supportedOverlayVersionRegExp = /^1\.(?:[1-9]\d*)\.(?:[1-9]\d*|0)$/;
+
 type Segments = (string | number)[];
 
 const createUpdateAction = (segments: Segments, value: Element): ActionElement => {
@@ -218,6 +221,12 @@ export const diff = (
   const infoTitle = options.info?.title ?? defaultDiffOptions.info.title;
   const infoVersion = options.info?.version ?? defaultDiffOptions.info.version;
   const infoDescription = options.info?.description;
+
+  if (!supportedOverlayVersionRegExp.test(overlayVersion)) {
+    throw new OverlayError(
+      `Unsupported overlay version "${overlayVersion}": diff produces Overlay >= 1.1.0 documents (1.x.y)`,
+    );
+  }
 
   const actions: ActionElement[] = [];
   diffElements(leftElement, rightElement, [], actions);

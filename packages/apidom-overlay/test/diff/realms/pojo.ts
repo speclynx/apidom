@@ -2,6 +2,7 @@ import { assert } from 'chai';
 
 import { diffPOJO } from '../../../src/diff/index.ts';
 import { applyOverlay as applyOverlayPOJO } from '../../../src/apply/realms/pojo.ts';
+import OverlayError from '../../../src/errors/OverlayError.ts';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyJson = Record<string, any>;
@@ -56,5 +57,14 @@ describe('diffPOJO', function () {
         assert.deepEqual(result, right);
       },
     );
+  });
+
+  context('given overlay version option below 1.1.0', function () {
+    specify('should throw OverlayError', function () {
+      const left = { info: { version: '1.0.0' }, tags: [{ name: 'a' }] };
+      const right = { info: { version: '2.0.0' }, tags: [{ name: 'a' }, { name: 'b' }] };
+
+      assert.throws(() => diffPOJO(left, right, { overlay: '1.0.0' }), OverlayError);
+    });
   });
 });

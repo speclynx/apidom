@@ -186,7 +186,7 @@ const overlay = await diffOverlay(
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `overlay` | `string` | `'1.2.0'` | Version string written to the `overlay` field. Generated overlays use no 1.2.0-only features, so pass `'1.1.0'` (or `'1.0.0'`) to target an older version. |
+| `overlay` | `string` | `'1.2.0'` | Version string written to the `overlay` field. Generated overlays use no 1.2.0-only features, so pass `'1.1.0'` to target an older version. Must be a `1.x.y` version of at least `1.1.0`, otherwise `OverlayError` is thrown: generated actions update primitive values and concatenate arrays, which Overlay 1.0.0 does not allow. |
 | `info.title` | `string` | `'API diff'` | Title for the generated overlay's `info` object. |
 | `info.version` | `string` | `'0.0.0'` | Version for the generated overlay's `info` object. |
 | `info.description` | `string` | — | Optional description for the overlay's `info` object. |
