@@ -4,6 +4,7 @@ import {
   SourceMapElement,
   cloneDeep,
   hasElementSourceMap,
+  isElement,
 } from '@speclynx/apidom-datamodel';
 import { toValue, toYAML } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
@@ -11,7 +12,7 @@ import {
   evaluate as jsonPointerEvaluate,
   URIFragmentIdentifier,
 } from '@speclynx/apidom-json-pointer';
-import type { Path } from '@speclynx/apidom-traverse';
+import { traverse, type Path } from '@speclynx/apidom-traverse';
 import {
   ActionElement,
   isActionElement,
@@ -22,7 +23,9 @@ import {
 
 import UnresolvableReferenceError from '../../../errors/UnresolvableReferenceError.ts';
 import Reference from '../../../Reference.ts';
+import type ReferenceSet from '../../../ReferenceSet.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
+import * as url from '../../../util/url.ts';
 
 /**
  * @public
@@ -55,7 +58,13 @@ class Overlay1DereferenceVisitor {
     }
 
     const $ref = toValue(referencingElement.$ref) as string;
-    const overlayElement = (this.reference.value as ParseResultElement).result as Overlay1Element;
+    // the reference may hold a lone element; same-document references resolve against the
+    // document registered in the refSet under the reference's URI without fragment
+    const { refSet } = this.reference as { refSet: ReferenceSet };
+    const documentURI = url.stripHash(this.reference.uri);
+    const documentReference = refSet.find((ref) => ref.uri === documentURI) ?? this.reference;
+    const overlayElement = (documentReference.value as ParseResultElement)
+      .result as Overlay1Element;
     const actionElement = new ActionElement();
 
     try {
@@ -136,13 +145,29 @@ class Overlay1DereferenceVisitor {
       }
     } catch (error: unknown) {
       const { continueOnError } = this.options.dereference;
+
+      // find element location by identity in the document tree;
+      // falls back to the visitor path when the document doesn't contain the element
+      let location: string | undefined;
+      if (isElement(overlayElement)) {
+        traverse(overlayElement, {
+          enter: (p: Path<Element>) => {
+            if (p.node === referencingElement) {
+              location = p.formatPath();
+              p.stop();
+            }
+          },
+        });
+      }
+      location ??= path.formatPath();
+
       const unresolvedError = new UnresolvableReferenceError(
         `Error while dereferencing Reusable Action Reference "${$ref}": ${(error as Error).message}`,
         {
           cause: error,
           type: referencingElement.element,
           uri: this.reference.uri,
-          location: path.formatPath(),
+          location,
           codeFrame: toYAML(referencingElement),
           refFieldName: '$ref',
           refFieldValue: $ref,

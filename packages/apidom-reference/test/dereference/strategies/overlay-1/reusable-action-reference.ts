@@ -7,9 +7,12 @@ import {
   type Overlay1Element,
   type ReusableActionElement,
   type ActionElement,
+  type ReusableActionReferenceElement,
+  mediaTypes,
 } from '@speclynx/apidom-ns-overlay-1';
+import { ParseResultElement } from '@speclynx/apidom-datamodel';
 
-import { dereferenceApiDOM } from '../../../../src/index.ts';
+import { dereferenceApiDOM, Reference, ReferenceSet } from '../../../../src/index.ts';
 import UnresolvableReferenceError from '../../../../src/errors/UnresolvableReferenceError.ts';
 
 const createOverlay = (
@@ -30,6 +33,28 @@ const createOverlay = (
     actions: [reference],
     components: { actions },
   });
+
+// dereferences the reference element on its own, with a ReferenceSet holding it and the document
+const resolveLone = async (
+  overlay: Overlay1Element,
+  { withDocument = true, immutable = true } = {},
+) => {
+  const referenceElement = overlay.actions!.get(0) as ReusableActionReferenceElement;
+  const parseResult = new ParseResultElement([overlay]);
+  parseResult.get(0)!.classes.push('result');
+  const refSet = new ReferenceSet({
+    refs: [
+      new Reference({ uri: '/overlay.json#ref', value: referenceElement }),
+      ...(withDocument ? [new Reference({ uri: '/overlay.json', value: parseResult })] : []),
+    ],
+  });
+
+  return dereferenceApiDOM(referenceElement, {
+    parse: { mediaType: mediaTypes.latest('json') },
+    resolve: { baseURI: '/overlay.json#ref' },
+    dereference: { refSet, immutable },
+  });
+};
 
 const resolve = async (overlay: Overlay1Element) => {
   const dereferenced = await dereferenceApiDOM(overlay, { resolve: { baseURI: '/overlay.json' } });
@@ -112,6 +137,44 @@ describe('dereference Reusable Action Reference', function () {
     );
 
     assert.deepEqual(toValue(await resolve(overlay)), { target: '$' });
+  });
+
+  context('given a lone Reusable Action Reference', function () {
+    specify('should resolve it against the document in the ReferenceSet', async function () {
+      const overlay = createOverlay({
+        $ref: '#/components/actions/errorResponse',
+        target: '$.paths.*.get.responses',
+      });
+      // dereferenceApiDOM doesn't return the replaced element for a pre-registered reference
+      // (as for OpenAPI), so success means no UnresolvableReferenceError
+      await resolveLone(overlay);
+    });
+
+    specify('should report the location within the document', async function () {
+      const overlay = createOverlay({ $ref: '#/components/actions/missing', target: '$' });
+
+      try {
+        await resolveLone(overlay, { immutable: false });
+        assert.fail('should throw UnresolvableReferenceError');
+      } catch (error: unknown) {
+        assert.instanceOf(error, UnresolvableReferenceError);
+        assert.propertyVal(error, 'location', '/actions/0');
+      }
+    });
+
+    specify('should throw when the ReferenceSet lacks the document', async function () {
+      const overlay = createOverlay({
+        $ref: '#/components/actions/errorResponse',
+        target: '$',
+      });
+
+      try {
+        await resolveLone(overlay, { withDocument: false });
+        assert.fail('should throw UnresolvableReferenceError');
+      } catch (error: unknown) {
+        assert.instanceOf(error, UnresolvableReferenceError);
+      }
+    });
   });
 
   context('given invalid reference', function () {

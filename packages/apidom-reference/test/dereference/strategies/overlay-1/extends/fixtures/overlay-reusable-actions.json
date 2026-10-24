@@ -1,0 +1,22 @@
+{
+  "overlay": "1.2.0",
+  "info": {
+    "title": "Overlay with reusable actions",
+    "version": "1.0.0"
+  },
+  "components": {
+    "actions": {
+      "removeInfo": {
+        "fields": {
+          "remove": true
+        }
+      }
+    }
+  },
+  "actions": [
+    {
+      "$ref": "#/components/actions/removeInfo",
+      "target": "$.info"
+    }
+  ]
+}
