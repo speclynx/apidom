@@ -12,7 +12,15 @@ import {
 } from '@speclynx/apidom-ns-overlay-1';
 import { ParseResultElement } from '@speclynx/apidom-datamodel';
 
-import { dereferenceApiDOM, Reference, ReferenceSet } from '../../../../src/index.ts';
+import {
+  dereferenceApiDOM,
+  File,
+  Reference,
+  ReferenceSet,
+  mergeOptions,
+  options,
+} from '../../../../src/index.ts';
+import Overlay1DereferenceStrategy from '../../../../src/dereference/strategies/overlay-1/index.ts';
 import UnresolvableReferenceError from '../../../../src/errors/UnresolvableReferenceError.ts';
 
 const createOverlay = (
@@ -148,6 +156,39 @@ describe('dereference Reusable Action Reference', function () {
       // dereferenceApiDOM doesn't return the replaced element for a pre-registered reference
       // (as for OpenAPI), so success means no UnresolvableReferenceError
       await resolveLone(overlay);
+    });
+
+    specify('should be replaced by the strategy with the resolved Action', async function () {
+      const overlay = createOverlay({
+        $ref: '#/components/actions/errorResponse',
+        target: '$.paths.*.get.responses',
+      });
+      const referenceElement = overlay.actions!.get(0) as ReusableActionReferenceElement;
+      const parseResult = new ParseResultElement([overlay]);
+      parseResult.get(0)!.classes.push('result');
+      // the document is registered first, so it is the refSet's root reference
+      const refSet = new ReferenceSet({
+        refs: [
+          new Reference({ uri: '/overlay.json', value: parseResult }),
+          new Reference({ uri: '/overlay.json#ref', value: referenceElement }),
+        ],
+      });
+      const file = new File({
+        uri: '/overlay.json#ref',
+        parseResult: new ParseResultElement([referenceElement]),
+        mediaType: mediaTypes.latest('json'),
+      });
+      const actionElement = await new Overlay1DereferenceStrategy().dereference(
+        file,
+        mergeOptions(options, { dereference: { refSet } }),
+      );
+
+      assert.isTrue(isActionElement(actionElement));
+      assert.deepEqual(toValue(actionElement), {
+        target: '$.paths.*.get.responses',
+        description: 'Adds an error response',
+        update: { '404': { description: 'Not Found' } },
+      });
     });
 
     specify('should report the location within the document', async function () {

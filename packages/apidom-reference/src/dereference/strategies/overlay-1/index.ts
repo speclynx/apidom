@@ -64,7 +64,6 @@ class Overlay1DereferenceStrategy extends DereferenceStrategy {
   async dereference(file: File, options: ReferenceOptions): Promise<Element> {
     const immutableRefSet = options.dereference.refSet ?? new ReferenceSet();
     const mutableRefSet = new ReferenceSet();
-    let refSet = immutableRefSet;
     let reference: Reference;
 
     if (!immutableRefSet.has(file.uri)) {
@@ -90,11 +89,15 @@ class Overlay1DereferenceStrategy extends DereferenceStrategy {
         )
         .forEach((ref) => mutableRefSet.add(ref));
       reference = mutableRefSet.find((ref) => ref.uri === file.uri)!;
-      refSet = mutableRefSet;
     }
 
     const visitor = new Overlay1DereferenceVisitor({ reference, options });
-    let dereferencedElement = refSet.rootRef!.value;
+    /**
+     * The reference for the dereferenced file is traversed rather than the refSet's root
+     * reference: dereferencing the extends target shares the refSet, whose root is then
+     * the extending Overlay. The reference may hold a lone element.
+     */
+    let dereferencedElement = reference.value;
 
     /**
      * A ParseResult may also carry the extends target parsed in the parse phase, whose

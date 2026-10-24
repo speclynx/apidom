@@ -6,7 +6,13 @@ import { toJSON, toValue } from '@speclynx/apidom-core';
 import { mediaTypes, Overlay1Element } from '@speclynx/apidom-ns-overlay-1';
 import { isOpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
 
-import { dereference, dereferenceApiDOM } from '../../../../../src/index.ts';
+import {
+  dereference,
+  dereferenceApiDOM,
+  parse,
+  Reference,
+  ReferenceSet,
+} from '../../../../../src/index.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootFixturePath = path.join(__dirname, 'fixtures');
@@ -246,6 +252,40 @@ describe('dereference', function () {
               const extendsResult = dereferenceResult.get(1)! as ParseResultElement;
               const extendsApi = extendsResult.api as Overlay1Element;
 
+              assert.deepEqual(toValue(extendsApi.get('actions')), [
+                { target: '$.info', remove: true },
+              ]);
+            },
+          );
+        });
+
+        context('given a ReferenceSet supplied as an option', function () {
+          specify(
+            'should dereference the extends target, not the extending Overlay',
+            async function () {
+              const uri = path.join(rootFixturePath, 'overlay-extends-overlay.json');
+              const refSet = new ReferenceSet({
+                refs: [
+                  new Reference({
+                    uri,
+                    value: await parse(uri, { parse: { mediaType: mediaTypes.latest('json') } }),
+                  }),
+                ],
+              });
+              const dereferenceResult = await dereference(uri, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                dereference: {
+                  refSet,
+                  strategyOpts: {
+                    'overlay-1': { extends: true },
+                  },
+                },
+              });
+
+              const extendsResult = dereferenceResult.get(1)! as ParseResultElement;
+              const extendsApi = extendsResult.api as Overlay1Element;
+
+              assert.strictEqual(toValue(extendsApi.info!.title), 'Overlay with reusable actions');
               assert.deepEqual(toValue(extendsApi.get('actions')), [
                 { target: '$.info', remove: true },
               ]);
