@@ -1,0 +1,13 @@
+arazzo: 1.0.1
+info:
+  title: Empty references
+  version: 1.0.0
+sourceDescriptions:
+  - name: api
+    url: ./openapi-3-1.yaml
+    type: openapi
+workflows: []
+components:
+  inputs:
+    Input:
+      $ref:
