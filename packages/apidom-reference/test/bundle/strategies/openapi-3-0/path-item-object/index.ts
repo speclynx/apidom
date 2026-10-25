@@ -81,6 +81,91 @@ describe('bundle', function () {
           });
         });
 
+        // a hang here would not fail the test: the loop never yields to timers, so mocha's
+        // timeout does not fire either
+        context('given a circular external Path Item reference through a callback', function () {
+          const fixturePath = path.join(rootFixturePath, 'callback-circular');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify('should terminate and keep the cycle-breaking $ref in place', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.deepEqual(
+              toValue(
+                evaluate(
+                  bundled.result as Element,
+                  '/paths/~1a/get/callbacks/onEvent/{$request.body#~1url}',
+                ),
+              ),
+              { $ref: './paths.json#/A' },
+            );
+          });
+
+          specify('should bundle the fields of the referencing Path Item', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assert.deepEqual(
+              toValue(evaluate(bundled.result as Element, '/paths/~1a/parameters')),
+              [{ $ref: '#/components/parameters/Limit' }],
+            );
+          });
+        });
+
+        context('given a circular Path Item reference through a callback by fragment', function () {
+          const fixturePath = path.join(rootFixturePath, 'callback-circular-fragment');
+          const rootFilePath = path.join(fixturePath, 'root.json');
+
+          specify(
+            'should rewrite the cycle-breaking $ref against the entry document',
+            async function () {
+              const bundled = await bundle(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+
+              assert.deepEqual(
+                toValue(
+                  evaluate(
+                    bundled.result as Element,
+                    '/paths/~1a/get/callbacks/onEvent/{$request.body#~1url}',
+                  ),
+                ),
+                { $ref: 'nested/paths.json#/A' },
+              );
+            },
+          );
+        });
+
+        context(
+          'given a circular Path Item reference through callbacks across directories',
+          function () {
+            const fixturePath = path.join(rootFixturePath, 'callback-circular-cross-directory');
+            const rootFilePath = path.join(fixturePath, 'root.json');
+
+            specify(
+              'should rewrite the cycle-breaking $ref against the entry document',
+              async function () {
+                const bundled = await bundle(rootFilePath, {
+                  parse: { mediaType: mediaTypes.latest('json') },
+                });
+
+                assert.deepEqual(
+                  toValue(
+                    evaluate(
+                      bundled.result as Element,
+                      '/paths/~1a/post/callbacks/onEvent/{$request.body#~1url}/get/callbacks/onEvent/{$request.body#~1url}',
+                    ),
+                  ),
+                  { $ref: 'sub/a.json#/A' },
+                );
+              },
+            );
+          },
+        );
+
         context('given an external Path Item chain exceeding bundle.maxDepth', function () {
           const fixturePath = path.join(rootFixturePath, 'max-depth');
           const rootFilePath = path.join(fixturePath, 'root.json');
