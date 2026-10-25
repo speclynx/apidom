@@ -535,115 +535,125 @@ class OpenAPI3_0BundleVisitor {
    * Path Item Object is not a Components Object field in OpenAPI 3.0
    * (unlike 3.1 which has `components.pathItems`). An external Path Item
    * reference therefore cannot be hoisted; it is inlined in place instead,
-   * after bundling its own external references.
+   * after bundling its own external references. It is inlined on leave, once
+   * the sibling fields of the referencing Path Item have been bundled, so the
+   * traversal doesn't descend into the inlined copy and inline the `$ref` left
+   * in it to break a cycle again.
    */
-  public async PathItemElement(path: Path<Element>) {
-    const pathItemElement = path.node as PathItemElement;
+  public readonly PathItemElement = {
+    leave: async (path: Path<Element>) => {
+      const pathItemElement = path.node as PathItemElement;
 
-    // ignore Path Item Objects without a $ref field
-    if (!isStringElement(pathItemElement.$ref)) {
-      return;
-    }
+      // ignore Path Item Objects without a $ref field
+      if (!isStringElement(pathItemElement.$ref)) {
+        return;
+      }
 
-    const $ref = toValue(pathItemElement.$ref) as string;
-    const retrievalURI = this.toBaseURI($ref);
-    const isInternalReference = this.entryURI === retrievalURI;
-    const isExternalReference = !isInternalReference;
+      const $ref = toValue(pathItemElement.$ref) as string;
+      const retrievalURI = this.toBaseURI($ref);
+      const isInternalReference = this.entryURI === retrievalURI;
+      const isExternalReference = !isInternalReference;
 
-    if (isInternalReference) {
-      // normalize self-references to a bare fragment so the bundled
-      // document stays transferable; bare fragments are left untouched
-      pathItemElement.set('$ref', this.normalizeSelfReference($ref));
-      return;
-    }
+      if (isInternalReference) {
+        // normalize self-references to a bare fragment so the bundled
+        // document stays transferable; bare fragments are left untouched
+        pathItemElement.set('$ref', this.normalizeSelfReference($ref));
+        return;
+      }
 
-    // honor the resolve.external switch
-    if (!this.options.resolve.external && isExternalReference) {
-      return;
-    }
+      // honor the resolve.external switch
+      if (!this.options.resolve.external && isExternalReference) {
+        return;
+      }
 
-    const $refBaseURI = url.resolve(retrievalURI, $ref);
-    const jsonPointer = URIFragmentIdentifier.fromURIReference($refBaseURI);
-    const canonicalKey = `${retrievalURI}#${jsonPointer}`;
+      const $refBaseURI = url.resolve(retrievalURI, $ref);
+      const jsonPointer = URIFragmentIdentifier.fromURIReference($refBaseURI);
+      const canonicalKey = `${retrievalURI}#${jsonPointer}`;
 
-    // a circular external Path Item reference cannot be inlined without
-    // recursing forever; leave the $ref in place to break the cycle
-    if (this.inlineStack.has(canonicalKey)) {
-      return;
-    }
+      // a circular external Path Item reference cannot be inlined without
+      // recursing forever; leave the $ref in place to break the cycle. It ends
+      // up in the entry document, so it has to resolve from there
+      if (this.inlineStack.has(canonicalKey)) {
+        const targetURI = url.resolve(this.reference.uri, $ref);
+        if (url.resolve(this.entryURI, $ref) !== targetURI) {
+          pathItemElement.set('$ref', url.relative(this.entryURI, targetURI));
+        }
+        return;
+      }
 
-    try {
-      // detect maximum depth of bundling
-      if (this.reference.depth >= this.options.bundle.maxDepth) {
-        throw new MaximumBundleDepthError(
-          `Maximum bundle depth of "${this.options.bundle.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
-          { maxDepth: this.options.bundle.maxDepth, uri: this.reference.uri },
+      try {
+        // detect maximum depth of bundling
+        if (this.reference.depth >= this.options.bundle.maxDepth) {
+          throw new MaximumBundleDepthError(
+            `Maximum bundle depth of "${this.options.bundle.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
+            { maxDepth: this.options.bundle.maxDepth, uri: this.reference.uri },
+          );
+        }
+
+        const reference = await this.toReference($ref);
+
+        let referencedElement = evaluate<Element>(
+          (reference.value as ParseResultElement).result as Element,
+          jsonPointer,
+        );
+
+        // apply Path Item semantics to the referenced fragment
+        if (!isPathItemElement(referencedElement)) {
+          const cached = this.getRefracted(referencedElement, 'pathItem');
+          if (cached !== undefined) {
+            referencedElement = cached;
+          } else {
+            const sourceElement = referencedElement;
+            referencedElement = refractPathItem(referencedElement);
+            this.setRefracted(sourceElement, 'pathItem', referencedElement);
+          }
+        }
+
+        // own a copy and bundle the external references it contains
+        const inlinedElement = cloneDeep(referencedElement) as PathItemElement;
+        this.inlineStack.add(canonicalKey);
+        const visitor = new OpenAPI3_0BundleVisitor({
+          reference,
+          options: this.options,
+          assignments: this.assignments,
+          reservedNames: this.reservedNames,
+          refractCache: this.refractCache,
+          inlineStack: this.inlineStack,
+        });
+        let bundledElement: PathItemElement;
+        try {
+          bundledElement = (await traverseAsync(inlinedElement, visitor, {
+            mutable: true,
+          })) as PathItemElement;
+        } finally {
+          this.inlineStack.delete(canonicalKey);
+        }
+
+        // merge sibling fields from the referencing Path Item over the referenced
+        // one. The referencing `$ref` is being resolved away and is skipped; the
+        // referenced element keeps its own `$ref` if one survived (i.e. it was
+        // left in place to break a circular external Path Item chain).
+        pathItemElement.forEach((_value: Element, keyElement: Element, item: Element) => {
+          const key = toValue(keyElement) as string;
+          if (key === '$ref') return;
+          bundledElement.remove(key);
+          (bundledElement.content as Element[]).push(item);
+        });
+        bundledElement.meta.set('ref-origin', reference.uri);
+
+        path.replaceWith(bundledElement);
+      } catch (error: unknown) {
+        this.handleError(
+          `Error while bundling Path Item Object. Cannot resolve $ref "${$ref}": ${(error as Error).message}`,
+          error as Error,
+          pathItemElement,
+          '$ref',
+          $ref,
+          path,
         );
       }
-
-      const reference = await this.toReference($ref);
-
-      let referencedElement = evaluate<Element>(
-        (reference.value as ParseResultElement).result as Element,
-        jsonPointer,
-      );
-
-      // apply Path Item semantics to the referenced fragment
-      if (!isPathItemElement(referencedElement)) {
-        const cached = this.getRefracted(referencedElement, 'pathItem');
-        if (cached !== undefined) {
-          referencedElement = cached;
-        } else {
-          const sourceElement = referencedElement;
-          referencedElement = refractPathItem(referencedElement);
-          this.setRefracted(sourceElement, 'pathItem', referencedElement);
-        }
-      }
-
-      // own a copy and bundle the external references it contains
-      const inlinedElement = cloneDeep(referencedElement) as PathItemElement;
-      this.inlineStack.add(canonicalKey);
-      const visitor = new OpenAPI3_0BundleVisitor({
-        reference,
-        options: this.options,
-        assignments: this.assignments,
-        reservedNames: this.reservedNames,
-        refractCache: this.refractCache,
-        inlineStack: this.inlineStack,
-      });
-      let bundledElement: PathItemElement;
-      try {
-        bundledElement = (await traverseAsync(inlinedElement, visitor, {
-          mutable: true,
-        })) as PathItemElement;
-      } finally {
-        this.inlineStack.delete(canonicalKey);
-      }
-
-      // merge sibling fields from the referencing Path Item over the referenced
-      // one. The referencing `$ref` is being resolved away and is skipped; the
-      // referenced element keeps its own `$ref` if one survived (i.e. it was
-      // left in place to break a circular external Path Item chain).
-      pathItemElement.forEach((_value: Element, keyElement: Element, item: Element) => {
-        const key = toValue(keyElement) as string;
-        if (key === '$ref') return;
-        bundledElement.remove(key);
-        (bundledElement.content as Element[]).push(item);
-      });
-      bundledElement.meta.set('ref-origin', reference.uri);
-
-      path.replaceWith(bundledElement);
-    } catch (error: unknown) {
-      this.handleError(
-        `Error while bundling Path Item Object. Cannot resolve $ref "${$ref}": ${(error as Error).message}`,
-        error as Error,
-        pathItemElement,
-        '$ref',
-        $ref,
-        path,
-      );
-    }
-  }
+    },
+  };
 
   /**
    * Example Object `externalValue` points at arbitrary external content that

@@ -1,0 +1,10 @@
+{
+  "openapi": "3.0.4",
+  "info": { "title": "circular external path item through a callback", "version": "1.0.0" },
+  "paths": {
+    "/a": {
+      "$ref": "./paths.json#/A",
+      "parameters": [{ "$ref": "./parameters.json#/Limit" }]
+    }
+  }
+}

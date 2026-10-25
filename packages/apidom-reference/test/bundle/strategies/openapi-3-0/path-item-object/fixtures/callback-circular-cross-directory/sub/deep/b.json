@@ -1,0 +1,10 @@
+{
+  "B": {
+    "get": {
+      "responses": { "200": { "description": "ok" } },
+      "callbacks": {
+        "onEvent": { "{$request.body#/url}": { "$ref": "../a.json#/A" } }
+      }
+    }
+  }
+}
