@@ -48,7 +48,7 @@
   "author": "Vladimír Gorej <vladimir.gorej@gmail.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "@babel/runtime-corejs3": "^8.0.5"
+    "@babel/runtime-corejs3": "^8.0.8"
   },
   "files": [
     "src/**/*.mjs",
