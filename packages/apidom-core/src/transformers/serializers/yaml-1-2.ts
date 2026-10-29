@@ -515,7 +515,10 @@ const toYAMLNode = (element: unknown, context: NodeContext): unknown => {
     typeof style.rawContent === 'string' &&
     typeof scalar.value === 'string'
   ) {
-    const text = style.rawContent.replace(/\r\n/g, '\n').replace(/\n$/, '');
+    const raw = style.rawContent.replace(/\r\n/g, '\n');
+    // the empty lines after a clip or strip block aren't part of its value, but separate it from
+    // what follows in its source, so they're dropped; a keep block's are part of its value
+    const text = /^[|>][1-9]?\+/.test(raw) ? raw.replace(/\n$/, '') : raw.replace(/\n+$/, '');
     scalar.value = new RawBlockScalar(scalar.value, text);
   }
 
