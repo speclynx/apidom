@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert, expect } from 'chai';
+import { parse as parseYAML } from 'yaml';
 import {
   ObjectElement,
   ArrayElement,
@@ -413,6 +414,47 @@ describe('adapter', function () {
       assert.strictEqual(toYAML(result.result!, { preserveStyle: true }), 'd: >-\n  changed\n');
     });
   });
+
+  // https://github.com/speclynx/apidom/issues/681
+  context(
+    'given block scalar followed by empty lines serialized back with preserveStyle',
+    function () {
+      const roundTrip = async (source: string): Promise<string> => {
+        const result = await adapter.parse(source, { style: true });
+        const yaml = toYAML(result.result!, { preserveStyle: true });
+        assert.deepEqual(parseYAML(yaml), parseYAML(source));
+        return yaml;
+      };
+
+      specify('should not write empty lines after clip and strip blocks', async function () {
+        for (const [source, expected] of [
+          ['a:\n  b: |\n    x\n    y\n\n  c: 1\n', 'a:\n  b: |\n    x\n    y\n  c: 1\n'],
+          ['a:\n  b: >-\n    x\n  \n\n  c: 1\n', 'a:\n  b: >-\n    x\n  c: 1\n'],
+          ['a:\r\n  b: |\r\n    x\r\n\r\n  c: 1\r\n', 'a:\r\n  b: |\r\n    x\r\n  c: 1\r\n'],
+          ['- |\n  x\n\n\n- 1\n', '- |\n  x\n- 1\n'],
+          ['|\n  x\n\n\n', '|\n  x\n'],
+          ['a: !!str |\n  x\n\nb: 1\n', 'a: !!str |\n  x\nb: 1\n'],
+          ['a: |\n  x\n\n# c\nb: 1\n', 'a: |\n  x\n# c\nb: 1\n'],
+          ['a: |\n\nb: 1\n', 'a: |\nb: 1\n'],
+          ['a: |\n  x\n   \n\nb: 1\n', 'a: |\n  x\n   \nb: 1\n'],
+        ]) {
+          assert.strictEqual(await roundTrip(source), expected);
+        }
+      });
+
+      specify('should write empty lines after keep blocks', async function () {
+        for (const source of [
+          'a:\n  b: |+\n    x\n\n  c: 1\n',
+          'a: >+\n  x\n\n\nb: 1\n',
+          'a: |+2\n   x\n\nb: 1\n',
+          'a: |2+\n   x\n\nb: 1\n',
+          'a: |+\r\n  x\r\n\r\nb: 1\r\n',
+        ]) {
+          assert.strictEqual(await roundTrip(source), source);
+        }
+      });
+    },
+  );
 
   // https://github.com/speclynx/apidom/issues/663
   context('given flow scalar serialized back with preserveStyle', function () {

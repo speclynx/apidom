@@ -74,6 +74,30 @@ describe('serializers', function () {
       });
     });
 
+    // https://github.com/speclynx/apidom/issues/681
+    context('given StringElement with block style and trailing empty lines', function () {
+      const block = (rawContent: string): ObjectElement => {
+        const strElement = new StringElement('x\n');
+        strElement.style = { yaml: { scalarStyle: 'Literal', rawContent } };
+        const element = new ObjectElement({ a: strElement, b: 1 });
+        element.style = { yaml: { styleGroup: 'Block', indent: 2 } };
+        return element;
+      };
+
+      specify('should not write empty lines of clip block', function () {
+        assert.strictEqual(
+          serialize(block('|\n  x\n\n\n'), { preserveStyle: true }),
+          'a: |\n  x\nb: 1\n',
+        );
+      });
+
+      specify('should write empty lines of keep block', function () {
+        const element = block('|+\n  x\n\n');
+        (element.get('a') as StringElement).content = 'x\n\n';
+        assert.strictEqual(serialize(element, { preserveStyle: true }), 'a: |+\n  x\n\nb: 1\n');
+      });
+    });
+
     context('given NumberElement with exponential rawContent', function () {
       specify('should preserve original representation verbatim', function () {
         const element = new ObjectElement({});

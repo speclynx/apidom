@@ -13,3 +13,12 @@ actions:
       description: |-
         Returns all pets
         from the store
+
+  - target: $.paths['/pets'].get
+    update:
+      x-usage: |
+        Line one
+
+  - target: $.paths['/pets'].get
+    update:
+      operationId: listPets
