@@ -53,7 +53,11 @@ describe('applyOverlay (URI-level)', function () {
 
       assert.include(output, "title: 'The user''s API'\n");
       assert.include(output, 'description: "Line one\\nLine two"\n');
-      assert.include(output, 'description: |-\n        Returns all pets\n        from the store\n');
+      // https://github.com/speclynx/apidom/issues/681
+      assert.include(
+        output,
+        'description: |-\n        Returns all pets\n        from the store\n      x-usage: |\n        Line one\n      operationId: listPets\n',
+      );
     });
   });
 

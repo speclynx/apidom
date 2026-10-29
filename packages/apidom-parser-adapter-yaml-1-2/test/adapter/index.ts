@@ -426,57 +426,32 @@ describe('adapter', function () {
         return yaml;
       };
 
-      specify('should not write empty lines after clip block', async function () {
-        assert.strictEqual(
-          await roundTrip('a:\n  b: |\n    x\n    y\n\n  c: 1\n'),
-          'a:\n  b: |\n    x\n    y\n  c: 1\n',
-        );
+      specify('should not write empty lines after clip and strip blocks', async function () {
+        for (const [source, expected] of [
+          ['a:\n  b: |\n    x\n    y\n\n  c: 1\n', 'a:\n  b: |\n    x\n    y\n  c: 1\n'],
+          ['a:\n  b: >-\n    x\n  \n\n  c: 1\n', 'a:\n  b: >-\n    x\n  c: 1\n'],
+          ['a:\r\n  b: |\r\n    x\r\n\r\n  c: 1\r\n', 'a:\r\n  b: |\r\n    x\r\n  c: 1\r\n'],
+          ['- |\n  x\n\n\n- 1\n', '- |\n  x\n- 1\n'],
+          ['|\n  x\n\n\n', '|\n  x\n'],
+          ['a: !!str |\n  x\n\nb: 1\n', 'a: !!str |\n  x\nb: 1\n'],
+          ['a: |\n  x\n\n# c\nb: 1\n', 'a: |\n  x\n# c\nb: 1\n'],
+          ['a: |\n\nb: 1\n', 'a: |\nb: 1\n'],
+          ['a: |\n  x\n   \n\nb: 1\n', 'a: |\n  x\n   \nb: 1\n'],
+        ]) {
+          assert.strictEqual(await roundTrip(source), expected);
+        }
       });
 
-      specify('should not write empty lines after strip block', async function () {
-        assert.strictEqual(
-          await roundTrip('a:\n  b: >-\n    x\n  \n\n  c: 1\n'),
-          'a:\n  b: >-\n    x\n  c: 1\n',
-        );
-      });
-
-      specify('should not write empty lines after block in sequence', async function () {
-        assert.strictEqual(await roundTrip('- |\n  x\n\n\n- 1\n'), '- |\n  x\n- 1\n');
-      });
-
-      specify('should not write empty lines with CRLF line breaks', async function () {
-        assert.strictEqual(
-          await roundTrip('a:\r\n  b: |\r\n    x\r\n\r\n  c: 1\r\n'),
-          'a:\r\n  b: |\r\n    x\r\n  c: 1\r\n',
-        );
-      });
-
-      specify('should write empty lines after keep block', async function () {
-        const source = 'a:\n  b: |+\n    x\n\n  c: 1\n';
-        assert.strictEqual(await roundTrip(source), source);
-      });
-
-      specify('should write whitespace-only line beyond indentation', async function () {
-        assert.strictEqual(
-          await roundTrip('a:\n  b: |\n    x\n     \n\n  c: 1\n'),
-          'a:\n  b: |\n    x\n     \n  c: 1\n',
-        );
-      });
-
-      specify('should not write empty lines after block moved to another node', async function () {
-        const result = await adapter.parse(
-          'actions:\n  - update:\n      description: |\n        Line one\n\n  - update: {}\n',
-          { style: true },
-        );
-        const actions = (result.result as ObjectElement).get('actions') as ArrayElement;
-        const description = (actions.get(0) as ObjectElement).get('update') as ObjectElement;
-        const target = new ObjectElement({ title: 'Pets' });
-        target.set('description', description.get('description'));
-        target.set('summary', 's');
-        assert.strictEqual(
-          toYAML(target, { preserveStyle: true }),
-          'title: Pets\ndescription: |\n  Line one\nsummary: s\n',
-        );
+      specify('should write empty lines after keep blocks', async function () {
+        for (const source of [
+          'a:\n  b: |+\n    x\n\n  c: 1\n',
+          'a: >+\n  x\n\n\nb: 1\n',
+          'a: |+2\n   x\n\nb: 1\n',
+          'a: |2+\n   x\n\nb: 1\n',
+          'a: |+\r\n  x\r\n\r\nb: 1\r\n',
+        ]) {
+          assert.strictEqual(await roundTrip(source), source);
+        }
       });
     },
   );
