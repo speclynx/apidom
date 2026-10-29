@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.1.2](https://github.com/speclynx/apidom/compare/v6.1.1...v6.1.2) (2026-10-29)
+
+### Bug Fixes
+
+- **core:** drop empty lines after clip and strip block scalars ([#726](https://github.com/speclynx/apidom/issues/726)) ([ee8815f](https://github.com/speclynx/apidom/commit/ee8815fc5054a8ed34d07f94d7882cfd504f1734)), closes [#681](https://github.com/speclynx/apidom/issues/681) [speclynx/speclynx-cli#199](https://github.com/speclynx/speclynx-cli/issues/199)
+
 ## [6.1.1](https://github.com/speclynx/apidom/compare/v6.1.0...v6.1.1) (2026-10-29)
 
 ### Bug Fixes
