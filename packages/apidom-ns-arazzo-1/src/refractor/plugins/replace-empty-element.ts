@@ -1,5 +1,4 @@
 import {
-  NullElement,
   ArrayElement,
   Element,
   ObjectElement,
@@ -315,7 +314,7 @@ const findElementFactory = (ancestor: Element, keyName: string): ElementFactory 
  */
 const plugin = () => () => ({
   visitor: {
-    NullElement(path: Path<NullElement>) {
+    NullElement(path: Path<Element>) {
       const element = path.node;
       if (!includesClasses(element, ['yaml-e-node', 'yaml-e-scalar'])) return;
 
@@ -337,7 +336,7 @@ const plugin = () => () => ({
       if (typeof elementFactory !== 'function') return;
 
       const replacement = elementFactory(
-        null,
+        undefined,
         element.isMetaEmpty ? undefined : cloneDeep(element.meta),
         element.isAttributesEmpty ? undefined : cloneDeep(element.attributes),
       );
