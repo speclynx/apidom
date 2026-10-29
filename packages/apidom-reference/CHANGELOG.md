@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.1.1](https://github.com/speclynx/apidom/compare/v6.1.0...v6.1.1) (2026-10-29)
+
+### Bug Fixes
+
+- **reference:** dereference lone Overlay Reusable Action References ([#705](https://github.com/speclynx/apidom/issues/705)) ([6be4d8e](https://github.com/speclynx/apidom/commit/6be4d8ea660051c9f38dcfd69171516c93c2ccf8)), closes [#605](https://github.com/speclynx/apidom/issues/605)
+- **reference:** detect Overlay extends cycles ([#702](https://github.com/speclynx/apidom/issues/702)) ([6517b65](https://github.com/speclynx/apidom/commit/6517b65dd63d44a559857e85b3ad50b5d99eb38b)), closes [#695](https://github.com/speclynx/apidom/issues/695)
+- **reference:** leave Reference Objects with an empty $ref as is ([#714](https://github.com/speclynx/apidom/issues/714)) ([67c76d7](https://github.com/speclynx/apidom/commit/67c76d78be3347fd29048c05704380c65fc2cbb9)), closes [#694](https://github.com/speclynx/apidom/issues/694) [#696](https://github.com/speclynx/apidom/issues/696)
+- **reference:** terminate OpenAPI 3.0 bundle of Path Item cycles ([#715](https://github.com/speclynx/apidom/issues/715)) ([acd574e](https://github.com/speclynx/apidom/commit/acd574e994f4fcc7627bf1493f284c974e01fff9)), closes [#700](https://github.com/speclynx/apidom/issues/700)
+
 # [6.1.0](https://github.com/speclynx/apidom/compare/v6.0.6...v6.1.0) (2026-10-17)
 
 **Note:** Version bump only for package @speclynx/apidom-reference

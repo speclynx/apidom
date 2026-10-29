@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.1.1](https://github.com/speclynx/apidom/compare/v6.1.0...v6.1.1) (2026-10-29)
+
+### Bug Fixes
+
+- parse empty YAML values as null elements ([#712](https://github.com/speclynx/apidom/issues/712)) ([388e842](https://github.com/speclynx/apidom/commit/388e842f3156fc94f46724f507cbf0dd92acae06)), closes [#655](https://github.com/speclynx/apidom/issues/655) [#709](https://github.com/speclynx/apidom/issues/709) [#694](https://github.com/speclynx/apidom/issues/694)
+- restore typed replace-empty-element plugin calls ([5ff0a22](https://github.com/speclynx/apidom/commit/5ff0a22e7d8705c7461fb1539a5d1b88b1422f1b)), closes [#694](https://github.com/speclynx/apidom/issues/694)
+- serialize empty YAML mapping keys to the empty string ([#709](https://github.com/speclynx/apidom/issues/709)) ([3ecce30](https://github.com/speclynx/apidom/commit/3ecce3025b89e5bcdb1481525fe35a86685285f9)), closes [#655](https://github.com/speclynx/apidom/issues/655) [#694](https://github.com/speclynx/apidom/issues/694)
+- skip empty keys in replace-empty-element refractor plugins ([#710](https://github.com/speclynx/apidom/issues/710)) ([ffdd3b8](https://github.com/speclynx/apidom/commit/ffdd3b8a1d297a92b081d0a8aacabd7a53bb0055)), closes [#694](https://github.com/speclynx/apidom/issues/694)
+
 # [6.1.0](https://github.com/speclynx/apidom/compare/v6.0.6...v6.1.0) (2026-10-17)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-arazzo-1

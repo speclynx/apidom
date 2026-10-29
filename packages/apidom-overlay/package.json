@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-overlay",
-  "version": "6.1.0",
+  "version": "6.1.1",
   "description": "Apply Overlay 1.x.y documents to API definitions.",
   "keywords": [
     "apidom",
@@ -54,12 +54,12 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^8.0.8",
-    "@speclynx/apidom-core": "6.1.0",
-    "@speclynx/apidom-datamodel": "6.1.0",
-    "@speclynx/apidom-error": "6.1.0",
-    "@speclynx/apidom-json-path": "6.1.0",
-    "@speclynx/apidom-ns-overlay-1": "6.1.0",
-    "@speclynx/apidom-reference": "6.1.0",
+    "@speclynx/apidom-core": "6.1.1",
+    "@speclynx/apidom-datamodel": "6.1.1",
+    "@speclynx/apidom-error": "6.1.1",
+    "@speclynx/apidom-json-path": "6.1.1",
+    "@speclynx/apidom-ns-overlay-1": "6.1.1",
+    "@speclynx/apidom-reference": "6.1.1",
     "ramda": "~0.32.0",
     "type-fest": "^5.10.0"
   },

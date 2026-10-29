@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.1.1](https://github.com/speclynx/apidom/compare/v6.1.0...v6.1.1) (2026-10-29)
+
+### Bug Fixes
+
+- serialize empty YAML mapping keys to the empty string ([#709](https://github.com/speclynx/apidom/issues/709)) ([3ecce30](https://github.com/speclynx/apidom/commit/3ecce3025b89e5bcdb1481525fe35a86685285f9)), closes [#655](https://github.com/speclynx/apidom/issues/655) [#694](https://github.com/speclynx/apidom/issues/694)
+
 # [6.1.0](https://github.com/speclynx/apidom/compare/v6.0.6...v6.1.0) (2026-10-17)
 
 **Note:** Version bump only for package @speclynx/apidom-parser-adapter-overlay-yaml-1
