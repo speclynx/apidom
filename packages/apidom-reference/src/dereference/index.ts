@@ -17,6 +17,22 @@ import * as url from '../util/url.ts';
 import type { ReferenceOptions } from '../options/index.ts';
 
 /**
+ * Normalizes the base URI the way the dereference strategies resolve reference
+ * targets, so that same-document references find the root document in the
+ * ReferenceSet. The fragment is kept as given, as it tells a lone element apart
+ * from its document (e.g. when keying a provided refSet). A URI that can't be
+ * resolved against, such as a URN, is kept as given.
+ */
+const toRootURI = (baseURI: string): string => {
+  const documentURI = url.stripHash(baseURI);
+  try {
+    return url.resolve(documentURI, '') + baseURI.slice(documentURI.length);
+  } catch {
+    return baseURI;
+  }
+};
+
+/**
  * Dereferences ApiDOM with all its external references.
  */
 export const dereferenceApiDOM = async <T extends Element>(
@@ -36,7 +52,7 @@ export const dereferenceApiDOM = async <T extends Element>(
   }
 
   const file = new File({
-    uri: options.resolve.baseURI,
+    uri: toRootURI(options.resolve.baseURI),
     parseResult,
     mediaType: options.parse.mediaType,
   });
