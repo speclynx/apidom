@@ -72,10 +72,10 @@ describe('util', function () {
 
       context('given file system path with special characters', function () {
         specify('should return decoded file system path', function () {
-          const fileSystemPathInput = '/home/user/%23%24%26%2C%40';
+          const fileSystemPathInput = '/home/user/%23%24%26%2C%3F%40';
           const fileSystemPathOutput = toFileSystemPath(fileSystemPathInput);
 
-          assert.strictEqual(fileSystemPathOutput, '/home/user/#$&,@');
+          assert.strictEqual(fileSystemPathOutput, '/home/user/#$&,?@');
         });
       });
 
@@ -336,6 +336,20 @@ describe('util', function () {
         });
       });
 
+      context('given normalized URI', function () {
+        specify('should return it unchanged', function () {
+          [
+            'https://example.com/root.json',
+            'file:///one/root.json',
+            '/one%20two/root.json',
+            '/one/q%3Fm.json',
+            '/one/h%23sh.json',
+          ].forEach((uri) => {
+            assert.strictEqual(normalize(uri), uri);
+          });
+        });
+      });
+
       context('given URI with fragment', function () {
         specify('should keep the fragment as given', function () {
           assert.strictEqual(
@@ -495,6 +509,16 @@ describe('util', function () {
     });
 
     context('sanitize', function () {
+      context('given sanitized file system path', function () {
+        specify('should return it unchanged', function () {
+          ['/home/user/q%3Fm.json', '/home/user/h%23sh.json', '/home/user/a%20b.json'].forEach(
+            (uri) => {
+              assert.strictEqual(sanitize(uri), uri);
+            },
+          );
+        });
+      });
+
       context('given percent decoded URL', function () {
         specify('should percent encode the URL', function () {
           const url = 'https://example.com/path with spaces/';
