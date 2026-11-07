@@ -298,7 +298,17 @@ class Arazzo1DereferenceVisitor {
       path.skip();
       return;
     }
+
+    // skip current Reusable Object as it's already been accessed, e.g. it was left unresolved
+    // within a component which has already been dereferenced
+    if (this.visited.has(referencingElement)) {
+      path.skip();
+      return;
+    }
+    this.visited.add(referencingElement);
+
     const runtimeExpression = toValue(referencingElement.reference) as string;
+    const indirectionsSize = this.indirections.length;
 
     let referencedElement: Element;
 
@@ -339,6 +349,16 @@ class Arazzo1DereferenceVisitor {
         );
       }
 
+      this.indirections.push(referencingElement);
+
+      // detect maximum depth of dereferencing
+      if (this.indirections.length > this.options.dereference.maxDepth) {
+        throw new MaximumDereferenceDepthError(
+          `Maximum dereference depth of "${this.options.dereference.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
+          { maxDepth: this.options.dereference.maxDepth, uri: this.reference.uri },
+        );
+      }
+
       // detect cycle
       const [ancestorsLineage, directAncestors] = this.toAncestorLineage(path);
       if (ancestorsLineage.includes(referencedElement)) {
@@ -366,8 +386,13 @@ class Arazzo1DereferenceVisitor {
       /**
        * Dive deep into the referenced element to dereference Reusable Objects nested within it.
        * The referenced element is not otherwise traversed when only a fragment of the document is dereferenced.
+       *
+       * Unlike the JSON Schema dive, this one is not limited to circular detection modes: the transclusion
+       * below is skipped, so the dive is the only place nested Reusable Objects get dereferenced.
+       * The dive mutates the referenced element in place, so it's done at most once per referenced element.
        */
-      if (!ancestorsLineage.includesCycle(referencedElement)) {
+      if (!this.visited.has(referencedElement)) {
+        this.visited.add(referencedElement);
         directAncestors.add(referencingElement);
 
         const visitor = new Arazzo1DereferenceVisitor({
@@ -395,6 +420,8 @@ class Arazzo1DereferenceVisitor {
         path,
       );
       return;
+    } finally {
+      if (this.indirections.length > indirectionsSize) this.indirections.pop();
     }
 
     /**
