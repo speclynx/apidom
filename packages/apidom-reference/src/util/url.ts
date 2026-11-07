@@ -132,16 +132,18 @@ export const toFileSystemPath = (uri: string, options?: ToFileSystemPathOptions)
   const keepFileProtocol = propOr(false, 'keepFileProtocol', options);
   const isWindowsPredicate: WindowsPredicate = propOr(isWindows, 'isWindows', options);
 
-  // Step 1: `decodeURI` will decode characters such as Cyrillic characters, spaces, etc.
-  let path = decodeURI(uri);
-
-  // Step 2: Manually decode characters that are not decoded by `decodeURI`.
+  // Step 1: Manually decode characters that are not decoded by `decodeURI`.
   // This includes characters such as "#" and "?", which have special meaning in URLs,
-  // but are just normal characters in a filesystem path.
+  // but are just normal characters in a filesystem path. It runs before `decodeURI`,
+  // so that an encoded "%" (e.g. "%253F") isn't decoded twice.
+  let path = uri;
   for (let i = 0; i < urlDecodePatterns.length; i += 2) {
     // @ts-ignore
     path = path.replace(urlDecodePatterns[i], urlDecodePatterns[i + 1]);
   }
+
+  // Step 2: `decodeURI` will decode characters such as Cyrillic characters, spaces, etc.
+  path = decodeURI(path);
 
   // Step 3: If it's a "file://" URL, then format it consistently
   // or convert it to a local filesystem path
