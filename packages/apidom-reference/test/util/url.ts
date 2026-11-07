@@ -79,6 +79,30 @@ describe('util', function () {
         });
       });
 
+      context('given file system path with encoded percent-encoding', function () {
+        specify('should decode it only once', function () {
+          assert.strictEqual(
+            toFileSystemPath('/home/user/lit%253F.json'),
+            '/home/user/lit%3F.json',
+          );
+          assert.strictEqual(
+            toFileSystemPath('/home/user/lit%2523.json'),
+            '/home/user/lit%23.json',
+          );
+        });
+
+        specify('should round-trip a file system path', function () {
+          ['/home/user/q?m.json', '/home/user/lit%3F.json', '/home/user/lit%23 #.json'].forEach(
+            (fileSystemPath) => {
+              assert.strictEqual(
+                toFileSystemPath(fromFileSystemPath(fileSystemPath)),
+                fileSystemPath,
+              );
+            },
+          );
+        });
+      });
+
       context('given file system path with file protocol', function () {
         specify('should strip file protocol', function () {
           const fileSystemPathInput = 'file:///home/user/file.txt';
