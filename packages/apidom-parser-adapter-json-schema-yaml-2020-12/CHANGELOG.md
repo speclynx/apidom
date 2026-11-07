@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.2.0](https://github.com/speclynx/apidom/compare/v6.1.2...v6.2.0) (2026-11-07)
+
+**Note:** Version bump only for package @speclynx/apidom-parser-adapter-json-schema-yaml-2020-12
+
 ## [6.1.2](https://github.com/speclynx/apidom/compare/v6.1.1...v6.1.2) (2026-10-29)
 
 **Note:** Version bump only for package @speclynx/apidom-parser-adapter-json-schema-yaml-2020-12

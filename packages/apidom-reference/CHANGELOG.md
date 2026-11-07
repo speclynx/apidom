@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.2.0](https://github.com/speclynx/apidom/compare/v6.1.2...v6.2.0) (2026-11-07)
+
+### Bug Fixes
+
+- **reference:** decode file system path characters only once ([41b8476](https://github.com/speclynx/apidom/commit/41b8476ca854b4eb0225e7b07736a416f7420e31)), closes [#733](https://github.com/speclynx/apidom/issues/733)
+- **reference:** keep an encoded file:// page URL as default baseURI ([af3bfe0](https://github.com/speclynx/apidom/commit/af3bfe09690ad0c9289cf9bd3411bf3ebb4a9413)), closes [#733](https://github.com/speclynx/apidom/issues/733)
+- **reference:** normalize root URI across entry points ([9c2475d](https://github.com/speclynx/apidom/commit/9c2475d2ad4da4ae3b2bdc54e353f754655463ef)), closes [#733](https://github.com/speclynx/apidom/issues/733)
+- **reference:** round-trip '?' in file system paths ([bb4af5b](https://github.com/speclynx/apidom/commit/bb4af5b9a980ea97688ad6b919b3bb932dd55257)), closes [#733](https://github.com/speclynx/apidom/issues/733)
+- **reference:** sanitize the path of file:// URLs in url.normalize ([8db965b](https://github.com/speclynx/apidom/commit/8db965baac0667eafd5ca2ab2bf695595c6c8831)), closes [#733](https://github.com/speclynx/apidom/issues/733)
+
+### Features
+
+- **reference:** add url.normalize util ([dcb7aea](https://github.com/speclynx/apidom/commit/dcb7aeaa6aa91b9c28fc52e769e7e6fd9848be36)), closes [#733](https://github.com/speclynx/apidom/issues/733)
+
 ## [6.1.2](https://github.com/speclynx/apidom/compare/v6.1.1...v6.1.2) (2026-10-29)
 
 **Note:** Version bump only for package @speclynx/apidom-reference
