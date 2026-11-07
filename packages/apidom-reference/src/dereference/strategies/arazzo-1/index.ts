@@ -102,7 +102,6 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
       refSet = mutableRefSet;
     }
 
-    const shouldDetectCircular = ['error', 'replace'].includes(options.dereference.circular);
     const visitor = new Arazzo1DereferenceVisitor({
       reference,
       options,
@@ -112,7 +111,9 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
     });
     const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
       mutable: true,
-      ...(shouldDetectCircular && { skipVisited: 'skip' as const }),
+      // Reusable Objects are dereferenced by diving into the referenced component in place,
+      // so the components reachable through more than one path are shared; visit them once
+      skipVisited: 'skip',
     });
 
     /**
