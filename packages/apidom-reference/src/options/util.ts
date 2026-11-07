@@ -1,7 +1,7 @@
 import { mergeDeepRight, lens, path, assocPath, over } from 'ramda';
 import { isEmptyString } from 'ramda-adjunct';
 
-import { cwd } from '../util/url.ts';
+import { cwd, isFileSystemPath, fromFileSystemPath } from '../util/url.ts';
 import type { ReferenceOptions } from './index.ts';
 
 /**
@@ -9,7 +9,9 @@ import type { ReferenceOptions } from './index.ts';
  */
 
 const baseURILens = lens(path(['resolve', 'baseURI']), assocPath(['resolve', 'baseURI']));
-const baseURIDefault = (baseURI: string) => (isEmptyString(baseURI) ? cwd() : baseURI);
+// in Node cwd() is a raw file system path; encode it, so that it reads as a URI
+const cwdURI = () => (isFileSystemPath(cwd()) ? fromFileSystemPath(cwd()) : cwd());
+const baseURIDefault = (baseURI: string) => (isEmptyString(baseURI) ? cwdURI() : baseURI);
 
 /**
  * @public

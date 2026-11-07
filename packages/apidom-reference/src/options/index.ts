@@ -128,6 +128,10 @@ const defaultOptions: ReferenceOptions = {
   resolve: {
     /**
      * baseURI serves as a base for all relative URL found in ApiDOM references.
+     * It must be absolute: a file system path, a file:// URL or an HTTP(S) URL.
+     * Defaults to the current working directory (the page URL in browsers).
+     * A fragment marks where the ApiDOM fragment is located in its document;
+     * leave it out when passing a whole document.
      */
     baseURI: '',
     /**

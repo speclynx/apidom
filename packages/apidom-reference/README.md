@@ -1536,6 +1536,12 @@ await resolve('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/
 When externally resolving an ApiDOM fragment, [baseURI](https://github.com/speclynx/apidom/blob/91763fa4ad876375a413e7049c28c2031c7bbe83/apidom/packages/apidom-reference/src/options/index.ts#L47)
 resolve option needs to be provided to have a starting point for external dependency resolution.
 `mediaType` parse option is unnecessary as we can directly assert the type of ApiDOM fragment.
+A fragment in `baseURI` means the ApiDOM fragment is located at that fragment of the document,
+e.g. `/home/user/root.json#/components/parameters/userId`. When passing a whole document,
+give `baseURI` without a fragment.
+`baseURI` must be absolute: a file system path, a `file://` URL or an HTTP(S) URL. It defaults
+to the current working directory (the page URL in browsers). The same applies to the file passed
+to `resolve`, `dereference` or `bundle`; resolve a relative path first, e.g. with `path.resolve`.
 
 ```js
 import { OpenApi3_1Element } from '@speclynx/apidom-ns-openapi-3-1';
@@ -1937,6 +1943,12 @@ await dereference('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/m
 When dereferencing an ApiDOM fragment, [baseURI](https://github.com/speclynx/apidom/blob/91763fa4ad876375a413e7049c28c2031c7bbe83/apidom/packages/apidom-reference/src/options/index.ts#L47)
 resolve option needs to be provided to have a starting point for external dependency resolution.
 `mediaType` parse option is unnecessary as we can directly assert the type of ApiDOM fragment.
+A fragment in `baseURI` means the ApiDOM fragment is located at that fragment of the document,
+e.g. `/home/user/root.json#/components/parameters/userId`. When passing a whole document,
+give `baseURI` without a fragment.
+`baseURI` must be absolute: a file system path, a `file://` URL or an HTTP(S) URL. It defaults
+to the current working directory (the page URL in browsers). The same applies to the file passed
+to `resolve`, `dereference` or `bundle`; resolve a relative path first, e.g. with `path.resolve`.
 
 **ex.json**
 
