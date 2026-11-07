@@ -590,6 +590,68 @@ describe('dereference', function () {
           });
         });
 
+        context('given cycle of Reusable Elements referenced from several places', function () {
+          const fixturePath = path.join(rootFixturePath, 'cycle-orders');
+
+          ['workflows-first.json', 'components-first.json'].forEach((fixture) => {
+            context(`given ${fixture}`, function () {
+              const rootFilePath = path.join(fixturePath, fixture);
+
+              specify('should report the cycle once when circular=error', async function () {
+                const errors: UnresolvableReferenceError[] = [];
+                await dereference(rootFilePath, {
+                  parse: { mediaType: mediaTypes.latest('json') },
+                  dereference: {
+                    circular: 'error',
+                    continueOnError: (error: UnresolvableReferenceError) => errors.push(error),
+                  },
+                });
+
+                assert.lengthOf(errors, 1);
+                assert.strictEqual(
+                  (errors[0].cause as Error).message,
+                  'Circular reference detected',
+                );
+              });
+
+              specify('should eliminate all cycles when circular=replace', async function () {
+                const actual = await dereference(rootFilePath, {
+                  parse: { mediaType: mediaTypes.latest('json') },
+                  dereference: { circular: 'replace' },
+                });
+
+                assert.doesNotThrow(() => JSON.stringify(toValue(actual)));
+              });
+
+              [0, 1, 2].forEach((index) => {
+                specify(
+                  `should detect the cycle when dereferencing Workflow fragment #${index}`,
+                  async function () {
+                    const workflow = await dereferenceWorkflow(rootFilePath, index, {
+                      dereference: { circular: 'replace' },
+                    });
+
+                    assert.doesNotThrow(() => JSON.stringify(toValue(workflow)));
+
+                    try {
+                      await dereferenceWorkflow(rootFilePath, index, {
+                        dereference: { circular: 'error' },
+                      });
+                      assert.fail('should throw UnresolvableReferenceError');
+                    } catch (error: any) {
+                      assert.instanceOf(error, UnresolvableReferenceError);
+                      assert.strictEqual(
+                        (error.cause as Error).message,
+                        'Circular reference detected',
+                      );
+                    }
+                  },
+                );
+              });
+            });
+          });
+        });
+
         context('given resolve.internal is set to false', function () {
           const fixturePath = path.join(rootFixturePath, 'ignore-internal');
 
