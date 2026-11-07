@@ -16,14 +16,16 @@ import type { ReferenceOptions } from '../options/index.ts';
  */
 const bundle = async (uri: string, options: ReferenceOptions): Promise<ParseResultElement> => {
   const { refSet } = options.bundle;
-  const sanitizedURI = url.sanitize(uri);
-  const mergedOptions = mergeOptions(options, { resolve: { baseURI: sanitizedURI } });
+  // strategies look up same-document references by a resolved, hence normalized, URI;
+  // the file is parsed as a whole document, so its URI has no fragment
+  const baseURI = url.normalize(url.stripHash(uri));
+  const mergedOptions = mergeOptions(options, { resolve: { baseURI } });
   let parseResult;
 
   // if refSet was provided, use it to avoid unnecessary parsing
-  if (refSet !== null && refSet.has(sanitizedURI)) {
+  if (refSet !== null && refSet.has(baseURI)) {
     // @ts-ignore
-    ({ value: parseResult } = refSet.find(propEq(sanitizedURI, 'uri')));
+    ({ value: parseResult } = refSet.find(propEq(baseURI, 'uri')));
   } else {
     parseResult = await parse(uri, mergedOptions);
   }

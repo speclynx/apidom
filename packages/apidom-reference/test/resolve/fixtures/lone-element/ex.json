@@ -1,0 +1,10 @@
+{
+  "openapi": "3.1.2",
+  "components": {
+    "parameters": {
+      "external": {
+        "$ref": "./root.json#/components/parameters/target"
+      }
+    }
+  }
+}

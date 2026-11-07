@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { assert } from 'chai';
-import { mediaTypes } from '@speclynx/apidom-ns-openapi-3-1';
+import { mediaTypes, ReferenceElement } from '@speclynx/apidom-ns-openapi-3-1';
+import { evaluate } from '@speclynx/apidom-json-pointer';
 import { fileURLToPath } from 'node:url';
 
 import { resolve, resolveApiDOM, parse } from '../../src/index.ts';
@@ -63,6 +64,77 @@ describe('resolve', function () {
         });
       });
     });
+  });
+
+  context('given URI with dot segments', function () {
+    // path.join would remove the dot segments
+    const nonNormalizedURI = `${fixturePath}/../internal-external/root.json`;
+
+    specify('should key the root document with normalized URI', async function () {
+      const refSet = await resolve(nonNormalizedURI, {
+        parse: { mediaType: mediaTypes.latest('json') },
+      });
+
+      assert.strictEqual(refSet.size, 2);
+      assert.strictEqual(refSet.rootRef?.uri, rootFilePath);
+    });
+
+    specify('should resolve an ApiDOM fragment', async function () {
+      const fragment = await parse(rootFilePath, {
+        parse: { mediaType: mediaTypes.latest('json') },
+      });
+      const refSet = await resolveApiDOM(fragment, {
+        resolve: { baseURI: nonNormalizedURI },
+      });
+
+      assert.strictEqual(refSet.size, 2);
+      assert.strictEqual(refSet.rootRef?.uri, rootFilePath);
+    });
+  });
+
+  context('given URI with fragment', function () {
+    specify('should key the root document without the fragment', async function () {
+      const refSet = await resolve(`${rootFilePath}#/components`, {
+        parse: { mediaType: mediaTypes.latest('json') },
+      });
+
+      assert.strictEqual(refSet.size, 2);
+      assert.strictEqual(refSet.rootRef?.uri, rootFilePath);
+    });
+  });
+
+  context('given lone element and baseURI with fragment', function () {
+    const rootPath = path.join(__dirname, 'fixtures', 'lone-element', 'root.json');
+    const baseURI = `${rootPath}#/components/parameters/lone`;
+    const resolveLone = async () => {
+      const parseResult = await parse(rootPath, {
+        parse: { mediaType: mediaTypes.latest('json') },
+      });
+      const referenceElement = evaluate<ReferenceElement>(
+        parseResult.api!,
+        '/components/parameters/lone',
+      );
+
+      return resolveApiDOM(referenceElement, {
+        parse: { mediaType: mediaTypes.latest('json') },
+        resolve: { baseURI },
+      });
+    };
+
+    specify('should key the lone element with the fragment', async function () {
+      const refSet = await resolveLone();
+
+      assert.strictEqual(refSet.rootRef?.uri, baseURI);
+    });
+
+    specify(
+      'should resolve a reference back to the document of the lone element',
+      async function () {
+        const refSet = await resolveLone();
+
+        assert.isTrue(refSet.has(rootPath));
+      },
+    );
   });
 
   context('given URI with hash', function () {

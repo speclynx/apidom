@@ -34,9 +34,9 @@ export const resolveApiDOM = async <T extends Element>(
     parseResult = new ParseResultElement([elementClone]);
   }
 
-  const sanitizedURI = url.sanitize(url.stripHash(options.resolve.baseURI));
+  // strategies look up same-document references by a resolved, hence normalized, URI
   const file = new File({
-    uri: sanitizedURI,
+    uri: url.normalize(options.resolve.baseURI),
     parseResult,
     mediaType: options.parse.mediaType,
   });
@@ -67,7 +67,9 @@ export const resolveApiDOM = async <T extends Element>(
  */
 const resolve = async (uri: string, options: ReferenceOptions): Promise<ReferenceSet> => {
   const parseResult = await parse(uri, options);
-  const mergedOptions = mergeOptions(options, { resolve: { baseURI: url.sanitize(uri) } });
+  // the file is parsed as a whole document, so its URI has no fragment
+  const baseURI = url.normalize(url.stripHash(uri));
+  const mergedOptions = mergeOptions(options, { resolve: { baseURI } });
 
   return resolveApiDOM(parseResult, mergedOptions);
 };
