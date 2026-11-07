@@ -2057,8 +2057,11 @@ of an already loaded Arazzo document resolves to that document by identity, with
 
 Reusable Objects (`reference` fields holding a `$components.*` runtime expression) are transcluded with the
 referenced component, including the Reusable Objects nested within it (e.g. Parameter references in the `parameters`
-of a component Success or Failure Action). A Reusable Object that leads back to a component it's already nested in
-is a circular reference and is handled per the `dereference.circular` option.
+of a component Success or Failure Action). Every referenced component is dereferenced once, in place, and shared by all
+the Reusable Objects referencing it. A Reusable Object that leads back to a component it's already nested in is
+a circular reference and is handled per the `dereference.circular` option: `ignore` creates a cyclic structure, `error`
+fails with an `UnresolvableReferenceError` and `replace` substitutes a `RefElement` processed by the `circularReplacer`
+(`dereference.strategyOpts['arazzo-1'].circularReplacer` takes precedence over `dereference.circularReplacer`).
 
 Supported media types:
 
