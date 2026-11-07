@@ -284,7 +284,7 @@ class Arazzo1DereferenceVisitor {
     if (typeof continueOnError === 'function') continueOnError(unresolvedError);
   }
 
-  public ReusableElement(path: Path<Element>) {
+  public async ReusableElement(path: Path<Element>) {
     const referencingElement = path.node as ReusableElement;
 
     // skip current Reusable Object if reference field is not defined as a string
@@ -337,6 +337,53 @@ class Arazzo1DereferenceVisitor {
           `Reusable Object reference "${runtimeExpression}" cannot be resolved`,
           { runtimeExpression },
         );
+      }
+
+      // detect cycle
+      const [ancestorsLineage, directAncestors] = this.toAncestorLineage(path);
+      if (ancestorsLineage.includes(referencedElement)) {
+        this.reference.refSet!.circular = true;
+
+        if (this.options.dereference.circular === 'error') {
+          throw new ApiDOMStructuredError('Circular reference detected', { runtimeExpression });
+        } else if (this.options.dereference.circular === 'replace') {
+          const refElement = new RefElement(runtimeExpression, {
+            type: referencingElement.element,
+            uri: this.reference.uri,
+            reference: runtimeExpression,
+          });
+          const replacer =
+            this.options.dereference.strategyOpts['arazzo-1']?.circularReplacer ??
+            this.options.dereference.circularReplacer;
+          const replacement = replacer(refElement);
+
+          path.replaceWith(replacement);
+          path.skip();
+          return;
+        }
+      }
+
+      /**
+       * Dive deep into the referenced element to dereference Reusable Objects nested within it.
+       * The referenced element is not otherwise traversed when only a fragment of the document is dereferenced.
+       */
+      if (!ancestorsLineage.includesCycle(referencedElement)) {
+        directAncestors.add(referencingElement);
+
+        const visitor = new Arazzo1DereferenceVisitor({
+          reference: this.reference,
+          indirections: [...this.indirections],
+          options: this.options,
+          schema$idIndex: this.schema$idIndex,
+          visited: this.visited,
+          ancestors: ancestorsLineage,
+        });
+        referencedElement = await traverseAsync(referencedElement, visitor, {
+          mutable: true,
+          skipVisited: 'skip',
+        });
+
+        directAncestors.delete(referencingElement);
       }
     } catch (error: unknown) {
       this.handleError(

@@ -1,0 +1,124 @@
+[
+  {
+    "arazzo": "1.1.0",
+    "info": {
+      "title": "Test Workflow",
+      "version": "1.0.0"
+    },
+    "sourceDescriptions": [
+      {
+        "name": "petStore",
+        "url": "https://example.com/openapi.json",
+        "type": "openapi"
+      }
+    ],
+    "workflows": [
+      {
+        "workflowId": "target",
+        "steps": []
+      },
+      {
+        "workflowId": "caller",
+        "successActions": [
+          {
+            "name": "jump",
+            "type": "goto",
+            "workflowId": "target",
+            "parameters": [
+              {
+                "name": "status",
+                "in": "query",
+                "value": "from-success-action"
+              }
+            ]
+          }
+        ],
+        "failureActions": [
+          {
+            "name": "retry",
+            "type": "retry",
+            "workflowId": "target",
+            "parameters": [
+              {
+                "name": "status",
+                "in": "query",
+                "value": "from-failure-action"
+              }
+            ]
+          }
+        ],
+        "steps": [
+          {
+            "stepId": "step1",
+            "operationId": "petStore.getPet",
+            "onSuccess": [
+              {
+                "name": "jump",
+                "type": "goto",
+                "workflowId": "target",
+                "parameters": [
+                  {
+                    "name": "status",
+                    "in": "query",
+                    "value": "from-success-action"
+                  }
+                ]
+              }
+            ],
+            "onFailure": [
+              {
+                "name": "retry",
+                "type": "retry",
+                "workflowId": "target",
+                "parameters": [
+                  {
+                    "name": "status",
+                    "in": "query",
+                    "value": "from-failure-action"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "components": {
+      "parameters": {
+        "status": {
+          "name": "status",
+          "in": "query",
+          "value": "from-component"
+        }
+      },
+      "successActions": {
+        "jump": {
+          "name": "jump",
+          "type": "goto",
+          "workflowId": "target",
+          "parameters": [
+            {
+              "name": "status",
+              "in": "query",
+              "value": "from-success-action"
+            }
+          ]
+        }
+      },
+      "failureActions": {
+        "retry": {
+          "name": "retry",
+          "type": "retry",
+          "workflowId": "target",
+          "parameters": [
+            {
+              "name": "status",
+              "in": "query",
+              "value": "from-failure-action"
+            }
+          ]
+        }
+      }
+    }
+  }
+]

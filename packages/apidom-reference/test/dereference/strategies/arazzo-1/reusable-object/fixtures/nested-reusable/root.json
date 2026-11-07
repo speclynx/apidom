@@ -1,0 +1,84 @@
+{
+  "arazzo": "1.1.0",
+  "info": {
+    "title": "Test Workflow",
+    "version": "1.0.0"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "petStore",
+      "url": "https://example.com/openapi.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "target",
+      "steps": []
+    },
+    {
+      "workflowId": "caller",
+      "successActions": [
+        {
+          "reference": "$components.successActions.jump"
+        }
+      ],
+      "failureActions": [
+        {
+          "reference": "$components.failureActions.retry"
+        }
+      ],
+      "steps": [
+        {
+          "stepId": "step1",
+          "operationId": "petStore.getPet",
+          "onSuccess": [
+            {
+              "reference": "$components.successActions.jump"
+            }
+          ],
+          "onFailure": [
+            {
+              "reference": "$components.failureActions.retry"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": {
+    "parameters": {
+      "status": {
+        "name": "status",
+        "in": "query",
+        "value": "from-component"
+      }
+    },
+    "successActions": {
+      "jump": {
+        "name": "jump",
+        "type": "goto",
+        "workflowId": "target",
+        "parameters": [
+          {
+            "reference": "$components.parameters.status",
+            "value": "from-success-action"
+          }
+        ]
+      }
+    },
+    "failureActions": {
+      "retry": {
+        "name": "retry",
+        "type": "retry",
+        "workflowId": "target",
+        "parameters": [
+          {
+            "reference": "$components.parameters.status",
+            "value": "from-failure-action"
+          }
+        ]
+      }
+    }
+  }
+}
