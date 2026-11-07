@@ -347,6 +347,30 @@ describe('util', function () {
         });
       });
 
+      context('given file:// URL', function () {
+        specify('should sanitize its path and keep it a URL', function () {
+          assert.strictEqual(normalize('file:///one/[1].json'), 'file:///one/%5B1%5D.json');
+          assert.strictEqual(normalize('file:///one two/root.json'), 'file:///one%20two/root.json');
+          assert.strictEqual(
+            normalize('file:///one%20two/root.json'),
+            'file:///one%20two/root.json',
+          );
+        });
+      });
+
+      context('given Windows file:// URL', function () {
+        specify('should keep the drive letter in the path', function () {
+          const originalPlatform = process.platform;
+          Object.defineProperty(process, 'platform', { value: 'win32' });
+
+          try {
+            assert.strictEqual(normalize('file:///C:/one/[1].json'), 'file:///C:/one/%5B1%5D.json');
+          } finally {
+            Object.defineProperty(process, 'platform', { value: originalPlatform });
+          }
+        });
+      });
+
       context('given Windows file system path', function () {
         specify('should sanitize and normalize it', function () {
           const originalPlatform = process.platform;

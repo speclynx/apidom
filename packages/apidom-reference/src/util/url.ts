@@ -290,8 +290,9 @@ export const resolve = (from: string, to: string): string => {
  * lowercases the scheme and the host of an absolute URL, drops a default port and
  * removes dot segments. This is not RFC 3986 syntax-based normalization: existing
  * percent-encoding is left as is. A file system path is sanitized first, so characters
- * not allowed in URLs (e.g. spaces, `[`, `?`) are percent-encoded; a `file://` URL stays
- * a URL. The fragment is kept as given. A URI that can't be normalized is returned unchanged.
+ * not allowed in URLs (e.g. spaces, `[`, `?`) are percent-encoded; a `file://` URL has
+ * its path sanitized the same way and stays a URL. The fragment is kept as given.
+ * A URI that can't be normalized is returned unchanged.
  * @public
  */
 export const normalize = (uri: string): string => {
@@ -300,7 +301,12 @@ export const normalize = (uri: string): string => {
   const documentURI = stripHash(uri);
 
   try {
-    const sanitizedURI = getProtocol(documentURI) === 'file' ? documentURI : sanitize(documentURI);
+    let sanitizedURI = sanitize(documentURI);
+    // sanitize turns a file:// URL into a path; keep it a URL, as references
+    // resolved against it are, e.g. file:///C:/x.json rather than file://C:/x.json
+    if (getProtocol(documentURI) === 'file') {
+      sanitizedURI = `file://${sanitizedURI.startsWith('/') ? '' : '/'}${sanitizedURI}`;
+    }
     return resolve('', sanitizedURI) + fragment;
   } catch {
     return uri;
