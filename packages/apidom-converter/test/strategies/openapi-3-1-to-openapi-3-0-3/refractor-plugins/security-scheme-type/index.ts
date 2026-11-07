@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mediaTypes as openAPI31MediaTypes } from '@speclynx/apidom-parser-adapter-openapi-json-3-1';
@@ -88,6 +90,34 @@ describe('converter', function () {
             expect(toJSON(convertedParseResult.api!, undefined, 2)).toMatchSnapshot();
           },
         );
+
+        ['with spaces ', 'with #hash ', 'näï ', '100%x '].forEach((cwdPrefix) => {
+          specify(
+            `should remove Reference Objects given working directory "${cwdPrefix.trim()}"`,
+            async function () {
+              const fixturePath = path.join(__dirname, 'fixtures', 'reference-objects.json');
+              const options = {
+                convert: {
+                  sourceMediaType: openAPI31MediaTypes.findBy('3.1.0', 'json'),
+                  targetMediaType: openAPI30MediaTypes.findBy('3.0.3', 'json'),
+                },
+              };
+              const expected = toJSON((await convert(fixturePath, options)).api!);
+              const cwd = process.cwd();
+              const specialCwd = fs.mkdtempSync(path.join(os.tmpdir(), cwdPrefix));
+
+              try {
+                process.chdir(specialCwd);
+                const actual = toJSON((await convert(fixturePath, options)).api!);
+
+                assert.strictEqual(actual, expected);
+              } finally {
+                process.chdir(cwd);
+                fs.rmSync(specialCwd, { recursive: true });
+              }
+            },
+          );
+        });
       });
     });
   });

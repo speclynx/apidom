@@ -67,7 +67,12 @@ const securitySchemeTypeRefractorPlugin =
            * We need to remove Reference Objects first as they might be pointing
            * to Security Scheme Objects that are going to be removed.
            */
-          const baseURI = url.cwd();
+          // the refSet is keyed the way dereferenceApiDOM keys its root, i.e. normalized;
+          // in Node url.cwd() is a raw file system path, so encode it first
+          const cwd = url.cwd();
+          const baseURI = url.normalize(
+            url.isFileSystemPath(cwd) ? url.fromFileSystemPath(cwd) : cwd,
+          );
           const rootReference = new Reference({
             uri: baseURI,
             value: cloneDeep(parseResultElement!),
