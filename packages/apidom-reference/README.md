@@ -2055,6 +2055,11 @@ base URI. Per Arazzo 1.1.0, the base URI is the Arazzo Object's `$self` field wh
 against the retrieval URI when relative), otherwise the retrieval URI. A reference whose URI matches the `$self`
 of an already loaded Arazzo document resolves to that document by identity, without fetching it again.
 
+Reusable Objects (`reference` fields holding a `$components.*` runtime expression) are transcluded with the
+referenced component, including the Reusable Objects nested within it (e.g. Parameter references in the `parameters`
+of a component Success or Failure Action). A Reusable Object that leads back to a component it's already nested in
+is a circular reference and is handled per the `dereference.circular` option.
+
 Supported media types:
 
 ```js
