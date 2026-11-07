@@ -8,6 +8,7 @@ import {
   getBasename,
   getHash,
   resolve,
+  normalize,
   relative,
   stripHash,
   sanitize,
@@ -267,6 +268,109 @@ describe('util', function () {
             resolve('http://example.com/one%20with%20spaces/', './two'),
             'http://example.com/one%20with%20spaces/two',
           );
+        });
+      });
+    });
+
+    context('normalize', function () {
+      context('given URL that is not normalized', function () {
+        specify('should normalize it the way resolve does', function () {
+          assert.strictEqual(normalize('https://example.com'), 'https://example.com/');
+          assert.strictEqual(
+            normalize('HTTPS://EXAMPLE.com/root.json'),
+            'https://example.com/root.json',
+          );
+          assert.strictEqual(
+            normalize('https://example.com:443/root.json'),
+            'https://example.com/root.json',
+          );
+          assert.strictEqual(
+            normalize('https://example.com/v1/../root.json'),
+            'https://example.com/root.json',
+          );
+          assert.strictEqual(normalize('file:///one/./two/../root.json'), 'file:///one/root.json');
+        });
+
+        specify('should agree with resolve against an empty reference', function () {
+          [
+            'https://EXAMPLE.com:443/v1/../root.json',
+            'file:///one/./two/../root.json',
+            '/one two/../root.json',
+            '//example.com/one/../root.json',
+            'https://example.com/root.json?query=1',
+          ].forEach((uri) => {
+            assert.strictEqual(normalize(uri), resolve(uri, ''));
+          });
+        });
+      });
+
+      context('given URL with percent-encoding', function () {
+        specify('should leave it as is', function () {
+          assert.strictEqual(
+            normalize('https://example.com/%7bsection%7d/%41ccount'),
+            'https://example.com/%7bsection%7d/%41ccount',
+          );
+        });
+      });
+
+      context('given file system path', function () {
+        specify('should sanitize and normalize it', function () {
+          assert.strictEqual(normalize('/one/two/../root.json'), '/one/root.json');
+          assert.strictEqual(normalize('/one two/root.json'), '/one%20two/root.json');
+          assert.strictEqual(normalize('/one%20two/root.json'), '/one%20two/root.json');
+          assert.strictEqual(normalize('/one/[1].json'), '/one/%5B1%5D.json');
+          assert.strictEqual(normalize('//server/share/root.json'), '//server/share/root.json');
+        });
+      });
+
+      context('given Windows file system path', function () {
+        specify('should sanitize and normalize it', function () {
+          const originalPlatform = process.platform;
+          Object.defineProperty(process, 'platform', { value: 'win32' });
+
+          try {
+            assert.strictEqual(normalize('C:\\one\\..\\root.json'), 'c:/root.json');
+          } finally {
+            Object.defineProperty(process, 'platform', { value: originalPlatform });
+          }
+        });
+      });
+
+      context('given URI with fragment', function () {
+        specify('should keep the fragment as given', function () {
+          assert.strictEqual(
+            normalize('https://EXAMPLE.com/root.json#/paths/~1a b'),
+            'https://example.com/root.json#/paths/~1a b',
+          );
+          assert.strictEqual(normalize('/one/root.json#reference0'), '/one/root.json#reference0');
+          assert.strictEqual(normalize('/one/root.json#'), '/one/root.json#');
+        });
+      });
+
+      context('given URI with opaque path', function () {
+        specify('should return it unchanged', function () {
+          assert.strictEqual(normalize('urn:example:openapi'), 'urn:example:openapi');
+          assert.strictEqual(normalize('untitled:Untitled-1'), 'untitled:Untitled-1');
+        });
+      });
+
+      context('given URI that cannot be normalized', function () {
+        specify('should return it unchanged', function () {
+          assert.strictEqual(
+            normalize('http://exa mple.com/root.json'),
+            'http://exa mple.com/root.json',
+          );
+          assert.strictEqual(
+            normalize('https://example.com:99999/root.json'),
+            'https://example.com:99999/root.json',
+          );
+          assert.strictEqual(normalize('/one/100%x.json'), '/one/100%x.json');
+        });
+      });
+
+      context('given empty string', function () {
+        specify('should return it unchanged', function () {
+          assert.strictEqual(normalize(''), '');
         });
       });
     });

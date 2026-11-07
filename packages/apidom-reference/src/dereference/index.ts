@@ -35,8 +35,9 @@ export const dereferenceApiDOM = async <T extends Element>(
     surrogateWrapping = true;
   }
 
+  // strategies look up same-document references by a resolved, hence normalized, URI
   const file = new File({
-    uri: options.resolve.baseURI,
+    uri: url.normalize(options.resolve.baseURI),
     parseResult,
     mediaType: options.parse.mediaType,
   });
@@ -71,19 +72,20 @@ export const dereferenceApiDOM = async <T extends Element>(
  */
 const dereference = async (uri: string, options: ReferenceOptions): Promise<ParseResultElement> => {
   const { refSet } = options.dereference;
-  const sanitizedURI = url.sanitize(uri);
+  // the file is parsed as a whole document, so its URI has no fragment
+  const baseURI = url.normalize(url.stripHash(uri));
   let parseResult;
 
   // if refSet was provided, use it to avoid unnecessary parsing
-  if (refSet !== null && refSet.has(sanitizedURI)) {
+  if (refSet !== null && refSet.has(baseURI)) {
     // @ts-ignore
-    ({ value: parseResult } = refSet.find(propEq(sanitizedURI, 'uri')));
+    ({ value: parseResult } = refSet.find(propEq(baseURI, 'uri')));
   } else {
     parseResult = await parse(uri, options);
   }
 
   const mergedOptions = mergeOptions(options, {
-    resolve: { baseURI: sanitizedURI },
+    resolve: { baseURI },
     dereference: {
       // if refSet was not provided, then we can work in mutable mode
       immutable: options.dereference.immutable && refSet !== null,

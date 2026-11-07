@@ -1,0 +1,14 @@
+{
+  "openapi": "3.1.2",
+  "components": {
+    "parameters": {
+      "lone": {
+        "$ref": "./ex.json#/components/parameters/external"
+      },
+      "target": {
+        "name": "target",
+        "in": "query"
+      }
+    }
+  }
+}

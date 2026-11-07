@@ -271,6 +271,27 @@ export const resolve = (from: string, to: string): string => {
 };
 
 /**
+ * Normalizes a URI to the form `resolve` produces, i.e. WHATWG URL normalization:
+ * lowercases the scheme and host, drops a default port and removes dot segments.
+ * This is not RFC 3986 syntax-based normalization: percent-encoding is left as is.
+ * A file system path is sanitized first, a `file://` URL stays a URL and the fragment
+ * is kept as given. A URI that can't be normalized is returned unchanged.
+ * @public
+ */
+export const normalize = (uri: string): string => {
+  // getHash returns the root hash ('#') for a URI without fragment
+  const fragment = uri.includes('#') ? getHash(uri) : '';
+  const documentURI = stripHash(uri);
+
+  try {
+    const sanitizedURI = getProtocol(documentURI) === 'file' ? documentURI : sanitize(documentURI);
+    return resolve('', sanitizedURI) + fragment;
+  } catch {
+    return uri;
+  }
+};
+
+/**
  * Computes the URI reference that resolves to `to` against `from` — the inverse
  * of `resolve`: `resolve(from, relative(from, to)) === to`. The reference is
  * relative to the directory of `from` (its last path segment is the document,
