@@ -90,6 +90,43 @@ describe('dereference', function () {
     });
   });
 
+  context('given file:// URL with characters that need encoding', function () {
+    specify('should dereference an absolute reference to the same document', async function () {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'brackets-'));
+      const filePath = path.join(dir, '[v1].json');
+      fs.writeFileSync(
+        filePath,
+        JSON.stringify({
+          openapi: '3.1.0',
+          components: {
+            parameters: {
+              a: { $ref: `file://${filePath}#/components/parameters/b` },
+              b: { name: 'b', in: 'query' },
+            },
+          },
+        }),
+      );
+
+      try {
+        const actual = await dereference(`file://${filePath}`, {
+          parse: { mediaType: mediaTypes.latest('json') },
+          resolve: { external: false },
+        });
+
+        assert.deepEqual(toValue(actual), [
+          {
+            openapi: '3.1.0',
+            components: {
+              parameters: { a: { name: 'b', in: 'query' }, b: { name: 'b', in: 'query' } },
+            },
+          },
+        ]);
+      } finally {
+        fs.rmSync(dir, { recursive: true });
+      }
+    });
+  });
+
   context('given file:// URL', function () {
     const fileURL = `file://${rootFilePath}`;
     const options = { parse: { mediaType: mediaTypes.latest('json') } };
