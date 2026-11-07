@@ -284,11 +284,12 @@ export const resolve = (from: string, to: string): string => {
 };
 
 /**
- * Normalizes a URI to the form `resolve` produces, i.e. WHATWG URL normalization:
- * lowercases the scheme and host, drops a default port and removes dot segments.
- * This is not RFC 3986 syntax-based normalization: percent-encoding is left as is.
- * A file system path is sanitized first, a `file://` URL stays a URL and the fragment
- * is kept as given. A URI that can't be normalized is returned unchanged.
+ * Normalizes a URI the way `resolve` normalizes its result (WHATWG URL normalization):
+ * lowercases the scheme and the host of an absolute URL, drops a default port and
+ * removes dot segments. This is not RFC 3986 syntax-based normalization: existing
+ * percent-encoding is left as is. A file system path is sanitized first, so characters
+ * not allowed in URLs (e.g. spaces, `[`, `?`) are percent-encoded; a `file://` URL stays
+ * a URL. The fragment is kept as given. A URI that can't be normalized is returned unchanged.
  * @public
  */
 export const normalize = (uri: string): string => {
