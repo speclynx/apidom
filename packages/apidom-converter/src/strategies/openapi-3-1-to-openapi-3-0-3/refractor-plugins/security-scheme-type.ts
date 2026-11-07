@@ -69,10 +69,10 @@ const securitySchemeTypeRefractorPlugin =
            */
           // the refSet is keyed the way dereferenceApiDOM keys its root, i.e. normalized;
           // in Node url.cwd() is a raw file system path, so encode it first
+          // (in browsers it is the page URL, which may be an already encoded file:// URL)
           const cwd = url.cwd();
-          const baseURI = url.normalize(
-            url.isFileSystemPath(cwd) ? url.fromFileSystemPath(cwd) : cwd,
-          );
+          const isRawPath = url.isFileSystemPath(cwd) && url.getProtocol(cwd) !== 'file';
+          const baseURI = url.normalize(isRawPath ? url.fromFileSystemPath(cwd) : cwd);
           const rootReference = new Reference({
             uri: baseURI,
             value: cloneDeep(parseResultElement!),
