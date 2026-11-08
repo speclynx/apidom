@@ -443,7 +443,7 @@ describe('traverse', function () {
       });
     });
 
-    context("given true ('skip')", function () {
+    context("given 'skip'", function () {
       specify('should skip revisited nodes entirely (no enter/leave, no descent)', function () {
         const { root, shared } = buildDag();
         let sharedEnters = 0;
@@ -465,8 +465,7 @@ describe('traverse', function () {
               }
             },
           },
-          // @ts-expect-error legacy boolean accepted at runtime for backward compatibility
-          { skipVisited: true },
+          { skipVisited: 'skip' },
         );
 
         // shared node entered once, never revisited
@@ -477,7 +476,7 @@ describe('traverse', function () {
       });
     });
 
-    context("given false / omitted ('never')", function () {
+    context("given 'never' or omitted", function () {
       specify('should visit every occurrence and descend each time', function () {
         const { root, shared } = buildDag();
         let sharedEnters = 0;
@@ -506,26 +505,15 @@ describe('traverse', function () {
       });
     });
 
-    context('given false explicitly', function () {
-      specify('should map to never (legacy boolean back-compat)', function () {
-        const { root, shared } = buildDag();
-        let sharedEnters = 0;
+    context('given a boolean', function () {
+      specify('should throw', function () {
+        const { root } = buildDag();
 
-        traverse(
-          root,
-          {
-            ObjectElement(path: Path) {
-              if (path.node === shared) {
-                sharedEnters += 1;
-              }
-            },
-          },
-          // @ts-expect-error legacy boolean accepted at runtime for backward compatibility
-          { skipVisited: false },
+        assert.throws(
+          // @ts-expect-error booleans are no longer accepted
+          () => traverse(root, {}, { skipVisited: false }),
+          'Invalid skipVisited option: false',
         );
-
-        // false behaves as 'never' — both occurrences visited
-        assert.strictEqual(sharedEnters, 2);
       });
     });
   });
