@@ -102,6 +102,27 @@ describe('apidom-parser', function () {
     }
   });
 
+  it('should select the adapter by a media type compared per RFC 9110', async function () {
+    // source not detected by any adapter: only the media type can select one
+    const parser = new ApiDOMParser().use(mockFailingAdapter).use(mockSuccessAdapter);
+    const parseResult = await parser.parse('{}', {
+      mediaType: ' Application/Vnd.Mock+JSON; charset=utf-8 ',
+    });
+
+    assert.isTrue(parseResult.get(0)?.classes.includes('result'));
+  });
+
+  it('should not select an adapter by a different media type', async function () {
+    const parser = new ApiDOMParser().use(mockSuccessAdapter);
+
+    try {
+      await parser.parse('{}', { mediaType: 'application/vnd.mock+yaml' });
+      assert.fail('should throw ParserError');
+    } catch (error: unknown) {
+      assert.instanceOf(error, ParserError);
+    }
+  });
+
   it('should find namespace', async function () {
     const parser = new ApiDOMParser().use(mockSuccessAdapter);
     const namespace = await parser.findNamespace('{"mock": true}');

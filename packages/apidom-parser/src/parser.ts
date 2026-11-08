@@ -2,6 +2,7 @@ import { head } from 'ramda';
 import { isArray, isFunction, isString, isUndefined } from 'ramda-adjunct';
 import { Namespace, ParseResultElement } from '@speclynx/apidom-datamodel';
 import { MediaTypes } from '@speclynx/apidom-core';
+import { selectBestMatch } from '@swaggerexpert/media-types';
 
 import ParserError from './errors/ParserError.ts';
 
@@ -68,7 +69,8 @@ class ApiDOMParser {
       return this.adapters.find((adapter) => {
         if (!isArray(adapter.mediaTypes)) return false;
 
-        return adapter.mediaTypes.includes(options.mediaType!);
+        // compared as a Content-Type field value, which excludes surrounding whitespace
+        return selectBestMatch(adapter.mediaTypes, options.mediaType!.trim()) !== null;
       });
     }
 
