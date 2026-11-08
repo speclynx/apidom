@@ -32,6 +32,10 @@ export interface DereferencedElement {
   done: boolean;
   // longest chain of references followed within the element, for dereference.maxDepth
   height: number;
+  // the source is itself a referencing element (an alias of its target)
+  alias: boolean;
+  // an alias whose reference never reaches a value: it's kept as written
+  unresolved: boolean;
 }
 
 /**
@@ -44,6 +48,11 @@ export interface TransclusionSpec {
    * target (which may still be being dereferenced when the reference leads back to it).
    */
   readonly toTranscludedElement: (referencingElement: Element, target: Element) => Element;
+  /**
+   * The element transcluded in place of the referencing element when its target is an alias
+   * whose reference never reaches a value. Without it, the referencing element is kept.
+   */
+  readonly toUnresolvedElement?: (referencingElement: Element) => Element;
   /**
    * What a circular reference is reported and replaced with: the RefElement content and meta
    * for `dereference.circular: 'replace'`, the error details for `'error'`.
@@ -63,6 +72,8 @@ export interface Transclusion extends TransclusionSpec {
   readonly target: DereferencedElement;
   // the reference leads back to an element still being dereferenced
   readonly back: boolean;
+  // the referencing element is kept as it is
+  readonly keep: boolean;
 }
 
 /**
@@ -152,6 +163,11 @@ abstract class DereferenceVisitor<TContext = unknown> {
    * Number of references followed to reach the source the visitor traverses.
    */
   protected depth = 0;
+
+  /**
+   * The source the visitor traverses, dereferenced.
+   */
+  protected current?: DereferencedElement;
 
   constructor({ reference, options }: DereferenceVisitorOptions) {
     this.reference = reference;
@@ -403,6 +419,8 @@ abstract class DereferenceVisitor<TContext = unknown> {
       element: isOwned ? semantic : cloneDeep(semantic, { visited: cloneMap }),
       done: false,
       height: 0,
+      alias: false,
+      unresolved: false,
     };
     // a failure discards whatever got dereferenced or refracted meanwhile, as it may lead to this element
     const undoSize = this.run.undo.length;
@@ -414,6 +432,7 @@ abstract class DereferenceVisitor<TContext = unknown> {
     visitor.cloneMap = cloneMap;
     visitor.refractedFrom = semantic !== source ? source : undefined;
     visitor.depth = depth;
+    visitor.current = dereferenced;
 
     try {
       // the handlers only record transclusions
@@ -431,6 +450,10 @@ abstract class DereferenceVisitor<TContext = unknown> {
         dereferenced.height = Math.max(dereferenced.height, transclusion.target.height + 1);
       }
     }
+    const rootTransclusion = visitor.transclusions.get(dereferenced.element);
+    dereferenced.unresolved =
+      rootTransclusion !== undefined &&
+      (rootTransclusion.keep || rootTransclusion.target.unresolved);
     dereferenced.element = visitor.transclude(dereferenced.element);
     dereferenced.done = true;
 
@@ -447,6 +470,9 @@ abstract class DereferenceVisitor<TContext = unknown> {
   ): Promise<void> {
     const referencingCopy = (this.cloneMap?.get(path.node) ?? path.node) as Element;
     const { maxDepth } = this.options.dereference;
+
+    // the source being traversed is itself a referencing element: an alias of the target
+    if (path.parentPath === null && this.current !== undefined) this.current.alias = true;
 
     // detect maximum depth of dereferencing
     if (this.depth + 1 > maxDepth) {
@@ -473,12 +499,46 @@ abstract class DereferenceVisitor<TContext = unknown> {
       if (this.options.dereference.circular === 'error') {
         throw new ApiDOMStructuredError('Circular reference detected', spec.circular.details);
       }
-      this.transclusions.set(referencingCopy, { ...spec, target: existing, back: true });
+      // an alias has no value before its own reference is transcluded: the referencing element
+      // is kept, to be transcluded by an enclosing dereferenced element, if any
+      const keep = existing.alias && this.options.dereference.circular === 'ignore';
+      this.transclusions.set(referencingCopy, { ...spec, target: existing, back: true, keep });
       return;
     }
 
     const dereferenced = existing ?? (await this.dereferenceAs(target, this.depth + 1));
-    this.transclusions.set(referencingCopy, { ...spec, target: dereferenced, back: false });
+    this.transclusions.set(referencingCopy, {
+      ...spec,
+      target: dereferenced,
+      back: false,
+      keep: false,
+    });
+  }
+
+  /**
+   * Records the transclusion of a referencing element with a target that isn't dereferenced:
+   * the target as the expected type is attached as it is, e.g. an Operation Object to the Link
+   * Object pointing at it. Attached targets never form cycles.
+   */
+  protected async addAttachment(
+    path: Path<Element>,
+    target: DereferenceTarget<TContext>,
+    toTranscludedElement: TransclusionSpec['toTranscludedElement'],
+  ): Promise<void> {
+    const referencingCopy = (this.cloneMap?.get(path.node) ?? path.node) as Element;
+    const semantic = await this.toSemantic(target, this.depth + 1);
+    // with the immutable option, the attached target is its copy in the result when it has one
+    const element = this.run.inPlace
+      ? semantic
+      : ((this.run.copies.get(semantic) as Element | undefined) ?? semantic);
+
+    this.transclusions.set(referencingCopy, {
+      toTranscludedElement,
+      circular: { uri: '', meta: {}, details: {} },
+      target: { element, done: true, height: 0, alias: false, unresolved: false },
+      back: false,
+      keep: false,
+    });
   }
 
   /**
@@ -498,6 +558,8 @@ abstract class DereferenceVisitor<TContext = unknown> {
           const transclusion = this.transclusions.get(path.node);
           if (path.node !== element && transclusion !== undefined) {
             const transcludedElement = this.toTranscludedElement(path.node, transclusion);
+            // a kept referencing element is left to be transcluded by an enclosing element
+            if (transcludedElement === path.node) return;
             this.run.transcluded.add(transcludedElement);
             path.replaceWith(transcludedElement);
           }
@@ -511,6 +573,7 @@ abstract class DereferenceVisitor<TContext = unknown> {
 
     // references leading back to the element may already be transcluded with it, so it's filled in place
     const transcludedElement = this.toTranscludedElement(element, rootTransclusion);
+    if (transcludedElement === element) return element;
     if (transcludedElement.constructor !== element.constructor) return transcludedElement;
     element.element = transcludedElement.element;
     element.content = transcludedElement.content;
@@ -523,6 +586,13 @@ abstract class DereferenceVisitor<TContext = unknown> {
    * The element transcluded in place of a referencing element.
    */
   protected toTranscludedElement(referencingElement: Element, transclusion: Transclusion): Element {
+    // the referencing element waits for an enclosing element to transclude it
+    if (transclusion.keep) return referencingElement;
+    // an alias whose reference never reaches a value
+    if (transclusion.target.unresolved) {
+      return transclusion.toUnresolvedElement?.(referencingElement) ?? referencingElement;
+    }
+
     if (transclusion.back && this.options.dereference.circular === 'replace') {
       const refElement = new RefElement(transclusion.circular.uri, {
         type: referencingElement.element,

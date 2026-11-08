@@ -1999,6 +1999,18 @@ const dereferenced = await dereferenceApiDOM(apidom, {
 Dereference strategy determines how a document is internally or externally dereferenced. Depending on document `mediaType` option,
 every strategy differs significantly. `Dereference component` comes with six (6) default dereference strategies.
 
+The `arazzo-1` and `openapi-3-1` strategies dereference by **the type each reference expects of its target**, so
+a structure referenced as different types (e.g. as a Parameter Object and as a Header Object) is read as each of them.
+Every referenced structure is dereferenced once per type and shared by all the references reading it as that type,
+so documents sharing structures along many paths are dereferenced in linear time. A reference leading back to
+a structure that's still being dereferenced is a circular reference, handled per `dereference.circular`; with
+the default `ignore`, a cycle of references that never reaches a value keeps Reference Objects as written, while
+`$ref`s merging their target with sibling fields (Path Item Objects, Schema Objects) leave only the sibling fields.
+Each unresolvable reference is reported once to `dereference.continueOnError`. With `dereference.immutable` (the
+default) the dereferenced documents aren't edited and the result is a new tree; with `dereference.immutable: false`
+they're dereferenced in place. Elements transcluded in place of references carry the `ref-type` meta and aren't
+traversed again.
+
 #### [apidom](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/dereference/strategies/apidom)
 
 Dereference strategy for dereferencing ApiDOM using [Ref Element](https://apielements.org/en/latest/element-definitions.html?highlight=referencing#ref-element).
@@ -2411,6 +2423,10 @@ Supported media types:
 ##### [openapi-3-1](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/dereference/strategies/openapi-3-1)
 
 Dereference strategy for dereferencing [OpenApi 3.1.x](https://spec.openapis.org/oas/v3.1.2.html) definitions.
+
+Reference Objects expect the type of the field holding them, Path Item `$ref`s a Path Item Object and Schema Object
+`$ref`s a Schema Object. Link Objects get the Operation Object they point at attached to their `operationRef` or
+`operationId` meta, and Example Objects get their `externalValue` as `value`; these targets aren't dereferenced.
 
 Supported media types:
 

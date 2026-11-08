@@ -1,20 +1,21 @@
-import { propEq, none } from 'ramda';
+import { none } from 'ramda';
 import { isUndefined } from 'ramda-adjunct';
 import {
   isElement,
   isStringElement,
   isObjectElement,
   isParseResultElement,
+  isPrimitiveElement,
   Element,
-  RefElement,
+  ObjectElement,
   BooleanElement,
   ParseResultElement,
   cloneShallow,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { toValue, fixedFields, toYAML } from '@speclynx/apidom-core';
+import { toValue, fixedFields } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
-import { traverse, traverseAsync, find, type Path } from '@speclynx/apidom-traverse';
+import { traverse, find, type Path } from '@speclynx/apidom-traverse';
 import {
   evaluate as jsonPointerEvaluate,
   URIFragmentIdentifier,
@@ -24,7 +25,6 @@ import {
   ReferenceElement,
   PathItemElement,
   LinkElement,
-  OperationElement,
   ExampleElement,
   SchemaElement,
   isPathItemElement,
@@ -34,32 +34,38 @@ import {
   isBooleanJSONSchemaElement,
   refract,
   refractReference,
-  refractPathItem,
-  refractOperation,
+  refractSchema,
 } from '@speclynx/apidom-ns-openapi-3-1';
 
 import { isAnchor, uriToAnchor, locate as $anchorLocate } from './selectors/$anchor.ts';
 import { locate as uriLocate, type Schema$idIndex } from './selectors/uri.ts';
 import { locate as jsonPointerLocate } from './selectors/json-pointer.ts';
-import MaximumDereferenceDepthError from '../../../errors/MaximumDereferenceDepthError.ts';
-import MaximumResolveDepthError from '../../../errors/MaximumResolveDepthError.ts';
-import UnresolvableReferenceError from '../../../errors/UnresolvableReferenceError.ts';
 import EvaluationJsonSchemaUriError from '../../../errors/EvaluationJsonSchemaUriError.ts';
+import DereferenceVisitor from '../DereferenceVisitor.ts';
 import * as url from '../../../util/url.ts';
-import parse from '../../../parse/index.ts';
 import Reference from '../../../Reference.ts';
-import ReferenceSet from '../../../ReferenceSet.ts';
 import File from '../../../File.ts';
 import Resolver from '../../../resolve/resolvers/Resolver.ts';
 import {
-  schema$idsOf,
+  isJSONSchemaElementWith$id,
+  collectSchema$ids,
   resolveSchema$ids,
   resolveSchemaBaseURI,
   resolveSchema$refField,
-  maybeRefractToSchemaElement,
 } from './util.ts';
-import { AncestorLineage } from '../../util.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
+
+/**
+ * Type a Schema Object `$ref` expects its target to have.
+ */
+const SCHEMA_TYPE = 'schema';
+
+/**
+ * Context of a source being dereferenced: the `$id`s of the Schema Objects enclosing it.
+ */
+interface OpenAPI3_1DereferenceContext {
+  readonly ancestorSchema$ids: string[];
+}
 
 /**
  * @public
@@ -67,407 +73,209 @@ import type { ReferenceOptions } from '../../../options/index.ts';
 export interface OpenAPI3_1DereferenceVisitorOptions {
   readonly reference: Reference;
   readonly options: ReferenceOptions;
-  readonly indirections?: Element[];
-  readonly refractCache?: WeakMap<Element, Element>;
   readonly schema$idIndex?: Schema$idIndex;
-  readonly ancestors?: AncestorLineage<Element>;
-  readonly visited?: WeakSet<Element>;
   readonly ancestorSchema$ids?: string[];
 }
 
 /**
+ * Dereferences an OpenAPI 3.1 document. Reference Objects expect the type of their
+ * `referenced-element` meta, Path Item `$ref`s a Path Item, Schema Object `$ref`s a Schema Object.
+ * Link Objects get the Operation Object they point at attached, Example Objects
+ * the external value.
+ *
  * @public
  */
-class OpenAPI3_1DereferenceVisitor {
-  protected readonly indirections: Element[];
-
-  protected readonly reference: Reference;
-
-  protected readonly options: ReferenceOptions;
-
-  protected readonly refractCache: WeakMap<Element, Element>;
-
+class OpenAPI3_1DereferenceVisitor extends DereferenceVisitor<OpenAPI3_1DereferenceContext> {
   /**
-   * Index of `$id`-bearing schemas per document, shared across nested visitors
-   * of a single dereference run so it never outlives mutations of the documents.
+   * Index of `$id`-bearing schemas per document, shared across the visitors
+   * of a single dereference run.
    */
   protected readonly schema$idIndex: Schema$idIndex;
-
-  protected readonly visited: WeakSet<Element>;
 
   /**
    * `$id`s of the JSON Schema elements enclosing the traversal root within its
    * document (outermost first). Empty when the root is the document itself; a
-   * nested visitor traversing a fragment is seeded with the `$id`s of the
-   * schemas the fragment sits under, so the `$ref`s and `$id`s within resolve
-   * against the same base as they would from the document root.
+   * visitor traversing a fragment is seeded with the `$id`s of the schemas the
+   * fragment sits under, so the `$ref`s and `$id`s within resolve against the
+   * same base as they would from the document root.
    */
   protected readonly ancestorSchema$ids: string[];
-
-  /**
-   * Tracks element ancestors across dive-deep traversal boundaries.
-   * Used for cycle detection: if a referenced element is found in
-   * the ancestor lineage, a circular reference is detected.
-   */
-  protected readonly ancestors: AncestorLineage<Element>;
 
   constructor({
     reference,
     options,
-    indirections = [],
-    refractCache = new WeakMap(),
     schema$idIndex = new WeakMap(),
-    ancestors = new AncestorLineage(),
-    visited = new WeakSet(),
     ancestorSchema$ids = [],
   }: OpenAPI3_1DereferenceVisitorOptions) {
-    this.indirections = indirections;
-    this.reference = reference;
-    this.options = options;
-    this.refractCache = refractCache;
+    super({ reference, options });
     this.schema$idIndex = schema$idIndex;
-    this.ancestors = new AncestorLineage(...ancestors);
-    this.visited = visited;
     this.ancestorSchema$ids = ancestorSchema$ids;
   }
 
-  protected toAncestorLineage(path: Path<Element>): [AncestorLineage<Element>, Set<Element>] {
-    const ancestorNodes = path.getAncestorNodes();
-    const directAncestors = new Set<Element>(ancestorNodes.filter(isElement));
-    const ancestorsLineage = new AncestorLineage<Element>(...this.ancestors, directAncestors);
-    return [ancestorsLineage, directAncestors];
+  protected get strategyName(): string {
+    return 'openapi-3-1';
   }
 
-  protected toBaseURI(uri: string): string {
-    return url.resolve(this.reference.uri, url.sanitize(url.stripHash(uri)));
-  }
-
-  protected async toReference(uri: string): Promise<Reference> {
-    // detect maximum depth of resolution
-    if (this.reference.depth >= this.options.resolve.maxDepth) {
-      throw new MaximumResolveDepthError(
-        `Maximum resolution depth of ${this.options.resolve.maxDepth} has been exceeded by file "${this.reference.uri}"`,
-        { maxDepth: this.options.resolve.maxDepth, uri: this.reference.uri },
-      );
-    }
-
-    const baseURI = this.toBaseURI(uri);
-    const { refSet } = this.reference as { refSet: ReferenceSet };
-
-    // we've already processed this Reference in past
-    if (refSet.has(baseURI)) {
-      return refSet.find(propEq(baseURI, 'uri'))!;
-    }
-
-    const parseResult = await parse(url.unsanitize(baseURI), {
-      ...this.options,
-      parse: { ...this.options.parse, mediaType: 'text/plain' },
+  protected createVisitor(
+    reference: Reference,
+    { ancestorSchema$ids }: OpenAPI3_1DereferenceContext,
+  ): OpenAPI3_1DereferenceVisitor {
+    return new OpenAPI3_1DereferenceVisitor({
+      reference,
+      options: this.options,
+      schema$idIndex: this.schema$idIndex,
+      ancestorSchema$ids,
     });
-
-    // register new mutable reference with a refSet
-    //
-    // NOTE(known limitation): the mutable reference is mutated in place during traversal
-    // (via `{ mutable: true }`). When an external document evaluates a JSON pointer back
-    // into this document, it may receive an already-resolved element instead of the original
-    // $ref. That resolved element was produced using the entry document's resolution context
-    // (ancestors, indirections), which may differ from the external document's context.
-    // This can affect cycle detection in rare cross-document circular reference patterns.
-    //
-    // Remediation: evaluate JSON pointers against the immutable (original) parse tree
-    // instead of the mutable working copy. The `immutable://` reference below preserves
-    // the original tree and could be used for pointer evaluation, ensuring every resolution
-    // context always sees raw, unresolved elements and processes them with its own
-    // ancestors/indirections. The trade-off is that elements referenced by multiple
-    // documents would be resolved once per context instead of being reused.
-    const mutableReference = new Reference({
-      uri: baseURI,
-      value: this.options.dereference.immutable ? cloneDeep(parseResult) : parseResult,
-      depth: this.reference.depth + 1,
-    });
-    refSet.add(mutableReference);
-
-    if (this.options.dereference.immutable) {
-      // register new immutable reference with original parseResult
-      const immutableReference = new Reference({
-        uri: `immutable://${baseURI}`,
-        value: parseResult,
-        depth: this.reference.depth + 1,
-      });
-      refSet.add(immutableReference);
-    }
-
-    return mutableReference;
   }
 
   /**
-   * Handles an error according to the continueOnError option.
-   *
-   * For new errors: wraps in UnresolvableReferenceError with structured context
-   * (type, uri, location, codeFrame, refFieldName, refFieldValue, trace).
-   * For errors already wrapped by a nested visitor: prepends the current hop to the trace.
-   *
-   * Inner/intermediate visitors always throw to let the trace accumulate.
-   * Only the entry document visitor respects continueOnError (callback/swallow/throw).
+   * A Reference Object stands for the type its reference expects: it's dereferenced as that type.
    */
-  protected handleError(
-    message: string,
-    error: Error,
-    referencingElement: Element,
-    refFieldName: string,
-    refFieldValue: string,
-    visitorPath: Path<Element>,
-  ): void {
-    const { continueOnError } = this.options.dereference;
-    const isEntryDocument =
-      url.stripHash(this.reference.refSet?.rootRef?.uri ?? '') === this.reference.uri;
-    const uri = this.reference.uri;
-    const type = referencingElement.element as string;
-    const codeFrame = toYAML(referencingElement);
+  protected isOfType(element: Element, type: string): boolean {
+    if (isReferenceElement(element)) return true;
+    return type === SCHEMA_TYPE
+      ? isSchemaElement(element) || isBooleanJSONSchemaElement(element)
+      : element.element === type;
+  }
 
-    // find element location by identity in the document tree.
-    // guarded: this.reference.value may not be a ParseResultElement or may lack a result.
-    // falls back to visitorPath which may produce an incomplete path when
-    // dereferenceApiDOM is called with a fragment (cloneShallow creates a new root identity).
-    let location: string | undefined;
-    const root = (this.reference.value as ParseResultElement).result;
-    if (isElement(root)) {
-      traverse(root, {
-        enter: (p: Path<Element>) => {
-          if (
-            p.node === referencingElement ||
-            this.refractCache.get(p.node) === referencingElement
-          ) {
-            location = p.formatPath();
-            p.stop();
-          }
-        },
-      });
+  /**
+   * A generic structure holding a `$ref` is a Reference Object to the expected type.
+   */
+  protected refractTo(element: Element, type: string): Element {
+    if (type !== SCHEMA_TYPE && isReferenceLikeElement(element)) {
+      const referenceElement = refractReference(element);
+      referenceElement.meta.set('referenced-element', type);
+      return referenceElement;
     }
-    location ??= visitorPath.formatPath();
+    return refract(element, { element: type });
+  }
 
-    const hop = { uri, type, refFieldName, refFieldValue, location, codeFrame };
+  /**
+   * A document as Schema Object for locating schemas within it: a generic document is
+   * refracted to Schema Object once per dereference run, a semantic one is used as it is.
+   */
+  protected toSchemaDocument(document: Element): Element {
+    if (!isPrimitiveElement(document)) return document;
 
-    // enrich existing error from nested visitor or create new one
-    let unresolvedError: UnresolvableReferenceError;
-    if (error instanceof UnresolvableReferenceError) {
-      // prefix relative locations for entries belonging to the referenced document
-      const refBaseURI = this.toBaseURI(refFieldValue);
-      const fragment = URIFragmentIdentifier.fromURIReference(refFieldValue);
-      if (fragment) {
-        if (refBaseURI === (error as any).uri && (error as any).location) {
-          (error as any).location = fragment + (error as any).location;
-        }
-        for (const h of (error as any).trace) {
-          if (h.uri === refBaseURI && h.location) h.location = fragment + h.location;
-        }
-      }
-      // @ts-ignore
-      error.trace = [hop, ...error.trace];
-      unresolvedError = error;
-    } else {
-      unresolvedError = new UnresolvableReferenceError(message, {
-        cause: error,
-        type,
-        uri,
-        location,
-        codeFrame,
-        refFieldName,
-        refFieldValue,
-        trace: [],
-      });
+    let byType = this.run.refracted.get(document);
+    if (byType === undefined) {
+      byType = new Map();
+      this.run.refracted.set(document, byType);
     }
+    let refracted = byType.get(SCHEMA_TYPE);
+    if (refracted === undefined) {
+      refracted = refractSchema(document);
+      byType.set(SCHEMA_TYPE, refracted);
+    }
+    return refracted;
+  }
 
-    if (!isEntryDocument || continueOnError === false) throw unresolvedError;
-    if (typeof continueOnError === 'function') continueOnError(unresolvedError);
+  /**
+   * Indexes the `$id`-bearing schemas of an element for the run. Transcluded elements aren't
+   * indexed: they're copies of structures indexed where they're defined,
+   * and in a document dereferenced in place their shared structure would be walked once per path.
+   */
+  protected index$ids(element: Element): void {
+    if (this.schema$idIndex.has(element)) return;
+
+    const entries: { schema: SchemaElement; $ids: string[] }[] = [];
+    traverse(element, {
+      enter: (path: Path<Element>) => {
+        if (this.isTranscluded(path.node)) {
+          path.skip();
+        } else if (isJSONSchemaElementWith$id(path.node)) {
+          entries.push({ schema: path.node as SchemaElement, $ids: collectSchema$ids(path) });
+        }
+      },
+    });
+    this.schema$idIndex.set(element, entries as never);
   }
 
   public async ReferenceElement(path: Path<Element>) {
     const referencingElement = path.node as ReferenceElement;
 
+    // the fields of a Reference Object hold no references
+    path.skip();
+
     // ignore Reference Object without a string $ref, e.g. an empty YAML value
-    if (!isStringElement(referencingElement.$ref)) {
+    if (this.isTranscluded(referencingElement) || !isStringElement(referencingElement.$ref)) {
       return;
     }
 
-    // skip current referencing element as it's already been accessed
-    if (this.indirections.includes(referencingElement)) {
-      path.skip();
-      return;
-    }
-
-    const retrievalURI = this.toBaseURI(toValue(referencingElement.$ref) as string);
+    const $ref = toValue(referencingElement.$ref) as string;
+    const retrievalURI = this.toBaseURI($ref);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
     const isExternalReference = !isInternalReference;
 
     // ignore resolving internal Reference Objects
     if (!this.options.resolve.internal && isInternalReference) {
-      // skip traversing this reference element and all it's child elements
-      path.skip();
       return;
     }
     // ignore resolving external Reference Objects
     if (!this.options.resolve.external && isExternalReference) {
-      // skip traversing this reference element and all it's child elements
-      path.skip();
       return;
     }
 
-    const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
-    const indirectionsSize = this.indirections.length;
+    const $refBaseURI = url.resolve(retrievalURI, $ref);
 
     try {
-      const reference = await this.toReference(toValue(referencingElement.$ref) as string);
-
-      this.indirections.push(referencingElement);
-
+      const reference = await this.toReference($ref);
       const jsonPointer = URIFragmentIdentifier.fromURIReference($refBaseURI);
-
       // possibly non-semantic fragment
-      let referencedElement = jsonPointerEvaluate<Element>(
+      const referencedElement = jsonPointerEvaluate<Element>(
         (reference.value as ParseResultElement).result as Element,
         jsonPointer,
       );
 
-      // applying semantics to a fragment
-      const referencedElementType = referencingElement.meta.get('referenced-element') as string;
-      if (
-        referencedElement.element !== referencedElementType &&
-        !isReferenceElement(referencedElement)
-      ) {
-        if (this.refractCache.has(referencedElement)) {
-          referencedElement = this.refractCache.get(referencedElement)!;
-        } else if (isReferenceLikeElement(referencedElement)) {
-          // handling generic indirect references
-          const sourceElement = referencedElement;
-          referencedElement = refractReference(referencedElement);
-          referencedElement.meta.set('referenced-element', referencedElementType);
-          this.refractCache.set(sourceElement, referencedElement);
-        } else {
-          // handling direct references
-          const sourceElement = referencedElement;
-          referencedElement = refract(referencedElement, { element: referencedElementType });
-          this.refractCache.set(sourceElement, referencedElement);
-        }
-      }
-
-      // detect direct or indirect reference
+      // detect direct reference
       if (referencingElement === referencedElement) {
-        throw new ApiDOMStructuredError('Recursive Reference Object detected', {
-          $ref: toValue(referencingElement.$ref),
-        });
+        throw new ApiDOMStructuredError('Recursive Reference Object detected', { $ref });
       }
 
-      // detect maximum depth of dereferencing
-      if (this.indirections.length > this.options.dereference.maxDepth) {
-        throw new MaximumDereferenceDepthError(
-          `Maximum dereference depth of "${this.options.dereference.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
-          { maxDepth: this.options.dereference.maxDepth, uri: this.reference.uri },
-        );
-      }
+      const type = referencingElement.meta.get('referenced-element') as string;
+      await this.addTransclusion(
+        path,
+        { source: referencedElement, type, reference, context: { ancestorSchema$ids: [] } },
+        {
+          toTranscludedElement: (element, target) => {
+            // a chain of Reference Objects leading back to itself never reaches a value
+            if (isReferenceElement(target)) return element;
 
-      // detect cross-boundary cycle
-      const [ancestorsLineage, directAncestors] = this.toAncestorLineage(path);
-      if (ancestorsLineage.includes(referencedElement)) {
-        reference.refSet!.circular = true;
+            const reusingElement = element as ReferenceElement;
+            /**
+             * Creating a new version of referenced element to avoid modifying the original one.
+             */
+            const mergedElement = cloneShallow(target);
+            // annotate fragment with info about original Reference element
+            mergedElement.meta.set('ref-fields', {
+              $ref,
+              description: toValue(reusingElement.get('description')),
+              summary: toValue(reusingElement.get('summary')),
+            });
+            // annotate fragment with info about origin and type
+            mergedElement.meta.set('ref-origin', reference.uri);
+            mergedElement.meta.set('ref-type', element.element);
 
-        if (this.options.dereference.circular === 'error') {
-          throw new ApiDOMStructuredError('Circular reference detected', {
-            $ref: toValue(referencingElement.$ref),
-          });
-        } else if (this.options.dereference.circular === 'replace') {
-          const refElement = new RefElement($refBaseURI, {
-            type: referencingElement.element,
-            uri: reference.uri,
-            $ref: toValue(referencingElement.$ref),
-          });
-          const replacer =
-            this.options.dereference.strategyOpts['openapi-3-1']?.circularReplacer ??
-            this.options.dereference.circularReplacer;
-          const replacement = replacer(refElement);
+            // override description and summary (outer has higher priority then inner)
+            if (isObjectElement(target) && isObjectElement(mergedElement)) {
+              const fields = fixedFields(target, { indexed: true });
 
-          path.replaceWith(replacement);
-          path.skip();
-          return;
-        }
-      }
+              if (reusingElement.hasKey('description') && Object.hasOwn(fields, 'description')) {
+                mergedElement.remove('description');
+                mergedElement.set('description', reusingElement.get('description'));
+              }
+              if (reusingElement.hasKey('summary') && Object.hasOwn(fields, 'summary')) {
+                mergedElement.remove('summary');
+                mergedElement.set('summary', reusingElement.get('summary'));
+              }
+            }
 
-      /**
-       * Dive deep into the fragment.
-       *
-       * Cases to consider:
-       *  1. We're crossing document boundary
-       *  2. Fragment is from non-entry document
-       *  3. Fragment is a Reference Object. We need to follow it to get the eventual value
-       *  4. We are dereferencing the fragment lazily/eagerly depending on circular mode
-       */
-      const isNonEntryDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
-      const shouldDetectCircular = ['error', 'replace'].includes(this.options.dereference.circular);
-      if (
-        (isExternalReference ||
-          isNonEntryDocument ||
-          isReferenceElement(referencedElement) ||
-          (shouldDetectCircular && !this.visited.has(referencedElement))) &&
-        !ancestorsLineage.includesCycle(referencedElement)
-      ) {
-        if (shouldDetectCircular) {
-          this.visited.add(referencedElement);
-        }
-
-        directAncestors.add(referencingElement);
-
-        const visitor = new OpenAPI3_1DereferenceVisitor({
-          reference,
-          indirections: [...this.indirections],
-          options: this.options,
-          refractCache: this.refractCache,
-          schema$idIndex: this.schema$idIndex,
-          visited: this.visited,
-          ancestors: ancestorsLineage,
-        });
-        referencedElement = await traverseAsync(referencedElement, visitor, {
-          mutable: true,
-          skipVisited: 'skip',
-        });
-
-        directAncestors.delete(referencingElement);
-      }
-
-      /**
-       * Creating a new version of referenced element to avoid modifying the original one.
-       */
-      const mergedElement = cloneShallow(referencedElement);
-      // annotate fragment with info about original Reference element
-      mergedElement.meta.set('ref-fields', {
-        $ref: toValue(referencingElement.$ref),
-        // @ts-ignore
-        description: toValue(referencingElement.description),
-        // @ts-ignore
-        summary: toValue(referencingElement.summary),
-      });
-      // annotate fragment with info about origin and type
-      mergedElement.meta.set('ref-origin', reference.uri);
-      mergedElement.meta.set('ref-type', referencingElement.element);
-
-      // override description and summary (outer has higher priority then inner)
-      if (isObjectElement(referencedElement) && isObjectElement(mergedElement)) {
-        const fields = fixedFields(referencedElement, { indexed: true });
-
-        if (referencingElement.hasKey('description') && Object.hasOwn(fields, 'description')) {
-          mergedElement.remove('description');
-          mergedElement.set('description', referencingElement.get('description'));
-        }
-        if (referencingElement.hasKey('summary') && Object.hasOwn(fields, 'summary')) {
-          mergedElement.remove('summary');
-          mergedElement.set('summary', referencingElement.get('summary'));
-        }
-      }
-
-      /**
-       * Transclude referencing element with merged referenced element.
-       */
-      path.replaceWith(mergedElement);
+            return mergedElement;
+          },
+          circular: { uri: $refBaseURI, meta: { uri: reference.uri, $ref }, details: { $ref } },
+        },
+      );
     } catch (error: unknown) {
-      const $ref = toValue(referencingElement.$ref) as string;
       this.handleError(
         `Error while dereferencing Reference Object. Cannot resolve $ref "${$ref}": ${(error as Error).message}`,
         error as Error,
@@ -476,26 +284,24 @@ class OpenAPI3_1DereferenceVisitor {
         $ref,
         path,
       );
-    } finally {
-      if (this.indirections.length > indirectionsSize) this.indirections.pop();
     }
   }
 
   public async PathItemElement(path: Path<Element>) {
     const referencingElement = path.node as PathItemElement;
 
+    if (this.isTranscluded(referencingElement)) {
+      path.skip();
+      return;
+    }
+
     // ignore PathItemElement without $ref field
     if (!isStringElement(referencingElement.$ref)) {
       return;
     }
 
-    // skip current referencing element as it's already been accessed
-    if (this.indirections.includes(referencingElement)) {
-      path.skip();
-      return;
-    }
-
-    const retrievalURI = this.toBaseURI(toValue(referencingElement.$ref) as string);
+    const $ref = toValue(referencingElement.$ref) as string;
+    const retrievalURI = this.toBaseURI($ref);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
     const isExternalReference = !isInternalReference;
 
@@ -510,144 +316,67 @@ class OpenAPI3_1DereferenceVisitor {
       return;
     }
 
-    const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
-    const indirectionsSize = this.indirections.length;
+    const $refBaseURI = url.resolve(retrievalURI, $ref);
 
     try {
-      const reference = await this.toReference(toValue(referencingElement.$ref) as string);
-
-      this.indirections.push(referencingElement);
-
+      const reference = await this.toReference($ref);
       const jsonPointer = URIFragmentIdentifier.fromURIReference($refBaseURI);
-
       // possibly non-semantic referenced element
-      let referencedElement = jsonPointerEvaluate<Element>(
+      const referencedElement = jsonPointerEvaluate<Element>(
         (reference.value as ParseResultElement).result as Element,
         jsonPointer,
       );
 
-      // applying semantics to a referenced element
-      if (!isPathItemElement(referencedElement)) {
-        if (this.refractCache.has(referencedElement)) {
-          referencedElement = this.refractCache.get(referencedElement)!;
-        } else {
-          const sourceElement = referencedElement;
-          referencedElement = refractPathItem(referencedElement);
-          this.refractCache.set(sourceElement, referencedElement);
-        }
-      }
-
-      // detect direct or indirect reference
+      // detect direct reference
       if (referencingElement === referencedElement) {
         throw new ApiDOMStructuredError('Recursive Path Item Object reference detected', {
-          $ref: toValue(referencingElement.$ref),
+          $ref,
         });
       }
 
-      // detect maximum depth of dereferencing
-      if (this.indirections.length > this.options.dereference.maxDepth) {
-        throw new MaximumDereferenceDepthError(
-          `Maximum dereference depth of "${this.options.dereference.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
-          { maxDepth: this.options.dereference.maxDepth, uri: this.reference.uri },
-        );
-      }
-
-      // detect cross-boundary cycle
-      const [ancestorsLineage, directAncestors] = this.toAncestorLineage(path);
-      if (ancestorsLineage.includes(referencedElement)) {
-        reference.refSet!.circular = true;
-
-        if (this.options.dereference.circular === 'error') {
-          throw new ApiDOMStructuredError('Circular reference detected', {
-            $ref: toValue(referencingElement.$ref),
-          });
-        } else if (this.options.dereference.circular === 'replace') {
-          const refElement = new RefElement($refBaseURI, {
-            type: referencingElement.element,
-            uri: reference.uri,
-            $ref: toValue(referencingElement.$ref),
-          });
-          const replacer =
-            this.options.dereference.strategyOpts['openapi-3-1']?.circularReplacer ??
-            this.options.dereference.circularReplacer;
-          const replacement = replacer(refElement);
-
-          path.replaceWith(replacement);
-          path.skip();
-          return;
-        }
-      }
-
-      /**
-       * Dive deep into the fragment.
-       *
-       * Cases to consider:
-       *  1. We're crossing document boundary
-       *  2. Fragment is from non-entry document
-       *  3. Fragment is a Path Item Object with $ref field. We need to follow it to get the eventual value
-       *  4. We are dereferencing the fragment lazily/eagerly depending on circular mode
-       */
-      const isNonEntryDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
-      const shouldDetectCircular = ['error', 'replace'].includes(this.options.dereference.circular);
-      if (
-        (isExternalReference ||
-          isNonEntryDocument ||
-          (isPathItemElement(referencedElement) && isStringElement(referencedElement.$ref)) ||
-          (shouldDetectCircular && !this.visited.has(referencedElement))) &&
-        !ancestorsLineage.includesCycle(referencedElement)
-      ) {
-        if (shouldDetectCircular) {
-          this.visited.add(referencedElement);
-        }
-
-        directAncestors.add(referencingElement);
-
-        const visitor = new OpenAPI3_1DereferenceVisitor({
+      await this.addTransclusion(
+        path,
+        {
+          source: referencedElement,
+          type: 'pathItem',
           reference,
-          indirections: [...this.indirections],
-          options: this.options,
-          refractCache: this.refractCache,
-          schema$idIndex: this.schema$idIndex,
-          visited: this.visited,
-          ancestors: ancestorsLineage,
-        });
-        referencedElement = await traverseAsync(referencedElement, visitor, {
-          mutable: true,
-          skipVisited: 'skip',
-        });
+          context: { ancestorSchema$ids: [] },
+        },
+        {
+          toTranscludedElement: (element, target) => {
+            if (!isPathItemElement(target)) return target;
 
-        directAncestors.delete(referencingElement);
-      }
+            /**
+             * Creating a new version of Path Item by merging fields from referenced Path Item with referencing one.
+             */
+            const mergedElement = cloneShallow<PathItemElement>(target);
+            // existing keywords from referencing PathItemElement overrides ones from referenced element
+            (element as PathItemElement).forEach(
+              (value: Element, keyElement: Element, item: Element) => {
+                mergedElement.remove(toValue(keyElement) as string);
+                (mergedElement.content as Element[]).push(item);
+              },
+            );
+            mergedElement.remove('$ref');
 
-      /**
-       * Creating a new version of Path Item by merging fields from referenced Path Item with referencing one.
-       */
-      if (isPathItemElement(referencedElement)) {
-        const mergedElement = cloneShallow<PathItemElement>(referencedElement);
-        // existing keywords from referencing PathItemElement overrides ones from referenced element
-        referencingElement.forEach((value: Element, keyElement: Element, item: Element) => {
-          mergedElement.remove(toValue(keyElement) as string);
-          (mergedElement.content as Element[]).push(item);
-        });
-        mergedElement.remove('$ref');
+            // annotate referenced element with info about original referencing element
+            mergedElement.meta.set('ref-fields', { $ref });
+            // annotate referenced element with info about origin and type
+            mergedElement.meta.set('ref-origin', reference.uri);
+            mergedElement.meta.set('ref-type', element.element);
 
-        // annotate referenced element with info about original referencing element
-        mergedElement.meta.set('ref-fields', {
-          $ref: toValue(referencingElement.$ref),
-        });
-        // annotate referenced element with info about origin and type
-        mergedElement.meta.set('ref-origin', reference.uri);
-        mergedElement.meta.set('ref-type', referencingElement.element);
-
-        referencedElement = mergedElement;
-      }
-
-      /**
-       * Transclude referencing element with merged referenced element.
-       */
-      path.replaceWith(referencedElement);
+            return mergedElement;
+          },
+          // a cycle of Path Item $refs never reaches a Path Item: only the fields next to the $ref remain
+          toUnresolvedElement: (element) => {
+            const siblingsElement = cloneShallow(element as ObjectElement);
+            siblingsElement.remove('$ref');
+            return siblingsElement;
+          },
+          circular: { uri: $refBaseURI, meta: { uri: reference.uri, $ref }, details: { $ref } },
+        },
+      );
     } catch (error: unknown) {
-      const $ref = toValue(referencingElement.$ref) as string;
       this.handleError(
         `Error while dereferencing Path Item Object. Cannot resolve $ref "${$ref}": ${(error as Error).message}`,
         error as Error,
@@ -656,13 +385,16 @@ class OpenAPI3_1DereferenceVisitor {
         $ref,
         path,
       );
-    } finally {
-      if (this.indirections.length > indirectionsSize) this.indirections.pop();
     }
   }
 
   public async LinkElement(path: Path<Element>) {
     const linkElement = path.node as LinkElement;
+
+    if (this.isTranscluded(linkElement)) {
+      path.skip();
+      return;
+    }
 
     // ignore LinkElement without operationRef or operationId field
     if (!isStringElement(linkElement.operationRef) && !isStringElement(linkElement.operationId)) {
@@ -681,14 +413,11 @@ class OpenAPI3_1DereferenceVisitor {
     }
 
     try {
-      let operationElement: Element | undefined;
-
       if (isStringElement(linkElement.operationRef)) {
+        const operationRef = toValue(linkElement.operationRef) as string;
         // possibly non-semantic referenced element
-        const jsonPointer = URIFragmentIdentifier.fromURIReference(
-          toValue(linkElement.operationRef) as string,
-        );
-        const retrievalURI = this.toBaseURI(toValue(linkElement.operationRef) as string);
+        const jsonPointer = URIFragmentIdentifier.fromURIReference(operationRef);
+        const retrievalURI = this.toBaseURI(operationRef);
         const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
         const isExternalReference = !isInternalReference;
 
@@ -703,65 +432,72 @@ class OpenAPI3_1DereferenceVisitor {
           return;
         }
 
-        const reference = await this.toReference(toValue(linkElement.operationRef) as string);
-
-        operationElement = jsonPointerEvaluate<OperationElement>(
+        const reference = await this.toReference(operationRef);
+        const operationElement = jsonPointerEvaluate<Element>(
           (reference.value as ParseResultElement).result as Element,
           jsonPointer,
         );
-        // applying semantics to a referenced element
-        if (!isOperationElement(operationElement)) {
-          if (this.refractCache.has(operationElement)) {
-            operationElement = this.refractCache.get(operationElement)!;
-          } else {
-            const sourceElement = operationElement;
-            operationElement = refractOperation(operationElement);
-            this.refractCache.set(sourceElement, operationElement);
-          }
-        }
-        // create shallow clone to be able to annotate with metadata
-        operationElement = cloneShallow(operationElement);
-        // annotate operation element with info about origin and type
-        operationElement.meta.set('ref-origin', reference.uri);
-        operationElement.meta.set('ref-type', linkElement.element);
 
-        const linkElementCopy = cloneShallow(linkElement);
-        linkElementCopy.operationRef?.meta.set('operation', operationElement);
+        await this.addAttachment(
+          path,
+          {
+            source: operationElement,
+            type: 'operation',
+            reference,
+            context: { ancestorSchema$ids: [] },
+          },
+          (element, target) => {
+            // create shallow clone to be able to annotate with metadata
+            const operationCopy = cloneShallow(target);
+            // annotate operation element with info about origin and type
+            operationCopy.meta.set('ref-origin', reference.uri);
+            operationCopy.meta.set('ref-type', element.element);
 
-        /**
-         * Transclude Link Object containing Operation Object in its meta.
-         */
-        path.replaceWith(linkElementCopy);
+            /**
+             * Transclude Link Object containing Operation Object in its meta.
+             */
+            const linkElementCopy = cloneShallow(element as LinkElement);
+            linkElementCopy.operationRef?.meta.set('operation', operationCopy);
+            return linkElementCopy;
+          },
+        );
         return;
       }
 
-      if (isStringElement(linkElement.operationId)) {
-        const operationId = toValue(linkElement.operationId) as string;
-        const reference = await this.toReference(url.unsanitize(this.reference.uri));
-        const operationPath = find(
-          (reference.value as ParseResultElement).result as Element,
-          (path) =>
-            isOperationElement(path.node) &&
-            isElement(path.node.operationId) &&
-            path.node.operationId.equals(operationId),
-        );
-        operationElement = operationPath?.node;
-        // OperationElement not found by its operationId
-        if (isUndefined(operationElement)) {
-          throw new ApiDOMStructuredError(
-            `OperationElement(operationId=${operationId}) not found`,
-            { operationId },
-          );
-        }
-
-        const linkElementCopy = cloneShallow(linkElement);
-        linkElementCopy.operationId?.meta.set('operation', operationElement);
-
-        /**
-         * Transclude Link Object containing Operation Object in its meta.
-         */
-        path.replaceWith(linkElementCopy);
+      const operationId = toValue(linkElement.operationId) as string;
+      const reference = await this.toReference(url.unsanitize(this.reference.uri));
+      const operationPath = find(
+        (reference.value as ParseResultElement).result as Element,
+        (p) =>
+          isOperationElement(p.node) &&
+          isElement(p.node.operationId) &&
+          p.node.operationId.equals(operationId),
+      );
+      const operationElement = operationPath?.node;
+      // OperationElement not found by its operationId
+      if (isUndefined(operationElement)) {
+        throw new ApiDOMStructuredError(`OperationElement(operationId=${operationId}) not found`, {
+          operationId,
+        });
       }
+
+      await this.addAttachment(
+        path,
+        {
+          source: operationElement,
+          type: 'operation',
+          reference,
+          context: { ancestorSchema$ids: [] },
+        },
+        (element, target) => {
+          /**
+           * Transclude Link Object containing Operation Object in its meta.
+           */
+          const linkElementCopy = cloneShallow(element as LinkElement);
+          linkElementCopy.operationId?.meta.set('operation', target);
+          return linkElementCopy;
+        },
+      );
     } catch (error: unknown) {
       const refFieldName = isStringElement(linkElement.operationRef)
         ? 'operationRef'
@@ -783,6 +519,11 @@ class OpenAPI3_1DereferenceVisitor {
   public async ExampleElement(path: Path<Element>) {
     const exampleElement = path.node as ExampleElement;
 
+    if (this.isTranscluded(exampleElement)) {
+      path.skip();
+      return;
+    }
+
     // ignore ExampleElement without externalValue field
     if (!isStringElement(exampleElement.externalValue)) {
       return;
@@ -799,7 +540,8 @@ class OpenAPI3_1DereferenceVisitor {
       );
     }
 
-    const retrievalURI = this.toBaseURI(toValue(exampleElement.externalValue) as string);
+    const externalValue = toValue(exampleElement.externalValue) as string;
+    const retrievalURI = this.toBaseURI(externalValue);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
     const isExternalReference = !isInternalReference;
 
@@ -815,23 +557,33 @@ class OpenAPI3_1DereferenceVisitor {
     }
 
     try {
-      const reference = await this.toReference(toValue(exampleElement.externalValue) as string);
+      const reference = await this.toReference(externalValue);
+      const valueSource = (reference.value as ParseResultElement).result as Element;
 
-      // shallow clone of the referenced element
-      const valueElement = cloneShallow((reference.value as ParseResultElement).result as Element);
-      // annotate element with info about origin and type
-      valueElement.meta.set('ref-origin', reference.uri);
-      valueElement.meta.set('ref-type', exampleElement.element);
+      await this.addAttachment(
+        path,
+        {
+          source: valueSource,
+          type: valueSource.element,
+          reference,
+          context: { ancestorSchema$ids: [] },
+        },
+        (element, target) => {
+          // shallow clone of the referenced element
+          const valueElement = cloneShallow(target);
+          // annotate element with info about origin and type
+          valueElement.meta.set('ref-origin', reference.uri);
+          valueElement.meta.set('ref-type', element.element);
 
-      const exampleElementCopy = cloneShallow(exampleElement);
-      exampleElementCopy.value = valueElement;
-
-      /**
-       * Transclude Example Object containing external value.
-       */
-      path.replaceWith(exampleElementCopy);
+          /**
+           * Transclude Example Object containing external value.
+           */
+          const exampleElementCopy = cloneShallow(element as ExampleElement);
+          exampleElementCopy.value = valueElement;
+          return exampleElementCopy;
+        },
+      );
     } catch (error: unknown) {
-      const externalValue = toValue(exampleElement.externalValue) as string;
       this.handleError(
         `Error while dereferencing Example Object. Cannot resolve externalValue "${externalValue}": ${(error as Error).message}`,
         error as Error,
@@ -846,18 +598,15 @@ class OpenAPI3_1DereferenceVisitor {
   public async SchemaElement(path: Path<Element>) {
     const referencingElement = path.node as SchemaElement;
 
-    // skip current referencing schema as $ref keyword was not defined
-    if (!isStringElement(referencingElement.$ref)) {
-      return;
-    }
-
-    // skip current referencing element as it's already been accessed
-    if (this.indirections.includes(referencingElement)) {
+    if (this.isTranscluded(referencingElement)) {
       path.skip();
       return;
     }
 
-    const indirectionsSize = this.indirections.length;
+    // skip current referencing schema as $ref keyword was not defined
+    if (!isStringElement(referencingElement.$ref)) {
+      return;
+    }
 
     try {
       // compute baseURI using rules around $id and $ref keywords
@@ -900,9 +649,11 @@ class OpenAPI3_1DereferenceVisitor {
           try {
             // the fragment's $ids resolve against the base its enclosing chain
             // leaves in effect, which then also prefixes the located schema's chain
+            const fragmentAsSchema = this.toSchemaDocument(fragmentElement);
+            this.index$ids(fragmentAsSchema);
             ({ element: referencedElement, ancestorSchema$ids } = uriLocate(
               selector,
-              maybeRefractToSchemaElement(fragmentElement),
+              fragmentAsSchema,
               { baseURI: rootBaseURI, index: this.schema$idIndex },
             ));
             ancestorSchema$ids = [...this.ancestorSchema$ids, ...ancestorSchema$ids];
@@ -915,13 +666,14 @@ class OpenAPI3_1DereferenceVisitor {
             }
             // the document index is rooted at the document, so the located chain
             // is already document-relative and takes no prefix
+            const documentAsSchema = this.toSchemaDocument(documentElement);
+            this.index$ids(documentAsSchema);
             ({ element: referencedElement, ancestorSchema$ids } = uriLocate(
               selector,
-              maybeRefractToSchemaElement(documentElement),
+              documentAsSchema,
               { baseURI: reference.uri, index: this.schema$idIndex },
             ));
           }
-          referencedElement = maybeRefractToSchemaElement(referencedElement);
 
           // ignore resolving internal Schema Objects
           if (!this.options.resolve.internal && isInternalReference) {
@@ -952,14 +704,10 @@ class OpenAPI3_1DereferenceVisitor {
 
           reference = await this.toReference(url.unsanitize($refBaseURI));
           const selector = URIFragmentIdentifier.fromURIReference($refBaseURI);
-          const referenceAsSchema = maybeRefractToSchemaElement(
-            (reference.value as ParseResultElement).result as Element,
-          );
           ({ element: referencedElement, ancestorSchema$ids } = jsonPointerLocate(
-            referenceAsSchema,
+            this.toSchemaDocument((reference.value as ParseResultElement).result as Element),
             selector,
           ));
-          referencedElement = maybeRefractToSchemaElement(referencedElement);
         }
       } catch (error) {
         /**
@@ -985,14 +733,10 @@ class OpenAPI3_1DereferenceVisitor {
 
             reference = await this.toReference(url.unsanitize($refBaseURI));
             const selector = uriToAnchor($refBaseURI);
-            const referenceAsSchema = maybeRefractToSchemaElement(
-              (reference.value as ParseResultElement).result as Element,
-            );
             ({ element: referencedElement, ancestorSchema$ids } = $anchorLocate(
               selector,
-              referenceAsSchema,
+              this.toSchemaDocument((reference.value as ParseResultElement).result as Element),
             ));
-            referencedElement = maybeRefractToSchemaElement(referencedElement);
           } else {
             // we're assuming here that we're dealing with JSON Pointer here
             retrievalURI = this.toBaseURI($refBaseURI);
@@ -1012,153 +756,77 @@ class OpenAPI3_1DereferenceVisitor {
 
             reference = await this.toReference(url.unsanitize($refBaseURI));
             const selector = URIFragmentIdentifier.fromURIReference($refBaseURI);
-            const referenceAsSchema = maybeRefractToSchemaElement(
-              (reference.value as ParseResultElement).result as Element,
-            );
             ({ element: referencedElement, ancestorSchema$ids } = jsonPointerLocate(
-              referenceAsSchema,
+              this.toSchemaDocument((reference.value as ParseResultElement).result as Element),
               selector,
             ));
-            referencedElement = maybeRefractToSchemaElement(referencedElement);
           }
         } else {
           throw error;
         }
       }
 
-      this.indirections.push(referencingElement);
+      const $ref = toValue(referencingElement.$ref) as string;
 
-      // detect direct or indirect reference
+      // detect direct reference
       if (referencingElement === referencedElement) {
-        throw new ApiDOMStructuredError('Recursive Schema Object reference detected', {
-          $ref: toValue(referencingElement.$ref),
-        });
+        throw new ApiDOMStructuredError('Recursive Schema Object reference detected', { $ref });
       }
 
-      // detect maximum depth of dereferencing
-      if (this.indirections.length > this.options.dereference.maxDepth) {
-        throw new MaximumDereferenceDepthError(
-          `Maximum dereference depth of "${this.options.dereference.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
-          { maxDepth: this.options.dereference.maxDepth, uri: this.reference.uri },
-        );
-      }
-
-      // detect cross-boundary cycle
-      const [ancestorsLineage, directAncestors] = this.toAncestorLineage(path);
-      if (ancestorsLineage.includes(referencedElement)) {
-        reference.refSet!.circular = true;
-
-        if (this.options.dereference.circular === 'error') {
-          throw new ApiDOMStructuredError('Circular reference detected', {
-            $ref: toValue(referencingElement.$ref),
-          });
-        } else if (this.options.dereference.circular === 'replace') {
-          const refElement = new RefElement($refBaseURI, {
-            type: referencingElement.element,
-            uri: reference.uri,
-            $ref: toValue(referencingElement.$ref),
-          });
-          const replacer =
-            this.options.dereference.strategyOpts['openapi-3-1']?.circularReplacer ??
-            this.options.dereference.circularReplacer;
-          const replacement = replacer(refElement);
-
-          path.replaceWith(replacement);
-          path.skip();
-          return;
-        }
-      }
-
-      /**
-       * Dive deep into the fragment.
-       *
-       * Cases to consider:
-       *  1. We're crossing document boundary
-       *  2. Fragment is from non-entry document
-       *  3. Fragment is a Schema Object with $ref field. We need to follow it to get the eventual value
-       *  4. We are dereferencing the fragment lazily/eagerly depending on circular mode
-       */
-      const isNonEntryDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
-      const shouldDetectCircular = ['error', 'replace'].includes(this.options.dereference.circular);
-      // content transplanted into the referencing site is traversed under that
-      // site's $id chain; a fragment enclosed by a different chain has its own
-      // $refs resolved in place first, by a nested visitor seeded with that chain
-      const hasDifferentEnclosingBase =
-        resolveSchema$ids(reference.uri, ancestorSchema$ids) !==
-        resolveSchema$ids(rootBaseURI, schema$idsOf(path.getAncestorNodes().reverse()));
-      if (
-        (isExternalReference ||
-          isNonEntryDocument ||
-          hasDifferentEnclosingBase ||
-          (isSchemaElement(referencedElement) && isStringElement(referencedElement.$ref)) ||
-          (shouldDetectCircular && !this.visited.has(referencedElement))) &&
-        !ancestorsLineage.includesCycle(referencedElement)
-      ) {
-        if (shouldDetectCircular) {
-          this.visited.add(referencedElement);
-        }
-
-        directAncestors.add(referencingElement);
-
-        const visitor = new OpenAPI3_1DereferenceVisitor({
+      const origin = reference.uri;
+      // a Schema Object $ref reads whatever it points at as a Schema Object
+      await this.addTransclusion(
+        path,
+        {
+          source: referencedElement,
+          type: SCHEMA_TYPE,
           reference,
-          indirections: [...this.indirections],
-          options: this.options,
-          refractCache: this.refractCache,
-          schema$idIndex: this.schema$idIndex,
-          visited: this.visited,
-          ancestors: ancestorsLineage,
-          ancestorSchema$ids,
-        });
-        referencedElement = await traverseAsync(referencedElement, visitor, {
-          mutable: true,
-          skipVisited: 'skip',
-        });
+          context: { ancestorSchema$ids },
+        },
+        {
+          toTranscludedElement: (element, target) => {
+            // Boolean JSON Schemas
+            if (isBooleanJSONSchemaElement(target)) {
+              const booleanJsonSchemaElement = cloneDeep<BooleanElement>(target);
+              // annotate referenced element with info about original referencing element
+              booleanJsonSchemaElement.meta.set('ref-fields', { $ref });
+              // annotate referenced element with info about origin and type
+              booleanJsonSchemaElement.meta.set('ref-origin', origin);
+              booleanJsonSchemaElement.meta.set('ref-type', element.element);
+              return booleanJsonSchemaElement;
+            }
 
-        directAncestors.delete(referencingElement);
-      }
+            if (!isSchemaElement(target)) return target;
 
-      // Boolean JSON Schemas
-      if (isBooleanJSONSchemaElement(referencedElement)) {
-        const booleanJsonSchemaElement = cloneDeep<BooleanElement>(referencedElement);
-        // annotate referenced element with info about original referencing element
-        booleanJsonSchemaElement.meta.set('ref-fields', {
-          $ref: toValue(referencingElement.$ref),
-        });
-        // annotate referenced element with info about origin and type
-        booleanJsonSchemaElement.meta.set('ref-origin', reference.uri);
-        booleanJsonSchemaElement.meta.set('ref-type', referencingElement.element);
+            /**
+             * Creating a new version of Schema Object by merging fields from referenced Schema Object with referencing one.
+             */
+            const mergedElement = cloneShallow<SchemaElement>(target);
+            // existing keywords from referencing schema overrides ones from referenced schema
+            (element as SchemaElement).forEach(
+              (value: Element, keyElement: Element, item: Element) => {
+                mergedElement.remove(toValue(keyElement) as string);
+                (mergedElement.content as Element[]).push(item);
+              },
+            );
+            mergedElement.remove('$ref');
+            // annotate referenced element with info about original referencing element
+            mergedElement.meta.set('ref-fields', { $ref });
+            // annotate fragment with info about origin and type
+            mergedElement.meta.set('ref-origin', origin);
+            mergedElement.meta.set('ref-type', element.element);
 
-        path.replaceWith(booleanJsonSchemaElement);
-        path.skip();
-        return;
-      }
-
-      /**
-       * Creating a new version of Schema Object by merging fields from referenced Schema Object with referencing one.
-       */
-      if (isSchemaElement(referencedElement)) {
-        const mergedElement = cloneShallow<SchemaElement>(referencedElement);
-        // existing keywords from referencing schema overrides ones from referenced schema
-        referencingElement.forEach((value: Element, keyElement: Element, item: Element) => {
-          mergedElement.remove(toValue(keyElement) as string);
-          (mergedElement.content as Element[]).push(item);
-        });
-        mergedElement.remove('$ref');
-        // annotate referenced element with info about original referencing element
-        mergedElement.meta.set('ref-fields', {
-          $ref: toValue(referencingElement.$ref),
-        });
-        // annotate fragment with info about origin and type
-        mergedElement.meta.set('ref-origin', reference.uri);
-        mergedElement.meta.set('ref-type', referencingElement.element);
-
-        referencedElement = mergedElement;
-      }
-      /**
-       * Transclude referencing element with merged referenced element.
-       */
-      path.replaceWith(referencedElement);
+            return mergedElement;
+          },
+          // a cycle of $ref aliases never reaches a schema: only the keywords next to the $ref remain
+          toUnresolvedElement: (element) => {
+            const siblingsElement = cloneShallow(element as ObjectElement);
+            siblingsElement.remove('$ref');
+            return siblingsElement;
+          },
+          circular: { uri: $refBaseURI, meta: { uri: origin, $ref }, details: { $ref } },
+        },
+      );
     } catch (error: unknown) {
       const $ref = toValue(referencingElement.$ref) as string;
       this.handleError(
@@ -1169,8 +837,6 @@ class OpenAPI3_1DereferenceVisitor {
         $ref,
         path,
       );
-    } finally {
-      if (this.indirections.length > indirectionsSize) this.indirections.pop();
     }
   }
 }
