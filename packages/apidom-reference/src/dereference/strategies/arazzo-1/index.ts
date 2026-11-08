@@ -1,11 +1,9 @@
 import {
   Element,
-  cloneDeep,
   ParseResultElement,
   isParseResultElement,
   includesClasses,
 } from '@speclynx/apidom-datamodel';
-import { traverseAsync } from '@speclynx/apidom-traverse';
 import { isArazzoSpecification1Element, mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
 
 import DereferenceStrategy, { DereferenceStrategyOptions } from '../DereferenceStrategy.ts';
@@ -71,67 +69,28 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
   }
 
   async dereference(file: File, options: ReferenceOptions): Promise<Element> {
-    const immutableRefSet = options.dereference.refSet ?? new ReferenceSet();
-    const mutableRefSet = new ReferenceSet();
-    let refSet = immutableRefSet;
+    const refSet = options.dereference.refSet ?? new ReferenceSet();
     let reference: Reference;
 
-    if (!immutableRefSet.has(file.uri)) {
+    if (!refSet.has(file.uri)) {
       reference = new Reference({ uri: file.uri, value: file.parseResult! });
-      immutableRefSet.add(reference);
+      refSet.add(reference);
     } else {
       // pre-computed refSet was provided as configuration option
-      reference = immutableRefSet.find((ref) => ref.uri === file.uri)!;
+      reference = refSet.find((ref) => ref.uri === file.uri)!;
     }
 
     /**
-     * Clone refSet due the dereferencing process being mutable.
-     * We don't want to mutate the original refSet and the references.
+     * With the immutable option the dereferenced element is a new tree,
+     * otherwise the dereferenced root is dereferenced in place.
      */
-    if (options.dereference.immutable) {
-      immutableRefSet.refs
-        .map(
-          (ref) =>
-            new Reference({
-              ...ref,
-              value: cloneDeep(ref.value),
-            }),
-        )
-        .forEach((ref) => mutableRefSet.add(ref));
-      reference = mutableRefSet.find((ref) => ref.uri === file.uri)!;
-      refSet = mutableRefSet;
-    }
-
+    const root = refSet.rootRef!.value as ParseResultElement;
     const visitor = new Arazzo1DereferenceVisitor({
       reference,
       options,
-      ancestorSchema$ids: detachedRootSchema$ids(
-        (refSet.rootRef!.value as ParseResultElement).result,
-      ),
+      ancestorSchema$ids: detachedRootSchema$ids(root.result),
     });
-    const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
-      mutable: true,
-      // Reusable Objects are dereferenced by diving into the referenced component in place,
-      // so the components reachable through more than one path are shared; visit them once
-      skipVisited: 'skip',
-    });
-
-    /**
-     * If immutable option is set, replay refs from the refSet.
-     * Replayed before source descriptions are dereferenced, so they can reuse the refs.
-     */
-    if (options.dereference.immutable) {
-      mutableRefSet.refs
-        .filter((ref) => ref.uri.startsWith('immutable://'))
-        .map(
-          (ref) =>
-            new Reference({
-              ...ref,
-              uri: ref.uri.replace(/^immutable:\/\//, ''),
-            }),
-        )
-        .forEach((ref) => immutableRefSet.add(ref));
-    }
+    const dereferencedElement: Element = await visitor.dereference(root);
 
     /**
      * Dereference source descriptions if option is enabled.
@@ -163,10 +122,8 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
      * If provided as configuration option, then provider is responsible for cleanup.
      */
     if (options.dereference.refSet === null) {
-      immutableRefSet.clean();
+      refSet.clean();
     }
-
-    mutableRefSet.clean();
 
     return dereferencedElement;
   }

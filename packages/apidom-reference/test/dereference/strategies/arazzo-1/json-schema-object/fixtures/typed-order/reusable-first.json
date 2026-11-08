@@ -1,0 +1,63 @@
+{
+  "arazzo": "1.1.0",
+  "info": {
+    "title": "Test Workflow",
+    "version": "1.0.0"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "petStore",
+      "url": "https://example.com/openapi.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "target",
+      "steps": []
+    },
+    {
+      "workflowId": "by-reusable",
+      "steps": [
+        {
+          "stepId": "step1",
+          "operationId": "petStore.getPet",
+          "onSuccess": [
+            {
+              "reference": "$components.successActions.jump"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "workflowId": "by-schema",
+      "inputs": {
+        "$ref": "#/components/successActions/jump"
+      },
+      "steps": []
+    }
+  ],
+  "components": {
+    "parameters": {
+      "status": {
+        "name": "status",
+        "in": "query",
+        "value": "from-component"
+      }
+    },
+    "successActions": {
+      "jump": {
+        "name": "jump",
+        "type": "goto",
+        "workflowId": "target",
+        "parameters": [
+          {
+            "reference": "$components.parameters.status",
+            "value": "from-jump"
+          }
+        ]
+      }
+    }
+  }
+}

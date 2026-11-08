@@ -2055,13 +2055,24 @@ base URI. Per Arazzo 1.1.0, the base URI is the Arazzo Object's `$self` field wh
 against the retrieval URI when relative), otherwise the retrieval URI. A reference whose URI matches the `$self`
 of an already loaded Arazzo document resolves to that document by identity, without fetching it again.
 
-Reusable Objects (`reference` fields holding a `$components.*` runtime expression) are transcluded with the
-referenced component, including the Reusable Objects nested within it (e.g. Parameter references in the `parameters`
-of a component Success or Failure Action). Every referenced component is dereferenced once, in place, and shared by all
-the Reusable Objects referencing it. A Reusable Object that leads back to a component it's already nested in is
-a circular reference and is handled per the `dereference.circular` option: `ignore` creates a cyclic structure, `error`
-fails with an `UnresolvableReferenceError` and `replace` substitutes a `RefElement` processed by the `circularReplacer`
+The dereferenced documents are never edited: the result is a new tree. With `dereference.immutable: false`, the
+result is written back into the dereferenced ParseResultElement, which is then returned.
+
+The **reference decides the type of what it points at**. A Reusable Object (`reference` field holding
+a `$components.*` runtime expression) reads its target as the type it expects in its position: a Parameter in
+`parameters`, a Success Action in `onSuccess` / `successActions`, a Failure Action in `onFailure` / `failureActions`.
+A JSON Schema `$ref` reads its target as a JSON Schema, whatever the target is otherwise (e.g. a Parameter
+component). A target of a different type is refracted to the expected type; the component itself keeps its own type.
+Reusable Objects and `$ref`s nested within the target are dereferenced too (e.g. Parameter references in
+the `parameters` of a component Success or Failure Action), and the `value` field of a Reusable Object overrides
+the `value` of the Parameter it references.
+
+Every referenced structure is dereferenced once per type and shared by all the references reading it as that type.
+A reference leading back to a structure that's still being dereferenced is a circular reference and is handled per
+the `dereference.circular` option: `ignore` creates a cyclic structure, `error` fails with an `UnresolvableReferenceError`
+and `replace` substitutes a `RefElement` processed by the `circularReplacer`
 (`dereference.strategyOpts['arazzo-1'].circularReplacer` takes precedence over `dereference.circularReplacer`).
+Circular references are handled the same way for Reusable Objects and JSON Schema `$ref`s.
 
 Supported media types:
 
