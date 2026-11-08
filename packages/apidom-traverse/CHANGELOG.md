@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.0.0](https://github.com/speclynx/apidom/compare/v6.2.0...v7.0.0) (2026-11-08)
+
+### Bug Fixes
+
+- **traverse:** report no key for the root on leave ([482cbc0](https://github.com/speclynx/apidom/commit/482cbc00dc1307db31cb891eb931e89186ddaa11))
+- **traverse:** use the leaving node's own key on leave ([a44ef46](https://github.com/speclynx/apidom/commit/a44ef467872a2b0e724b4cbd37187374f14f3ea2)), closes [#16](https://github.com/speclynx/apidom/issues/16)
+
+### Code Refactoring
+
+- **traverse:** accept only modes for skipVisited ([f1cbacd](https://github.com/speclynx/apidom/commit/f1cbacd0f6dd0f8accc16486429d1439b4a38149))
+- **traverse:** remove node replacement by visitor return value ([7ce83ce](https://github.com/speclynx/apidom/commit/7ce83ce40265d9c9e97392f33781d815ab092844))
+
+### BREAKING CHANGES
+
+- **traverse:** a visitor returning a node no longer replaces the
+  visited node and throws ApiDOMStructuredError instead; use
+  path.replaceWith(). Other values returned by visitors are ignored
+  instead of replacing the visited node. VisitorResult is no longer
+  generic and no longer includes the node type, and the enter and leave
+  functions of merged visitors return nothing.
+- **traverse:** the skipVisited traversal option no longer accepts
+  true or false and throws ApiDOMStructuredError for them. Use 'skip'
+  instead of true and 'never' (or omit the option) instead of false.
+
 # [6.2.0](https://github.com/speclynx/apidom/compare/v6.1.2...v6.2.0) (2026-11-07)
 
 **Note:** Version bump only for package @speclynx/apidom-traverse

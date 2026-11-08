@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.0.0](https://github.com/speclynx/apidom/compare/v6.2.0...v7.0.0) (2026-11-08)
+
+### Bug Fixes
+
+- **traverse:** use the leaving node's own key on leave ([a44ef46](https://github.com/speclynx/apidom/commit/a44ef467872a2b0e724b4cbd37187374f14f3ea2)), closes [#16](https://github.com/speclynx/apidom/issues/16)
+
+### Code Refactoring
+
+- **ns-openapi-3-1:** remove external reference predicates ([c2df478](https://github.com/speclynx/apidom/commit/c2df478acff450b1ca3947dd0253e3d14ad86596))
+
+### BREAKING CHANGES
+
+- **ns-openapi-3-1:** isReferenceElementExternal and
+  isPathItemElementExternal are no longer exported. Resolve the $ref
+  against the referring document's base URI to tell whether it's
+  external.
+
 # [6.2.0](https://github.com/speclynx/apidom/compare/v6.1.2...v6.2.0) (2026-11-07)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-openapi-3-1

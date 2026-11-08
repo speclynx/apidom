@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.0.0](https://github.com/speclynx/apidom/compare/v6.2.0...v7.0.0) (2026-11-08)
+
+**Note:** Version bump only for package @speclynx/apidom-json-pointer
+
 # [6.2.0](https://github.com/speclynx/apidom/compare/v6.1.2...v6.2.0) (2026-11-07)
 
 **Note:** Version bump only for package @speclynx/apidom-json-pointer

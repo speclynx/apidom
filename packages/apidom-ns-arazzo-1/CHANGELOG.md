@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.0.0](https://github.com/speclynx/apidom/compare/v6.2.0...v7.0.0) (2026-11-08)
+
+### Code Refactoring
+
+- **ns-arazzo-1:** remove Criterion Expression Type aliases ([34732cc](https://github.com/speclynx/apidom/commit/34732cc1627e7d7c68ec00570cbc9f94a22415a1))
+
+### BREAKING CHANGES
+
+- **ns-arazzo-1:** CriterionExpressionTypeElement,
+  isCriterionExpressionTypeElement and refractCriterionExpressionType are
+  no longer exported. Use ExpressionTypeElement, isExpressionTypeElement
+  and refractExpressionType instead.
+
 # [6.2.0](https://github.com/speclynx/apidom/compare/v6.1.2...v6.2.0) (2026-11-07)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-arazzo-1

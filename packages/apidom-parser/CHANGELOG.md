@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.0.0](https://github.com/speclynx/apidom/compare/v6.2.0...v7.0.0) (2026-11-08)
+
+### Bug Fixes
+
+- **parser:** compare the given media type per RFC 9110 ([10d37b9](https://github.com/speclynx/apidom/commit/10d37b9a8f57bd69aa9d6eeb7cf510b4b5f14782)), closes [#620](https://github.com/speclynx/apidom/issues/620)
+
 # [6.2.0](https://github.com/speclynx/apidom/compare/v6.1.2...v6.2.0) (2026-11-07)
 
 **Note:** Version bump only for package @speclynx/apidom-parser

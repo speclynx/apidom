@@ -3,6 +3,55 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.0.0](https://github.com/speclynx/apidom/compare/v6.2.0...v7.0.0) (2026-11-08)
+
+### Bug Fixes
+
+- **reference:** address arazzo-1 dereference review findings ([319775e](https://github.com/speclynx/apidom/commit/319775e226c65e9dd123f1b0f08618f9e003ded6)), closes [#757](https://github.com/speclynx/apidom/issues/757)
+- **reference:** address dereference by expected type review findings ([d08052d](https://github.com/speclynx/apidom/commit/d08052dd65470057fe0fb49ccb9c22826aa080a3)), closes [#757](https://github.com/speclynx/apidom/issues/757)
+- **reference:** dereference arazzo-1 references by expected type ([76570ce](https://github.com/speclynx/apidom/commit/76570ce6f5aacf61038c0474d10ba816b8fa486d)), closes [#751](https://github.com/speclynx/apidom/issues/751) [#757](https://github.com/speclynx/apidom/issues/757)
+- **reference:** dereference asyncapi-2 references by expected type ([0ea89fd](https://github.com/speclynx/apidom/commit/0ea89fdd7a7c6e2329336980c805050cf1b8ad80)), closes [#753](https://github.com/speclynx/apidom/issues/753) [#756](https://github.com/speclynx/apidom/issues/756)
+- **reference:** dereference each shared reusable component once ([cc26ac4](https://github.com/speclynx/apidom/commit/cc26ac4fb5573913155383624e86da6213febd04)), closes [#751](https://github.com/speclynx/apidom/issues/751)
+- **reference:** dereference frozen elements without editing them ([98917c0](https://github.com/speclynx/apidom/commit/98917c0d636517c338533316a5ee793810f647e9)), closes [#766](https://github.com/speclynx/apidom/issues/766)
+- **reference:** dereference openapi-2 references by expected type ([b1bbe37](https://github.com/speclynx/apidom/commit/b1bbe37156714e0e837a52c83aac17bed96dbe98)), closes [#753](https://github.com/speclynx/apidom/issues/753) [#756](https://github.com/speclynx/apidom/issues/756)
+- **reference:** dereference openapi-3-0 references by expected type ([d570b0c](https://github.com/speclynx/apidom/commit/d570b0c1c35a826b7c2372c4deb807c15af4d6bb)), closes [#753](https://github.com/speclynx/apidom/issues/753) [#756](https://github.com/speclynx/apidom/issues/756)
+- **reference:** dereference openapi-3-1 references by expected type ([70c7f94](https://github.com/speclynx/apidom/commit/70c7f94632185dba21cfa1aa5eafeaaaa786e27f)), closes [#754](https://github.com/speclynx/apidom/issues/754) [#756](https://github.com/speclynx/apidom/issues/756)
+- **reference:** dereference reusable objects nested in components ([64dff81](https://github.com/speclynx/apidom/commit/64dff81cc9d62a3b518db2b9b95f0335d529fdc3)), closes [#751](https://github.com/speclynx/apidom/issues/751)
+- **reference:** detect generic targets by class in DereferenceVisitor ([5baea86](https://github.com/speclynx/apidom/commit/5baea86a9d8ac2d479380a3e12c8abaa84981e48)), closes [#757](https://github.com/speclynx/apidom/issues/757)
+- **reference:** report error locations in external documents once ([a24358b](https://github.com/speclynx/apidom/commit/a24358b4e668ec6860798058a5a0210568211cde)), closes [#555](https://github.com/speclynx/apidom/issues/555)
+- **reference:** select parsers by the given media type first ([5b490c7](https://github.com/speclynx/apidom/commit/5b490c7c16517b373fc985c3ec3fb42efb7ad454)), closes [#620](https://github.com/speclynx/apidom/issues/620)
+- **reference:** skip only dereferenced elements in arazzo-1 deref ([4789960](https://github.com/speclynx/apidom/commit/47899604d0796932d127f14f2419facdefeee8e6)), closes [#751](https://github.com/speclynx/apidom/issues/751)
+- **reference:** skip parsed source descriptions in arazzo-1 deref ([45f4484](https://github.com/speclynx/apidom/commit/45f448474ac0db8ad08f580f2e50df74db6bb96f)), closes [#757](https://github.com/speclynx/apidom/issues/757)
+- **traverse:** use the leaving node's own key on leave ([a44ef46](https://github.com/speclynx/apidom/commit/a44ef467872a2b0e724b4cbd37187374f14f3ea2)), closes [#16](https://github.com/speclynx/apidom/issues/16)
+
+### Code Refactoring
+
+- **reference:** remove AncestorLineage ([e9e62c2](https://github.com/speclynx/apidom/commit/e9e62c2da1dcb5526eafd75e1898db8a1f1ed157)), closes [#757](https://github.com/speclynx/apidom/issues/757)
+
+### BREAKING CHANGES
+
+- **reference:** Arazzo1DereferenceVisitor no longer dereferences when
+  traversed directly: its dereference(element) method does, and its
+  handlers only record transclusions. Arazzo1DereferenceVisitorOptions no
+  longer accepts indirections, ancestors and visited. A Reusable Object
+  referencing a component of another type yields that component refracted
+  to the expected type, and a JSON Schema $ref to a non-schema element
+  yields a JSON Schema. A ReferenceSet passed to the arazzo-1 strategy
+  is no longer cloned with immutable=true: documents loaded during
+  dereference are added to it as parsed, and its circular flag is set.
+- **reference:** DereferenceAncestorLineage is no longer exported, nor
+  is the AncestorLineage type from the dereference strategies.
+  OpenAPI3_1DereferenceVisitor, OpenAPI3_0DereferenceVisitor,
+  OpenAPI2DereferenceVisitor and AsyncAPI2DereferenceVisitor extend
+- **reference:** when parse.mediaType is listed by a parser, that parser
+  parses the file even if the file's contents are detected as another
+  specification or version by an earlier configured parser. Media types
+  differing from the listed ones only in case, whitespace or additional
+  parameters, or listed with wildcards, now select the parsers and
+  strategies listing them instead of falling back to detection or
+  matching no strategy. File.mediaType is trimmed, and text/plain for a
+  blank media type or one that isn't a string.
+
 # [6.2.0](https://github.com/speclynx/apidom/compare/v6.1.2...v6.2.0) (2026-11-07)
 
 ### Bug Fixes
