@@ -10,7 +10,7 @@ import {
 import { isPromise } from 'ramda-adjunct';
 
 import { Path } from './Path.ts';
-import type { VisitorFn, VisitorResult } from './Path.ts';
+import type { VisitorFn } from './Path.ts';
 
 /**
  * Enter/leave visitor structure for a specific node type.
@@ -177,6 +177,25 @@ export const getVisitFn = <TNode>(
   return null;
 };
 
+/**
+ * Throws when a visitor returns a node instead of editing through the Path: nodes were once
+ * replaced by returning them. Other returned values are ignored.
+ * @internal
+ */
+export const assertNoReturnedNode = <TNode>(
+  result: unknown,
+  path: Path<TNode>,
+  nodePredicate: (value: unknown) => boolean,
+  visitFn: unknown,
+): void => {
+  if (result === undefined || result === path.node || path._wasReplaced()) return;
+  if (!nodePredicate(result)) return;
+  throw new ApiDOMStructuredError(
+    'Visitor returned a node: replacing a node by returning it is not supported, use path.replaceWith() instead',
+    { visitFn, node: path.node },
+  );
+};
+
 // =============================================================================
 // Visitor merging
 // =============================================================================
@@ -236,7 +255,7 @@ export const mergeVisitors = <TNode>(
   const skipping: (symbol | TNode)[] = new Array(visitors.length).fill(internalSkipSymbol);
 
   return {
-    enter(path: Path<TNode>): VisitorResult<TNode> {
+    enter(path: Path<TNode>): void {
       let currentNode = path.node;
       let hasChanged = false;
 
@@ -256,6 +275,7 @@ export const mergeVisitors = <TNode>(
                 visitFn,
               });
             }
+            assertNoReturnedNode(result, proxyPath, isNode, visitFn);
 
             // Handle path-based control flow
             // Note: no break here — other merged visitors must still process this node
@@ -269,7 +289,7 @@ export const mergeVisitors = <TNode>(
 
             if (proxyPath.removed) {
               path.remove();
-              return undefined;
+              return;
             }
 
             if (proxyPath._wasReplaced()) {
@@ -279,16 +299,7 @@ export const mergeVisitors = <TNode>(
                 hasChanged = true;
               } else {
                 path.replaceWith(replacement);
-                return replacement;
-              }
-            } else if (result !== undefined) {
-              // Support return value replacement for backwards compatibility
-              if (exposeEdits) {
-                currentNode = result as TNode;
-                hasChanged = true;
-              } else {
-                path.replaceWith(result as TNode);
-                return result;
+                return;
               }
             }
           }
@@ -302,13 +313,10 @@ export const mergeVisitors = <TNode>(
 
       if (hasChanged) {
         path.replaceWith(currentNode);
-        return currentNode;
       }
-
-      return undefined;
     },
 
-    leave(path: Path<TNode>): VisitorResult<TNode> {
+    leave(path: Path<TNode>): void {
       const currentNode = path.node;
 
       for (let i = 0; i < visitors.length; i += 1) {
@@ -327,6 +335,7 @@ export const mergeVisitors = <TNode>(
                 visitFn,
               });
             }
+            assertNoReturnedNode(result, proxyPath, isNode, visitFn);
 
             // Handle path-based control flow
             // Note: no break here — other merged visitors must still process this node
@@ -336,16 +345,12 @@ export const mergeVisitors = <TNode>(
 
             if (proxyPath.removed) {
               path.remove();
-              return undefined;
+              return;
             }
 
             if (proxyPath._wasReplaced()) {
-              const replacement = proxyPath._getReplacementNode()!;
-              path.replaceWith(replacement);
-              return replacement;
-            } else if (result !== undefined) {
-              path.replaceWith(result as TNode);
-              return result;
+              path.replaceWith(proxyPath._getReplacementNode()!);
+              return;
             }
           }
         } else if (skipping[i] === currentNode) {
@@ -358,8 +363,6 @@ export const mergeVisitors = <TNode>(
       if (skipping.every((s) => s === breakSymbol)) {
         path.stop();
       }
-
-      return undefined;
     },
   };
 };
@@ -383,7 +386,7 @@ export const mergeVisitorsAsync = <TNode>(
   const skipping: (symbol | TNode)[] = new Array(visitors.length).fill(internalSkipSymbol);
 
   return {
-    async enter(path: Path<TNode>): Promise<void | TNode | undefined> {
+    async enter(path: Path<TNode>): Promise<void> {
       let currentNode = path.node;
       let hasChanged = false;
 
@@ -394,6 +397,7 @@ export const mergeVisitorsAsync = <TNode>(
           if (typeof visitFn === 'function') {
             const proxyPath = createPathProxy(path, currentNode);
             const result = await visitFn.call(visitors[i], proxyPath);
+            assertNoReturnedNode(result, proxyPath, isNode, visitFn);
 
             // Handle path-based control flow
             // Note: no break here — other merged visitors must still process this node
@@ -407,7 +411,7 @@ export const mergeVisitorsAsync = <TNode>(
 
             if (proxyPath.removed) {
               path.remove();
-              return undefined;
+              return;
             }
 
             if (proxyPath._wasReplaced()) {
@@ -417,15 +421,7 @@ export const mergeVisitorsAsync = <TNode>(
                 hasChanged = true;
               } else {
                 path.replaceWith(replacement);
-                return replacement;
-              }
-            } else if (result !== undefined) {
-              if (exposeEdits) {
-                currentNode = result as TNode;
-                hasChanged = true;
-              } else {
-                path.replaceWith(result as TNode);
-                return result;
+                return;
               }
             }
           }
@@ -439,13 +435,10 @@ export const mergeVisitorsAsync = <TNode>(
 
       if (hasChanged) {
         path.replaceWith(currentNode);
-        return currentNode;
       }
-
-      return undefined;
     },
 
-    async leave(path: Path<TNode>): Promise<void | TNode | undefined> {
+    async leave(path: Path<TNode>): Promise<void> {
       const currentNode = path.node;
 
       for (let i = 0; i < visitors.length; i += 1) {
@@ -456,6 +449,7 @@ export const mergeVisitorsAsync = <TNode>(
             const proxyPath = createPathProxy(path, currentNode);
 
             const result = await visitFn.call(visitors[i], proxyPath);
+            assertNoReturnedNode(result, proxyPath, isNode, visitFn);
 
             // Handle path-based control flow
             // Note: no break here — other merged visitors must still process this node
@@ -465,16 +459,12 @@ export const mergeVisitorsAsync = <TNode>(
 
             if (proxyPath.removed) {
               path.remove();
-              return undefined;
+              return;
             }
 
             if (proxyPath._wasReplaced()) {
-              const replacement = proxyPath._getReplacementNode()!;
-              path.replaceWith(replacement);
-              return replacement;
-            } else if (result !== undefined) {
-              path.replaceWith(result as TNode);
-              return result;
+              path.replaceWith(proxyPath._getReplacementNode()!);
+              return;
             }
           }
         } else if (skipping[i] === currentNode) {
@@ -486,8 +476,6 @@ export const mergeVisitorsAsync = <TNode>(
       if (skipping.every((s) => s === breakSymbol)) {
         path.stop();
       }
-
-      return undefined;
     },
   };
 };

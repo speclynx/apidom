@@ -235,6 +235,8 @@ The `Path` object is passed to visitor functions and provides context about the 
 - `findParent(predicate)` - Find first parent matching predicate
 - `find(predicate)` - Find self or parent matching predicate
 
+Nodes are edited only through these methods. A visitor returning a node throws an error pointing to `replaceWith()`; any other returned value is ignored.
+
 ---
 
 ## Visitor Utilities

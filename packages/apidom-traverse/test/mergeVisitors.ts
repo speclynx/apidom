@@ -237,27 +237,26 @@ describe('mergeVisitors', function () {
     });
   });
 
-  context('return value replacement', function () {
-    specify('should support returning replacement value', function () {
+  context('given a visitor returning a value', function () {
+    specify('should throw for a returned node', function () {
       const root = new StringElement('original');
+      const merged = mergeVisitors([{ StringElement: () => new StringElement('replaced') }]);
 
-      const visitor1 = {
-        StringElement() {
-          return new StringElement('replaced');
-        },
-      };
+      assert.throws(() => traverse(root, merged), /use path\.replaceWith\(\) instead/);
+    });
 
-      const visitor2 = {
-        StringElement() {
-          // Should not be called
-          throw new Error('Should not reach visitor2');
-        },
-      };
+    specify('should ignore a value that is not a node', function () {
+      const root = new StringElement('original');
+      const calls: string[] = [];
+      const merged = mergeVisitors([
+        { StringElement: () => calls.push('first') },
+        { StringElement: () => calls.push('second') },
+      ]);
 
-      const merged = mergeVisitors([visitor1, visitor2]);
       const result = traverse(root, merged);
 
-      assert.strictEqual((result as StringElement).toValue(), 'replaced');
+      assert.strictEqual(result, root);
+      assert.deepEqual(calls, ['first', 'second']);
     });
   });
 });

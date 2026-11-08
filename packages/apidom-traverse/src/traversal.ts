@@ -8,8 +8,16 @@ import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 import { isPromise } from 'ramda-adjunct';
 
 import { Path } from './Path.ts';
-import type { VisitorFn, VisitorResult } from './Path.ts';
-import { getNodeType, isNode, cloneNode, mutateNode, getVisitFn, getNodeKeys } from './visitors.ts';
+import type { VisitorFn } from './Path.ts';
+import {
+  getNodeType,
+  isNode,
+  cloneNode,
+  mutateNode,
+  getVisitFn,
+  getNodeKeys,
+  assertNoReturnedNode,
+} from './visitors.ts';
 
 /**
  * Controls handling of already-visited nodes during traversal.
@@ -114,7 +122,7 @@ function* traverseGenerator<TNode>(
   root: TNode,
   visitor: object,
   options: Required<TraverseOptions<TNode>>,
-): Generator<VisitorCall<TNode>, TNode, VisitorResult<TNode>> {
+): Generator<VisitorCall<TNode>, TNode, void> {
   const {
     keyMap,
     state,
@@ -247,7 +255,7 @@ function* traverseGenerator<TNode>(
         }
 
         // Yield to caller to execute visitor
-        const result: VisitorResult<TNode> = yield {
+        yield {
           visitFn,
           path: currentPath,
           isLeaving,
@@ -279,16 +287,6 @@ function* traverseGenerator<TNode>(
         } else if (currentPath.shouldSkip) {
           if (!isLeaving) {
             continue;
-          }
-        } else if (result !== undefined) {
-          // Support return value replacement for backwards compatibility
-          edits.push([key!, result as TNode]);
-          if (!isLeaving) {
-            if (nodePredicate(result)) {
-              node = result as TNode;
-            } else {
-              continue;
-            }
           }
         }
 
@@ -404,8 +402,9 @@ export const traverse = <TNode>(
         visitFn: call.visitFn,
       });
     }
+    assertNoReturnedNode(result, call.path, resolvedOptions.nodePredicate, call.visitFn);
 
-    step = generator.next(result);
+    step = generator.next();
   }
 
   return step.value;
@@ -438,8 +437,9 @@ export const traverseAsync = async <TNode>(
   while (!step.done) {
     const call = step.value;
     const result = await call.visitFn.call(visitor, call.path);
+    assertNoReturnedNode(result, call.path, resolvedOptions.nodePredicate, call.visitFn);
 
-    step = generator.next(result);
+    step = generator.next();
   }
 
   return step.value;

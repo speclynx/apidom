@@ -8,10 +8,11 @@ import { compile as compileJSONPointer } from '@speclynx/apidom-json-pointer';
 import { NormalizedPath } from '@speclynx/apidom-json-path';
 
 /**
- * Possible return values from a visitor function.
+ * Possible return values from a visitor function. Nodes are edited through the Path,
+ * e.g. `path.replaceWith()`; a visitor returning a node throws.
  * @public
  */
-export type VisitorResult<TNode> = void | undefined | TNode | Promise<void | undefined | TNode>;
+export type VisitorResult = void | undefined | Promise<void | undefined>;
 
 /**
  * Visitor function signature - receives a Path object.
@@ -20,7 +21,7 @@ export type VisitorResult<TNode> = void | undefined | TNode | Promise<void | und
 export type VisitorFn<TNode, TVisitor = unknown> = (
   this: TVisitor,
   path: Path<TNode>,
-) => VisitorResult<TNode>;
+) => VisitorResult;
 
 /**
  * Path represents a node's position in the tree during traversal.
