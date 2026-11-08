@@ -2011,6 +2011,9 @@ every strategy differs significantly. `Dereference component` comes with six (6)
 The `arazzo-1`, `asyncapi-2`, `openapi-2`, `openapi-3-0` and `openapi-3-1` strategies read a referenced structure
 as the type its reference expects (a structure referenced as a Parameter Object and as a Header Object is read as both),
 and dereference it once per type. Elements transcluded in place of references carry the `ref-type` meta.
+Frozen elements aren't edited: when the dereferenced element, a document of the `dereference.refSet` or its parsed
+result is frozen, `dereference.immutable: false` dereferences as `dereference.immutable: true` does, for the whole run.
+Only these are checked: a frozen element within an unfrozen document is dereferenced in place.
 
 #### [apidom](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/dereference/strategies/apidom)
 

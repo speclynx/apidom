@@ -264,6 +264,17 @@ abstract class DereferenceVisitor<TContext = unknown> {
    * otherwise it's dereferenced in place and returned.
    */
   public async dereference<T extends Element>(element: T, context: TContext): Promise<T> {
+    // frozen elements are left as they are: they're dereferenced as with the immutable option
+    const isFrozen = (value: unknown): boolean =>
+      isElement(value) &&
+      (value.isFrozen || (value instanceof ParseResultElement && value.result?.isFrozen === true));
+    if (
+      this.run.inPlace &&
+      (isFrozen(element) || this.reference.refSet?.refs.some((ref) => isFrozen(ref.value)))
+    ) {
+      this.run = { ...this.run, inPlace: false };
+    }
+
     const dereferenced = await this.dereferenceAs(
       { source: element, type: element.element, reference: this.reference, context },
       0,
