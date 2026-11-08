@@ -694,9 +694,10 @@ dehydrate(numberElement); // => { element: 'number', content: 1 }
 
 Transforms ApiDOM into generic ApiDOM: every element, including all its descendants, becomes the primitive
 element of its kind (`ObjectElement`, `ArrayElement`, `MemberElement`, `StringElement`, `NumberElement`,
-`BooleanElement` or `NullElement`). Meta, attributes, source maps and style are kept, as are shared and cyclic
-structures. Elements without a primitive counterpart (e.g. `RefElement`) are copied as they are. The transformed
-element itself is not modified.
+`BooleanElement` or `NullElement`). Elements without a primitive counterpart (e.g. `RefElement`) are deep copied
+as they are. Meta, attributes, source maps and style are kept; meta and attributes are deep copied, not transformed.
+Elements shared between several places, and cycles, are kept shared and cyclic. The transformation is recursive,
+so very deep nesting is limited by the call stack. The transformed element itself is not modified.
 
 Generic ApiDOM can be refracted again, e.g. to read a semantic element as a different semantic type.
 

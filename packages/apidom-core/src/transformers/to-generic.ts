@@ -42,14 +42,18 @@ const convert = (element: Element, visited: WeakMap<Element, Element>): Element 
     generic.content = (element.content as Element[]).map((item) => convert(item, visited));
   } else if (isStringElement(element)) {
     generic = new StringElement(element.content as string);
+    visited.set(element, generic);
   } else if (isNumberElement(element)) {
     generic = new NumberElement(element.content as number);
+    visited.set(element, generic);
   } else if (isBooleanElement(element)) {
     generic = new BooleanElement(element.content as boolean);
+    visited.set(element, generic);
   } else if (isNullElement(element)) {
     generic = new NullElement();
+    visited.set(element, generic);
   } else {
-    // elements without a generic counterpart (e.g. RefElement) are copied as they are
+    // elements without a generic counterpart (e.g. RefElement) are copied as they are, descendants included
     generic = cloneDeep(element);
     visited.set(element, generic);
     return generic;
@@ -66,8 +70,11 @@ const convert = (element: Element, visited: WeakMap<Element, Element>): Element 
 /**
  * Transforms ApiDOM into generic ApiDOM: every element, including the descendants, becomes
  * the primitive element (object, array, member, string, number, boolean, null) of its kind.
- * Meta, attributes, source maps and style are kept. Shared and cyclic structures are
- * kept shared and cyclic. The element itself is not modified.
+ * Elements without a primitive counterpart (e.g. RefElement) are deep copied as they are.
+ * Meta, attributes, source maps and style are kept; meta and attributes are deep copied,
+ * not transformed. Elements shared between several places, and cycles, are kept shared
+ * and cyclic. The transformation is recursive, so its nesting depth is limited by the call
+ * stack. The element itself is not modified.
  *
  * Generic ApiDOM can be refracted again, e.g. to read a semantic element as a different type.
  * @public
