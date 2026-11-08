@@ -1248,6 +1248,11 @@ describe('dereference', function () {
             for (let depth = 0; depth < 20; depth += 1) {
               assert.isTrue(isJSONSchemaElement(schema));
               assert.isTrue(isJSONSchemaElement(schema.properties.get('y')));
+              // both references transclude the same dereferenced schema
+              assert.strictEqual(
+                schema.properties.get('x').properties,
+                schema.properties.get('y').properties,
+              );
               schema = schema.properties.get('x');
             }
             assert.strictEqual(toValue(schema.type), 'string');
@@ -1269,6 +1274,90 @@ describe('dereference', function () {
               assertDereferenced(workflow.inputs);
             },
           );
+        });
+
+        context('given JSON Schema Objects sharing a target and maxDepth', function () {
+          const rootFilePath = path.join(rootFixturePath, 'max-depth-shared', 'root.json');
+
+          [0, 1].forEach((index) => {
+            specify(
+              `should exceed maxDepth whichever reference reaches the shared target first (#${index})`,
+              async function () {
+                try {
+                  await dereferenceWorkflow(rootFilePath, index, { dereference: { maxDepth: 2 } });
+                  assert.fail('should throw UnresolvableReferenceError');
+                } catch (error: any) {
+                  assert.instanceOf(error, UnresolvableReferenceError);
+                  assert.instanceOf(error.cause, MaximumDereferenceDepthError);
+                }
+              },
+            );
+          });
+
+          specify('should not exceed maxDepth that the deepest chain fits', async function () {
+            const workflow = await dereferenceWorkflow(rootFilePath, 0, {
+              dereference: { maxDepth: 3 },
+            });
+
+            assert.strictEqual(
+              toValue(
+                workflow.inputs.properties.get('deep').properties.get('x').properties.get('y').type,
+              ),
+              'string',
+            );
+          });
+        });
+
+        context(
+          'given unresolvable JSON Schema Object in an element read as JSON Schema',
+          function () {
+            const rootFilePath = path.join(
+              rootFixturePath,
+              'typed-target-unresolvable',
+              'root.json',
+            );
+
+            specify('should report the location within the document', async function () {
+              const errors: UnresolvableReferenceError[] = [];
+              await dereference(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                dereference: {
+                  continueOnError: (error: UnresolvableReferenceError) => errors.push(error),
+                },
+              });
+
+              assert.deepEqual(
+                errors.map((error: any) => [error.refFieldValue, error.location]),
+                [['#/components/inputs/missing', '/components/parameters/status/properties/k']],
+              );
+            });
+          },
+        );
+
+        context('given JSON Schema Objects referencing an external schema that fails', function () {
+          const rootFilePath = path.join(rootFixturePath, 'external-unresolvable', 'root.json');
+
+          specify('should report the failure for every referencing element', async function () {
+            const errors: UnresolvableReferenceError[] = [];
+            const actual = await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: {
+                continueOnError: (error: UnresolvableReferenceError) => errors.push(error),
+              },
+            });
+            const { properties } = (actual.api as any).workflows.get(0).inputs;
+
+            // the failure originates within the external document, the trace leads to it
+            assert.deepEqual(
+              errors.map((error: any) => [error.location, error.trace[0].location]),
+              [
+                ['/$defs/T/properties/k', '/workflows/0/inputs/properties/first'],
+                ['/$defs/T/properties/k', '/workflows/0/inputs/properties/second'],
+              ],
+            );
+            assert.strictEqual(toValue(properties.get('first').$ref), './ex.json#/$defs/T');
+            assert.strictEqual(toValue(properties.get('second').$ref), './ex.json#/$defs/T');
+          });
         });
 
         context('given JSON Schema Objects referencing elements of another type', function () {

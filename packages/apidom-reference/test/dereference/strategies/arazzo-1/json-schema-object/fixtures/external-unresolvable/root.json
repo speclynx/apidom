@@ -1,0 +1,31 @@
+{
+  "arazzo": "1.1.0",
+  "info": {
+    "title": "Test Workflow",
+    "version": "1.0.0"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "petStore",
+      "url": "https://example.com/openapi.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "caller",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "first": {
+            "$ref": "./ex.json#/$defs/T"
+          },
+          "second": {
+            "$ref": "./ex.json#/$defs/T"
+          }
+        }
+      },
+      "steps": []
+    }
+  ]
+}

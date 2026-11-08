@@ -42,11 +42,7 @@ import {
   resolveSchemaBaseURI,
   resolveSchema$refField,
 } from '../openapi-3-1/util.ts';
-import {
-  maybeRefractToJSONSchemaElement,
-  resolveArazzo$selfField,
-  identifiedBy$self,
-} from './util.ts';
+import { resolveArazzo$selfField, identifiedBy$self } from './util.ts';
 import UnresolvableReferenceError from '../../../errors/UnresolvableReferenceError.ts';
 import MaximumDereferenceDepthError from '../../../errors/MaximumDereferenceDepthError.ts';
 import MaximumResolveDepthError from '../../../errors/MaximumResolveDepthError.ts';
@@ -72,6 +68,8 @@ const JSON_SCHEMA_TYPE = 'JSONSchema';
 interface DereferencedElement {
   element: Element;
   done: boolean;
+  // longest chain of references followed within the element, for dereference.maxDepth
+  height: number;
 }
 
 /**
@@ -102,6 +100,8 @@ interface DereferenceRun {
   readonly transcluded: WeakSet<Element>;
   // referencing elements whose failure has been reported
   readonly failed: WeakSet<Element>;
+  // undoes the memoization of what's dereferenced or refracted, newest last
+  readonly undo: (() => void)[];
 }
 
 /**
@@ -115,7 +115,8 @@ export interface Arazzo1DereferenceVisitorOptions {
 }
 
 /**
- * Dereferences an Arazzo document without editing it.
+ * Dereferences an Arazzo document. With the immutable option the documents aren't edited and
+ * the result is a new tree; otherwise they're dereferenced in place.
  *
  * Every referenced structure is dereferenced once per type the references reaching it
  * expect: Reusable Objects expect the type of their `referenced-element` meta, JSON Schema
@@ -163,6 +164,11 @@ class Arazzo1DereferenceVisitor {
   protected cloneMap?: WeakMap<object, object>;
 
   /**
+   * Source the visitor traverses a refraction of, when it's dereferenced as another type.
+   */
+  protected refractedFrom?: Element;
+
+  /**
    * Transclusions to perform, keyed by the (copy of the) referencing element.
    */
   protected readonly transclusions = new Map<Element, Transclusion>();
@@ -193,12 +199,14 @@ class Arazzo1DereferenceVisitor {
       copies: new WeakMap(),
       transcluded: new WeakSet(),
       failed: new WeakSet(),
+      undo: [],
     };
   }
 
   /**
    * Dereferences the element, which belongs to the document of the visitor's reference.
-   * The element itself is never edited; the dereferenced copy is returned.
+   * With the immutable option the element isn't edited and its dereferenced copy is returned;
+   * otherwise it's dereferenced in place and returned.
    */
   public async dereference<T extends Element>(element: T): Promise<T> {
     const dereferenced = await this.dereferenceAs(
@@ -243,7 +251,7 @@ class Arazzo1DereferenceVisitor {
       parse: { ...this.options.parse, mediaType: 'text/plain' },
     });
 
-    // documents are never edited while dereferencing, so the parse result is registered as is
+    // registered as parsed: with the immutable option it's only ever copied, never edited
     const reference = new Reference({
       uri: baseURI,
       value: parseResult,
@@ -284,6 +292,7 @@ class Arazzo1DereferenceVisitor {
     // falls back to visitorPath, which is relative to the source being traversed
     // when the referencing element belongs to a source refracted to another type.
     let location: string | undefined;
+    let refractedFromLocation: string | undefined;
     const root = (this.reference.value as ParseResultElement).result;
     if (isElement(root)) {
       traverse(root, {
@@ -291,13 +300,16 @@ class Arazzo1DereferenceVisitor {
           if (p.node === referencingElement) {
             location = p.formatPath();
             p.stop();
+          } else if (p.node === this.refractedFrom) {
+            refractedFromLocation = p.formatPath();
           } else if (this.isTranscluded(p.node)) {
             p.skip();
           }
         },
       });
     }
-    location ??= visitorPath.formatPath();
+    // within a refraction, the visitor path is relative to the refracted source
+    location ??= (refractedFromLocation ?? '') + visitorPath.formatPath();
 
     const hop = { uri, type, refFieldName, refFieldValue, location, codeFrame };
 
@@ -332,6 +344,9 @@ class Arazzo1DereferenceVisitor {
     }
 
     if (!isEntryDocument || continueOnError === false) throw unresolvedError;
+    // a referencing element is traversed again by every source containing it: its failure is reported once
+    if (this.run.failed.has(referencingElement)) return;
+    this.run.failed.add(referencingElement);
     if (typeof continueOnError === 'function') continueOnError(unresolvedError);
   }
 
@@ -374,6 +389,7 @@ class Arazzo1DereferenceVisitor {
     const semantic =
       type === JSON_SCHEMA_TYPE ? refractJSONSchema(generic) : refract(generic, { element: type });
     byType.set(type, semantic);
+    this.run.undo.push(() => byType.delete(type));
     return semantic;
   }
 
@@ -402,8 +418,12 @@ class Arazzo1DereferenceVisitor {
     const dereferenced: DereferencedElement = {
       element: isOwned ? semantic : cloneDeep(semantic, { visited: cloneMap }),
       done: false,
+      height: 0,
     };
+    // a failure discards whatever got dereferenced or refracted meanwhile, as it may lead to this element
+    const undoSize = this.run.undo.length;
     byType.set(type, dereferenced);
+    this.run.undo.push(() => byType.delete(type));
 
     const visitor = new Arazzo1DereferenceVisitor({
       reference,
@@ -413,16 +433,25 @@ class Arazzo1DereferenceVisitor {
     });
     visitor.run = this.run;
     visitor.cloneMap = cloneMap;
+    visitor.refractedFrom = semantic !== source ? source : undefined;
     visitor.depth = depth;
 
     try {
       // the handlers only record transclusions
       await traverseAsync(semantic, visitor);
     } catch (error) {
-      byType.delete(type);
+      this.run.undo
+        .splice(undoSize)
+        .reverse()
+        .forEach((undo) => undo());
       throw error;
     }
 
+    for (const transclusion of visitor.transclusions.values()) {
+      if (!transclusion.back) {
+        dereferenced.height = Math.max(dereferenced.height, transclusion.target.height + 1);
+      }
+    }
     dereferenced.element = visitor.transclude(dereferenced.element);
     dereferenced.done = true;
 
@@ -451,6 +480,14 @@ class Arazzo1DereferenceVisitor {
     }
 
     const existing = this.run.dereferenced.get(targetSource)?.get(type);
+
+    // a target dereferenced earlier counts the references followed within it as well
+    if (existing?.done && this.depth + 1 + existing.height > this.options.dereference.maxDepth) {
+      throw new MaximumDereferenceDepthError(
+        `Maximum dereference depth of "${this.options.dereference.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
+        { maxDepth: this.options.dereference.maxDepth, uri: this.reference.uri },
+      );
+    }
 
     // a reference leading to an element still being dereferenced is a cycle
     if (existing !== undefined && !existing.done) {
@@ -590,6 +627,26 @@ class Arazzo1DereferenceVisitor {
   }
 
   /**
+   * A document as JSON Schema for locating schemas within it: a generic document is
+   * refracted to JSON Schema once per dereference run, a semantic one is used as it is.
+   */
+  protected toJSONSchemaDocument(document: Element): Element {
+    if (!isPrimitiveElement(document)) return document;
+
+    let byType = this.run.refracted.get(document);
+    if (byType === undefined) {
+      byType = new Map();
+      this.run.refracted.set(document, byType);
+    }
+    let refracted = byType.get(JSON_SCHEMA_TYPE);
+    if (refracted === undefined) {
+      refracted = refractJSONSchema(document);
+      byType.set(JSON_SCHEMA_TYPE, refracted);
+    }
+    return refracted;
+  }
+
+  /**
    * Indexes the `$id`-bearing schemas of a document for the run. Transcluded elements aren't
    * indexed: they're copies of structures indexed where they're defined,
    * and in a document dereferenced in place their shared structure would be walked once per path.
@@ -708,9 +765,6 @@ class Arazzo1DereferenceVisitor {
         origin: this.reference.uri,
       });
     } catch (error: unknown) {
-      // a referencing element is traversed again by every source containing it
-      if (this.run.failed.has(referencingElement)) return;
-      this.run.failed.add(referencingElement);
       this.handleError(
         `Error while dereferencing Reusable Object. Cannot resolve reference "${runtimeExpression}": ${(error as Error).message}`,
         error as Error,
@@ -762,7 +816,7 @@ class Arazzo1DereferenceVisitor {
           retrievalURI = this.toBaseURI($refBaseURI);
           const selector = $refBaseURI;
           const documentElement = (reference.value as ParseResultElement).result as Element;
-          const referenceAsSchema = maybeRefractToJSONSchemaElement(documentElement);
+          const referenceAsSchema = this.toJSONSchemaDocument(documentElement);
           this.index$ids(referenceAsSchema);
           // a document that is itself a fragment detached from its source carries
           // the $ids enclosing it only as `ancestorSchema$ids`: its $ids are then
@@ -813,7 +867,7 @@ class Arazzo1DereferenceVisitor {
 
           reference = await this.toReference(url.unsanitize($refBaseURI));
           const selector = URIFragmentIdentifier.fromURIReference($refBaseURI);
-          const referenceAsSchema = maybeRefractToJSONSchemaElement(
+          const referenceAsSchema = this.toJSONSchemaDocument(
             (reference.value as ParseResultElement).result as Element,
           );
           ({ element: referencedElement, ancestorSchema$ids } = jsonPointerLocate(
@@ -845,7 +899,7 @@ class Arazzo1DereferenceVisitor {
 
             reference = await this.toReference(url.unsanitize($refBaseURI));
             const selector = uriToAnchor($refBaseURI);
-            const referenceAsSchema = maybeRefractToJSONSchemaElement(
+            const referenceAsSchema = this.toJSONSchemaDocument(
               (reference.value as ParseResultElement).result as Element,
             );
             ({ element: referencedElement, ancestorSchema$ids } = $anchorLocate(
@@ -871,7 +925,7 @@ class Arazzo1DereferenceVisitor {
 
             reference = await this.toReference(url.unsanitize($refBaseURI));
             const selector = URIFragmentIdentifier.fromURIReference($refBaseURI);
-            const referenceAsSchema = maybeRefractToJSONSchemaElement(
+            const referenceAsSchema = this.toJSONSchemaDocument(
               (reference.value as ParseResultElement).result as Element,
             );
             ({ element: referencedElement, ancestorSchema$ids } = jsonPointerLocate(
@@ -906,9 +960,6 @@ class Arazzo1DereferenceVisitor {
         },
       );
     } catch (error: unknown) {
-      // a referencing element is traversed again by every source containing it
-      if (this.run.failed.has(referencingElement)) return;
-      this.run.failed.add(referencingElement);
       const $ref = toValue(referencingElement.$ref) as string;
       this.handleError(
         `Error while dereferencing Schema Object. Cannot resolve $ref "${$ref}": ${(error as Error).message}`,
