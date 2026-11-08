@@ -5,6 +5,7 @@ import {
   mediaTypes as OpenAPI3_0MediaTypes,
   detect,
 } from '@speclynx/apidom-parser-adapter-openapi-json-3-0';
+import { selectBestMatch } from '@swaggerexpert/media-types';
 
 import ParserError from '../../../errors/ParserError.ts';
 import Parser, { ParserOptions } from '../Parser.ts';
@@ -34,7 +35,7 @@ class OpenAPIJSON3_0Parser extends Parser {
   async canParse(file: File): Promise<boolean> {
     const hasSupportedFileExtension =
       this.fileExtensions.length === 0 ? true : this.fileExtensions.includes(file.extension);
-    const hasSupportedMediaType = this.mediaTypes.includes(file.mediaType);
+    const hasSupportedMediaType = selectBestMatch(this.mediaTypes, file.mediaType) !== null;
 
     if (!hasSupportedFileExtension) return false;
     if (hasSupportedMediaType) return true;

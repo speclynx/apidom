@@ -1,6 +1,7 @@
 import { ParseResultElement, cloneDeep } from '@speclynx/apidom-datamodel';
 import { traverseAsync } from '@speclynx/apidom-traverse';
 import { mediaTypes, isOpenApi3_0Element } from '@speclynx/apidom-ns-openapi-3-0';
+import { matches, selectBestMatch } from '@swaggerexpert/media-types';
 
 import File from '../../../File.ts';
 import Reference from '../../../Reference.ts';
@@ -54,8 +55,8 @@ class OpenAPI3_0BundleStrategy extends BundleStrategy {
 
   canBundle(file: File): boolean {
     // assert by media type
-    if (file.mediaType !== 'text/plain') {
-      return mediaTypes.includes(file.mediaType);
+    if (!matches('text/plain', file.mediaType)) {
+      return selectBestMatch(mediaTypes, file.mediaType) !== null;
     }
 
     // assert by inspecting ApiDOM

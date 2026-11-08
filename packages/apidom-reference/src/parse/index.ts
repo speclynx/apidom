@@ -1,5 +1,6 @@
 import { isEmpty } from 'ramda';
 import { ParseResultElement } from '@speclynx/apidom-datamodel';
+import { selectBestMatch } from '@swaggerexpert/media-types';
 
 import * as url from '../util/url.ts';
 import File from '../File.ts';
@@ -10,6 +11,9 @@ import UnmatchedParserError from '../errors/UnmatchedParserError.ts';
 import { readFile } from '../resolve/util.ts';
 import type { ReferenceOptions } from '../options/index.ts';
 
+// media types of a serialization format only, naming no specification
+const formatMediaTypes = ['application/json', 'application/yaml', 'text/yaml'];
+
 /**
  * Parses the given file's contents, using the configured parser plugins.
  */
@@ -19,7 +23,15 @@ const parseFile = async (file: File, options: ReferenceOptions): Promise<ParseRe
     return Object.assign(clonedParser, options.parse.parserOpts);
   });
 
-  const parsers: Parser[] = await plugins.filter('canParse', [file, options], optsBoundParsers);
+  const candidates: Parser[] = await plugins.filter('canParse', [file, options], optsBoundParsers);
+  // parsers listing the file's media type are tried first, the others in their configured order;
+  // for a format media type the configured order decides, as it puts specific parsers first
+  const isListing = (parser: Parser) =>
+    parser.mediaTypes !== undefined && selectBestMatch(parser.mediaTypes, file.mediaType) !== null;
+  const parsers =
+    selectBestMatch(formatMediaTypes, file.mediaType) !== null
+      ? candidates
+      : [...candidates.filter(isListing), ...candidates.filter((p) => !isListing(p))];
 
   // we couldn't find any parser for this File
   if (isEmpty(parsers)) {

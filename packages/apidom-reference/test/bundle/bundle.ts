@@ -28,6 +28,22 @@ describe('bundle', function () {
     assert.isTrue(isParseResultElement(bundled));
   });
 
+  specify('should detect the document given a media type that is not a string', async function () {
+    const bundled = await bundle(rootFilePath, {
+      parse: { mediaType: null as unknown as string },
+    });
+
+    assert.strictEqual(bundled.api?.element, 'openApi3_1');
+  });
+
+  specify('should match the media type per RFC 9110', async function () {
+    const bundled = await bundle(rootFilePath, {
+      parse: { mediaType: 'Application/OpenAPI+JSON; Version=3.1.2; charset=utf-8' },
+    });
+
+    assert.strictEqual(bundled.api?.element, 'openApi3_1');
+  });
+
   context('given URI with dot segments', function () {
     specify('should bundle the file as if the URI was normalized', async function () {
       const options = { parse: { mediaType: mediaTypes.latest('json') } };

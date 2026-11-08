@@ -1,6 +1,7 @@
 import { Element, cloneDeep, isParseResultElement } from '@speclynx/apidom-datamodel';
 import { isOverlay1Element, mediaTypes } from '@speclynx/apidom-ns-overlay-1';
 import { traverseAsync } from '@speclynx/apidom-traverse';
+import { matches, selectBestMatch } from '@swaggerexpert/media-types';
 
 import DereferenceStrategy, { DereferenceStrategyOptions } from '../DereferenceStrategy.ts';
 import File from '../../../File.ts';
@@ -53,8 +54,8 @@ class Overlay1DereferenceStrategy extends DereferenceStrategy {
 
   canDereference(file: File): boolean {
     // assert by media type
-    if (file.mediaType !== 'text/plain') {
-      return mediaTypes.includes(file.mediaType);
+    if (!matches('text/plain', file.mediaType)) {
+      return selectBestMatch(mediaTypes, file.mediaType) !== null;
     }
 
     // assert by inspecting ApiDOM

@@ -5,6 +5,7 @@ import {
   mediaTypes as OpenAPIYAML2MediaTypes,
   detect,
 } from '@speclynx/apidom-parser-adapter-openapi-yaml-2';
+import { selectBestMatch } from '@swaggerexpert/media-types';
 
 import ParserError from '../../../errors/ParserError.ts';
 import Parser, { ParserOptions } from '../Parser.ts';
@@ -33,7 +34,7 @@ class OpenAPIYAML2Parser extends Parser {
   async canParse(file: File): Promise<boolean> {
     const hasSupportedFileExtension =
       this.fileExtensions.length === 0 ? true : this.fileExtensions.includes(file.extension);
-    const hasSupportedMediaType = this.mediaTypes.includes(file.mediaType);
+    const hasSupportedMediaType = selectBestMatch(this.mediaTypes, file.mediaType) !== null;
 
     if (!hasSupportedFileExtension) return false;
     if (hasSupportedMediaType) return true;

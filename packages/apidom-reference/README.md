@@ -79,6 +79,15 @@ await parse('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/ex
 Notice how we explicitly pass a `mediaType` parse option. This option is actually **not required**,
 but if not provided, the Parse component will try to identify appropriate parser plugin by file contents, and it's extension (`.json`).
 
+When provided, the parser plugins listing the `mediaType` parse the file first, before the ones detecting it by its contents,
+which are only used when the listing ones fail. A media type of a serialization format only (`application/json`, `application/yaml`,
+`text/yaml`) names no specification, so for it the parser plugins keep their configured order, which puts the specific ones
+(e.g. OpenAPI JSON) before the generic ones (JSON). Media types are compared as defined by [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#section-8.3.1):
+type, subtype and parameter names ignore case, whitespace around the media type and its parameters doesn't matter, and the given media type
+may carry additional parameters, so a `Content-Type` value like `application/openapi+yaml; version=3.1.2; charset=utf-8`
+selects the OpenAPI 3.1 YAML parser. Resolve, dereference and bundle strategies compare the `mediaType` with the media types
+they list the same way.
+
 What actually happens if you don't provide `mediaType` parse option?
 
 ```js

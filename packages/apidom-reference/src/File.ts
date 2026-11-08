@@ -28,9 +28,12 @@ class File {
 
   public parseResult?: ParseResultElement;
 
-  constructor({ uri, mediaType = 'text/plain', data, parseResult }: FileOptions) {
+  constructor({ uri, mediaType, data, parseResult }: FileOptions) {
     this.uri = uri;
-    this.mediaType = mediaType;
+    // media types are compared as Content-Type field values, which exclude surrounding whitespace;
+    // a missing or blank media type means none was given
+    const trimmedMediaType = isString(mediaType) ? mediaType.trim() : '';
+    this.mediaType = trimmedMediaType === '' ? 'text/plain' : trimmedMediaType;
     this.data = data;
     this.parseResult = parseResult;
   }

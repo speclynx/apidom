@@ -5,6 +5,7 @@ import {
   mediaTypes as OverlayYAML1MediaTypes,
   detect,
 } from '@speclynx/apidom-parser-adapter-overlay-yaml-1';
+import { selectBestMatch } from '@swaggerexpert/media-types';
 
 import ParserError from '../../../errors/ParserError.ts';
 import Parser, { ParserOptions } from '../Parser.ts';
@@ -38,7 +39,7 @@ class OverlayYAML1Parser extends Parser {
   async canParse(file: File): Promise<boolean> {
     const hasSupportedFileExtension =
       this.fileExtensions.length === 0 ? true : this.fileExtensions.includes(file.extension);
-    const hasSupportedMediaType = this.mediaTypes.includes(file.mediaType);
+    const hasSupportedMediaType = selectBestMatch(this.mediaTypes, file.mediaType) !== null;
 
     if (!hasSupportedFileExtension) return false;
     if (hasSupportedMediaType) return true;
