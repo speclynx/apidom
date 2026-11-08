@@ -11,7 +11,6 @@ export {
   refractArazzoSpecification1,
   refractComponents,
   refractCriterion,
-  refractCriterionExpressionType,
   refractExpressionType,
   refractFailureAction,
   refractInfo,
@@ -280,7 +279,6 @@ export {
   isComponentsParametersElement,
   isComponentsSuccessActionsElement,
   isCriterionElement,
-  isCriterionExpressionTypeElement,
   isExpressionTypeElement,
   isFailureActionElement,
   isFailureActionCriteriaElement,
@@ -343,7 +341,6 @@ export {
   SuccessActionElement,
   WorkflowElement,
 } from './refractor/inspect.ts';
-export { CriterionExpressionTypeElement } from './refractor/inspect.ts';
 export type { FixedField } from './refractor/inspect.ts';
 // NCE types
 export { default as ComponentsFailureActionsElement } from './elements/nces/ComponentsFailureActions.ts';
