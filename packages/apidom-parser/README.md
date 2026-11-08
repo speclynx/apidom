@@ -94,7 +94,7 @@ const parseResult = await parser.parse('{"prop": "value"}', { mediaType: 'applic
 
 Option | Type | Default | Description
 --- | --- | --- | ---
-<a name="mediaType"></a>`mediaType` | `String` | `undefined` | Indicate to parser that the source string should be understood and parsed as provided by this option.
+<a name="mediaType"></a>`mediaType` | `String` | `undefined` | Indicate to parser that the source string should be understood and parsed as provided by this option. It's compared with the adapters' `mediaTypes` as defined by [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#section-8.3.1): type, subtype and parameter names ignore case, whitespace around it and its parameters doesn't matter, and it may carry additional parameters such as `charset`.
 <a name="sourceMap"></a>`sourceMap` | `Boolean` | `false` | Indicate to parser whether to generate source maps.
 
 All unrecognized arbitrary options will be further passed to underlying parser adapter.
