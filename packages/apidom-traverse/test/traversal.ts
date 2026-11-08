@@ -169,6 +169,57 @@ describe('traverse', function () {
       assert.include(values, 'keep');
       assert.notInclude(values, 'old');
     });
+
+    context('given replacement on leave of a node with children', function () {
+      const createRoot = () =>
+        new ObjectElement({
+          items: new ArrayElement([new ObjectElement({ kind: 'old' }), new StringElement('keep')]),
+          nested: new ObjectElement({ kind: 'old' }),
+        });
+      const visitor = {
+        ObjectElement: {
+          leave(path: Path) {
+            if ((path.node as ObjectElement).get('kind')?.toValue() === 'old') {
+              path.replaceWith(new StringElement('new'));
+            }
+          },
+        },
+      };
+
+      specify('should replace the node in mutable mode', function () {
+        const root = createRoot();
+
+        traverse(root, visitor, { mutable: true });
+
+        assert.deepEqual(root.toValue(), { items: ['new', 'keep'], nested: 'new' });
+      });
+
+      specify('should replace the node in immutable mode', function () {
+        const root = createRoot();
+
+        const result = traverse(root, visitor) as ObjectElement;
+
+        assert.deepEqual(result.toValue(), { items: ['new', 'keep'], nested: 'new' });
+        assert.deepEqual(root.toValue(), {
+          items: [{ kind: 'old' }, 'keep'],
+          nested: { kind: 'old' },
+        });
+      });
+
+      specify('should report the key of the node on leave', function () {
+        const keys: PropertyKey[] = [];
+
+        traverse(createRoot(), {
+          ObjectElement: {
+            leave(path: Path) {
+              if ((path.node as ObjectElement).hasKey('kind')) keys.push(path.key!);
+            },
+          },
+        });
+
+        assert.deepEqual(keys, [0, 'value']);
+      });
+    });
   });
 
   context('path.replaceWith() + path.skip()', function () {
