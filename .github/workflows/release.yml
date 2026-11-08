@@ -1,6 +1,11 @@
 name: Release monorepo packages
 on:
   workflow_dispatch:
+    inputs:
+      publish-only:
+        description: Publish the latest release tag without versioning (finishes a failed release)
+        type: boolean
+        default: false
 
 env:
   CPU_CORES: 2
@@ -24,6 +29,10 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
+      - name: Checkout latest release tag
+        # publishes the code the release was versioned from, even if main moved on since
+        if: inputs.publish-only
+        run: git checkout "$(git describe --tags --abbrev=0)"
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
@@ -34,10 +43,13 @@ jobs:
       - name: Build monorepo
         run: npm run build
       - name: Check TypeScript types
+        if: ${{ !inputs.publish-only }}
         run: npm run typescript:check-types
       - name: Execute tests in monorepo
+        if: ${{ !inputs.publish-only }}
         run: npm run test
       - name: Version bump & GitHub release
+        if: ${{ !inputs.publish-only }}
         run: |
           git config user.email "vladimir.gorej@gmail.com"
           git config user.name "Vladimir Gorej"
