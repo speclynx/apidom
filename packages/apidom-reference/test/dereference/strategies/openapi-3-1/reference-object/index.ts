@@ -174,21 +174,65 @@ describe('dereference', function () {
         context('given Reference Objects with internal cycles', function () {
           const fixturePath = path.join(rootFixturePath, 'cycle-internal');
 
-          specify('should dereference', async function () {
+          // the Example Object reference points at the Parameter Object holding it: the Parameter
+          // Object is read as an Example Object, where its `examples` field is plain data
+          specify('should read the target as the expected type', async function () {
             const rootFilePath = path.join(fixturePath, 'root.json');
             const dereferenced = await dereference(rootFilePath, {
               parse: { mediaType: mediaTypes.latest('json') },
             });
-            const parent = evaluate<Element>(
+            const example = evaluate<Element>(
               dereferenced,
-              '/0/components/parameters/param1/examples/example1/examples',
-            );
-            const cyclicParent = evaluate<Element>(
-              dereferenced,
-              '/0/components/parameters/param1/examples/example1/examples/example1/examples',
+              '/0/components/parameters/param1/examples/example1',
             );
 
-            assert.strictEqual(parent, cyclicParent);
+            assert.strictEqual(example.element, 'example');
+            assert.deepEqual(toValue(example), {
+              examples: {
+                example1: { $ref: '#/components/parameters/param1', description: 'test' },
+              },
+              description: 'test',
+            });
+          });
+        });
+
+        context('given a fragment referenced as different types', function () {
+          ['parameter-first.json', 'header-first.json'].forEach((fixture) => {
+            specify(`should read it as each expected type (${fixture})`, async function () {
+              const rootFilePath = path.join(rootFixturePath, 'type-by-reference', fixture);
+              const dereferenced = await dereference(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+              const parameter = evaluate<Element>(dereferenced, '/0/paths/~1a/get/parameters/0');
+              const header = evaluate<Element>(
+                dereferenced,
+                '/0/paths/~1a/get/responses/200/headers/H',
+              );
+
+              assert.strictEqual(parameter.element, 'parameter');
+              assert.strictEqual(header.element, 'header');
+            });
+          });
+        });
+
+        context('given Reference Objects sharing components', function () {
+          specify('should dereference each shared component once', async function () {
+            const rootFilePath = path.join(rootFixturePath, 'shared-callbacks', 'root.json');
+            const dereferenced = await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            let callback = evaluate<Element>(dereferenced, '/0/paths/~1a/post/callbacks/x') as any;
+
+            for (let depth = 0; depth < 20; depth += 1) {
+              const operation = callback.get('{$request.body#/u}').get('post');
+              assert.strictEqual(callback.element, 'callback');
+              // both references transclude the same dereferenced callback
+              assert.strictEqual(
+                operation.callbacks.get('a').get('{$request.body#/u}'),
+                operation.callbacks.get('b').get('{$request.body#/u}'),
+              );
+              callback = operation.callbacks.get('a');
+            }
           });
         });
 

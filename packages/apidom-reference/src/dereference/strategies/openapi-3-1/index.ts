@@ -1,6 +1,5 @@
 import { propEq } from 'ramda';
-import { Element, ParseResultElement, cloneDeep } from '@speclynx/apidom-datamodel';
-import { traverseAsync } from '@speclynx/apidom-traverse';
+import { Element, ParseResultElement } from '@speclynx/apidom-datamodel';
 import { isOpenApi3_1Element, mediaTypes } from '@speclynx/apidom-ns-openapi-3-1';
 
 import DereferenceStrategy, { DereferenceStrategyOptions } from '../DereferenceStrategy.ts';
@@ -65,76 +64,34 @@ class OpenAPI3_1DereferenceStrategy extends DereferenceStrategy {
   }
 
   async dereference(file: File, options: ReferenceOptions): Promise<Element> {
-    const immutableRefSet = options.dereference.refSet ?? new ReferenceSet();
-    const mutableRefSet = new ReferenceSet();
-    let refSet = immutableRefSet;
-    let reference;
+    const refSet = options.dereference.refSet ?? new ReferenceSet();
+    let reference: Reference;
 
-    if (!immutableRefSet.has(file.uri)) {
+    if (!refSet.has(file.uri)) {
       reference = new Reference({ uri: file.uri, value: file.parseResult! });
-      immutableRefSet.add(reference);
+      refSet.add(reference);
     } else {
       // pre-computed refSet was provided as configuration option
-      reference = immutableRefSet.find(propEq(file.uri, 'uri'));
+      reference = refSet.find(propEq(file.uri, 'uri'))!;
     }
 
     /**
-     * Clone refSet due the dereferencing process being mutable.
-     * We don't want to mutate the original refSet and the references.
+     * With the immutable option the dereferenced element is a new tree,
+     * otherwise the dereferenced root is dereferenced in place.
      */
-    if (options.dereference.immutable) {
-      immutableRefSet.refs
-        .map(
-          (ref) =>
-            new Reference({
-              ...ref,
-              value: cloneDeep(ref.value),
-            }),
-        )
-        .forEach((ref) => mutableRefSet.add(ref));
-      reference = mutableRefSet.find((ref) => ref.uri === file.uri);
-      refSet = mutableRefSet;
-    }
-
-    const shouldDetectCircular = ['error', 'replace'].includes(options.dereference.circular);
-    const visitor = new OpenAPI3_1DereferenceVisitor({
-      reference: reference!,
-      options,
-      ancestorSchema$ids: detachedRootSchema$ids(
-        (refSet.rootRef!.value as ParseResultElement).result,
-      ),
+    const root = refSet.rootRef!.value as ParseResultElement;
+    const visitor = new OpenAPI3_1DereferenceVisitor({ reference, options });
+    const dereferencedElement: Element = await visitor.dereference(root, {
+      ancestorSchema$ids: detachedRootSchema$ids(root.result),
     });
-
-    const dereferencedElement = await traverseAsync(refSet.rootRef!.value, visitor, {
-      mutable: true,
-      ...(shouldDetectCircular && { skipVisited: 'skip' as const }),
-    });
-
-    /**
-     * If immutable option is set, replay refs from the refSet.
-     */
-    if (options.dereference.immutable) {
-      mutableRefSet.refs
-        .filter((ref) => ref.uri.startsWith('immutable://'))
-        .map(
-          (ref) =>
-            new Reference({
-              ...ref,
-              uri: ref.uri.replace(/^immutable:\/\//, ''),
-            }),
-        )
-        .forEach((ref) => immutableRefSet.add(ref));
-    }
 
     /**
      * Release all memory if this refSet was not provided as an configuration option.
      * If provided as configuration option, then provider is responsible for cleanup.
      */
     if (options.dereference.refSet === null) {
-      immutableRefSet.clean();
+      refSet.clean();
     }
-
-    mutableRefSet.clean();
 
     return dereferencedElement;
   }

@@ -5,6 +5,7 @@ import {
   isPrimitiveElement,
   includesClasses,
   Element,
+  ObjectElement,
   BooleanElement,
   ParseResultElement,
   cloneShallow,
@@ -529,6 +530,12 @@ class Arazzo1DereferenceVisitor extends DereferenceVisitor<Arazzo1DereferenceCon
             mergedElement.meta.set('ref-type', element.element);
 
             return mergedElement;
+          },
+          // a cycle of $ref aliases never reaches a schema: only the keywords next to the $ref remain
+          toUnresolvedElement: (element) => {
+            const siblingsElement = cloneShallow(element as ObjectElement);
+            siblingsElement.remove('$ref');
+            return siblingsElement;
           },
           circular: { uri: $refBaseURI, meta: { uri: origin, $ref }, details: { $ref } },
         },

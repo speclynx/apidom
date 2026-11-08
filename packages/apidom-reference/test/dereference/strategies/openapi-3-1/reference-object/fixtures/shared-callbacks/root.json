@@ -1,0 +1,418 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "t",
+    "version": "1"
+  },
+  "paths": {
+    "/a": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        },
+        "callbacks": {
+          "x": {
+            "$ref": "#/components/callbacks/c0"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "callbacks": {
+      "c0": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c1"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c1"
+              }
+            }
+          }
+        }
+      },
+      "c1": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c2"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c2"
+              }
+            }
+          }
+        }
+      },
+      "c2": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c3"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c3"
+              }
+            }
+          }
+        }
+      },
+      "c3": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c4"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c4"
+              }
+            }
+          }
+        }
+      },
+      "c4": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c5"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c5"
+              }
+            }
+          }
+        }
+      },
+      "c5": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c6"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c6"
+              }
+            }
+          }
+        }
+      },
+      "c6": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c7"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c7"
+              }
+            }
+          }
+        }
+      },
+      "c7": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c8"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c8"
+              }
+            }
+          }
+        }
+      },
+      "c8": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c9"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c9"
+              }
+            }
+          }
+        }
+      },
+      "c9": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c10"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c10"
+              }
+            }
+          }
+        }
+      },
+      "c10": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c11"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c11"
+              }
+            }
+          }
+        }
+      },
+      "c11": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c12"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c12"
+              }
+            }
+          }
+        }
+      },
+      "c12": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c13"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c13"
+              }
+            }
+          }
+        }
+      },
+      "c13": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c14"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c14"
+              }
+            }
+          }
+        }
+      },
+      "c14": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c15"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c15"
+              }
+            }
+          }
+        }
+      },
+      "c15": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c16"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c16"
+              }
+            }
+          }
+        }
+      },
+      "c16": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c17"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c17"
+              }
+            }
+          }
+        }
+      },
+      "c17": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c18"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c18"
+              }
+            }
+          }
+        }
+      },
+      "c18": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c19"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c19"
+              }
+            }
+          }
+        }
+      },
+      "c19": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            },
+            "callbacks": {
+              "a": {
+                "$ref": "#/components/callbacks/c20"
+              },
+              "b": {
+                "$ref": "#/components/callbacks/c20"
+              }
+            }
+          }
+        }
+      },
+      "c20": {
+        "{$request.body#/u}": {
+          "post": {
+            "responses": {
+              "200": {
+                "description": "ok"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
