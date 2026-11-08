@@ -1,0 +1,12 @@
+{
+  "$defs": {
+    "T": {
+      "type": "object",
+      "properties": {
+        "k": {
+          "$ref": "#/$defs/missing"
+        }
+      }
+    }
+  }
+}

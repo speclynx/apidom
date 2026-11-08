@@ -2055,24 +2055,30 @@ base URI. Per Arazzo 1.1.0, the base URI is the Arazzo Object's `$self` field wh
 against the retrieval URI when relative), otherwise the retrieval URI. A reference whose URI matches the `$self`
 of an already loaded Arazzo document resolves to that document by identity, without fetching it again.
 
-The dereferenced documents are never edited: the result is a new tree. With `dereference.immutable: false`, the
-result is written back into the dereferenced ParseResultElement, which is then returned.
+With `dereference.immutable` (the default) the dereferenced documents aren't edited: the result is a new tree.
+With `dereference.immutable: false` the documents are dereferenced in place and the dereferenced
+ParseResultElement itself is returned. Elements transcluded in place of references carry the `ref-origin` meta
+and aren't traversed again, so dereferencing a document dereferenced in place earlier leaves those parts as they are.
 
 The **reference decides the type of what it points at**. A Reusable Object (`reference` field holding
 a `$components.*` runtime expression) reads its target as the type it expects in its position: a Parameter in
 `parameters`, a Success Action in `onSuccess` / `successActions`, a Failure Action in `onFailure` / `failureActions`.
-A JSON Schema `$ref` reads its target as a JSON Schema, whatever the target is otherwise (e.g. a Parameter
-component). A target of a different type is refracted to the expected type; the component itself keeps its own type.
-Reusable Objects and `$ref`s nested within the target are dereferenced too (e.g. Parameter references in
-the `parameters` of a component Success or Failure Action), and the `value` field of a Reusable Object overrides
-the `value` of the Parameter it references.
+A JSON Schema `$ref` reads its target as a JSON Schema, whatever object it is otherwise (e.g. a Parameter
+component), keeping the keywords next to the `$ref`. A target of a different type is refracted to the expected type
+from the target dereferenced as its own type, so the result doesn't depend on which reference reaches it first;
+the component itself keeps its own type. Reusable Objects and `$ref`s nested within the target are dereferenced too
+(e.g. Parameter references in the `parameters` of a component Success or Failure Action), and the `value` field
+of a Reusable Object overrides the `value` of the Parameter it references.
 
-Every referenced structure is dereferenced once per type and shared by all the references reading it as that type.
-A reference leading back to a structure that's still being dereferenced is a circular reference and is handled per
-the `dereference.circular` option: `ignore` creates a cyclic structure, `error` fails with an `UnresolvableReferenceError`
-and `replace` substitutes a `RefElement` processed by the `circularReplacer`
-(`dereference.strategyOpts['arazzo-1'].circularReplacer` takes precedence over `dereference.circularReplacer`).
-Circular references are handled the same way for Reusable Objects and JSON Schema `$ref`s.
+Every referenced structure is dereferenced once per type and shared by all the references reading it as that type,
+and each unresolvable reference is reported once. `dereference.maxDepth` limits the number of references followed
+in a row, Reusable Objects and `$ref`s alike. A reference leading back to a structure that's still being
+dereferenced is a circular reference and is handled per the `dereference.circular` option: `ignore` creates
+a cyclic structure, `error` fails with an `UnresolvableReferenceError` and `replace` substitutes a `RefElement`
+processed by the `circularReplacer` (`dereference.strategyOpts['arazzo-1'].circularReplacer` takes precedence over
+`dereference.circularReplacer`). Parsed Arazzo documents form circular references through JSON Schema `$ref`s;
+Reusable Objects, read as their expected types, don't lead back to the components holding them, but are handled
+the same way when they do.
 
 Source Descriptions parsed into the document (`parse.parserOpts.sourceDescriptions`) are never dereferenced in
 the context of the document referencing them: they're left as parsed, or dereferenced in their own context when

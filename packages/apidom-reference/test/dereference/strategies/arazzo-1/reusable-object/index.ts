@@ -2,12 +2,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert } from 'chai';
 import { toValue } from '@speclynx/apidom-core';
-import { includesClasses, isParseResultElement } from '@speclynx/apidom-datamodel';
+import { includesClasses, isParseResultElement, isRefElement } from '@speclynx/apidom-datamodel';
 import {
   isParameterElement,
   isReusableElement,
   isSuccessActionElement,
   mediaTypes,
+  ReusableElement,
 } from '@speclynx/apidom-ns-arazzo-1';
 
 import { loadJsonFile } from '../../../../helpers.ts';
@@ -327,6 +328,77 @@ describe('dereference', function () {
 
             assert.doesNotThrow(() => JSON.stringify(toValue(actual)));
             assert.isFalse(refSet.circular);
+          });
+        });
+
+        context('given cycle of Reusable Elements built programmatically', function () {
+          const rootFilePath = path.join(rootFixturePath, 'nested-reusable', 'root.json');
+          // the parser never produces a Reusable Object leading back to the component holding it,
+          // ApiDOM built by hand can
+          const parseCyclic = async () => {
+            const parseResult = await parse(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const loop = new ReusableElement({ reference: '$components.parameters.status' });
+            loop.meta.set('referenced-element', 'parameter');
+            (parseResult.api as any).components.parameters.get('status').set('x-loop', loop);
+            return parseResult;
+          };
+          const dereferenceCyclic = async (dereferenceOptions: Record<string, unknown>) =>
+            dereferenceApiDOM(await parseCyclic(), {
+              parse: { mediaType: mediaTypes.latest('json') },
+              resolve: { baseURI: rootFilePath },
+              dereference: dereferenceOptions,
+            });
+          const parameterOf = (actual: any) =>
+            actual.api.workflows.get(1).steps.get(0).onSuccess.get(0).parameters.get(0);
+
+          specify('should dereference and create cycles when circular=ignore', async function () {
+            const parameter = parameterOf(await dereferenceCyclic({ circular: 'ignore' }));
+
+            assert.isTrue(isParameterElement(parameter.get('x-loop')));
+            assert.strictEqual(parameter.get('x-loop').get('x-loop'), parameter.get('x-loop'));
+          });
+
+          specify(
+            'should replace the cycle with RefElement when circular=replace',
+            async function () {
+              const refSet = new ReferenceSet();
+              const parameter = parameterOf(
+                await dereferenceCyclic({ circular: 'replace', refSet }),
+              );
+              const ref = parameter.get('x-loop');
+
+              assert.isTrue(isRefElement(ref));
+              assert.strictEqual(
+                toValue(ref.meta.get('reference')),
+                '$components.parameters.status',
+              );
+              assert.isTrue(refSet.circular);
+            },
+          );
+
+          specify('should report the cycle when circular=error', async function () {
+            const errors: UnresolvableReferenceError[] = [];
+            await dereferenceCyclic({
+              circular: 'error',
+              continueOnError: (error: UnresolvableReferenceError) => errors.push(error),
+            });
+
+            assert.deepEqual(
+              errors.map((error: any) => [
+                error.refFieldValue,
+                error.location,
+                (error.cause as Error).message,
+              ]),
+              [
+                [
+                  '$components.parameters.status',
+                  '/components/parameters/status/x-loop',
+                  'Circular reference detected',
+                ],
+              ],
+            );
           });
         });
 
