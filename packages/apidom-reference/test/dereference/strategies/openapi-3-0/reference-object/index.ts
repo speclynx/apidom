@@ -2,14 +2,27 @@ import path from 'node:path';
 import sinon from 'sinon';
 import { assert } from 'chai';
 import { identity } from 'ramda';
-import { Element, isRefElement, isParseResultElement } from '@speclynx/apidom-datamodel';
+import {
+  Element,
+  isRefElement,
+  isParseResultElement,
+  cloneShallow,
+  ParseResultElement,
+} from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
 import { isParameterElement, mediaTypes } from '@speclynx/apidom-ns-openapi-3-0';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 import { fileURLToPath } from 'node:url';
 
 import { loadJsonFile } from '../../../../helpers.ts';
-import { resolve, dereference } from '../../../../../src/index.ts';
+import {
+  resolve,
+  dereference,
+  dereferenceApiDOM,
+  parse,
+  Reference,
+  ReferenceSet,
+} from '../../../../../src/index.ts';
 import DereferenceError from '../../../../../src/errors/DereferenceError.ts';
 import UnresolvableReferenceError from '../../../../../src/errors/UnresolvableReferenceError.ts';
 import MaximumDereferenceDepthError from '../../../../../src/errors/MaximumDereferenceDepthError.ts';
@@ -22,6 +35,57 @@ describe('dereference', function () {
   context('strategies', function () {
     context('openapi-3-0', function () {
       context('Reference Object', function () {
+        context('given Reference Objects nested in a referenced fragment', function () {
+          specify('should dereference them when dereferencing a fragment', async function () {
+            const rootFilePath = path.join(entryFixturePath, 'nested-in-fragment', 'root.json');
+            const parseResult = await parse(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const pathItem = evaluate<Element>(parseResult.api!, '/paths/~1a');
+            const fragment = cloneShallow(pathItem);
+            fragment.classes.push('result');
+            const refSet = new ReferenceSet();
+            refSet
+              .add(
+                new Reference({
+                  uri: `${rootFilePath}#fragment`,
+                  value: new ParseResultElement([fragment]),
+                }),
+              )
+              .add(new Reference({ uri: rootFilePath, value: parseResult }));
+
+            const dereferenced = await dereferenceApiDOM(pathItem, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              resolve: { baseURI: rootFilePath },
+              dereference: { refSet },
+            });
+            const header = evaluate<Element>(dereferenced, '/get/responses/200/headers/X');
+
+            assert.strictEqual(header.element, 'header');
+            assert.deepEqual(toValue(header), { description: 'h', schema: { type: 'string' } });
+          });
+        });
+
+        context('given a fragment referenced as different types', function () {
+          ['parameter-first.json', 'header-first.json'].forEach((fixture) => {
+            specify(`should read it as each expected type (${fixture})`, async function () {
+              const rootFilePath = path.join(entryFixturePath, 'type-by-reference', fixture);
+              const dereferenced = await dereference(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+              });
+
+              assert.strictEqual(
+                evaluate<Element>(dereferenced, '/0/paths/~1a/get/parameters/0').element,
+                'parameter',
+              );
+              assert.strictEqual(
+                evaluate<Element>(dereferenced, '/0/paths/~1a/get/responses/200/headers/H').element,
+                'header',
+              );
+            });
+          });
+        });
+
         context('given Reference Objects pointing internally and externally', function () {
           const fixturePath = path.join(entryFixturePath, 'internal-external');
 

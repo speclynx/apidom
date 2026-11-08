@@ -1,0 +1,38 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "t",
+    "version": "1"
+  },
+  "paths": {
+    "/a": {
+      "get": {
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/R"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "R": {
+        "description": "r",
+        "headers": {
+          "X": {
+            "$ref": "#/components/headers/H"
+          }
+        }
+      }
+    },
+    "headers": {
+      "H": {
+        "description": "h",
+        "schema": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

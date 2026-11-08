@@ -1,0 +1,36 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "t",
+    "version": "1"
+  },
+  "x-frag": {
+    "description": "d",
+    "name": "n",
+    "in": "query",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "paths": {
+    "/a": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "ok",
+            "headers": {
+              "H": {
+                "$ref": "#/x-frag"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/x-frag"
+          }
+        ]
+      }
+    }
+  }
+}
