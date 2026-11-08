@@ -100,6 +100,15 @@ describe('toGeneric', function () {
     assert.strictEqual(generic.get(0), generic.get(1));
   });
 
+  specify('should keep shared primitive elements shared', function () {
+    const shared = new StringElement('p');
+    const element = new ArrayElement([shared, shared]);
+
+    const generic = toGeneric<ArrayElement>(element);
+
+    assert.strictEqual(generic.get(0), generic.get(1));
+  });
+
   specify('should keep cyclic structures cyclic', function () {
     const element = new ParameterElement({ name: 'p' });
     element.set('self', element);
