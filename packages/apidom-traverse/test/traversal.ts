@@ -313,13 +313,52 @@ describe('traverse', function () {
     });
   });
 
-  context('return value replacement', function () {
-    specify('should support returning replacement value', function () {
+  context('given a visitor returning a value', function () {
+    specify('should throw for a returned node', function () {
+      const root = new StringElement('old');
+
+      assert.throws(
+        () =>
+          traverse(root, {
+            StringElement: () => new StringElement('new'),
+          }),
+        /use path\.replaceWith\(\) instead/,
+      );
+    });
+
+    specify('should throw for a node returned by an async visitor', async function () {
+      const root = new StringElement('old');
+
+      try {
+        await traverseAsync(root, {
+          StringElement: async () => new StringElement('new'),
+        });
+        assert.fail('should throw');
+      } catch (error) {
+        assert.match((error as Error).message, /use path\.replaceWith\(\) instead/);
+      }
+    });
+
+    specify('should ignore a value that is not a node', function () {
+      const root = new ObjectElement({ a: 'x' });
+      const seen: string[] = [];
+
+      const result = traverse(root, {
+        StringElement: (path: Path) => seen.push(path.node.element),
+      });
+
+      assert.strictEqual(result, root);
+      assert.deepEqual(seen, ['string', 'string']);
+    });
+
+    specify('should ignore the returned node of a path edit', function () {
       const root = new StringElement('old');
       const replacement = new StringElement('new');
 
       const result = traverse(root, {
-        StringElement() {
+        StringElement(path: Path) {
+          if (path.node === replacement) return path.node;
+          path.replaceWith(replacement);
           return replacement;
         },
       });
