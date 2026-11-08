@@ -1,0 +1,40 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "t",
+    "version": "1"
+  },
+  "paths": {
+    "/a": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/x-shared"
+            }
+          }
+        }
+      }
+    },
+    "/b": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/x-shared"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    }
+  },
+  "x-shared": {
+    "name": "p",
+    "in": "query",
+    "type": "string"
+  }
+}
