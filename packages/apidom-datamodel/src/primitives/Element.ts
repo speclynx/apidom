@@ -364,20 +364,21 @@ class Element implements ToValue, Equatable, Freezable {
   freeze(): void {
     if (this.isFrozen) return;
 
-    // Freeze meta and attributes
-    if (this._meta) {
-      this._meta.freeze();
-    }
-
+    // attributes and children go before meta, so an element that's also held in meta gets its parent;
+    // an element reached again (through meta or a second parent) is already frozen and keeps its parent
     if (this._attributes) {
-      this._attributes.parent = this;
+      if (!this._attributes.isFrozen) this._attributes.parent = this;
       this._attributes.freeze();
     }
 
     // Freeze children
     for (const child of this.children) {
-      child.parent = this;
+      if (!child.isFrozen) child.parent = this;
       child.freeze();
+    }
+
+    if (this._meta) {
+      this._meta.freeze();
     }
 
     // Freeze content array if applicable
