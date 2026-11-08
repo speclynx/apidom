@@ -85,7 +85,7 @@ class OpenAPI3_1DereferenceStrategy extends DereferenceStrategy {
     });
 
     /**
-     * Release all memory if this refSet was not provided as an configuration option.
+     * Release all memory if this refSet was not provided as a configuration option.
      * If provided as configuration option, then provider is responsible for cleanup.
      */
     if (options.dereference.refSet === null) {
