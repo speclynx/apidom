@@ -1,8 +1,10 @@
 import path from 'node:path';
 import { assert } from 'chai';
+import sinon from 'sinon';
+import { identity } from 'ramda';
 import { toValue } from '@speclynx/apidom-core';
-import { Element } from '@speclynx/apidom-datamodel';
-import { isJSONSchemaElement, mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
+import { Element, isRefElement } from '@speclynx/apidom-datamodel';
+import { isJSONSchemaElement, isParameterElement, mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 import { fileURLToPath } from 'node:url';
 
@@ -14,6 +16,7 @@ import {
   ReferenceSet,
 } from '../../../../../src/index.ts';
 import { loadJsonFile } from '../../../../helpers.ts';
+import { dereferenceWorkflow } from '../helpers.ts';
 import * as url from '../../../../../src/util/url.ts';
 import DereferenceError from '../../../../../src/errors/DereferenceError.ts';
 import UnresolvableReferenceError from '../../../../../src/errors/UnresolvableReferenceError.ts';
@@ -1000,6 +1003,331 @@ describe('dereference', function () {
             const expected = loadJsonFile(path.join(fixturePath, 'dereferenced.json'));
 
             assert.deepEqual(toValue(actual), expected);
+          });
+        });
+
+        context('given cycles of JSON Schema Objects', function () {
+          const rootFilePath = path.join(rootFixturePath, 'cycle-modes', 'root.json');
+          const dereferenceDocument = async (dereferenceOptions: Record<string, unknown> = {}) => {
+            const actual = await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: dereferenceOptions,
+            });
+            return (actual.api as any).workflows.get(0);
+          };
+          const assertCycles = (workflow: any) => {
+            const self = workflow.inputs.properties.get('self');
+            const ping = workflow.inputs.properties.get('ping');
+            const pong = ping.properties.get('next');
+
+            assert.isTrue(isJSONSchemaElement(self));
+            assert.strictEqual(self.properties.get('next').properties, self.properties);
+            assert.isTrue(isJSONSchemaElement(pong));
+            assert.strictEqual(pong.properties.get('next').properties, ping.properties);
+          };
+          const assertReplacements = (workflow: any) => {
+            const selfRef = workflow.inputs.properties.get('self').properties.get('next');
+            const pong = workflow.inputs.properties.get('ping').properties.get('next');
+            const pingRef = pong.properties.get('next');
+
+            assert.isTrue(isRefElement(selfRef));
+            assert.isTrue((toValue(selfRef) as string).endsWith('#/components/inputs/self'));
+            assert.strictEqual(toValue(selfRef.meta.get('$ref')), '#/components/inputs/self');
+            assert.strictEqual(toValue(selfRef.meta.get('type')), 'JSONSchema');
+            assert.isTrue(isJSONSchemaElement(pong));
+            assert.isTrue(isRefElement(pingRef));
+            assert.strictEqual(toValue(pingRef.meta.get('$ref')), '#/components/inputs/ping');
+          };
+
+          context('given circular=ignore', function () {
+            specify('should dereference and create cycles', async function () {
+              const workflow = await dereferenceDocument({ circular: 'ignore' });
+
+              assertCycles(workflow);
+              assert.throws(() => JSON.stringify(toValue(workflow)));
+            });
+
+            specify(
+              'should dereference and create cycles when dereferencing a Workflow fragment',
+              async function () {
+                assertCycles(await dereferenceWorkflow(rootFilePath, 0));
+              },
+            );
+          });
+
+          context('given circular=replace', function () {
+            specify('should dereference and eliminate all cycles', async function () {
+              const workflow = await dereferenceDocument({ circular: 'replace' });
+
+              assertReplacements(workflow);
+              assert.doesNotThrow(() => JSON.stringify(toValue(workflow)));
+            });
+
+            specify(
+              'should dereference and eliminate all cycles when dereferencing a Workflow fragment',
+              async function () {
+                const workflow = await dereferenceWorkflow(rootFilePath, 0, {
+                  dereference: { circular: 'replace' },
+                });
+
+                assertReplacements(workflow);
+                assert.doesNotThrow(() => JSON.stringify(toValue(workflow)));
+              },
+            );
+
+            specify('should mark the ReferenceSet as circular', async function () {
+              const refSet = new ReferenceSet();
+              await dereference(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                dereference: { circular: 'replace', refSet },
+              });
+
+              assert.isTrue(refSet.circular);
+            });
+          });
+
+          context('given circular=replace and custom replacer is provided', function () {
+            specify('should dereference and eliminate all cycles', async function () {
+              const circularReplacer = sinon.spy(identity);
+
+              await dereferenceDocument({ circular: 'replace', circularReplacer });
+
+              assert.strictEqual(circularReplacer.callCount, 2);
+              circularReplacer.getCalls().forEach((call) => {
+                assert.isTrue(isRefElement(call.args[0]));
+                assert.isTrue(isRefElement(call.returnValue));
+              });
+            });
+
+            specify('should prefer arazzo-1 strategy specific replacer', async function () {
+              const circularReplacer = sinon.spy(identity);
+              const strategyCircularReplacer = sinon.spy(identity);
+
+              await dereferenceDocument({
+                circular: 'replace',
+                circularReplacer,
+                strategyOpts: { 'arazzo-1': { circularReplacer: strategyCircularReplacer } },
+              });
+
+              assert.isTrue(circularReplacer.notCalled);
+              assert.strictEqual(strategyCircularReplacer.callCount, 2);
+            });
+          });
+
+          context('given circular=error', function () {
+            specify('should dereference and throw on first detected cycle', async function () {
+              try {
+                await dereferenceDocument({ circular: 'error' });
+                assert.fail('should throw UnresolvableReferenceError');
+              } catch (error: any) {
+                assert.instanceOf(error, UnresolvableReferenceError);
+                assert.strictEqual((error.cause as Error).message, 'Circular reference detected');
+              }
+            });
+
+            specify(
+              'should throw on first detected cycle when dereferencing a Workflow fragment',
+              async function () {
+                try {
+                  await dereferenceWorkflow(rootFilePath, 0, {
+                    dereference: { circular: 'error' },
+                  });
+                  assert.fail('should throw UnresolvableReferenceError');
+                } catch (error: any) {
+                  assert.instanceOf(error, UnresolvableReferenceError);
+                  assert.strictEqual((error.cause as Error).message, 'Circular reference detected');
+                }
+              },
+            );
+
+            specify('should report each cycle once when continueOnError is set', async function () {
+              const errors: UnresolvableReferenceError[] = [];
+              await dereferenceDocument({
+                circular: 'error',
+                continueOnError: (error: UnresolvableReferenceError) => errors.push(error),
+              });
+
+              assert.deepEqual(
+                errors.map((error: any) => [error.refFieldValue, error.location]),
+                [
+                  ['#/components/inputs/self', '/components/inputs/self/properties/next'],
+                  ['#/components/inputs/ping', '/components/inputs/pong/properties/next'],
+                ],
+              );
+            });
+          });
+        });
+
+        context('given JSON Schema Objects dereferenced in several runs', function () {
+          const rootFilePath = path.join(rootFixturePath, 'cross-run', 'root.json');
+
+          specify('should not carry a dereference run over to the next one', async function () {
+            const parseResult = await parse(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            await dereferenceWorkflow(rootFilePath, 0, {
+              parseResult,
+              dereference: { circular: 'replace', immutable: false },
+            });
+            const second = await dereferenceWorkflow(rootFilePath, 1, {
+              parseResult,
+              dereference: { circular: 'ignore', immutable: false },
+            });
+            const { inputs } = second;
+
+            assert.isFalse(isRefElement(inputs.properties.get('next')));
+            assert.strictEqual(inputs.properties.get('next').properties, inputs.properties);
+          });
+        });
+
+        context('given cycle of JSON Schema Objects referenced from several places', function () {
+          const fixturePath = path.join(rootFixturePath, 'cycle-orders');
+
+          ['workflows-first.json', 'components-first.json'].forEach((fixture) => {
+            context(`given ${fixture}`, function () {
+              const rootFilePath = path.join(fixturePath, fixture);
+
+              specify('should report the cycle once when circular=error', async function () {
+                const errors: UnresolvableReferenceError[] = [];
+                await dereference(rootFilePath, {
+                  parse: { mediaType: mediaTypes.latest('json') },
+                  dereference: {
+                    circular: 'error',
+                    continueOnError: (error: UnresolvableReferenceError) => errors.push(error),
+                  },
+                });
+
+                assert.lengthOf(errors, 1);
+                assert.strictEqual(
+                  (errors[0].cause as Error).message,
+                  'Circular reference detected',
+                );
+              });
+
+              specify('should eliminate all cycles when circular=replace', async function () {
+                const actual = await dereference(rootFilePath, {
+                  parse: { mediaType: mediaTypes.latest('json') },
+                  dereference: { circular: 'replace' },
+                });
+
+                assert.doesNotThrow(() => JSON.stringify(toValue(actual)));
+              });
+
+              [0, 1, 2].forEach((index) => {
+                specify(
+                  `should detect the cycle when dereferencing Workflow fragment #${index}`,
+                  async function () {
+                    const workflow = await dereferenceWorkflow(rootFilePath, index, {
+                      dereference: { circular: 'replace' },
+                    });
+
+                    assert.doesNotThrow(() => JSON.stringify(toValue(workflow)));
+
+                    try {
+                      await dereferenceWorkflow(rootFilePath, index, {
+                        dereference: { circular: 'error' },
+                      });
+                      assert.fail('should throw UnresolvableReferenceError');
+                    } catch (error: any) {
+                      assert.instanceOf(error, UnresolvableReferenceError);
+                      assert.strictEqual(
+                        (error.cause as Error).message,
+                        'Circular reference detected',
+                      );
+                    }
+                  },
+                );
+              });
+            });
+          });
+        });
+
+        context('given JSON Schema Objects sharing referenced schemas', function () {
+          const rootFilePath = path.join(rootFixturePath, 'diamond', 'root.json');
+          const assertDereferenced = (schema: any) => {
+            for (let depth = 0; depth < 20; depth += 1) {
+              assert.isTrue(isJSONSchemaElement(schema));
+              assert.isTrue(isJSONSchemaElement(schema.properties.get('y')));
+              schema = schema.properties.get('x');
+            }
+            assert.strictEqual(toValue(schema.type), 'string');
+          };
+
+          specify('should dereference each shared schema once', async function () {
+            const actual = await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+
+            assertDereferenced((actual.api as any).workflows.get(0).inputs);
+          });
+
+          specify(
+            'should dereference each shared schema once when dereferencing a Workflow fragment',
+            async function () {
+              const workflow = await dereferenceWorkflow(rootFilePath, 0);
+
+              assertDereferenced(workflow.inputs);
+            },
+          );
+        });
+
+        context('given JSON Schema Objects referencing elements of another type', function () {
+          const rootFilePath = path.join(rootFixturePath, 'typed-target', 'root.json');
+
+          specify('should read the referenced element as JSON Schema', async function () {
+            const actual = await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const { workflows, components } = actual.api as any;
+            const plain = workflows.get(0).inputs.properties.get('plain');
+            const annotated = workflows.get(0).inputs.properties.get('annotated');
+
+            assert.isTrue(isJSONSchemaElement(plain));
+            assert.deepEqual(toValue(plain), {
+              name: 'status',
+              in: 'query',
+              value: 'from-component',
+            });
+            assert.deepEqual(toValue(plain.meta.get('ref-fields')), {
+              $ref: '#/components/parameters/status',
+            });
+            assert.isTrue(isJSONSchemaElement(annotated));
+            assert.strictEqual(toValue(annotated.description), 'override');
+            assert.isTrue(isParameterElement(workflows.get(0).steps.get(0).parameters.get(0)));
+            assert.isTrue(isParameterElement(components.parameters.get('status')));
+          });
+        });
+
+        context('given component dereferenced both as itself and as JSON Schema', function () {
+          const fixturePath = path.join(rootFixturePath, 'typed-order');
+          const workflowOf = (actual: any, workflowId: string) =>
+            (actual.api.workflows.content as any[]).find(
+              (workflow) => toValue(workflow.workflowId) === workflowId,
+            );
+
+          specify('should not depend on which reference is reached first', async function () {
+            const results = await Promise.all(
+              ['reusable-first.json', 'schema-first.json'].map((fixture) =>
+                dereference(path.join(fixturePath, fixture), {
+                  parse: { mediaType: mediaTypes.latest('json') },
+                }),
+              ),
+            );
+
+            results.forEach((actual) => {
+              const asSchema = workflowOf(actual, 'by-schema').inputs;
+              const asAction = workflowOf(actual, 'by-reusable').steps.get(0).onSuccess.get(0);
+
+              assert.isTrue(isJSONSchemaElement(asSchema));
+              assert.deepEqual(toValue(asSchema), {
+                name: 'jump',
+                type: 'goto',
+                workflowId: 'target',
+                parameters: [{ name: 'status', in: 'query', value: 'from-jump' }],
+              });
+              assert.isTrue(isParameterElement(asAction.parameters.get(0)));
+              assert.strictEqual(toValue(asAction.parameters.get(0).value), 'from-jump');
+            });
           });
         });
 

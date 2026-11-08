@@ -1,0 +1,250 @@
+{
+  "arazzo": "1.1.0",
+  "info": {
+    "title": "Test Workflow",
+    "version": "1.0.0"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "petStore",
+      "url": "https://example.com/openapi.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "caller",
+      "inputs": {
+        "$ref": "#/components/inputs/a0"
+      },
+      "steps": []
+    }
+  ],
+  "components": {
+    "inputs": {
+      "a0": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a1"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a1"
+          }
+        }
+      },
+      "a1": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a2"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a2"
+          }
+        }
+      },
+      "a2": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a3"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a3"
+          }
+        }
+      },
+      "a3": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a4"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a4"
+          }
+        }
+      },
+      "a4": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a5"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a5"
+          }
+        }
+      },
+      "a5": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a6"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a6"
+          }
+        }
+      },
+      "a6": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a7"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a7"
+          }
+        }
+      },
+      "a7": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a8"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a8"
+          }
+        }
+      },
+      "a8": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a9"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a9"
+          }
+        }
+      },
+      "a9": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a10"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a10"
+          }
+        }
+      },
+      "a10": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a11"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a11"
+          }
+        }
+      },
+      "a11": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a12"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a12"
+          }
+        }
+      },
+      "a12": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a13"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a13"
+          }
+        }
+      },
+      "a13": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a14"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a14"
+          }
+        }
+      },
+      "a14": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a15"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a15"
+          }
+        }
+      },
+      "a15": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a16"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a16"
+          }
+        }
+      },
+      "a16": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a17"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a17"
+          }
+        }
+      },
+      "a17": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a18"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a18"
+          }
+        }
+      },
+      "a18": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a19"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a19"
+          }
+        }
+      },
+      "a19": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "$ref": "#/components/inputs/a20"
+          },
+          "y": {
+            "$ref": "#/components/inputs/a20"
+          }
+        }
+      },
+      "a20": {
+        "type": "string"
+      }
+    }
+  }
+}

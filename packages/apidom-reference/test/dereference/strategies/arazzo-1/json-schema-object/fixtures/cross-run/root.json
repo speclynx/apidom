@@ -1,0 +1,38 @@
+{
+  "arazzo": "1.1.0",
+  "info": {
+    "title": "Test Workflow",
+    "version": "1.0.0"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "petStore",
+      "url": "https://example.com/openapi.json",
+      "type": "openapi"
+    }
+  ],
+  "x-frag": {
+    "type": "object",
+    "properties": {
+      "next": {
+        "$ref": "#/x-frag"
+      }
+    }
+  },
+  "workflows": [
+    {
+      "workflowId": "first",
+      "inputs": {
+        "$ref": "#/x-frag"
+      },
+      "steps": []
+    },
+    {
+      "workflowId": "second",
+      "inputs": {
+        "$ref": "#/x-frag"
+      },
+      "steps": []
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import {
   isElement,
   isStringElement,
   isParseResultElement,
+  isPrimitiveElement,
   Element,
   RefElement,
   BooleanElement,
@@ -10,7 +11,7 @@ import {
   cloneShallow,
   cloneDeep,
 } from '@speclynx/apidom-datamodel';
-import { toValue, toYAML } from '@speclynx/apidom-core';
+import { toValue, toYAML, toGeneric } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
 import { traverse, traverseAsync, type Path } from '@speclynx/apidom-traverse';
 import {
@@ -25,6 +26,8 @@ import {
   isParameterElement,
   isJSONSchemaElement,
   isBooleanJSONSchemaElement,
+  refract,
+  refractJSONSchema,
 } from '@speclynx/apidom-ns-arazzo-1';
 import { parse as parseRuntimeExpression } from '@swaggerexpert/arazzo-runtime-expression';
 
@@ -32,7 +35,8 @@ import { isAnchor, uriToAnchor, locate as $anchorLocate } from './selectors/$anc
 import { locate as uriLocate, type Schema$idIndex } from './selectors/uri.ts';
 import { locate as jsonPointerLocate } from '../openapi-3-1/selectors/json-pointer.ts';
 import {
-  schema$idsOf,
+  isJSONSchemaElementWith$id,
+  collectSchema$ids,
   resolveSchema$ids,
   resolveSchemaBaseURI,
   resolveSchema$refField,
@@ -51,9 +55,53 @@ import Reference from '../../../Reference.ts';
 import ReferenceSet from '../../../ReferenceSet.ts';
 import File from '../../../File.ts';
 import Resolver from '../../../resolve/resolvers/Resolver.ts';
-import { AncestorLineage } from '../../util.ts';
 import EvaluationJsonSchemaUriError from '../../../errors/EvaluationJsonSchemaUriError.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
+
+/**
+ * Type a JSON Schema `$ref` expects its target to have.
+ */
+const JSON_SCHEMA_TYPE = 'JSONSchema';
+
+/**
+ * A source dereferenced as one type: the source as that semantic type, with every reference
+ * within it transcluded. `element` exists from the start, so references leading back to
+ * an element still being dereferenced (cycles) can be transcluded with it.
+ */
+interface DereferencedElement {
+  element: Element;
+  done: boolean;
+}
+
+/**
+ * A transclusion to perform: the dereferenced element a referencing element is transcluded
+ * with, and whether the reference leads back to an element still being dereferenced.
+ */
+interface Transclusion {
+  readonly kind: 'reusable' | 'schema';
+  readonly target: DereferencedElement;
+  readonly back: boolean;
+  readonly refValue: string;
+  readonly refURI: string;
+  readonly origin: string;
+}
+
+/**
+ * State shared by all the visitors of a single dereference run.
+ */
+interface DereferenceRun {
+  readonly dereferenced: WeakMap<Element, Map<string, DereferencedElement>>;
+  readonly refracted: WeakMap<Element, Map<string, Element>>;
+  // dereferencing in place: a source is its own dereferenced element
+  readonly inPlace: boolean;
+  // source element to its copy: a structure is copied once and shared by every
+  // dereferenced element containing it, so the result keeps its identities
+  readonly copies: WeakMap<object, object>;
+  // elements transcluded in place of referencing elements: never traversed again
+  readonly transcluded: WeakSet<Element>;
+  // referencing elements whose failure has been reported
+  readonly failed: WeakSet<Element>;
+}
 
 /**
  * @public
@@ -61,19 +109,25 @@ import type { ReferenceOptions } from '../../../options/index.ts';
 export interface Arazzo1DereferenceVisitorOptions {
   readonly reference: Reference;
   readonly options: ReferenceOptions;
-  readonly indirections?: Element[];
   readonly schema$idIndex?: Schema$idIndex;
-  readonly ancestors?: AncestorLineage<Element>;
-  readonly visited?: WeakSet<Element>;
   readonly ancestorSchema$ids?: string[];
 }
 
 /**
+ * Dereferences an Arazzo document without editing it.
+ *
+ * Every referenced structure is dereferenced once per type the references reaching it
+ * expect: Reusable Objects expect the type of their `referenced-element` meta, JSON Schema
+ * `$ref`s expect a JSON Schema. A source is dereferenced as a type in two steps. First it's
+ * traversed, and for each reference within it the target is located, dereferenced as
+ * the expected type, and recorded as a transclusion. Then the referencing elements are
+ * transcluded with the dereferenced targets, annotated by the referencing elements.
+ * A dereferenced element is shared by all the references leading to it; a reference leading
+ * to an element still being dereferenced is a cycle.
+ *
  * @public
  */
 class Arazzo1DereferenceVisitor {
-  protected readonly indirections: Element[];
-
   protected readonly reference: Reference;
 
   /**
@@ -86,39 +140,43 @@ class Arazzo1DereferenceVisitor {
   protected readonly options: ReferenceOptions;
 
   /**
-   * Index of `$id`-bearing schemas per document, shared across nested visitors
-   * of a single dereference run so it never outlives mutations of the documents.
+   * Index of `$id`-bearing schemas per document, shared across the visitors
+   * of a single dereference run.
    */
   protected readonly schema$idIndex: Schema$idIndex;
-
-  protected readonly visited: WeakSet<Element>;
 
   /**
    * `$id`s of the JSON Schema elements enclosing the traversal root within its
    * document (outermost first). Empty when the root is the document itself; a
-   * nested visitor traversing a fragment is seeded with the `$id`s of the
-   * schemas the fragment sits under, so the `$ref`s and `$id`s within resolve
-   * against the same base as they would from the document root.
+   * visitor traversing a fragment is seeded with the `$id`s of the schemas the
+   * fragment sits under, so the `$ref`s and `$id`s within resolve against the
+   * same base as they would from the document root.
    */
   protected readonly ancestorSchema$ids: string[];
 
+  protected run: DereferenceRun;
+
   /**
-   * Tracks element ancestors across dive-deep traversal boundaries.
-   * Used for cycle detection: if a referenced element is found in
-   * the ancestor lineage, a circular reference is detected.
+   * Map from the elements of the source the visitor traverses to their copies.
    */
-  protected readonly ancestors: AncestorLineage<Element>;
+  protected cloneMap?: WeakMap<object, object>;
+
+  /**
+   * Transclusions to perform, keyed by the (copy of the) referencing element.
+   */
+  protected readonly transclusions = new Map<Element, Transclusion>();
+
+  /**
+   * Number of references followed to reach the source the visitor traverses.
+   */
+  protected depth = 0;
 
   constructor({
     reference,
     options,
-    indirections = [],
     schema$idIndex = new WeakMap(),
-    ancestors = new AncestorLineage(),
-    visited = new WeakSet(),
     ancestorSchema$ids = [],
   }: Arazzo1DereferenceVisitorOptions) {
-    this.indirections = indirections;
     this.reference = reference;
     this.baseURI = resolveArazzo$selfField(
       reference.uri,
@@ -126,16 +184,30 @@ class Arazzo1DereferenceVisitor {
     );
     this.options = options;
     this.schema$idIndex = schema$idIndex;
-    this.ancestors = new AncestorLineage(...ancestors);
-    this.visited = visited;
     this.ancestorSchema$ids = ancestorSchema$ids;
+    this.run = {
+      dereferenced: new WeakMap(),
+      refracted: new WeakMap(),
+      inPlace: !options.dereference.immutable,
+      copies: new WeakMap(),
+      transcluded: new WeakSet(),
+      failed: new WeakSet(),
+    };
   }
 
-  protected toAncestorLineage(path: Path<Element>): [AncestorLineage<Element>, Set<Element>] {
-    const ancestorNodes = path.getAncestorNodes();
-    const directAncestors = new Set<Element>(ancestorNodes.filter(isElement));
-    const ancestorsLineage = new AncestorLineage(...this.ancestors, directAncestors);
-    return [ancestorsLineage, directAncestors];
+  /**
+   * Dereferences the element, which belongs to the document of the visitor's reference.
+   * The element itself is never edited; the dereferenced copy is returned.
+   */
+  public async dereference<T extends Element>(element: T): Promise<T> {
+    const dereferenced = await this.dereferenceAs(
+      element,
+      element.element,
+      this.reference,
+      this.ancestorSchema$ids,
+      0,
+    );
+    return dereferenced.element as T;
   }
 
   protected toBaseURI(uri: string): string {
@@ -170,39 +242,15 @@ class Arazzo1DereferenceVisitor {
       parse: { ...this.options.parse, mediaType: 'text/plain' },
     });
 
-    // register new mutable reference with a refSet
-    //
-    // NOTE(known limitation): the mutable reference is mutated in place during traversal
-    // (via `{ mutable: true }`). When an external document evaluates a JSON pointer back
-    // into this document, it may receive an already-resolved element instead of the original
-    // $ref. That resolved element was produced using the entry document's resolution context
-    // (ancestors, indirections), which may differ from the external document's context.
-    // This can affect cycle detection in rare cross-document circular reference patterns.
-    //
-    // Remediation: evaluate JSON pointers against the immutable (original) parse tree
-    // instead of the mutable working copy. The `immutable://` reference below preserves
-    // the original tree and could be used for pointer evaluation, ensuring every resolution
-    // context always sees raw, unresolved elements and processes them with its own
-    // ancestors/indirections. The trade-off is that elements referenced by multiple
-    // documents would be resolved once per context instead of being reused.
-    const mutableReference = new Reference({
+    // documents are never edited while dereferencing, so the parse result is registered as is
+    const reference = new Reference({
       uri: baseURI,
-      value: this.options.dereference.immutable ? cloneDeep(parseResult) : parseResult,
+      value: parseResult,
       depth: this.reference.depth + 1,
     });
-    refSet.add(mutableReference);
+    refSet.add(reference);
 
-    if (this.options.dereference.immutable) {
-      // register new immutable reference with a refSet
-      const immutableReference = new Reference({
-        uri: `immutable://${baseURI}`,
-        value: parseResult,
-        depth: this.reference.depth + 1,
-      });
-      refSet.add(immutableReference);
-    }
-
-    return mutableReference;
+    return reference;
   }
 
   /**
@@ -232,16 +280,18 @@ class Arazzo1DereferenceVisitor {
 
     // find element location by identity in the document tree.
     // guarded: this.reference.value may not be a ParseResultElement or may lack a result.
-    // falls back to visitorPath which may produce an incomplete path when
-    // dereferenceApiDOM is called with a fragment (cloneShallow creates a new root identity).
+    // falls back to visitorPath, which is relative to the source being traversed
+    // when the referencing element belongs to a source refracted to another type.
     let location: string | undefined;
     const root = (this.reference.value as ParseResultElement).result;
     if (isElement(root)) {
       traverse(root, {
-        enter(p: Path<Element>) {
+        enter: (p: Path<Element>) => {
           if (p.node === referencingElement) {
             location = p.formatPath();
             p.stop();
+          } else if (this.isTranscluded(p.node)) {
+            p.skip();
           }
         },
       });
@@ -284,33 +334,316 @@ class Arazzo1DereferenceVisitor {
     if (typeof continueOnError === 'function') continueOnError(unresolvedError);
   }
 
+  /**
+   * The source as the given semantic type: the source itself when it's of that type, otherwise
+   * its refraction to that type, made once per dereference run. The refraction is made from
+   * the source dereferenced as its own type, so it doesn't depend on which reference
+   * reaches the source first.
+   */
+  protected async toSemantic(
+    source: Element,
+    type: string,
+    reference: Reference,
+    ancestorSchema$ids: string[],
+    depth: number,
+  ): Promise<Element> {
+    const isOfType =
+      type === JSON_SCHEMA_TYPE
+        ? isJSONSchemaElement(source) || isBooleanJSONSchemaElement(source)
+        : source.element === type;
+    if (isOfType) return source;
+
+    let byType = this.run.refracted.get(source);
+    if (byType === undefined) {
+      byType = new Map();
+      this.run.refracted.set(source, byType);
+    }
+    const cached = byType.get(type);
+    if (cached !== undefined) return cached;
+
+    const dereferenced = isPrimitiveElement(source)
+      ? source
+      : (await this.dereferenceAs(source, source.element, reference, ancestorSchema$ids, depth))
+          .element;
+    // dereferencing the source may have led back to this very refraction
+    const reached = byType.get(type);
+    if (reached !== undefined) return reached;
+
+    const generic = toGeneric(dereferenced);
+    const semantic =
+      type === JSON_SCHEMA_TYPE ? refractJSONSchema(generic) : refract(generic, { element: type });
+    byType.set(type, semantic);
+    return semantic;
+  }
+
+  /**
+   * Dereferences the source as the given type, once per dereference run.
+   */
+  protected async dereferenceAs(
+    source: Element,
+    type: string,
+    reference: Reference,
+    ancestorSchema$ids: string[],
+    depth: number,
+  ): Promise<DereferencedElement> {
+    let byType = this.run.dereferenced.get(source);
+    if (byType === undefined) {
+      byType = new Map();
+      this.run.dereferenced.set(source, byType);
+    }
+    const existing = byType.get(type);
+    if (existing !== undefined) return existing;
+
+    const semantic = await this.toSemantic(source, type, reference, ancestorSchema$ids, depth);
+    // a refraction is made for the run, so it's dereferenced as is
+    const isOwned = semantic !== source || this.run.inPlace;
+    const cloneMap = isOwned ? undefined : this.run.copies;
+    const dereferenced: DereferencedElement = {
+      element: isOwned ? semantic : cloneDeep(semantic, { visited: cloneMap }),
+      done: false,
+    };
+    byType.set(type, dereferenced);
+
+    const visitor = new Arazzo1DereferenceVisitor({
+      reference,
+      options: this.options,
+      schema$idIndex: this.schema$idIndex,
+      ancestorSchema$ids,
+    });
+    visitor.run = this.run;
+    visitor.cloneMap = cloneMap;
+    visitor.depth = depth;
+
+    try {
+      // the handlers only record transclusions
+      await traverseAsync(semantic, visitor);
+    } catch (error) {
+      byType.delete(type);
+      throw error;
+    }
+
+    dereferenced.element = visitor.transclude(dereferenced.element);
+    dereferenced.done = true;
+
+    return dereferenced;
+  }
+
+  /**
+   * Dereferences the target of a reference as the expected type and records the transclusion.
+   */
+  protected async addTransclusion(
+    path: Path<Element>,
+    targetSource: Element,
+    type: string,
+    targetReference: Reference,
+    targetAncestorSchema$ids: string[],
+    transclusion: Omit<Transclusion, 'target' | 'back'>,
+  ): Promise<void> {
+    const referencingCopy = (this.cloneMap?.get(path.node) ?? path.node) as Element;
+
+    // detect maximum depth of dereferencing
+    if (this.depth + 1 > this.options.dereference.maxDepth) {
+      throw new MaximumDereferenceDepthError(
+        `Maximum dereference depth of "${this.options.dereference.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
+        { maxDepth: this.options.dereference.maxDepth, uri: this.reference.uri },
+      );
+    }
+
+    const existing = this.run.dereferenced.get(targetSource)?.get(type);
+
+    // a reference leading to an element still being dereferenced is a cycle
+    if (existing !== undefined && !existing.done) {
+      this.reference.refSet!.circular = true;
+
+      if (this.options.dereference.circular === 'error') {
+        throw new ApiDOMStructuredError('Circular reference detected', {
+          [transclusion.kind === 'reusable' ? 'runtimeExpression' : '$ref']: transclusion.refValue,
+        });
+      }
+      this.transclusions.set(referencingCopy, { ...transclusion, target: existing, back: true });
+      return;
+    }
+
+    const target =
+      existing ??
+      (await this.dereferenceAs(
+        targetSource,
+        type,
+        targetReference,
+        targetAncestorSchema$ids,
+        this.depth + 1,
+      ));
+    this.transclusions.set(referencingCopy, { ...transclusion, target, back: false });
+  }
+
+  /**
+   * Transcludes every referencing element within the element with its dereferenced target.
+   */
+  protected transclude(element: Element): Element {
+    if (this.transclusions.size === 0) return element;
+
+    // replaced on leave: nested referencing elements first, so merges see them replaced
+    traverse(
+      element,
+      {
+        enter: (path: Path<Element>) => {
+          if (this.isTranscluded(path.node)) path.skip();
+        },
+        leave: (path: Path<Element>) => {
+          const transclusion = this.transclusions.get(path.node);
+          if (path.node !== element && transclusion !== undefined) {
+            const transcludedElement = this.toTranscludedElement(path.node, transclusion);
+            this.run.transcluded.add(transcludedElement);
+            path.replaceWith(transcludedElement);
+          }
+        },
+      },
+      { mutable: true },
+    );
+
+    const rootTransclusion = this.transclusions.get(element);
+    if (rootTransclusion === undefined) return element;
+
+    // references leading back to the element may already be transcluded with it, so it's filled in place
+    const transcludedElement = this.toTranscludedElement(element, rootTransclusion);
+    if (transcludedElement.constructor !== element.constructor) return transcludedElement;
+    element.element = transcludedElement.element;
+    element.content = transcludedElement.content;
+    element.meta = transcludedElement.meta;
+    element.attributes = transcludedElement.attributes;
+    return element;
+  }
+
+  /**
+   * The element transcluded in place of a referencing element: its dereferenced target,
+   * annotated by the referencing element and overridden by its fields.
+   */
+  protected toTranscludedElement(referencingElement: Element, transclusion: Transclusion): Element {
+    if (transclusion.back && this.options.dereference.circular === 'replace') {
+      const refElement = new RefElement(transclusion.refURI, {
+        type: referencingElement.element,
+        uri: transclusion.origin,
+        [transclusion.kind === 'reusable' ? 'reference' : '$ref']: transclusion.refValue,
+      });
+      const replacer =
+        this.options.dereference.strategyOpts['arazzo-1']?.circularReplacer ??
+        this.options.dereference.circularReplacer;
+      return replacer(refElement);
+    }
+
+    const target = transclusion.target.element;
+
+    if (transclusion.kind === 'reusable') {
+      const reusableElement = referencingElement as ReusableElement;
+      const mergedElement = cloneShallow(target);
+      // annotate with info about original referencing element
+      mergedElement.meta.set('ref-fields', {
+        reference: transclusion.refValue,
+        value: toValue(reusableElement.value),
+      });
+      // annotate with info about origin
+      mergedElement.meta.set('ref-origin', transclusion.origin);
+      mergedElement.meta.set('ref-type', referencingElement.element);
+
+      // override value field if present for Parameter Objects
+      if (isParameterElement(mergedElement) && reusableElement.hasKey('value')) {
+        mergedElement.remove('value');
+        mergedElement.set('value', reusableElement.get('value'));
+      }
+
+      return mergedElement;
+    }
+
+    // Boolean JSON Schemas
+    if (isBooleanJSONSchemaElement(target)) {
+      const booleanJsonSchemaElement = cloneDeep<BooleanElement>(target);
+      // annotate referenced element with info about original referencing element
+      booleanJsonSchemaElement.meta.set('ref-fields', { $ref: transclusion.refValue });
+      // annotate referenced element with info about origin
+      booleanJsonSchemaElement.meta.set('ref-origin', transclusion.origin);
+      booleanJsonSchemaElement.meta.set('ref-type', referencingElement.element);
+      return booleanJsonSchemaElement;
+    }
+
+    if (!isJSONSchemaElement(target)) return target;
+
+    /**
+     * Creating a new version of JSON Schema by merging fields from referenced Schema with referencing one.
+     */
+    const mergedElement = cloneShallow<JSONSchemaElement>(target);
+    // existing keywords from referencing schema overrides ones from referenced schema
+    (referencingElement as JSONSchemaElement).forEach(
+      (value: Element, keyElement: Element, item: Element) => {
+        mergedElement.remove(toValue(keyElement) as string);
+        (mergedElement.content as Element[]).push(item);
+      },
+    );
+    mergedElement.remove('$ref');
+    // annotate referenced element with info about original referencing element
+    mergedElement.meta.set('ref-fields', { $ref: transclusion.refValue });
+    // annotate fragment with info about origin
+    mergedElement.meta.set('ref-origin', transclusion.origin);
+    mergedElement.meta.set('ref-type', referencingElement.element);
+
+    return mergedElement;
+  }
+
+  /**
+   * Indexes the `$id`-bearing schemas of a document for the run. Transcluded elements aren't
+   * indexed: they're copies of structures indexed where they're defined,
+   * and in a document dereferenced in place their shared structure would be walked once per path.
+   */
+  protected index$ids(element: Element): void {
+    if (this.schema$idIndex.has(element)) return;
+
+    const entries: { schema: JSONSchemaElement; $ids: string[] }[] = [];
+    traverse(element, {
+      enter: (path: Path<Element>) => {
+        if (this.isTranscluded(path.node)) {
+          path.skip();
+        } else if (isJSONSchemaElementWith$id(path.node)) {
+          entries.push({ schema: path.node as JSONSchemaElement, $ids: collectSchema$ids(path) });
+        }
+      },
+    });
+    this.schema$idIndex.set(element, entries);
+  }
+
+  /**
+   * Whether the element is transcluded in place of a referencing element, in this run or,
+   * when dereferencing in place, in an earlier one: transcluded elements carry the `ref-origin` meta.
+   */
+  protected isTranscluded(element: Element): boolean {
+    return (
+      this.run.transcluded.has(element) ||
+      (!element.isMetaEmpty && element.meta.hasKey('ref-origin'))
+    );
+  }
+
+  /**
+   * Dereferenced in place, a source may already hold transcluded elements.
+   */
+  public enter(path: Path<Element>) {
+    if (this.isTranscluded(path.node)) path.skip();
+  }
+
   public async ReusableElement(path: Path<Element>) {
     const referencingElement = path.node as ReusableElement;
 
+    // the fields of a Reusable Object hold no references
+    path.skip();
+
     // skip current Reusable Object if reference field is not defined as a string
     if (!isStringElement(referencingElement.reference)) {
-      path.skip();
       return;
     }
 
     // ignore if resolve.internal is false (Reusable Objects are internal references only)
     if (!this.options.resolve.internal) {
-      path.skip();
       return;
     }
-
-    // skip current Reusable Object as it's already been accessed, e.g. it was left unresolved
-    // within a component which has already been dereferenced
-    if (this.visited.has(referencingElement)) {
-      path.skip();
-      return;
-    }
-    this.visited.add(referencingElement);
 
     const runtimeExpression = toValue(referencingElement.reference) as string;
-    const indirectionsSize = this.indirections.length;
-
-    let referencedElement: Element;
 
     try {
       // parse the runtime expression
@@ -337,6 +670,7 @@ class Arazzo1DereferenceVisitor {
         tree.componentType,
         tree.componentName,
       ]);
+      let referencedElement: Element;
       try {
         referencedElement = jsonPointerEvaluate<Element>(
           (this.reference.value as ParseResultElement).result as ArazzoSpecification1Element,
@@ -349,68 +683,21 @@ class Arazzo1DereferenceVisitor {
         );
       }
 
-      this.indirections.push(referencingElement);
+      // the reference decides the type of the referenced component
+      const type =
+        (toValue(referencingElement.meta.get('referenced-element')) as string | undefined) ??
+        referencedElement.element;
 
-      // detect maximum depth of dereferencing
-      if (this.indirections.length > this.options.dereference.maxDepth) {
-        throw new MaximumDereferenceDepthError(
-          `Maximum dereference depth of "${this.options.dereference.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
-          { maxDepth: this.options.dereference.maxDepth, uri: this.reference.uri },
-        );
-      }
-
-      // detect cycle
-      const [ancestorsLineage, directAncestors] = this.toAncestorLineage(path);
-      if (ancestorsLineage.includes(referencedElement)) {
-        this.reference.refSet!.circular = true;
-
-        if (this.options.dereference.circular === 'error') {
-          throw new ApiDOMStructuredError('Circular reference detected', { runtimeExpression });
-        } else if (this.options.dereference.circular === 'replace') {
-          const refElement = new RefElement(runtimeExpression, {
-            type: referencingElement.element,
-            uri: this.reference.uri,
-            reference: runtimeExpression,
-          });
-          const replacer =
-            this.options.dereference.strategyOpts['arazzo-1']?.circularReplacer ??
-            this.options.dereference.circularReplacer;
-          const replacement = replacer(refElement);
-
-          path.replaceWith(replacement);
-          path.skip();
-          return;
-        }
-      }
-
-      /**
-       * Dive deep into the referenced element to dereference Reusable Objects nested within it.
-       * The referenced element is not otherwise traversed when only a fragment of the document is dereferenced.
-       *
-       * Unlike the JSON Schema dive, this one is not limited to circular detection modes: the transclusion
-       * below is skipped, so the dive is the only place nested Reusable Objects get dereferenced.
-       * The dive mutates the referenced element in place, so it's done at most once per referenced element.
-       */
-      if (!this.visited.has(referencedElement)) {
-        this.visited.add(referencedElement);
-        directAncestors.add(referencingElement);
-
-        const visitor = new Arazzo1DereferenceVisitor({
-          reference: this.reference,
-          indirections: [...this.indirections],
-          options: this.options,
-          schema$idIndex: this.schema$idIndex,
-          visited: this.visited,
-          ancestors: ancestorsLineage,
-        });
-        referencedElement = await traverseAsync(referencedElement, visitor, {
-          mutable: true,
-          skipVisited: 'skip',
-        });
-
-        directAncestors.delete(referencingElement);
-      }
+      await this.addTransclusion(path, referencedElement, type, this.reference, [], {
+        kind: 'reusable',
+        refValue: runtimeExpression,
+        refURI: runtimeExpression,
+        origin: this.reference.uri,
+      });
     } catch (error: unknown) {
+      // a referencing element is traversed again by every source containing it
+      if (this.run.failed.has(referencingElement)) return;
+      this.run.failed.add(referencingElement);
       this.handleError(
         `Error while dereferencing Reusable Object. Cannot resolve reference "${runtimeExpression}": ${(error as Error).message}`,
         error as Error,
@@ -419,52 +706,21 @@ class Arazzo1DereferenceVisitor {
         runtimeExpression,
         path,
       );
-      return;
-    } finally {
-      if (this.indirections.length > indirectionsSize) this.indirections.pop();
     }
-
-    /**
-     * Create a shallow clone of the referenced element to avoid modifying the original.
-     */
-    const mergedElement = cloneShallow(referencedElement);
-    // annotate with info about original referencing element
-    mergedElement.meta.set('ref-fields', {
-      reference: runtimeExpression,
-      value: toValue(referencingElement.value),
-    });
-    // annotate with info about origin
-    mergedElement.meta.set('ref-origin', this.reference.uri);
-    mergedElement.meta.set('ref-type', referencingElement.element);
-
-    // override value field if present for Parameter Objects
-    if (isParameterElement(mergedElement) && referencingElement.hasKey('value')) {
-      mergedElement.remove('value');
-      mergedElement.set('value', referencingElement.get('value'));
-    }
-
-    /**
-     * Transclude referencing element with merged referenced element.
-     */
-    path.replaceWith(mergedElement);
-    path.skip();
   }
 
   public async JSONSchemaElement(path: Path<Element>) {
     const referencingElement = path.node as JSONSchemaElement;
 
-    // skip current referencing schema as $ref keyword was not defined
-    if (!isStringElement(referencingElement.$ref)) {
-      return;
-    }
-
-    // skip current referencing element as it's already been accessed
-    if (this.indirections.includes(referencingElement)) {
+    if (this.isTranscluded(referencingElement)) {
       path.skip();
       return;
     }
 
-    const indirectionsSize = this.indirections.length;
+    // skip current referencing schema as $ref keyword was not defined
+    if (!isStringElement(referencingElement.$ref)) {
+      return;
+    }
 
     try {
       // compute baseURI using rules around $self, $id and $ref keywords
@@ -494,10 +750,11 @@ class Arazzo1DereferenceVisitor {
           const selector = $refBaseURI;
           const documentElement = (reference.value as ParseResultElement).result as Element;
           const referenceAsSchema = maybeRefractToJSONSchemaElement(documentElement);
+          this.index$ids(referenceAsSchema);
           // a document that is itself a fragment detached from its source carries
           // the $ids enclosing it only as `ancestorSchema$ids`: its $ids are then
           // indexed against the base that chain leaves in effect, and the chain
-          // prefixes the one of the located schema. A nested visitor rooted at a
+          // prefixes the one of the located schema. A visitor rooted at a
           // fragment of a whole document indexes that document against its own base.
           const rootNode = path.getAncestorNodes().at(-1) ?? path.node;
           const isDocumentRoot =
@@ -513,7 +770,6 @@ class Arazzo1DereferenceVisitor {
           if (isDocumentRoot) {
             ancestorSchema$ids = [...this.ancestorSchema$ids, ...ancestorSchema$ids];
           }
-          referencedElement = maybeRefractToJSONSchemaElement(referencedElement);
 
           // ignore resolving internal Schema Objects
           if (!this.options.resolve.internal && isInternalReference) {
@@ -551,7 +807,6 @@ class Arazzo1DereferenceVisitor {
             referenceAsSchema,
             selector,
           ));
-          referencedElement = maybeRefractToJSONSchemaElement(referencedElement);
         }
       } catch (error) {
         /**
@@ -584,7 +839,6 @@ class Arazzo1DereferenceVisitor {
               selector,
               referenceAsSchema,
             ));
-            referencedElement = maybeRefractToJSONSchemaElement(referencedElement);
           } else {
             // we're assuming here that we're dealing with JSON Pointer here
             retrievalURI = this.toBaseURI($refBaseURI);
@@ -611,150 +865,37 @@ class Arazzo1DereferenceVisitor {
               referenceAsSchema,
               selector,
             ));
-            referencedElement = maybeRefractToJSONSchemaElement(referencedElement);
           }
         } else {
           throw error;
         }
       }
 
-      this.indirections.push(referencingElement);
-
-      // detect direct or indirect reference
+      // detect direct reference
       if (referencingElement === referencedElement) {
         throw new ApiDOMStructuredError('Recursive JSON Schema reference detected', {
           $ref: toValue(referencingElement.$ref),
         });
       }
 
-      // detect maximum depth of dereferencing
-      if (this.indirections.length > this.options.dereference.maxDepth) {
-        throw new MaximumDereferenceDepthError(
-          `Maximum dereference depth of "${this.options.dereference.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
-          { maxDepth: this.options.dereference.maxDepth, uri: this.reference.uri },
-        );
-      }
-
-      // detect cross-boundary cycle
-      const [ancestorsLineage, directAncestors] = this.toAncestorLineage(path);
-      if (ancestorsLineage.includes(referencedElement)) {
-        reference.refSet!.circular = true;
-
-        if (this.options.dereference.circular === 'error') {
-          throw new ApiDOMStructuredError('Circular reference detected', {
-            $ref: toValue(referencingElement.$ref),
-          });
-        } else if (this.options.dereference.circular === 'replace') {
-          const refElement = new RefElement($refBaseURI, {
-            type: referencingElement.element,
-            uri: reference.uri,
-            $ref: toValue(referencingElement.$ref),
-          });
-          const replacer =
-            this.options.dereference.strategyOpts['arazzo-1']?.circularReplacer ??
-            this.options.dereference.circularReplacer;
-          const replacement = replacer(refElement);
-
-          path.replaceWith(replacement);
-          path.skip();
-          return;
-        }
-      }
-
-      /**
-       * Dive deep into the fragment.
-       *
-       * Cases to consider:
-       *  1. We're crossing document boundary
-       *  2. Fragment is from non-entry document
-       *  3. Fragment is a JSON Schema with $ref field. We need to follow it to get the eventual value
-       *  4. We are dereferencing the fragment lazily/eagerly depending on circular mode
-       */
-      const isNonEntryDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
-      const shouldDetectCircular = ['error', 'replace'].includes(this.options.dereference.circular);
-      // content transplanted into the referencing site is traversed under that
-      // site's $id chain; a fragment enclosed by a different chain has its own
-      // $refs resolved in place first, by a nested visitor seeded with that chain
-      const hasDifferentEnclosingBase =
-        resolveSchema$ids(
-          resolveArazzo$selfField(reference.uri, (reference.value as ParseResultElement).result),
-          ancestorSchema$ids,
-        ) !== resolveSchema$ids(rootBaseURI, schema$idsOf(path.getAncestorNodes().reverse()));
-      if (
-        (isExternalReference ||
-          isNonEntryDocument ||
-          hasDifferentEnclosingBase ||
-          (isJSONSchemaElement(referencedElement) && isStringElement(referencedElement.$ref)) ||
-          (shouldDetectCircular && !this.visited.has(referencedElement))) &&
-        !ancestorsLineage.includesCycle(referencedElement)
-      ) {
-        if (shouldDetectCircular) {
-          this.visited.add(referencedElement);
-        }
-
-        // append referencing reference to ancestors lineage
-        directAncestors.add(referencingElement);
-
-        const visitor = new Arazzo1DereferenceVisitor({
-          reference,
-          indirections: [...this.indirections],
-          options: this.options,
-          schema$idIndex: this.schema$idIndex,
-          visited: this.visited,
-          ancestors: ancestorsLineage,
-          ancestorSchema$ids,
-        });
-        referencedElement = await traverseAsync(referencedElement, visitor, {
-          mutable: true,
-          skipVisited: 'skip',
-        });
-
-        // remove referencing reference from ancestors lineage
-        directAncestors.delete(referencingElement);
-      }
-
-      // Boolean JSON Schemas
-      if (isBooleanJSONSchemaElement(referencedElement)) {
-        const booleanJsonSchemaElement = cloneDeep<BooleanElement>(referencedElement);
-        // annotate referenced element with info about original referencing element
-        booleanJsonSchemaElement.meta.set('ref-fields', {
-          $ref: toValue(referencingElement.$ref),
-        });
-        // annotate referenced element with info about origin
-        booleanJsonSchemaElement.meta.set('ref-origin', reference.uri);
-        booleanJsonSchemaElement.meta.set('ref-type', referencingElement.element);
-
-        path.replaceWith(booleanJsonSchemaElement);
-        path.skip();
-        return;
-      }
-
-      /**
-       * Creating a new version of JSON Schema by merging fields from referenced Schema with referencing one.
-       */
-      if (isJSONSchemaElement(referencedElement)) {
-        const mergedElement = cloneShallow<JSONSchemaElement>(referencedElement);
-        // existing keywords from referencing schema overrides ones from referenced schema
-        referencingElement.forEach((value: Element, keyElement: Element, item: Element) => {
-          mergedElement.remove(toValue(keyElement) as string);
-          (mergedElement.content as Element[]).push(item);
-        });
-        mergedElement.remove('$ref');
-        // annotate referenced element with info about original referencing element
-        mergedElement.meta.set('ref-fields', {
-          $ref: toValue(referencingElement.$ref),
-        });
-        // annotate fragment with info about origin
-        mergedElement.meta.set('ref-origin', reference.uri);
-        mergedElement.meta.set('ref-type', referencingElement.element);
-
-        referencedElement = mergedElement;
-      }
-      /**
-       * Transclude referencing element with merged referenced element.
-       */
-      path.replaceWith(referencedElement);
+      // a JSON Schema $ref reads whatever it points at as a JSON Schema
+      await this.addTransclusion(
+        path,
+        referencedElement,
+        JSON_SCHEMA_TYPE,
+        reference,
+        ancestorSchema$ids,
+        {
+          kind: 'schema',
+          refValue: toValue(referencingElement.$ref) as string,
+          refURI: $refBaseURI,
+          origin: reference.uri,
+        },
+      );
     } catch (error: unknown) {
+      // a referencing element is traversed again by every source containing it
+      if (this.run.failed.has(referencingElement)) return;
+      this.run.failed.add(referencingElement);
       const $ref = toValue(referencingElement.$ref) as string;
       this.handleError(
         `Error while dereferencing Schema Object. Cannot resolve $ref "${$ref}": ${(error as Error).message}`,
@@ -764,8 +905,6 @@ class Arazzo1DereferenceVisitor {
         $ref,
         path,
       );
-    } finally {
-      if (this.indirections.length > indirectionsSize) this.indirections.pop();
     }
   }
 }
