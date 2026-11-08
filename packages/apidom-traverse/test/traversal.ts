@@ -219,6 +219,20 @@ describe('traverse', function () {
 
         assert.deepEqual(keys, [0, 'value']);
       });
+
+      specify('should report no key for the root on leave', function () {
+        const keys: (PropertyKey | undefined)[] = [];
+        const visitor = {
+          leave(path: Path) {
+            if (path.parentPath === null) keys.push(path.key);
+          },
+        };
+
+        traverse(createRoot(), visitor);
+        traverse(new ArrayElement([new StringElement('a')]), visitor);
+
+        assert.deepEqual(keys, [undefined, undefined]);
+      });
     });
   });
 
