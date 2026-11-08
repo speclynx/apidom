@@ -56,7 +56,7 @@ Both `traverse` and `traverseAsync` accept an options object as the third argume
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `detectCycles` | `boolean` | `true` | Skip nodes that appear in the current ancestor chain (true identity cycles). |
-| `skipVisited` | `boolean` | `false` | Skip nodes already visited via a `WeakSet`. Prevents combinatorial explosion when traversing dereferenced trees with shared structure (DAG from `cloneShallow`). Set to `true` when traversing dereferenced ApiDOM trees. |
+| `skipVisited` | `'never'`, `'skip'` or `'enter-only'` | `'never'` | Handling of nodes already visited, tracked via a `WeakSet`: `'skip'` skips them entirely, `'enter-only'` still calls the visitor on them but doesn't descend into them. Prevents combinatorial explosion when traversing dereferenced trees with shared structure (DAG from `cloneShallow`). |
 | `mutable` | `boolean` | `false` | If `true`, edits modify the original tree in place. |
 | `keyMap` | `Record` or `function` | `getNodeKeys` | Maps node types to child property names for traversal. |
 | `nodeTypeGetter` | `function` | `getNodeType` | Returns the type name of a node. |

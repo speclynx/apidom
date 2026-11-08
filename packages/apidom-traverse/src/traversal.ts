@@ -59,9 +59,6 @@ export interface TraverseOptions<TNode> {
    *                  no-combinatorial-explosion guarantee.
    * Useful for traversing dereferenced trees that contain shared structure
    * from cloneShallow (DAG) which would otherwise cause combinatorial explosion.
-   *
-   * Legacy booleans are still accepted at runtime for backward compatibility:
-   * `false` maps to 'never' and `true` maps to 'skip'.
    */
   skipVisited?: SkipVisitedMode;
   /**
@@ -80,10 +77,17 @@ export interface TraverseOptions<TNode> {
 // Internal types for generator
 // =============================================================================
 
-const normalizeSkipVisited = (v: boolean | SkipVisitedMode | undefined): SkipVisitedMode => {
-  if (v === true) return 'skip';
-  if (v === false || v === undefined) return 'never';
-  return v;
+const skipVisitedModes: readonly unknown[] = ['never', 'skip', 'enter-only'];
+
+const normalizeSkipVisited = (skipVisited: SkipVisitedMode | undefined): SkipVisitedMode => {
+  if (skipVisited === undefined) return 'never';
+  // a boolean, accepted before the modes, would otherwise read as a mode other than 'never'
+  if (!skipVisitedModes.includes(skipVisited)) {
+    throw new ApiDOMStructuredError(`Invalid skipVisited option: ${String(skipVisited)}`, {
+      skipVisited,
+    });
+  }
+  return skipVisited;
 };
 
 interface VisitorCall<TNode> {
