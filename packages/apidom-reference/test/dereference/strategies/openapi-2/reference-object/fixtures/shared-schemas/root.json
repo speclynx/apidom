@@ -1,0 +1,233 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "t",
+    "version": "1"
+  },
+  "paths": {},
+  "definitions": {
+    "S0": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S1"
+        },
+        "b": {
+          "$ref": "#/definitions/S1"
+        }
+      }
+    },
+    "S1": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S2"
+        },
+        "b": {
+          "$ref": "#/definitions/S2"
+        }
+      }
+    },
+    "S2": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S3"
+        },
+        "b": {
+          "$ref": "#/definitions/S3"
+        }
+      }
+    },
+    "S3": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S4"
+        },
+        "b": {
+          "$ref": "#/definitions/S4"
+        }
+      }
+    },
+    "S4": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S5"
+        },
+        "b": {
+          "$ref": "#/definitions/S5"
+        }
+      }
+    },
+    "S5": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S6"
+        },
+        "b": {
+          "$ref": "#/definitions/S6"
+        }
+      }
+    },
+    "S6": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S7"
+        },
+        "b": {
+          "$ref": "#/definitions/S7"
+        }
+      }
+    },
+    "S7": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S8"
+        },
+        "b": {
+          "$ref": "#/definitions/S8"
+        }
+      }
+    },
+    "S8": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S9"
+        },
+        "b": {
+          "$ref": "#/definitions/S9"
+        }
+      }
+    },
+    "S9": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S10"
+        },
+        "b": {
+          "$ref": "#/definitions/S10"
+        }
+      }
+    },
+    "S10": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S11"
+        },
+        "b": {
+          "$ref": "#/definitions/S11"
+        }
+      }
+    },
+    "S11": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S12"
+        },
+        "b": {
+          "$ref": "#/definitions/S12"
+        }
+      }
+    },
+    "S12": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S13"
+        },
+        "b": {
+          "$ref": "#/definitions/S13"
+        }
+      }
+    },
+    "S13": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S14"
+        },
+        "b": {
+          "$ref": "#/definitions/S14"
+        }
+      }
+    },
+    "S14": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S15"
+        },
+        "b": {
+          "$ref": "#/definitions/S15"
+        }
+      }
+    },
+    "S15": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S16"
+        },
+        "b": {
+          "$ref": "#/definitions/S16"
+        }
+      }
+    },
+    "S16": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S17"
+        },
+        "b": {
+          "$ref": "#/definitions/S17"
+        }
+      }
+    },
+    "S17": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S18"
+        },
+        "b": {
+          "$ref": "#/definitions/S18"
+        }
+      }
+    },
+    "S18": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S19"
+        },
+        "b": {
+          "$ref": "#/definitions/S19"
+        }
+      }
+    },
+    "S19": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S20"
+        },
+        "b": {
+          "$ref": "#/definitions/S20"
+        }
+      }
+    },
+    "S20": {
+      "type": "string"
+    }
+  }
+}

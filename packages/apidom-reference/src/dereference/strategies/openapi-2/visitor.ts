@@ -122,7 +122,10 @@ class OpenAPI2DereferenceVisitor extends DereferenceVisitor<undefined> {
         throw new ApiDOMStructuredError('Recursive Reference Object detected', { $ref });
       }
 
-      const type = referencingElement.meta.get('referenced-element') as string;
+      // a reference without an expected type reads its target as its own type
+      const type =
+        (toValue(referencingElement.meta.get('referenced-element')) as string | undefined) ??
+        referencedElement.element;
       await this.addTransclusion(
         path,
         { source: referencedElement, type, reference, context: undefined },
@@ -295,7 +298,10 @@ class OpenAPI2DereferenceVisitor extends DereferenceVisitor<undefined> {
         throw new ApiDOMStructuredError('Recursive JSON Reference Object detected', { $ref });
       }
 
-      const type = referencingElement.meta.get('referenced-element') as string;
+      // a reference without an expected type reads its target as its own type
+      const type =
+        (toValue(referencingElement.meta.get('referenced-element')) as string | undefined) ??
+        referencedElement.element;
       await this.addTransclusion(
         path,
         { source: referencedElement, type, reference, context: undefined },

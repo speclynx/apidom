@@ -1,0 +1,49 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "t",
+    "version": "1"
+  },
+  "paths": {
+    "/a": {
+      "get": {
+        "operationId": "opA",
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/b": {
+      "get": {
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/R"
+          }
+        }
+      }
+    },
+    "/c": {
+      "get": {
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/R"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "R": {
+        "description": "r",
+        "links": {
+          "L": {
+            "operationId": "opA"
+          }
+        }
+      }
+    }
+  }
+}

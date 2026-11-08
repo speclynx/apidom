@@ -10,7 +10,11 @@ import {
   ParseResultElement,
 } from '@speclynx/apidom-datamodel';
 import { toValue } from '@speclynx/apidom-core';
-import { isParameterElement, mediaTypes } from '@speclynx/apidom-ns-openapi-3-0';
+import {
+  isParameterElement,
+  isReferenceElement,
+  mediaTypes,
+} from '@speclynx/apidom-ns-openapi-3-0';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 import { fileURLToPath } from 'node:url';
 
@@ -63,6 +67,82 @@ describe('dereference', function () {
 
             assert.strictEqual(header.element, 'header');
             assert.deepEqual(toValue(header), { description: 'h', schema: { type: 'string' } });
+          });
+        });
+
+        context('given Reference Objects sharing components', function () {
+          specify('should dereference each shared component once', async function () {
+            const rootFilePath = path.join(entryFixturePath, 'shared-schemas', 'root.json');
+            const dereferenced = await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            let schema = evaluate<Element>(dereferenced, '/0/components/schemas/S0') as any;
+
+            for (let depth = 0; depth < 19; depth += 1) {
+              const a = schema.get('properties').get('a');
+              const b = schema.get('properties').get('b');
+              assert.strictEqual(a.element, 'schema');
+              // both references transclude the same dereferenced schema
+              assert.strictEqual(a.get('properties'), b.get('properties'));
+              schema = a;
+            }
+            schema = schema.get('properties').get('a');
+            assert.deepEqual(toValue(schema), { type: 'string' });
+          });
+        });
+
+        context(
+          'given a fragment with an unresolvable reference referenced as different types',
+          function () {
+            specify('should report the unresolvable reference once', async function () {
+              const rootFilePath = path.join(
+                entryFixturePath,
+                'type-by-reference-unresolvable',
+                'root.json',
+              );
+              const errors: Error[] = [];
+              await dereference(rootFilePath, {
+                parse: { mediaType: mediaTypes.latest('json') },
+                dereference: { continueOnError: (error: Error) => errors.push(error) },
+              });
+
+              assert.lengthOf(errors, 1);
+            });
+          },
+        );
+
+        context('given Link Objects within a component referenced several times', function () {
+          specify('should not count Link Objects as followed references', async function () {
+            const rootFilePath = path.join(entryFixturePath, 'link-max-depth', 'root.json');
+            const dereferenced = await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: { maxDepth: 1 },
+            });
+            const response = evaluate<Element>(dereferenced, '/0/paths/~1c/get/responses/200');
+
+            assert.strictEqual(response.element, 'response');
+          });
+        });
+
+        context('given circular references with error mode and continueOnError', function () {
+          specify('should keep the failed references as written', async function () {
+            const rootFilePath = path.join(entryFixturePath, 'cycle-internal', 'entry.json');
+            const errors: Error[] = [];
+            const dereferenced = await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: {
+                circular: 'error',
+                continueOnError: (error: Error) => errors.push(error),
+              },
+            });
+            const parent = evaluate<Element>(
+              dereferenced,
+              '/0/components/schemas/User/properties/parent',
+            );
+
+            assert.lengthOf(errors, 1);
+            assert.isTrue(isReferenceElement(parent));
+            assert.doesNotThrow(() => JSON.stringify(toValue(dereferenced)));
           });
         });
 

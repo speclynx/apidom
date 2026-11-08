@@ -1,0 +1,30 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "t",
+    "version": "1"
+  },
+  "servers": {
+    "s": {
+      "url": "{v}.example.com",
+      "protocol": "kafka",
+      "variables": {
+        "v": {
+          "$ref": "#/components/serverVariables/V"
+        }
+      }
+    }
+  },
+  "channels": {},
+  "components": {
+    "serverVariables": {
+      "V": {
+        "enum": [
+          "a",
+          "b"
+        ],
+        "default": "a"
+      }
+    }
+  }
+}

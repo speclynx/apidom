@@ -1,0 +1,235 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "t",
+    "version": "1"
+  },
+  "channels": {},
+  "components": {
+    "schemas": {
+      "S0": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S1"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S1"
+          }
+        }
+      },
+      "S1": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S2"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S2"
+          }
+        }
+      },
+      "S2": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S3"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S3"
+          }
+        }
+      },
+      "S3": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S4"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S4"
+          }
+        }
+      },
+      "S4": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S5"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S5"
+          }
+        }
+      },
+      "S5": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S6"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S6"
+          }
+        }
+      },
+      "S6": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S7"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S7"
+          }
+        }
+      },
+      "S7": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S8"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S8"
+          }
+        }
+      },
+      "S8": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S9"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S9"
+          }
+        }
+      },
+      "S9": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S10"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S10"
+          }
+        }
+      },
+      "S10": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S11"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S11"
+          }
+        }
+      },
+      "S11": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S12"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S12"
+          }
+        }
+      },
+      "S12": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S13"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S13"
+          }
+        }
+      },
+      "S13": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S14"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S14"
+          }
+        }
+      },
+      "S14": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S15"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S15"
+          }
+        }
+      },
+      "S15": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S16"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S16"
+          }
+        }
+      },
+      "S16": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S17"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S17"
+          }
+        }
+      },
+      "S17": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S18"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S18"
+          }
+        }
+      },
+      "S18": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S19"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S19"
+          }
+        }
+      },
+      "S19": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/S20"
+          },
+          "b": {
+            "$ref": "#/components/schemas/S20"
+          }
+        }
+      },
+      "S20": {
+        "type": "string"
+      }
+    }
+  }
+}

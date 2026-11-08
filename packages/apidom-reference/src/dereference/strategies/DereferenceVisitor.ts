@@ -103,6 +103,8 @@ export interface Transclusion extends TransclusionSpec {
   readonly back: boolean;
   // the referencing element is kept as it is
   readonly keep: boolean;
+  // the target is attached without being dereferenced: it follows no references
+  readonly attachment: boolean;
 }
 
 /**
@@ -131,8 +133,11 @@ export interface DereferenceRun {
   readonly copies: WeakMap<object, object>;
   // elements transcluded in place of referencing elements: never traversed again
   readonly transcluded: WeakSet<Element>;
-  // referencing elements whose failure has been reported
+  // referencing elements whose failure has been reported: they're kept as written
   readonly failed: WeakSet<Element>;
+  // failures reported, by document, location and reference: a source read as several types
+  // holds a referencing element per type
+  readonly reported: Set<string>;
   // undoes the memoization of what's dereferenced or refracted, newest last
   readonly undo: (() => void)[];
 }
@@ -209,6 +214,7 @@ abstract class DereferenceVisitor<TContext = unknown> {
       copies: new WeakMap(),
       transcluded: new WeakSet(),
       failed: new WeakSet(),
+      reported: new Set(),
       undo: [],
     };
   }
@@ -387,8 +393,10 @@ abstract class DereferenceVisitor<TContext = unknown> {
 
     if (!isEntryDocument || continueOnError === false) throw unresolvedError;
     // a referencing element is traversed again by every source containing it: its failure is reported once
-    if (this.run.failed.has(referencingElement)) return;
     this.run.failed.add(referencingElement);
+    const failure = JSON.stringify([uri, location, refFieldName, refFieldValue]);
+    if (this.run.reported.has(failure)) return;
+    this.run.reported.add(failure);
     if (typeof continueOnError === 'function') continueOnError(unresolvedError);
   }
 
@@ -475,7 +483,7 @@ abstract class DereferenceVisitor<TContext = unknown> {
     }
 
     for (const transclusion of visitor.transclusions.values()) {
-      if (!transclusion.back) {
+      if (!transclusion.back && !transclusion.attachment) {
         dereferenced.height = Math.max(dereferenced.height, transclusion.target.height + 1);
       }
     }
@@ -531,16 +539,25 @@ abstract class DereferenceVisitor<TContext = unknown> {
       // an alias has no value before its own reference is transcluded: the referencing element
       // is kept, to be transcluded by an enclosing dereferenced element, if any
       const keep = existing.alias && this.options.dereference.circular === 'ignore';
-      this.transclusions.set(referencingCopy, { ...spec, target: existing, back: true, keep });
+      this.transclusions.set(referencingCopy, {
+        ...spec,
+        target: existing,
+        back: true,
+        keep,
+        attachment: false,
+      });
       return;
     }
 
     const dereferenced = existing ?? (await this.dereferenceAs(target, this.depth + 1));
+    // the referencing element failed while its target was dereferenced, e.g. as a circular reference
+    if (this.run.failed.has(path.node)) return;
     this.transclusions.set(referencingCopy, {
       ...spec,
       target: dereferenced,
       back: false,
       keep: false,
+      attachment: false,
     });
   }
 
@@ -567,6 +584,7 @@ abstract class DereferenceVisitor<TContext = unknown> {
       target: { element, done: true, height: 0, alias: false, unresolved: false },
       back: false,
       keep: false,
+      attachment: true,
     });
   }
 

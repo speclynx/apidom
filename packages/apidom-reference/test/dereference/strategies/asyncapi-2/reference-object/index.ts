@@ -66,6 +66,40 @@ describe('dereference', function () {
           });
         });
 
+        context('given Reference Objects sharing components', function () {
+          specify('should dereference each shared component once', async function () {
+            const rootFilePath = path.join(rootFixturePath, 'shared-schemas', 'root.json');
+            const dereferenced = await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            let schema = evaluate<Element>(dereferenced, '/0/components/schemas/S0') as any;
+
+            for (let depth = 0; depth < 19; depth += 1) {
+              const a = schema.get('properties').get('a');
+              const b = schema.get('properties').get('b');
+              assert.strictEqual(a.element, 'schema');
+              // both references transclude the same dereferenced schema
+              assert.strictEqual(a.get('properties'), b.get('properties'));
+              schema = a;
+            }
+            schema = schema.get('properties').get('a');
+            assert.deepEqual(toValue(schema), { type: 'string' });
+          });
+        });
+
+        context('given a Reference Object without an expected type', function () {
+          specify('should read its target as its own type', async function () {
+            const rootFilePath = path.join(rootFixturePath, 'server-variable', 'root.json');
+            const dereferenced = await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const variable = evaluate<Element>(dereferenced, '/0/servers/s/variables/v');
+
+            assert.strictEqual(variable.element, 'serverVariable');
+            assert.deepEqual(toValue(variable), { enum: ['a', 'b'], default: 'a' });
+          });
+        });
+
         context('given a fragment referenced as different types', function () {
           ['parameter-first.json', 'schema-first.json'].forEach((fixture) => {
             specify(`should read it as each expected type (${fixture})`, async function () {
