@@ -1,11 +1,19 @@
 import { propEq } from 'ramda';
 import {
   isElement,
-  isPrimitiveElement,
   Element,
   RefElement,
   ParseResultElement,
+  ObjectElement,
+  ArrayElement,
+  MemberElement,
+  StringElement,
+  NumberElement,
+  BooleanElement,
+  NullElement,
   cloneDeep,
+  cloneShallow,
+  isObjectElement,
 } from '@speclynx/apidom-datamodel';
 import { toYAML, toGeneric } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
@@ -20,6 +28,25 @@ import parse from '../../parse/index.ts';
 import Reference from '../../Reference.ts';
 import ReferenceSet from '../../ReferenceSet.ts';
 import type { ReferenceOptions } from '../../options/index.ts';
+
+const genericClasses = new Set<unknown>([
+  ObjectElement,
+  ArrayElement,
+  MemberElement,
+  StringElement,
+  NumberElement,
+  BooleanElement,
+  NullElement,
+]);
+
+/**
+ * Whether the element is generic ApiDOM: an instance of a primitive element class itself.
+ * Semantic elements may carry a primitive element name (e.g. a map of components named
+ * `object`), so the name alone doesn't tell.
+ * @internal
+ */
+export const isGenericElement = (element: Element): boolean =>
+  genericClasses.has(element.constructor);
 
 /**
  * A source dereferenced as one type: the source as that semantic type, with every reference
@@ -49,10 +76,12 @@ export interface TransclusionSpec {
    */
   readonly toTranscludedElement: (referencingElement: Element, target: Element) => Element;
   /**
-   * The element transcluded in place of the referencing element when its target is an alias
-   * whose reference never reaches a value. Without it, the referencing element is kept.
+   * Field holding the reference of an alias, for references merging their target with
+   * the fields next to them (e.g. `$ref`): a target that is an alias whose reference never
+   * reaches a value is merged without that field, so only the fields along the chain remain.
+   * Without it, a referencing element leading to such an alias is kept as written.
    */
-  readonly toUnresolvedElement?: (referencingElement: Element) => Element;
+  readonly aliasField?: string;
   /**
    * What a circular reference is reported and replaced with: the RefElement content and meta
    * for `dereference.circular: 'replace'`, the error details for `'error'`.
@@ -381,7 +410,7 @@ abstract class DereferenceVisitor<TContext = unknown> {
     const cached = byType.get(type);
     if (cached !== undefined) return cached;
 
-    const dereferenced = isPrimitiveElement(source)
+    const dereferenced = isGenericElement(source)
       ? source
       : (await this.dereferenceAs({ ...target, type: source.element }, depth)).element;
     // dereferencing the source may have led back to this very refraction
@@ -590,7 +619,12 @@ abstract class DereferenceVisitor<TContext = unknown> {
     if (transclusion.keep) return referencingElement;
     // an alias whose reference never reaches a value
     if (transclusion.target.unresolved) {
-      return transclusion.toUnresolvedElement?.(referencingElement) ?? referencingElement;
+      const { aliasField } = transclusion;
+      const alias = transclusion.target.element;
+      if (aliasField === undefined || !isObjectElement(alias)) return referencingElement;
+      const fields = cloneShallow(alias);
+      fields.remove(aliasField);
+      return transclusion.toTranscludedElement(referencingElement, fields);
     }
 
     if (transclusion.back && this.options.dereference.circular === 'replace') {
