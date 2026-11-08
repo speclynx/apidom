@@ -144,7 +144,6 @@ function* traverseGenerator<TNode>(
     const isEdited = isLeaving && edits.length !== 0;
 
     if (isLeaving) {
-      key = ancestors.length === 0 ? undefined : (currentPath as Path<TNode> | null)?.key;
       node = parent as TNode;
       parent = ancestors.pop();
       parentPath = (currentPath as Path<TNode> | null)?.parentPath?.parentPath ?? null;
@@ -188,12 +187,13 @@ function* traverseGenerator<TNode>(
         revisitNoDescend = stack.revisitNoDescend;
         stack = stack.prev;
 
+        // the restored index locates the leaving node in its parent
+        key = parentInArray ? index : (keys[index] as PropertyKey);
+
         // Push the edited node to parent's edits for propagation up the tree
-        // Use the restored index to get the correct key for this node in its parent
         // Only needed in immutable mode - mutable mode modifies in place
         if (isEdited && !mutable) {
-          const editKey = parentInArray ? index : (keys[index] as PropertyKey);
-          edits.push([editKey, node]);
+          edits.push([key, node]);
         }
         inArray = parentInArray;
       }
