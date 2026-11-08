@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.0.1](https://github.com/speclynx/apidom/compare/v7.0.0...v7.0.1) (2026-11-08)
+
+### Bug Fixes
+
+- **datamodel:** freeze children that are already frozen ([#770](https://github.com/speclynx/apidom/issues/770)) ([bdff8da](https://github.com/speclynx/apidom/commit/bdff8daefc02b49cf84b804a93e3622b6aff6613)), closes [#769](https://github.com/speclynx/apidom/issues/769)
+
 # [7.0.0](https://github.com/speclynx/apidom/compare/v6.2.0...v7.0.0) (2026-11-08)
 
 ### Bug Fixes
