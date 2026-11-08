@@ -35,7 +35,6 @@ export type {
   default as BundleStrategy,
   BundleStrategyOptions,
 } from '../../../bundle/strategies/BundleStrategy.ts';
-export type { AncestorLineage } from '../../util.ts';
 
 /**
  * @public
