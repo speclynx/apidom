@@ -327,6 +327,7 @@
     "@speclynx/apidom-parser-adapter-yaml-1-2": "6.2.0",
     "@speclynx/apidom-traverse": "6.2.0",
     "@swaggerexpert/arazzo-runtime-expression": "^3.2.0",
+    "@swaggerexpert/media-types": "^1.0.3",
     "axios": "^1.21.0",
     "picomatch": "^4.0.7",
     "ramda": "~0.32.0",

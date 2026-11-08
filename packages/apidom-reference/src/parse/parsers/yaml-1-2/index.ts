@@ -4,6 +4,7 @@ import {
   mediaTypes as YAMLMediaTypes,
   detect,
 } from '@speclynx/apidom-parser-adapter-yaml-1-2';
+import { selectBestMatch } from '@swaggerexpert/media-types';
 
 import ParserError from '../../../errors/ParserError.ts';
 import Parser, { ParserOptions } from '../Parser.ts';
@@ -32,7 +33,7 @@ class YAML1Parser extends Parser {
   async canParse(file: File): Promise<boolean> {
     const hasSupportedFileExtension =
       this.fileExtensions.length === 0 ? true : this.fileExtensions.includes(file.extension);
-    const hasSupportedMediaType = this.mediaTypes.includes(file.mediaType);
+    const hasSupportedMediaType = selectBestMatch(this.mediaTypes, file.mediaType) !== null;
 
     if (!hasSupportedFileExtension) return false;
     if (hasSupportedMediaType) return true;

@@ -5,6 +5,7 @@ import {
   includesClasses,
 } from '@speclynx/apidom-datamodel';
 import { isArazzoSpecification1Element, mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
+import { matches, selectBestMatch } from '@swaggerexpert/media-types';
 
 import DereferenceStrategy, { DereferenceStrategyOptions } from '../DereferenceStrategy.ts';
 import File from '../../../File.ts';
@@ -59,8 +60,8 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
 
   canDereference(file: File): boolean {
     // assert by media type
-    if (file.mediaType !== 'text/plain') {
-      return mediaTypes.includes(file.mediaType);
+    if (!matches('text/plain', file.mediaType)) {
+      return selectBestMatch(mediaTypes, file.mediaType) !== null;
     }
 
     // assert by inspecting ApiDOM

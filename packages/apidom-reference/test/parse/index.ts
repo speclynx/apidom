@@ -155,4 +155,77 @@ describe('parse', function () {
       }
     });
   });
+
+  context('given a media type listed by a parser', function () {
+    // detection of an earlier configured parser (OpenAPI YAML 3.0) matches this OpenAPI 3.1 document
+    const uri = path.join(__dirname, 'fixtures', 'openapi-3-1-with-3-0-text.yaml');
+
+    specify('should parse with that parser before the detecting ones', async function () {
+      const options = mergeOptions(defaultOptions, {
+        parse: { mediaType: 'application/openapi+yaml;version=3.1.2' },
+      });
+      const parseResult = await parse(uri, options);
+
+      assert.strictEqual(parseResult.api?.element, 'openApi3_1');
+    });
+
+    specify('should ignore whitespace around the media type', async function () {
+      const options = mergeOptions(defaultOptions, {
+        parse: { mediaType: ' application/openapi+yaml;version=3.1.2\t' },
+      });
+      const parseResult = await parse(uri, options);
+
+      assert.strictEqual(parseResult.api?.element, 'openApi3_1');
+    });
+
+    specify('should compare media types per RFC 9110', async function () {
+      const options = mergeOptions(defaultOptions, {
+        parse: { mediaType: 'Application/OpenAPI+YAML; Version=3.1.2; charset=utf-8' },
+      });
+      const parseResult = await parse(uri, options);
+
+      assert.strictEqual(parseResult.api?.element, 'openApi3_1');
+    });
+  });
+
+  context('given a JSON media type', function () {
+    // the JSON parser lists it, but the configured order puts the OpenAPI parsers first
+    const uri = path.join(__dirname, 'fixtures', 'sample-openapi-3-1-api.json');
+
+    ['application/json', 'application/json; charset=utf-8'].forEach((jsonMediaType) => {
+      specify(
+        `should parse ${jsonMediaType} with the parser detecting the file`,
+        async function () {
+          const options = mergeOptions(defaultOptions, { parse: { mediaType: jsonMediaType } });
+          const parseResult = await parse(uri, options);
+
+          assert.strictEqual(parseResult.api?.element, 'openApi3_1');
+        },
+      );
+    });
+  });
+
+  context('given a media type that is not a string', function () {
+    specify('should parse with the parser detecting the file', async function () {
+      const uri = path.join(__dirname, 'fixtures', 'sample-openapi-3-1-api.json');
+      const options = mergeOptions(defaultOptions, {
+        parse: { mediaType: null as unknown as string },
+      });
+      const parseResult = await parse(uri, options);
+
+      assert.strictEqual(parseResult.api?.element, 'openApi3_1');
+    });
+  });
+
+  context('given a media type of a parser that fails', function () {
+    specify('should fall back to the parsers detecting the file', async function () {
+      const uri = path.join(__dirname, 'fixtures', 'sample-openapi-3-1-api.json');
+      const options = mergeOptions(defaultOptions, {
+        parse: { mediaType: 'application/vnd.apidom' },
+      });
+      const parseResult = await parse(uri, options);
+
+      assert.strictEqual(parseResult.api?.element, 'openApi3_1');
+    });
+  });
 });

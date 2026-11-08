@@ -1,6 +1,7 @@
 import { pick } from 'ramda';
 import { ParseResultElement } from '@speclynx/apidom-datamodel';
 import { parse, mediaTypes as JSONMediaTypes, detect } from '@speclynx/apidom-parser-adapter-json';
+import { selectBestMatch } from '@swaggerexpert/media-types';
 
 import ParserError from '../../../errors/ParserError.ts';
 import Parser, { ParserOptions } from '../Parser.ts';
@@ -27,7 +28,7 @@ class JSONParser extends Parser {
   async canParse(file: File): Promise<boolean> {
     const hasSupportedFileExtension =
       this.fileExtensions.length === 0 ? true : this.fileExtensions.includes(file.extension);
-    const hasSupportedMediaType = this.mediaTypes.includes(file.mediaType);
+    const hasSupportedMediaType = selectBestMatch(this.mediaTypes, file.mediaType) !== null;
 
     if (!hasSupportedFileExtension) return false;
     if (hasSupportedMediaType) return true;

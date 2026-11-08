@@ -34,6 +34,14 @@ describe('resolve', function () {
 
         assert.strictEqual(refSet.size, 2);
       });
+
+      specify('should match the media type per RFC 9110', async function () {
+        const refSet = await resolve(rootFilePath, {
+          parse: { mediaType: 'Application/OpenAPI+JSON; Version=3.1.2; charset=utf-8' },
+        });
+
+        assert.strictEqual(refSet.size, 2);
+      });
     });
 
     context('resolveApiDOM', function () {

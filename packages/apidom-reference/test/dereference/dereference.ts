@@ -39,6 +39,39 @@ describe('dereference', function () {
 
       assert.deepEqual(toValue(actual), expected);
     });
+
+    specify('should match the media type per RFC 9110', async function () {
+      const actual = await dereference(rootFilePath, {
+        parse: { mediaType: 'Application/OpenAPI+JSON; Version=3.1.2; charset=utf-8' },
+      });
+
+      assert.deepEqual(toValue(actual), expected);
+    });
+
+    specify(
+      'should detect the document given a media type that is not a string',
+      async function () {
+        const actual = await dereference(rootFilePath, {
+          parse: { mediaType: null as unknown as string },
+        });
+
+        assert.deepEqual(toValue(actual), expected);
+      },
+    );
+
+    specify('should detect the document given a blank media type', async function () {
+      const actual = await dereference(rootFilePath, { parse: { mediaType: '  ' } });
+
+      assert.deepEqual(toValue(actual), expected);
+    });
+
+    specify('should detect the document given text/plain with parameters', async function () {
+      const actual = await dereference(rootFilePath, {
+        parse: { mediaType: 'text/plain; charset=utf-8' },
+      });
+
+      assert.deepEqual(toValue(actual), expected);
+    });
   });
 
   context('given provided ReferenceSet', function () {

@@ -1,4 +1,5 @@
 import { Namespace, ParseResultElement, isParseResultElement } from '@speclynx/apidom-datamodel';
+import { selectBestMatch } from '@swaggerexpert/media-types';
 
 import ParserError from '../../../errors/ParserError.ts';
 import Parser, { ParserOptions } from '../Parser.ts';
@@ -37,7 +38,7 @@ class ApiDOMJSONParser extends Parser {
   canParse(file: File): boolean {
     const hasSupportedFileExtension =
       this.fileExtensions.length === 0 ? true : this.fileExtensions.includes(file.extension);
-    const hasSupportedMediaType = this.mediaTypes.includes(file.mediaType);
+    const hasSupportedMediaType = selectBestMatch(this.mediaTypes, file.mediaType) !== null;
 
     if (!hasSupportedFileExtension) return false;
     if (hasSupportedMediaType) return true;
