@@ -1,38 +1,33 @@
-import { propEq } from 'ramda';
 import {
-  isElement,
   isStringElement,
   Element,
   BooleanElement,
-  RefElement,
   ParseResultElement,
   cloneDeep,
   cloneShallow,
 } from '@speclynx/apidom-datamodel';
-import { toValue, toYAML } from '@speclynx/apidom-core';
+import { toValue } from '@speclynx/apidom-core';
 import { ApiDOMStructuredError } from '@speclynx/apidom-error';
-import { traverse, traverseAsync, type Path } from '@speclynx/apidom-traverse';
-import { evaluate, URIFragmentIdentifier } from '@speclynx/apidom-json-pointer';
+import type { Path } from '@speclynx/apidom-traverse';
 import {
-  ChannelItemElement,
+  evaluate as jsonPointerEvaluate,
+  URIFragmentIdentifier,
+} from '@speclynx/apidom-json-pointer';
+import {
   isReferenceLikeElement,
-  isBooleanJSONSchemaElement,
+  ReferenceElement,
+  ChannelItemElement,
   isChannelItemElement,
   isReferenceElement,
-  ReferenceElement,
+  isSchemaElement,
+  isBooleanJSONSchemaElement,
   refract,
   refractReference,
-  refractChannelItem,
 } from '@speclynx/apidom-ns-asyncapi-2';
 
-import UnresolvableReferenceError from '../../../errors/UnresolvableReferenceError.ts';
-import MaximumDereferenceDepthError from '../../../errors/MaximumDereferenceDepthError.ts';
-import MaximumResolveDepthError from '../../../errors/MaximumResolveDepthError.ts';
-import { AncestorLineage } from '../../util.ts';
+import DereferenceVisitor from '../DereferenceVisitor.ts';
 import * as url from '../../../util/url.ts';
-import parse from '../../../parse/index.ts';
 import Reference from '../../../Reference.ts';
-import ReferenceSet from '../../../ReferenceSet.ts';
 import type { ReferenceOptions } from '../../../options/index.ts';
 
 /**
@@ -41,386 +36,123 @@ import type { ReferenceOptions } from '../../../options/index.ts';
 export interface AsyncAPI2DereferenceVisitorOptions {
   readonly reference: Reference;
   readonly options: ReferenceOptions;
-  readonly indirections?: Element[];
-  readonly refractCache?: WeakMap<Element, Element>;
-  readonly ancestors?: AncestorLineage<Element>;
-  readonly visited?: WeakSet<Element>;
 }
 
 /**
+ * Dereferences an AsyncAPI 2 document. Reference Objects expect the type of their
+ * `referenced-element` meta, Channel Item `$ref`s a Channel Item Object.
+ *
  * @public
  */
-class AsyncAPI2DereferenceVisitor {
-  protected readonly indirections: Element[];
-
-  protected readonly reference: Reference;
-
-  protected readonly options: ReferenceOptions;
-
-  protected readonly refractCache: WeakMap<Element, Element>;
-
-  protected readonly visited: WeakSet<Element>;
-
-  /**
-   * Tracks element ancestors across dive-deep traversal boundaries.
-   * Used for cycle detection: if a referenced element is found in
-   * the ancestor lineage, a circular reference is detected.
-   */
-  protected readonly ancestors: AncestorLineage<Element>;
-
-  constructor({
-    reference,
-    options,
-    indirections = [],
-    ancestors = new AncestorLineage(),
-    refractCache = new WeakMap(),
-    visited = new WeakSet(),
-  }: AsyncAPI2DereferenceVisitorOptions) {
-    this.indirections = indirections;
-    this.reference = reference;
-    this.options = options;
-    this.ancestors = new AncestorLineage(...ancestors);
-    this.refractCache = refractCache;
-    this.visited = visited;
+class AsyncAPI2DereferenceVisitor extends DereferenceVisitor<undefined> {
+  protected get strategyName(): string {
+    return 'asyncapi-2';
   }
 
-  protected toAncestorLineage(path: Path<Element>): [AncestorLineage<Element>, Set<Element>] {
-    const ancestorNodes = path.getAncestorNodes();
-    const directAncestors = new Set<Element>(ancestorNodes.filter(isElement));
-    const ancestorsLineage = new AncestorLineage(...this.ancestors, directAncestors);
-    return [ancestorsLineage, directAncestors];
-  }
-
-  protected toBaseURI(uri: string): string {
-    return url.resolve(this.reference.uri, url.sanitize(url.stripHash(uri)));
-  }
-
-  protected async toReference(uri: string): Promise<Reference> {
-    // detect maximum depth of resolution
-    if (this.reference.depth >= this.options.resolve.maxDepth) {
-      throw new MaximumResolveDepthError(
-        `Maximum resolution depth of ${this.options.resolve.maxDepth} has been exceeded by file "${this.reference.uri}"`,
-        { maxDepth: this.options.resolve.maxDepth, uri: this.reference.uri },
-      );
-    }
-
-    const baseURI = this.toBaseURI(uri);
-    const { refSet } = this.reference as { refSet: ReferenceSet };
-
-    // we've already processed this Reference in past
-    if (refSet.has(baseURI)) {
-      return refSet.find(propEq(baseURI, 'uri'))!;
-    }
-
-    const parseResult = await parse(url.unsanitize(baseURI), {
-      ...this.options,
-      parse: { ...this.options.parse, mediaType: 'text/plain' },
-    });
-
-    // register new mutable reference with a refSet
-    //
-    // NOTE(known limitation): the mutable reference is mutated in place during traversal
-    // (via `{ mutable: true }`). When an external document evaluates a JSON pointer back
-    // into this document, it may receive an already-resolved element instead of the original
-    // $ref. That resolved element was produced using the entry document's resolution context
-    // (ancestors, indirections), which may differ from the external document's context.
-    // This can affect cycle detection in rare cross-document circular reference patterns.
-    //
-    // Remediation: evaluate JSON pointers against the immutable (original) parse tree
-    // instead of the mutable working copy. The `immutable://` reference below preserves
-    // the original tree and could be used for pointer evaluation, ensuring every resolution
-    // context always sees raw, unresolved elements and processes them with its own
-    // ancestors/indirections. The trade-off is that elements referenced by multiple
-    // documents would be resolved once per context instead of being reused.
-    const mutableReference = new Reference({
-      uri: baseURI,
-      value: this.options.dereference.immutable ? cloneDeep(parseResult) : parseResult,
-      depth: this.reference.depth + 1,
-    });
-    refSet.add(mutableReference);
-
-    if (this.options.dereference.immutable) {
-      // register new immutable reference with a refSet
-      const immutableReference = new Reference({
-        uri: `immutable://${baseURI}`,
-        value: parseResult,
-        depth: this.reference.depth + 1,
-      });
-      refSet.add(immutableReference);
-    }
-
-    return mutableReference;
+  protected createVisitor(reference: Reference): AsyncAPI2DereferenceVisitor {
+    return new AsyncAPI2DereferenceVisitor({ reference, options: this.options });
   }
 
   /**
-   * Handles an error according to the continueOnError option.
-   *
-   * For new errors: wraps in UnresolvableReferenceError with structured context
-   * (type, uri, location, codeFrame, refFieldName, refFieldValue, trace).
-   * For errors already wrapped by a nested visitor: prepends the current hop to the trace.
-   *
-   * Inner/intermediate visitors always throw to let the trace accumulate.
-   * Only the entry document visitor respects continueOnError (callback/swallow/throw).
+   * A Reference Object stands for the type its reference expects: it's dereferenced as that type.
    */
-  protected handleError(
-    message: string,
-    error: Error,
-    referencingElement: Element,
-    refFieldName: string,
-    refFieldValue: string,
-    visitorPath: Path<Element>,
-  ): void {
-    const { continueOnError } = this.options.dereference;
-    const isEntryDocument =
-      url.stripHash(this.reference.refSet?.rootRef?.uri ?? '') === this.reference.uri;
-    const uri = this.reference.uri;
-    const type = referencingElement.element as string;
-    const codeFrame = toYAML(referencingElement);
+  protected isOfType(element: Element, type: string): boolean {
+    if (isReferenceElement(element)) return true;
+    return type === 'schema'
+      ? isSchemaElement(element) || isBooleanJSONSchemaElement(element)
+      : element.element === type;
+  }
 
-    // find element location by identity in the document tree.
-    // guarded: this.reference.value may not be a ParseResultElement or may lack a result.
-    // falls back to visitorPath which may produce an incomplete path when
-    // dereferenceApiDOM is called with a fragment (cloneShallow creates a new root identity).
-    let location: string | undefined;
-    const root = (this.reference.value as ParseResultElement).result;
-    if (isElement(root)) {
-      traverse(root, {
-        enter: (p: Path<Element>) => {
-          if (
-            p.node === referencingElement ||
-            this.refractCache.get(p.node) === referencingElement
-          ) {
-            location = p.formatPath();
-            p.stop();
-          }
-        },
-      });
+  /**
+   * A generic structure holding a `$ref` is a Reference Object to the expected type,
+   * unless the type has its own `$ref` field (Channel Item Object).
+   */
+  protected refractTo(element: Element, type: string): Element {
+    if (type !== 'channelItem' && isReferenceLikeElement(element)) {
+      const referenceElement = refractReference(element);
+      referenceElement.meta.set('referenced-element', type);
+      return referenceElement;
     }
-    location ??= visitorPath.formatPath();
-
-    const hop = { uri, type, refFieldName, refFieldValue, location, codeFrame };
-
-    // enrich existing error from nested visitor or create new one
-    let unresolvedError: UnresolvableReferenceError;
-    if (error instanceof UnresolvableReferenceError) {
-      // prefix relative locations for entries belonging to the referenced document
-      const refBaseURI = this.toBaseURI(refFieldValue);
-      const fragment = URIFragmentIdentifier.fromURIReference(refFieldValue);
-      if (fragment) {
-        if (refBaseURI === (error as any).uri && (error as any).location) {
-          (error as any).location = fragment + (error as any).location;
-        }
-        for (const h of (error as any).trace) {
-          if (h.uri === refBaseURI && h.location) h.location = fragment + h.location;
-        }
-      }
-      // @ts-ignore
-      error.trace = [hop, ...error.trace];
-      unresolvedError = error;
-    } else {
-      unresolvedError = new UnresolvableReferenceError(message, {
-        cause: error,
-        type,
-        uri,
-        location,
-        codeFrame,
-        refFieldName,
-        refFieldValue,
-        trace: [],
-      });
-    }
-
-    if (!isEntryDocument || continueOnError === false) throw unresolvedError;
-    if (typeof continueOnError === 'function') continueOnError(unresolvedError);
+    return refract(element, { element: type });
   }
 
   public async ReferenceElement(path: Path<Element>) {
     const referencingElement = path.node as ReferenceElement;
 
+    // the fields of a Reference Object hold no references
+    path.skip();
+
     // ignore Reference Object without a string $ref, e.g. an empty YAML value
-    if (!isStringElement(referencingElement.$ref)) {
+    if (this.isTranscluded(referencingElement) || !isStringElement(referencingElement.$ref)) {
       return;
     }
 
-    // skip current referencing element as it's already been access
-    if (this.indirections.includes(referencingElement)) {
-      path.skip();
-      return;
-    }
-
-    const retrievalURI = this.toBaseURI(toValue(referencingElement.$ref) as string);
+    const $ref = toValue(referencingElement.$ref) as string;
+    const retrievalURI = this.toBaseURI($ref);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
     const isExternalReference = !isInternalReference;
 
     // ignore resolving internal Reference Objects
     if (!this.options.resolve.internal && isInternalReference) {
-      // skip traversing this reference and all it's child elements
-      path.skip();
       return;
     }
     // ignore resolving external Reference Objects
     if (!this.options.resolve.external && isExternalReference) {
-      // skip traversing this reference and all it's child elements
-      path.skip();
       return;
     }
 
-    const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
-    const indirectionsSize = this.indirections.length;
+    const $refBaseURI = url.resolve(retrievalURI, $ref);
 
     try {
-      const reference = await this.toReference(toValue(referencingElement.$ref) as string);
-
-      this.indirections.push(referencingElement);
-
+      const reference = await this.toReference($ref);
       const jsonPointer = URIFragmentIdentifier.fromURIReference($refBaseURI);
-
       // possibly non-semantic fragment
-      let referencedElement = evaluate<Element>(
+      const referencedElement = jsonPointerEvaluate<Element>(
         (reference.value as ParseResultElement).result as Element,
         jsonPointer,
       );
 
-      // applying semantics to a fragment
-      const referencedElementType = referencingElement.meta.get('referenced-element') as string;
-      if (
-        referencedElement.element !== referencedElementType &&
-        !isReferenceElement(referencedElement)
-      ) {
-        if (this.refractCache.has(referencedElement)) {
-          referencedElement = this.refractCache.get(referencedElement)!;
-        } else if (isReferenceLikeElement(referencedElement)) {
-          // handling generic indirect references
-          const sourceElement = referencedElement;
-          referencedElement = refractReference(referencedElement);
-          referencedElement.meta.set('referenced-element', referencedElementType);
-          this.refractCache.set(sourceElement, referencedElement);
-        } else {
-          // handling direct references
-          const sourceElement = referencedElement;
-          referencedElement = refract(referencedElement, { element: referencedElementType });
-          this.refractCache.set(sourceElement, referencedElement);
-        }
-      }
-
-      // detect direct or circular reference
+      // detect direct reference
       if (referencingElement === referencedElement) {
-        throw new ApiDOMStructuredError('Recursive Reference Object detected', {
-          $ref: toValue(referencingElement.$ref),
-        });
+        throw new ApiDOMStructuredError('Recursive Reference Object detected', { $ref });
       }
 
-      // detect maximum depth of dereferencing
-      if (this.indirections.length > this.options.dereference.maxDepth) {
-        throw new MaximumDereferenceDepthError(
-          `Maximum dereference depth of "${this.options.dereference.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
-          { maxDepth: this.options.dereference.maxDepth, uri: this.reference.uri },
-        );
-      }
+      const type = referencingElement.meta.get('referenced-element') as string;
+      await this.addTransclusion(
+        path,
+        { source: referencedElement, type, reference, context: undefined },
+        {
+          toTranscludedElement: (element, target) => {
+            // a chain of Reference Objects leading back to itself never reaches a value
+            if (isReferenceElement(target)) return element;
 
-      // detect second deep dive into the same fragment and avoid it
-      const [ancestorsLineage, directAncestors] = this.toAncestorLineage(path);
-      if (ancestorsLineage.includes(referencedElement)) {
-        reference.refSet!.circular = true;
+            // Boolean JSON Schemas
+            if (isBooleanJSONSchemaElement(target)) {
+              const booleanJsonSchemaElement = cloneDeep<BooleanElement>(target);
+              // annotate referenced element with info about original referencing element
+              booleanJsonSchemaElement.meta.set('ref-fields', { $ref });
+              // annotate referenced element with info about origin
+              booleanJsonSchemaElement.meta.set('ref-origin', reference.uri);
+              booleanJsonSchemaElement.meta.set('ref-type', element.element);
+              return booleanJsonSchemaElement;
+            }
 
-        if (this.options.dereference.circular === 'error') {
-          throw new ApiDOMStructuredError('Circular reference detected', {
-            $ref: toValue(referencingElement.$ref),
-          });
-        } else if (this.options.dereference.circular === 'replace') {
-          const refElement = new RefElement($refBaseURI, {
-            type: referencingElement.element,
-            uri: reference.uri,
-            $ref: toValue(referencingElement.$ref),
-          });
-          const replacer =
-            this.options.dereference.strategyOpts['asyncapi-2']?.circularReplacer ??
-            this.options.dereference.circularReplacer;
-          const replacement = replacer(refElement);
+            /**
+             * Creating a new version of referenced element to avoid modifying the original one.
+             */
+            const mergedElement = cloneShallow(target);
+            // annotate referenced element with info about original referencing element
+            mergedElement.meta.set('ref-fields', { $ref });
+            // annotate fragment with info about origin
+            mergedElement.meta.set('ref-origin', reference.uri);
+            mergedElement.meta.set('ref-type', element.element);
 
-          path.replaceWith(replacement);
-          path.skip();
-          return;
-        }
-      }
-
-      /**
-       * Dive deep into the fragment.
-       *
-       * Cases to consider:
-       *  1. We're crossing document boundary
-       *  2. Fragment is from non-entry document
-       *  3. Fragment is a Reference Object. We need to follow it to get the eventual value
-       *  4. We are dereferencing the fragment lazily/eagerly depending on circular mode
-       */
-      const isNonEntryDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
-      const shouldDetectCircular = ['error', 'replace'].includes(this.options.dereference.circular);
-      if (
-        (isExternalReference ||
-          isNonEntryDocument ||
-          isReferenceElement(referencedElement) ||
-          (shouldDetectCircular && !this.visited.has(referencedElement))) &&
-        !ancestorsLineage.includesCycle(referencedElement)
-      ) {
-        if (shouldDetectCircular) {
-          this.visited.add(referencedElement);
-        }
-
-        // append referencing reference to ancestors lineage
-        directAncestors.add(referencingElement);
-
-        const visitor = new AsyncAPI2DereferenceVisitor({
-          reference,
-          indirections: [...this.indirections],
-          options: this.options,
-          refractCache: this.refractCache,
-          visited: this.visited,
-          ancestors: ancestorsLineage,
-        });
-        referencedElement = await traverseAsync(referencedElement, visitor, {
-          mutable: true,
-          skipVisited: 'skip',
-        });
-
-        // remove referencing reference from ancestors lineage
-        directAncestors.delete(referencingElement);
-      }
-
-      // Boolean JSON Schemas
-      if (isBooleanJSONSchemaElement(referencedElement as unknown)) {
-        const booleanJsonSchemaElement = cloneDeep(referencedElement) as BooleanElement;
-        // annotate referenced element with info about original referencing element
-        booleanJsonSchemaElement.meta.set('ref-fields', {
-          $ref: toValue(referencingElement.$ref),
-        });
-        // annotate referenced element with info about origin
-        booleanJsonSchemaElement.meta.set('ref-origin', reference.uri);
-        booleanJsonSchemaElement.meta.set('ref-type', referencingElement.element);
-
-        path.replaceWith(booleanJsonSchemaElement);
-        path.skip();
-        return;
-      }
-
-      /**
-       * Creating a new version of referenced element to avoid modifying the original one.
-       */
-      const mergedElement = cloneShallow(referencedElement);
-      // annotate referenced element with info about original referencing element
-      mergedElement.meta.set('ref-fields', {
-        $ref: toValue(referencingElement.$ref),
-      });
-      // annotate fragment with info about origin
-      mergedElement.meta.set('ref-origin', reference.uri);
-      mergedElement.meta.set('ref-type', referencingElement.element);
-
-      /**
-       * Transclude referencing element with merged referenced element.
-       */
-      path.replaceWith(mergedElement);
-      path.skip();
+            return mergedElement;
+          },
+          circular: { uri: $refBaseURI, meta: { uri: reference.uri, $ref }, details: { $ref } },
+        },
+      );
     } catch (error: unknown) {
-      const $ref = toValue(referencingElement.$ref) as string;
       this.handleError(
         `Error while dereferencing Reference Object. Cannot resolve $ref "${$ref}": ${(error as Error).message}`,
         error as Error,
@@ -429,178 +161,94 @@ class AsyncAPI2DereferenceVisitor {
         $ref,
         path,
       );
-    } finally {
-      if (this.indirections.length > indirectionsSize) this.indirections.pop();
     }
   }
 
   public async ChannelItemElement(path: Path<Element>) {
     const referencingElement = path.node as ChannelItemElement;
 
+    if (this.isTranscluded(referencingElement)) {
+      path.skip();
+      return;
+    }
+
     // ignore ChannelItemElement without $ref field
     if (!isStringElement(referencingElement.$ref)) {
       return;
     }
 
-    // skip current referencing element as it's already been access
-    if (this.indirections.includes(referencingElement)) {
-      path.skip();
-      return;
-    }
-
-    const retrievalURI = this.toBaseURI(toValue(referencingElement.$ref) as string);
+    const $ref = toValue(referencingElement.$ref) as string;
+    const retrievalURI = this.toBaseURI($ref);
     const isInternalReference = url.stripHash(this.reference.uri) === retrievalURI;
     const isExternalReference = !isInternalReference;
 
     // ignore resolving internal Channel Item Objects
     if (!this.options.resolve.internal && isInternalReference) {
-      // skip traversing this channel item but traverse all it's child elements
+      // skip traversing this Channel Item element but traverse all it's child elements
       return;
     }
     // ignore resolving external Channel Item Objects
     if (!this.options.resolve.external && isExternalReference) {
-      // skip traversing this channel item but traverse all it's child elements
+      // skip traversing this Channel Item element but traverse all it's child elements
       return;
     }
 
-    const $refBaseURI = url.resolve(retrievalURI, toValue(referencingElement.$ref) as string);
-    const indirectionsSize = this.indirections.length;
+    const $refBaseURI = url.resolve(retrievalURI, $ref);
 
     try {
-      const reference = await this.toReference(toValue(referencingElement.$ref) as string);
-
-      this.indirections.push(referencingElement);
-
+      const reference = await this.toReference($ref);
       const jsonPointer = URIFragmentIdentifier.fromURIReference($refBaseURI);
-
       // possibly non-semantic referenced element
-      let referencedElement = evaluate<Element>(
+      const referencedElement = jsonPointerEvaluate<Element>(
         (reference.value as ParseResultElement).result as Element,
         jsonPointer,
       );
 
-      // applying semantics to a referenced element
-      if (!isChannelItemElement(referencedElement)) {
-        if (this.refractCache.has(referencedElement)) {
-          referencedElement = this.refractCache.get(referencedElement)!;
-        } else {
-          const sourceElement = referencedElement;
-          referencedElement = refractChannelItem(referencedElement);
-          this.refractCache.set(sourceElement, referencedElement);
-        }
-      }
-
-      // detect direct or indirect reference
+      // detect direct reference
       if (referencingElement === referencedElement) {
         throw new ApiDOMStructuredError('Recursive Channel Item Object reference detected', {
-          $ref: toValue(referencingElement.$ref),
+          $ref,
         });
       }
 
-      // detect maximum depth of dereferencing
-      if (this.indirections.length > this.options.dereference.maxDepth) {
-        throw new MaximumDereferenceDepthError(
-          `Maximum dereference depth of "${this.options.dereference.maxDepth}" has been exceeded in file "${this.reference.uri}"`,
-          { maxDepth: this.options.dereference.maxDepth, uri: this.reference.uri },
-        );
-      }
-
-      // detect second deep dive into the same fragment and avoid it
-      const [ancestorsLineage, directAncestors] = this.toAncestorLineage(path);
-      if (ancestorsLineage.includes(referencedElement)) {
-        reference.refSet!.circular = true;
-
-        if (this.options.dereference.circular === 'error') {
-          throw new ApiDOMStructuredError('Circular reference detected', {
-            $ref: toValue(referencingElement.$ref),
-          });
-        } else if (this.options.dereference.circular === 'replace') {
-          const refElement = new RefElement($refBaseURI, {
-            type: referencingElement.element,
-            uri: reference.uri,
-            $ref: toValue(referencingElement.$ref),
-          });
-          const replacer =
-            this.options.dereference.strategyOpts['asyncapi-2']?.circularReplacer ??
-            this.options.dereference.circularReplacer;
-          const replacement = replacer(refElement);
-
-          path.replaceWith(replacement);
-          return;
-        }
-      }
-
-      /**
-       * Dive deep into the fragment.
-       *
-       * Cases to consider:
-       *  1. We're crossing document boundary
-       *  2. Fragment is from non-entry document
-       *  3. Fragment is a Channel Item Object with $ref field. We need to follow it to get the eventual value
-       *  4. We are dereferencing the fragment lazily/eagerly depending on circular mode
-       */
-      const isNonEntryDocument = url.stripHash(reference.refSet!.rootRef!.uri) !== reference.uri;
-      const shouldDetectCircular = ['error', 'replace'].includes(this.options.dereference.circular);
-      if (
-        (isExternalReference ||
-          isNonEntryDocument ||
-          (isChannelItemElement(referencedElement) && isStringElement(referencedElement.$ref)) ||
-          (shouldDetectCircular && !this.visited.has(referencedElement))) &&
-        !ancestorsLineage.includesCycle(referencedElement)
-      ) {
-        if (shouldDetectCircular) {
-          this.visited.add(referencedElement);
-        }
-
-        // append referencing reference to ancestors lineage
-        directAncestors.add(referencingElement);
-
-        const visitor = new AsyncAPI2DereferenceVisitor({
+      await this.addTransclusion(
+        path,
+        {
+          source: referencedElement,
+          type: 'channelItem',
           reference,
-          indirections: [...this.indirections],
-          options: this.options,
-          refractCache: this.refractCache,
-          visited: this.visited,
-          ancestors: ancestorsLineage,
-        });
-        referencedElement = await traverseAsync(referencedElement, visitor, {
-          mutable: true,
-          skipVisited: 'skip',
-        });
+          context: undefined,
+        },
+        {
+          toTranscludedElement: (element, target) => {
+            if (!isChannelItemElement(target)) return target;
 
-        // remove referencing reference from ancestors lineage
-        directAncestors.delete(referencingElement);
-      }
+            /**
+             * Creating a new version of Channel Item by merging fields from referenced Channel Item with referencing one.
+             */
+            const mergedElement = cloneShallow<ChannelItemElement>(target);
+            // existing keywords from referencing ChannelItemElement overrides ones from referenced element
+            (element as ChannelItemElement).forEach(
+              (value: Element, keyElement: Element, item: Element) => {
+                mergedElement.remove(toValue(keyElement) as string);
+                (mergedElement.content as Element[]).push(item);
+              },
+            );
+            mergedElement.remove('$ref');
 
-      /**
-       * Creating a new version of Channel Item by merging fields from referenced Channel Item with referencing one.
-       */
-      if (isChannelItemElement(referencedElement)) {
-        const mergedElement = cloneShallow<ChannelItemElement>(referencedElement);
-        // existing keywords from referencing ChannelItemElement overrides ones from referenced ChannelItemElement
-        referencingElement.forEach((value: Element, keyElement: Element, item: Element) => {
-          mergedElement.remove(toValue(keyElement) as string);
-          (mergedElement.content as Element[]).push(item);
-        });
-        mergedElement.remove('$ref');
+            // annotate referenced element with info about original referencing element
+            mergedElement.meta.set('ref-fields', { $ref });
+            // annotate referenced element with info about origin and type
+            mergedElement.meta.set('ref-origin', reference.uri);
+            mergedElement.meta.set('ref-type', element.element);
 
-        // annotate referenced element with info about original referencing element
-        mergedElement.meta.set('ref-fields', {
-          $ref: toValue(referencingElement.$ref),
-        });
-        // annotate referenced with info about origin
-        mergedElement.meta.set('ref-origin', reference.uri);
-        mergedElement.meta.set('ref-type', referencingElement.element);
-
-        referencedElement = mergedElement;
-      }
-
-      /**
-       * Transclude referencing element with merged referenced element.
-       */
-      path.replaceWith(referencedElement);
+            return mergedElement;
+          },
+          aliasField: '$ref',
+          circular: { uri: $refBaseURI, meta: { uri: reference.uri, $ref }, details: { $ref } },
+        },
+      );
     } catch (error: unknown) {
-      const $ref = toValue(referencingElement.$ref) as string;
       this.handleError(
         `Error while dereferencing Channel Item Object. Cannot resolve $ref "${$ref}": ${(error as Error).message}`,
         error as Error,
@@ -609,8 +257,6 @@ class AsyncAPI2DereferenceVisitor {
         $ref,
         path,
       );
-    } finally {
-      if (this.indirections.length > indirectionsSize) this.indirections.pop();
     }
   }
 }

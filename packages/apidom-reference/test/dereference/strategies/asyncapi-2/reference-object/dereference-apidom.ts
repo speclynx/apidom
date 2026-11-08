@@ -1,11 +1,6 @@
 import path from 'node:path';
 import { assert } from 'chai';
-import {
-  mediaTypes,
-  isSchemaElement,
-  isParameterElement,
-  ReferenceElement,
-} from '@speclynx/apidom-ns-asyncapi-2';
+import { mediaTypes, isParameterElement, ReferenceElement } from '@speclynx/apidom-ns-asyncapi-2';
 import { toValue } from '@speclynx/apidom-core';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 import { fileURLToPath } from 'node:url';
@@ -138,7 +133,8 @@ describe('dereference', function () {
                   resolve: { baseURI: fixturePath },
                 });
 
-                assert.isTrue(isSchemaElement(dereferenced));
+                // the Reference Object is a Parameter Object reference: its target is read as one
+                assert.isTrue(isParameterElement(dereferenced));
               });
 
               specify('should dereference and contain metadata about origin', async function () {
@@ -188,7 +184,8 @@ describe('dereference', function () {
                   resolve: { baseURI: `http://localhost:${httpPort}/root.json` },
                 });
 
-                assert.isTrue(isSchemaElement(dereferenced));
+                // the Reference Object is a Parameter Object reference: its target is read as one
+                assert.isTrue(isParameterElement(dereferenced));
               });
 
               specify('should dereference and contain metadata about origin', async function () {

@@ -1,0 +1,34 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "t",
+    "version": "1"
+  },
+  "channels": {
+    "c/{p}": {
+      "parameters": {
+        "p": {
+          "$ref": "#/x-shared"
+        }
+      },
+      "subscribe": {
+        "message": {
+          "payload": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "S": {
+        "$ref": "#/x-shared"
+      }
+    }
+  },
+  "x-shared": {
+    "description": "d",
+    "type": "string"
+  }
+}
