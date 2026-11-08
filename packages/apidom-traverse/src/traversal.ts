@@ -187,13 +187,14 @@ function* traverseGenerator<TNode>(
         revisitNoDescend = stack.revisitNoDescend;
         stack = stack.prev;
 
-        // the restored index locates the leaving node in its parent
-        key = parentInArray ? index : (keys[index] as PropertyKey);
+        // the restored index locates the leaving node in its parent; the root has no parent
+        const keyInParent = parentInArray ? index : (keys[index] as PropertyKey);
+        key = parent === undefined ? undefined : keyInParent;
 
         // Push the edited node to parent's edits for propagation up the tree
         // Only needed in immutable mode - mutable mode modifies in place
         if (isEdited && !mutable) {
-          edits.push([key, node]);
+          edits.push([keyInParent, node]);
         }
         inArray = parentInArray;
       }
