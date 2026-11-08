@@ -150,6 +150,9 @@ export interface DereferenceVisitorOptions {
   readonly options: ReferenceOptions;
 }
 
+// errors and trace hops whose location is relative to the source a nested visitor traversed
+const relativeLocations = new WeakSet<object>();
+
 /**
  * Dereferences a document by the type each reference expects of its target. With the immutable
  * option the documents aren't edited and the result is a new tree; otherwise they're
@@ -356,10 +359,13 @@ abstract class DereferenceVisitor<TContext = unknown> {
         },
       });
     }
+    // not found, the location is relative to the traversed source: an enclosing visitor prefixes it
+    const isRelative = location === undefined && refractedFromLocation === undefined;
     // within a refraction, the visitor path is relative to the refracted source
     location ??= (refractedFromLocation ?? '') + visitorPath.formatPath();
 
     const hop = { uri, type, refFieldName, refFieldValue, location, codeFrame };
+    if (isRelative) relativeLocations.add(hop);
 
     // enrich existing error from nested visitor or create new one
     let unresolvedError: UnresolvableReferenceError;
@@ -368,11 +374,11 @@ abstract class DereferenceVisitor<TContext = unknown> {
       const refBaseURI = this.toBaseURI(refFieldValue);
       const fragment = URIFragmentIdentifier.fromURIReference(refFieldValue);
       if (fragment) {
-        if (refBaseURI === (error as any).uri && (error as any).location) {
-          (error as any).location = fragment + (error as any).location;
-        }
-        for (const h of (error as any).trace) {
-          if (h.uri === refBaseURI && h.location) h.location = fragment + h.location;
+        for (const entry of [error, ...(error as any).trace]) {
+          if (relativeLocations.has(entry) && entry.uri === refBaseURI && entry.location) {
+            entry.location = fragment + entry.location;
+            relativeLocations.delete(entry);
+          }
         }
       }
       // @ts-ignore
@@ -389,6 +395,7 @@ abstract class DereferenceVisitor<TContext = unknown> {
         refFieldValue,
         trace: [],
       });
+      if (isRelative) relativeLocations.add(unresolvedError);
     }
 
     if (!isEntryDocument || continueOnError === false) throw unresolvedError;

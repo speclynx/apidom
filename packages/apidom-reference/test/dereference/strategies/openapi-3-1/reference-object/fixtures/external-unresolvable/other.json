@@ -1,0 +1,16 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "o", "version": "1" },
+  "paths": {},
+  "components": {
+    "responses": {
+      "r": {
+        "description": "d",
+        "headers": {
+          "h": { "$ref": "#/components/headers/missing" }
+        }
+      }
+    },
+    "headers": {}
+  }
+}
