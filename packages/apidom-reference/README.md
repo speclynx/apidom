@@ -2057,7 +2057,7 @@ of an already loaded Arazzo document resolves to that document by identity, with
 
 With `dereference.immutable` (the default) the dereferenced documents aren't edited: the result is a new tree.
 With `dereference.immutable: false` the documents are dereferenced in place and the dereferenced
-ParseResultElement itself is returned. Elements transcluded in place of references carry the `ref-origin` meta
+ParseResultElement itself is returned. Elements transcluded in place of references carry the `ref-type` meta
 and aren't traversed again, so dereferencing a document dereferenced in place earlier leaves those parts as they are.
 
 The **reference decides the type of what it points at**. A Reusable Object (`reference` field holding
