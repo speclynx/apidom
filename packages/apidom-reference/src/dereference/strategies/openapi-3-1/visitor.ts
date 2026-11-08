@@ -7,7 +7,6 @@ import {
   isParseResultElement,
   isPrimitiveElement,
   Element,
-  ObjectElement,
   BooleanElement,
   ParseResultElement,
   cloneShallow,
@@ -139,10 +138,11 @@ class OpenAPI3_1DereferenceVisitor extends DereferenceVisitor<OpenAPI3_1Derefere
   }
 
   /**
-   * A generic structure holding a `$ref` is a Reference Object to the expected type.
+   * A generic structure holding a `$ref` is a Reference Object to the expected type,
+   * unless the type has its own `$ref` field (Path Item Object, Schema Object).
    */
   protected refractTo(element: Element, type: string): Element {
-    if (type !== SCHEMA_TYPE && isReferenceLikeElement(element)) {
+    if (type !== SCHEMA_TYPE && type !== 'pathItem' && isReferenceLikeElement(element)) {
       const referenceElement = refractReference(element);
       referenceElement.meta.set('referenced-element', type);
       return referenceElement;
@@ -367,12 +367,7 @@ class OpenAPI3_1DereferenceVisitor extends DereferenceVisitor<OpenAPI3_1Derefere
 
             return mergedElement;
           },
-          // a cycle of Path Item $refs never reaches a Path Item: only the fields next to the $ref remain
-          toUnresolvedElement: (element) => {
-            const siblingsElement = cloneShallow(element as ObjectElement);
-            siblingsElement.remove('$ref');
-            return siblingsElement;
-          },
+          aliasField: '$ref',
           circular: { uri: $refBaseURI, meta: { uri: reference.uri, $ref }, details: { $ref } },
         },
       );
@@ -818,12 +813,7 @@ class OpenAPI3_1DereferenceVisitor extends DereferenceVisitor<OpenAPI3_1Derefere
 
             return mergedElement;
           },
-          // a cycle of $ref aliases never reaches a schema: only the keywords next to the $ref remain
-          toUnresolvedElement: (element) => {
-            const siblingsElement = cloneShallow(element as ObjectElement);
-            siblingsElement.remove('$ref');
-            return siblingsElement;
-          },
+          aliasField: '$ref',
           circular: { uri: $refBaseURI, meta: { uri: origin, $ref }, details: { $ref } },
         },
       );
