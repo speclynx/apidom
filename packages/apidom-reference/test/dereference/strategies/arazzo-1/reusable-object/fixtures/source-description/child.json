@@ -1,0 +1,39 @@
+{
+  "arazzo": "1.1.0",
+  "info": {
+    "title": "child",
+    "version": "1"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "api",
+      "url": "https://example.com/openapi.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "cw",
+      "steps": [
+        {
+          "stepId": "s",
+          "operationId": "op",
+          "parameters": [
+            {
+              "reference": "$components.parameters.q"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": {
+    "parameters": {
+      "q": {
+        "name": "q",
+        "in": "query",
+        "value": "2"
+      }
+    }
+  }
+}

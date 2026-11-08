@@ -2,8 +2,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assert } from 'chai';
 import { toValue } from '@speclynx/apidom-core';
+import { includesClasses, isParseResultElement } from '@speclynx/apidom-datamodel';
 import {
   isParameterElement,
+  isReusableElement,
   isSuccessActionElement,
   mediaTypes,
 } from '@speclynx/apidom-ns-arazzo-1';
@@ -326,6 +328,43 @@ describe('dereference', function () {
             assert.doesNotThrow(() => JSON.stringify(toValue(actual)));
             assert.isFalse(refSet.circular);
           });
+        });
+
+        context('given Source Descriptions parsed into the document', function () {
+          const rootFilePath = path.join(rootFixturePath, 'source-description', 'root.json');
+          const childOf = (actual: any) =>
+            (actual.content as any[]).find(
+              (item) => isParseResultElement(item) && includesClasses(item, ['source-description']),
+            );
+
+          specify('should leave the Source Descriptions as parsed', async function () {
+            const actual = await dereference(rootFilePath, {
+              parse: {
+                mediaType: mediaTypes.latest('json'),
+                parserOpts: { sourceDescriptions: true },
+              },
+            });
+            const parameter = childOf(actual).api.workflows.get(0).steps.get(0).parameters.get(0);
+
+            assert.isTrue(isReusableElement(parameter));
+          });
+
+          specify(
+            'should dereference the Source Descriptions in their own context when requested',
+            async function () {
+              const actual = await dereference(rootFilePath, {
+                parse: {
+                  mediaType: mediaTypes.latest('json'),
+                  parserOpts: { sourceDescriptions: true },
+                },
+                dereference: { strategyOpts: { sourceDescriptions: true } },
+              });
+              const parameter = childOf(actual).api.workflows.get(0).steps.get(0).parameters.get(0);
+
+              assert.isTrue(isParameterElement(parameter));
+              assert.deepEqual(toValue(parameter), { name: 'q', in: 'query', value: '2' });
+            },
+          );
         });
 
         context('given unresolvable Reusable Element nested in shared component', function () {
