@@ -635,6 +635,49 @@ describe('Element', function () {
       });
     });
 
+    specify('sets the parent of a child also held in meta', function () {
+      const child = new StringElement('hello');
+      const element = new Element([child]);
+      element.meta.set('ref', child);
+
+      assert.doesNotThrow(() => element.freeze());
+      assert.isTrue(child.isFrozen);
+      assert.strictEqual(child.parent, element);
+    });
+
+    specify('freezes a child already frozen through the meta of a sibling', function () {
+      const child = new StringElement('hello');
+      const sibling = new Element();
+      sibling.meta.set('ref', child);
+      const element = new Element([sibling, child]);
+
+      assert.doesNotThrow(() => element.freeze());
+      assert.isTrue(child.isFrozen);
+      assert.isUndefined(child.parent);
+    });
+
+    specify('freezes attributes that are already frozen', function () {
+      const element = new Element('hello');
+      element.attributes.set('version', 1);
+      const other = new Element('other');
+      other.attributes = element.attributes;
+      element.freeze();
+
+      assert.doesNotThrow(() => other.freeze());
+      assert.strictEqual(other.attributes.parent, element);
+    });
+
+    specify('keeps the parent of a child shared by two parents', function () {
+      const child = new StringElement('hello');
+      const first = new Element([child]);
+      const second = new Element([child]);
+      const element = new Element([first, second]);
+
+      assert.doesNotThrow(() => element.freeze());
+      assert.strictEqual(child.parent, first);
+      assert.isTrue(second.isFrozen);
+    });
+
     specify('allows calling freeze on frozen element as no-op', function () {
       // We must actually set values on meta/attributes for this test to work
       // We are protecting against trying to set parent on children elements
