@@ -59,6 +59,11 @@ export { default as toString } from './transformers/to-string.ts';
 
 export { default as sexprs } from './transformers/sexprs.ts';
 
+/**
+ * Transforms ApiDOM into generic ApiDOM.
+ */
+export { default as toGeneric } from './transformers/to-generic.ts';
+
 export { default as deepmerge } from './merge/deepmerge.ts';
 export type {
   DeepMergeUserOptions,
