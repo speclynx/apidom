@@ -2002,11 +2002,12 @@ every strategy differs significantly. `Dereference component` comes with six (6)
 The `arazzo-1`, `asyncapi-2`, `openapi-2`, `openapi-3-0` and `openapi-3-1` strategies dereference by **the type each reference expects of its target**, so
 a structure referenced as different types (e.g. as a Parameter Object and as a Header Object) is read as each of them.
 Every referenced structure is dereferenced once per type and shared by all the references reading it as that type,
-so documents sharing structures along many paths are dereferenced in linear time. A reference leading back to
+so a structure shared along many paths isn't walked again for each of them. A reference leading back to
 a structure that's still being dereferenced is a circular reference, handled per `dereference.circular`; with
 the default `ignore`, a cycle of references that never reaches a value keeps Reference Objects as written, while
-`$ref`s merging their target with sibling fields (Path Item Objects, Schema Objects) leave only the sibling fields.
-Each unresolvable reference is reported once to `dereference.continueOnError`. With `dereference.immutable` (the
+`$ref`s merging their target with sibling fields (Path Item Objects, Channel Item Objects, and Schema Objects in
+`arazzo-1` and `openapi-3-1`) leave only the sibling fields. Each unresolvable reference is reported once per place
+it's written in to `dereference.continueOnError`. With `dereference.immutable` (the
 default) the dereferenced documents aren't edited and the result is a new tree; with `dereference.immutable: false`
 they're dereferenced in place. Elements transcluded in place of references carry the `ref-type` meta and aren't
 traversed again.
@@ -2029,6 +2030,9 @@ Supported media types:
 ##### [asyncapi-2](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/dereference/strategies/asyncapi-2)
 
 Dereference strategy for dereferencing [AsyncApi 2.x.y](https://github.com/asyncapi/spec/blob/master/spec/asyncapi.md) definitions.
+
+Reference Objects expect the type of the field holding them (one without an expected type, e.g. a Server Variable
+reference, reads its target as its own type) and Channel Item `$ref`s a Channel Item Object.
 
 Supported media types:
 
@@ -2384,6 +2388,9 @@ dereferenceExtends(
 
 Dereference strategy for dereferencing [OpenApi 2.0](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md) definitions.
 
+Reference Objects and JSON Reference Objects expect the type of the field holding them and Path Item `$ref`s a Path
+Item Object.
+
 Supported media types:
 
 ```js
@@ -2397,6 +2404,10 @@ Supported media types:
 ##### [openapi-3-0](https://github.com/speclynx/apidom/tree/main/packages/apidom-reference/src/dereference/strategies/openapi-3-0)
 
 Dereference strategy for dereferencing [OpenApi 3.0.x](https://spec.openapis.org/oas/v3.0.4.html) definitions.
+
+Reference Objects expect the type of the field holding them and Path Item `$ref`s a Path Item Object. Link Objects
+get the Operation Object they point at attached to their `operationRef` or `operationId` meta, and Example Objects
+get their `externalValue` as `value`, as in the `openapi-3-1` strategy.
 
 Supported media types:
 
@@ -2426,7 +2437,9 @@ Dereference strategy for dereferencing [OpenApi 3.1.x](https://spec.openapis.org
 
 Reference Objects expect the type of the field holding them, Path Item `$ref`s a Path Item Object and Schema Object
 `$ref`s a Schema Object. Link Objects get the Operation Object they point at attached to their `operationRef` or
-`operationId` meta, and Example Objects get their `externalValue` as `value`; these targets aren't dereferenced.
+`operationId` meta, and Example Objects get their `externalValue` as `value`. These targets are attached rather than
+dereferenced: an Operation Object of the same document is attached as dereferenced with it, one of another document
+as it is.
 
 Supported media types:
 
