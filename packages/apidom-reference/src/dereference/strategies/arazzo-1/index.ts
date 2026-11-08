@@ -90,7 +90,9 @@ class Arazzo1DereferenceStrategy extends DereferenceStrategy {
       options,
       ancestorSchema$ids: detachedRootSchema$ids(root.result),
     });
-    const dereferencedElement: Element = await visitor.dereference(root);
+    const dereferencedElement: Element = await visitor.dereference(root, {
+      ancestorSchema$ids: detachedRootSchema$ids(root.result),
+    });
 
     /**
      * Dereference source descriptions if option is enabled.
