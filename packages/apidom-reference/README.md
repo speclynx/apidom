@@ -1999,7 +1999,7 @@ const dereferenced = await dereferenceApiDOM(apidom, {
 Dereference strategy determines how a document is internally or externally dereferenced. Depending on document `mediaType` option,
 every strategy differs significantly. `Dereference component` comes with six (6) default dereference strategies.
 
-The `arazzo-1` and `openapi-3-1` strategies dereference by **the type each reference expects of its target**, so
+The `arazzo-1`, `openapi-3-0` and `openapi-3-1` strategies dereference by **the type each reference expects of its target**, so
 a structure referenced as different types (e.g. as a Parameter Object and as a Header Object) is read as each of them.
 Every referenced structure is dereferenced once per type and shared by all the references reading it as that type,
 so documents sharing structures along many paths are dereferenced in linear time. A reference leading back to
