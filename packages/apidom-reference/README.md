@@ -2074,6 +2074,10 @@ and `replace` substitutes a `RefElement` processed by the `circularReplacer`
 (`dereference.strategyOpts['arazzo-1'].circularReplacer` takes precedence over `dereference.circularReplacer`).
 Circular references are handled the same way for Reusable Objects and JSON Schema `$ref`s.
 
+Source Descriptions parsed into the document (`parse.parserOpts.sourceDescriptions`) are never dereferenced in
+the context of the document referencing them: they're left as parsed, or dereferenced in their own context when
+the `sourceDescriptions` strategy option is set.
+
 Supported media types:
 
 ```js

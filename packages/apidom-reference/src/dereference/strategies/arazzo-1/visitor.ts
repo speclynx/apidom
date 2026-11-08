@@ -4,6 +4,7 @@ import {
   isStringElement,
   isParseResultElement,
   isPrimitiveElement,
+  includesClasses,
   Element,
   RefElement,
   BooleanElement,
@@ -624,7 +625,19 @@ class Arazzo1DereferenceVisitor {
    * Dereferenced in place, a source may already hold transcluded elements.
    */
   public enter(path: Path<Element>) {
-    if (this.isTranscluded(path.node)) path.skip();
+    if (this.isTranscluded(path.node)) {
+      path.skip();
+      return;
+    }
+    // a Source Description parsed into the document has its own components: it's dereferenced
+    // in its own context by the strategy, never by the document referencing it
+    if (
+      path.parentPath !== null &&
+      isParseResultElement(path.node) &&
+      includesClasses(path.node, ['source-description'])
+    ) {
+      path.skip();
+    }
   }
 
   public async ReusableElement(path: Path<Element>) {
