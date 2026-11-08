@@ -1,6 +1,3 @@
-import { isStringElement } from '@speclynx/apidom-datamodel';
-import { toValue } from '@speclynx/apidom-core';
-
 import CallbackElement from './elements/Callback.ts';
 import ComponentsElement from './elements/Components.ts';
 import ContactElement from './elements/Contact.ts';
@@ -122,26 +119,6 @@ export const isPathItemElement = (element: unknown): element is PathItemElement 
   element instanceof PathItemElement;
 
 /**
- * @deprecated
- * Determining whether a PathItemElement is external or internal is not possible by just looking
- * at value of the $ref fixed field. The value of the $ref field needs to be resolved in runtime
- * using the referring document as the Base URI.
- * @public
- */
-export const isPathItemElementExternal = (element: unknown): element is PathItemElement => {
-  if (!isPathItemElement(element)) {
-    return false;
-  }
-  if (!isStringElement(element.$ref)) {
-    return false;
-  }
-
-  const value = toValue(element.$ref);
-
-  return typeof value === 'string' && value.length > 0 && !value.startsWith('#');
-};
-
-/**
  * @public
  */
 export const isPathsElement = (element: unknown): element is PathsElement =>
@@ -152,26 +129,6 @@ export const isPathsElement = (element: unknown): element is PathsElement =>
  */
 export const isReferenceElement = (element: unknown): element is ReferenceElement =>
   element instanceof ReferenceElement;
-
-/**
- * @deprecated
- * Determining whether a ReferenceElement is external or internal is not possible by just looking
- * at value of the $ref fixed field. The value of the $ref field needs to be resolved in runtime
- * using the referring document as the Base URI.
- * @public
- */
-export const isReferenceElementExternal = (element: unknown): element is ReferenceElement => {
-  if (!isReferenceElement(element)) {
-    return false;
-  }
-  if (!isStringElement(element.$ref)) {
-    return false;
-  }
-
-  const value = toValue(element.$ref);
-
-  return typeof value === 'string' && value.length > 0 && !value.startsWith('#');
-};
 
 /**
  * @public
