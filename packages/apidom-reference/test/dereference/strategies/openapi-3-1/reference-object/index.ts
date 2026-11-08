@@ -496,6 +496,26 @@ describe('dereference', function () {
           });
         });
 
+        context('given Reference Object failing within an external document', function () {
+          const rootFilePath = path.join(rootFixturePath, 'external-unresolvable', 'root.json');
+
+          specify('should report the location within that document', async function () {
+            const errors: UnresolvableReferenceError[] = [];
+
+            await dereference(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              dereference: {
+                continueOnError: (error: UnresolvableReferenceError) => errors.push(error),
+              },
+            });
+
+            assert.deepEqual(
+              errors.map((error: any) => [error.location, error.trace[0].location]),
+              [['/components/responses/r/headers/h', '/paths/~1p/get/responses/200']],
+            );
+          });
+        });
+
         context('given Reference Objects with continueOnError option', function () {
           const fixturePath = path.join(rootFixturePath, 'continue-on-error');
 
