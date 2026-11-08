@@ -1,0 +1,31 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "t",
+    "version": "1"
+  },
+  "channels": {
+    "c": {
+      "publish": {
+        "message": {
+          "$ref": "#/components/messages/M"
+        }
+      }
+    }
+  },
+  "components": {
+    "messages": {
+      "M": {
+        "contentType": "application/json",
+        "headers": {
+          "$ref": "#/components/schemas/H"
+        }
+      }
+    },
+    "schemas": {
+      "H": {
+        "type": "object"
+      }
+    }
+  }
+}
