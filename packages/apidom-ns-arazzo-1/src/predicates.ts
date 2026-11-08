@@ -78,13 +78,6 @@ export const isExpressionTypeElement = (element: unknown): element is Expression
 
 /**
  * @public
- * @deprecated Use `isExpressionTypeElement` instead. Criterion Expression Type Object
- * was renamed to Expression Type Object in Arazzo 1.1.0.
- */
-export const isCriterionExpressionTypeElement = isExpressionTypeElement;
-
-/**
- * @public
  */
 export const isFailureActionElement = (element: unknown): element is FailureActionElement =>
   element instanceof FailureActionElement;

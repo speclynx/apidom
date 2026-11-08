@@ -126,13 +126,6 @@ export const refractExpressionType = <T extends Element = ExpressionTypeElement>
 
 /**
  * @public
- * @deprecated Use `refractExpressionType` instead. Criterion Expression Type Object
- * was renamed to Expression Type Object in Arazzo 1.1.0.
- */
-export const refractCriterionExpressionType = refractExpressionType;
-
-/**
- * @public
  */
 export const refractFailureAction = <T extends Element = FailureActionElement>(
   value: unknown,
