@@ -33,7 +33,6 @@ export type {
   default as BundleStrategy,
   BundleStrategyOptions,
 } from '../../../bundle/strategies/BundleStrategy.ts';
-export type { AncestorLineage } from '../../util.ts';
 export type { AsyncAPI2DereferenceVisitorOptions } from '../asyncapi-2/visitor.ts';
 
 /**

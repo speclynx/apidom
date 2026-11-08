@@ -25,7 +25,6 @@ export type { ResolveStrategyOptions } from './resolve/strategies/ResolveStrateg
 
 export { default as DereferenceStrategy } from './dereference/strategies/DereferenceStrategy.ts';
 export type { DereferenceStrategyOptions } from './dereference/strategies/DereferenceStrategy.ts';
-export { AncestorLineage as DereferenceAncestorLineage } from './dereference/util.ts';
 
 export { default as BundleStrategy } from './bundle/strategies/BundleStrategy.ts';
 export type { BundleStrategyOptions } from './bundle/strategies/BundleStrategy.ts';
