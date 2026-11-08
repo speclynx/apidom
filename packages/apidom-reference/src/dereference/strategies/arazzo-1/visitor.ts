@@ -669,12 +669,12 @@ class Arazzo1DereferenceVisitor {
 
   /**
    * Whether the element is transcluded in place of a referencing element, in this run or,
-   * when dereferencing in place, in an earlier one: transcluded elements carry the `ref-origin` meta.
+   * when dereferencing in place, in an earlier one: transcluded elements carry the `ref-type` meta,
+   * which only dereferencing sets (bundling annotates hoisted elements with `ref-origin` only).
    */
   protected isTranscluded(element: Element): boolean {
     return (
-      this.run.transcluded.has(element) ||
-      (!element.isMetaEmpty && element.meta.hasKey('ref-origin'))
+      this.run.transcluded.has(element) || (!element.isMetaEmpty && element.meta.hasKey('ref-type'))
     );
   }
 

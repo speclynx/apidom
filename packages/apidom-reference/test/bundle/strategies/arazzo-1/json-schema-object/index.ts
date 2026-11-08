@@ -13,7 +13,7 @@ import {
 import { mediaTypes } from '@speclynx/apidom-ns-arazzo-1';
 import { evaluate } from '@speclynx/apidom-json-pointer';
 
-import { bundle, dereference } from '../../../../../src/index.ts';
+import { bundle, dereference, dereferenceApiDOM } from '../../../../../src/index.ts';
 import * as url from '../../../../../src/util/url.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -256,6 +256,26 @@ describe('bundle', function () {
                 ),
               ),
               './item.json',
+            );
+          });
+
+          specify('should dereference the bundled resources in memory', async function () {
+            const bundled = await bundle(rootFilePath, {
+              parse: { mediaType: mediaTypes.latest('json') },
+            });
+            const dereferenced = await dereferenceApiDOM(bundled, {
+              parse: { mediaType: mediaTypes.latest('json') },
+              resolve: { baseURI: rootFilePath },
+            });
+
+            assert.strictEqual(
+              toValue(
+                evaluate(
+                  dereferenced.result as Element,
+                  '/components/inputs/order/properties/item/properties/sku/type',
+                ),
+              ),
+              'string',
             );
           });
         });
