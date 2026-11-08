@@ -1,0 +1,31 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "t",
+    "version": "1"
+  },
+  "paths": {
+    "/a": {
+      "get": {
+        "responses": {
+          "200": {
+            "$ref": "#/responses/R"
+          }
+        }
+      }
+    }
+  },
+  "responses": {
+    "R": {
+      "description": "r",
+      "schema": {
+        "$ref": "#/definitions/S"
+      }
+    }
+  },
+  "definitions": {
+    "S": {
+      "type": "string"
+    }
+  }
+}
