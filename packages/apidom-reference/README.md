@@ -1366,6 +1366,12 @@ Both of above examples will be using [HttpResolverAxios](https://github.com/spec
 (as we're trying to resolve HTTP(s) URL) and the `timeout` of resolution will increase from **default 3 seconds**
 to 10 seconds.
 
+When a download fails, the plugin throws `ResolverError` with the Axios error as its `cause`.
+The request details are removed from that error (`config`, `request`, and their copies
+on `response`), so credentials passed through `axiosConfig` (headers, basic auth, proxy credentials,
+TLS agent options) are not exposed when the error is logged or serialized. The message, `code`, `status`
+and the response `status`, `headers` and `data` remain available.
+
 ##### Resolver strategy plugin options
 
 Some resolver strategy plugins accept additional options. It's possible to **change** strategy plugin

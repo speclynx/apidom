@@ -1,8 +1,10 @@
 import { Buffer } from 'node:buffer';
 import http from 'node:http';
+import { type AddressInfo } from 'node:net';
+import { inspect } from 'node:util';
 import sinon from 'sinon';
 import { assert } from 'chai';
-import { AxiosRequestConfig } from 'axios';
+import { AxiosError, AxiosRequestConfig } from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { identity } from 'ramda';
 
@@ -119,6 +121,67 @@ describe('resolve', function () {
                 'Error downloading "https://httpbin.org/anything"',
               );
             }
+          });
+
+          context('given request carrying credentials', function () {
+            const token = 'secret-token';
+            let server: http.Server;
+            let baseURL: string;
+
+            beforeEach(function (done) {
+              resolver = new HttpResolverAxios({
+                axiosConfig: {
+                  headers: { Authorization: `Bearer ${token}` },
+                  auth: { username: 'user', password: token },
+                },
+              });
+              server = http.createServer((req, res) => {
+                res.statusCode = 404;
+                res.end('missing');
+              });
+              server.listen(0, () => {
+                baseURL = `http://localhost:${(server.address() as AddressInfo).port}`;
+                done();
+              });
+            });
+
+            afterEach(function (done) {
+              // the network error test has already closed the server
+              server.close(() => done());
+            });
+
+            const assertNoCredentials = (error: any) => {
+              assert.instanceOf(error, ResolverError);
+              assert.instanceOf(error.cause, AxiosError);
+              assert.notInclude(inspect(error, { depth: Infinity }), token);
+              assert.notInclude(JSON.stringify(error.cause.toJSON()), token);
+            };
+
+            specify('should not expose them on unexpected status codes', async function () {
+              try {
+                await resolver.read(new File({ uri: `${baseURL}/file.json` }));
+                assert.fail('should throw ResolverError');
+              } catch (error: any) {
+                assertNoCredentials(error);
+                assert.strictEqual(error.cause.status, 404);
+                assert.strictEqual(error.cause.response.status, 404);
+                assert.strictEqual(error.cause.response.data.toString(), 'missing');
+              }
+            });
+
+            specify('should not expose them on network error', async function () {
+              await new Promise((resolve) => {
+                server.close(resolve);
+              });
+
+              try {
+                await resolver.read(new File({ uri: `${baseURL}/file.json` }));
+                assert.fail('should throw ResolverError');
+              } catch (error: any) {
+                assertNoCredentials(error);
+                assert.strictEqual(error.cause.code, 'ECONNREFUSED');
+              }
+            });
           });
 
           context('given withCredentials option', function () {

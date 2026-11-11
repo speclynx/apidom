@@ -122,8 +122,30 @@ class HTTPResolverAxios extends HTTPResolver {
       cacheStore?.set(uri, response.data);
       return response.data;
     } catch (error: unknown) {
-      throw new ResolverError(`Error downloading "${file.uri}"`, { cause: error });
+      throw new ResolverError(`Error downloading "${file.uri}"`, {
+        cause: this.sanitizeError(error),
+      });
     }
+  }
+
+  /**
+   * Removes the request details from an Axios error before it becomes a cause.
+   * The config and the request (and their copies on the response) hold everything
+   * the request was sent with: headers, basic auth, proxy credentials and TLS agent
+   * options. Left in place, they end up in logs whenever the error is inspected or
+   * serialized. The message, code, status and response status, headers and data stay.
+   */
+  protected sanitizeError(error: unknown): unknown {
+    if (!axios.isAxiosError(error)) return error;
+
+    delete error.config;
+    delete error.request;
+    if (error.response) {
+      Reflect.deleteProperty(error.response, 'config');
+      Reflect.deleteProperty(error.response, 'request');
+    }
+
+    return error;
   }
 }
 
