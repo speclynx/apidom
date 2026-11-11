@@ -38,6 +38,7 @@ export interface HTTPResolverAxiosOptions extends Omit<HTTPResolverOptions, 'nam
 /**
  * Config keys masked in the errors of failed downloads, unless
  * the `redact` option of `axiosConfig` says otherwise.
+ * Axios matches the keys case-insensitively and at any depth of the config.
  * @public
  */
 export const defaultRedact: string[] = [

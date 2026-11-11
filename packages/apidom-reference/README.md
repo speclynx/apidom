@@ -1374,6 +1374,7 @@ are masked in the error's `config`, and the raw `request` object is removed. The
 other headers) stays available for debugging.
 
 Pass your own `redact` list to mask additional keys, such as a custom header carrying an API key.
+Keys are matched case-insensitively and at any depth of the config, so `x-api-key` masks the `X-API-Key` header.
 The list replaces the default one, which is exported as `defaultRedact`:
 
 ```js
