@@ -1384,7 +1384,9 @@ await readFile('https://example.com/openapi.json', {
   resolve: {
     resolverOpts: {
       axiosConfig: {
+        // HTTP headers sent with every download request; here a custom header carrying an API key
         headers: { 'X-API-Key': 'secret' },
+        // mask the value of that header in errors, in addition to the default keys
         redact: [...defaultRedact, 'x-api-key'],
       },
     },
