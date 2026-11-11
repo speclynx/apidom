@@ -1,6 +1,6 @@
 {
   "name": "@speclynx/apidom-ns-arazzo-1",
-  "version": "7.0.1",
+  "version": "7.0.2",
   "description": "Arazzo Specification 1.1.0 namespace for ApiDOM.",
   "keywords": [
     "apidom",
@@ -59,10 +59,10 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^8.1.0",
-    "@speclynx/apidom-core": "7.0.1",
-    "@speclynx/apidom-datamodel": "7.0.1",
-    "@speclynx/apidom-ns-json-schema-2020-12": "7.0.1",
-    "@speclynx/apidom-traverse": "7.0.1",
+    "@speclynx/apidom-core": "7.0.2",
+    "@speclynx/apidom-datamodel": "7.0.2",
+    "@speclynx/apidom-ns-json-schema-2020-12": "7.0.2",
+    "@speclynx/apidom-traverse": "7.0.2",
     "ramda": "~0.32.0",
     "ramda-adjunct": "^6.1.0",
     "ts-mixer": "^6.0.4"

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.0.2](https://github.com/speclynx/apidom/compare/v7.0.1...v7.0.2) (2026-11-11)
+
+### Bug Fixes
+
+- **reference:** mask credentials in HTTP resolver errors ([#776](https://github.com/speclynx/apidom/issues/776)) ([653f99b](https://github.com/speclynx/apidom/commit/653f99bfdd4a3fe4171fd9660b0791c54c29899d)), closes [usearazzo/arazzo-toolkit#310](https://github.com/usearazzo/arazzo-toolkit/issues/310)
+
 ## [7.0.1](https://github.com/speclynx/apidom/compare/v7.0.0...v7.0.1) (2026-11-08)
 
 ### Bug Fixes
