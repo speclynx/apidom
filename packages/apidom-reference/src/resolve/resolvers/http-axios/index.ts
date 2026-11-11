@@ -2,6 +2,7 @@ import { omit } from 'ramda';
 import { ensureArray, isPlainObject } from 'ramda-adjunct';
 import axios, {
   Axios,
+  AxiosHeaders,
   AxiosInstance,
   CreateAxiosDefaults,
   InternalAxiosRequestConfig,
@@ -156,7 +157,8 @@ class HTTPResolverAxios extends HTTPResolver {
    * The live config is replaced by the snapshot Axios produces for `toJSON()`,
    * in which every key listed in the `redact` config option is masked; Axios itself
    * leaves the live config intact, so the error would still expose it when inspected.
-   * The snapshot is a plain copy: its headers are a plain object, not `AxiosHeaders`.
+   * The snapshot is a plain copy, so the config is rebuilt from it as a regular object
+   * with `AxiosHeaders`; the masked values themselves are strings.
    * The request is removed from the error and from its response, as it holds
    * the raw header block that `redact` does not cover.
    * An empty `redact` list turns this off and the error is left as it is.
@@ -167,7 +169,8 @@ class HTTPResolverAxios extends HTTPResolver {
     const { redact } = error.config;
     if (!Array.isArray(redact) || redact.length === 0) return error;
 
-    const { config } = error.toJSON() as { config: InternalAxiosRequestConfig };
+    const { config: snapshot } = error.toJSON() as { config: InternalAxiosRequestConfig };
+    const config = { ...snapshot, headers: AxiosHeaders.from(snapshot.headers) };
 
     error.config = config;
     delete error.request;

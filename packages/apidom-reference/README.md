@@ -1371,8 +1371,9 @@ To keep credentials out of logs, the plugin sets the Axios [redact](https://gith
 to a default list of keys: `authorization`, `proxy-authorization`, `cookie`, `auth`, `password`, `httpAgent`, `httpsAgent`.
 In the error:
 
-- the values of the listed keys are masked in `config`, which becomes a plain copy of the request config
-  (its `headers` are a plain object) and is also what `response.config` refers to,
+- the values of the listed keys are masked in `config`, which becomes a copy of the request config
+  (its `headers` remain `AxiosHeaders`, and a masked value is a string whatever it was before)
+  and is also what `response.config` refers to,
 - the raw `request` object is removed from the error and from its `response`,
 - the rest stays available for debugging: URL, method, timeout, other headers, and the response `status`, `headers` and `data`.
 

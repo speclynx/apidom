@@ -5,7 +5,7 @@ import { type AddressInfo } from 'node:net';
 import { inspect } from 'node:util';
 import sinon from 'sinon';
 import { assert } from 'chai';
-import { AxiosError, AxiosRequestConfig } from 'axios';
+import { AxiosError, AxiosHeaders, AxiosRequestConfig } from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { identity } from 'ramda';
 
@@ -209,6 +209,15 @@ describe('resolve', function () {
               assert.strictEqual(config.headers['X-Trace'], 'abc');
               assert.match(config.headers['X-API-Key'], /REDACTED/);
               assert.strictEqual(response.config, config);
+            });
+
+            specify('should keep the shape of the request config', async function () {
+              const { config } = (await readError()).cause;
+
+              assert.strictEqual(Object.getPrototypeOf(config), Object.prototype);
+              assert.instanceOf(config.headers, AxiosHeaders);
+              assert.strictEqual(config.headers.get('x-trace'), 'abc');
+              assert.match(config.headers.get('x-api-key'), /REDACTED/);
             });
 
             specify('should mask when options are given as resolverOpts', async function () {
