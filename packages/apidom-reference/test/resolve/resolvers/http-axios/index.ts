@@ -9,9 +9,7 @@ import { AxiosError, AxiosRequestConfig } from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { identity } from 'ramda';
 
-import HttpResolverAxios, {
-  defaultRedact,
-} from '../../../../src/resolve/resolvers/http-axios/index.ts';
+import HttpResolverAxios from '../../../../src/resolve/resolvers/http-axios/index.ts';
 import ResolverError from '../../../../src/errors/ResolverError.ts';
 import File from '../../../../src/File.ts';
 
@@ -149,7 +147,10 @@ describe('resolve', function () {
 
             beforeEach(function (done) {
               resolver = new HttpResolverAxios({
-                axiosConfig: { ...axiosConfig, redact: [...defaultRedact, 'x-api-key'] },
+                axiosConfig: {
+                  ...axiosConfig,
+                  redact: [...HttpResolverAxios.defaultRedact, 'x-api-key'],
+                },
               });
               server = http.createServer((req, res) => {
                 res.statusCode = 404;

@@ -1375,11 +1375,11 @@ other headers) stays available for debugging.
 
 Pass your own `redact` list to mask additional keys, such as a custom header carrying an API key.
 Keys are matched case-insensitively and at any depth of the config, so `x-api-key` masks the `X-API-Key` header.
-The list replaces the default one, which is exported as `defaultRedact`:
+The list replaces the default one, which is available as `HTTPResolverAxios.defaultRedact`:
 
 ```js
 import { readFile } from '@speclynx/apidom-reference';
-import { defaultRedact } from '@speclynx/apidom-reference/resolve/resolvers/http-axios';
+import HTTPResolverAxios from '@speclynx/apidom-reference/resolve/resolvers/http-axios';
 
 await readFile('https://example.com/openapi.json', {
   resolve: {
@@ -1388,7 +1388,7 @@ await readFile('https://example.com/openapi.json', {
         // HTTP headers sent with every download request; here a custom header carrying an API key
         headers: { 'X-API-Key': 'secret' },
         // mask the value of that header in errors, in addition to the default keys
-        redact: [...defaultRedact, 'x-api-key'],
+        redact: [...HTTPResolverAxios.defaultRedact, 'x-api-key'],
       },
     },
   },

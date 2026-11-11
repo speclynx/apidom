@@ -36,25 +36,24 @@ export interface HTTPResolverAxiosOptions extends Omit<HTTPResolverOptions, 'nam
 }
 
 /**
- * Config keys masked in the errors of failed downloads, unless
- * the `redact` option of `axiosConfig` says otherwise.
- * Axios matches the keys case-insensitively and at any depth of the config.
- * @public
- */
-export const defaultRedact: string[] = [
-  'authorization',
-  'proxy-authorization',
-  'cookie',
-  'auth',
-  'password',
-  'httpAgent',
-  'httpsAgent',
-];
-
-/**
  * @public
  */
 class HTTPResolverAxios extends HTTPResolver {
+  /**
+   * Config keys masked in the errors of failed downloads, unless
+   * the `redact` option of `axiosConfig` says otherwise.
+   * Axios matches the keys case-insensitively and at any depth of the config.
+   */
+  public static readonly defaultRedact: readonly string[] = [
+    'authorization',
+    'proxy-authorization',
+    'cookie',
+    'auth',
+    'password',
+    'httpAgent',
+    'httpsAgent',
+  ];
+
   public axiosConfig: HTTPResolverAxiosConfig = {};
 
   protected axiosInstance!: AxiosInstance;
@@ -83,7 +82,7 @@ class HTTPResolverAxios extends HTTPResolver {
         maxRedirects: this.redirects,
         withCredentials: this.withCredentials,
         responseType: 'arraybuffer',
-        redact: defaultRedact,
+        redact: [...HTTPResolverAxios.defaultRedact],
         ...config,
       });
 
