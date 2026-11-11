@@ -40,11 +40,11 @@ export interface HTTPResolverAxiosOptions extends Omit<HTTPResolverOptions, 'nam
  */
 class HTTPResolverAxios extends HTTPResolver {
   /**
-   * Config keys masked in the errors of failed downloads, unless
-   * the `redact` option of `axiosConfig` says otherwise.
+   * Config keys masked in the errors of failed downloads. A `redact` list given
+   * in `axiosConfig` replaces this one, and an empty list turns the masking off.
    * Axios matches the keys case-insensitively and at any depth of the config.
    */
-  public static readonly defaultRedact: readonly string[] = [
+  public static readonly defaultRedact: readonly string[] = Object.freeze([
     'authorization',
     'proxy-authorization',
     'cookie',
@@ -52,7 +52,7 @@ class HTTPResolverAxios extends HTTPResolver {
     'password',
     'httpAgent',
     'httpsAgent',
-  ];
+  ]);
 
   public axiosConfig: HTTPResolverAxiosConfig = {};
 
@@ -82,8 +82,10 @@ class HTTPResolverAxios extends HTTPResolver {
         maxRedirects: this.redirects,
         withCredentials: this.withCredentials,
         responseType: 'arraybuffer',
-        redact: [...HTTPResolverAxios.defaultRedact],
         ...config,
+        // anything but a list falls back to the default, so that masking
+        // can only be turned off deliberately, with an empty list
+        redact: Array.isArray(config.redact) ? config.redact : [...HTTPResolverAxios.defaultRedact],
       });
 
       // settings up request interceptors
@@ -154,7 +156,9 @@ class HTTPResolverAxios extends HTTPResolver {
    * The live config is replaced by the snapshot Axios produces for `toJSON()`,
    * in which every key listed in the `redact` config option is masked; Axios itself
    * leaves the live config intact, so the error would still expose it when inspected.
-   * The request is removed, as it holds the raw header block that `redact` does not cover.
+   * The snapshot is a plain copy: its headers are a plain object, not `AxiosHeaders`.
+   * The request is removed from the error and from its response, as it holds
+   * the raw header block that `redact` does not cover.
    * An empty `redact` list turns this off and the error is left as it is.
    */
   protected sanitizeError(error: unknown): unknown {

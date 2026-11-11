@@ -129,6 +129,7 @@ describe('resolve', function () {
             const axiosConfig = {
               headers: { 'X-API-Key': token, 'X-Trace': 'abc' },
               auth: { username: 'user', password: token },
+              httpAgent: new http.Agent(),
               httpsAgent: new https.Agent({ passphrase: token }),
             };
             let server: http.Server;
@@ -163,8 +164,8 @@ describe('resolve', function () {
             });
 
             afterEach(function (done) {
-              // the network error test has already closed the server
-              server.close(() => done());
+              if (server.listening) server.close(done);
+              else done();
             });
 
             specify('should mask them on unexpected status codes', async function () {
@@ -192,6 +193,13 @@ describe('resolve', function () {
               assert.strictEqual(cause.code, 'ECONNREFUSED');
             });
 
+            specify('should remove the raw request', async function () {
+              const { request, response } = (await readError()).cause;
+
+              assert.isUndefined(request);
+              assert.isUndefined(response.request);
+            });
+
             specify('should keep the rest of the request config', async function () {
               const { config, response } = (await readError()).cause;
 
@@ -203,18 +211,9 @@ describe('resolve', function () {
               assert.strictEqual(response.config, config);
             });
 
-            specify('should mask standard credentials by default', async function () {
-              resolver = new HttpResolverAxios({ axiosConfig });
-
-              const error = await readError();
-
-              assert.match(error.cause.config.auth, /REDACTED/);
-              assert.match(error.cause.config.httpsAgent, /REDACTED/);
-              assert.strictEqual(error.cause.config.headers['X-API-Key'], token);
-            });
-
-            specify('should mask the Authorization header by default', async function () {
-              resolver = new HttpResolverAxios({
+            specify('should mask when options are given as resolverOpts', async function () {
+              // the way readFile binds resolverOpts to a resolver
+              resolver = Object.assign(Object.create(new HttpResolverAxios()), {
                 axiosConfig: { headers: { Authorization: `Bearer ${token}` } },
               });
 
@@ -224,14 +223,111 @@ describe('resolve', function () {
               assert.notInclude(serialize(error), token);
             });
 
-            specify('should leave the error intact when redact is empty', async function () {
-              resolver = new HttpResolverAxios({ axiosConfig: { ...axiosConfig, redact: [] } });
+            context('given no redact list', function () {
+              specify('should mask the default keys', async function () {
+                resolver = new HttpResolverAxios({
+                  axiosConfig: {
+                    ...axiosConfig,
+                    headers: { Cookie: `sid=${token}`, 'Proxy-Authorization': `Basic ${token}` },
+                  },
+                });
 
-              const error = await readError();
+                const error = await readError();
+                const { config } = error.cause;
 
-              assert.strictEqual(error.cause.config.headers['X-API-Key'], token);
-              assert.isDefined(error.cause.request);
-              assert.isDefined(error.cause.response.request);
+                assert.match(config.headers.Cookie, /REDACTED/);
+                assert.match(config.headers['Proxy-Authorization'], /REDACTED/);
+                assert.match(config.auth, /REDACTED/);
+                assert.match(config.httpAgent, /REDACTED/);
+                assert.match(config.httpsAgent, /REDACTED/);
+                assert.notInclude(serialize(error), token);
+              });
+
+              specify('should mask the Authorization header', async function () {
+                resolver = new HttpResolverAxios({
+                  axiosConfig: { headers: { Authorization: `Bearer ${token}` } },
+                });
+
+                const error = await readError();
+
+                assert.match(error.cause.config.headers.Authorization, /REDACTED/);
+                assert.notInclude(serialize(error), token);
+              });
+
+              specify('should not mask keys outside the default list', async function () {
+                resolver = new HttpResolverAxios({ axiosConfig });
+
+                const error = await readError();
+
+                assert.strictEqual(error.cause.config.headers['X-API-Key'], token);
+              });
+            });
+
+            context('given redact that is not a list', function () {
+              specify('should mask the default keys', async function () {
+                resolver = new HttpResolverAxios({
+                  axiosConfig: { headers: { Authorization: `Bearer ${token}` }, redact: undefined },
+                });
+
+                const error = await readError();
+
+                assert.match(error.cause.config.headers.Authorization, /REDACTED/);
+                assert.notInclude(serialize(error), token);
+              });
+            });
+
+            context('given custom redact list', function () {
+              specify('should replace the default keys', async function () {
+                resolver = new HttpResolverAxios({
+                  axiosConfig: {
+                    headers: { Authorization: `Bearer ${token}`, 'X-API-Key': token },
+                    redact: ['x-api-key'],
+                  },
+                });
+
+                const { config } = (await readError()).cause;
+
+                assert.match(config.headers['X-API-Key'], /REDACTED/);
+                assert.strictEqual(config.headers.Authorization, `Bearer ${token}`);
+              });
+            });
+
+            context('given empty redact list', function () {
+              specify('should leave the error intact', async function () {
+                resolver = new HttpResolverAxios({ axiosConfig: { ...axiosConfig, redact: [] } });
+
+                const error = await readError();
+
+                assert.strictEqual(error.cause.config.headers['X-API-Key'], token);
+                assert.isDefined(error.cause.request);
+                assert.isDefined(error.cause.response.request);
+              });
+            });
+
+            context('given error that is not an Axios error', function () {
+              specify('should pass it through unchanged', async function () {
+                const failure = new Error('interceptor failed');
+                resolver = new HttpResolverAxios({
+                  axiosConfig: {
+                    interceptors: {
+                      request: [
+                        () => {
+                          throw failure;
+                        },
+                      ],
+                    } as any,
+                  },
+                });
+
+                const error = await readError();
+
+                assert.instanceOf(error, ResolverError);
+                assert.strictEqual(error.cause, failure);
+              });
+            });
+
+            specify('should expose immutable default redact list', function () {
+              assert.isFrozen(HttpResolverAxios.defaultRedact);
             });
           });
 
