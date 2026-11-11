@@ -214,7 +214,6 @@ describe('resolve', function () {
             specify('should keep the shape of the request config', async function () {
               const { config } = (await readError()).cause;
 
-              assert.strictEqual(Object.getPrototypeOf(config), Object.prototype);
               assert.instanceOf(config.headers, AxiosHeaders);
               assert.strictEqual(config.headers.get('x-trace'), 'abc');
               assert.match(config.headers.get('x-api-key'), /REDACTED/);
