@@ -1,6 +1,11 @@
 import { omit } from 'ramda';
 import { ensureArray, isPlainObject } from 'ramda-adjunct';
-import axios, { Axios, AxiosInstance, CreateAxiosDefaults } from 'axios';
+import axios, {
+  Axios,
+  AxiosInstance,
+  CreateAxiosDefaults,
+  InternalAxiosRequestConfig,
+} from 'axios';
 
 import HTTPResolver, { HTTPResolverOptions } from '../HTTPResolver.ts';
 import MemoryCache from './cache/MemoryCache.ts';
@@ -29,6 +34,21 @@ export interface HTTPResolverAxiosConfig extends CreateAxiosDefaults {
 export interface HTTPResolverAxiosOptions extends Omit<HTTPResolverOptions, 'name'> {
   readonly axiosConfig?: HTTPResolverAxiosConfig;
 }
+
+/**
+ * Config keys masked in the errors of failed downloads, unless
+ * the `redact` option of `axiosConfig` says otherwise.
+ * @public
+ */
+export const defaultRedact: string[] = [
+  'authorization',
+  'proxy-authorization',
+  'cookie',
+  'auth',
+  'password',
+  'httpAgent',
+  'httpsAgent',
+];
 
 /**
  * @public
@@ -62,6 +82,7 @@ class HTTPResolverAxios extends HTTPResolver {
         maxRedirects: this.redirects,
         withCredentials: this.withCredentials,
         responseType: 'arraybuffer',
+        redact: defaultRedact,
         ...config,
       });
 
@@ -129,20 +150,26 @@ class HTTPResolverAxios extends HTTPResolver {
   }
 
   /**
-   * Removes the request details from an Axios error before it becomes a cause.
-   * The config and the request (and their copies on the response) hold everything
-   * the request was sent with: headers, basic auth, proxy credentials and TLS agent
-   * options. Left in place, they end up in logs whenever the error is inspected or
-   * serialized. The message, code, status and response status, headers and data stay.
+   * Masks credentials in an Axios error before it becomes a cause.
+   * The live config is replaced by the snapshot Axios produces for `toJSON()`,
+   * in which every key listed in the `redact` config option is masked; Axios itself
+   * leaves the live config intact, so the error would still expose it when inspected.
+   * The request is removed, as it holds the raw header block that `redact` does not cover.
+   * An empty `redact` list turns this off and the error is left as it is.
    */
   protected sanitizeError(error: unknown): unknown {
-    if (!axios.isAxiosError(error)) return error;
+    if (!axios.isAxiosError(error) || !error.config) return error;
 
-    delete error.config;
+    const { redact } = error.config;
+    if (!Array.isArray(redact) || redact.length === 0) return error;
+
+    const { config } = error.toJSON() as { config: InternalAxiosRequestConfig };
+
+    error.config = config;
     delete error.request;
     if (error.response) {
-      Reflect.deleteProperty(error.response, 'config');
-      Reflect.deleteProperty(error.response, 'request');
+      error.response.config = config;
+      delete error.response.request;
     }
 
     return error;

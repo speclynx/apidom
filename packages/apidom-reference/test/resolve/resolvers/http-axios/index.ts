@@ -1,5 +1,6 @@
 import { Buffer } from 'node:buffer';
 import http from 'node:http';
+import https from 'node:https';
 import { type AddressInfo } from 'node:net';
 import { inspect } from 'node:util';
 import sinon from 'sinon';
@@ -8,7 +9,9 @@ import { AxiosError, AxiosRequestConfig } from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { identity } from 'ramda';
 
-import HttpResolverAxios from '../../../../src/resolve/resolvers/http-axios/index.ts';
+import HttpResolverAxios, {
+  defaultRedact,
+} from '../../../../src/resolve/resolvers/http-axios/index.ts';
 import ResolverError from '../../../../src/errors/ResolverError.ts';
 import File from '../../../../src/File.ts';
 
@@ -125,15 +128,28 @@ describe('resolve', function () {
 
           context('given request carrying credentials', function () {
             const token = 'secret-token';
+            const axiosConfig = {
+              headers: { 'X-API-Key': token, 'X-Trace': 'abc' },
+              auth: { username: 'user', password: token },
+              httpsAgent: new https.Agent({ passphrase: token }),
+            };
             let server: http.Server;
             let baseURL: string;
 
+            const readError = async (): Promise<any> => {
+              try {
+                await resolver.read(new File({ uri: `${baseURL}/file.json` }));
+              } catch (error: unknown) {
+                return error;
+              }
+              return assert.fail('should throw ResolverError');
+            };
+            const serialize = (error: any): string =>
+              inspect(error, { depth: Infinity }) + JSON.stringify(error.cause.toJSON());
+
             beforeEach(function (done) {
               resolver = new HttpResolverAxios({
-                axiosConfig: {
-                  headers: { Authorization: `Bearer ${token}` },
-                  auth: { username: 'user', password: token },
-                },
+                axiosConfig: { ...axiosConfig, redact: [...defaultRedact, 'x-api-key'] },
               });
               server = http.createServer((req, res) => {
                 res.statusCode = 404;
@@ -150,37 +166,71 @@ describe('resolve', function () {
               server.close(() => done());
             });
 
-            const assertNoCredentials = (error: any) => {
+            specify('should mask them on unexpected status codes', async function () {
+              const error = await readError();
+              const { status, response } = error.cause;
+
               assert.instanceOf(error, ResolverError);
               assert.instanceOf(error.cause, AxiosError);
-              assert.notInclude(inspect(error, { depth: Infinity }), token);
-              assert.notInclude(JSON.stringify(error.cause.toJSON()), token);
-            };
-
-            specify('should not expose them on unexpected status codes', async function () {
-              try {
-                await resolver.read(new File({ uri: `${baseURL}/file.json` }));
-                assert.fail('should throw ResolverError');
-              } catch (error: any) {
-                assertNoCredentials(error);
-                assert.strictEqual(error.cause.status, 404);
-                assert.strictEqual(error.cause.response.status, 404);
-                assert.strictEqual(error.cause.response.data.toString(), 'missing');
-              }
+              assert.notInclude(serialize(error), token);
+              assert.strictEqual(status, 404);
+              assert.strictEqual(response.status, 404);
+              assert.strictEqual(response.data.toString(), 'missing');
             });
 
-            specify('should not expose them on network error', async function () {
+            specify('should mask them on network error', async function () {
               await new Promise((resolve) => {
                 server.close(resolve);
               });
 
-              try {
-                await resolver.read(new File({ uri: `${baseURL}/file.json` }));
-                assert.fail('should throw ResolverError');
-              } catch (error: any) {
-                assertNoCredentials(error);
-                assert.strictEqual(error.cause.code, 'ECONNREFUSED');
-              }
+              const error = await readError();
+              const { cause } = error;
+
+              assert.instanceOf(error, ResolverError);
+              assert.notInclude(serialize(error), token);
+              assert.strictEqual(cause.code, 'ECONNREFUSED');
+            });
+
+            specify('should keep the rest of the request config', async function () {
+              const { config, response } = (await readError()).cause;
+
+              assert.strictEqual(config.url, `${baseURL}/file.json`);
+              assert.strictEqual(config.method, 'get');
+              assert.strictEqual(config.timeout, 5000);
+              assert.strictEqual(config.headers['X-Trace'], 'abc');
+              assert.match(config.headers['X-API-Key'], /REDACTED/);
+              assert.strictEqual(response.config, config);
+            });
+
+            specify('should mask standard credentials by default', async function () {
+              resolver = new HttpResolverAxios({ axiosConfig });
+
+              const error = await readError();
+
+              assert.match(error.cause.config.auth, /REDACTED/);
+              assert.match(error.cause.config.httpsAgent, /REDACTED/);
+              assert.strictEqual(error.cause.config.headers['X-API-Key'], token);
+            });
+
+            specify('should mask the Authorization header by default', async function () {
+              resolver = new HttpResolverAxios({
+                axiosConfig: { headers: { Authorization: `Bearer ${token}` } },
+              });
+
+              const error = await readError();
+
+              assert.match(error.cause.config.headers.Authorization, /REDACTED/);
+              assert.notInclude(serialize(error), token);
+            });
+
+            specify('should leave the error intact when redact is empty', async function () {
+              resolver = new HttpResolverAxios({ axiosConfig: { ...axiosConfig, redact: [] } });
+
+              const error = await readError();
+
+              assert.strictEqual(error.cause.config.headers['X-API-Key'], token);
+              assert.isDefined(error.cause.request);
+              assert.isDefined(error.cause.response.request);
             });
           });
 

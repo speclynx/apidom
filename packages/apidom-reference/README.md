@@ -1367,10 +1367,32 @@ Both of above examples will be using [HttpResolverAxios](https://github.com/spec
 to 10 seconds.
 
 When a download fails, the plugin throws `ResolverError` with the Axios error as its `cause`.
-The request details are removed from that error (`config`, `request`, and their copies
-on `response`), so credentials passed through `axiosConfig` (headers, basic auth, proxy credentials,
-TLS agent options) are not exposed when the error is logged or serialized. The message, `code`, `status`
-and the response `status`, `headers` and `data` remain available.
+Credentials are masked in that error, so they are not exposed when it is logged or serialized.
+The plugin sets the Axios [redact](https://github.com/axios/axios#request-config) option to a default list of keys
+(`authorization`, `proxy-authorization`, `cookie`, `auth`, `password`, `httpAgent`, `httpsAgent`); the values of these keys
+are masked in the error's `config`, and the raw `request` object is removed. The rest of the config (URL, method, timeout,
+other headers) stays available for debugging.
+
+Pass your own `redact` list to mask additional keys, such as a custom header carrying an API key.
+The list replaces the default one, which is exported as `defaultRedact`:
+
+```js
+import { readFile } from '@speclynx/apidom-reference';
+import { defaultRedact } from '@speclynx/apidom-reference/resolve/resolvers/http-axios';
+
+await readFile('https://example.com/openapi.json', {
+  resolve: {
+    resolverOpts: {
+      axiosConfig: {
+        headers: { 'X-API-Key': 'secret' },
+        redact: [...defaultRedact, 'x-api-key'],
+      },
+    },
+  },
+});
+```
+
+An empty list (`redact: []`) turns the masking off and leaves the error as Axios produced it.
 
 ##### Resolver strategy plugin options
 
