@@ -1,6 +1,12 @@
 import { omit } from 'ramda';
 import { ensureArray, isPlainObject } from 'ramda-adjunct';
-import axios, { Axios, AxiosInstance, CreateAxiosDefaults } from 'axios';
+import axios, {
+  Axios,
+  AxiosHeaders,
+  AxiosInstance,
+  CreateAxiosDefaults,
+  InternalAxiosRequestConfig,
+} from 'axios';
 
 import HTTPResolver, { HTTPResolverOptions } from '../HTTPResolver.ts';
 import MemoryCache from './cache/MemoryCache.ts';
@@ -34,6 +40,21 @@ export interface HTTPResolverAxiosOptions extends Omit<HTTPResolverOptions, 'nam
  * @public
  */
 class HTTPResolverAxios extends HTTPResolver {
+  /**
+   * Config keys masked in the errors of failed downloads. A `redact` list given
+   * in `axiosConfig` replaces this one, and an empty list turns the masking off.
+   * Axios matches the keys case-insensitively and at any depth of the config.
+   */
+  public static readonly defaultRedact: readonly string[] = Object.freeze([
+    'authorization',
+    'proxy-authorization',
+    'cookie',
+    'auth',
+    'password',
+    'httpAgent',
+    'httpsAgent',
+  ]);
+
   public axiosConfig: HTTPResolverAxiosConfig = {};
 
   protected axiosInstance!: AxiosInstance;
@@ -63,6 +84,9 @@ class HTTPResolverAxios extends HTTPResolver {
         withCredentials: this.withCredentials,
         responseType: 'arraybuffer',
         ...config,
+        // anything but a list falls back to the default, so that masking
+        // can only be turned off deliberately, with an empty list
+        redact: Array.isArray(config.redact) ? config.redact : [...HTTPResolverAxios.defaultRedact],
       });
 
       // settings up request interceptors
@@ -122,8 +146,40 @@ class HTTPResolverAxios extends HTTPResolver {
       cacheStore?.set(uri, response.data);
       return response.data;
     } catch (error: unknown) {
-      throw new ResolverError(`Error downloading "${file.uri}"`, { cause: error });
+      throw new ResolverError(`Error downloading "${file.uri}"`, {
+        cause: this.sanitizeError(error),
+      });
     }
+  }
+
+  /**
+   * Masks credentials in an Axios error before it becomes a cause.
+   * The live config is replaced by the snapshot Axios produces for `toJSON()`,
+   * in which every key listed in the `redact` config option is masked; Axios itself
+   * leaves the live config intact, so the error would still expose it when inspected.
+   * The snapshot has the shape of the live config except for its headers, which are
+   * turned back into `AxiosHeaders`; the masked values themselves are strings.
+   * The request is removed from the error and from its response, as it holds
+   * the raw header block that `redact` does not cover.
+   * An empty `redact` list turns this off and the error is left as it is.
+   */
+  protected sanitizeError(error: unknown): unknown {
+    if (!axios.isAxiosError(error) || !error.config) return error;
+
+    const { redact } = error.config;
+    if (!Array.isArray(redact) || redact.length === 0) return error;
+
+    const { config } = error.toJSON() as { config: InternalAxiosRequestConfig };
+    config.headers = AxiosHeaders.from(config.headers);
+
+    error.config = config;
+    delete error.request;
+    if (error.response) {
+      error.response.config = config;
+      delete error.response.request;
+    }
+
+    return error;
   }
 }
 

@@ -1,8 +1,11 @@
 import { Buffer } from 'node:buffer';
 import http from 'node:http';
+import https from 'node:https';
+import { type AddressInfo } from 'node:net';
+import { inspect } from 'node:util';
 import sinon from 'sinon';
 import { assert } from 'chai';
-import { AxiosRequestConfig } from 'axios';
+import { AxiosError, AxiosHeaders, AxiosRequestConfig } from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { identity } from 'ramda';
 
@@ -119,6 +122,221 @@ describe('resolve', function () {
                 'Error downloading "https://httpbin.org/anything"',
               );
             }
+          });
+
+          context('given request carrying credentials', function () {
+            const token = 'secret-token';
+            const axiosConfig = {
+              headers: { 'X-API-Key': token, 'X-Trace': 'abc' },
+              auth: { username: 'user', password: token },
+              httpAgent: new http.Agent(),
+              httpsAgent: new https.Agent({ passphrase: token }),
+            };
+            let server: http.Server;
+            let baseURL: string;
+
+            const readError = async (): Promise<any> => {
+              try {
+                await resolver.read(new File({ uri: `${baseURL}/file.json` }));
+              } catch (error: unknown) {
+                return error;
+              }
+              return assert.fail('should throw ResolverError');
+            };
+            const serialize = (error: any): string =>
+              inspect(error, { depth: Infinity }) + JSON.stringify(error.cause.toJSON());
+
+            beforeEach(function (done) {
+              resolver = new HttpResolverAxios({
+                axiosConfig: {
+                  ...axiosConfig,
+                  redact: [...HttpResolverAxios.defaultRedact, 'x-api-key'],
+                },
+              });
+              server = http.createServer((req, res) => {
+                res.statusCode = 404;
+                res.end('missing');
+              });
+              server.listen(0, () => {
+                baseURL = `http://localhost:${(server.address() as AddressInfo).port}`;
+                done();
+              });
+            });
+
+            afterEach(function (done) {
+              if (server.listening) server.close(done);
+              else done();
+            });
+
+            specify('should mask them on unexpected status codes', async function () {
+              const error = await readError();
+              const { status, response } = error.cause;
+
+              assert.instanceOf(error, ResolverError);
+              assert.instanceOf(error.cause, AxiosError);
+              assert.notInclude(serialize(error), token);
+              assert.strictEqual(status, 404);
+              assert.strictEqual(response.status, 404);
+              assert.strictEqual(response.data.toString(), 'missing');
+            });
+
+            specify('should mask them on network error', async function () {
+              await new Promise((resolve) => {
+                server.close(resolve);
+              });
+
+              const error = await readError();
+              const { cause } = error;
+
+              assert.instanceOf(error, ResolverError);
+              assert.notInclude(serialize(error), token);
+              assert.strictEqual(cause.code, 'ECONNREFUSED');
+            });
+
+            specify('should remove the raw request', async function () {
+              const { request, response } = (await readError()).cause;
+
+              assert.isUndefined(request);
+              assert.isUndefined(response.request);
+            });
+
+            specify('should keep the rest of the request config', async function () {
+              const { config, response } = (await readError()).cause;
+
+              assert.strictEqual(config.url, `${baseURL}/file.json`);
+              assert.strictEqual(config.method, 'get');
+              assert.strictEqual(config.timeout, 5000);
+              assert.strictEqual(config.headers['X-Trace'], 'abc');
+              assert.match(config.headers['X-API-Key'], /REDACTED/);
+              assert.strictEqual(response.config, config);
+            });
+
+            specify('should keep the shape of the request config', async function () {
+              const { config } = (await readError()).cause;
+
+              assert.instanceOf(config.headers, AxiosHeaders);
+              assert.strictEqual(config.headers.get('x-trace'), 'abc');
+              assert.match(config.headers.get('x-api-key'), /REDACTED/);
+            });
+
+            specify('should mask when options are given as resolverOpts', async function () {
+              // the way readFile binds resolverOpts to a resolver
+              resolver = Object.assign(Object.create(new HttpResolverAxios()), {
+                axiosConfig: { headers: { Authorization: `Bearer ${token}` } },
+              });
+
+              const error = await readError();
+
+              assert.match(error.cause.config.headers.Authorization, /REDACTED/);
+              assert.notInclude(serialize(error), token);
+            });
+
+            context('given no redact list', function () {
+              specify('should mask the default keys', async function () {
+                resolver = new HttpResolverAxios({
+                  axiosConfig: {
+                    ...axiosConfig,
+                    headers: { Cookie: `sid=${token}`, 'Proxy-Authorization': `Basic ${token}` },
+                  },
+                });
+
+                const error = await readError();
+                const { config } = error.cause;
+
+                assert.match(config.headers.Cookie, /REDACTED/);
+                assert.match(config.headers['Proxy-Authorization'], /REDACTED/);
+                assert.match(config.auth, /REDACTED/);
+                assert.match(config.httpAgent, /REDACTED/);
+                assert.match(config.httpsAgent, /REDACTED/);
+                assert.notInclude(serialize(error), token);
+              });
+
+              specify('should mask the Authorization header', async function () {
+                resolver = new HttpResolverAxios({
+                  axiosConfig: { headers: { Authorization: `Bearer ${token}` } },
+                });
+
+                const error = await readError();
+
+                assert.match(error.cause.config.headers.Authorization, /REDACTED/);
+                assert.notInclude(serialize(error), token);
+              });
+
+              specify('should not mask keys outside the default list', async function () {
+                resolver = new HttpResolverAxios({ axiosConfig });
+
+                const error = await readError();
+
+                assert.strictEqual(error.cause.config.headers['X-API-Key'], token);
+              });
+            });
+
+            context('given redact that is not a list', function () {
+              specify('should mask the default keys', async function () {
+                resolver = new HttpResolverAxios({
+                  axiosConfig: { headers: { Authorization: `Bearer ${token}` }, redact: undefined },
+                });
+
+                const error = await readError();
+
+                assert.match(error.cause.config.headers.Authorization, /REDACTED/);
+                assert.notInclude(serialize(error), token);
+              });
+            });
+
+            context('given custom redact list', function () {
+              specify('should replace the default keys', async function () {
+                resolver = new HttpResolverAxios({
+                  axiosConfig: {
+                    headers: { Authorization: `Bearer ${token}`, 'X-API-Key': token },
+                    redact: ['x-api-key'],
+                  },
+                });
+
+                const { config } = (await readError()).cause;
+
+                assert.match(config.headers['X-API-Key'], /REDACTED/);
+                assert.strictEqual(config.headers.Authorization, `Bearer ${token}`);
+              });
+            });
+
+            context('given empty redact list', function () {
+              specify('should leave the error intact', async function () {
+                resolver = new HttpResolverAxios({ axiosConfig: { ...axiosConfig, redact: [] } });
+
+                const error = await readError();
+
+                assert.strictEqual(error.cause.config.headers['X-API-Key'], token);
+                assert.isDefined(error.cause.request);
+                assert.isDefined(error.cause.response.request);
+              });
+            });
+
+            context('given error that is not an Axios error', function () {
+              specify('should pass it through unchanged', async function () {
+                const failure = new Error('interceptor failed');
+                resolver = new HttpResolverAxios({
+                  axiosConfig: {
+                    interceptors: {
+                      request: [
+                        () => {
+                          throw failure;
+                        },
+                      ],
+                    } as any,
+                  },
+                });
+
+                const error = await readError();
+
+                assert.instanceOf(error, ResolverError);
+                assert.strictEqual(error.cause, failure);
+              });
+            });
+
+            specify('should expose immutable default redact list', function () {
+              assert.isFrozen(HttpResolverAxios.defaultRedact);
+            });
           });
 
           context('given withCredentials option', function () {
