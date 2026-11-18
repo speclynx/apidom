@@ -134,8 +134,7 @@ class AsyncAPI2DereferenceVisitor extends DereferenceVisitor<undefined> {
               const booleanJsonSchemaElement = cloneDeep<BooleanElement>(target);
               // annotate referenced element with info about original referencing element
               booleanJsonSchemaElement.meta.set('ref-fields', { $ref });
-              // annotate referenced element with info about origin
-              booleanJsonSchemaElement.meta.set('ref-origin', reference.uri);
+              // annotate referenced element with info about type
               booleanJsonSchemaElement.meta.set('ref-type', element.element);
               return booleanJsonSchemaElement;
             }
@@ -146,12 +145,12 @@ class AsyncAPI2DereferenceVisitor extends DereferenceVisitor<undefined> {
             const mergedElement = cloneShallow(target);
             // annotate referenced element with info about original referencing element
             mergedElement.meta.set('ref-fields', { $ref });
-            // annotate fragment with info about origin
-            mergedElement.meta.set('ref-origin', reference.uri);
+            // annotate fragment with info about type
             mergedElement.meta.set('ref-type', element.element);
 
             return mergedElement;
           },
+          origin: { uri: reference.uri, jsonPointer },
           circular: { uri: $refBaseURI, meta: { uri: reference.uri, $ref }, details: { $ref } },
         },
       );
@@ -241,13 +240,13 @@ class AsyncAPI2DereferenceVisitor extends DereferenceVisitor<undefined> {
 
             // annotate referenced element with info about original referencing element
             mergedElement.meta.set('ref-fields', { $ref });
-            // annotate referenced element with info about origin and type
-            mergedElement.meta.set('ref-origin', reference.uri);
+            // annotate referenced element with info about type
             mergedElement.meta.set('ref-type', element.element);
 
             return mergedElement;
           },
           aliasField: '$ref',
+          origin: { uri: reference.uri, jsonPointer },
           circular: { uri: $refBaseURI, meta: { uri: reference.uri, $ref }, details: { $ref } },
         },
       );

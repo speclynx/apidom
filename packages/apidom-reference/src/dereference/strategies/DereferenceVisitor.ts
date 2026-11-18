@@ -83,6 +83,11 @@ export interface TransclusionSpec {
    */
   readonly aliasField?: string;
   /**
+   * Where the target is defined: the URI of its document and, when the reference is resolved
+   * by JSON Pointer against that document, the pointer within it.
+   */
+  readonly origin?: { readonly uri: string; readonly jsonPointer?: string };
+  /**
    * What a circular reference is reported and replaced with: the RefElement content and meta
    * for `dereference.circular: 'replace'`, the error details for `'error'`.
    */
@@ -653,17 +658,15 @@ abstract class DereferenceVisitor<TContext = unknown> {
   protected toTranscludedElement(referencingElement: Element, transclusion: Transclusion): Element {
     // the referencing element waits for an enclosing element to transclude it
     if (transclusion.keep) return referencingElement;
+
+    let target = transclusion.target.element;
     // an alias whose reference never reaches a value
     if (transclusion.target.unresolved) {
       const { aliasField } = transclusion;
-      const alias = transclusion.target.element;
-      if (aliasField === undefined || !isObjectElement(alias)) return referencingElement;
-      const fields = cloneShallow(alias);
-      fields.remove(aliasField);
-      return transclusion.toTranscludedElement(referencingElement, fields);
-    }
-
-    if (transclusion.back && this.options.dereference.circular === 'replace') {
+      if (aliasField === undefined || !isObjectElement(target)) return referencingElement;
+      target = cloneShallow(target);
+      (target as ObjectElement).remove(aliasField);
+    } else if (transclusion.back && this.options.dereference.circular === 'replace') {
       const refElement = new RefElement(transclusion.circular.uri, {
         type: referencingElement.element,
         ...transclusion.circular.meta,
@@ -674,7 +677,26 @@ abstract class DereferenceVisitor<TContext = unknown> {
       return replacer(refElement);
     }
 
-    return transclusion.toTranscludedElement(referencingElement, transclusion.target.element);
+    const transcludedElement = transclusion.toTranscludedElement(referencingElement, target);
+    const { origin } = transclusion;
+    // an element used as it is isn't annotated, and a transcluded target (a chain of references)
+    // is defined where its own annotation says, which the element cloned from it carries
+    if (
+      origin === undefined ||
+      transcludedElement === target ||
+      transcludedElement === referencingElement ||
+      (!target.isMetaEmpty && target.meta.hasKey('ref-type'))
+    ) {
+      return transcludedElement;
+    }
+
+    transcludedElement.meta.set('ref-origin', origin.uri);
+    // an alias whose reference never reaches a value has no content to point at
+    if (origin.jsonPointer !== undefined && !transclusion.target.unresolved) {
+      transcludedElement.meta.set('ref-origin-pointer', origin.jsonPointer);
+    }
+
+    return transcludedElement;
   }
 
   /**

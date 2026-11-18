@@ -284,8 +284,7 @@ class Arazzo1DereferenceVisitor extends DereferenceVisitor<Arazzo1DereferenceCon
               reference: runtimeExpression,
               value: toValue(reusableElement.value),
             });
-            // annotate with info about origin
-            mergedElement.meta.set('ref-origin', this.reference.uri);
+            // annotate with info about type
             mergedElement.meta.set('ref-type', element.element);
 
             // override value field if present for Parameter Objects
@@ -296,6 +295,7 @@ class Arazzo1DereferenceVisitor extends DereferenceVisitor<Arazzo1DereferenceCon
 
             return mergedElement;
           },
+          origin: { uri: url.stripHash(this.reference.uri), jsonPointer },
           circular: {
             uri: runtimeExpression,
             meta: { uri: this.reference.uri, reference: runtimeExpression },
@@ -348,6 +348,8 @@ class Arazzo1DereferenceVisitor extends DereferenceVisitor<Arazzo1DereferenceCon
       let referencedElement: Element;
       // $ids of the schemas enclosing the referenced element within its document
       let ancestorSchema$ids: string[];
+      // known when the reference is resolved by JSON Pointer against its document
+      let jsonPointer: string | undefined;
 
       try {
         if (isUnknownURI || isURL) {
@@ -463,13 +465,13 @@ class Arazzo1DereferenceVisitor extends DereferenceVisitor<Arazzo1DereferenceCon
             }
 
             reference = await this.toReference(url.unsanitize($refBaseURI));
-            const selector = URIFragmentIdentifier.fromURIReference($refBaseURI);
+            jsonPointer = URIFragmentIdentifier.fromURIReference($refBaseURI);
             const referenceAsSchema = this.toJSONSchemaDocument(
               (reference.value as ParseResultElement).result as Element,
             );
             ({ element: referencedElement, ancestorSchema$ids } = jsonPointerLocate(
               referenceAsSchema,
-              selector,
+              jsonPointer,
             ));
           }
         } else {
@@ -502,8 +504,7 @@ class Arazzo1DereferenceVisitor extends DereferenceVisitor<Arazzo1DereferenceCon
               const booleanJsonSchemaElement = cloneDeep<BooleanElement>(target);
               // annotate referenced element with info about original referencing element
               booleanJsonSchemaElement.meta.set('ref-fields', { $ref });
-              // annotate referenced element with info about origin
-              booleanJsonSchemaElement.meta.set('ref-origin', origin);
+              // annotate referenced element with info about type
               booleanJsonSchemaElement.meta.set('ref-type', element.element);
               return booleanJsonSchemaElement;
             }
@@ -524,13 +525,13 @@ class Arazzo1DereferenceVisitor extends DereferenceVisitor<Arazzo1DereferenceCon
             mergedElement.remove('$ref');
             // annotate referenced element with info about original referencing element
             mergedElement.meta.set('ref-fields', { $ref });
-            // annotate fragment with info about origin
-            mergedElement.meta.set('ref-origin', origin);
+            // annotate fragment with info about type
             mergedElement.meta.set('ref-type', element.element);
 
             return mergedElement;
           },
           aliasField: '$ref',
+          origin: { uri: origin, jsonPointer },
           circular: { uri: $refBaseURI, meta: { uri: origin, $ref }, details: { $ref } },
         },
       );
