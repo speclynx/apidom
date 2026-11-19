@@ -134,12 +134,12 @@ class OpenAPI3_0DereferenceVisitor extends DereferenceVisitor<undefined> {
             const mergedElement = cloneShallow(target);
             // annotate referenced element with info about original referencing element
             mergedElement.meta.set('ref-fields', { $ref });
-            // annotate fragment with info about origin
-            mergedElement.meta.set('ref-origin', reference.uri);
+            // annotate fragment with info about type
             mergedElement.meta.set('ref-type', element.element);
 
             return mergedElement;
           },
+          origin: { uri: reference.uri, jsonPointer },
           circular: { uri: $refBaseURI, meta: { uri: reference.uri, $ref }, details: { $ref } },
         },
       );
@@ -229,13 +229,13 @@ class OpenAPI3_0DereferenceVisitor extends DereferenceVisitor<undefined> {
 
             // annotate referenced element with info about original referencing element
             mergedElement.meta.set('ref-fields', { $ref });
-            // annotate referenced element with info about origin and type
-            mergedElement.meta.set('ref-origin', reference.uri);
+            // annotate referenced element with info about type
             mergedElement.meta.set('ref-type', element.element);
 
             return mergedElement;
           },
           aliasField: '$ref',
+          origin: { uri: reference.uri, jsonPointer },
           circular: { uri: $refBaseURI, meta: { uri: reference.uri, $ref }, details: { $ref } },
         },
       );
@@ -314,6 +314,7 @@ class OpenAPI3_0DereferenceVisitor extends DereferenceVisitor<undefined> {
             const operationCopy = cloneShallow(target);
             // annotate operation element with info about origin and type
             operationCopy.meta.set('ref-origin', reference.uri);
+            operationCopy.meta.set('ref-origin-pointer', jsonPointer);
             operationCopy.meta.set('ref-type', element.element);
 
             /**
@@ -356,8 +357,15 @@ class OpenAPI3_0DereferenceVisitor extends DereferenceVisitor<undefined> {
           /**
            * Transclude Link Object containing Operation Object in its meta.
            */
+          // create shallow clone to be able to annotate with metadata
+          const operationCopy = cloneShallow(target);
+          // annotate operation element with info about origin and type
+          operationCopy.meta.set('ref-origin', reference.uri);
+          operationCopy.meta.set('ref-origin-pointer', operationPath!.formatPath());
+          operationCopy.meta.set('ref-type', element.element);
+
           const linkElementCopy = cloneShallow(element as LinkElement);
-          linkElementCopy.operationId?.meta.set('operation', target);
+          linkElementCopy.operationId?.meta.set('operation', operationCopy);
           return linkElementCopy;
         },
       );
@@ -436,6 +444,7 @@ class OpenAPI3_0DereferenceVisitor extends DereferenceVisitor<undefined> {
           const valueElement = cloneShallow(target);
           // annotate element with info about origin and type
           valueElement.meta.set('ref-origin', reference.uri);
+          valueElement.meta.set('ref-origin-pointer', '');
           valueElement.meta.set('ref-type', element.element);
 
           /**

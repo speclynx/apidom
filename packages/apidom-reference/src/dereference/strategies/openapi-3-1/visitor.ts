@@ -255,8 +255,7 @@ class OpenAPI3_1DereferenceVisitor extends DereferenceVisitor<OpenAPI3_1Derefere
               description: toValue(reusingElement.get('description')),
               summary: toValue(reusingElement.get('summary')),
             });
-            // annotate fragment with info about origin and type
-            mergedElement.meta.set('ref-origin', reference.uri);
+            // annotate fragment with info about type
             mergedElement.meta.set('ref-type', element.element);
 
             // override description and summary (outer has higher priority then inner)
@@ -275,6 +274,7 @@ class OpenAPI3_1DereferenceVisitor extends DereferenceVisitor<OpenAPI3_1Derefere
 
             return mergedElement;
           },
+          origin: { uri: reference.uri, jsonPointer },
           circular: { uri: $refBaseURI, meta: { uri: reference.uri, $ref }, details: { $ref } },
         },
       );
@@ -364,13 +364,13 @@ class OpenAPI3_1DereferenceVisitor extends DereferenceVisitor<OpenAPI3_1Derefere
 
             // annotate referenced element with info about original referencing element
             mergedElement.meta.set('ref-fields', { $ref });
-            // annotate referenced element with info about origin and type
-            mergedElement.meta.set('ref-origin', reference.uri);
+            // annotate referenced element with info about type
             mergedElement.meta.set('ref-type', element.element);
 
             return mergedElement;
           },
           aliasField: '$ref',
+          origin: { uri: reference.uri, jsonPointer },
           circular: { uri: $refBaseURI, meta: { uri: reference.uri, $ref }, details: { $ref } },
         },
       );
@@ -449,6 +449,7 @@ class OpenAPI3_1DereferenceVisitor extends DereferenceVisitor<OpenAPI3_1Derefere
             const operationCopy = cloneShallow(target);
             // annotate operation element with info about origin and type
             operationCopy.meta.set('ref-origin', reference.uri);
+            operationCopy.meta.set('ref-origin-pointer', jsonPointer);
             operationCopy.meta.set('ref-type', element.element);
 
             /**
@@ -491,8 +492,15 @@ class OpenAPI3_1DereferenceVisitor extends DereferenceVisitor<OpenAPI3_1Derefere
           /**
            * Transclude Link Object containing Operation Object in its meta.
            */
+          // create shallow clone to be able to annotate with metadata
+          const operationCopy = cloneShallow(target);
+          // annotate operation element with info about origin and type
+          operationCopy.meta.set('ref-origin', reference.uri);
+          operationCopy.meta.set('ref-origin-pointer', operationPath!.formatPath());
+          operationCopy.meta.set('ref-type', element.element);
+
           const linkElementCopy = cloneShallow(element as LinkElement);
-          linkElementCopy.operationId?.meta.set('operation', target);
+          linkElementCopy.operationId?.meta.set('operation', operationCopy);
           return linkElementCopy;
         },
       );
@@ -571,6 +579,7 @@ class OpenAPI3_1DereferenceVisitor extends DereferenceVisitor<OpenAPI3_1Derefere
           const valueElement = cloneShallow(target);
           // annotate element with info about origin and type
           valueElement.meta.set('ref-origin', reference.uri);
+          valueElement.meta.set('ref-origin-pointer', '');
           valueElement.meta.set('ref-type', element.element);
 
           /**
@@ -626,6 +635,8 @@ class OpenAPI3_1DereferenceVisitor extends DereferenceVisitor<OpenAPI3_1Derefere
       let referencedElement: Element;
       // $ids of the schemas enclosing the referenced element within its document
       let ancestorSchema$ids: string[];
+      // known when the reference is resolved by JSON Pointer against its document
+      let jsonPointer: string | undefined;
 
       try {
         if (isUnknownURI || isURL) {
@@ -753,10 +764,10 @@ class OpenAPI3_1DereferenceVisitor extends DereferenceVisitor<OpenAPI3_1Derefere
             }
 
             reference = await this.toReference(url.unsanitize($refBaseURI));
-            const selector = URIFragmentIdentifier.fromURIReference($refBaseURI);
+            jsonPointer = URIFragmentIdentifier.fromURIReference($refBaseURI);
             ({ element: referencedElement, ancestorSchema$ids } = jsonPointerLocate(
               this.toSchemaDocument((reference.value as ParseResultElement).result as Element),
-              selector,
+              jsonPointer,
             ));
           }
         } else {
@@ -788,8 +799,7 @@ class OpenAPI3_1DereferenceVisitor extends DereferenceVisitor<OpenAPI3_1Derefere
               const booleanJsonSchemaElement = cloneDeep<BooleanElement>(target);
               // annotate referenced element with info about original referencing element
               booleanJsonSchemaElement.meta.set('ref-fields', { $ref });
-              // annotate referenced element with info about origin and type
-              booleanJsonSchemaElement.meta.set('ref-origin', origin);
+              // annotate referenced element with info about type
               booleanJsonSchemaElement.meta.set('ref-type', element.element);
               return booleanJsonSchemaElement;
             }
@@ -810,13 +820,13 @@ class OpenAPI3_1DereferenceVisitor extends DereferenceVisitor<OpenAPI3_1Derefere
             mergedElement.remove('$ref');
             // annotate referenced element with info about original referencing element
             mergedElement.meta.set('ref-fields', { $ref });
-            // annotate fragment with info about origin and type
-            mergedElement.meta.set('ref-origin', origin);
+            // annotate fragment with info about type
             mergedElement.meta.set('ref-type', element.element);
 
             return mergedElement;
           },
           aliasField: '$ref',
+          origin: { uri: origin, jsonPointer },
           circular: { uri: $refBaseURI, meta: { uri: origin, $ref }, details: { $ref } },
         },
       );

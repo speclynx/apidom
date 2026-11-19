@@ -192,7 +192,8 @@ class Overlay1DereferenceVisitor {
       description: toValue(referencingElement.description),
     });
     // annotate with info about origin
-    actionElement.meta.set('ref-origin', this.reference.uri);
+    actionElement.meta.set('ref-origin', documentURI);
+    actionElement.meta.set('ref-origin-pointer', URIFragmentIdentifier.from($ref));
     actionElement.meta.set('ref-type', referencingElement.element);
 
     /**

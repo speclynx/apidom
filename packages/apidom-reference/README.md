@@ -2050,6 +2050,14 @@ every strategy differs significantly. `Dereference component` comes with six (6)
 The `arazzo-1`, `asyncapi-2`, `openapi-2`, `openapi-3-0` and `openapi-3-1` strategies read a referenced structure
 as the type its reference expects (a structure referenced as a Parameter Object and as a Header Object is read as both),
 and dereference it once per type. Elements transcluded in place of references carry the `ref-type` meta.
+They also carry the `ref-origin` meta, the URI of the document they're defined in, and the `ref-origin-pointer` meta,
+the JSON Pointer to them within that document. For a chain of references, both describe the end of the chain: where
+the transcluded content is written, not the document the first reference points into (`ref-fields` keeps the reference as written).
+`ref-origin-pointer` is only set when the reference is resolved by JSON Pointer against its document: Schema Objects
+resolved through `$id` or `$anchor` carry `ref-origin` only, and so do elements whose circular reference never reaches a value.
+Fields defined next to a `$ref` and merged into the transcluded element are written in the referencing document.
+The Operation Object attached to a Link Object (`operationRef`, `operationId`) and the value attached to an Example Object
+(`externalValue`) carry both metas as well; an external value is the whole document, so its pointer is empty.
 Frozen elements aren't edited: when the dereferenced element, a document of the `dereference.refSet` or its parsed
 result is frozen, `dereference.immutable: false` dereferences as `dereference.immutable: true` does, for the whole run.
 Only these are checked: a frozen element within an unfrozen document is dereferenced in place.
@@ -2302,7 +2310,7 @@ Dereference strategy for dereferencing [Overlay 1.x](https://spec.openapis.org/o
 [Reusable Action References](https://spec.openapis.org/overlay/v1.2.0.html#reusable-action-reference-object) (Overlay 1.2.0)
 in `actions` are replaced with the Action Objects they resolve to in `components.actions`. The reference provides `target`,
 and its `description` takes precedence over the one from the reusable action's `fields`. Every resolved Action Object
-carries `ref-fields`, `ref-origin` and `ref-type` meta. Reusable Action References are same-document references,
+carries `ref-fields`, `ref-origin`, `ref-origin-pointer` and `ref-type` meta. Reusable Action References are same-document references,
 so they are only dereferenced when `resolve.internal` is `true` (the default). As the specification requires,
 external references (relative or absolute URLs in `$ref`) are not supported and are reported as unresolvable. Unresolvable references
 raise `UnresolvableReferenceError`, honoring the `dereference.continueOnError` option; when errors are continued on,
