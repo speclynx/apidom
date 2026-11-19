@@ -10,7 +10,7 @@ Formatting is Prettier 3 (`.prettierrc` at the repo root) wired into ESLint via 
 
 A PostToolUse hook (`.claude/hooks/lint-fix-after-edit.sh`) runs `eslint --fix` on every Claude-edited `.ts`/`.tsx` file, and the pre-commit hooks (`.claude/hooks/typecheck-before-commit.sh`, `.claude/hooks/declarations-before-commit.sh`) run `typescript:check-types` and `typescript:declaration` on changed packages so type errors surface before a commit lands.
 
-- **`'.ts'` suffix on relative TypeScript imports.** `tsconfig.json` sets `allowImportingTsExtensions: true` and `import/extensions` is `['error', 'always', { ts: 'always', tsx: 'always', js: 'always', jsx: 'never', ignorePackages: true }]`, so relative imports carry their extension while package imports (`ramda`, `minim`) stay extension-free. Babel rewrites the source `.ts` to the emitted `.mjs`/`.cjs` at build time.
+- **`'.ts'` suffix on relative TypeScript imports.** `tsconfig.json` sets `allowImportingTsExtensions: true` and `import/extensions` is `['error', 'always', { pattern: { ts: 'always', tsx: 'always', js: 'always', jsx: 'never' }, ignorePackages: true }]`, so relative imports carry their extension while package imports (`ramda`, `minim`) stay extension-free. Babel rewrites the source `.ts` to the emitted `.mjs`/`.cjs` at build time.
 
 - **Single quotes for strings.** `quotes: ['error', 'single', { avoidEscape: true }]`. Use a double-quoted literal only when the string contains a single quote and escaping would be noisier.
 
