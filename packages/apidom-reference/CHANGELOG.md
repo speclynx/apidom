@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.1.0](https://github.com/speclynx/apidom/compare/v7.0.2...v7.1.0) (2026-11-19)
+
+### Features
+
+- **reference:** record where transcluded elements are defined ([#789](https://github.com/speclynx/apidom/issues/789)) ([d1299e1](https://github.com/speclynx/apidom/commit/d1299e1707db82455123a171d9e32981d8cb2505)), closes [#788](https://github.com/speclynx/apidom/issues/788)
+
 ## [7.0.2](https://github.com/speclynx/apidom/compare/v7.0.1...v7.0.2) (2026-11-11)
 
 ### Bug Fixes
