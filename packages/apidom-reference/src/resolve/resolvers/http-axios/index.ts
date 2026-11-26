@@ -1,7 +1,6 @@
 import { omit } from 'ramda';
 import { ensureArray, isPlainObject } from 'ramda-adjunct';
 import axios, {
-  Axios,
   AxiosHeaders,
   AxiosInstance,
   CreateAxiosDefaults,
@@ -22,11 +21,27 @@ export type {
 export type { default as Resolver, ResolverOptions } from '../Resolver.ts';
 export type { default as File, FileOptions } from '../../../File.ts';
 
+type RequestInterceptorUse = AxiosInstance['interceptors']['request']['use'];
+type ResponseInterceptorUse = AxiosInstance['interceptors']['response']['use'];
+type RequestOnFulfilled = NonNullable<Parameters<RequestInterceptorUse>[0]>;
+type ResponseOnFulfilled = NonNullable<Parameters<ResponseInterceptorUse>[0]>;
+
 /**
  * @public
  */
 export interface HTTPResolverAxiosConfig extends CreateAxiosDefaults {
-  interceptors?: Axios['interceptors'];
+  /**
+   * A single `onFulfilled` function, or a list whose items are either an
+   * `onFulfilled` function or a tuple of the arguments of axios'
+   * `interceptors.<request|response>.use()`. Every function in a list is
+   * a separate onFulfilled interceptor; a rejection handler must be given
+   * in a tuple, e.g. `[[onFulfilled, onRejected]]`.
+   */
+  interceptors?: {
+    request?: RequestOnFulfilled | Array<RequestOnFulfilled | Parameters<RequestInterceptorUse>>;
+    response?:
+      ResponseOnFulfilled | Array<ResponseOnFulfilled | Parameters<ResponseInterceptorUse>>;
+  };
 }
 
 /**
@@ -90,18 +105,18 @@ class HTTPResolverAxios extends HTTPResolver {
       });
 
       // settings up request interceptors
-      if (Array.isArray(interceptors?.request)) {
-        interceptors.request.forEach((requestInterceptor) => {
-          this.axiosInstance.interceptors.request.use(...ensureArray(requestInterceptor));
-        });
-      }
+      ensureArray(interceptors?.request ?? []).forEach((requestInterceptor) => {
+        this.axiosInstance.interceptors.request.use(
+          ...(ensureArray(requestInterceptor) as Parameters<RequestInterceptorUse>),
+        );
+      });
 
       // settings up response interceptors
-      if (Array.isArray(interceptors?.response)) {
-        interceptors.response.forEach((responseInterceptor: any) => {
-          this.axiosInstance.interceptors.response.use(...ensureArray(responseInterceptor));
-        });
-      }
+      ensureArray(interceptors?.response ?? []).forEach((responseInterceptor) => {
+        this.axiosInstance.interceptors.response.use(
+          ...(ensureArray(responseInterceptor) as Parameters<ResponseInterceptorUse>),
+        );
+      });
 
       this.previousAxiosConfig = this.axiosConfig;
     }

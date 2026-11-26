@@ -323,7 +323,7 @@ describe('resolve', function () {
                           throw failure;
                         },
                       ],
-                    } as any,
+                    },
                   },
                 });
 
@@ -351,6 +351,74 @@ describe('resolve', function () {
                 return [200, Buffer.from('data')];
               });
               await resolver.read(new File({ uri: url }));
+            });
+          });
+
+          context('given interceptors option', function () {
+            const url = 'https://httpbin.org/anything';
+
+            specify('should apply a single interceptor', async function () {
+              resolver = new HttpResolverAxios({
+                axiosConfig: {
+                  interceptors: {
+                    request: (config) => {
+                      config.headers.set('X-Request', 'single');
+                      return config;
+                    },
+                    response: (response) => {
+                      response.data = Buffer.from('intercepted');
+                      return response;
+                    },
+                  },
+                },
+              });
+              axiosMock = new MockAdapter(resolver.getHttpClient());
+              axiosMock.onGet(url).reply((config: AxiosRequestConfig) => {
+                assert.strictEqual((config.headers as AxiosHeaders).get('X-Request'), 'single');
+                return [200, Buffer.from('data')];
+              });
+
+              const content = await resolver.read(new File({ uri: url }));
+
+              assert.strictEqual(content.toString(), 'intercepted');
+            });
+
+            specify('should apply a list of interceptors', async function () {
+              const onRejected = sinon.spy((error: unknown) => Promise.reject(error));
+              resolver = new HttpResolverAxios({
+                axiosConfig: {
+                  interceptors: {
+                    request: [
+                      (config) => {
+                        config.headers.set('X-First', '1');
+                        return config;
+                      },
+                      [
+                        (config) => {
+                          config.headers.set('X-Second', '2');
+                          return config;
+                        },
+                      ],
+                    ],
+                    response: [[identity, onRejected]],
+                  },
+                },
+              });
+              axiosMock = new MockAdapter(resolver.getHttpClient());
+              axiosMock.onGet(url).reply((config: AxiosRequestConfig) => {
+                const headers = config.headers as AxiosHeaders;
+                assert.strictEqual(headers.get('X-First'), '1');
+                assert.strictEqual(headers.get('X-Second'), '2');
+                return [500, Buffer.from('data')];
+              });
+
+              const error = await resolver.read(new File({ uri: url })).then(
+                () => assert.fail('should throw ResolverError'),
+                (e: unknown) => e,
+              );
+
+              assert.instanceOf(error, ResolverError);
+              assert.isTrue(onRejected.calledOnce);
             });
           });
 
