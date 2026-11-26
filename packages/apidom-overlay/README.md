@@ -306,7 +306,7 @@ Passed to `applyOverlay`, `applyOverlayApiDOM`, and `applyOverlayPOJO`. Extends 
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `reference` | `PartialDeep<ReferenceOptions>` | — | [`@speclynx/apidom-reference` options](https://github.com/speclynx/apidom/blob/main/packages/apidom-reference/README.md) for dereferencing the overlay (and, in `applyOverlay`, for parsing the overlay and target documents). |
+| `reference` | `{ [K in keyof ReferenceOptions]?: Partial<ReferenceOptions[K]> }` | — | [`@speclynx/apidom-reference` options](https://github.com/speclynx/apidom/blob/main/packages/apidom-reference/README.md) for dereferencing the overlay (and, in `applyOverlay`, for parsing the overlay and target documents). |
 
 ### DiffOverlayOptions
 
@@ -317,7 +317,7 @@ Passed to `diffOverlay`. Extends `DiffOptions` with a `reference` field:
 | `overlay` | `string` | `'1.2.0'` | Inherited from `DiffOptions`. See [DiffOptions](#diffoptions). |
 | `info` | `object` | — | Inherited from `DiffOptions`. |
 | `extends` | `string` | `leftURI` | When omitted, automatically set to `leftURI` so the overlay points back to the base document. |
-| `reference` | `PartialDeep<ReferenceOptions>` | — | [`@speclynx/apidom-reference` options](https://github.com/speclynx/apidom/blob/main/packages/apidom-reference/README.md) for parsing the left and right documents. |
+| `reference` | `{ [K in keyof ReferenceOptions]?: Partial<ReferenceOptions[K]> }` | — | [`@speclynx/apidom-reference` options](https://github.com/speclynx/apidom/blob/main/packages/apidom-reference/README.md) for parsing the left and right documents. |
 
 ## Validation
 

@@ -5,7 +5,6 @@ import {
   mergeOptions,
   type ApiDOMReferenceOptions as ReferenceOptions,
 } from '@speclynx/apidom-reference';
-import type { PartialDeep } from 'type-fest';
 
 import { diff as diffApiDOM, assertSupportedOverlayVersion, type DiffOptions } from './apidom.ts';
 import OverlayError from '../../errors/OverlayError.ts';
@@ -14,7 +13,7 @@ import OverlayError from '../../errors/OverlayError.ts';
  * @public
  */
 export interface DiffOverlayOptions extends DiffOptions {
-  readonly reference?: PartialDeep<ReferenceOptions>;
+  readonly reference?: { readonly [K in keyof ReferenceOptions]?: Partial<ReferenceOptions[K]> };
 }
 
 // intentionally omits overlay-json-1/overlay-yaml-1 parser opts present in apply/realms/uri.ts

@@ -21,7 +21,6 @@ import {
   dereferenceApiDOM,
   type ApiDOMReferenceOptions as ReferenceOptions,
 } from '@speclynx/apidom-reference';
-import type { PartialDeep } from 'type-fest';
 
 import OverlayError from '../../errors/OverlayError.ts';
 import { validateAction, validateTargetNodes } from '../../validate.ts';
@@ -42,7 +41,7 @@ export interface ApplyOptions {
  * @public
  */
 export interface ApplyOverlayOptions extends ApplyOptions {
-  readonly reference?: PartialDeep<ReferenceOptions>;
+  readonly reference?: { readonly [K in keyof ReferenceOptions]?: Partial<ReferenceOptions[K]> };
 }
 
 /**
