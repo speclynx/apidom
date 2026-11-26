@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.1.1](https://github.com/speclynx/apidom/compare/v7.1.0...v7.1.1) (2026-11-26)
+
+### Bug Fixes
+
+- correct unpkg paths of parser adapters ([63a71eb](https://github.com/speclynx/apidom/commit/63a71eb908f68f65c5b56b7aa8a5cff750adca06))
+- **json-pointer:** point top-level types at published declarations ([599c4f3](https://github.com/speclynx/apidom/commit/599c4f363eb521606114dd1d296fbbde13f1a2b0))
+- **overlay:** drop type-fest dependency ([#808](https://github.com/speclynx/apidom/issues/808)) ([de2a857](https://github.com/speclynx/apidom/commit/de2a857e10e2b69acdd4c8b2a012d4566487b2bf)), closes [#805](https://github.com/speclynx/apidom/issues/805)
+- **reference:** align http-axios interceptors type with runtime ([5eb1ca0](https://github.com/speclynx/apidom/commit/5eb1ca0541ce98ccd249f3f7681683f3a15a093d)), closes [#807](https://github.com/speclynx/apidom/issues/807)
+- ship .d.cts declarations for CommonJS consumers ([2c9ed06](https://github.com/speclynx/apidom/commit/2c9ed06ddbd2105e3053bc6c3968939b478a198e)), closes [#807](https://github.com/speclynx/apidom/issues/807)
+- ship @types/emscripten with tree-sitter parser adapters ([6fe3470](https://github.com/speclynx/apidom/commit/6fe34706d3639f9c70bbb866bf95c819c4623805))
+
 # [7.1.0](https://github.com/speclynx/apidom/compare/v7.0.2...v7.1.0) (2026-11-19)
 
 ### Features

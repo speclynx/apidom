@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.1.1](https://github.com/speclynx/apidom/compare/v7.1.0...v7.1.1) (2026-11-26)
+
+### Bug Fixes
+
+- ship .d.cts declarations for CommonJS consumers ([2c9ed06](https://github.com/speclynx/apidom/commit/2c9ed06ddbd2105e3053bc6c3968939b478a198e)), closes [#807](https://github.com/speclynx/apidom/issues/807)
+
 # [7.1.0](https://github.com/speclynx/apidom/compare/v7.0.2...v7.1.0) (2026-11-19)
 
 **Note:** Version bump only for package @speclynx/apidom-ns-overlay-1

@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.1.1](https://github.com/speclynx/apidom/compare/v7.1.0...v7.1.1) (2026-11-26)
+
+### Bug Fixes
+
+- correct unpkg paths of parser adapters ([63a71eb](https://github.com/speclynx/apidom/commit/63a71eb908f68f65c5b56b7aa8a5cff750adca06))
+- ship .d.cts declarations for CommonJS consumers ([2c9ed06](https://github.com/speclynx/apidom/commit/2c9ed06ddbd2105e3053bc6c3968939b478a198e)), closes [#807](https://github.com/speclynx/apidom/issues/807)
+- ship @types/emscripten with tree-sitter parser adapters ([6fe3470](https://github.com/speclynx/apidom/commit/6fe34706d3639f9c70bbb866bf95c819c4623805))
+
 # [7.1.0](https://github.com/speclynx/apidom/compare/v7.0.2...v7.1.0) (2026-11-19)
 
 **Note:** Version bump only for package @speclynx/apidom-parser-adapter-yaml-1-2
