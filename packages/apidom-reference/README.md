@@ -1185,7 +1185,7 @@ import { resolve } from '@speclynx/apidom-reference';
 const requestInterceptor1 = (config) => config;
 const requestInterceptor2 = (config) => config;
 const responseInterceptor1 = (response) => response;
-const responseInterceptor2 = async (error) => Promise.reject(error);
+const responseInterceptor2 = (response) => response;
 
 await resolve('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.1/webhook-example.json', {
   resolve: {
@@ -1200,6 +1200,37 @@ await resolve('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/
   },
 });
 ```
+
+Every function in a list is registered as a separate interceptor that handles fulfilled
+requests or responses. To also handle rejections, or to pass interceptor options, provide
+the arguments of axios' `interceptors.request.use()` / `interceptors.response.use()` as a tuple:
+
+```js
+import { resolve } from '@speclynx/apidom-reference';
+
+const requestInterceptor = (config) => config;
+const responseInterceptor = (response) => response;
+const errorInterceptor = async (error) => Promise.reject(error);
+
+await resolve('https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.1/webhook-example.json', {
+  resolve: {
+    resolverOpts: {
+      axiosConfig: {
+        interceptors: {
+          // [onFulfilled, onRejected, options]
+          request: [[requestInterceptor, null, { synchronous: true }]],
+          // [onFulfilled, onRejected]
+          response: [[responseInterceptor, errorInterceptor]],
+        },
+      },
+    },
+  },
+});
+```
+
+Note that `response: [responseInterceptor, errorInterceptor]` (without the inner brackets)
+registers `errorInterceptor` as a second interceptor for fulfilled responses, not as
+a rejection handler.
 
 ###### Response caching support
 
