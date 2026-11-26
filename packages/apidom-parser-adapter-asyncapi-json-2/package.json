@@ -29,9 +29,14 @@
   "unpkg": "./dist/apidom-parser-apdater-asyncapi-json-2.browser.min.js",
   "main": "./src/adapter.cjs",
   "exports": {
-    "types": "./types/apidom-parser-adapter-asyncapi-json-2.d.ts",
-    "import": "./src/adapter.mjs",
-    "require": "./src/adapter.cjs"
+    "import": {
+      "types": "./types/apidom-parser-adapter-asyncapi-json-2.d.ts",
+      "default": "./src/adapter.mjs"
+    },
+    "require": {
+      "types": "./types/apidom-parser-adapter-asyncapi-json-2.d.cts",
+      "default": "./src/adapter.cjs"
+    }
   },
   "types": "./types/apidom-parser-adapter-asyncapi-json-2.d.ts",
   "scripts": {
@@ -43,7 +48,8 @@
     "lint:fix": "eslint ./ --fix",
     "clean": "rimraf --glob 'src/**/*.mjs' 'src/**/*.cjs' 'test/**/*.mjs' ./dist ./types",
     "typescript:check-types": "tsc --noEmit",
-    "typescript:declaration": "tsc -p tsconfig.declaration.json && api-extractor run -l -c ./config/api-extractor/api-extractor.json",
+    "typescript:declaration": "tsc -p tsconfig.declaration.json && api-extractor run -l -c ./config/api-extractor/api-extractor.json && node ../../scripts/declarations-cts.mjs types/apidom-parser-adapter-asyncapi-json-2.d.ts",
+    "typescript:check-published-types": "attw --pack . --profile node16",
     "test": "npm run build:es && cross-env BABEL_ENV=es babel test --out-dir test --extensions '.ts' --out-file-extension '.mjs' --root-mode 'upward' && cross-env NODE_ENV=test mocha",
     "perf": "cross-env BABEL_ENV=es babel ./test/perf/index.ts --out-file ./test/perf/index.mjs --root-mode 'upward' && cross-env NODE_ENV=test node ./test/perf/index.mjs",
     "perf:lexical-analysis": "cross-env BABEL_ENV=es babel ./test/perf/lexical-analysis.ts --out-file ./test/perf/lexical-analysis.mjs --root-mode 'upward' && cross-env NODE_ENV=test node ./test/perf/lexical-analysis.mjs",
@@ -73,6 +79,7 @@
     "src/**/*.cjs",
     "dist/",
     "types/apidom-parser-adapter-asyncapi-json-2.d.ts",
+    "types/apidom-parser-adapter-asyncapi-json-2.d.cts",
     "LICENSES",
     "NOTICE",
     "README.md",

@@ -47,233 +47,458 @@
   "types": "./types/apidom-reference.d.ts",
   "exports": {
     ".": {
-      "import": "./src/configuration/saturated.mjs",
-      "require": "./src/configuration/saturated.cjs",
-      "types": "./types/apidom-reference.d.ts"
+      "import": {
+        "types": "./types/apidom-reference.d.ts",
+        "default": "./src/configuration/saturated.mjs"
+      },
+      "require": {
+        "types": "./types/apidom-reference.d.cts",
+        "default": "./src/configuration/saturated.cjs"
+      }
     },
     "./configuration/saturated": {
-      "import": "./src/configuration/saturated.mjs",
-      "require": "./src/configuration/saturated.cjs",
-      "types": "./types/apidom-reference.d.ts"
+      "import": {
+        "types": "./types/apidom-reference.d.ts",
+        "default": "./src/configuration/saturated.mjs"
+      },
+      "require": {
+        "types": "./types/apidom-reference.d.cts",
+        "default": "./src/configuration/saturated.cjs"
+      }
     },
     "./configuration/empty": {
-      "import": "./src/configuration/empty.mjs",
-      "require": "./src/configuration/empty.cjs",
-      "types": "./types/apidom-reference.d.ts"
+      "import": {
+        "types": "./types/apidom-reference.d.ts",
+        "default": "./src/configuration/empty.mjs"
+      },
+      "require": {
+        "types": "./types/apidom-reference.d.cts",
+        "default": "./src/configuration/empty.cjs"
+      }
     },
     "./resolve/resolvers/file": {
       "browser": {
-        "import": "./src/resolve/resolvers/file/index-browser.mjs",
-        "require": "./src/resolve/resolvers/file/index-browser.cjs",
-        "types": "./types/resolve/resolvers/file/index-browser.d.ts"
+        "import": {
+          "types": "./types/resolve/resolvers/file/index-browser.d.ts",
+          "default": "./src/resolve/resolvers/file/index-browser.mjs"
+        },
+        "require": {
+          "types": "./types/resolve/resolvers/file/index-browser.d.cts",
+          "default": "./src/resolve/resolvers/file/index-browser.cjs"
+        }
       },
       "default": {
-        "import": "./src/resolve/resolvers/file/index-node.mjs",
-        "require": "./src/resolve/resolvers/file/index-node.cjs",
-        "types": "./types/resolve/resolvers/file/index-node.d.ts"
+        "import": {
+          "types": "./types/resolve/resolvers/file/index-node.d.ts",
+          "default": "./src/resolve/resolvers/file/index-node.mjs"
+        },
+        "require": {
+          "types": "./types/resolve/resolvers/file/index-node.d.cts",
+          "default": "./src/resolve/resolvers/file/index-node.cjs"
+        }
       }
     },
     "./resolve/resolvers/http-axios": {
-      "import": "./src/resolve/resolvers/http-axios/index.mjs",
-      "require": "./src/resolve/resolvers/http-axios/index.cjs",
-      "types": "./types/resolve/resolvers/http-axios/index.d.ts"
+      "import": {
+        "types": "./types/resolve/resolvers/http-axios/index.d.ts",
+        "default": "./src/resolve/resolvers/http-axios/index.mjs"
+      },
+      "require": {
+        "types": "./types/resolve/resolvers/http-axios/index.d.cts",
+        "default": "./src/resolve/resolvers/http-axios/index.cjs"
+      }
     },
     "./resolve/strategies/apidom": {
-      "import": "./src/resolve/strategies/apidom/index.mjs",
-      "require": "./src/resolve/strategies/apidom/index.cjs",
-      "types": "./types/resolve/strategies/apidom/index.d.ts"
+      "import": {
+        "types": "./types/resolve/strategies/apidom/index.d.ts",
+        "default": "./src/resolve/strategies/apidom/index.mjs"
+      },
+      "require": {
+        "types": "./types/resolve/strategies/apidom/index.d.cts",
+        "default": "./src/resolve/strategies/apidom/index.cjs"
+      }
     },
     "./resolve/strategies/asyncapi-2": {
-      "import": "./src/resolve/strategies/asyncapi-2/index.mjs",
-      "require": "./src/resolve/strategies/asyncapi-2/index.cjs",
-      "types": "./types/resolve/strategies/asyncapi-2/index.d.ts"
+      "import": {
+        "types": "./types/resolve/strategies/asyncapi-2/index.d.ts",
+        "default": "./src/resolve/strategies/asyncapi-2/index.mjs"
+      },
+      "require": {
+        "types": "./types/resolve/strategies/asyncapi-2/index.d.cts",
+        "default": "./src/resolve/strategies/asyncapi-2/index.cjs"
+      }
     },
     "./resolve/strategies/arazzo-1": {
-      "import": "./src/resolve/strategies/arazzo-1/index.mjs",
-      "require": "./src/resolve/strategies/arazzo-1/index.cjs",
-      "types": "./types/resolve/strategies/arazzo-1/index.d.ts"
+      "import": {
+        "types": "./types/resolve/strategies/arazzo-1/index.d.ts",
+        "default": "./src/resolve/strategies/arazzo-1/index.mjs"
+      },
+      "require": {
+        "types": "./types/resolve/strategies/arazzo-1/index.d.cts",
+        "default": "./src/resolve/strategies/arazzo-1/index.cjs"
+      }
     },
     "./resolve/strategies/overlay-1": {
-      "import": "./src/resolve/strategies/overlay-1/index.mjs",
-      "require": "./src/resolve/strategies/overlay-1/index.cjs",
-      "types": "./types/resolve/strategies/overlay-1/index.d.ts"
+      "import": {
+        "types": "./types/resolve/strategies/overlay-1/index.d.ts",
+        "default": "./src/resolve/strategies/overlay-1/index.mjs"
+      },
+      "require": {
+        "types": "./types/resolve/strategies/overlay-1/index.d.cts",
+        "default": "./src/resolve/strategies/overlay-1/index.cjs"
+      }
     },
     "./resolve/strategies/openapi-2": {
-      "import": "./src/resolve/strategies/openapi-2/index.mjs",
-      "require": "./src/resolve/strategies/openapi-2/index.cjs",
-      "types": "./types/resolve/strategies/openapi-2/index.d.ts"
+      "import": {
+        "types": "./types/resolve/strategies/openapi-2/index.d.ts",
+        "default": "./src/resolve/strategies/openapi-2/index.mjs"
+      },
+      "require": {
+        "types": "./types/resolve/strategies/openapi-2/index.d.cts",
+        "default": "./src/resolve/strategies/openapi-2/index.cjs"
+      }
     },
     "./resolve/strategies/openapi-3-0": {
-      "import": "./src/resolve/strategies/openapi-3-0/index.mjs",
-      "require": "./src/resolve/strategies/openapi-3-0/index.cjs",
-      "types": "./types/resolve/strategies/openapi-3-0/index.d.ts"
+      "import": {
+        "types": "./types/resolve/strategies/openapi-3-0/index.d.ts",
+        "default": "./src/resolve/strategies/openapi-3-0/index.mjs"
+      },
+      "require": {
+        "types": "./types/resolve/strategies/openapi-3-0/index.d.cts",
+        "default": "./src/resolve/strategies/openapi-3-0/index.cjs"
+      }
     },
     "./resolve/strategies/openapi-3-1": {
-      "import": "./src/resolve/strategies/openapi-3-1/index.mjs",
-      "require": "./src/resolve/strategies/openapi-3-1/index.cjs",
-      "types": "./types/resolve/strategies/openapi-3-1/index.d.ts"
+      "import": {
+        "types": "./types/resolve/strategies/openapi-3-1/index.d.ts",
+        "default": "./src/resolve/strategies/openapi-3-1/index.mjs"
+      },
+      "require": {
+        "types": "./types/resolve/strategies/openapi-3-1/index.d.cts",
+        "default": "./src/resolve/strategies/openapi-3-1/index.cjs"
+      }
     },
     "./parse/parsers/asyncapi-json-2": {
-      "import": "./src/parse/parsers/asyncapi-json-2/index.mjs",
-      "require": "./src/parse/parsers/asyncapi-json-2/index.cjs",
-      "types": "./types/parse/parsers/asyncapi-json-2/index.d.ts"
+      "import": {
+        "types": "./types/parse/parsers/asyncapi-json-2/index.d.ts",
+        "default": "./src/parse/parsers/asyncapi-json-2/index.mjs"
+      },
+      "require": {
+        "types": "./types/parse/parsers/asyncapi-json-2/index.d.cts",
+        "default": "./src/parse/parsers/asyncapi-json-2/index.cjs"
+      }
     },
     "./parse/parsers/asyncapi-yaml-2": {
-      "import": "./src/parse/parsers/asyncapi-yaml-2/index.mjs",
-      "require": "./src/parse/parsers/asyncapi-yaml-2/index.cjs",
-      "types": "./types/parse/parsers/asyncapi-yaml-2/index.d.ts"
+      "import": {
+        "types": "./types/parse/parsers/asyncapi-yaml-2/index.d.ts",
+        "default": "./src/parse/parsers/asyncapi-yaml-2/index.mjs"
+      },
+      "require": {
+        "types": "./types/parse/parsers/asyncapi-yaml-2/index.d.cts",
+        "default": "./src/parse/parsers/asyncapi-yaml-2/index.cjs"
+      }
     },
     "./parse/parsers/arazzo-json-1": {
-      "import": "./src/parse/parsers/arazzo-json-1/index.mjs",
-      "require": "./src/parse/parsers/arazzo-json-1/index.cjs",
-      "types": "./types/parse/parsers/arazzo-json-1/index.d.ts"
+      "import": {
+        "types": "./types/parse/parsers/arazzo-json-1/index.d.ts",
+        "default": "./src/parse/parsers/arazzo-json-1/index.mjs"
+      },
+      "require": {
+        "types": "./types/parse/parsers/arazzo-json-1/index.d.cts",
+        "default": "./src/parse/parsers/arazzo-json-1/index.cjs"
+      }
     },
     "./parse/parsers/arazzo-yaml-1": {
-      "import": "./src/parse/parsers/arazzo-yaml-1/index.mjs",
-      "require": "./src/parse/parsers/arazzo-yaml-1/index.cjs",
-      "types": "./types/parse/parsers/arazzo-yaml-1/index.d.ts"
+      "import": {
+        "types": "./types/parse/parsers/arazzo-yaml-1/index.d.ts",
+        "default": "./src/parse/parsers/arazzo-yaml-1/index.mjs"
+      },
+      "require": {
+        "types": "./types/parse/parsers/arazzo-yaml-1/index.d.cts",
+        "default": "./src/parse/parsers/arazzo-yaml-1/index.cjs"
+      }
     },
     "./parse/parsers/overlay-json-1": {
-      "import": "./src/parse/parsers/overlay-json-1/index.mjs",
-      "require": "./src/parse/parsers/overlay-json-1/index.cjs",
-      "types": "./types/parse/parsers/overlay-json-1/index.d.ts"
+      "import": {
+        "types": "./types/parse/parsers/overlay-json-1/index.d.ts",
+        "default": "./src/parse/parsers/overlay-json-1/index.mjs"
+      },
+      "require": {
+        "types": "./types/parse/parsers/overlay-json-1/index.d.cts",
+        "default": "./src/parse/parsers/overlay-json-1/index.cjs"
+      }
     },
     "./parse/parsers/overlay-yaml-1": {
-      "import": "./src/parse/parsers/overlay-yaml-1/index.mjs",
-      "require": "./src/parse/parsers/overlay-yaml-1/index.cjs",
-      "types": "./types/parse/parsers/overlay-yaml-1/index.d.ts"
+      "import": {
+        "types": "./types/parse/parsers/overlay-yaml-1/index.d.ts",
+        "default": "./src/parse/parsers/overlay-yaml-1/index.mjs"
+      },
+      "require": {
+        "types": "./types/parse/parsers/overlay-yaml-1/index.d.cts",
+        "default": "./src/parse/parsers/overlay-yaml-1/index.cjs"
+      }
     },
     "./parse/parsers/apidom-json": {
-      "import": "./src/parse/parsers/apidom-json/index.mjs",
-      "require": "./src/parse/parsers/apidom-json/index.cjs",
-      "types": "./types/parse/parsers/apidom-json/index.d.ts"
+      "import": {
+        "types": "./types/parse/parsers/apidom-json/index.d.ts",
+        "default": "./src/parse/parsers/apidom-json/index.mjs"
+      },
+      "require": {
+        "types": "./types/parse/parsers/apidom-json/index.d.cts",
+        "default": "./src/parse/parsers/apidom-json/index.cjs"
+      }
     },
     "./parse/parsers/binary": {
       "browser": {
-        "import": "./src/parse/parsers/binary/index-browser.mjs",
-        "require": "./src/parse/parsers/binary/index-browser.cjs",
-        "types": "./types/parse/parsers/binary/index-browser.d.ts"
+        "import": {
+          "types": "./types/parse/parsers/binary/index-browser.d.ts",
+          "default": "./src/parse/parsers/binary/index-browser.mjs"
+        },
+        "require": {
+          "types": "./types/parse/parsers/binary/index-browser.d.cts",
+          "default": "./src/parse/parsers/binary/index-browser.cjs"
+        }
       },
       "default": {
-        "import": "./src/parse/parsers/binary/index-node.mjs",
-        "require": "./src/parse/parsers/binary/index-node.cjs",
-        "types": "./types/parse/parsers/binary/index-node.d.ts"
+        "import": {
+          "types": "./types/parse/parsers/binary/index-node.d.ts",
+          "default": "./src/parse/parsers/binary/index-node.mjs"
+        },
+        "require": {
+          "types": "./types/parse/parsers/binary/index-node.d.cts",
+          "default": "./src/parse/parsers/binary/index-node.cjs"
+        }
       }
     },
     "./parse/parsers/json": {
-      "import": "./src/parse/parsers/json/index.mjs",
-      "require": "./src/parse/parsers/json/index.cjs",
-      "types": "./types/parse/parsers/json/index.d.ts"
+      "import": {
+        "types": "./types/parse/parsers/json/index.d.ts",
+        "default": "./src/parse/parsers/json/index.mjs"
+      },
+      "require": {
+        "types": "./types/parse/parsers/json/index.d.cts",
+        "default": "./src/parse/parsers/json/index.cjs"
+      }
     },
     "./parse/parsers/openapi-json-2": {
-      "import": "./src/parse/parsers/openapi-json-2/index.mjs",
-      "require": "./src/parse/parsers/openapi-json-2/index.cjs",
-      "types": "./types/parse/parsers/openapi-json-2/index.d.ts"
+      "import": {
+        "types": "./types/parse/parsers/openapi-json-2/index.d.ts",
+        "default": "./src/parse/parsers/openapi-json-2/index.mjs"
+      },
+      "require": {
+        "types": "./types/parse/parsers/openapi-json-2/index.d.cts",
+        "default": "./src/parse/parsers/openapi-json-2/index.cjs"
+      }
     },
     "./parse/parsers/openapi-yaml-2": {
-      "import": "./src/parse/parsers/openapi-yaml-2/index.mjs",
-      "require": "./src/parse/parsers/openapi-yaml-2/index.cjs",
-      "types": "./types/parse/parsers/openapi-yaml-2/index.d.ts"
+      "import": {
+        "types": "./types/parse/parsers/openapi-yaml-2/index.d.ts",
+        "default": "./src/parse/parsers/openapi-yaml-2/index.mjs"
+      },
+      "require": {
+        "types": "./types/parse/parsers/openapi-yaml-2/index.d.cts",
+        "default": "./src/parse/parsers/openapi-yaml-2/index.cjs"
+      }
     },
     "./parse/parsers/openapi-json-3-0": {
-      "import": "./src/parse/parsers/openapi-json-3-0/index.mjs",
-      "require": "./src/parse/parsers/openapi-json-3-0/index.cjs",
-      "types": "./types/parse/parsers/openapi-json-3-0/index.d.ts"
+      "import": {
+        "types": "./types/parse/parsers/openapi-json-3-0/index.d.ts",
+        "default": "./src/parse/parsers/openapi-json-3-0/index.mjs"
+      },
+      "require": {
+        "types": "./types/parse/parsers/openapi-json-3-0/index.d.cts",
+        "default": "./src/parse/parsers/openapi-json-3-0/index.cjs"
+      }
     },
     "./parse/parsers/openapi-json-3-1": {
-      "import": "./src/parse/parsers/openapi-json-3-1/index.mjs",
-      "require": "./src/parse/parsers/openapi-json-3-1/index.cjs",
-      "types": "./types/parse/parsers/openapi-json-3-1/index.d.ts"
+      "import": {
+        "types": "./types/parse/parsers/openapi-json-3-1/index.d.ts",
+        "default": "./src/parse/parsers/openapi-json-3-1/index.mjs"
+      },
+      "require": {
+        "types": "./types/parse/parsers/openapi-json-3-1/index.d.cts",
+        "default": "./src/parse/parsers/openapi-json-3-1/index.cjs"
+      }
     },
     "./parse/parsers/openapi-yaml-3-0": {
-      "import": "./src/parse/parsers/openapi-yaml-3-0/index.mjs",
-      "require": "./src/parse/parsers/openapi-yaml-3-0/index.cjs",
-      "types": "./types/parse/parsers/openapi-yaml-3-0/index.d.ts"
+      "import": {
+        "types": "./types/parse/parsers/openapi-yaml-3-0/index.d.ts",
+        "default": "./src/parse/parsers/openapi-yaml-3-0/index.mjs"
+      },
+      "require": {
+        "types": "./types/parse/parsers/openapi-yaml-3-0/index.d.cts",
+        "default": "./src/parse/parsers/openapi-yaml-3-0/index.cjs"
+      }
     },
     "./parse/parsers/openapi-yaml-3-1": {
-      "import": "./src/parse/parsers/openapi-yaml-3-1/index.mjs",
-      "require": "./src/parse/parsers/openapi-yaml-3-1/index.cjs",
-      "types": "./types/parse/parsers/openapi-yaml-3-1/index.d.ts"
+      "import": {
+        "types": "./types/parse/parsers/openapi-yaml-3-1/index.d.ts",
+        "default": "./src/parse/parsers/openapi-yaml-3-1/index.mjs"
+      },
+      "require": {
+        "types": "./types/parse/parsers/openapi-yaml-3-1/index.d.cts",
+        "default": "./src/parse/parsers/openapi-yaml-3-1/index.cjs"
+      }
     },
     "./parse/parsers/yaml-1-2": {
-      "import": "./src/parse/parsers/yaml-1-2/index.mjs",
-      "require": "./src/parse/parsers/yaml-1-2/index.cjs",
-      "types": "./types/parse/parsers/yaml-1-2/index.d.ts"
+      "import": {
+        "types": "./types/parse/parsers/yaml-1-2/index.d.ts",
+        "default": "./src/parse/parsers/yaml-1-2/index.mjs"
+      },
+      "require": {
+        "types": "./types/parse/parsers/yaml-1-2/index.d.cts",
+        "default": "./src/parse/parsers/yaml-1-2/index.cjs"
+      }
     },
     "./dereference/strategies/apidom": {
-      "import": "./src/dereference/strategies/apidom/index.mjs",
-      "require": "./src/dereference/strategies/apidom/index.cjs",
-      "types": "./types/dereference/strategies/apidom/index.d.ts"
+      "import": {
+        "types": "./types/dereference/strategies/apidom/index.d.ts",
+        "default": "./src/dereference/strategies/apidom/index.mjs"
+      },
+      "require": {
+        "types": "./types/dereference/strategies/apidom/index.d.cts",
+        "default": "./src/dereference/strategies/apidom/index.cjs"
+      }
     },
     "./dereference/strategies/apidom/selectors/element-id": {
-      "import": "./src/dereference/strategies/apidom/selectors/element-id.mjs",
-      "require": "./src/dereference/strategies/apidom/selectors/element-id.cjs",
-      "types": "./types/dereference/strategies/apidom/selectors/element-id.d.ts"
+      "import": {
+        "types": "./types/dereference/strategies/apidom/selectors/element-id.d.ts",
+        "default": "./src/dereference/strategies/apidom/selectors/element-id.mjs"
+      },
+      "require": {
+        "types": "./types/dereference/strategies/apidom/selectors/element-id.d.cts",
+        "default": "./src/dereference/strategies/apidom/selectors/element-id.cjs"
+      }
     },
     "./dereference/strategies/asyncapi-2": {
-      "import": "./src/dereference/strategies/asyncapi-2/index.mjs",
-      "require": "./src/dereference/strategies/asyncapi-2/index.cjs",
-      "types": "./types/dereference/strategies/asyncapi-2/index.d.ts"
+      "import": {
+        "types": "./types/dereference/strategies/asyncapi-2/index.d.ts",
+        "default": "./src/dereference/strategies/asyncapi-2/index.mjs"
+      },
+      "require": {
+        "types": "./types/dereference/strategies/asyncapi-2/index.d.cts",
+        "default": "./src/dereference/strategies/asyncapi-2/index.cjs"
+      }
     },
     "./dereference/strategies/arazzo-1": {
-      "import": "./src/dereference/strategies/arazzo-1/index.mjs",
-      "require": "./src/dereference/strategies/arazzo-1/index.cjs",
-      "types": "./types/dereference/strategies/arazzo-1/index.d.ts"
+      "import": {
+        "types": "./types/dereference/strategies/arazzo-1/index.d.ts",
+        "default": "./src/dereference/strategies/arazzo-1/index.mjs"
+      },
+      "require": {
+        "types": "./types/dereference/strategies/arazzo-1/index.d.cts",
+        "default": "./src/dereference/strategies/arazzo-1/index.cjs"
+      }
     },
     "./dereference/strategies/overlay-1": {
-      "import": "./src/dereference/strategies/overlay-1/index.mjs",
-      "require": "./src/dereference/strategies/overlay-1/index.cjs",
-      "types": "./types/dereference/strategies/overlay-1/index.d.ts"
+      "import": {
+        "types": "./types/dereference/strategies/overlay-1/index.d.ts",
+        "default": "./src/dereference/strategies/overlay-1/index.mjs"
+      },
+      "require": {
+        "types": "./types/dereference/strategies/overlay-1/index.d.cts",
+        "default": "./src/dereference/strategies/overlay-1/index.cjs"
+      }
     },
     "./dereference/strategies/openapi-2": {
-      "import": "./src/dereference/strategies/openapi-2/index.mjs",
-      "require": "./src/dereference/strategies/openapi-2/index.cjs",
-      "types": "./types/dereference/strategies/openapi-2/index.d.ts"
+      "import": {
+        "types": "./types/dereference/strategies/openapi-2/index.d.ts",
+        "default": "./src/dereference/strategies/openapi-2/index.mjs"
+      },
+      "require": {
+        "types": "./types/dereference/strategies/openapi-2/index.d.cts",
+        "default": "./src/dereference/strategies/openapi-2/index.cjs"
+      }
     },
     "./dereference/strategies/openapi-3-0": {
-      "import": "./src/dereference/strategies/openapi-3-0/index.mjs",
-      "require": "./src/dereference/strategies/openapi-3-0/index.cjs",
-      "types": "./types/dereference/strategies/openapi-3-0/index.d.ts"
+      "import": {
+        "types": "./types/dereference/strategies/openapi-3-0/index.d.ts",
+        "default": "./src/dereference/strategies/openapi-3-0/index.mjs"
+      },
+      "require": {
+        "types": "./types/dereference/strategies/openapi-3-0/index.d.cts",
+        "default": "./src/dereference/strategies/openapi-3-0/index.cjs"
+      }
     },
     "./dereference/strategies/openapi-3-1": {
-      "import": "./src/dereference/strategies/openapi-3-1/index.mjs",
-      "require": "./src/dereference/strategies/openapi-3-1/index.cjs",
-      "types": "./types/dereference/strategies/openapi-3-1/index.d.ts"
+      "import": {
+        "types": "./types/dereference/strategies/openapi-3-1/index.d.ts",
+        "default": "./src/dereference/strategies/openapi-3-1/index.mjs"
+      },
+      "require": {
+        "types": "./types/dereference/strategies/openapi-3-1/index.d.cts",
+        "default": "./src/dereference/strategies/openapi-3-1/index.cjs"
+      }
     },
     "./dereference/strategies/openapi-3-1/selectors/$anchor": {
-      "import": "./src/dereference/strategies/openapi-3-1/selectors/$anchor.mjs",
-      "require": "./src/dereference/strategies/openapi-3-1/selectors/$anchor.cjs",
-      "types": "./types/dereference/strategies/openapi-3-1/selectors/$anchor.d.ts"
+      "import": {
+        "types": "./types/dereference/strategies/openapi-3-1/selectors/$anchor.d.ts",
+        "default": "./src/dereference/strategies/openapi-3-1/selectors/$anchor.mjs"
+      },
+      "require": {
+        "types": "./types/dereference/strategies/openapi-3-1/selectors/$anchor.d.cts",
+        "default": "./src/dereference/strategies/openapi-3-1/selectors/$anchor.cjs"
+      }
     },
     "./dereference/strategies/openapi-3-1/selectors/uri": {
-      "import": "./src/dereference/strategies/openapi-3-1/selectors/uri.mjs",
-      "require": "./src/dereference/strategies/openapi-3-1/selectors/uri.cjs",
-      "types": "./types/dereference/strategies/openapi-3-1/selectors/uri.d.ts"
+      "import": {
+        "types": "./types/dereference/strategies/openapi-3-1/selectors/uri.d.ts",
+        "default": "./src/dereference/strategies/openapi-3-1/selectors/uri.mjs"
+      },
+      "require": {
+        "types": "./types/dereference/strategies/openapi-3-1/selectors/uri.d.cts",
+        "default": "./src/dereference/strategies/openapi-3-1/selectors/uri.cjs"
+      }
     },
     "./bundle/strategies/openapi-2": {
-      "import": "./src/bundle/strategies/openapi-2/index.mjs",
-      "require": "./src/bundle/strategies/openapi-2/index.cjs",
-      "types": "./types/bundle/strategies/openapi-2/index.d.ts"
+      "import": {
+        "types": "./types/bundle/strategies/openapi-2/index.d.ts",
+        "default": "./src/bundle/strategies/openapi-2/index.mjs"
+      },
+      "require": {
+        "types": "./types/bundle/strategies/openapi-2/index.d.cts",
+        "default": "./src/bundle/strategies/openapi-2/index.cjs"
+      }
     },
     "./bundle/strategies/openapi-3-0": {
-      "import": "./src/bundle/strategies/openapi-3-0/index.mjs",
-      "require": "./src/bundle/strategies/openapi-3-0/index.cjs",
-      "types": "./types/bundle/strategies/openapi-3-0/index.d.ts"
+      "import": {
+        "types": "./types/bundle/strategies/openapi-3-0/index.d.ts",
+        "default": "./src/bundle/strategies/openapi-3-0/index.mjs"
+      },
+      "require": {
+        "types": "./types/bundle/strategies/openapi-3-0/index.d.cts",
+        "default": "./src/bundle/strategies/openapi-3-0/index.cjs"
+      }
     },
     "./bundle/strategies/openapi-3-1": {
-      "import": "./src/bundle/strategies/openapi-3-1/index.mjs",
-      "require": "./src/bundle/strategies/openapi-3-1/index.cjs",
-      "types": "./types/bundle/strategies/openapi-3-1/index.d.ts"
+      "import": {
+        "types": "./types/bundle/strategies/openapi-3-1/index.d.ts",
+        "default": "./src/bundle/strategies/openapi-3-1/index.mjs"
+      },
+      "require": {
+        "types": "./types/bundle/strategies/openapi-3-1/index.d.cts",
+        "default": "./src/bundle/strategies/openapi-3-1/index.cjs"
+      }
     },
     "./bundle/strategies/asyncapi-2": {
-      "import": "./src/bundle/strategies/asyncapi-2/index.mjs",
-      "require": "./src/bundle/strategies/asyncapi-2/index.cjs",
-      "types": "./types/bundle/strategies/asyncapi-2/index.d.ts"
+      "import": {
+        "types": "./types/bundle/strategies/asyncapi-2/index.d.ts",
+        "default": "./src/bundle/strategies/asyncapi-2/index.mjs"
+      },
+      "require": {
+        "types": "./types/bundle/strategies/asyncapi-2/index.d.cts",
+        "default": "./src/bundle/strategies/asyncapi-2/index.cjs"
+      }
     },
     "./bundle/strategies/arazzo-1": {
-      "import": "./src/bundle/strategies/arazzo-1/index.mjs",
-      "require": "./src/bundle/strategies/arazzo-1/index.cjs",
-      "types": "./types/bundle/strategies/arazzo-1/index.d.ts"
+      "import": {
+        "types": "./types/bundle/strategies/arazzo-1/index.d.ts",
+        "default": "./src/bundle/strategies/arazzo-1/index.mjs"
+      },
+      "require": {
+        "types": "./types/bundle/strategies/arazzo-1/index.d.cts",
+        "default": "./src/bundle/strategies/arazzo-1/index.cjs"
+      }
     }
   },
   "scripts": {
@@ -288,7 +513,8 @@
     "perf": "cross-env BABEL_ENV=es babel ./test/perf/index.ts --out-file ./test/perf/index.mjs --root-mode 'upward' && cross-env NODE_ENV=test node ./test/perf/index.mjs",
     "perf:openapi-3-1-dereference": "cross-env BABEL_ENV=es babel ./test/perf/openapi-3-1-dereference.ts --out-file ./test/perf/openapi-3-1-dereference.mjs --root-mode 'upward' && cross-env NODE_ENV=test node ./test/perf/openapi-3-1-dereference.mjs",
     "typescript:check-types": "tsc --noEmit",
-    "typescript:declaration": "tsc -p tsconfig.declaration.json && api-extractor run -l -c ./config/api-extractor/api-extractor.json",
+    "typescript:declaration": "tsc -p tsconfig.declaration.json && api-extractor run -l -c ./config/api-extractor/api-extractor.json && node ../../scripts/declarations-cts.mjs types",
+    "typescript:check-published-types": "attw --pack . --profile node16",
     "prepack": "copyfiles -u 3 ../../LICENSES/* LICENSES && copyfiles -u 2 ../../NOTICE .",
     "postpack": "rimraf NOTICE LICENSES"
   },

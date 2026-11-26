@@ -32,9 +32,14 @@
   "unpkg": "./dist/apidom-ns-asyncapi-2.browser.min.js",
   "main": "./src/index.cjs",
   "exports": {
-    "types": "./types/apidom-ns-asyncapi-2.d.ts",
-    "import": "./src/index.mjs",
-    "require": "./src/index.cjs"
+    "import": {
+      "types": "./types/apidom-ns-asyncapi-2.d.ts",
+      "default": "./src/index.mjs"
+    },
+    "require": {
+      "types": "./types/apidom-ns-asyncapi-2.d.cts",
+      "default": "./src/index.cjs"
+    }
   },
   "types": "./types/apidom-ns-asyncapi-2.d.ts",
   "scripts": {
@@ -50,7 +55,8 @@
     "perf": "cross-env BABEL_ENV=es babel ./test/perf/index.ts --out-file ./test/perf/index.mjs --root-mode 'upward' && cross-env NODE_ENV=test node ./test/perf/index.mjs",
     "perf:visitor-shortcut": "cross-env BABEL_ENV=es babel ./test/perf/visitor-shortcut.ts --out-file ./test/perf/visitor-shortcut.mjs --root-mode 'upward' && cross-env NODE_ENV=test node ./test/perf/visitor-shortcut.mjs",
     "typescript:check-types": "tsc --noEmit",
-    "typescript:declaration": "tsc -p tsconfig.declaration.json && api-extractor run -l -c ./config/api-extractor/api-extractor.json",
+    "typescript:declaration": "tsc -p tsconfig.declaration.json && api-extractor run -l -c ./config/api-extractor/api-extractor.json && node ../../scripts/declarations-cts.mjs types/apidom-ns-asyncapi-2.d.ts",
+    "typescript:check-published-types": "attw --pack . --profile node16",
     "prepack": "copyfiles -u 3 ../../LICENSES/* LICENSES && copyfiles -u 2 ../../NOTICE .",
     "postpack": "rimraf NOTICE LICENSES"
   },
@@ -75,6 +81,7 @@
     "src/**/*.cjs",
     "dist/",
     "types/apidom-ns-asyncapi-2.d.ts",
+    "types/apidom-ns-asyncapi-2.d.cts",
     "LICENSES",
     "NOTICE",
     "README.md",

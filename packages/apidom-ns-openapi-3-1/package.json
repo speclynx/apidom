@@ -30,9 +30,14 @@
   "unpkg": "./dist/apidom-ns-openapi-3-1.browser.min.js",
   "main": "./src/index.cjs",
   "exports": {
-    "types": "./types/apidom-ns-openapi-3-1.d.ts",
-    "import": "./src/index.mjs",
-    "require": "./src/index.cjs"
+    "import": {
+      "types": "./types/apidom-ns-openapi-3-1.d.ts",
+      "default": "./src/index.mjs"
+    },
+    "require": {
+      "types": "./types/apidom-ns-openapi-3-1.d.cts",
+      "default": "./src/index.cjs"
+    }
   },
   "types": "./types/apidom-ns-openapi-3-1.d.ts",
   "scripts": {
@@ -49,7 +54,8 @@
     "perf:visitor-shortcut": "cross-env BABEL_ENV=es babel ./test/perf/visitor-shortcut.ts --out-file ./test/perf/visitor-shortcut.mjs --root-mode 'upward' && cross-env NODE_ENV=test node ./test/perf/visitor-shortcut.mjs",
     "perf:refract": "cross-env BABEL_ENV=es babel ./test/perf/refract.ts --out-file ./test/perf/refract.mjs --root-mode 'upward' && cross-env NODE_ENV=test node ./test/perf/refract.mjs",
     "typescript:check-types": "tsc --noEmit",
-    "typescript:declaration": "tsc -p tsconfig.declaration.json && api-extractor run -l -c ./config/api-extractor/api-extractor.json",
+    "typescript:declaration": "tsc -p tsconfig.declaration.json && api-extractor run -l -c ./config/api-extractor/api-extractor.json && node ../../scripts/declarations-cts.mjs types/apidom-ns-openapi-3-1.d.ts",
+    "typescript:check-published-types": "attw --pack . --profile node16",
     "prepack": "copyfiles -u 3 ../../LICENSES/* LICENSES && copyfiles -u 2 ../../NOTICE .",
     "postpack": "rimraf NOTICE LICENSES"
   },
@@ -76,6 +82,7 @@
     "src/**/*.cjs",
     "dist/",
     "types/apidom-ns-openapi-3-1.d.ts",
+    "types/apidom-ns-openapi-3-1.d.cts",
     "LICENSES",
     "NOTICE",
     "README.md",

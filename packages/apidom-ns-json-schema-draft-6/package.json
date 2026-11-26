@@ -30,9 +30,14 @@
   "unpkg": "./dist/apidom-ns-json-schema-draft-6.browser.min.js",
   "main": "./src/index.cjs",
   "exports": {
-    "types": "./types/apidom-ns-json-schema-draft-6.d.ts",
-    "import": "./src/index.mjs",
-    "require": "./src/index.cjs"
+    "import": {
+      "types": "./types/apidom-ns-json-schema-draft-6.d.ts",
+      "default": "./src/index.mjs"
+    },
+    "require": {
+      "types": "./types/apidom-ns-json-schema-draft-6.d.cts",
+      "default": "./src/index.cjs"
+    }
   },
   "types": "./types/apidom-ns-json-schema-draft-6.d.ts",
   "scripts": {
@@ -47,7 +52,8 @@
     "test:update-snapshots": "cross-env UPDATE_SNAPSHOT=1 mocha",
     "typescript:check-types": "tsc --noEmit",
     "typescript:declaration": "tsc -p tsconfig.declaration.json && api-extractor run -l -c ./config/api-extractor/api-extractor.json",
-    "posttypescript:declaration": "node scripts/fix-dts-ts-ignore.mjs",
+    "typescript:check-published-types": "attw --pack . --profile node16",
+    "posttypescript:declaration": "node scripts/fix-dts-ts-ignore.mjs && node ../../scripts/declarations-cts.mjs types/apidom-ns-json-schema-draft-6.d.ts",
     "prepack": "copyfiles -u 3 ../../LICENSES/* LICENSES && copyfiles -u 2 ../../NOTICE .",
     "postpack": "rimraf NOTICE LICENSES"
   },
@@ -73,6 +79,7 @@
     "src/**/*.cjs",
     "dist/",
     "types/apidom-ns-json-schema-draft-6.d.ts",
+    "types/apidom-ns-json-schema-draft-6.d.cts",
     "LICENSES",
     "NOTICE",
     "README.md",
