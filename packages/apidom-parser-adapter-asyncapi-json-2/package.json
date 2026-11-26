@@ -26,7 +26,7 @@
   },
   "type": "module",
   "sideEffects": false,
-  "unpkg": "./dist/apidom-parser-apdater-asyncapi-json-2.browser.min.js",
+  "unpkg": "./dist/apidom-parser-adapter-asyncapi-json-2.browser.min.js",
   "main": "./src/adapter.cjs",
   "exports": {
     "import": {

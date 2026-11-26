@@ -25,7 +25,7 @@
   },
   "type": "module",
   "sideEffects": false,
-  "unpkg": "./dist/apidom-parser-apdater-json-schema-json-2020-12.browser.min.js",
+  "unpkg": "./dist/apidom-parser-adapter-json-schema-json-2020-12.browser.min.js",
   "main": "./src/adapter.cjs",
   "exports": {
     "import": {
