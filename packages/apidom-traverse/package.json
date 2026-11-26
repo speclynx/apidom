@@ -35,9 +35,14 @@
   "unpkg": "./dist/apidom-traverse.browser.min.js",
   "main": "./src/index.cjs",
   "exports": {
-    "types": "./types/apidom-traverse.d.ts",
-    "import": "./src/index.mjs",
-    "require": "./src/index.cjs"
+    "import": {
+      "types": "./types/apidom-traverse.d.ts",
+      "default": "./src/index.mjs"
+    },
+    "require": {
+      "types": "./types/apidom-traverse.d.cts",
+      "default": "./src/index.cjs"
+    }
   },
   "types": "./types/apidom-traverse.d.ts",
   "scripts": {
@@ -49,7 +54,8 @@
     "lint:fix": "eslint ./ --fix",
     "clean": "rimraf --glob 'src/**/*.mjs' 'src/**/*.cjs' 'test/**/*.mjs' ./dist ./types",
     "typescript:check-types": "tsc --noEmit",
-    "typescript:declaration": "tsc -p tsconfig.declaration.json && api-extractor run -l -c ./config/api-extractor/api-extractor.json",
+    "typescript:declaration": "tsc -p tsconfig.declaration.json && api-extractor run -l -c ./config/api-extractor/api-extractor.json && node ../../scripts/declarations-cts.mjs types/apidom-traverse.d.ts",
+    "typescript:check-published-types": "attw --pack . --profile node16",
     "test": "npm run build:es && cross-env BABEL_ENV=es babel test --out-dir test --extensions '.ts' --out-file-extension '.mjs' --root-mode 'upward' && cross-env NODE_ENV=test mocha",
     "prepack": "copyfiles -u 3 ../../LICENSES/* LICENSES && copyfiles -u 2 ../../NOTICE .",
     "postpack": "rimraf NOTICE LICENSES"
@@ -73,6 +79,7 @@
     "src/**/*.cjs",
     "dist/",
     "types/apidom-traverse.d.ts",
+    "types/apidom-traverse.d.cts",
     "LICENSES",
     "NOTICE",
     "README.md",
