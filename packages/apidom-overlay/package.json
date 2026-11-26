@@ -60,8 +60,7 @@
     "@speclynx/apidom-json-path": "7.1.0",
     "@speclynx/apidom-ns-overlay-1": "7.1.0",
     "@speclynx/apidom-reference": "7.1.0",
-    "ramda": "~0.32.0",
-    "type-fest": "^5.10.0"
+    "ramda": "~0.32.0"
   },
   "files": [
     "src/**/*.mjs",
